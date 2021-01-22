@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "rbbit.typescript-hero",
+    "angular.ng-template",
+    "johnpapa.angular2",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ]
+}

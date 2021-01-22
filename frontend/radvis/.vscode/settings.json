@@ -1,0 +1,21 @@
+{
+  "editor.formatOnSave": true,
+  "typescriptHero.imports.organizeOnSave": true,
+  "workbench.editor.labelFormat": "default",
+  "editor.renderControlCharacters": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "workbench.colorCustomizations": {},
+  "editor.linkedEditing": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    // For ESLint
+    "source.fixAll.eslint": true,
+    // For TSLint
+    "source.fixAll.tslint": true,
+    // For Stylelint
+    "source.fixAll.stylelint": true
+  }
+}
