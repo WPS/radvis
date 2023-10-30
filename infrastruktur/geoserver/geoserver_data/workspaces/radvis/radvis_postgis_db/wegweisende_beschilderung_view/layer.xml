@@ -1,0 +1,17 @@
+<layer>
+  <name>wegweisende_beschilderung_view</name>
+  <id>LayerInfoImpl--c6b1f9f:185580842c4:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-37b18cc6:14d5d036d48:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--c6b1f9f:185580842c4:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-12-28 09:20:14.582 UTC</dateCreated>
+  <dateModified>2022-12-29 13:58:02.210 UTC</dateModified>
+</layer>

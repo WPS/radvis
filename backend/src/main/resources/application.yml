@@ -1,0 +1,443 @@
+# Bis auf die Einstellungen in reverseproxy & security (siehe die jeweiligen Kommentare) sind dies
+# durch Spring bereitgestellt Konfigurationsmöglichkeiten,
+# siehe: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
+spring:
+  application:
+    name: RadVIS
+  banner:
+    charset: UTF-8
+    location: classpath:banner.txt
+  datasource:
+    url: dburl # Beispielwert
+    username: username # Beispielwert
+    password: password # Beispielwert
+  liquibase:
+    change-log: classpath:liquibase.xml
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: true
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
+        format_sql: true
+        jdbc:
+          batch_size: 30
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+          implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  reverseproxy:
+    # Hostname des Geoservers
+    geoserverUrl: geoserver:8080
+    # Benutzername für externen Geoserver-API-Nutzer mit BasicAuth
+    geoserverApiUserName: user
+    # Passwort für externen Geoserver-API-Nutzer mit BasicAuth
+    geoserverApiUserPassword: pass
+    # Der aus dem Backend-Container ansprechbare Hostname des Datei-Layer-Geoservers
+    geoserverDateiLayerUrl: geoserver-datei-layer:8080
+    # Die Domain auf der das Beschilderungskataster liegt
+    beschilderungsKatasterDomain: https://filedn.com
+    # Der Verzeichnispfad zum Beschilderungskataster
+    beschilderungsKatasterPath: /lSXztajxYX5m843NUKYXTVH/RadVIS_VPINFO/Kataster
+    # Grafana-Url
+    grafanaUrl: localhost:3000
+  security:
+    # Über die Einstellung kann die Authentifizierung mittels SAML eingestellt (false) oder ausgestellt (true) werden
+    disableSAML: false
+    # Die IP des an RadVIS angeschlossenen Radroutenplaners.
+    # Wird für den Zugriff auf RadVIS durch den Radroutenplaner benötigt
+    radRoutenplanerIP: "0:0:0:0:0:0:0:1" # Beispielwert
+    # Die IP des Monitoring-Systems Prometheus.
+    # Wird für den Zugriff auf RadVIS durch das Monitoring-System benötigt
+    prometheusWhitelistIP: "0:0:0:0:0:0:0:1" # Beispielwert
+    # Schlüssel für die Ermittlung der ServiceBwId aus
+    serviceBwIdKey: "urn:oid:0:0:0" # Beispielwert
+    # Benutzername für externen API-Nutzer mit BasicAuth
+    externerApiUserName: user # Beispielwert
+    # Passwort für externen API-Nutzer mit BasicAuth
+    externerApiUserPassword: # Beispielwert
+    # RadVIS-Endpunkt an den der SAML-Service-Provider nach erfolgter Anmeldung weiterleitet
+    ACS: "/saml/{registrationId}"
+    # SAML Konfiguration über Spring
+    # siehe https://www.baeldung.com/spring-security-saml
+    # Beispiel:
+  #    saml2:
+  #      relyingparty:
+  #        registration:
+  #          SSO:
+  #            entity-id: "https://localhost"
+  #            acs:
+  #              location: "https://localhost/saml/{registrationId}"
+  #            assertingparty:
+  #              metadataUri: file:/meta.xml
+  #            signing:
+  #              credentials:
+  #                - private-key-location: file:/cert.pkcs8
+  #                  certificate-location: file:/cert.cer
+  #            decryption:
+  #              credentials:
+  #                - private-key-location: file:/cert.pkcs8
+  #                  certificate-location: file:/cert.cer
+
+  web:
+    resources:
+      static-locations:
+        - ${RADVIS_MANUAL_DIRECTORY}
+        - classpath:/META-INF/resources/
+        - classpath:/resources/
+        - classpath:/static/
+        - classpath:/public/
+  servlet:
+    multipart:
+      # max single file size
+      max-file-size: 300MB
+      # max request size
+      max-request-size: 300MB
+
+radVis:
+  jobs:
+    # Konfiguriert, ob der Job-Modus (der es erlaubt, Datenverarbeitungsprozesse (Jobs) manuell anzustoßen)
+    # initial an (true) oder aus (false) geschaltet ist
+    jobModus: false
+    # Datei- bzw. Verzeichnispfade zu externen Beistellungen (relativ zum in common.externeResourcenBasisPfad konfigurierten Basispfad)
+    # Anfang
+    radwegeLglTuttlingenShpFilePath: shp/Radwege_Landkreis_Tuttlingen.shp
+    radNetzShapeFilesPath: shp/radnetz
+    radNetzStreckenShapeFilesPath: shp/radnetz/radnetz_updated_strecken_daten
+    gisGoeppingenShapeFilesPath1: shp/GIS-Daten Göppingen
+    gisGoeppingenShapeFilesPath2: shp/GIS Daten Göppingen 2
+    radWegeDBShapeFilePath: shp/radwegedb/RadwegeDB_2021-04-07.shp
+    rvkEsslingenShapeFilePath: shp/Bestandsnetz_RVK_ES/Bestandsnetz_RVK_ES.shp
+    bietigheimBissingenShapeFilePath: shp/bietigheim-bissingen/Alltagsradverkehrsnetz_Bestand.shp
+    ttSibFilesPath: TTSIBXMLDaten
+    verwaltungsgrenzenShapeFilesPath: shp/Verwaltungsgrenzen_NOrA_2021_ATKIS
+    dlmBasisStrassenXmlFilePath: DLM-Basis_XML-Daten/strasse.xml
+    dlmBasisWegeXmlFilePath: DLM-Basis_XML-Daten/wege.xml
+    radnetzMassnahmenImportPath: shp/radnetz_massnahmen/01_Massn_Korrigiert_220823
+    massnahmenBlaetterImportPath: massnahmenblaetter
+    umsetzungsstandabfragenCsvImportFilePath: radnetz_massnahmen_umsetzzungsstandsabfragen/out.csv
+    tfisRadwegePath: shp/TFIS-Radwege/TFIS-Radwege-20221219.shp
+    dRoutenPath: shp/D-Routen/D-Routen.shp
+    # Ende Datei- bzw. Verzeichnispfade zu externen Beistellungen
+    # WFS-Url für den Import der Leihstationen aus MobiData-BW
+    leihstationImportUrl: "https://ip-api.mobidata-bw.de/v1/NVBW/geoserver/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=2.0.0&TYPENAMES=mobidata-bw:bikesharingStations&SRSNAME=urn:ogc:def:crs:EPSG::25832&PROPERTYNAME=the_geom,ID,COUNT"
+    # WFS-Url für den Import der Fahrradzählstellen aus MobiData-BW
+    fahrradzaehlstellenMobiDataImportBaseUrl: "https://mobidata-bw.de/daten/eco-counter/"
+    # Anfangsdatum für den Import der Fahrradzählstellen aus MobiData-BW. Format: YYYY.MM
+    fahrradzaehlstellenMobiDataImportStartDate: 202101
+    # Liste der Urls für den Import der Bike&Ride-Abstellanlagen
+    abstellanlageBRImportUrlList:
+      - https://www.nvbw.de/fileadmin/user_upload/service/open_data/haltestellen/SPNV/BFRK_Fahrradanlage.csv
+      - https://www.nvbw.de/fileadmin/user_upload/service/open_data/haltestellen/OEPNV/BFRK_Fahrradanlage.csv
+
+  schedule:
+    # Zeitpunkt/Häufigkeit der nächtlichen Datenverarbeitungsprozesse als Cron-Expression
+    naechtlich: 0 0 1 * * ?
+    # Zeitpunkt der Neugenerierung des Caches für die Ansicht des RadNETZ auf hoher Zoomstufe als Cron-Expression
+    radNetzViewCacheJob: 0 0 */4 * * *
+  osm:
+    # Setzt den Dateinamen zu den OSM-Daten in dem Container. Der Pfad kann über die genannte Umgebungsvariable gesetzt werden. Falls dies nicht gesetzt ist, wird der Standardwert genutzt.
+    osmBasisDaten: /resourcecache/baden-wuerttemberg-latest.osm.pbf
+    # Link zu der aktuellsten Pbf-Datei mit den Basis OSM-Daten
+    osmBasisDatenDownloadLink: https://download.geofabrik.de/europe/germany/baden-wuerttemberg-latest.osm.pbf
+    # Setzt den Dateinamen für die fachlich angereicherte pbf
+    osmAngereichertDaten: /resourcecache/baden-wuerttemberg-latest_angereichert.osm.pbf
+    # Setzt die minimale Überdeckung, die ein OsmWay beim MAtching des Dlm erreichen muss, um als RadNETZ ausgezeichnet zu werden
+    minOsmWayCoverageForRadNETZ: 0.8
+  graphhopper:
+    osm:
+      # Verzeichnispfad, in den der GraphHopper die aus dem OSM-Quelldaten importierten Daten speichert
+      cacheVerzeichnis: target/osm/routing-graph-cache
+      # Verzeichnispfad, in den der GraphHopper die OsmNodeId-Matchingdaten speichert
+      mappingCacheVerzeichnis: target/osm/mapping-graph
+      # Setzt den ungefähren maximalen Abstand, bei dem ein Matching-Ergebnis noch gefunden wird.
+      # Um einen Abstand von n Metern anzustreben, muss als Wert 'n/50' (bei 20 m -> 0.4) angegeben werden (siehe https://bis2wps.atlassian.net/wiki/spaces/WI/pages/99352577/Graphhopper#Anpassung-des-Matchings)
+      measurementErrorSigma: 0.6
+    dlm:
+      # Dateiname für die aus DLM-Kanten generierte Pbf
+      dlmBasisDaten: target/dlm/dlm.osm.pbf
+      # Verzeichnispfad, in den der GraphHopper die aus dem DLM-Quelldaten importierten Daten speichert
+      cacheVerzeichnis: target/dlm/routing-graph-cache
+      # Setzt den ungefähren maximalen Abstand, bei dem ein Matching-Ergebnis noch gefunden wird.
+      # Um einen Abstand von n Metern anzustreben, muss als Wert 'n/50' (bei 20 m -> 0.4) angegeben werden (siehe https://bis2wps.atlassian.net/wiki/spaces/WI/pages/99352577/Graphhopper#Anpassung-des-Matchings)
+      measurementErrorSigma: 0.6
+      # Verzeichnispfad, in den der GraphHopper die Matchingdaten für KantenId und die Eigenschaften Belagart und Radverkehrsfuehrung speichert
+      mappingCacheVerzeichnis: target/dlm/mapping-graph
+      # Verzeichnispfad, in den der GraphHopper den Cache für die Höhendatenspeichert
+      elevationCacheVerzeichnis: target/routing-elevation-cache
+      # Verzeichnispfad, aus dem der GraphHopper die LGL-Höhendaten einliest (siehe togglz.features.USE_LGL_HOEHENDATEN)
+      tiffTilesVerzeichnis: /lgl_hoehendaten/tiffTiles
+  ortssuche:
+    # Basis-Url für den an die Ortssuche angeschlossenen Dienst
+    baseUrl: http://sg.geodatenzentrum.de
+    # Token für den Abruf des Dienstes
+    token: invalid # Beispielwert
+    # Endpunkt und Format für den Abruf des Dienstes als Dateiname: endpunkt.format
+    file: geosearch.json
+    # Maximale Anzahl abgerufener Ergebnisse pro Suche
+    anzahlSuchergebnisse: 10
+    # Koordinatenbereich für die Suche. Koordinatenreferenzsystem: WGS84 (EPSG:4326)
+    bBox: 7.44867304967693,47.5302143694536,10.5291839302192,49.7832029946012
+  karte:
+    hintergrundKarten:
+      # Url-Schablonen für zusätzliche Hintergrundkarten im XYZ-Format. Für den x-, y- und z-Wert werden die Platzhalter {x},{y} und {z} verwendet.
+      basiskarte: https://basiskarte/{x}/{y}/{z} # Beispielwert
+      ortho10: https://ortho10/{x}/{y}/{z} # Beispielwert
+      ortho20: https://ortho20/{x}/{y}/{z} # Beispielwert
+  signaturen:
+    # Verzeichnispfad mit Signaturen für Radwege (Dateien im SLD-Format)
+    signaturStylePath: /signaturen/
+    # Verzeichnispfad mit Signaturen für Maßnahmen (Dateien im SLD-Format)
+    massnahmenSignaturenStylePath: /signaturen/Massnahmen/
+  # Daten des beim ersten Systemstart angelegten Admin-Nutzers
+  admin:
+    name: name # Beispielwert
+    vorname: vorname # Beispielwert
+    serviceBwId: serviceBwIdFuerAdmin # Beispielwert
+    mailadresse: nicht@@vorhanden # Beispielwert
+  # Daten des technischen Benutzers, der als Urheber von Änderungen durch automatisierte Prozesse gespeichert wird
+  technischerbenutzer:
+    name: name # Beispielwert
+    vorname: vorname # Beispielwert
+    serviceBwId: serviceBwIdFuerTechnischerBenutzer # Beispielwert
+    mailadresse: nicht@@vorhanden # Beispielwert
+  mail:
+    # Host des E-Mailservers
+    host: host.host # Beispielwert
+    # Port des E-Mailservers
+    port: 25
+    # E-Mail-Adresse, die als Absender genutzt wird
+    sender: nicht@@vorhanden # Beispielwert
+    # E-Mail-Adresse des RadVIS-Supports
+    radvisSupportMail: nicht@@vorhanden # Beispielwert
+    # Protokol des E-Mailservers
+    protocol: smtp
+    # Aktiviert die Authentifizierung für die Verbindung mit dem Mailserver
+    authenticationEnabled: false
+    # Aktiviert die Initialisierung eines TLS-Handshakes für die Verbindung mit dem Mailserver
+    startTlsEnabled: true
+  common:
+    # Die Url, unter der die Anwendung aus dem Internet angesprochen wird
+    basisUrl: http://localhost:4200/ # Beispielwert
+    # Basis-Pfad zu externen Ressourcen wie Shapefiles, SLD-Dateien, PBF-Dateien, Katastern u.a.
+    # siehe dazu die konfigurierbaren Pfade für einzelne Jobs unter radVis.jobs
+    externeResourcenBasisPfad: ${EXTERNE_RESOURCE} # Hier beispielhaft aus einer Umgebungsvariable gesetzt
+    # Anzahl an Tagen, nach der Importprokolle gelöscht werden
+    anzahl-tage-importprotokolle-vorhalten: 360
+    # Version der Anwendung
+    version: ${VERSION}
+    # Koordinatenbereich der Anwendung. Koordinatenreferenzsystem: UTM32_N (EPSG:25832)
+    extent:
+      minX: 0.0
+      maxX: 1000000.0
+      minY: 0.0
+      maxY: 10000000.0
+    # IP und Port des Proxy-Servers, über den aus dem RadVis-Backend gestartete Http-Anfragen laufen sollen
+    proxy: # z.B.: 127.0.0.1:8080
+  dlm:
+    # Basis-Url für den WFS-Dienst zum Abruf des Grundnetzes (DLM)
+    basisUrl: http://example.dlm.url # Beispielwert
+    username: username # Beispielwert
+    password: password # Beispielwert
+    # Koordinatenbereich für den Abruf des Grundnetzes (DLM). Koordinatenreferenzsystem: UTM32_N (EPSG:25832)
+    extent:
+      minX: 366612.87392123876
+      maxX: 629524.2093880848
+      minY: 5248138.677671564
+      maxY: 5549206.116131693
+    # Anzahl der Partitionen in die der Abruf des Grundnetzes eingeteilt wird
+    partitionenX: 30
+    # Anzahl der Partitionen für das Schreiben der DLM-Pbf
+    pbfpartitionen: 50
+  toubiz:
+    # Basis-Url für den Dienst von mein.toubiz
+    baseUrl: https://mein.toubiz.de/api/v1/article
+    # Filterkategorie für den Abruf der Fahrradrouten von mein.toubiz
+    filterCategory: filterCategory # Beispielwert
+    # Token für den Abruf der Fahrradrouten von mein.toubiz
+    token: invalid # Beispielwert
+  wegweisendeBeschilderung:
+    # Url der Geojson-Datei für den Import der wegweisenden Beschilderung
+    importGeoJsonUrl: http://localhost/data.geojson # Beispielwert
+  postgis:
+    # Das Limit für die maximale Anzahl an Argumenten für den IN-Operator der Datenbank.
+    # Dadurch kennt die JAVA-Anwendung das Limit.
+    # Es wird hierdurch nicht das Limit in der Datenbank selbst konfiguriert
+    argumentLimit: 32766
+  konsistenzregeln:
+    # Maximale Entfernung einer Beschilderung vom Radweg bei der die Konsistenzregel "Beschilderung abseits von RadNETZ"
+    # noch eingehalten wird
+    beschilderungMaxEntfernungVonRoute: 15 # in Meter
+  umsetzungsstandabsfrage:
+    # Frist für die Beantwortung der Umsetzungsstandabfrage
+    frist: 8 # in Wochen
+  organisation:
+    # Anzahl an Metern, um die der Bereich einer Organisation bei der Zuständigkeitsprüfung erweitert wird
+    zustaendigkeitBufferInMeter: 500 # in Meter
+  weiterekartenebenen:
+    # Host (mit Protokol) über den der Datei-Layer-Geoserver vom Backend angesprochen werden kann
+    geoserverDateiLayerHost: http://geoserver-datei-layer:8080
+    # Einlogdaten für das Ansprechen der API des Datei-Layer-Geoservers
+    geoserverDateiLayerUsername: foo # Beispielwert
+    geoserverDateiLayerPassword: bar # Beispielwert
+    # Workspace unter dem die Datei-Layer-Daten im Datei-Layer-Geoserver verfügbar sind
+    geoserverDateiLayerWorkspace: datei-layer
+    # maximale Größe der SLD-Dateien, die als Style für einen Datei-Layer hochgeladen werden können
+    maxSldFileSize: 1MB
+
+# Durch Spring bereitgestellt Konfigurationsmöglichkeiten für die Server-Umgebung,
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.server
+server:
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 2048
+  servlet:
+    session:
+      timeout: 1800
+  error:
+    include-message: always
+
+togglz:
+  # Aktiviert die Nutzung von optional zuschaltbaren Funktionen
+  enabled: true
+  features:
+    FAHRRADROUTE:
+      # Aktiviert die Anzeige von Fahrradrouten
+      enabled: false
+    FAHRRADROUTE_JOBS:
+      # Aktiviert automatisierte Datenverarbeitungsprozesse für Fahrradrouten
+      enabled: false
+    FAHRRADROUTE_IMPORTPROTOKOLLE:
+      # Aktiviert die Anzeige von Importprotokollen für Fahrradrouten
+      enabled: false
+    NETZBEZUGLINESTRING_RETRY:
+      # Aktiviert die Erstellung eines Netzbezugs bei Fahrradrouten ohne Netzbezug im Rahmen
+      # des nächtlichen Updates der ProfiInformationen für Fahrradrouten
+      enabled: false
+    FAHRRADROUTE_FEHLER_INFOS:
+      # Aktiviert die Anzeige von Abbildungsfehlern für einzelne Fahrradrouten
+      enabled: false
+    RADNETZ_STRECKEN:
+      # Aktiviert die Anzeige des RadNETZ auf hoher Zoomstufe mittels Caching
+      enabled: true
+    FEHLERPROTOKOLL:
+      # Aktiviert die Anzeige von Fehlerprotokollen
+      enabled: false
+    USE_LGL_HOEHENDATEN:
+      # Aktiviert die Verwendung von LGL-Höhendaten
+      enabled: false
+    DLM_REIMPORT_FIX:
+      # Aktiviert angepasstes Verhalten beim ReImport des Grundnetzes (DLM):
+      # höhere Toleranz bei Verschiebungen und Prüfung der am WFS abgerufenen Features auf Überschneidung
+      # mit dem angeforderten Bereich
+      enabled: false
+    ANPASSUNGEN:
+      # Aktiviert die Anzeige von Anpassungswünschen
+      enabled: false
+    LOESCHEN_VON_ANPASSUNGSWUENSCHEN:
+      # Aktiviert das Löschen von Anpassungswünschen
+      enabled: false
+    UMGESETZT_STATUS_AN_ANPASSUNGSWUENSCHEN_SCHREIBEN:
+      # Aktiviert das automatische Anpassen des Status eines Anpassungswunsches,
+      # der aus einer Konsistenzregelverletzung resultiert, auf 'umgesetzt'
+      enabled: false
+    FURTEN_KREUZUNGEN:
+      # Aktiviert die Anzeige von Furten und Kreuzungen
+      enabled: false
+    BARRIEREN:
+      # Aktiviert die Anzeige von Barrieren
+      enabled: false
+    KONSISTENZREGELN:
+      # Aktiviert die Anzeige und Prüfung von Konsistenzregeln
+      enabled: false
+    RUN_DLM_PBF_ON_STARTUP:
+      # Aktiviert die Erstellung der DLM-Pbf beim Hochfahren der Anwendung
+      enabled: true
+    WEITERE_KARTENEBENEN:
+      # Aktiviert die Anzeige von weiteren Kartenebenen
+      enabled: false
+    ORGANISATIONEN_ERSTELLEN_UND_BEARBEITEN:
+      # Aktiviert das Erstellen und bearbeiten von Organisationen
+      enabled: false
+    DLM_REIMPORT_NAECHTLICH_AUSFUEHREN:
+      # Aktiviert den nächtlichen Abgleich des Grundnetzes mit den aktuellen DLM-Daten
+      enabled: true
+    SERVICESTATIONEN:
+      # Aktiviert die Anzeige von Servicestationen
+      enabled: false
+    LEIHSTATIONEN:
+      # Aktiviert die Anzeige von Leihstationen
+      enabled: false
+    ABSTELLANLAGEN:
+      # Aktiviert die Anzeige von Abstellanlagen
+      enabled: false
+    WEGWEISENDE_BESCHILDERUNG:
+      # Aktiviert die Anzeige von wegweisender Beschilderung
+      enabled: false
+    VERNETZUNG_KORREKTUR:
+      # Aktiviert die Neuvernetzung von in RadVIS angelegten Kanten nach dem nächtlichen Abgleich mit dem DLM
+      enabled: false
+    LEIHSTATIONEN_CSV_IMPORT:
+      # Aktiviert den CSV-Import von Leihstationen
+      enabled: false
+    SERVICESTATIONEN_CSV_IMPORT:
+      # Aktiviert den CSV-Import von Servicestationen
+      enabled: false
+    ABSTELLANLAGEN_CSV_IMPORT:
+      # Aktiviert den CSV-Import von Abstellanlagen
+      enabled: false
+    VORDEFINIERTE_EXPORTE:
+      # Aktiviert die Anzeige vordefinierter Exporte
+      enabled: false
+    NETZ_AUF_OSM_MATCHING_NAECHTLICH_AUSFUEHREN:
+      # Aktiviert das naechtliche Matching des RadVIS-Netzes auf das OSM-Netz
+      enabled: false
+    KANTE_LOESCHEN_ENDPUNKT:
+      # Aktiviert das Löschen von in RadVIS angelegten Kanten per API
+      enabled: false
+    REFRESH_MATERIALIZED_VIEWS_ENDPUNKT:
+      # Aktiviert das Refreshen der Materialized Views und 3D Geometrien von Kanten per API
+      enabled: false
+    UMSETZUNGSSTANDABFRAGE_KREISKOORDINATOREN_BENACHRICHTIGEN:
+      # Aktiviert das Versenden der Benachrichtigungs-E-Mail an die Kreiskoordinatoren beim Start einer Umsetzungsstandabfrage
+      enabled: false
+    D_ROUTEN_NAECHTLICH_NETZBEZUG_MATCHVERSUCH:
+      # Aktiviert das nächtliche Matching der D-Routen zur Erstellung des Netzbezugs
+      enabled: true
+    SICHERHEITSTRENNSTREIFEN:
+      # Aktiviert die Anzeige von Sicherheitstrennstreifen
+      enabled: false
+    DATEILAYER_HOCHLADEN_ANZEIGEN:
+      # Aktiviert die Anzeige der Datei-Layer-Verwaltung
+      enabled: false
+
+# Durch Spring bereitgestellt Konfigurationsmöglichkeiten für das Logging,
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.core
+logging:
+  file:
+    name: logs/backend/backend.log
+  pattern:
+    dateformat: "YYYY-MM-dd HH:mm:ss.SSS"
+# Durch Spring bereitgestellt Konfigurationsmöglichkeiten für das Monitoring-System,
+# siehe https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - prometheus
+          - health
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: true
+    db:
+      enabled: true
+

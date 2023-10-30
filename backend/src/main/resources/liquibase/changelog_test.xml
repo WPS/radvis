@@ -1,0 +1,58 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="3397" author="tr">
+    <addColumn tableName="fahrradroute">
+      <column name="routed_geometry" type="GEOMETRY"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3457" author="lb">
+    <renameColumn tableName="fahrradroute"
+      oldColumnName="routed_geometry" newColumnName="routed_or_matched_geometry"/>
+  </changeSet>
+  <changeSet id="3397-2" author="tr">
+    <addColumn tableName="fahrradroute">
+      <column name="abweichende_segmente" type="GEOMETRY"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="3397-3" author="lb">
+    <addColumn tableName="fahrradroute">
+      <column name="stuetzpunkte_routing" type="GEOMETRY"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3457-2" author="lb">
+    <dropColumn tableName="fahrradroute"
+      columnName="stuetzpunkte_routing" type="GEOMETRY"/>
+  </changeSet>
+  <changeSet id="3397-4" author="lb">
+    <addColumn tableName="fahrradroute">
+      <column name="wurmfortsaetze" type="GEOMETRY"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3468" author="lb">
+    <addColumn tableName="fahrradroute">
+      <column name="abbildung_durch_routing" type="BOOLEAN" defaultValueBoolean="false"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3468-1" author="lb">
+    <renameColumn tableName="fahrradroute"
+      oldColumnName="wurmfortsaetze" newColumnName="kehrtwenden"/>
+  </changeSet>
+</databaseChangeLog>

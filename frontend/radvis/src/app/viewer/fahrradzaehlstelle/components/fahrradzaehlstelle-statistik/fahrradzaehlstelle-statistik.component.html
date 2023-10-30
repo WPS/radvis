@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="control-container">
+  <rad-enum-dropdown-control [formControl]="artDerAuswertungFormControl"
+                             [nullable]="false"
+                             [options]="artDerAuswertungOptions"
+                             class="mat-form-field-full-width mt-4">
+    Art der Auswertung
+  </rad-enum-dropdown-control>
+
+  <ng-container *ngIf="!jahresAuswahlModus; else jahresAuswahl">
+    <rad-date-range-picker-control [artDerAuswertung]="artDerAuswertungFormControl.value"
+                                   [formControl]="rangeFormControl" class="mat-form-field-full-width">
+    </rad-date-range-picker-control>
+  </ng-container>
+  <ng-template #jahresAuswahl>
+    <rad-jahreszeitraum-control [formControl]="rangeFormControl"></rad-jahreszeitraum-control>
+    <rad-validation-error-anzeige
+      *ngIf="zeitraumSelected && !zeitraumValid" [errors]="{ error: 'Enddatum darf nicht vor Anfangsdatum liegen!' }">
+    </rad-validation-error-anzeige>
+  </ng-template>
+  <rad-enum-dropdown-control [formControl]="channelFormControl"
+                             [nullable]="false"
+                             [options]="channelOptions"
+                             class="mat-form-field-full-width mt-4">
+    Richtung
+  </rad-enum-dropdown-control>
+</div>
+<div *ngIf="eingabeVollstaendig && !datenVorhanden &&!loading" class="display-flex justify-content-center">
+  Es sind keine Daten für den angegebenen Zeitraum vorhanden.
+</div>
+<div [style.display]="!datenVorhanden ? 'none' : 'flex'" class="canvas-container flex-grow">
+  <canvas #chartCanvas [attr.aria-label]="'Histogramm'" tabindex="0"></canvas>
+</div>
+<div *ngIf="datenVorhanden" class="display-flex flex-column align-items-start p-10">
+  <div>Gesamtsumme im ausgewählten Zeitraum: {{ gesamtsumme }}</div>
+  <div>Durchschnittswert pro {{ auswertungsEinheit }}: {{ durchschnitt | kommazahl }}</div>
+  <div>Spitzen{{ auswertungsEinheit.toLowerCase() }}: {{ spitze }} ({{ spitzenwert }})</div>
+</div>

@@ -1,0 +1,102 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="map-wrapper">
+  <div class="flex-grow position-relative">
+    <rad-ol-map class="h-100 w-100">
+
+      <rad-kanten-selektion></rad-kanten-selektion>
+      <rad-knoten-selektion [knotenSelectable]="false"></rad-knoten-selektion>
+
+      <rad-fehlerprotokoll-layer
+        *ngIf="fehlerprotokolleEnabled"
+        [zIndex]="fehlerprotokollZIndex"
+      ></rad-fehlerprotokoll-layer>
+      <div class="create-button-wrapper">
+        <button
+          [routerLink]="kantenCreatorRoute"
+          class="create-button"
+          mat-stroked-button
+          queryParamsHandling="merge"
+          routerLinkActive="activated"
+          aria-label="Neue Kante hinzufügen"
+          matTooltip="Neue Kante hinzufügen"
+          matTooltipPosition="above"
+        >
+          <mat-icon>add</mat-icon>
+          Neue Kante
+        </button>
+      </div>
+      <div role="region"
+           aria-label="Kanten-Details"
+           aria-keyshortcuts="Control+Alt+Shift+D"
+           class="tool"
+           #toolContainer
+           [class.h-100]="kanteSelektiert || (isKantenCreatorAktiv | async)">
+        <div *ngIf="(isKantenCreatorAktiv | async ) === false && kanteSelektiert" class="second-nav-bar">
+          <nav mat-tab-nav-bar color="accent" [disableRipple]="true">
+            <a
+              mat-tab-link
+              queryParamsHandling="merge"
+              [routerLink]="getRouteForSubmenu(AttributGruppe.ALLGEMEIN)"
+              [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.ALLGEMEIN"
+            >Allgemein</a
+            >
+
+            <a
+              mat-tab-link
+              queryParamsHandling="merge"
+              [routerLink]="getRouteForSubmenu(AttributGruppe.VERLAUF)"
+              [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.VERLAUF"
+            >Verlauf</a
+            >
+
+            <a
+              mat-tab-link
+              queryParamsHandling="merge"
+              [routerLink]="getRouteForSubmenu(AttributGruppe.GESCHWINDIGKEIT)"
+              [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.GESCHWINDIGKEIT"
+            >Geschwindigkeit</a
+            >
+
+            <a
+              mat-tab-link
+              queryParamsHandling="merge"
+              [routerLink]="getRouteForSubmenu(AttributGruppe.FUEHRUNGSFORM)"
+              [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.FUEHRUNGSFORM"
+            >Führungsform</a
+            >
+
+            <a
+              mat-tab-link
+              queryParamsHandling="merge"
+              [routerLink]="getRouteForSubmenu(AttributGruppe.ZUSTAENDIGKEIT)"
+              [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.ZUSTAENDIGKEIT"
+            >Zuständigkeit</a
+            >
+
+            <a
+              mat-tab-link
+              queryParamsHandling="merge"
+              [routerLink]="getRouteForSubmenu(AttributGruppe.FAHRTRICHTUNG)"
+              [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.FAHRTRICHTUNG"
+            >Fahrtrichtung</a
+            >
+          </nav>
+        </div>
+        <router-outlet></router-outlet>
+      </div>
+    </rad-ol-map>
+  </div>
+</div>

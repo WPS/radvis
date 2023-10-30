@@ -1,0 +1,250 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-3270" author="par">
+    <addColumn tableName="massnahme">
+      <column name="original_radnetzgeometrie" type="GEOMETRY"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="original_radnetzgeometrie" type="GEOMETRY"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3251" author="par">
+    <addColumn tableName="massnahme">
+      <column name="rohdaten_id" type="BIGINT"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="rohdaten_id"
+      constraintName="fk_massnahme_rohdaten_id"
+      referencedTableName="imported_feature"
+      referencedColumnNames="id"/>
+    <addColumn tableName="massnahme_aud">
+      <column name="rohdaten_id" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3281" author="par">
+    <addColumn tableName="massnahme">
+      <column name="massnahmen_packet_id" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="massnahmen_packet_id" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3322" author="par">
+    <dropForeignKeyConstraint baseTableName="massnahme" constraintName="fk_massnahme_rohdaten_id"/>
+    <dropColumn tableName="massnahme" columnName="rohdaten_id"/>
+    <dropColumn tableName="massnahme_aud" columnName="rohdaten_id"/>
+  </changeSet>
+  <changeSet id="RAD-3321" author="par">
+    <dropTable tableName="massnahme_kommentare"/>
+    <dropTable tableName="massnahme_kommentare_aud"/>
+    <createTable tableName="kommentar_liste">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="kommentar_liste_pkey"/>
+      </column>
+    </createTable>
+    <createTable tableName="kommentar">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="kommentar_pkey"/>
+      </column>
+      <column name="benutzer_id" type="bigint"/>
+      <column name="datum" type="timestamp"/>
+      <column name="kommentar" type="VARCHAR(255)"/>
+      <column name="kommentar_liste_id" type="bigint"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="kommentar" baseColumnNames="benutzer_id"
+      constraintName="fk_kommentar_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+    <createIndex tableName="kommentar" indexName="kommentar_kommentar_liste_idx">
+      <column name="kommentar_liste_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="kommentar" baseColumnNames="kommentar_liste_id"
+      constraintName="fk_kommentar_kommentar_liste_id"
+      referencedTableName="kommentar_liste"
+      referencedColumnNames="id"/>
+    <addColumn tableName="massnahme">
+      <column name="kommentar_liste_id" type="bigint"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="kommentar_liste_id"
+      constraintName="fk_massnahme_kommentar_liste_id" referencedTableName="kommentar_liste"
+      referencedColumnNames="id"/>
+  </changeSet>
+  <changeSet id="RAD-3362" author="par">
+    <modifyDataType tableName="kommentar" columnName="kommentar" newDataType="VARCHAR(1024)"/>
+  </changeSet>
+  <changeSet id="RAD-3208" author="bw">
+    <addColumn tableName="massnahme">
+      <column name="planung_erforderlich" type="boolean" defaultValue="false"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="planung_erforderlich" type="boolean" defaultValue="false"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3286" author="par" runOnChange="true">
+    <createView viewName="massnahme_list_view" replaceIfExists="true">
+      SELECT m.id,
+             m.bezeichnung,
+             string_agg(distinct mkat.massnahmenkategorien, ';') as massnahmenkategorien,
+             m.von_zeitpunkt,
+             m.bis_zeitpunkt,
+             m.geplanter_umsetzungsstart_jahr,
+             min(baulast.id)                                     AS baulast_id,
+             min(baulast.name)                                   as baulast_name,
+             min(baulast.organisations_art)                      as baulast_organisations_art,
+             min(baulast.uebergeordnete_organisation_id)         as baulast_uebergeordnete_organisation_id,
+             min(markierung.id)                                  AS markierung_id,
+             min(markierung.name)                                as markierung_name,
+             min(markierung.organisations_art)                   as markierung_organisations_art,
+             min(markierung.uebergeordnete_organisation_id)      as markierung_uebergeordnete_organisation_id,
+             min(unterhalt.id)                                   AS unterhalt_id,
+             min(unterhalt.name)                                 as unterhalt_name,
+             min(unterhalt.organisations_art)                    as unterhalt_organisations_art,
+             min(unterhalt.uebergeordnete_organisation_id)       as unterhalt_uebergeordnete_organisation_id,
+             m.prioritaet,
+             string_agg(distinct netzklassen.netzklassen, ';')   as netzklassen,
+             m.umsetzungsstatus,
+             m.veroeffentlicht,
+             m.planung_erforderlich,
+             m.letzte_aenderung,
+             min(benutzer_letzte_aenderung.id)                   AS benutzer_letzte_aenderung_id,
+             min(benutzer_letzte_aenderung.vorname)              AS benutzer_letzte_aenderung_vorname,
+             min(benutzer_letzte_aenderung.nachname)             AS benutzer_letzte_aenderung_nachname,
+             min(benutzer_letzte_aenderung.status)               AS benutzer_letzte_aenderung_status,
+             min(benutzer_letzte_aenderung_organisation.name)    AS benutzer_letzte_aenderung_organisation_name,
+             min(benutzer_letzte_aenderung.mailadresse)          AS benutzer_letzte_aenderung_email,
+             m.soll_standard,
+             m.handlungsverantwortlicher,
+             (case
+                when min(kant.geometry) IS NOT NULL then min(kant.geometry)::geometry
+                else min(knot.point)::geometry end)              AS
+                                                                    geometry
+      FROM massnahme m
+             LEFT OUTER JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
+             LEFT OUTER JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
+             LEFT OUTER JOIN organisation markierung ON m.markierungs_zustaendiger_id = markierung.id
+             LEFT OUTER JOIN organisation unterhalt ON m.unterhalts_zustaendiger_id = unterhalt.id
+             LEFT OUTER JOIN massnahme_netzklassen netzklassen ON m.id = netzklassen.massnahme_id
+             LEFT OUTER JOIN benutzer benutzer_letzte_aenderung ON m.benutzer_letzte_aenderung_id =
+                                                                   benutzer_letzte_aenderung.id
+             LEFT OUTER JOIN organisation benutzer_letzte_aenderung_organisation
+                             ON benutzer_letzte_aenderung.organisation_id =
+                                benutzer_letzte_aenderung_organisation.id
+             LEFT OUTER JOIN massnahme_knoten mkno on m.id = mkno.massnahme_id
+             LEFT OUTER JOIN knoten knot ON mkno.knoten_id = knot.id
+             LEFT OUTER JOIN massnahme_kantenseitenabschnitte mk on m.id = mk.massnahme_id
+             LEFT OUTER JOIN kante kant on mk.kante_id = kant.id
+      GROUP BY m.id
+    </createView>
+  </changeSet>
+
+  <changeSet id="RAD-3339" author="lb + tr">
+    <createTable tableName="fahrradroute">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="fahrradroute_pkey"/>
+      </column>
+      <column name="version" type="bigint" defaultValueNumeric="0"/>
+      <column name="toubiz_id" type="varchar(255)"/>
+      <column name="name" type="varchar(255)"/>
+      <column name="beschreibung" type="text"/>
+      <column name="original_geometrie" type="Geometry"/>
+      <column name="icon_location" type="Geometry"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-3339-2" author="lb + tr">
+    <createTable tableName="fahrradroute_kantenabschnitte">
+      <column name="fahrradroute_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+    </createTable>
+    <addForeignKeyConstraint
+      constraintName="fk_fahrradroute_kantenabschnitte_fahrradroute_id"
+      referencedTableName="fahrradroute" referencedColumnNames="id"
+      baseColumnNames="fahrradroute_id"
+      baseTableName="fahrradroute_kantenabschnitte"/>
+    <createIndex tableName="fahrradroute_kantenabschnitte"
+      indexName="fk_fahrradroute_kantenabschnitte_idx">
+      <column name="fahrradroute_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-2302" author="mw + sm">
+    <dropTable tableName="massnahme_dokumente_aud"/>
+    <dropTable tableName="massnahme_dokumente"/>
+
+    <createTable tableName="dokument_liste">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="dokument_liste_pkey"/>
+      </column>
+    </createTable>
+    <createTable tableName="dokument">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="dokument_pkey"/>
+      </column>
+      <column name="dateiname" type="varchar(255)"/>
+      <column name="datei" type="blob"/>
+      <column name="benutzer_id" type="bigint"/>
+      <column name="datum" type="timestamp"/>
+      <column name="dokument_liste_id" type="bigint"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="dokument" baseColumnNames="dokument_liste_id"
+      constraintName="fk_dokument_dokument_liste_id"
+      referencedTableName="dokument_liste"
+      referencedColumnNames="id"/>
+    <createIndex tableName="dokument" indexName="dokument_dokument_liste_idx">
+      <column name="dokument_liste_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="dokument" baseColumnNames="benutzer_id"
+      constraintName="fk_dokument_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+
+    <addColumn tableName="massnahme">
+      <column name="dokument_liste_id" type="bigint"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="dokument_liste_id"
+      constraintName="fk_massnahme_dokument_liste_id"
+      referencedTableName="dokument_liste"
+      referencedColumnNames="id"/>
+    <createIndex tableName="massnahme" indexName="massnahme_dokument_liste_idx">
+      <column name="dokument_liste_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-3421" author="kho">
+    <addColumn tableName="dokument">
+      <column name="dateigroesse_in_bytes" type="int"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-3422" author="kho">
+    <delete tableName="dokument"/>
+    <!-- direkt von iod (int) nach bytea geht nicht, darum den Umweg via text-->
+    <modifyDataType tableName="dokument" columnName="datei" newDataType="text"/>
+    <modifyDataType tableName="dokument" columnName="datei" newDataType="bytea"/>
+  </changeSet>
+
+</databaseChangeLog>

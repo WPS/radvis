@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div mat-dialog-title>Shapefile transformieren</div>
+<div mat-dialog-content>
+  <form [formGroup]="formGroup" class="display-flex flex-column align-items-center">
+    <div class="display-flex flex-column align-items-center">
+      <div class="mb-5">
+        Bitte laden Sie eine Shape mit allen Dateien als Zip-Archiv hoch. Weitere Informationen finden Sie im
+        <a href="javascript:void(0);" (click)="openManualEditorTransformation()">Handbuch</a>
+        (siehe Abschnitt Transformation).
+      </div>
+      <rad-file-upload-control formControlName="shpFile" dateiEndung="zip" style="width: 100%">
+        Shape auswählen
+      </rad-file-upload-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('shpFile')?.errors || null"
+        *ngIf="formGroup.get('shpFile')?.dirty"
+      ></rad-validation-error-anzeige>
+    </div>
+
+    <rad-file-upload-control class="mt-10" formControlName="transformationFile" dateiEndung="csv" style="width: 100%">
+      Konfiguration auswählen
+    </rad-file-upload-control>
+    <rad-validation-error-anzeige
+      *ngIf="formGroup.get('transformationFile')?.dirty"
+      [errors]="formGroup.get('transformationFile')?.errors || null"
+    >
+    </rad-validation-error-anzeige>
+  </form>
+</div>
+<div mat-dialog-actions class="buttons display-flex justify-content-flex-end">
+  <button mat-stroked-button mat-dialog-close>Abbrechen</button>
+  <rad-action-button [disabled]="!formGroup.valid" (action)="onTransform()" [waiting]="loading">
+    Transformieren
+  </rad-action-button>
+</div>

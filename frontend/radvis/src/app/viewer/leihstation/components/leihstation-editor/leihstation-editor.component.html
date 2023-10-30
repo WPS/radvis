@@ -1,0 +1,129 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar radRightDetailsShortcut>
+  <h2 class="flex-grow">Leihstation <span *ngIf="isCreator">erstellen</span></h2>
+  <button
+    *ngIf="canEdit && !isCreator"
+    [attr.aria-label]="'Leihstation löschen'"
+    matTooltip="Leihstation löschen"
+    (click)="onDeleteLeihstation()"
+    mat-icon-button
+  >
+    <mat-icon>delete</mat-icon>
+  </button>
+  <button
+    *ngIf="!isCreator"
+    [attr.aria-label]="'Zur Leihstation springen'"
+    matTooltip="Zur Leihstation springen"
+    (click)="focusLeihstationIntoView()"
+    mat-icon-button
+  >
+    <mat-icon>my_location</mat-icon>
+  </button>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    [canEdit]="canEdit"
+    (save)="onSave()"
+    [dirty]="isDirty"
+    [fetching]="isFetching"
+    [showHeader]="false"
+  >
+    <rad-position-selektion-control
+      *ngIf="!isQuellsystemMobiData"
+      formControlName="geometrie"
+      class="mt-10"
+      [withInfrastrukturIcon]="iconName"
+    ></rad-position-selektion-control>
+    <div class="hinweis fremdnetz-hinweis" *ngIf="isQuellsystemMobiData">
+      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
+      <div class="ml-10">
+        Diese Leihstation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
+      </div>
+    </div>
+    <rad-text-input-control formControlName="betreiber">
+      <div class="label">Betreiber</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('betreiber')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="leihstationQuellSystemOptions"
+      formControlName="quellSystem"
+      class="mat-form-field-full-width"
+    >
+      Quellsystem
+    </rad-enum-dropdown-control>
+    <a *ngIf="isQuellsystemMobiData" class="quelle-label" [href]="MOBIDATA_DATENSATZ_URL" target="_blank">Datensatz bei
+      MobiData BW</a>
+
+    <rad-enum-dropdown-control
+      [options]="leihstationStatusOptions"
+      [nullable]="false"
+      class="mat-form-field-full-width"
+      formControlName="status"
+    >
+      Status
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('status')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      formControlName="anzahlFahrraeder"
+      class="mat-form-field-full-width"
+    >
+      <div class="label">Anzahl Fahrräder</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('anzahlFahrraeder')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      formControlName="anzahlPedelecs"
+      class="mat-form-field-full-width"
+    >
+      <div class="label">Anzahl Pedelecs</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('anzahlPedelecs')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      formControlName="anzahlAbstellmoeglichkeiten"
+      class="mat-form-field-full-width"
+    >
+      <div class="label">Anzahl Abstellmöglichkeiten</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('anzahlAbstellmoeglichkeiten')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-checkbox formControlName="freiesAbstellen"> Freies Abstellen möglich</mat-checkbox>
+
+    <rad-text-input-control formControlName="buchungsUrl">
+      <div class="label">Buchungs-URL</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('buchungsUrl')?.errors || null"></rad-validation-error-anzeige>
+
+  </rad-attribute-editor>
+</form>

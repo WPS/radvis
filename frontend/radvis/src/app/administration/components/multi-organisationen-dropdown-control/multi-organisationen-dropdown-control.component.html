@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-label>
+  <ng-content></ng-content>
+</mat-label>
+<mat-chip-list class="mt-8" *ngIf="selectedOrganisationen.length > 0">
+  <mat-chip *ngFor="let org of selectedOrganisationen" (removed)="onOrganisationRemoved(org)">
+    {{ org | organisation }}
+    <mat-icon matChipRemove *ngIf="canRemove(org)" radAccessabilityText="Organisation entfernen">cancel</mat-icon>
+  </mat-chip>
+</mat-chip-list>
+<mat-form-field class="w-100">
+  <mat-label>Organisation hinzufügen</mat-label>
+  <input
+    matInput
+    [matAutocomplete]="auto"
+    [formControl]="formControl"
+    #trigger="matAutocompleteTrigger"
+    (click)="onClick($event, trigger)"
+  />
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    [displayWith]="organisationDisplayName"
+    (optionSelected)="onOptionSelected($event)"
+  >
+    <mat-option *ngFor="let option of filteredOptions" [value]="option">
+      {{ option | organisation }}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>

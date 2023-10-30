@@ -1,0 +1,101 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar radRightDetailsShortcut>
+  <h2 class="flex-grow">Barriere <span *ngIf="isCreator">erstellen</span></h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    (save)="onSave()"
+    [dirty]="isDirty"
+    [fetching]="isFetching"
+    [showHeader]="false"
+    [canEdit]="isCreator || currentBarriere?.darfBenutzerBearbeiten || false"
+  >
+    <rad-netzbezug-selektion-control
+      [selectedId]="selectedId"
+      [layerId]="BARRIEREN.name"
+      formControlName="netzbezug"
+      class="mt-10 mb-10"
+    ></rad-netzbezug-selektion-control>
+    <rad-organisationen-dropdown-control
+      formControlName="verantwortlicheOrganisation"
+      [options]="(alleOrganisationen$ | async) || []"
+    >
+      Verantwortliche Organisation
+    </rad-organisationen-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('verantwortlicheOrganisation')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-grouped-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="barrierenForm"
+      [nullable]="false"
+      [groupedOptions]="barrierenFormOptions"
+    >
+      Barrierenform
+    </rad-grouped-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('barrierenForm')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="verbleibendeDurchfahrtsbreite"
+      [options]="verbleibendeDurchfahrtsbreiteOptions"
+    >
+      Barrierendurchfahrbreite
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('verbleibendeDurchfahrtsbreite')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="sicherung"
+      [options]="sicherungOptions"
+    >
+      Absperranlagensicherung
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('sicherung')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="markierung"
+      [options]="markierungOptions"
+    >
+      Absperranlagenmarkierung
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('markierung')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-form-field class="mat-form-field-full-width w-100">
+      <mat-label>Begründung für das Erfordernis der Barriere</mat-label>
+      <textarea class="text-area" formControlName="begruendung" matInput></textarea>
+      <mat-hint align="end">{{ formGroup.get('begruendung')?.value?.length || 0 }}/2000</mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="formGroup.get('begruendung')?.errors || null">
+    </rad-validation-error-anzeige>
+  </rad-attribute-editor>
+</form>

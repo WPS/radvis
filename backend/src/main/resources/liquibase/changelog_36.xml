@@ -1,0 +1,659 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-2680-2" author="kho">
+    <validCheckSum>8:3d14ea19da35a595efc3ac307ef7e68a</validCheckSum>
+    <sql>
+      DROP VIEW IF EXISTS geoserver_wegweisende_beschilderung_view;
+    </sql>
+    <dropIndex tableName="wegweisende_beschilderung" indexName="wegweisende_beschilderung_pfosten_id_idx"/>
+    <dropColumn tableName="wegweisende_beschilderung" columnName="pfosten_id"/>
+    <dropColumn tableName="wegweisende_beschilderung_aud" columnName="pfosten_id"/>
+  </changeSet>
+
+  <changeSet id="RAD-4924" author="mr">
+    <createTable tableName="leihstation_aud">
+      <column name="id" type="bigint"></column>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="version" type="bigint"></column>
+      <column name="geometrie" type="geometry"></column>
+      <column name="betreiber" type="varchar(255)"></column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="4925" author="mr">
+    <createTable tableName="servicestation_aud">
+      <column name="id" type="bigint"></column>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="version" type="bigint"></column>
+      <column name="geometrie" type="geometry"></column>
+      <column name="name" type="varchar(255)"></column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="4926" author="mr">
+    <createTable tableName="abstellanlage_aud">
+      <column name="id" type="bigint"></column>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="version" type="bigint"></column>
+      <column name="geometrie" type="geometry"></column>
+      <column name="betreiber" type="varchar(255)"></column>
+      <column name="externe_id" type="varchar(255)"></column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="4806" author="par">
+    <addColumn tableName="leihstation">
+      <column name="anzahl_fahrraeder" type="INTEGER"/>
+      <column name="anzahl_pedelecs" type="INTEGER"/>
+      <column name="anzahl_abstellmoeglichkeiten" type="INTEGER"/>
+      <column name="freies_abstellen" type="BOOLEAN"/>
+      <column name="buchungs_url" type="TEXT"/>
+      <column name="status" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn tableName="leihstation_aud">
+      <column name="anzahl_fahrraeder" type="INTEGER"/>
+      <column name="anzahl_pedelecs" type="INTEGER"/>
+      <column name="anzahl_abstellmoeglichkeiten" type="INTEGER"/>
+      <column name="freies_abstellen" type="BOOLEAN"/>
+      <column name="buchungs_url" type="TEXT"/>
+      <column name="status" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="4962" author="par">
+    <update tableName="leihstation">
+      <column name="freies_abstellen" value="false"/>
+      <where>freies_abstellen is null</where>
+    </update>
+  </changeSet>
+
+  <changeSet id="4968" author="mw + par">
+    <sql>
+      UPDATE manueller_import_fehler
+      SET icon_position = st_setsrid(icon_position, 25832)
+      WHERE st_srid(icon_position) = 0
+         OR st_srid(icon_position) IS NULL;
+    </sql>
+    <sql>
+      UPDATE manueller_import_fehler
+      SET original_geometrie = st_setsrid(original_geometrie, 25832)
+      WHERE st_srid(original_geometrie) = 0
+         OR st_srid(original_geometrie) IS NULL;
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-5019" author="kho + jg">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_leihstation_view"/>
+      <column name="pk_column" value="id"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-4807" author="par">
+    <addColumn tableName="servicestation">
+      <column name="gebuehren" type="BOOLEAN"/>
+      <column name="oeffnungszeiten" type="TEXT"/>
+      <column name="betreiber" type="TEXT"/>
+      <column name="marke" type="TEXT"/>
+      <column name="luftpumpe" type="BOOLEAN"/>
+      <column name="kettenwerkzeug" type="BOOLEAN"/>
+      <column name="werkzeug" type="BOOLEAN"/>
+      <column name="fahrradhalterung" type="BOOLEAN"/>
+      <column name="beschreibung" type="TEXT"/>
+      <column name="organisation_id" type="BIGINT"/>
+      <column name="typ" type="VARCHAR(255)"/>
+      <column name="status" type="VARCHAR(255)"/>
+    </addColumn>
+
+    <addColumn tableName="servicestation_aud">
+      <column name="gebuehren" type="BOOLEAN"/>
+      <column name="oeffnungszeiten" type="TEXT"/>
+      <column name="betreiber" type="TEXT"/>
+      <column name="marke" type="TEXT"/>
+      <column name="luftpumpe" type="BOOLEAN"/>
+      <column name="kettenwerkzeug" type="BOOLEAN"/>
+      <column name="werkzeug" type="BOOLEAN"/>
+      <column name="fahrradhalterung" type="BOOLEAN"/>
+      <column name="beschreibung" type="TEXT"/>
+      <column name="organisation_id" type="BIGINT"/>
+      <column name="typ" type="VARCHAR(255)"/>
+      <column name="status" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4511" author="mr">
+    <addColumn tableName="fahrradroute_variante">
+      <column name="tfis_id" type="VARCHAR(255)"></column>
+    </addColumn>
+    <addColumn tableName="fahrradroute_variante_aud">
+      <column name="tfis_id" type="VARCHAR(255)"></column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4511-2" author="mr">
+    <dropColumn tableName="fahrradroute">
+      <column name="hat_variante"></column>
+    </dropColumn>
+    <dropColumn tableName="fahrradroute_aud">
+      <column name="hat_variante"></column>
+    </dropColumn>
+  </changeSet>
+
+  <changeSet id="RAD-5094" author="par">
+    <sql>
+      UPDATE servicestation
+      SET typ = 'SONSTIGER'
+      WHERE typ IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET gebuehren = false
+      WHERE gebuehren IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET betreiber = 'betreiber'
+      WHERE betreiber IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET luftpumpe = false
+      WHERE luftpumpe IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET luftpumpe = false
+      WHERE luftpumpe IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET kettenwerkzeug = false
+      WHERE kettenwerkzeug IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET werkzeug = false
+      WHERE werkzeug IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET fahrradhalterung = false
+      WHERE fahrradhalterung IS NULL;
+    </sql>
+    <sql>
+      UPDATE servicestation
+      SET status = 'AKTIV'
+      WHERE status IS NULL;
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-5014" author="mr">
+    <dropColumn tableName="massnahme_aud">
+      <column name="letzte_aenderung"></column>
+    </dropColumn>
+    <dropColumn tableName="fahrradroute_aud">
+      <column name="zuletzt_bearbeitet"></column>
+    </dropColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4843" author="par">
+    <addColumn tableName="abstellanlage">
+      <column name="quell_system" type="VARCHAR(255)"/>
+      <column name="zustaendig_id" type="BIGINT"/>
+      <column name="anzahl_stellplaetze" type="INTEGER"/>
+      <column name="anzahl_schliessfaecher" type="INTEGER"/>
+      <column name="anzahl_lademoeglichkeiten" type="INTEGER"/>
+      <column name="ueberwacht" type="VARCHAR(255)"/>
+      <column name="ist_bike_and_ride" type="BOOLEAN"/>
+      <column name="groessenklasse" type="VARCHAR(255)"/>
+      <column name="stellplatzart" type="VARCHAR(255)"/>
+      <column name="ueberdacht" type="BOOLEAN"/>
+      <column name="gebuehren_pro_tag" type="INTEGER"/>
+      <column name="gebuehren_pro_monat" type="INTEGER"/>
+      <column name="gebuehren_pro_jahr" type="INTEGER"/>
+      <column name="beschreibung" type="TEXT"/>
+      <column name="weitere_information" type="TEXT"/>
+      <column name="status" type="VARCHAR(255)"/>
+    </addColumn>
+
+    <addColumn tableName="abstellanlage_aud">
+      <column name="quell_system" type="VARCHAR(255)"/>
+      <column name="zustaendig_id" type="BIGINT"/>
+      <column name="anzahl_stellplaetze" type="INTEGER"/>
+      <column name="anzahl_schliessfaecher" type="INTEGER"/>
+      <column name="anzahl_lademoeglichkeiten" type="INTEGER"/>
+      <column name="ueberwacht" type="VARCHAR(255)"/>
+      <column name="ist_bike_and_ride" type="BOOLEAN"/>
+      <column name="groessenklasse" type="VARCHAR(255)"/>
+      <column name="stellplatzart" type="VARCHAR(255)"/>
+      <column name="ueberdacht" type="BOOLEAN"/>
+      <column name="gebuehren_pro_tag" type="INTEGER"/>
+      <column name="gebuehren_pro_monat" type="INTEGER"/>
+      <column name="gebuehren_pro_jahr" type="INTEGER"/>
+      <column name="beschreibung" type="TEXT"/>
+      <column name="weitere_information" type="TEXT"/>
+      <column name="status" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4843_2" author="par">
+    <sql>
+      UPDATE abstellanlage
+      SET ueberdacht = false
+      WHERE ueberdacht IS NULL
+    </sql>
+    <sql>
+      UPDATE abstellanlage
+      SET ist_bike_and_ride = false
+      WHERE ist_bike_and_ride IS NULL
+    </sql>
+    <sql>
+      UPDATE abstellanlage
+      SET status = 'AKTIV'
+      WHERE status IS NULL
+    </sql>
+    <sql>
+      UPDATE abstellanlage
+      SET stellplatzart = 'SONSTIGE'
+      WHERE stellplatzart IS NULL
+    </sql>
+    <sql>
+      UPDATE abstellanlage
+      SET quell_system = 'RADVIS'
+      WHERE quell_system IS NULL
+    </sql>
+    <sql>
+      UPDATE abstellanlage
+      SET ueberwacht = 'KEINE'
+      WHERE ueberwacht IS NULL
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-5010" author="kho + jg">
+    <addColumn tableName="servicestation">
+      <column name="dokument_liste_id" type="BIGINT"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="servicestation" baseColumnNames="dokument_liste_id"
+      constraintName="fk_servicestation_dokument_liste_id"
+      referencedTableName="dokument_liste"
+      referencedColumnNames="id"/>
+    <createIndex tableName="servicestation" indexName="servicestation_dokument_liste_idx">
+      <column name="dokument_liste_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-5011" author="kho + par">
+    <addColumn tableName="abstellanlage">
+      <column name="dokument_liste_id" type="BIGINT"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="abstellanlage" baseColumnNames="dokument_liste_id"
+      constraintName="fk_abstellanlage_dokument_liste_id"
+      referencedTableName="dokument_liste"
+      referencedColumnNames="id"/>
+    <createIndex tableName="abstellanlage" indexName="abstellanlage_dokument_liste_idx">
+      <column name="dokument_liste_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-4824_3" author="par">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_abstellanlage_view"/>
+      <column name="pk_column" value="id"/>
+    </insert>
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_servicestation_view"/>
+      <column name="pk_column" value="id"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-5155_RAD-5156" author="kho + jg">
+    <dropForeignKeyConstraint baseTableName="servicestation" constraintName="fk_servicestation_dokument_liste_id"/>
+    <sql>
+      UPDATE servicestation
+      SET dokument_liste_id = nextval('public.hibernate_sequence')
+      WHERE dokument_liste_id IS NULL;
+
+      INSERT INTO dokument_liste (SELECT dokument_liste_id
+                                  FROM servicestation
+                                  WHERE dokument_liste_id NOT IN (SELECT id FROM dokument_liste));
+    </sql>
+    <addForeignKeyConstraint baseTableName="servicestation" baseColumnNames="dokument_liste_id"
+      constraintName="fk_servicestation_dokument_liste_id"
+      referencedTableName="dokument_liste"
+      referencedColumnNames="id"/>
+
+    <dropForeignKeyConstraint baseTableName="abstellanlage" constraintName="fk_abstellanlage_dokument_liste_id"/>
+    <sql>
+      UPDATE abstellanlage
+      SET dokument_liste_id = nextval('public.hibernate_sequence')
+      WHERE dokument_liste_id IS NULL;
+
+      INSERT INTO dokument_liste (SELECT dokument_liste_id
+                                  FROM abstellanlage
+                                  WHERE dokument_liste_id NOT IN (SELECT id FROM dokument_liste));
+
+
+    </sql>
+    <addForeignKeyConstraint baseTableName="abstellanlage" baseColumnNames="dokument_liste_id"
+      constraintName="fk_abstellanlage_dokument_liste_id"
+      referencedTableName="dokument_liste"
+      referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="RAD-5173" author="kho">
+    <addColumn tableName="fahrradroute_netz_bezug_aenderung">
+      <column name="aenderung_in_hauptroute" type="boolean" defaultValue="false"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-5066" author="bw und kho">
+    <addColumn tableName="anpassungswunsch">
+      <column name="konsistenzregel_identity" type="varchar(255)"/>
+      <column name="konsistenzregel_typ" type="varchar(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-5133_2" author="par">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_radvisnetz_kante_abschnitte_materialized_view"/>
+      <column name="pk_column" value="id"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-2762" author="mw und jg">
+    <addColumn tableName="leihstation">
+      <column name="quell_system" type="varchar(255)" defaultValue="RADVIS"/>
+      <column name="externe_id" type="varchar(255)"/>
+    </addColumn>
+    <addColumn tableName="leihstation_aud">
+      <column name="quell_system" type="varchar(255)" defaultValue="RADVIS"/>
+      <column name="externe_id" type="varchar(255)"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-5189" author="jg und par">
+    <addColumn tableName="kante_osm_way_ids">
+      <column name="von" type="float8" defaultValue="0"/>
+      <column name="bis" type="float8" defaultValue="1"/>
+    </addColumn>
+    <dropTable tableName="kante_osm_way_ids_aud"/>
+  </changeSet>
+
+  <changeSet id="RAD-2732" author="lb und rw">
+    <createTable tableName="osm_abbildungs_fehler">
+      <column name="id" type="bigint"/>
+      <column name="kante_id" type="bigint"/>
+      <column name="original_geometry" type="geometry"/>
+      <column name="datum" type="timestamp"/>
+    </createTable>
+  </changeSet>
+  <changeSet id="RAD-2732_2" author="lb und hst">
+    <sql>
+      CREATE INDEX osm_abbildungs_fehler_geometry_idx ON osm_abbildungs_fehler USING GIST (original_geometry);
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-5067_2" author="par">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_balm_view"/>
+      <column name="pk_column" value="Quell-ID"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-5067_3" author="par">
+    <sql>
+      CREATE INDEX kante_aud_id_idx ON kante_aud (id);
+      CREATE INDEX rev_info_id_timestamp_idx ON rev_info (id, timestamp);
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-2754" author="lb + pg">
+    <createTable tableName="fahrradzaehlstelle">
+      <column name="id" type="BIGINT">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="fahrradzaehlstelle_pkey"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="geometrie" type="geometry"/>
+      <column name="gebietskoerperschaft_id" type="BIGINT"/>
+      <column name="fahrradzaehlstelle_bezeichnung" type="VARCHAR(255)"/>
+      <column name="betreiber_eigene_id" type="BIGINT"/>
+      <column name="seriennummer" type="VARCHAR(255)"/>
+      <column name="zaehlintervall" type="VARCHAR(255)"/>
+    </createTable>
+    <createTable tableName="channel">
+      <column name="id" type="BIGINT">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="channel_pkey"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="channel_bezeichnung" type="VARCHAR(255)"/>
+      <column name="channel_id" type="BIGINT"/>
+      <column name="fahrradzaehlstelle_id" type="BIGINT"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="channel" baseColumnNames="fahrradzaehlstelle_id"
+      constraintName="fk_channel_fahrradzaehlstelle_id"
+      referencedTableName="fahrradzaehlstelle"
+      referencedColumnNames="id"/>
+    <createIndex tableName="channel" indexName="channel_fahrradzaehlstelle_idx">
+      <column name="fahrradzaehlstelle_id"/>
+    </createIndex>
+    <createTable tableName="channel_fahrradzaehl_daten_eintrag">
+      <column name="channel_id" type="BIGINT"/>
+      <column name="zeitstempel" type="VARCHAR(255)"/>
+      <column name="zaehlstand" type="BIGINT"/>
+      <column name="zaehlstatus" type="INTEGER"/>
+      <column name="channel_fahrradzaehl_daten_eintrag_order" type="INTEGER"/>
+    </createTable>
+  </changeSet>
+  <changeSet id="RAD-2754_1" author="lb + pg">
+    <dropColumn tableName="fahrradzaehlstelle" columnName="gebietskoerperschaft_id"/>
+    <addColumn tableName="fahrradzaehlstelle">
+      <column name="fahrradzaehlstelle_gebietskoerperschaft" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-2754_2" author="lb + pg">
+    <dropColumn tableName="channel_fahrradzaehl_daten_eintrag" columnName="zeitstempel"/>
+    <dropColumn tableName="channel_fahrradzaehl_daten_eintrag" columnName="channel_fahrradzaehl_daten_eintrag_order"/>
+    <addColumn tableName="channel_fahrradzaehl_daten_eintrag">
+      <column name="zeitstempel" type="timestamp"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-2754_3" author="lb + pg">
+    <dropColumn tableName="channel_fahrradzaehl_daten_eintrag" columnName="zeitstempel"/>
+    <addColumn tableName="channel_fahrradzaehl_daten_eintrag">
+      <column name="zeitstempel" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-2754_4" author="lb + pg">
+    <addColumn tableName="fahrradzaehlstelle">
+      <column name="neuster_zeitstempel" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-5461" author="hst">
+    <update tableName="gt_pk_metadata">
+      <column name="table_name" value="geoserver_balm_kanten_view"/>
+      <where>table_name = 'geoserver_balm_view'</where>
+    </update>
+  </changeSet>
+
+  <changeSet id="RAD-5461" author="bw">
+    <sql>
+      DROP VIEW IF EXISTS geoserver_balm_view;
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-4719" author="jg + hst">
+    <addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+      <column name="trennstreifen_breite_rechts" type="decimal"/>
+      <column name="trennstreifen_breite_links" type="decimal"/>
+      <column name="trennstreifen_trennung_mittels_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_trennung_mittels_links" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_links" type="VARCHAR(255)"/>
+    </addColumn>
+
+    <addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links">
+      <column name="trennstreifen_breite_rechts" type="decimal"/>
+      <column name="trennstreifen_breite_links" type="decimal"/>
+      <column name="trennstreifen_trennung_mittels_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_trennung_mittels_links" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_links" type="VARCHAR(255)"/>
+    </addColumn>
+
+    <addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+      <column name="trennstreifen_breite_rechts" type="decimal"/>
+      <column name="trennstreifen_breite_links" type="decimal"/>
+      <column name="trennstreifen_trennung_mittels_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_trennung_mittels_links" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_links" type="VARCHAR(255)"/>
+    </addColumn>
+
+    <addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
+      <column name="trennstreifen_breite_rechts" type="decimal"/>
+      <column name="trennstreifen_breite_links" type="decimal"/>
+      <column name="trennstreifen_trennung_mittels_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_trennung_mittels_links" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_rechts" type="VARCHAR(255)"/>
+      <column name="trennstreifen_form_links" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4719" author="hst">
+    <!-- Normale Führungsform-Tabellen -->
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_rechts"
+      oldColumnName="trennstreifen_trennung_mittels_rechts"
+      newColumnName="trennstreifen_trennung_zu_rechts"
+    />
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_rechts"
+      oldColumnName="trennstreifen_trennung_mittels_links"
+      newColumnName="trennstreifen_trennung_zu_links"
+    />
+
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_links"
+      oldColumnName="trennstreifen_trennung_mittels_rechts"
+      newColumnName="trennstreifen_trennung_zu_rechts"
+    />
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_links"
+      oldColumnName="trennstreifen_trennung_mittels_links"
+      newColumnName="trennstreifen_trennung_zu_links"
+    />
+
+    <!-- Auditing Tabellen -->
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud"
+      oldColumnName="trennstreifen_trennung_mittels_rechts"
+      newColumnName="trennstreifen_trennung_zu_rechts"
+    />
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud"
+      oldColumnName="trennstreifen_trennung_mittels_links"
+      newColumnName="trennstreifen_trennung_zu_links"
+    />
+
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_links_aud"
+      oldColumnName="trennstreifen_trennung_mittels_rechts"
+      newColumnName="trennstreifen_trennung_zu_rechts"
+    />
+    <renameColumn
+      tableName="fuehrungsform_attribut_gruppe_attribute_links_aud"
+      oldColumnName="trennstreifen_trennung_mittels_links"
+      newColumnName="trennstreifen_trennung_zu_links"
+    />
+  </changeSet>
+
+  <changeSet id="RAD-4719-2" author="hst">
+    <!-- Normale Tabellen -->
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+      <column name="trennstreifen_form_rechts" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_rechts = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+      <column name="trennstreifen_form_links" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_links = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_links">
+      <column name="trennstreifen_form_rechts" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_rechts = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_links">
+      <column name="trennstreifen_form_links" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_links = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+
+    <!-- Auditing Tabellen -->
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+      <column name="trennstreifen_form_rechts" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_rechts = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+      <column name="trennstreifen_form_links" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_links = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
+      <column name="trennstreifen_form_rechts" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_rechts = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+    <update tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
+      <column name="trennstreifen_form_links" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
+      <where>trennstreifen_form_links = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
+    </update>
+  </changeSet>
+
+  <changeSet id="RAD-2659" author="lb">
+    <createTable tableName="datei_layer">
+      <column name="id" type="bigint"/>
+      <column name="name" type="varchar(255)"/>
+      <column name="quellangabe" type="varchar(1000)"/>
+      <column name="geometry" type="GEOMETRY"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-2659-2" author="pg">
+    <addColumn tableName="datei_layer">
+      <column name="benutzer_id" type="BIGINT"/>
+      <column name="erstellt_am" type="timestamp"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2659-3" author="lb">
+    <addColumn tableName="datei_layer">
+      <column name="datei_layer_format" type="varchar(255)"/>
+    </addColumn>
+  </changeSet>
+</databaseChangeLog>

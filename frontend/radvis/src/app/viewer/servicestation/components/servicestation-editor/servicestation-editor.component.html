@@ -1,0 +1,105 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar *ngIf="isCreator" radRightDetailsShortcut>
+  <h2 class="flex-grow">Servicestation erstellen</h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    (save)="onSave()"
+    [dirty]="isDirty"
+    [fetching]="isFetching"
+    [showHeader]="false"
+    [canEdit]="canEdit"
+  >
+    <rad-position-selektion-control
+      formControlName="geometrie"
+      class="mt-10"
+      [withInfrastrukturIcon]="iconName"
+    ></rad-position-selektion-control>
+    <rad-text-input-control formControlName="name">
+      <div class="label">Name</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('name')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-checkbox formControlName="gebuehren" class="mb-4"> Gebühren</mat-checkbox>
+
+    <mat-form-field class="mat-form-field-full-width w-100">
+      <mat-label>Öffnungszeiten</mat-label>
+      <textarea class="text-area" formControlName="oeffnungszeiten" matInput></textarea>
+      <mat-hint align="end">{{ formGroup.get('oeffnungszeiten')?.value?.length || 0 }}/2000</mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('oeffnungszeiten')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control formControlName="betreiber">
+      <div class="label">Betreiber</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('betreiber')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control formControlName="marke">
+      <div class="label">Marke</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('marke')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-checkbox formControlName="luftpumpe"> Luftpumpe</mat-checkbox>
+    <mat-checkbox formControlName="kettenwerkzeug"> Kettenwerkzeug</mat-checkbox>
+    <mat-checkbox formControlName="werkzeug"> Werkzeug</mat-checkbox>
+    <mat-checkbox formControlName="fahrradhalterung" class="mb-4"> Fahrradhalterung</mat-checkbox>
+
+    <mat-form-field class="mat-form-field-full-width w-100">
+      <mat-label>Beschreibung</mat-label>
+      <textarea class="text-area" formControlName="beschreibung" matInput></textarea>
+      <mat-hint align="end">{{ formGroup.get('beschreibung')?.value?.length || 0 }}/2000</mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('beschreibung')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationen$ | async) || []"
+      [nullable]="true"
+      formControlName="organisation">Zuständig in RadVIS
+    </rad-organisationen-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('organisation')?.errors || null"></rad-validation-error-anzeige>
+
+
+    <rad-enum-dropdown-control
+      formControlName="typ"
+      class="mat-form-field-full-width"
+      [nullable]="false"
+      [options]="servicestationTypOptions">Servicestation-Typ
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('typ')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      formControlName="status"
+      class="mat-form-field-full-width"
+      [nullable]="false"
+      [options]="servicestationStatusOptions">Status
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('status')?.errors || null"></rad-validation-error-anzeige>
+
+  </rad-attribute-editor>
+</form>

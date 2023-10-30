@@ -1,0 +1,205 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="display-flex flex-column align-items-center" mat-dialog-content>
+  <div class="accordion-container">
+    <mat-accordion
+      *ngFor="let formGroup of formArrayAsFormGroupArray; let index = index"
+      [@.disabled]="disableAnimation"
+    >
+      <!-- keine id bedeutet es handelt sich um einen neuen Layer-->
+      <mat-expansion-panel [expanded]="!formGroup.get('id')?.value">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ formGroup.get('name')?.value }}</mat-panel-title>
+          <mat-panel-description *ngIf="formGroup.invalid">(enthält Fehler)</mat-panel-description>
+          <div class="display-flex justify-content-flex-end delete-button">
+            <button
+              (click)="onDeleteLayer(index)"
+              [attr.aria-label]="'Layer entfernen'"
+              mat-icon-button
+              matTooltip="Layer entfernen"
+              type="button"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-expansion-panel-header>
+
+        <form [formGroup]="formGroup">
+          <rad-text-input-control formControlName="name">
+            <div class="label">Layername</div>
+          </rad-text-input-control>
+          <rad-validation-error-anzeige [errors]="formGroup.get('name')?.errors || null"></rad-validation-error-anzeige>
+
+          <rad-text-input-control [asTextarea]="true" formControlName="url">
+            <div class="label">URL</div>
+          </rad-text-input-control>
+          <rad-validation-error-anzeige [errors]="formGroup.get('url')?.errors || null"></rad-validation-error-anzeige>
+
+          <rad-enum-dropdown-control
+            [nullable]="false"
+            [options]="layerTypOptions"
+            formControlName="weitereKartenebeneTyp"
+          >
+            Layertyp
+          </rad-enum-dropdown-control>
+
+          <rad-text-input-control [asTextarea]="true" formControlName="quellangabe">
+            <div class="label">Quelle/Lizenzbedingungen</div>
+            <div class="suffix">
+              <button
+                (click)="onGenerateQuellangabe(formGroup, index)"
+                [attr.aria-label]="'Quellangabe aus Layer auslesen'"
+                [disabled]="!formGroup.get('url')?.valid"
+                mat-icon-button
+                matTooltip="Quellangabe aus Layer auslesen"
+              >
+                <mat-icon *ngIf="parsingQuellangabeForLayerIndex !== index">auto_fix_high</mat-icon>
+                <mat-spinner *ngIf="index === parsingQuellangabeForLayerIndex" diameter="16"></mat-spinner>
+              </button>
+            </div>
+            <div class="hint">
+              ({{ formGroup.get('quellangabe')?.value?.length || 0 }}/{{ QUELLANGABE_MAX_LENGTH }})
+            </div>
+          </rad-text-input-control>
+          <rad-validation-error-anzeige [errors]="formGroup.get('quellangabe')?.errors || null">
+          </rad-validation-error-anzeige>
+
+          <div *ngIf="isWFS(formGroup.get('weitereKartenebeneTyp')?.value)" class="display-flex color-picker">
+            <label>Farbe: </label>
+            <input formControlName="farbe" type="color" />
+          </div>
+          <div class="display-flex justify-content-space-between">
+            <rad-deckkraft-slider-control formControlName="deckkraft"></rad-deckkraft-slider-control>
+            <rad-zoomstufe-slider-control formControlName="zoomstufe"></rad-zoomstufe-slider-control>
+          </div>
+          <div class="input-with-icon">
+            <rad-number-input-control
+              class="zindex-eingabe-feld"
+              [value]="formGroup.get('zindex')?.value"
+              [anzahlNachkommastellen]="0"
+              formControlName="zindex"
+            >
+              <div class="label">Anzeigeordnung</div>
+            </rad-number-input-control>
+            <mat-icon
+              class="ml-2"
+              color="accent"
+              matTooltip="Je höher der Wert, desto weiter oben wird das Layer angezeigt."
+              >info
+            </mat-icon>
+            <span class="ml-2">
+              Die Wertebereiche der Kartenebenen finden Sie im
+              <a href="javascript:void(0);" (click)="openManualAnzeigeordnungLayerViewer()">Handbuch</a>
+              .
+            </span>
+          </div>
+          <rad-validation-error-anzeige
+            [errors]="formGroup.get('zindex')?.errors || null"
+          ></rad-validation-error-anzeige>
+        </form>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>
+<div class="buttons display-flex justify-content-flex-end" mat-dialog-actions>
+  <button [matMenuTriggerFor]="menu" color="primary" mat-stroked-button>
+    <mat-icon>add</mat-icon>
+    Hinzufügen
+  </button>
+  <div class="flex-grow"></div>
+  <button [disabled]="saving" mat-dialog-close="false" mat-stroked-button type="button">Abbrechen</button>
+  <rad-action-button (action)="onSave()" [dirty]="weitereKartenebenenFormArray.dirty" [waiting]="saving">
+    Speichern
+  </rad-action-button>
+</div>
+
+<mat-menu #menu="matMenu" yPosition="above">
+  <button (click)="onAddWeitereKartenebenen()" mat-menu-item>Eigenen Layer konfigurieren</button>
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.allgemein"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+  <button [matMenuTriggerFor]="ttsib" mat-menu-item>TT-SIB</button>
+  <button [matMenuTriggerFor]="unfall" mat-menu-item>Unfallzahlen</button>
+  <button [matMenuTriggerFor]="verwaltungsgrenzen" mat-menu-item>Verwaltungsgrenzen</button>
+  <button [matMenuTriggerFor]="bis" mat-menu-item>Arbeitsstellen BEMaS</button>
+  <button [matMenuTriggerFor]="orthofotos" mat-menu-item>Aktualität Orthofotos</button>
+  <button *ngIf="showLayerAusDateiFeatureToggl" [matMenuTriggerFor]="dateilayer" mat-menu-item>Sonstige Layer</button>
+</mat-menu>
+
+<mat-menu #ttsib="matMenu" yPosition="above">
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.ttSib"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+</mat-menu>
+
+<mat-menu #unfall="matMenu" yPosition="above">
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.unfallzahlen"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+</mat-menu>
+
+<mat-menu #verwaltungsgrenzen="matMenu" yPosition="above">
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.verwaltungsgrenzen"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+</mat-menu>
+
+<mat-menu #bis>
+  <button [matMenuTriggerFor]="biswfs" mat-menu-item>WFS</button>
+  <button [matMenuTriggerFor]="biswms" mat-menu-item>WMS</button>
+</mat-menu>
+
+<mat-menu #biswfs="matMenu" yPosition="above">
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.bisWfs"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+</mat-menu>
+
+<mat-menu #biswms="matMenu" yPosition="above">
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.bisWms"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+</mat-menu>
+
+<mat-menu #orthofotos="matMenu" yPosition="above">
+  <ng-template
+    [ngForOf]="PredefinedWeitereKartenebenen.orthofotos"
+    [ngForTemplate]="weitereKartenebenenItem"
+    ngFor
+  ></ng-template>
+</mat-menu>
+
+<mat-menu #dateilayer="matMenu" yPosition="above">
+  <span *ngIf="dateiLayerKartenebenen.length === 0" mat-menu-item>Es wurden noch keine sonstigen Layer angelegt.</span>
+  <ng-template [ngForOf]="dateiLayerKartenebenen" [ngForTemplate]="weitereKartenebenenItem" ngFor></ng-template>
+</mat-menu>
+
+<ng-template #weitereKartenebenenItem let-i="index" let-predefinedLayer>
+  <button (click)="onAddPredefinedWeitereKartenebenen(predefinedLayer)" mat-menu-item>
+    {{ predefinedLayer.name }}
+  </button>
+</ng-template>

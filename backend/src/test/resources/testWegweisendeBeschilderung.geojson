@@ -1,0 +1,30 @@
+{
+	"type": "FeatureCollection",
+	"name": "Pfosten",
+	"crs": { 
+		"type": "name", 
+		"properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } 
+	},
+	"features": [
+		{ "type": "Feature",
+			"properties": { 
+				"PfostenNr": "AB 711201993",
+				"Knoten": 711201986
+			}, 
+			"geometry": { 
+				"type": "Point", 
+				"coordinates": [ 9.7948761, 48.3035616 ] 
+			} 
+		},
+		{ "type": "Feature",
+			"properties": {
+				"PfostenNr": "AB 711201994",
+				"Knoten": 710301236
+			}, 
+			"geometry": { 
+				"type": "Point", 
+				"coordinates": [ 9.7861315, 48.3054296 ] 
+			} 
+		}
+	]
+}

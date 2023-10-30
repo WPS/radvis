@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="display-flex align-items-stretch flex-grow no-overflow">
+  <div class="map flex-grow">
+    <rad-ol-map (locationSelect)="onFeatureSelected($event)" class="h-100 w-100">
+      <rad-infrastrukturen-menu class="left-menu"></rad-infrastrukturen-menu>
+
+      <ng-container *ngIf="!netzAusgeblendet">
+        <rad-radvis-signatur-layer
+          *ngIf="selectedNetzSignatur$ | async as selectedSignatur; else RadvisNetzLayer"
+          [selectedSignatur]="selectedSignatur"
+        ></rad-radvis-signatur-layer>
+
+        <ng-template #RadvisNetzLayer>
+          <rad-radvis-netz-layer [mitVerlauf]="mitVerlauf$ | async"></rad-radvis-netz-layer>
+        </ng-template>
+
+        <rad-infrastruktur-layer></rad-infrastruktur-layer>
+
+        <rad-weitere-kartenebenen-display-layer></rad-weitere-kartenebenen-display-layer>
+      </ng-container>
+
+      <rad-fehlerprotokoll-layer
+        *ngIf="fehlerprotokolleEnabled"
+        [canCreateAnpassungswunsch]="true"
+        [zIndex]="fehlerprotokollZIndex"
+      ></rad-fehlerprotokoll-layer>
+
+      <rad-location-selection-layer [location]="selectedLocation"></rad-location-selection-layer>
+      <rad-measure-distance-layer *ngIf="measureModeEnabled"></rad-measure-distance-layer>
+
+      <rad-karte-menu-item (menuOpen)="signaturAuswahl.setFocus()" icon="route" aria-label="Signatur"
+                           headline="Signatur" class="karte-button mb-10">
+        <rad-radvis-signatur-auswahl
+          #signaturAuswahl
+          (selectRadVisSignatur)="onSelectRadVisSignatur($event)"
+          [selectedSignatur]="selectedSignatur$ | async"
+        ></rad-radvis-signatur-auswahl>
+      </rad-karte-menu-item>
+      <rad-karte-button
+        (click)="onToggleVerlauf(true)"
+        *ngIf="(mitVerlauf$ | async) === false"
+        class="karte-button"
+        accessibilityText="Verlauf anzeigen"
+      >
+        <mat-icon svgIcon="verlaufOn"></mat-icon>
+      </rad-karte-button>
+      <rad-karte-button
+        (click)="onToggleVerlauf(false)"
+        *ngIf="mitVerlauf$ | async"
+        class="karte-button"
+        accessibilityText="Verlauf ausblenden"
+      >
+        <mat-icon svgIcon="verlaufOff"></mat-icon>
+      </rad-karte-button>
+
+      <rad-karte-button
+        class="karte-aktion-button"
+        (click)="onMeasureClicked()"
+        [selected]="measureModeEnabled"
+        accessibilityText="Messwerkzeug"
+      >
+        <mat-icon>straighten</mat-icon>
+      </rad-karte-button>
+
+      <rad-bedienhinweis class="mitte-unten"></rad-bedienhinweis>
+
+      <rad-infrastrukturen-tabellen class="unten"></rad-infrastrukturen-tabellen>
+
+      <rad-select-feature-menu></rad-select-feature-menu>
+      <div class="right-details h-100" role="region" aria-label="Details" aria-keyshortcuts="Control+Alt+Shift+D">
+        <router-outlet></router-outlet>
+      </div>
+    </rad-ol-map>
+  </div>
+</div>

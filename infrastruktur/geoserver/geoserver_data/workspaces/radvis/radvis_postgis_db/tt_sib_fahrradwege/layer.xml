@@ -1,0 +1,17 @@
+<layer>
+  <name>tt_sib_fahrradwege</name>
+  <id>LayerInfoImpl-61a2f960:184a98fb85b:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-61a2f960:184a98fb85b:-7ffd</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-61a2f960:184a98fb85b:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-11-24 12:14:39.254 UTC</dateCreated>
+  <dateModified>2022-11-24 12:20:23.297 UTC</dateModified>
+</layer>

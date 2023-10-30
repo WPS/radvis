@@ -1,0 +1,64 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<button
+  [attr.aria-label]="'Filtern'"
+  matTooltip="Filtern"
+  (click)="menuTrigger.openMenu()"
+  mat-button
+  [class.aktiv]="isAktiv"
+  [class.hovered]="hovered"
+  #triggerButton="matButton"
+>
+  <mat-icon>filter_alt</mat-icon>
+</button>
+<div
+  class="invisible-trigger"
+  #menuTrigger="matMenuTrigger"
+  [mat-menu-trigger-for]="menu"
+  (onMenuClose)="menuClosed()"
+  (onMenuOpen)="menuOpened()"
+></div>
+<mat-menu #menu="matMenu" yPosition="below">
+  <div class="mat-menu-container">
+    <div class="body" radAccessabilityTabCircleGroup
+         (keydown.tab)="$event.stopPropagation()"
+         (keydown.shift.tab)="$event.stopPropagation()"
+         (keydown.escape)="triggerButton.focus()"
+         (click)="$event.stopPropagation()">
+      <mat-form-field class="filter-input-form-field">
+        <input
+          radAccessabilityTabCircleElement
+          #filterInput
+          type="text"
+          placeholder="Filter"
+          matInput
+          [formControl]="filterControl"
+          (keydown.enter)="menuTrigger.closeMenu()"
+        />
+      </mat-form-field>
+      <button
+        radAccessabilityTabCircleElement
+        [attr.aria-label]="'Filter zurücksetzen'"
+        matTooltip="Filter zurücksetzen"
+        [disabled]="!filterInput.value"
+        (click)="onFilterClear()"
+        mat-icon-button
+        class="ml-3 mat-icon-button-small"
+      >
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </div>
+</mat-menu>

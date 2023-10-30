@@ -1,0 +1,74 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="content">
+  <h2>Organisation</h2>
+  <div class="toolbar">
+    <mat-form-field class="align-self-start">
+      <input [formControl]="formControl" matInput/>
+      <mat-icon class="search-icon mr-3" matPrefix>search</mat-icon>
+      <button
+        *ngIf="formControl.value?.length > 0"
+        [attr.aria-label]="'Eingabe zurücksetzen'"
+        matTooltip="Eingabe zurücksetzen"
+        (click)="onClearSearch()"
+        matSuffix
+        mat-icon-button
+        class="ml-3"
+      >
+        <mat-icon>clear</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button
+      *ngIf="isBenutzerBerechtigtOrganisationZuErstellen"
+      (click)="onCreate()"
+      mat-stroked-button
+      class="action-buttons"
+    >
+      <mat-icon>add</mat-icon>
+      Neu anlegen
+    </button>
+  </div>
+
+  <table mat-table [dataSource]="organisationDataSource" matSort class="w-100">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="organisationsArt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Organisationsart</th>
+      <td mat-cell *matCellDef="let element">{{ OrganisationsArt.getDisplayName(element.organisationsArt) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+      <td mat-cell *matCellDef="let element">{{ element.aktiv ? 'aktiv' : 'inaktiv' }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: headerColumns" (click)="onEdit(row.id)" style="cursor: pointer"></tr>
+  </table>
+
+  <mat-spinner class="content" color="accent" *ngIf="isFetching" diameter="56"></mat-spinner>
+  <mat-paginator
+    (page)="onPage()"
+    [pageSizeOptions]="[10, 20, 50]"
+    [pageIndex]="page$ | async"
+    [pageSize]="pageSize$ | async"
+    showFirstLastButtons
+    [attr.aria-label]="'Seite wählen'"
+  ></mat-paginator>
+</div>

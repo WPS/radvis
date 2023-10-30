@@ -1,0 +1,117 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<ng-container *ngIf="hasKanten$ | async">
+  <form [formGroup]="formGroup" class="form-group">
+    <div *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis hinweis">
+      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
+      <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
+    </div>
+    <rad-attribute-editor
+      (dismiss)="onClose()"
+      (resetForm)="onReset()"
+      (save)="onSave()"
+      [disabled]="formGroup.disabled"
+      [dirty]="formGroup.dirty"
+      [fetching]="isFetching"
+    >
+      <div class="display-flex justify-content-space-between">
+        <div class="legende">
+          <div>
+            <div class="color links"></div>
+            <div class="beschriftung">Linke Seite</div>
+          </div>
+          <div>
+            <div class="color rechts"></div>
+            <div class="beschriftung">Rechte Seite</div>
+          </div>
+          <div>
+            <div class="color einseitig"></div>
+            <div class="beschriftung">Einseitig</div>
+          </div>
+          <div class="mt-10">
+            <div class="color geometrie"></div>
+            <div class="beschriftung">Ursprüngliche Geometrie</div>
+          </div>
+        </div>
+        <div class="buttons">
+          <button
+            *ngIf="mindestensEinVerlaufFehlt"
+            [attr.aria-label]="
+              (multipleKantenSelected$ | async)
+                ? 'Allen ausgewählten Kanten einen Verlauf hinzufügen'
+                : 'Der ausgewählten Kante einen Verlauf hinzufügen'
+            "
+            [matTooltip]="
+              (multipleKantenSelected$ | async)
+                ? 'Allen ausgewählten Kanten einen Verlauf hinzufügen'
+                : 'Der ausgewählten Kante einen Verlauf hinzufügen'
+            "
+            [disabled]="formGroup.disabled"
+            (click)="verlaeufeHinzufuegen()"
+            mat-mini-fab
+            color="primary"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+          <button
+            *ngIf="mindestensEinVerlaufVorhanden"
+            [attr.aria-label]="(multipleKantenSelected$ | async) ? 'Verlauf für alle Kanten löschen' : 'Verlauf Löschen'"
+            [matTooltip]="(multipleKantenSelected$ | async) ? 'Verlauf für alle Kanten löschen' : 'Verlauf Löschen'"
+            [disabled]="formGroup.disabled"
+            (click)="verlaeufeLoeschen()"
+            mat-mini-fab
+            color="accent"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </rad-attribute-editor>
+    <ng-container *ngFor="let kante of selektierteKanten$ | async; let i = index">
+      <rad-kante-geometry-control
+        *ngIf="kante.geometrieAenderungErlaubt"
+        [color]="colorUrsprungsGeometrie"
+        [formControl]="geometryFormControls[i]"
+        [withDirectionalArrows]="true"
+      ></rad-kante-geometry-control>
+
+      <!-- Stellt die Ursprungsgeometrie dar -->
+      <rad-kante-grundgeometrie-layer
+        *ngIf="!kante.geometrieAenderungErlaubt"
+        [geometry]="getGeometryAtIndex(i)"
+        [kanteId]="kante.id"
+        (deselected)="onKanteDeselected(kante)"
+      ></rad-kante-grundgeometrie-layer>
+      <rad-kante-geometry-control
+        *ngIf="!kante.zweiseitig && verlaufEinseitigFormControls[i].value"
+        [color]="colorBaseGeometry"
+        [formControl]="verlaufEinseitigFormControls[i]"
+        [withDirectionalArrows]="false"
+      ></rad-kante-geometry-control>
+      <rad-kante-geometry-control
+        *ngIf="kante.zweiseitig && verlaufLinksFormControls[i].value"
+        [color]="colorVerlaufLinks"
+        [formControl]="verlaufLinksFormControls[i]"
+        [withDirectionalArrows]="false"
+      ></rad-kante-geometry-control>
+      <rad-kante-geometry-control
+        *ngIf="kante.zweiseitig && verlaufRechtsFormControls[i].value"
+        [color]="colorVerlaufRechts"
+        [formControl]="verlaufRechtsFormControls[i]"
+        [withDirectionalArrows]="false"
+      ></rad-kante-geometry-control>
+    </ng-container>
+  </form>
+</ng-container>

@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "rbbit.typescript-hero",
+    "angular.ng-template",
+    "johnpapa.angular2",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "vscjava.vscode-java-debug",
+    "vscjava.vscode-java-pack",
+    "visualstudioexptteam.vscodeintellicode",
+    "visualstudioexptteam.intellicode-api-usage-examples",
+    "redhat.java",
+    "vscjava.vscode-maven",
+    "vscjava.vscode-java-dependency",
+    "vscjava.vscode-java-test",
+    "redhat.vscode-yaml"
+  ]
+}

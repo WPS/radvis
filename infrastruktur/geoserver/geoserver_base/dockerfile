@@ -1,0 +1,6 @@
+ARG GEOSERVER_BASE_IMAGE_VERSION=$GEOSERVER_BASE_IMAGE_VERSION
+FROM docker.osgeo.org/geoserver:$GEOSERVER_BASE_IMAGE_VERSION
+ARG GEOSERVER_BASE_IMAGE_VERSION
+ADD https://downloads.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_BASE_IMAGE_VERSION/extensions/geoserver-$GEOSERVER_BASE_IMAGE_VERSION-geopkg-output-plugin.zip /opt/additional_libs/geoserver-$GEOSERVER_BASE_IMAGE_VERSION-geopkg-output-plugin.zip
+ENV INSTALL_EXTENSIONS=true
+ENV STABLE_EXTENSIONS=geopkg-output

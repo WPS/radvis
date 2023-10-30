@@ -1,0 +1,17 @@
+<layer>
+  <name>geoserver_fahrradroute_import_vorher_materialized_view</name>
+  <id>LayerInfoImpl-53bad803:1841df4a024:-7ffd</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-542d13d6:1841dfe677e:-66bd</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-53bad803:1841df4a024:-7ffe</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-10-28 09:39:02.289 UTC</dateCreated>
+  <dateModified>2022-11-03 11:09:01.591 UTC</dateModified>
+</layer>

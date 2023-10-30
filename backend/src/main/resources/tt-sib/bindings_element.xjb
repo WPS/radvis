@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb">
+  <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/2.1.2/feature.xsd" node="//xs:schema">
+    <jxb:bindings node=".//xs:element[@name='_geometryProperty']">
+      <jxb:factoryMethod name="abstractGeometryProperty"/>
+    </jxb:bindings>
+  </jxb:bindings>
+  <jxb:bindings schemaLocation="http://www.w3.org/1999/xlink.xsd" node="//xs:schema">
+    <jxb:bindings node=".//xs:attribute[@name='title']">
+      <jxb:property name="titleElement" />
+    </jxb:bindings>
+  </jxb:bindings>
+</jxb:bindings>

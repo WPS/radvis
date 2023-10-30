@@ -1,0 +1,149 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+	<changeSet id="RAD-2122" author="ap">
+		<addColumn tableName="organisation">
+			<column name="ist_qualitaetsgesichert" type="BOOLEAN" />
+		</addColumn>
+	</changeSet>
+	<changeSet id="RAD-2122-1" author="ap">
+		<addDefaultValue columnName="ist_qualitaetsgesichert"
+			defaultValueBoolean="false" tableName="organisation" />
+	</changeSet>
+	<changeSet id="RAD-2167" author="par">
+		<addColumn tableName="kante">
+			<column name="is_grundnetz" type="BOOLEAN"
+				defaultValueBoolean="false" />
+		</addColumn>
+		<addColumn tableName="kante_aud">
+			<column name="is_grundnetz" type="BOOLEAN"
+				defaultValueBoolean="false" />
+		</addColumn>
+		<sql>
+			UPDATE kante
+			SET is_grundnetz = true
+			WHERE quelle = 'DLM'
+			OR quelle
+			= 'RadNETZ'
+			OR quelle = 'RadVis'
+		</sql>
+		<sql>
+			UPDATE kante AS k
+			SET is_grundnetz = false FROM
+			kanten_attribut_gruppe AS kag, kanten_attribut_gruppe_netzklassen AS
+			nk
+			WHERE k.kanten_attributgruppe_id = kag.id
+			AND kag.id =
+			nk.kanten_attribut_gruppe_id
+			AND k.quelle = 'DLM'
+			AND nk.netzklasse
+			LIKE 'RADNETZ%'
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-2169" author="par">
+		<dropView
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view" />
+		<createView
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry,
+			geloescht, quelle, fuehrungsform_attribut_gruppe_id, kanten_attributgruppe_id, is_grundnetz FROM kante
+		</createView>
+		<dropView
+			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view" />
+		<createView
+			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry,
+			geloescht, quelle, zustaendigkeit_attributgruppe_id, kanten_attributgruppe_id, is_grundnetz FROM kante
+		</createView>
+		<dropView viewName="kante_geschwindigkeits_attribute_view" />
+		<createView
+			viewName="kante_geschwindigkeits_attribute_view"
+			replaceIfExists="true">SELECT k.id, k.geometry,
+			k.geloescht, k.quelle, g.hoechstgeschwindigkeit,
+			g.abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung, k.kanten_attributgruppe_id, k.is_grundnetz FROM
+			kante k,
+			geschwindigkeit_attribut_gruppe g
+		</createView>
+		<dropView viewName="kante_kanten_attribute_view" />
+	</changeSet>
+	<changeSet id="RAD-2212" author="mr">
+		<sql>UPDATE organisation SET ist_qualitaetsgesichert=false WHERE
+			ist_qualitaetsgesichert IS NULL</sql>
+	</changeSet>
+	<changeSet id="RAD-2183" author="mr">
+		<renameColumn tableName="kante"
+			oldColumnName="auf_osm_gematchte_geometry"
+			newColumnName="auf_dlm_abgebildete_geometry" />
+		<renameColumn tableName="kante_aud"
+			oldColumnName="auf_osm_gematchte_geometry"
+			newColumnName="auf_dlm_abgebildete_geometry" />
+	</changeSet>
+	<changeSet id="RAD-2283" author="tir">
+		<createIndex tableName="kanten_mapping" indexName="kanten_mapping_grundnetz_kanten_id_idx">
+			<column name="grundnetz_kanten_id"/>
+		</createIndex>
+	</changeSet>
+	<changeSet id="RAD-2286" author="par">
+		<addColumn tableName="kante_osm_way_ids_aud">
+			<column name="setordinal" type="integer"/>
+		</addColumn>
+	</changeSet>
+  <changeSet id="RAD-2293" author="tr">
+    <createIndex tableName="kante" indexName="kante_nach_knoten_id_idx">
+      <column name="nach_knoten_id"/>
+    </createIndex>
+    <createIndex tableName="kante" indexName="kante_von_knoten_id_idx">
+      <column name="von_knoten_id"/>
+    </createIndex>
+    <createIndex tableName="kante" indexName="kante_zustaendigkeit_attributgruppe_id_idx">
+      <column name="zustaendigkeit_attributgruppe_id"/>
+    </createIndex>
+    <createIndex tableName="kante" indexName="kante_geschwindigkeit_attributgruppe_id_idx">
+      <column name="geschwindigkeit_attributgruppe_id"/>
+    </createIndex>
+    <createIndex tableName="kante" indexName="kante_fahrtrichtung_attributgruppe_id_idx">
+      <column name="fahrtrichtung_attributgruppe_id"/>
+    </createIndex>
+    <createIndex tableName="kante" indexName="kante_fuehrungsform_attribut_gruppe_id_idx">
+      <column name="fuehrungsform_attribut_gruppe_id"/>
+    </createIndex>
+    <createIndex tableName="kante" indexName="kante_kanten_attributgruppe_id_idx">
+      <column name="kanten_attributgruppe_id"/>
+    </createIndex>
+    <createIndex tableName="benutzer" indexName="benutzer_organisation_id_idx">
+      <column name="organisation_id"/>
+    </createIndex>
+    <createIndex tableName="benutzer_rollen" indexName="benutzer_rollen_benutzer_id_idx">
+      <column name="benutzer_id"/>
+    </createIndex>
+    <createIndex tableName="organisation" indexName="organisation_uebergeordnete_organisation_id_idx">
+      <column name="uebergeordnete_organisation_id"/>
+    </createIndex>
+    <createIndex tableName="tt_sib_streifen" indexName="tt_sib_streifen_tt_sib_querschnitt_id_idx">
+      <column name="tt_sib_querschnitt_id"/>
+    </createIndex>
+    <createIndex tableName="tt_sib_teilabschnitt" indexName="tt_sib_teilabschnitt_abschnitt_oder_ast_id_idx">
+      <column name="abschnitt_oder_ast_id"/>
+    </createIndex>
+    <createIndex tableName="tt_sib_teilabschnitt" indexName="tt_sib_teilabschnitt_tt_sib_querschnitt_id_idx">
+      <column name="tt_sib_querschnitt_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

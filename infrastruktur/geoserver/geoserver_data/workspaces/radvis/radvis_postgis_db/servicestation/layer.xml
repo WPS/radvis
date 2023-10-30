@@ -1,0 +1,17 @@
+<layer>
+  <name>servicestation</name>
+  <id>LayerInfoImpl--36bafcf3:185ed6de47d:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--2ea9e9f6:1869788896c:-7ffe</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--36bafcf3:185ed6de47d:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-26 09:34:40.318 UTC</dateCreated>
+  <dateModified>2023-02-28 10:32:53.901 UTC</dateModified>
+</layer>

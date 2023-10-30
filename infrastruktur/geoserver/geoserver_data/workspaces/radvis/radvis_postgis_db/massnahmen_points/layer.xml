@@ -1,0 +1,16 @@
+<layer>
+  <name>massnahmen_points</name>
+  <id>LayerInfoImpl-70c7b122:185c0007166:-7ffd</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-37b18cc6:14d5d036d48:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-70c7b122:185c0007166:-7ffe</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-17 13:53:27.926 UTC</dateCreated>
+</layer>

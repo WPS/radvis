@@ -1,0 +1,78 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/colors';
+
+:host {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  height: 100%;
+}
+
+.map {
+  position: relative;
+}
+
+.flag-cursor {
+  cursor: url('../../../../assets/add_flag.png') 16 18, auto;
+}
+
+.erledigtMarkierenActive {
+  cursor: pointer;
+}
+
+.map-properties-display {
+  position: absolute;
+  border-left: 1px solid map-get($grayscale, 300);
+  right: 0;
+  top: 0;
+  height: 100%;
+  overflow-y: auto;
+  background-color: white;
+  max-width: 25%;
+  min-width: 17rem;
+}
+
+.map-left-tools {
+  background-color: white;
+  border-right: 1px solid map-get($grayscale, 300);
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.layer-auswahl {
+  flex-grow: 1;
+}
+
+.kreis-erledigt-button {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 900000;
+}
+
+.anpassungswunsch-button {
+  position: absolute;
+  top: 4rem;
+  z-index: 900000;
+  right: 1.25rem;
+}
+
+button.indented {
+  right: max(calc(25% + 16px), 18rem);
+}

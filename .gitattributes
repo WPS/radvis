@@ -1,0 +1,3 @@
+* text=auto
+backend/src/test/resources/shp/* -text
+*.sh text eol=lf

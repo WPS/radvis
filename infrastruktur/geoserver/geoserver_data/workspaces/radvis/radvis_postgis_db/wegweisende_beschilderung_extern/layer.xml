@@ -1,0 +1,17 @@
+<layer>
+  <name>wegweisende_beschilderung_extern</name>
+  <id>LayerInfoImpl-78546f2c:185721c4322:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--7e4b63ec:186973c06a8:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-78546f2c:185721c4322:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-02 10:52:13.35 UTC</dateCreated>
+  <dateModified>2023-02-28 09:44:54.402 UTC</dateModified>
+</layer>

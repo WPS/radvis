@@ -1,0 +1,121 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div #olMap (mouseleave)="onMouseLeave()" class="flex-grow" [ngClass]="[cursorClass]"></div>
+
+<rad-hintergrund-layer></rad-hintergrund-layer>
+
+
+<div class="container h-100 w-100">
+  <div class="links" #menuLinks>
+    <ng-content select=".left-menu"></ng-content>
+  </div>
+
+  <div class="mitte">
+    <div class="mitte-oben">
+      <div class="mitte-oben-links" role="region" aria-label="Karte-Aktionen" aria-keyshortcuts="Control+Alt+Shift+K">
+        <rad-karte-menu-item
+          #ortssucheKarteMenuItem
+          icon="search"
+          aria-label="Ortssuche"
+          headline="Ortssuche"
+          (menuOpen)="ortsSuche.setFocus()"
+        >
+          <rad-orts-suche
+            (ortAusgewaehlt)="ortssucheKarteMenuItem.close(); onSelectCenter($event)"
+            #ortsSuche
+          ></rad-orts-suche>
+        </rad-karte-menu-item>
+        <rad-karte-menu-item icon="layers" aria-label="Hintergrund" headline="Hintergrund"
+                             (menuOpen)="hintergrundAuswahl.setFocusOnSelectedButton()">
+          <rad-hintergrund-auswahl #hintergrundAuswahl></rad-hintergrund-auswahl>
+        </rad-karte-menu-item>
+        <rad-karte-menu-item icon="filter_alt" aria-label="Netzklassen-Filter" headline="Netzklasse-Filter">
+          <rad-netzklassen-auswahl [zoom]="zoom"></rad-netzklassen-auswahl>
+        </rad-karte-menu-item>
+        <rad-karte-menu-item *ngIf="featureTogglzService.fehlerprotokoll" icon="warning" aria-label="Fehlerprotokolle"
+                             headline="Fehlerprotokolle">
+          <rad-fehlerprotokoll-auswahl [zoom]="zoom"></rad-fehlerprotokoll-auswahl>
+        </rad-karte-menu-item>
+        <ng-content select=".karte-button"></ng-content>
+      </div>
+
+      <div class="mitte-oben-rechts">
+        <rad-legende class="screen-only" [legenden]="legenden"></rad-legende>
+
+        <ng-content select=".oben-rechts"></ng-content>
+        <ng-content select=".create-button-wrapper"></ng-content>
+      </div>
+    </div>
+
+    <div class="flex-grow"></div>
+
+    <div class="mitte-unten-oben">
+      <div>
+        <rad-karte-menu-item icon="info_outline" aria-label="Quellangaben" headline="Quellangaben"
+                             *ngIf="quellen.length > 0"
+                             class="screen-only quellenangaben-button" #quellangabenMenu
+                             (menuOpen)="quellangabenMenu.setFocus()"
+                             (keydown.escape)="quellangabenMenu.close()">
+          <ng-container *ngTemplateOutlet="quellangabe"></ng-container>
+        </rad-karte-menu-item>
+        <div class="print-only mb-5">
+          <ng-container *ngTemplateOutlet="quellangabe"></ng-container>
+        </div>
+        <div class="scale-bar" #scaleBar></div>
+      </div>
+      <rad-legende class="print-only" [usePrintLayout]="true" [legenden]="legenden"></rad-legende>
+      <div class="controls-and-bedienhinweis">
+        <ng-content select=".mitte-unten"></ng-content>
+
+        <div class="aktionen-controls">
+          <ng-content select=".karte-aktion-button"></ng-content>
+          <rad-karte-button (click)="zoomIn()"
+                            class="karte-aktion-button"
+                            accessibilityText="Reinzoomen">
+            <mat-icon>add</mat-icon>
+          </rad-karte-button>
+          <rad-karte-button (click)="zoomOut()"
+                            class="karte-aktion-button"
+                            accessibilityText="Rauszoomen">
+            <mat-icon>remove</mat-icon>
+          </rad-karte-button>
+          <div class="nordpfeil">
+            <img src="assets/north-arrow-2.svg" alt="Nordpfeil"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mitte-unten-unten" #tabelle>
+      <ng-content select=".unten"></ng-content>
+    </div>
+  </div>
+
+
+  <div class="rechts" #tool>
+    <ng-content select=".tool"></ng-content>
+    <ng-content select=".right-details"></ng-content>
+  </div>
+</div>
+
+<ng-template #quellangabe>
+  <ul class="quellen">
+    <li *ngFor="let quelle of quellen" class="m-5 quellen-item">
+      <b class="quellen-name">{{ quelle.layerName }}</b>
+      <!-- Damit Zeilenumbrüche beachtet werden -->
+      <p style="white-space: pre">{{ quelle.quellangabe }}</p>
+    </li>
+  </ul>
+</ng-template>

@@ -1,0 +1,16 @@
+{
+  "/api": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/saml": {
+    "target": "http://localhost:8080",
+    "logLevel": "debug",
+    "secure": false
+  },
+  "/manual": {
+    "target": "http://localhost:8080",
+    "secure": false
+  }
+}
+

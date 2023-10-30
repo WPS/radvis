@@ -1,0 +1,111 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-2470" author="ap+mw">
+    <addColumn tableName="geschwindigkeit_attribut_gruppe">
+      <column name="ortslage" type="varchar(255)" />
+    </addColumn>
+    <addColumn tableName="geschwindigkeit_attribut_gruppe_aud">
+      <column name="ortslage" type="varchar(255)" />
+    </addColumn>
+    <dropView viewName="kante_geschwindigkeits_attribute_view" />
+    <createView
+      viewName="kante_geschwindigkeits_attribute_view"
+      replaceIfExists="true">SELECT k.id, k.geometry, k.geloescht, k.quelle, g.ortslage, g.hoechstgeschwindigkeit,
+      g.abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung, k.kanten_attributgruppe_id,
+      k.is_grundnetz
+      FROM kante k, geschwindigkeit_attribut_gruppe g
+    </createView>
+
+    <sql>
+      UPDATE geschwindigkeit_attribut_gruppe AS gag
+      SET ortslage = kag.ortslage
+      FROM kanten_attribut_gruppe AS kag, kante AS k
+      WHERE k.kanten_attributgruppe_id = kag.id
+      AND k.geschwindigkeit_attributgruppe_id = gag.id
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-2470_2" author="ap+mw">
+    <dropColumn tableName="kanten_attribut_gruppe" columnName="ortslage"/>
+    <dropColumn tableName="kanten_attribut_gruppe_aud" columnName="ortslage"/>
+  </changeSet>
+
+  <changeSet id="RAD-2471" author="lb+mw">
+    <createTable tableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute">
+      <column name="geschwindigkeit_attribut_gruppe_id" type="BIGINT"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+      <column name="ortslage" type="varchar(255)"/>
+      <column name="hoechstgeschwindigkeit" type="varchar(255)"/>
+      <column name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung" type="varchar(255)"/>
+    </createTable>
+    <createTable tableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute_aud">
+      <column name="geschwindigkeit_attribut_gruppe_id" type="BIGINT"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+      <column name="ortslage" type="varchar(255)"/>
+      <column name="hoechstgeschwindigkeit" type="varchar(255)"/>
+      <column name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung" type="varchar(255)"/>
+      <column name="setordinal" type="INTEGER"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="smallint"/>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
+      baseColumnNames="geschwindigkeit_attribut_gruppe_id"
+      constraintName="fk_geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
+      referencedTableName="geschwindigkeit_attribut_gruppe"
+      referencedColumnNames="id"/>
+    <createIndex tableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
+      indexName="geschwindigkeit_attribut_gruppe_idx">
+      <column name="geschwindigkeit_attribut_gruppe_id"/>
+    </createIndex>
+    <dropView viewName="kante_geschwindigkeits_attribute_view"/>
+    <createView
+      viewName="kante_geschwindigkeit_linearreferenzierteattribute_view"
+      replaceIfExists="true">SELECT id, geometry, geloescht, quelle, geschwindigkeit_attributgruppe_id,
+      kanten_attributgruppe_id, is_grundnetz FROM kante
+    </createView>
+  </changeSet>
+
+  <changeSet id="RAD-2471_2" author="lb+mw">
+    <sql>
+      INSERT INTO geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute (geschwindigkeit_attribut_gruppe_id, von, bis, ortslage, hoechstgeschwindigkeit, abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung)
+      SELECT id, '0', '1', ortslage, hoechstgeschwindigkeit, abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung
+      FROM geschwindigkeit_attribut_gruppe
+    </sql>
+    <sql>
+      INSERT INTO geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute_aud (geschwindigkeit_attribut_gruppe_id, von, bis, ortslage, hoechstgeschwindigkeit, abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung, setordinal, rev, revtype)
+      SELECT id, '0', '1', ortslage, hoechstgeschwindigkeit, abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung, '0', rev, revtype
+      FROM geschwindigkeit_attribut_gruppe_aud
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-2471_3" author="lb+mw">
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe" columnName="hoechstgeschwindigkeit"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud" columnName="hoechstgeschwindigkeit"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe" columnName="ortslage"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud" columnName="ortslage"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe" columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud" columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
+  </changeSet>
+
+</databaseChangeLog>

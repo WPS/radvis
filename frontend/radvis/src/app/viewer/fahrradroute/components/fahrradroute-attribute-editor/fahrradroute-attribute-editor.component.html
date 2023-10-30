@@ -1,0 +1,399 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<ng-container *ngIf="currentFahrradroute">
+  <mat-toolbar radRightDetailsShortcut>
+    <h2 class="flex-grow">Fahrradroute</h2>
+    <rad-original-geometrie-anzeigen-button
+      *ngIf="currentFahrradroute.originalGeometrie"
+      (originalGeometrieAnzeigen)="onToggleOriginalGeometrieAnzeigen()"
+      [aktiv]="originalGeometrieAnzeigen"
+    ></rad-original-geometrie-anzeigen-button>
+    <button
+      [attr.aria-label]="gpxDownloadTooltip"
+      [matTooltip]="gpxDownloadTooltip"
+      [disabled]="!fahrradrouteNetzbezug"
+      (click)="onDownloadAsGPX()"
+      mat-icon-button
+    >
+      <mat-icon>save_alt</mat-icon>
+    </button>
+    <button
+      [attr.aria-label]="'Schließen'"
+      matTooltip="Schließen"
+      (click)="onClose()"
+      mat-icon-button
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </mat-toolbar>
+  <div class="display-flex justify-content-space-between mt-5 mx-10">
+    <mat-slide-toggle
+      (change)="onVeroeffentlichtChanged($event.checked)"
+      [disabled]="formGroup.dirty || isSavingVeroeffentlichung || !canChangeVeroeffentlicht"
+      [checked]="veroeffentlicht"
+      class="my-5"
+    >
+      Veröffentlicht
+    </mat-slide-toggle>
+    <mat-spinner color="accent" *ngIf="isSavingVeroeffentlichung" diameter="28"></mat-spinner>
+  </div>
+  <form [formGroup]="formGroup" class="form-group">
+    <rad-attribute-editor
+      class="overflow-auto"
+      [canEdit]="canEditAttribute"
+      [dirty]="formGroup.dirty"
+      [fetching]="isFetching || isRouting"
+      [disabled]="isFetching || isRouting"
+      (save)="onSave()"
+      (dismiss)="onClose()"
+      (resetForm)="onReset()"
+      [showHeader]="false"
+    >
+      <div class="hinweis fremdnetz-hinweis" *ngIf="isFremdsystemLeading">
+        <mat-icon color="warn">warning</mat-icon>
+        <div class="ml-10">
+          Diese Fahrradroute wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar
+        </div>
+      </div>
+      <div>
+        <div class="m-5"><b>Routenverlauf</b></div>
+        <div class="display-flex">
+          <mat-form-field class="m-5">
+            <mat-label>Variante wählen</mat-label>
+            <mat-select [formControl]="selectedVarianteControl">
+              <mat-option [value]="HAUPTSTRECKE">{{ HAUPTSTRECKE }}</mat-option>
+              <mat-option *ngFor="let varianteControl of variantenFormArray.controls; let i = index" [value]="i">
+                <div [class.error]="varianteControl.invalid">
+                  {{ getDisplayText(varianteControl) }}
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button
+            *ngIf="canEditAttribute"
+            [attr.aria-label]="'Variante hinzufügen'"
+            matTooltip="Variante hinzufügen"
+            [mat-menu-trigger-for]="addVariante"
+            mat-stroked-button
+            color="primary"
+            class="m-5"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+          <button
+            *ngIf="canEditAttribute"
+            [attr.aria-label]="'Selektierte Strecke löschen'"
+            matTooltip="Selektierte Strecke löschen"
+            [disabled]="deleteSelectedStreckeForbidden"
+            (click)="onSelectedStreckeLoeschen()"
+            mat-stroked-button
+            class="mr-5 my-5 variante-loeschen-button"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+
+          <button
+            *ngIf="canEditAttribute && !editStreckeEnabled"
+            [attr.aria-label]="'Verlauf editieren'"
+            matTooltip="Verlauf editieren"
+            (click)="onEditVerlauf()"
+            mat-stroked-button
+            color="primary"
+            class="mr-5 my-5 variante-loeschen-button"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            *ngIf="canEditAttribute && editStreckeEnabled"
+            [attr.aria-label]="'Verlauf übernehmen'"
+            matTooltip="Verlauf übernehmen"
+            (click)="onVerlaufUebernehmen()"
+            mat-stroked-button
+            color="primary"
+            class="mr-5 my-5 variante-loeschen-button"
+          >
+            <mat-icon>check</mat-icon>
+          </button>
+        </div>
+        <ng-container *ngIf="selectedNetzbezugControl && canEditAttribute && editStreckeEnabled">
+          <rad-fahrradroute-netzbezug-control
+            [formControl]="selectedNetzbezugControl"
+            (loading)="isRouting = $event"
+            class="mb-10"
+          ></rad-fahrradroute-netzbezug-control>
+          <rad-validation-error-anzeige
+            [errors]="selectedNetzbezugControl.errors"
+            class="ml-10"
+          ></rad-validation-error-anzeige>
+        </ng-container>
+        <mat-menu #addVariante>
+          <button mat-menu-item *ngFor="let kategorie of VarianteKategorie.VALUES" (click)="onVarianteAdded(kategorie)">
+            {{ VarianteKategorie.getName(kategorie) }}
+          </button>
+        </mat-menu>
+        <div *ngIf="variantenFormArray.invalid" class="error ml-10 mt-10">
+          -- Es gibt Eingabefehler bei den Varianten --
+        </div>
+      </div>
+      <button (click)="onOeffneHoehenprofil()" mat-stroked-button class="m-5">Öffne Höhenprofil</button>
+      <mat-divider></mat-divider>
+      <rad-text-input-control class="mat-form-field-full-width mt-10" formControlName="name">
+        <div class="label">Name</div>
+        <div class="hint">{{ formGroup.get('name')?.value?.length || 0 }}/{{ MAX_LENGTH_TEXT }}</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige [errors]="formGroup.get('name')?.errors || null"></rad-validation-error-anzeige>
+
+      <ng-container *ngIf="canEditAttribute">
+        <mat-form-field class="mat-form-field-full-width w-100">
+          <mat-label>Kurzbeschreibung</mat-label>
+          <textarea class="text-area" formControlName="kurzbeschreibung" matInput></textarea>
+          <mat-hint align="end"
+          >{{ formGroup.get('kurzbeschreibung')?.value?.length || 0 }}/{{ MAX_LENGTH_KURZBESCHREIBUNG }}</mat-hint
+          >
+        </mat-form-field>
+        <rad-validation-error-anzeige [errors]="formGroup.get('kurzbeschreibung')?.errors || null">
+        </rad-validation-error-anzeige>
+      </ng-container>
+      <ng-container *ngIf="!canEditAttribute">
+        <mat-label>Kurzbeschreibung:</mat-label>
+        <span [innerHTML]="formGroup.get('kurzbeschreibung')?.value || ''"></span>
+      </ng-container>
+
+      <ng-container *ngIf="canEditAttribute">
+        <mat-form-field class="mat-form-field-full-width w-100">
+          <mat-label>Beschreibung</mat-label>
+          <textarea formControlName="beschreibung" matInput></textarea>
+          <mat-hint align="end"
+          >{{ formGroup.get('beschreibung')?.value?.length || 0 }}/{{ MAX_LENGTH_BESCHREIBUNG }}</mat-hint
+          >
+        </mat-form-field>
+        <rad-validation-error-anzeige [errors]="formGroup.get('beschreibung')?.errors || null">
+        </rad-validation-error-anzeige>
+      </ng-container>
+      <div *ngIf="!canEditAttribute" class="mb-10">
+        <p class="read-only-beschreibung-label">Beschreibung</p>
+        <span [innerHTML]="formGroup.get('beschreibung')?.value || ''"></span>
+      </div>
+
+      <rad-enum-dropdown-control
+        [nullable]="false"
+        [options]="kategorieOptions"
+        [showTooltip]="true"
+        class="mat-form-field-full-width"
+        formControlName="kategorie"
+      >
+        Kategorie
+      </rad-enum-dropdown-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('kategorie')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <rad-enum-dropdown-control
+        [nullable]="false"
+        [options]="tourenkategorieOptions"
+        [showTooltip]="true"
+        class="mat-form-field-full-width"
+        formControlName="tourenkategorie"
+      >
+        Tourenkategorie
+      </rad-enum-dropdown-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('tourenkategorie')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <rad-organisationen-dropdown-control
+        [options]="(alleOrganisationenOptions | async) || []"
+        class="mat-form-field-full-width"
+        formControlName="verantwortlich"
+      >
+        Verantwortlich
+      </rad-organisationen-dropdown-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('verantwortlich')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <rad-text-input-control class="mat-form-field-full-width" formControlName="homepage">
+        <div class="label">Homepage</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige [errors]="formGroup.get('homepage')?.errors || null"></rad-validation-error-anzeige>
+
+      <rad-text-input-control class="mat-form-field-full-width" formControlName="emailAnsprechpartner">
+        <div class="label">E-Mail</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('emailAnsprechpartner')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <rad-text-input-control class="mat-form-field-full-width" formControlName="lizenz">
+        <div class="label">Lizenz</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige [errors]="formGroup.get('lizenz')?.errors || null"></rad-validation-error-anzeige>
+
+      <rad-text-input-control class="mat-form-field-full-width" formControlName="lizenzNamensnennung">
+        <div class="label">Lizenz Namensnennung</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('lizenzNamensnennung')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <ng-container *ngIf="currentFahrradroute.profilEigenschaften.length > 0">
+        <div class="label mt-5">Belagarten:</div>
+        <div *ngFor="let belagArt of belagArtOptions">
+          <ng-container *ngIf="getProfilAuswertungFuerBelagArt($any(belagArt.name)) as belagArtAuswertung">
+            <div matTooltip="{{belagArt.displayText}}" matTooltipPosition="after"
+                 *ngIf="belagArtAuswertung.kilometer !== 0"
+                 class="display-flex">
+              <div
+                class="current-eigenschaft-legende mr-5 ml-5"
+                [style.background-color]="belagArtLegende.get($any(belagArt.name)) | colorToCss">
+              </div>
+              {{ (belagArt.displayText.length > 30) ? (belagArt.displayText | slice:0:30) + '... :' : (belagArt.displayText) + ':' }}
+              {{ belagArtAuswertung.kilometer.toLocaleString('de') }} km
+              ({{ belagArtAuswertung.prozent.toLocaleString('de') }}%)
+            </div>
+          </ng-container>
+        </div>
+
+
+        <div class="label mt-5">Radverkehrsführung:</div>
+        <div *ngFor="let radverkehrsfuehrung of radverkehrsfuehrungOptions">
+          <ng-container
+            *ngIf="getProfilAuswertungFuerRadverkehrsfuehrung(radverkehrsfuehrung.name) as radverkehrsfuehrungAuswertung">
+            <div matTooltip="{{radverkehrsfuehrung.displayText}}" matTooltipPosition="after"
+                 *ngIf="radverkehrsfuehrungAuswertung.kilometer !== 0" class="display-flex">
+              <div class="current-eigenschaft-legende mr-5 ml-5"
+                   [style.background-color]="radverkehrsfuehrungLegende.get(radverkehrsfuehrung.name) | colorToCss"
+              ></div>
+              {{ (radverkehrsfuehrung.displayText.length > 30) ? (radverkehrsfuehrung.displayText | slice:0:30) + '... :' : (radverkehrsfuehrung.displayText) + ':' }}
+              {{ radverkehrsfuehrungAuswertung.kilometer.toLocaleString('de')}} km
+              ({{ radverkehrsfuehrungAuswertung.prozent.toLocaleString('de') }}%)
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <div class="mt-8">
+        <div class="display-flex flex-row">
+          <rad-number-input-control
+            formControlName="offizielleLaenge"
+            class="flex-grow mr-10"
+            [anzahlNachkommastellen]="3"
+          >
+            <div class="label">Offizielle Länge</div>
+            <div class="einheit">km</div>
+          </rad-number-input-control>
+
+          <rad-number-input-control
+            formControlName="laengeHauptstrecke"
+            class="flex-grow"
+            [anzahlNachkommastellen]="3"
+            [isDisabled]="true"
+          >
+            <div class="label">Länge der Hauptstrecke (berechnet)</div>
+            <div class="einheit">km</div>
+          </rad-number-input-control>
+        </div>
+
+        <rad-validation-error-anzeige
+          [class.mb-10]="formGroup.get('offizielleLaenge')?.errors"
+          [errors]="formGroup.get('offizielleLaenge')?.errors || null"
+        ></rad-validation-error-anzeige>
+
+        <div class="display-flex flex-row">
+          <rad-text-input-control class="mat-form-field-full-width flex-grow mr-10" formControlName="anstieg">
+            <div class="label">Anstieg</div>
+            <div class="suffix">m</div>
+          </rad-text-input-control>
+
+          <rad-text-input-control class="mat-form-field-full-width flex-grow" formControlName="abstieg">
+            <div class="label">Abstieg</div>
+            <div class="suffix">m</div>
+          </rad-text-input-control>
+        </div>
+      </div>
+
+      <rad-text-input-control
+        class="mat-form-field-full-width"
+        formControlName="toubizId"
+        matTooltip="Die Toubiz-ID kann nur bei Routen der Kategorie Landesradfernweg manuell gesetzt werden."
+        [matTooltipDisabled]="formGroup.get('toubizId')?.enabled"
+      >
+        <div class="label">Toubiz-ID</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('toubizId')?.errors || null"></rad-validation-error-anzeige>
+      <mat-card *ngIf="formGroup.get('toubizId')?.value && formGroup.get('toubizId')?.enabled && canEditAttribute"
+                class="hinweisbox">
+        <mat-card-content>
+          Bei Angabe einer gültigen Toubiz-ID werden alle anderen Attribute der Fahrradroute regelmäßig mit den Werten
+          von Toubiz überschrieben.
+        </mat-card-content>
+      </mat-card>
+
+      <rad-text-input-control class="mat-form-field-full-width" formControlName="zuletztBearbeitet">
+        <div class="label">Zeitpunkt der letzten Änderung</div>
+      </rad-text-input-control>
+
+      <div *ngIf="formGroup.get('info')?.value">
+        <mat-label>Zusätzliche Informationen:</mat-label>
+        <br/>
+        <span [innerHTML]="formGroup.get('info')?.value" class="mb-10"></span>
+      </div>
+    </rad-attribute-editor>
+
+    <ng-container *ngIf="originalGeometrieAnzeigen">
+      <rad-original-geometrie-layer
+        *ngIf="currentFahrradroute.originalGeometrie"
+        [geometrie]="currentFahrradroute.originalGeometrie"
+      >
+      </rad-original-geometrie-layer>
+
+      <ng-container *ngIf="featureTogglzFehlerAnzeigen">
+        <div class="fehleranzeige-detail-table">
+          <div class="ml-10 titel">Fehlerstatistik zur Abbildung</div>
+          <div class="fehler-details">
+            <div>Abbildung erfolgreich:</div>
+            <div>{{ getAbbildungErfolgreich(currentFahrradroute) }}</div>
+            <div>Abbildungs-Algorithmus:</div>
+            <div>{{ getWelcheAbbildungWarErfolgreich(currentFahrradroute) }}</div>
+            <div>Anzahl Kehrtwenden:</div>
+            <div>{{ getAnzahlKehrtwenden(currentFahrradroute) }}</div>
+            <div>Anzahl abweichender Segmente:</div>
+            <div>{{ getAnzahlAbweichenderSegmente(currentFahrradroute) }}</div>
+          </div>
+        </div>
+        <rad-abweichende-segmente-layer
+          *ngIf="currentFahrradroute.abweichendeSegmente"
+          [geometrie]="currentFahrradroute.abweichendeSegmente"
+        >
+        </rad-abweichende-segmente-layer>
+        <rad-wurmfortsatz-layer *ngIf="currentFahrradroute.kehrtwenden" [geometrie]="currentFahrradroute.kehrtwenden">
+        </rad-wurmfortsatz-layer>
+      </ng-container>
+    </ng-container>
+  </form>
+
+  <rad-fahrradroute-netzbezug-highlight-layer
+    [kantenBezug]="currentFahrradroute.kantenBezug"
+    [fahrradRouteNetzbezug]="fahrradrouteNetzbezug"
+    [color]="highlightColor"
+  ></rad-fahrradroute-netzbezug-highlight-layer>
+
+  <rad-fahrradroute-netzbezug-highlight-layer
+    *ngIf="selectedVarianteNetzbezug || selectedVarianteKantenBezug"
+    [kantenBezug]="selectedVarianteKantenBezug"
+    [fahrradRouteNetzbezug]="selectedVarianteNetzbezug"
+  ></rad-fahrradroute-netzbezug-highlight-layer>
+</ng-container>

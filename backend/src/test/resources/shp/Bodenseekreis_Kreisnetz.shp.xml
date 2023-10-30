@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<metadata xml:lang="de"><Esri><CreaDate>20211111</CreaDate><CreaTime>07555300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="c:\program files (x86)\arcgis\desktop10.4\ArcToolbox\Toolboxes\Data Management Tools.tbx\CalculateField" Date="20160921" Time="125009">CalculateField Bestandsdaten_fertig\BSK_erfasste_Streckendaten_Radnetz_Kreisnetz Furt_Bed 1 VB #</Process><Process ToolSource="c:\program files (x86)\arcgis\desktop10.4\ArcToolbox\Toolboxes\Data Management Tools.tbx\CalculateField" Date="20160921" Time="140326">CalculateField Bestandsdaten_fertig\BSK_erfasste_Streckendaten_Radnetz_Kreisnetz Randm_Bed erforderlich VB #</Process><Process ToolSource="c:\program files (x86)\arcgis\desktop10.4\ArcToolbox\Toolboxes\Data Management Tools.tbx\CalculateField" Date="20160921" Time="140855">CalculateField Bestandsdaten_fertig\BSK_erfasste_Streckendaten_Radnetz_Kreisnetz Randmark erforderlich VB #</Process><Process ToolSource="c:\program files (x86)\arcgis\desktop10.6\ArcToolbox\Toolboxes\Data Management Tools.tbx\CalculateField" Date="20190705" Time="121329">CalculateField BSK_Bestandsdaten_Strecken Netz 1 VB #</Process></lineage></DataProperties></Esri></metadata>

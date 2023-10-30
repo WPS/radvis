@@ -1,0 +1,277 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet author="Bastian" id="RAD-952">
+    <dropColumn columnName="belag_art" schemaName="public"
+      tableName="infrastrukturmerkmale">
+    </dropColumn>
+    <dropColumn columnName="bordstein" schemaName="public"
+      tableName="infrastrukturmerkmale">
+    </dropColumn>
+    <addColumn schemaName="public"
+      tableName="fuehrungsform_attribute">
+      <column name="belag_art" type="varchar(255)"
+        defaultValue="ASPHALT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="bordstein" type="varchar(255)"
+        defaultValue="UNBEKANNT">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-1228/RAD-1229" author="tir">
+    <addColumn schemaName="public" tableName="kante">
+      <column name="beleuchtung" type="VARCHAR(255)"/>
+    </addColumn>
+    <dropForeignKeyConstraint
+      baseTableName="infrastrukturmerkmale"
+      constraintName="fk_strassen_begleit_attribute_kante"/>
+    <dropTable tableName="infrastrukturmerkmale"/>
+  </changeSet>
+
+  <changeSet id="RAD-1234/RAD-1235/RAD-1236" author="tir">
+    <addColumn schemaName="public"
+      tableName="fuehrungsform_attribute">
+      <column name="parken_form" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn schemaName="public"
+      tableName="fuehrungsform_attribute">
+      <column name="parken_typ" type="VARCHAR(255)"/>
+    </addColumn>
+    <dropForeignKeyConstraint
+      baseTableName="parken_attribute"
+      constraintName="fk_parken_attribute_kante"/>
+    <dropTable tableName="parken_attribute"/>
+  </changeSet>
+
+  <changeSet id="RAD-1237/RAD-1238" author="tir">
+    <dropColumn schemaName="public"
+      tableName="fuehrungsform_attribute">
+      <column name="umfeld"/>
+    </dropColumn>
+    <dropColumn schemaName="public"
+      tableName="fuehrungsform_attribute">
+      <column name="strassenquerschnittrast06"/>
+    </dropColumn>
+    <addColumn schemaName="public" tableName="kante">
+      <column name="umfeld" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn schemaName="public" tableName="kante">
+      <column name="strassenquerschnittrast06" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="MW" id="RAD-1254">
+    <createTable tableName="benutzer">
+      <column name="id" type="BIGINT">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="benutzer_pkey"/>
+      </column>
+      <column name="vorname" type="VARCHAR(255)"/>
+      <column name="nachname" type="VARCHAR(255)"/>
+      <column name="organisation_id" type="BIGINT"/>
+      <column name="mailadresse" type="VARCHAR(255)"/>
+    </createTable>
+    <addForeignKeyConstraint
+      baseColumnNames="organisation_id" baseTableName="benutzer"
+      constraintName="fk_benutzer_organisation" deferrable="false"
+      initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+      referencedColumnNames="id" referencedTableName="organisation"
+      validate="true"/>
+  </changeSet>
+
+  <changeSet id="RAD-1230:1" author="tr">
+    <createTable tableName="zustaendigkeit_attribute">
+      <column name="id" type="BIGINT"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+      <column name="vereinbarungs_kennung" type="varchar(255)"/>
+      <column name="baulast_traeger_id" type="BIGINT"/>
+      <column name="unterhalts_zustaendiger_id" type="BIGINT"/>
+      <column name="zustaendigkeit_gruppe_id" type="BIGINT"/>
+    </createTable>
+    <addPrimaryKey columnNames="id"
+      tableName="zustaendigkeit_attribute"/>
+    <addUniqueConstraint
+      tableName="zustaendigkeit_attribute"
+      columnNames="zustaendigkeit_gruppe_id"/>
+  </changeSet>
+
+  <changeSet id="RAD-1230:2" author="tr">
+    <createTable tableName="zustaendigkeit_attributgruppe">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="kante_id" type="BIGINT"/>
+    </createTable>
+    <addPrimaryKey columnNames="id"
+      tableName="zustaendigkeit_attributgruppe"/>
+    <addForeignKeyConstraint
+      constraintName="fk_zustaendigkeit_attribute_attributgruppe"
+      referencedTableName="zustaendigkeit_attributgruppe"
+      baseColumnNames="zustaendigkeit_gruppe_id"
+      baseTableName="zustaendigkeit_attribute" referencedColumnNames="id"/>
+    <addColumn tableName="kante">
+      <column name="zustaendigkeit_attributgruppe_id" type="BIGINT"/>
+    </addColumn>
+    <addForeignKeyConstraint
+      constraintName="fk_zustaendigkeit_attributgruppe_kante"
+      referencedTableName="zustaendigkeit_attributgruppe"
+      baseColumnNames="zustaendigkeit_attributgruppe_id"
+      baseTableName="kante" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="RAD-1296" author="par">
+    <createTable tableName="kante_osm_way_ids">
+      <column name="kante_id" type="BIGINT"/>
+      <column name="value" type="BIGINT"/>
+    </createTable>
+  </changeSet>
+  <changeSet id="RAD-1230:3" author="tr">
+    <dropUniqueConstraint
+      tableName="zustaendigkeit_attribute"
+      constraintName="zustaendigkeit_attribute_zustaendigkeit_gruppe_id_key"/>
+  </changeSet>
+
+  <changeSet id="RAD-1230:4" author="tr">
+    <createView
+      viewName="kante_linearreferenzierteattribute_view"
+      replaceIfExists="true">SELECT id, geometry,
+      geloescht, quelle, zustaendigkeit_attributgruppe_id FROM kante
+    </createView>
+    <dropColumn tableName="zustaendigkeit_attributgruppe"
+      columnName="kante_id"/>
+  </changeSet>
+
+  <changeSet id="RAD-1301" author="ls">
+    <addColumn schemaName="public" tableName="benutzer">
+      <column name="service_bw_id" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-1284" author="mw">
+    <createTable tableName="geschwindigkeit_attribut_gruppe">
+      <column name="id" type="BIGINT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="hoechstgeschwindigkeit" type="VARCHAR(255)"/>
+      <column
+        name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
+        type="VARCHAR(255)"/>
+    </createTable>
+    <addColumn tableName="kante">
+      <column name="geschwindigkeit_attributgruppe_id" type="BIGINT"/>
+    </addColumn>
+    <addForeignKeyConstraint
+      constraintName="fk_kante_geschwindigkeit_attribut_gruppe"
+      referencedTableName="geschwindigkeit_attribut_gruppe"
+      baseColumnNames="geschwindigkeit_attributgruppe_id"
+      baseTableName="kante" referencedColumnNames="id"/>
+    <createView
+      viewName="kante_geschwindigkeits_attribute_view"
+      replaceIfExists="true">SELECT k.id, k.geometry,
+      k.geloescht, k.quelle, g.hoechstgeschwindigkeit, g.abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung FROM kante k, geschwindigkeit_attribut_gruppe g
+    </createView>
+  </changeSet>
+
+  <changeSet id="RAD-1225" author="ls_und_kho">
+    <createTable tableName="fahrtrichtung_attributgruppe">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="fahrtrichtung" type="VARCHAR(255)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-1225:2" author="ls_und_kho">
+    <dropColumn tableName="fahrtrichtung_attributgruppe"
+      columnName="kante_id"/>
+    <addColumn tableName="kante">
+      <column name="fahrtrichtung_attributgruppe_id" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-1225:3" author="ls_und_kho">
+    <dropColumn tableName="kante" columnName="richtung"/>
+  </changeSet>
+
+  <changeSet id="RAD-1276" author="tr" runOnChange="true">
+    <!--
+    Precondition wegen breaking-change in Liquibase:
+    Das hier ursprünglich gesetzte "addAfterColumn=..." gibt es nicht mehr und das changeset flog einem beim Hochfahren
+    um die Ohren. Diese Precondition führt das changeset nicht erneut aus, wenn es die besagte Spalte schon gibt. Das
+    runOnChange=true umgeht die checksum-Prüfung, was nötig ist, da sich ja die checksum dieses changesets geändert hat.
+    Siehe: https://github.com/liquibase/liquibase/pull/2943#issuecomment-1625310660
+    -->
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="kante" columnName="ursprungsfeature_technischeid" />
+      </not>
+    </preConditions>
+    <addColumn tableName="kante">
+      <column name="ursprungsfeature_technischeid" type="varchar(255)"/>
+    </addColumn>
+    <addColumn tableName="imported_feature">
+      <column name="anteil_projiziert" type="float8"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-1283" author="marie">
+    <dropSequence sequenceName="hibernate_sequence"></dropSequence>
+    <createSequence cacheSize="1" cycle="false"
+      dataType="bigint" incrementBy="100" maxValue="9223372036854775807"
+      minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
+  </changeSet>
+
+  <changeSet id="RAD-1327" author="tr,par">
+    <addForeignKeyConstraint
+      baseTableName="kante_osm_way_ids" baseColumnNames="kante_id"
+      constraintName="fk_kante_osm_way_ids_kante" referencedTableName="kante"
+      referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="RAD-1327/2" author="tr,par">
+    <createIndex tableName="kante_osm_way_ids" indexName="kante_osm_way_ids_kante">
+      <column name="kante_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-1378" author="tr, par">
+    <createIndex tableName="fuehrungsform_attribute" indexName="fuehrungsform_attribute_kante_idx">
+      <column name="kante_id"/>
+    </createIndex>
+    <createIndex tableName="zustaendigkeit_attribute" indexName="zustaendigkeit_attribute_kante_idx">
+      <column name="zustaendigkeit_gruppe_id"/>
+    </createIndex>
+    <addPrimaryKey tableName="fahrtrichtung_attributgruppe" columnNames="id"/>
+    <createIndex tableName="netzklasse" indexName="netzklasse_kante_idx">
+      <column name="kante_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-1284:2" author="mr_und_kho">
+    <renameTable oldTableName="fahrtrichtung_attributgruppe" newTableName="fahrtrichtung_attribut_gruppe"/>
+    <renameTable oldTableName="zustaendigkeit_attributgruppe" newTableName="zustaendigkeit_attribut_gruppe"/>
+    <dropTable tableName="geschwindigkeit_attribute" />
+  </changeSet>
+
+</databaseChangeLog>

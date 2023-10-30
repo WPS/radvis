@@ -1,0 +1,193 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar *ngIf="isCreator">
+  <h2 class="flex-grow">Abstellanlage erstellen</h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    [canEdit]="canEdit"
+    (save)="onSave()"
+    [dirty]="isDirty"
+    [fetching]="isFetching"
+    [showHeader]="false"
+  >
+    <rad-position-selektion-control
+      *ngIf="!isQuellsystemMobiData"
+      formControlName="geometrie"
+      class="mt-10"
+      [withInfrastrukturIcon]="iconName"
+    ></rad-position-selektion-control>
+    <div class="hinweis fremdnetz-hinweis" *ngIf="isQuellsystemMobiData">
+      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
+      <div class="ml-10">
+        Diese Abstellanlage wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
+      </div>
+    </div>
+    <rad-text-input-control formControlName="betreiber">
+      <div class="label">Betreiber</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('betreiber')?.errors || null"></rad-validation-error-anzeige>
+    <rad-text-input-control formControlName="externeId">
+      <div class="label">Externe ID</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('externeId')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="abstellanlagenQuellSystemOptions"
+      formControlName="quellSystem"
+      class="mat-form-field-full-width">
+      Quellsystem
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('quellSystem')?.errors || null"></rad-validation-error-anzeige>
+    <a *ngIf="isQuellsystemMobiData" class="quelle-label" [href]="MOBIDATA_DATENSATZ_URL" target="_blank">Datensatz bei MobiData BW</a>
+
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationen$ | async) || []"
+      [nullable]="true"
+      formControlName="zustaendig">Zuständig in RadVIS
+    </rad-organisationen-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('zustaendig')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      formControlName="anzahlStellplaetze"
+      class="mat-form-field-full-width"
+    >
+      <div class="label">Anzahl Stellplätze</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('anzahlStellplaetze')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      formControlName="anzahlSchliessfaecher"
+      class="mat-form-field-full-width"
+    >
+      <div class="label">Anzahl Schließfächer</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('anzahlSchliessfaecher')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      formControlName="anzahlLademoeglichkeiten"
+      class="mat-form-field-full-width"
+    >
+      <div class="label">Anzahl Lademöglichkeiten</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('anzahlLademoeglichkeiten')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="ueberwachtOptions"
+      formControlName="ueberwacht"
+      class="mat-form-field-full-width">
+      Überwacht
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('ueberwacht')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-checkbox formControlName="istBikeAndRide" class="mb-4"> B+R</mat-checkbox>
+
+    <rad-enum-dropdown-control
+      [nullable]="true"
+      [options]="groessenklasseOptions"
+      matTooltip="Darf nur bei vorhandenem B+R gesetzt sein"
+      [matTooltipDisabled]="!formGroup.get('groessenklasse')?.disabled"
+      formControlName="groessenklasse"
+      class="mat-form-field-full-width">
+      Größenklasse
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('groessenklasse')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="true"
+      [options]="stellplatzartOptions"
+      formControlName="stellplatzart"
+      class="mat-form-field-full-width">
+      Stellplatzart
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('stellplatzart')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-checkbox formControlName="ueberdacht" class="mb-4"> Überdacht</mat-checkbox>
+
+    <rad-currency-input-control class="mat-form-field-full-width w-100" formControlName="gebuehrenProTag">
+      <div class="label">Gebühren pro Tag</div>
+      <div class="einheit">€</div>
+    </rad-currency-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('gebuehrenProTag')?.errors || null">
+    </rad-validation-error-anzeige>
+
+    <rad-currency-input-control class="mat-form-field-full-width w-100" formControlName="gebuehrenProMonat">
+      <div class="label">Gebühren pro Monat</div>
+      <div class="einheit">€</div>
+    </rad-currency-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('gebuehrenProMonat')?.errors || null">
+    </rad-validation-error-anzeige>
+
+    <rad-currency-input-control class="mat-form-field-full-width w-100" formControlName="gebuehrenProJahr">
+      <div class="label">Gebühren pro Jahr</div>
+      <div class="einheit">€</div>
+    </rad-currency-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('gebuehrenProJahr')?.errors || null">
+    </rad-validation-error-anzeige>
+
+    <mat-form-field class="mat-form-field-full-width w-100">
+      <mat-label>Beschreibung</mat-label>
+      <textarea class="text-area" formControlName="beschreibung" matInput></textarea>
+      <mat-hint align="end">{{ formGroup.get('beschreibung')?.value?.length || 0 }}/2000</mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('beschreibung')?.errors || null"></rad-validation-error-anzeige>
+
+    <ng-container *ngIf="!isQuellsystemMobiData">
+      <mat-form-field class="mat-form-field-full-width w-100">
+        <mat-label>Weitere Informationen</mat-label>
+        <textarea class="text-area" formControlName="weitereInformation" matInput></textarea>
+        <mat-hint align="end">{{ formGroup.get('weitereInformation')?.value?.length || 0 }}/2000</mat-hint>
+      </mat-form-field>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('weitereInformation')?.errors || null"></rad-validation-error-anzeige>
+    </ng-container>
+    <div *ngIf="isQuellsystemMobiData" class="mb-10">
+      <p class="read-only-beschreibung-label">Weitere Informationen</p>
+      <span [innerHTML]="formGroup.get('weitereInformation')?.value || ''"></span>
+    </div>
+
+    <rad-enum-dropdown-control
+      [nullable]="true"
+      [options]="abstellanlagenStatusOptions"
+      formControlName="status"
+      class="mat-form-field-full-width">
+      Status
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('status')?.errors || null"></rad-validation-error-anzeige>
+
+  </rad-attribute-editor>
+</form>

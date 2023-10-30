@@ -1,0 +1,58 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-1868" author="par">
+    <addColumn tableName="kanten_attribut_gruppe">
+      <column name="status" type="varchar(255)" defaultValue="UNTER_VERKEHR">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-1871" author="par">
+    <dropColumn tableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_links" columnName="status"/>
+    <dropColumn tableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_rechts" columnName="status"/>
+  </changeSet>
+  <changeSet id="RAD-1861" author="par">
+    <addColumn tableName="kante">
+      <column name="kanten_laenge" type="decimal"/>
+    </addColumn>
+    <sql>
+      UPDATE kante
+      SET kanten_laenge = st_length(geometry)
+      WHERE geometry IS NOT NULL
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-1861-2" author="par">
+    <modifyDataType
+      columnName="kanten_laenge"
+      newDataType="INTEGER"
+      tableName="kante"/>
+    <sql>
+      UPDATE kante
+      SET kanten_laenge = st_length(geometry) * 100
+      WHERE geometry IS NOT NULL
+    </sql>
+  </changeSet>
+  <!-- Erstes Produktiv Deployment  -->
+  <changeSet id="RAD-1861-3" author="tr">
+    <renameColumn tableName="kante" oldColumnName="kanten_laenge" newColumnName="kanten_laenge_in_cm"/>
+  </changeSet>
+</databaseChangeLog>

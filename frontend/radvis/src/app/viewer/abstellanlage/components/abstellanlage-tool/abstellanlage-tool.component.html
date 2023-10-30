@@ -1,0 +1,73 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<ng-container *ngIf="abstellanlage">
+  <mat-toolbar radRightDetailsShortcut>
+    <h2 class="flex-grow">Abstellanlage</h2>
+    <button
+      *ngIf="abstellanlage.darfBenutzerBearbeiten"
+      [attr.aria-label]="'Abstellanlage löschen'"
+      matTooltip="Abstellanlage löschen"
+      (click)="onDeleteAbstellanlage()"
+      mat-icon-button
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button
+      [attr.aria-label]="'Zur Position der Abstellanlage springen'"
+      matTooltip="Zur Position der Abstellanlage springen"
+      (click)="focusAbstellanlageIntoView()"
+      mat-icon-button
+    >
+      <mat-icon>my_location</mat-icon>
+    </button>
+    <button
+      [attr.aria-label]="'Abstellanlage-Editor schließen'"
+      matTooltip="Abstellanlage-Editor schließen"
+      (click)="onClose()"
+      mat-icon-button
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <nav mat-tab-nav-bar color="accent" [disableRipple]="true">
+    <a
+      mat-tab-link
+      queryParamsHandling="merge"
+      [routerLink]="eigenschaftenRoute"
+      [routerLinkActiveOptions]="routerLinkActiveOptions"
+      [active]="rlaEigenschaften.isActive"
+      routerLinkActive
+      #rlaEigenschaften="routerLinkActive"
+      class="nav-bar-item"
+    >
+      Eigenschaften
+    </a>
+    <a
+      mat-tab-link
+      routerLinkActive
+      #rlaDateien="routerLinkActive"
+      queryParamsHandling="merge"
+      [routerLink]="dateiRoute"
+      [routerLinkActiveOptions]="routerLinkActiveOptions"
+      [active]="rlaDateien.isActive"
+      class="nav-bar-item"
+    >
+      Dateien
+    </a>
+  </nav>
+</ng-container>
+
+<router-outlet></router-outlet>

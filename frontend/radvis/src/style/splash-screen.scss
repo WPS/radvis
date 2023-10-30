@@ -1,0 +1,283 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+$bicycle-color: #151515;
+$bicycle-accent-color: #E5007D;
+
+.splash-screen {
+  background-color: white;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 9999;
+}
+
+.splash-screen-content {
+  display: flex;
+  font-size: x-large;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.splash-text {
+  position: absolute;
+  top: 13rem;
+  font-size: 4rem;
+  width: 100%;
+  text-align: center;
+  z-index: 300;
+}
+
+.bicycle-container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.bicycle-container {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 22rem;
+  height: 19rem;
+  overflow: hidden;
+}
+
+.bicycle-container .wheel {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  width: 7.7rem;
+  height: 7.7rem;
+}
+
+.bicycle-container .wheel .tire {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: inherit;
+  height: inherit;
+  border-radius: 50%;
+  border: 0.5rem solid $bicycle-color;
+  z-index: 200;
+}
+
+.bicycle-container .wheel .rim {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 7.125rem;
+  height: 7.125rem;
+  border-radius: 50%;
+  border: 0.5rem solid $bicycle-accent-color;
+  z-index: 100;
+}
+
+.bicycle-container .wheel .spokes {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  border-left: 0.2rem solid transparent;
+  border-right: 0.2rem solid transparent;
+  border-top: 0.2rem solid $bicycle-accent-color;
+  z-index: 1;
+  animation: rt 2s infinite linear;
+  background: rgba(200, 100, 100, 0.1);
+}
+
+.bicycle-container .wheel .spokes:nth-of-type(3) {
+  border-left: 0.2rem solid transparent;
+  border-right: 0.2rem solid transparent;
+  border-bottom: 0.2rem solid $bicycle-accent-color;
+}
+
+.bicycle-container .wheel .hub {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: $bicycle-accent-color;
+  z-index: 100;
+}
+
+.bicycle-container .back-wheel {
+  left: 0;
+
+}
+
+.bicycle-container .front-wheel {
+  right: 0;
+}
+
+.bicycle-container .gear {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: calc(7.7rem + 2.475rem);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: $bicycle-color;
+  z-index: 400;
+}
+
+.bicycle-container .gear .gear-red {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 0.2rem solid $bicycle-accent-color;
+}
+
+.bicycle-container .tube {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  height: 0.3rem;
+  background: $bicycle-color;
+  border-radius: 0.3rem;
+  z-index: 300;
+}
+
+.bicycle-container .chain-tube {
+  left: calc(7.7rem / 2);
+  width: 7.7rem;
+}
+
+.bicycle-container .seat-tube-back {
+  left: calc(7.7rem / 2);
+  transform-origin: left;
+  transform: rotate(-60deg);
+  width: 7.7rem;
+
+}
+
+.bicycle-container .seat-tube-front {
+  left: calc(7.7rem / 2);
+  transform-origin: right;
+  transform: rotate(60deg);
+  width: 7.7rem;
+}
+
+.bicycle-container .seat-tube-post {
+  left: 2.5rem;
+  transform-origin: right;
+  transform: rotate(60deg);
+  background: $bicycle-accent-color;
+  z-index: 100;
+  height: 0.3rem;
+  width: 9rem;
+}
+
+.bicycle-container .top-tube {
+  left: 7.7rem;
+  bottom: initial;
+  top: 2.75rem;
+  width: 6.7rem;
+  height: 0.35rem;
+}
+
+.bicycle-container .top-handlebar-tube {
+  right: 7rem;
+  bottom: initial;
+  top: 0.5rem;
+  width: 1.25rem;
+  background: $bicycle-accent-color;
+  height: 0.5rem;
+}
+
+.bicycle-container .top-handlebar-tube2 {
+  right: 8.5rem;
+  bottom: initial;
+  top: 0.5rem;
+  width: 2rem;
+  background: $bicycle-color;
+  border-radius: 1rem;
+  height: 0.5rem
+}
+
+.bicycle-container .down-tube {
+  left: 11.25rem;
+  width: 6.5rem;
+  transform-origin: left;
+  transform: rotate(-50deg);
+
+}
+
+.bicycle-container .head-tube {
+  right: calc(7.7rem / 2);
+  transform-origin: right;
+  transform: rotate(60deg);
+  width: 7.7rem;
+}
+
+.bicycle-container .head-tube-post {
+  right: calc(7.7rem / 2);
+  transform-origin: right;
+  transform: rotate(60deg);
+  width: 10rem;
+  background: $bicycle-accent-color;
+  z-index: 100;
+  height: 0.3rem;
+}
+
+.bicycle-container .saddle {
+  position: absolute;
+  margin: auto;
+  top: 1.4rem;
+  left: 5.3rem;
+  width: 3.125rem;
+  height: 0.625rem;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 100%;
+  border-bottom-left-radius: 50%;
+  background: $bicycle-color;
+  z-index: 200;
+}
+
+@keyframes rt {
+  100% {
+    transform: rotate(360deg);
+  }
+}

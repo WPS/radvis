@@ -1,0 +1,98 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="map-left-tools">
+  <rad-koordinaten-suche (koordinateSuche)="olMap.onSelectCenter($event)"></rad-koordinaten-suche>
+
+  <rad-layer-auswahl
+    (hideLayer)="onHideLayer($event)"
+    [zoom]="zoom"
+    (showLayer)="onShowLayer($event)"
+    [layers]="selectableLayers"
+    [visibleLayers]="visibleZusaetzlicheLayers$ | async"
+    class="layer-auswahl"
+  ></rad-layer-auswahl>
+</div>
+
+<div class="map flex-grow">
+  <rad-ol-map
+    #olMap
+    [class.erledigtMarkierenActive]="erledigtMarkierenActive"
+    (locationSelect)="onLocationSelected($event)"
+    (zoomChange)="onZoomChanged($event)"
+    [class.flag-cursor]="showFlag"
+    class="w-100; h-100"
+  >
+    <rad-landkreise-layer *ngIf="landkreiseLayerVisible"></rad-landkreise-layer>
+
+    <rad-radnetz-kanten-layer
+      *ngIf="radNetzLayerVisible"
+      [zugeordneteRadnetzKanteIds]="zugeordneteRadnetzKanteIds"
+    ></rad-radnetz-kanten-layer>
+
+    <rad-dlm-kanten-selektion
+      (dlmKantenSelect)="onDlmKantenSelect($event)"
+      *ngIf="dlmNetzLayerVisible"
+      [zugeordneteDlmKanteIds]="zugeordneteDlmKanteIds"
+      [selectionActive]="
+        currentState === RadNetzMatchingState.ZUORDNEN_ACTIVE ||
+        currentState === RadNetzMatchingState.DLM_KANTEN_SELECTED
+      "
+    ></rad-dlm-kanten-selektion>
+
+    <rad-feature-layer
+      *ngFor="let layer of visibileNetzfehlerLayer$ | async; let index = index"
+      [layer]="layer"
+      [index]="index + 100"
+      [netzklassen]="[]"
+      [featureWasRemoved]="featureWasRemoved$ | async"
+    ></rad-feature-layer>
+    <rad-zugeordnete-dlm-kanten-layer *ngIf="zugeordneteDlmKantenLayerVisible"></rad-zugeordnete-dlm-kanten-layer>
+
+    <rad-landkreis-erledigt-markieren
+      [erledigtMarkierenActive]="erledigtMarkierenActive"
+    ></rad-landkreis-erledigt-markieren>
+
+    <rad-fehlerprotokoll-layer *ngIf="fehlerprotokolleEnabled" [zIndex]="350"></rad-fehlerprotokoll-layer>
+  </rad-ol-map>
+
+  <button
+    [attr.aria-label]="'Landkreis als erledigt markieren'"
+    matTooltip="Landkreis als erledigt markieren"
+    (click)="toggleErledigteMarkieren()"
+    mat-mini-fab
+    [color]="erledigtMarkierenActive ? 'primary' : 'accent'"
+    class="kreis-erledigt-button"
+    [class.indented]="((featuresAtDisplay$ | async) || []).length > 0"
+  >
+    <mat-icon>done_all</mat-icon>
+  </button>
+
+  <ng-container *ngIf="featuresAtDisplay$ | async as features">
+    <rad-matching-feature-details
+      (detailsClose)="onCloseDetails()"
+      (zuordnen)="onZuordnen()"
+      (save)="onSave()"
+      (delete)="onDelete()"
+      (netzfehlerErledigt)="onNetzfehlerErledigt($event)"
+      *ngIf="features.length > 0"
+      [allLayers]="selectableLayers"
+      [featuresAtDisplay]="features"
+      [radNetzMatchingState]="currentState"
+      [zugeordneteRadnetzKantenVorhanden]="zugeordneteRadnetzKanteIds.length > 0"
+      class="map-properties-display"
+    >
+    </rad-matching-feature-details>
+  </ng-container>
+</div>

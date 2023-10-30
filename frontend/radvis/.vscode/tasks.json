@@ -1,0 +1,37 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "serve",
+      "command": "npm start",
+      "type": "shell",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "prettier",
+      "command": "npm run prettier:fix",
+      "type": "shell",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "npm_install",
+      "command": "npm install",
+      "type": "shell",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "test",
+      "command": "ng test",
+      "type": "shell",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "lint",
+      "command": "ng lint --fix",
+      "type": "shell",
+      "problemMatcher": "$tsc"
+    }
+  ]
+}

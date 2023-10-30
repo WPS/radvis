@@ -1,1 +1,354 @@
-/* You can add global styles to this file, and also import other style files */
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'material-icons/iconfont/material-icons.css';
+@import '@fontsource/roboto/latin.css';
+@import 'theme';
+@import './style/colors';
+@import 'style/splash-screen';
+
+html,
+body {
+  height: 100%;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+$spaceamounts: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20); // Adjust this to include the pixel amounts you need.
+$sides: (top, bottom, left, right); // all positions
+
+@each $space in $spaceamounts {
+  @each $side in $sides {
+    .m#{str-slice($side, 0, 1)}-#{$space} {
+      margin-#{$side}: #{$space * 0.1}rem !important;
+    }
+
+    .p#{str-slice($side, 0, 1)}-#{$space} {
+      padding-#{$side}: #{$space * 0.1}rem !important;
+    }
+  }
+}
+
+@each $space in $spaceamounts {
+  .mx-#{$space} {
+    margin-left: #{$space * 0.1}rem !important;
+    margin-right: #{$space * 0.1}rem !important;
+  }
+
+  .px-#{$space} {
+    padding-left: #{$space * 0.1}rem !important;
+    padding-right: #{$space * 0.1}rem !important;
+  }
+
+  .my-#{$space} {
+    margin-top: #{$space * 0.1}rem !important;
+    margin-bottom: #{$space * 0.1}rem !important;
+  }
+
+  .py-#{$space} {
+    padding-top: #{$space * 0.1}rem !important;
+    padding-bottom: #{$space * 0.1}rem !important;
+  }
+}
+
+@each $space in $spaceamounts {
+  .m-#{$space} {
+    margin: #{$space * 0.1}rem !important;
+  }
+
+  .p-#{$space} {
+    padding: #{$space * 0.1}rem !important;
+  }
+}
+
+.position-relative {
+  position: relative;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.w-80 {
+  width: 80%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.mat-form-field-full-width .mat-form-field {
+  width: 100%;
+}
+
+.display-flex {
+  display: flex;
+  align-items: center;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.align-items-start {
+  align-items: flex-start;
+}
+
+.align-self-start {
+  align-self: flex-start;
+}
+
+.align-self-end {
+  align-self: flex-end;
+}
+
+.align-self-center {
+  align-self: center;
+}
+
+.align-items-end {
+  align-items: flex-end;
+}
+
+.align-items-stretch {
+  align-items: stretch;
+}
+
+.align-items-baseline {
+  align-items: baseline;
+}
+
+.justify-content-space-between {
+  justify-content: space-between;
+}
+
+.justify-content-flex-end {
+  justify-content: flex-end;
+}
+
+.justify-content-flex-start {
+  justify-content: flex-start;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.border-primary {
+  border-color: map-get($radvis-accent-palette, 500);
+}
+
+.allow-wrap-text {
+  white-space: normal;
+}
+
+.radvis-overlay {
+  border: 1px solid map-get($grayscale, 300);
+  border-radius: 8px;
+  background-color: white;
+
+  mat-toolbar {
+    border-radius: 8px 8px 0 0;
+  }
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.highlight-undetermined .mat-form-field-flex {
+  background: map-get($grayscale, 200);
+}
+
+.highlight-undetermined .mat-form-field-underline {
+  background: rgb(239, 159, 40);
+}
+
+.hinweis {
+  font-style: italic;
+  color: $dark-gray;
+}
+
+.indeterminate.mat-slide-toggle .mat-slide-toggle-thumb-container {
+  transform: translate3d(8px, 0, 0);
+}
+
+rad-root .second-nav-bar {
+  display: flex;
+  justify-content: space-between;
+
+  nav[mat-tab-nav-bar].mat-tab-nav-bar,
+  mat-tab-header.mat-tab-header {
+    border: 0;
+  }
+
+  .mat-tab-links,
+  .mat-tab-labels {
+    margin-left: 0.5rem;
+  }
+
+  .mat-tab-label,
+  .mat-tab-link {
+    min-width: auto;
+    color: rgba(0, 0, 0, 1);
+    opacity: 1;
+    font-weight: 400;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .mat-tab-body-wrapper {
+    display: none;
+  }
+
+  .mat-ink-bar {
+    height: 3px;
+  }
+}
+
+.mat-tab-link, .mat-tab-label, .mat-chip-remove {
+  opacity: 1 !important;
+}
+
+.mat-header-cell, td.group-header, .mat-sort-header-arrow {
+  color: $black !important;
+}
+
+
+.no-overflow {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.error {
+  color: $warn-color;
+}
+
+.warning {
+  color: $warning-color;
+}
+
+.mat-menu-panel {
+  max-width: unset !important;
+}
+
+.ol-zoom {
+  left: unset !important;
+  right: 0.5em;
+}
+
+.mat-autocomplete-panel .mat-option {
+  height: auto !important;
+  line-height: normal !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+
+  .mat-option-text {
+    white-space: normal;
+  }
+}
+
+:is(mat-form-field, rad-organisationen-dropdown-control, rad-number-input-control, rad-text-input-control, rad-massnahmenkategorien-dropdown-control, rad-enum-dropdown-control),
++ rad-validation-error-anzeige {
+  position: relative;
+  top: -1rem;
+}
+
+// Zeilenumbrueche in dem Tooltip beim umsetzungsstand ermoeglichen.
+// Css-Klasse ist nur im Tooltip wirksam, wenn sie global gueltig ist
+.umsetzungsstand-multiline-tooltip.mat-tooltip {
+  white-space: pre-line;
+}
+
+// Entsprechend unserer Styling-Richtlinien soll die Textfarbe der Form Fields beim Disablen trotzdem
+// kräftig dargestellt werden
+.mat-select-disabled .mat-select-value {
+  color: rgba($black, 0.8);
+}
+
+.mat-input-element:disabled {
+  color: rgba($black, 0.8) !important;
+}
+
+rad-massnahmen-tool .mat-tab-link {
+  min-width: 0 !important;
+}
+
+mat-toolbar {
+  flex-shrink: 0;
+}
+
+.mat-checkbox.cdk-keyboard-focused .mat-checkbox-persistent-ripple, .mat-icon-button.cdk-keyboard-focused .mat-button-focus-overlay {
+  opacity: 0.6 !important;
+}
+
+
+.icon-toolbar.mat-icon-button.cdk-keyboard-focused .mat-button-focus-overlay {
+  background-color: white;
+  opacity: 0.69 !important;
+}
+
+.mat-checkbox-checked.cdk-keyboard-focused .mat-checkbox-persistent-ripple {
+  opacity: 0.6 !important;
+}
+
+.mat-tab-group.mat-accent .mat-tab-label.cdk-keyboard-focused:not(.mat-tab-disabled) {
+  background-color: #EA3397;
+
+}
+
+button.mat-stroked-button:focus-visible {
+  background-color: #808080;
+}
+
+.mat-slide-toggle:not(.mat-disabled).cdk-keyboard-focused .mat-slide-toggle-persistent-ripple {
+  opacity: 0.4 !important;
+}
+
+.mat-mini-fab.cdk-keyboard-focused .mat-button-focus-overlay {
+  background-color: white !important;
+  opacity: 0.6 !important;
+}
+
+.mat-raised-button.cdk-keyboard-focused .mat-button-focus-overlay {
+  background-color: white !important;
+  opacity: 0.6 !important;
+}
+
+.mat-flat-button.cdk-keyboard-focused .mat-button-focus-overlay {
+  background-color: white !important;
+  opacity: 0.6 !important;
+}
+
+.mat-form-field.mat-focused .mat-form-field-ripple {
+  background-color: #042846 !important;
+}

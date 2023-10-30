@@ -1,0 +1,17 @@
+<layer>
+  <name>servicestation_extern</name>
+  <id>LayerInfoImpl--7f2824d:1860c2506b6:-7ffd</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--2ea9e9f6:1869788896c:-7ffe</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--7f2824d:1860c2506b6:-7ffe</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-02-01 08:59:05.658 UTC</dateCreated>
+  <dateModified>2023-02-28 10:29:34.342 UTC</dateModified>
+</layer>

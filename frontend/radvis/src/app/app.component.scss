@@ -1,0 +1,103 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/theme';
+
+$hightligt-line-thickness: 6px;
+$hightligt-line-overflow-width: 0.6em;
+
+@media print {
+  .toolbar {
+    visibility: hidden;
+  }
+
+  ::ng-deep .buttons {
+    display: none;
+  }
+
+  ::ng-deep button {
+    display: none !important;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+mat-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.toolbar {
+  background-color: map-get($radvis-accent-palette, 600);
+  color: map-get(map-get($radvis-accent-palette, contrast), 600);
+  flex-shrink: 0;
+  position: relative;
+
+  button.activated {
+    background-color: map-get($radvis-accent-palette, 200);
+  }
+
+  nav {
+    align-self: stretch;
+    display: flex;
+
+    a {
+      color: white;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+
+      .nav-link {
+        display: flex;
+        margin: 0 $hightligt-line-overflow-width 0 $hightligt-line-overflow-width;
+        align-items: center;
+      }
+
+      &.activated {
+        border-bottom: $hightligt-line-thickness solid $secondary-color-light;
+
+        .nav-link {
+          margin-top: $hightligt-line-thickness;
+        }
+      }
+    }
+  }
+}
+
+::ng-deep .mat-snack-bar-container {
+  background-color: #fff;
+  color: #000;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.benutzer-details {
+  font-size: 0.8rem;
+  white-space: initial;
+  line-height: 1.5em;
+}
+
+.nav-logout-link {
+  width: fit-content;
+  margin-left: auto;
+}

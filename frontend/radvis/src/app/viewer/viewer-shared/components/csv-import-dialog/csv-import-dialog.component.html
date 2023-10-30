@@ -1,0 +1,46 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div mat-dialog-title>CSV Import</div>
+<div mat-dialog-content>
+  <form [formGroup]="formGroup" class="display-flex flex-column align-items-center">
+    <div class="display-flex flex-column align-items-center">
+      <div class="mb-5">
+        Bitte laden Sie eine CSV-Datei hoch, die in ihrem Aufbau der exportierten CSV entspricht. Datensätze mit einer
+        schon im System vorhandenen RadVIS-ID werden aktualisiert, die restlichen neu angelegt.
+      </div>
+      <div class="mb-5">
+        Nach dem Import erhalten Sie eine Protokoll-Datei, die die von Ihnen bereitgestellten Daten enthält, erweitert
+        um Informationen zum Importprozess.
+      </div>
+      <div class="mb-5">
+        Weitere Informationen finden Sie im
+        <a href="javascript:void(0);" (click)="onOpenManual()">Handbuch</a>
+      </div>
+      <rad-file-upload-control formControlName="csvImportFile" dateiEndung="csv" style="width: 100%">
+        CSV-Datei auswählen
+      </rad-file-upload-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('csvImportFile')?.errors || null"
+        *ngIf="formGroup.get('csvImportFile')?.dirty"
+      ></rad-validation-error-anzeige>
+    </div>
+  </form>
+</div>
+<div mat-dialog-actions class="buttons display-flex justify-content-flex-end">
+  <button mat-stroked-button mat-dialog-close>Abbrechen</button>
+  <rad-action-button [disabled]="!formGroup.valid" (action)="onImport()" [waiting]="loading">
+    Importieren
+  </rad-action-button>
+</div>

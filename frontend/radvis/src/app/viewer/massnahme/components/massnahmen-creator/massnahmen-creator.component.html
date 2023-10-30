@@ -1,0 +1,139 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar radRightDetailsShortcut>
+  <h2 class="flex-grow">Maßnahme erstellen</h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (save)="onSave()"
+    (resetForm)="onReset()"
+    [dirty]="formGroup.dirty"
+    [fetching]="isFetching"
+    [showHeader]="false"
+  >
+    <rad-netzbezug-selektion-control
+      formControlName="netzbezug"
+      class="mt-10 mb-10"
+      [layerId]="MASSNAHMEN.name"
+    ></rad-netzbezug-selektion-control>
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="umsetzungsstatusOptions"
+      class="mat-form-field-full-width"
+      formControlName="umsetzungsstatus"
+    >
+      Umsetzungsstatus
+    </rad-enum-dropdown-control>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="bezeichnung">
+      <div class="label">Bezeichnung</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('bezeichnung')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-massnahmenkategorien-dropdown-control formControlName="massnahmenkategorien" class="mat-form-field-full-width">
+      Kategorien
+    </rad-massnahmenkategorien-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('massnahmenkategorien')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <mat-checkbox
+      formControlName="veroeffentlicht"
+      class="mb-2"
+      matTooltip="Veröffentlichung im Web-Viewer der Öffentlichkeit."
+      matTooltipPosition="left"
+    >
+      Veröffentlicht
+    </mat-checkbox>
+
+    <mat-checkbox formControlName="planungErforderlich" class="mb-2"> Planung erforderlich</mat-checkbox>
+
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationenOptions | async) || []"
+      class="mat-form-field-full-width"
+      formControlName="baulastZustaendiger"
+    >
+      Baulastträger
+    </rad-organisationen-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('baulastZustaendiger')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="durchfuehrungszeitraum">
+      <div class="label">Durchführungszeitraum</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="sollStandardOptions"
+      class="mat-form-field-full-width"
+      formControlName="sollStandard"
+    >
+      Soll-Standard
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('sollStandard')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="umsetzungsstatusAbPlanung()"
+      [options]="handlungsverantwortlicherOptions"
+      class="mat-form-field-full-width"
+      formControlName="handlungsverantwortlicher"
+    >
+      Wer soll tätig werden?
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('handlungsverantwortlicher')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="konzeptionsquelleOptions"
+      class="mat-form-field-full-width"
+      formControlName="konzeptionsquelle"
+    >
+      Quelle
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('konzeptionsquelle')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      *ngIf="sonstigeKonzeptionsquelle()"
+      class="mat-form-field-full-width"
+      formControlName="sonstigeKonzeptionsquelle"
+    >
+      <div class="label">Sonstige Quelle</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors || null"
+    ></rad-validation-error-anzeige>
+  </rad-attribute-editor>
+</form>

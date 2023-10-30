@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<form [formGroup]="form" class="form-group">
+  <h2>Organisation bearbeiten</h2>
+
+  <div class="display-flex justify-content-flex-end">
+    <mat-slide-toggle
+      (toggleChange)="onToggleAktiv()"
+      [checked]="organisationAktiv"
+      [disabled]="bearbeitenFuerBenutzerVerboten || fetchingNachAktivAenderung"
+    >
+      Aktiv
+    </mat-slide-toggle>
+    <mat-spinner *ngIf="fetchingNachAktivAenderung" diameter="28" class="active-toggle-spinner"></mat-spinner>
+  </div>
+
+  <mat-form-field class="mat-form-field-full-width">
+    <mat-label>Name</mat-label>
+    <input formControlName="name" matInput/>
+  </mat-form-field>
+  <rad-validation-error-anzeige [errors]="form.get('name')?.errors || null"></rad-validation-error-anzeige>
+
+  <mat-form-field class="mat-form-field-full-width" *ngIf="!isCreator">
+    <mat-label>Übergeordnete Organisation</mat-label>
+    <input formControlName="uebergeordneteOrganisation" matInput/>
+  </mat-form-field>
+
+  <rad-validation-error-anzeige
+    [errors]="form.get('uebergeordneteOrganisation')?.errors || null"
+  ></rad-validation-error-anzeige>
+
+  <mat-form-field>
+    <mat-label> Organisations-Art</mat-label>
+    <mat-select formControlName="organisationsArt">
+      <mat-option *ngFor="let art of organisationsArten" [value]="art.name">{{ art.displayText }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <rad-validation-error-anzeige [errors]="form.get('organisationsArt')?.errors || null"></rad-validation-error-anzeige>
+
+  <rad-multi-organisationen-dropdown-control
+    [options]="(zuweisbareOrganisationen$ | async) ?? []"
+    formControlName="zustaendigFuerBereichOf"
+  >
+    Zuständig für Bereiche
+  </rad-multi-organisationen-dropdown-control>
+
+  <div class="display-flex align-self-end">
+    <button mat-stroked-button color="primary" (click)="onZurueck()" type="button">Zurück</button>
+    <rad-action-button class="ml-8" style="width: 6rem" (action)="onSave()" [dirty]="form.dirty"
+                       [waiting]="fetchingNachSpeicherung">
+      Speichern
+    </rad-action-button>
+  </div>
+</form>

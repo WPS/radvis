@@ -1,0 +1,149 @@
+/*
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { BenutzerDetails } from 'src/app/shared/models/benutzer-details';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { Recht } from 'src/app/shared/models/recht';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class BenutzerDetailsService {
+  private benutzer!: BenutzerDetails;
+
+  constructor(private http: HttpClient) {}
+
+  fetchBenutzerDetails(): Promise<void> {
+    return this.http
+      .get<BenutzerDetails>('/api/benutzerdetails')
+      .toPromise()
+      .then(benutzerDetails => {
+        this.benutzer = benutzerDetails;
+      });
+  }
+
+  istAktuellerBenutzerRegistriert(): boolean {
+    return this.benutzer.registriert;
+  }
+
+  istAktuellerBenutzerAktiv(): boolean {
+    return this.benutzer.aktiv;
+  }
+
+  istAktuellerBenutzerOrgaUndNutzerVerwalter(): boolean {
+    const verwalterrechte = [
+      Recht.ALLE_BENUTZER_UND_ORGANISATIONEN_BEARBEITEN,
+      Recht.BENUTZER_UND_ORGANISATIONEN_MEINES_VERWALTUNGSBEREICHS_BEARBEITEN,
+    ];
+    return this.benutzer.rechte?.some(r => verwalterrechte.includes(r)) || false;
+  }
+
+  istAktuellerBenutzerAdmin(): boolean {
+    const adminrechte = [Recht.ALLE_BENUTZER_UND_ORGANISATIONEN_BEARBEITEN];
+    return this.benutzer.rechte?.some(r => adminrechte.includes(r)) || false;
+  }
+
+  istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin(): boolean {
+    const radNETZQualitaetsSicherInRechte = [
+      Recht.MANUELLES_MATCHING_ZUORDNEN_UND_BEARBEITEN,
+      Recht.ANPASSUNGSWUENSCHE_BEARBEITEN,
+    ];
+    return (
+      this.benutzer.rechte != null &&
+      radNETZQualitaetsSicherInRechte.every(r => this.benutzer.rechte?.includes(r)) &&
+      !this.benutzer.rechte?.includes(Recht.JOBS_AUSFUEHREN)
+    );
+  }
+
+  canEditGesamtesNetz(): boolean {
+    return this.benutzer.rechte?.includes(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN) ?? false;
+  }
+
+  canEdit(): boolean {
+    const editRechte = [
+      Recht.RADNETZ_ROUTENVERLEGUNGEN,
+      Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT,
+      Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN,
+    ];
+    return this.benutzer.rechte?.some(r => editRechte.includes(r)) || false;
+  }
+
+  canEditZustaendigkeitsBereichOfOrganisation(): boolean {
+    return this.benutzer.rechte?.includes(Recht.EIGENEN_BEREICH_EINER_ORGANISATION_ZUORDNEN) ?? false;
+  }
+
+  canCreateMassnahmen(): boolean {
+    const massnahmenRechte = [
+      Recht.ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN,
+      Recht.MASSNAHME_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN_VEROEFFENTLICHEN,
+    ];
+    return this.benutzer.rechte?.some(r => massnahmenRechte.includes(r)) || false;
+  }
+
+  canCreateFahrradrouten(): boolean {
+    const fahrradroutenRechte = [
+      Recht.ALLE_RADROUTEN_ERFASSEN_BEARBEITEN,
+      Recht.RADROUTEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN,
+    ];
+    return this.benutzer.rechte?.some(r => fahrradroutenRechte.includes(r)) || false;
+  }
+
+  canCreateAnpassungswunsch(): boolean {
+    const anpassungswunschRechte = [Recht.ANPASSUNGSWUENSCHE_ERFASSEN];
+    return this.benutzer.rechte?.some(r => anpassungswunschRechte.includes(r)) || false;
+  }
+
+  canCreateOrganisationen(): boolean {
+    const organisationRechte = [
+      Recht.ALLE_BENUTZER_UND_ORGANISATIONEN_BEARBEITEN,
+      Recht.BENUTZER_UND_ORGANISATIONEN_MEINES_VERWALTUNGSBEREICHS_BEARBEITEN,
+    ];
+    return this.benutzer.rechte?.some(r => organisationRechte.includes(r)) || false;
+  }
+
+  canAdministrateUmsetzungsstandsabfragen(): boolean {
+    return this.benutzer.rechte?.includes(Recht.UMSETZUNGSSTANDSABFRAGEN_VERWALTEN) || false;
+  }
+
+  canCreateFurtenKreuzungen(): boolean {
+    const furtKreuzungRechte = [Recht.FURTEN_KREUZUNGEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN];
+    return this.benutzer.rechte?.some(r => furtKreuzungRechte.includes(r)) || false;
+  }
+
+  showLayerAusDateiVerwaltung(): boolean {
+    return this.istAktuellerBenutzerAdmin();
+  }
+
+  aktuellerBenutzerVorname(): string | undefined {
+    return this.benutzer.vorname;
+  }
+
+  aktuellerBenutzerNachname(): string | undefined {
+    return this.benutzer.name;
+  }
+
+  aktuellerBenutzerOrganisationName(): string | undefined {
+    return this.benutzer.organisation?.name;
+  }
+
+  aktuellerBenutzerOrganisation(): Verwaltungseinheit | undefined {
+    return this.benutzer.organisation;
+  }
+
+  aktuellerBenutzerRechte(): Recht[] | undefined {
+    return this.benutzer.rechte;
+  }
+}

@@ -1,0 +1,43 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="mat-tab-wrapper">
+  <div class="close-button">
+    <button
+      [attr.aria-label]="'Schließen'"
+      matTooltip="Schließen"
+      (click)="onClose()"
+      mat-icon-button
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+  <mat-tab-group>
+    <mat-tab label="Attribute">
+      <ng-content select=".attribute"></ng-content>
+    </mat-tab>
+    <mat-tab label="Auswahl">
+      <ng-content select=".auswahl"></ng-content>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<div class="buttons display-flex p-10">
+  <button [disabled]="disabled" (click)="onReset()" mat-stroked-button class="flex-grow border-primary" type="button">
+    Zurücksetzen
+  </button>
+
+  <rad-action-button [disabled]="disabled" [dirty]="dirty" [waiting]="fetching" (action)="onSave()">
+    Speichern
+  </rad-action-button>
+</div>

@@ -1,0 +1,386 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+  <changeSet id="RAD-3595" author="hst">
+    <createTable tableName="dokument_aud">
+      <column name="id" type="bigint"/>
+      <column name="dateiname" type="varchar(255)"/>
+      <column name="datei" type="bytea"/>
+      <column name="benutzer_id" type="bigint"/>
+      <column name="datum" type="timestamp"/>
+      <column name="dokument_liste_id" type="bigint"/>
+      <column name="dateigroesse_in_bytes" type="int"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+  </changeSet>
+  <changeSet id="RAD-2573" author="par">
+    <addColumn tableName="massnahme">
+      <column name="geloescht" type="boolean" defaultValue="false"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="geloescht" type="boolean" defaultValue="false"/>
+    </addColumn>
+    <createView viewName="massnahme_list_view" replaceIfExists="true">
+      SELECT m.id,
+      m.bezeichnung,
+      string_agg(distinct mkat.massnahmenkategorien, ';') as massnahmenkategorien,
+      m.von_zeitpunkt,
+      m.bis_zeitpunkt,
+      m.geplanter_umsetzungsstart_jahr,
+      min(baulast.id) AS baulast_id,
+      min(baulast.name) as baulast_name,
+      min(baulast.organisations_art) as baulast_organisations_art,
+      min(baulast.uebergeordnete_organisation_id) as baulast_uebergeordnete_organisation_id,
+      min(markierung.id) AS markierung_id,
+      min(markierung.name) as markierung_name,
+      min(markierung.organisations_art) as markierung_organisations_art,
+      min(markierung.uebergeordnete_organisation_id) as markierung_uebergeordnete_organisation_id,
+      min(unterhalt.id) AS unterhalt_id,
+      min(unterhalt.name) as unterhalt_name,
+      min(unterhalt.organisations_art) as unterhalt_organisations_art,
+      min(unterhalt.uebergeordnete_organisation_id) as unterhalt_uebergeordnete_organisation_id,
+      m.prioritaet,
+      string_agg(distinct netzklassen.netzklassen, ';') as netzklassen,
+      m.umsetzungsstatus,
+      m.veroeffentlicht,
+      m.planung_erforderlich,
+      m.letzte_aenderung,
+      min(benutzer_letzte_aenderung.id) AS benutzer_letzte_aenderung_id,
+      min(benutzer_letzte_aenderung.vorname) AS benutzer_letzte_aenderung_vorname,
+      min(benutzer_letzte_aenderung.nachname) AS benutzer_letzte_aenderung_nachname,
+      min(benutzer_letzte_aenderung.status) AS benutzer_letzte_aenderung_status,
+      min(benutzer_letzte_aenderung_organisation.name) AS benutzer_letzte_aenderung_organisation_name,
+      min(benutzer_letzte_aenderung.mailadresse) AS benutzer_letzte_aenderung_email,
+      m.soll_standard,
+      m.handlungsverantwortlicher,
+      (case
+      when min(kant.geometry) IS NOT NULL then min(kant.geometry)::geometry
+      when min(knot.point) IS NOT NULL then min(knot.point)::geometry
+      else min(ST_LineInterpolatePoint(kanteFuerPunktReferenz.geometry, mkpu.lineare_referenz))::geometry
+      end
+      ) AS geometry,
+      min(u.umsetzungsstand_status) as umsetzungsstand_status
+      FROM massnahme m
+      LEFT OUTER JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
+      LEFT OUTER JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
+      LEFT OUTER JOIN organisation markierung ON m.markierungs_zustaendiger_id = markierung.id
+      LEFT OUTER JOIN organisation unterhalt ON m.unterhalts_zustaendiger_id = unterhalt.id
+      LEFT OUTER JOIN massnahme_netzklassen netzklassen ON m.id = netzklassen.massnahme_id
+      LEFT OUTER JOIN benutzer benutzer_letzte_aenderung ON m.benutzer_letzte_aenderung_id =
+      benutzer_letzte_aenderung.id
+      LEFT OUTER JOIN organisation benutzer_letzte_aenderung_organisation
+      ON benutzer_letzte_aenderung.organisation_id =
+      benutzer_letzte_aenderung_organisation.id
+      LEFT OUTER JOIN massnahme_knoten mkno on m.id = mkno.massnahme_id
+      LEFT OUTER JOIN knoten knot ON mkno.knoten_id = knot.id
+      LEFT OUTER JOIN massnahme_kantenseitenabschnitte mk on m.id = mk.massnahme_id
+      LEFT OUTER JOIN massnahme_kantenpunkte mkpu on m.id = mkpu.massnahme_id
+      LEFT OUTER JOIN kante kant on mk.kante_id = kant.id
+      LEFT OUTER JOIN kante kanteFuerPunktReferenz on mkpu.kante_id = kanteFuerPunktReferenz.id
+      LEFT OUTER JOIN umsetzungsstand u ON m.umsetzungsstand_id = u.id
+      WHERE m.geloescht = false
+      GROUP BY m.id;
+    </createView>
+    <createView viewName="massnahme_umsetzungsstand_view" replaceIfExists="true">
+      SELECT
+      m.id,
+      COALESCE(m.massnahmen_paket_id, '') as massnahmen_paket_id,
+      COALESCE(MIN(baulast.organisations_art), '') AS baulast_organisations_art,
+      MIN(gemeinde.name) AS gemeinde,
+      MIN(kreis.name) AS kreis,
+      CASE WHEN m.umsetzungsstatus = 'UMGESETZT' THEN 'Ja' ELSE 'Nein' END AS ist_umgesetzt,
+      CASE WHEN EVERY(u.umsetzung_gemaess_massnahmenblatt) THEN 'Ja' ELSE 'Nein' END AS
+      umsetzung_gemaess_massnahmenblatt,
+      COALESCE(MIN(u.grund_fuer_abweichung_zum_massnahmenblatt), '') AS grund_fuer_abweichung,
+      COALESCE(MIN(u.pruefung_qualitaetsstandards_erfolgt), '') AS pruefung_qualitaetsstandards_erfolgt,
+      COALESCE(MIN(u.beschreibung_abweichender_massnahme), '') AS beschreibung_abweichender_massnahme,
+      COALESCE(MIN(u.kosten_der_massnahme::text), '') AS kosten_der_massnahme,
+      COALESCE(MIN(u.anmerkung), '') AS anmerkung,
+      CASE WHEN MIN(b.nachname) IS NOT NULL THEN MIN(concat(b.vorname, ' ', b.nachname, ' ', b.mailadresse)) ELSE '' END
+      AS benutzer_kontaktdaten,
+      CASE WHEN MIN(u.letzte_aenderung) IS NOT NULL THEN MIN(to_char(u.letzte_aenderung, 'DD.MM.YYYY HH24:MI Uhr')) ELSE
+      '' END AS letzte_aenderung
+      FROM massnahme m
+      LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
+      LEFT JOIN umsetzungsstand u ON m.umsetzungsstand_id = u.id
+      LEFT JOIN benutzer b ON u.benutzer_letzte_aenderung_id = b.id
+      LEFT JOIN massnahme_knoten mnk ON m.id = mnk.massnahme_id
+      LEFT JOIN knoten knot ON mnk.knoten_id = knot.id
+      LEFT JOIN massnahme_kantenseitenabschnitte mk ON m.id = mk.massnahme_id
+      LEFT JOIN kante kant ON mk.kante_id = kant.id
+      JOIN organisation gemeinde ON ST_Intersects(CASE WHEN kant.geometry IS NOT NULL THEN kant.geometry ELSE
+      knot.point::geometry END, gemeinde.bereich)
+      AND gemeinde.organisations_art = 'GEMEINDE'
+      JOIN organisation kreis ON gemeinde.uebergeordnete_organisation_id = kreis.id
+      WHERE m.konzeptionsquelle = 'RADNETZ_MASSNAHME'
+      AND m.geloescht = false
+      GROUP BY m.id;
+    </createView>
+  </changeSet>
+
+  <changeSet id="RAD-3639" author="par">
+    <addColumn tableName="massnahme">
+      <column name="realisierungshilfe" type="varchar(255)"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="realisierungshilfe" type="varchar(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-3209" author="sm">
+    <addColumn tableName="massnahme">
+      <column name="kostenannahme" type="BIGINT"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="kostenannahme" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-3756" author="jg + mw">
+    <createView viewName="massnahme_umsetzungsstand_view" replaceIfExists="true">
+      SELECT
+        m.id,
+        COALESCE(m.massnahmen_paket_id, '') as massnahmen_paket_id,
+        COALESCE(MIN(baulast.organisations_art), '') AS baulast_organisations_art,
+        MIN(gemeinde.name) AS gemeinde,
+        MIN(kreis.name) AS kreis,
+        CASE WHEN m.umsetzungsstatus = 'UMGESETZT' THEN 'Ja' ELSE 'Nein' END AS ist_umgesetzt,
+        CASE WHEN EVERY(u.umsetzung_gemaess_massnahmenblatt) THEN 'Ja' ELSE 'Nein' END AS umsetzung_gemaess_massnahmenblatt,
+        COALESCE(MIN(u.grund_fuer_abweichung_zum_massnahmenblatt), '') AS grund_fuer_abweichung,
+        COALESCE(MIN(u.pruefung_qualitaetsstandards_erfolgt), '') AS pruefung_qualitaetsstandards_erfolgt,
+        COALESCE(MIN(u.beschreibung_abweichender_massnahme), '') AS beschreibung_abweichender_massnahme,
+        COALESCE(MIN(u.kosten_der_massnahme::text), '') AS kosten_der_massnahme,
+        COALESCE(MIN(u.anmerkung), '') AS anmerkung,
+        CASE WHEN MIN(b.nachname) IS NOT NULL THEN MIN(concat(b.vorname, ' ', b.nachname, ' ', b.mailadresse)) ELSE '' END AS benutzer_kontaktdaten,
+        CASE WHEN MIN(u.letzte_aenderung) IS NOT NULL THEN MIN(to_char(u.letzte_aenderung, 'DD.MM.YYYY HH24:MI Uhr')) ELSE '' END AS letzte_aenderung
+      FROM massnahme m
+        LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
+        LEFT JOIN umsetzungsstand u ON m.umsetzungsstand_id = u.id
+        LEFT JOIN benutzer b ON u.benutzer_letzte_aenderung_id = b.id
+        LEFT JOIN massnahme_knoten mnk ON m.id = mnk.massnahme_id
+        LEFT JOIN knoten knot ON mnk.knoten_id = knot.id
+        LEFT JOIN massnahme_kantenseitenabschnitte mk ON m.id = mk.massnahme_id
+        LEFT JOIN massnahme_kantenpunkte mkpu on m.id = mkpu.massnahme_id
+        LEFT JOIN kante kant ON mk.kante_id = kant.id
+        LEFT JOIN kante kanteFuerPunktReferenz on mkpu.kante_id = kanteFuerPunktReferenz.id
+        JOIN organisation gemeinde ON ST_Intersects(
+          CASE
+            WHEN kant.geometry IS NOT NULL THEN kant.geometry
+            WHEN knot.point IS NOT NULL THEN knot.point::geometry
+            ELSE ST_LineInterpolatePoint(kanteFuerPunktReferenz.geometry, mkpu.lineare_referenz)::geometry
+          END, gemeinde.bereich)
+          AND gemeinde.organisations_art = 'GEMEINDE'
+        JOIN organisation kreis ON gemeinde.uebergeordnete_organisation_id = kreis.id
+      WHERE m.konzeptionsquelle = 'RADNETZ_MASSNAHME' AND m.geloescht = false
+      GROUP BY m.id;
+    </createView>
+  </changeSet>
+
+  <changeSet id="RAD-3752" author="par">
+    <addForeignKeyConstraint baseTableName="massnahme_kantenpunkte" baseColumnNames="kante_id"
+      constraintName="fk_massnahme_kantenpunkte_kante_id"
+      referencedTableName="kante"
+      referencedColumnNames="id"/>
+    <createIndex tableName="massnahme_kantenpunkte" indexName="fk_massnahme_kantenpunkte_kante_id_idx">
+      <column name="kante_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="massnahme_kantenseitenabschnitte" baseColumnNames="kante_id"
+      constraintName="fk_massnahme_kantenseitenabschnitte_kante_id"
+      referencedTableName="kante"
+      referencedColumnNames="id"/>
+    <createIndex tableName="massnahme_kantenseitenabschnitte"
+      indexName="fk_massnahme_kantenseitenabschnitte_kante_id_idx">
+      <column name="kante_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="massnahme_knoten" baseColumnNames="knoten_id"
+      constraintName="fk_massnahme_knoten_knoten_id"
+      referencedTableName="knoten"
+      referencedColumnNames="id"/>
+    <createIndex tableName="massnahme_knoten" indexName="fk_massnahme_knoten_knoten_id_idx">
+      <column name="knoten_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-3746" author="par">
+    <createTable tableName="massnahme_netz_bezug_aenderung">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="massnahme_netz_bezug_aenderung_pkey"/>
+      </column>
+      <column name="netz_bezug_aenderungs_art" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="netz_entity_id" type="bigint"/>
+      <column name="massnahme_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="benutzer_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="datum" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ausloeser" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="geometry" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="massnahme_netz_bezug_aenderung" baseColumnNames="massnahme_id"
+      constraintName="fk_massnahme_netz_bezug_aenderung_massnahme_id"
+      referencedTableName="massnahme"
+      referencedColumnNames="id"/>
+    <createIndex tableName="massnahme_netz_bezug_aenderung" indexName="fk_massnahme_netz_bezug_aenderung_massnahme_idx">
+      <column name="massnahme_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="massnahme_netz_bezug_aenderung" baseColumnNames="benutzer_id"
+      constraintName="fk_massnahme_netz_bezug_aenderung_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+    <createIndex tableName="massnahme_netz_bezug_aenderung" indexName="fk_massnahme_netz_bezug_aenderung_benutzer_idx">
+      <column name="benutzer_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-4211" author="kho, mr">
+    <createView viewName="massnahme_list_view" replaceIfExists="true">
+      SELECT m.id,
+             m.bezeichnung,
+             string_agg(distinct mkat.massnahmenkategorien, ';') as massnahmenkategorien,
+             m.von_zeitpunkt,
+             m.bis_zeitpunkt,
+             m.geplanter_umsetzungsstart_jahr,
+             min(baulast.id)                                     AS baulast_id,
+             min(baulast.name)                                   as baulast_name,
+             min(baulast.organisations_art)                      as baulast_organisations_art,
+             min(baulast.uebergeordnete_organisation_id)         as baulast_uebergeordnete_organisation_id,
+             min(markierung.id)                                  AS markierung_id,
+             min(markierung.name)                                as markierung_name,
+             min(markierung.organisations_art)                   as markierung_organisations_art,
+             min(markierung.uebergeordnete_organisation_id)      as markierung_uebergeordnete_organisation_id,
+             min(unterhalt.id)                                   AS unterhalt_id,
+             min(unterhalt.name)                                 as unterhalt_name,
+             min(unterhalt.organisations_art)                    as unterhalt_organisations_art,
+             min(unterhalt.uebergeordnete_organisation_id)       as unterhalt_uebergeordnete_organisation_id,
+             m.prioritaet,
+             string_agg(distinct netzklassen.netzklassen, ';')   as netzklassen,
+             m.umsetzungsstatus,
+             m.veroeffentlicht,
+             m.planung_erforderlich,
+             m.letzte_aenderung,
+             min(benutzer_letzte_aenderung.id)                   AS benutzer_letzte_aenderung_id,
+             min(benutzer_letzte_aenderung.vorname)              AS benutzer_letzte_aenderung_vorname,
+             min(benutzer_letzte_aenderung.nachname)             AS benutzer_letzte_aenderung_nachname,
+             min(benutzer_letzte_aenderung.status)               AS benutzer_letzte_aenderung_status,
+             min(benutzer_letzte_aenderung_organisation.name)    AS benutzer_letzte_aenderung_organisation_name,
+             min(benutzer_letzte_aenderung.mailadresse)          AS benutzer_letzte_aenderung_email,
+             m.soll_standard,
+             m.handlungsverantwortlicher,
+             (case
+                when min(kanteFuerSeitenabschnitt.geometry) IS NOT NULL THEN ST_Union(st_linesubstring(
+                  kanteFuerSeitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))::geometry
+                when min(knot.point) IS NOT NULL THEN min(knot.point)::geometry
+                else min(ST_LineInterpolatePoint(kanteFuerPunktReferenz.geometry, mkpu.lineare_referenz))::geometry
+               end
+               )                                               AS geometry,
+             min(u.umsetzungsstand_status)                       as umsetzungsstand_status
+      FROM massnahme m
+             LEFT OUTER JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
+             LEFT OUTER JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
+             LEFT OUTER JOIN organisation markierung ON m.markierungs_zustaendiger_id = markierung.id
+             LEFT OUTER JOIN organisation unterhalt ON m.unterhalts_zustaendiger_id = unterhalt.id
+             LEFT OUTER JOIN massnahme_netzklassen netzklassen ON m.id = netzklassen.massnahme_id
+             LEFT OUTER JOIN benutzer benutzer_letzte_aenderung ON m.benutzer_letzte_aenderung_id =
+                                                                   benutzer_letzte_aenderung.id
+             LEFT OUTER JOIN organisation benutzer_letzte_aenderung_organisation
+                             ON benutzer_letzte_aenderung.organisation_id =
+                                benutzer_letzte_aenderung_organisation.id
+             LEFT OUTER JOIN massnahme_knoten mkno on m.id = mkno.massnahme_id
+             LEFT OUTER JOIN knoten knot ON mkno.knoten_id = knot.id
+             LEFT OUTER JOIN massnahme_kantenseitenabschnitte seitenabschnitt on m.id = seitenabschnitt.massnahme_id
+             LEFT OUTER JOIN massnahme_kantenpunkte mkpu on m.id = mkpu.massnahme_id
+             LEFT OUTER JOIN kante kanteFuerSeitenabschnitt on seitenabschnitt.kante_id = kanteFuerSeitenabschnitt.id
+             LEFT OUTER JOIN kante kanteFuerPunktReferenz on mkpu.kante_id = kanteFuerPunktReferenz.id
+             LEFT OUTER JOIN umsetzungsstand u ON m.umsetzungsstand_id = u.id
+      WHERE m.geloescht = false
+      GROUP BY m.id;
+    </createView>
+  </changeSet>
+
+  <changeSet id="RAD-2704" author="hst">
+    <addColumn tableName="fahrradroute">
+      <column name="kurzbeschreibung" type="VARCHAR(500)" />
+      <column name="tourenkategorie" type="VARCHAR(255)" />
+      <column name="offizielle_laenge" type="BIGINT" />
+      <column name="website" type="VARCHAR(255)" />
+      <column name="verantwortlich_id" type="BIGINT" />
+      <column name="email_ansprechpartner" type="VARCHAR(255)" />
+      <column name="lizenz" type="VARCHAR(255)" />
+      <column name="lizenz_namensnennung" type="VARCHAR(255)" />
+    </addColumn>
+    <addForeignKeyConstraint
+      constraintName="fk_fahrradroute_verantwortlich_id"
+      referencedTableName="organisation"
+      referencedColumnNames="id"
+      baseColumnNames="verantwortlich_id" baseTableName="fahrradroute"/>
+  </changeSet>
+
+  <changeSet id="RAD-3798" author="hst">
+    <addColumn tableName="fahrradroute">
+      <column name="fahrradroute_typ" type="VARCHAR(255)" defaultValue="TOUBIZ_ROUTE" />
+    </addColumn>
+    <createTable tableName="fahrradroute_aud">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="toubiz_id" type="varchar(255)"/>
+      <column name="name" type="varchar(255)"/>
+      <column name="beschreibung" type="text"/>
+      <column name="original_geometrie" type="Geometry"/>
+      <column name="icon_location" type="Geometry"/>
+      <column name="kurzbeschreibung" type="VARCHAR(500)" />
+      <column name="tourenkategorie" type="VARCHAR(255)" />
+      <column name="kategorie" type="VARCHAR(255)"/>
+      <column name="offizielle_laenge" type="BIGINT" />
+      <column name="website" type="VARCHAR(255)" />
+      <column name="verantwortlich_id" type="BIGINT" />
+      <column name="email_ansprechpartner" type="VARCHAR(255)" />
+      <column name="lizenz" type="VARCHAR(255)" />
+      <column name="lizenz_namensnennung" type="VARCHAR(255)" />
+      <column name="fahrradroute_typ" type="VARCHAR(255)" />
+      <column name="abbildung_durch_routing" type="BOOLEAN" />
+      <column name="routed_or_matched_geometry" type="GEOMETRY"/>
+      <column name="abweichende_segmente" type="GEOMETRY"/>
+      <column name="kehrtwenden" type="GEOMETRY"/>
+    </createTable>
+    <createTable tableName="fahrradroute_kantenabschnitte_aud">
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="setordinal" type="integer"/>
+      <column name="fahrradroute_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

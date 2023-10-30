@@ -1,0 +1,118 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar *ngIf="isCreator" radRightDetailsShortcut>
+  <h2 class="flex-grow">Anpassungswunsch erstellen</h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    (save)="onSave()"
+    [dirty]="isDirty"
+    [fetching]="isFetching"
+    [titel]="editorTitel"
+    [showHeader]="false"
+  >
+    <ul class="hinweis-liste mb-5" *ngIf="!isCreator">
+      <li>Erstellt am {{ formGroup.controls.erstellung.value | date: 'dd.MM.yy HH:mm' }}</li>
+      <li>
+        Zuletzt geändert am {{ formGroup.controls.aenderung.value | date: 'dd.MM.yy HH:mm' }} von
+        {{ formGroup.controls.benutzerLetzteAenderung.value | benutzerName }}
+      </li>
+      <ng-container *ngIf="currentAnpassungswunsch?.basiertAufKonsistenzregelVerletzung">
+        <li
+          *ngIf="currentAnpassungswunsch?.ursaechlicheKonsistenzregelVerletzung?.titel as titel; else ehemaligeKonsistenzregelVerletzung">
+          Dieser Anpassungswunsch basiert auf einer Verletzung der Konsistenzregel '{{titel}}'.
+        </li>
+      </ng-container>
+      <ng-template #ehemaligeKonsistenzregelVerletzung>
+        <li>
+          Dieser Anpassungswunsch basiert auf einer nicht mehr vorhandenen Verletzung einer Konsistenzregel.
+        </li>
+      </ng-template>
+    </ul>
+    <rad-position-selektion-control
+      class="mt-3"
+      formControlName="geometrie"
+      [withInfrastrukturIcon]="iconName"
+    ></rad-position-selektion-control>
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Zu ändern in</mat-label>
+      <mat-select formControlName="kategorie">
+        <mat-option *ngFor="let option of AnpassungswunschKategorie.options" [value]="option.name"
+        >{{ option.displayText }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="formGroup.get('kategorie')?.errors || null"></rad-validation-error-anzeige>
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Beschreibung</mat-label>
+      <textarea
+        formControlName="beschreibung"
+        matInput
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="10"
+      ></textarea>
+      <mat-hint align="end">
+        {{ formGroup.get('beschreibung')?.value?.length || 0 }}/{{ BESCHREIBUNG_MAX_LENGTH }}
+      </mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="formGroup.get('beschreibung')?.errors || null">
+    </rad-validation-error-anzeige>
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option *ngFor="let option of AnpassungswunschStatus.options" [value]="option.name"
+                    [disabled]="option.name === AnpassungswunschStatus.UMGESETZT">{{
+          option.displayText
+          }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationen$ | async) || []"
+      class="mat-form-field-full-width"
+      formControlName="verantwortlicheOrganisation"
+      #dropdownValue
+    >
+      Verantwortliche Organisation
+    </rad-organisationen-dropdown-control>
+    <div class="hinweis-liste mb-5" *ngIf="dropdownValue.selectedOrganisation"> Bitte beachten Sie, dass keine direkte
+      Benachrichtigung an die
+      Organisation erfolgt. Kontaktieren Sie bei Bedarf die Organisation per Mail und verwenden Sie dabei die URL aus
+      dem Browser auf diesen Anpassungswunsch.
+    </div>
+    <a
+      class="mt-5 align-self-end editor-ausschnitt-link"
+      *ngIf="!isCreator && canSeeRadvisEditor"
+      [routerLink]="linkToEditor"
+      [queryParams]="viewParamForCenterAtCoordinate"
+      queryParamsHandling="merge"
+      matTooltip="Öffnet Kartenauschnitt um Anpassungswunsch in neuem Tab"
+      target="_blank"
+    >
+      <span>Kartenausschnitt im Editor öffnen</span>
+      <mat-icon class="ml-1 new-tab-icon" inline="true">open_in_new</mat-icon>
+    </a>
+  </rad-attribute-editor>
+</form>

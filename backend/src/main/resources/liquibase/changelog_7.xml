@@ -1,0 +1,61 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+    <changeSet author="Pawel" id="RAD-401">
+        <renameColumn tableName="knoten" oldColumnName="koordinate" newColumnName="point" remarks="Umebenennung zwecks Konsistenz" validate="true"/>
+    </changeSet>
+    <changeSet author="Pawel" id="RAD-425">
+        <createTable tableName="knoten_attribute">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="knoten_attribute_pkey"/>
+            </column>
+            <column name="kommentar" type="VARCHAR(255)"/>
+            <column name="ortslage" type="INTEGER"/>
+            <column name="knoten_form" type="INTEGER"/>
+            <column name="knoten_art" type="INTEGER"/>
+            <column name="sonstige_attribute" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Pawel" id="RAD-426">
+        <addColumn tableName="knoten">
+            <column name="knoten_attribute_id" type="BIGINT"/>
+        </addColumn>
+        <addForeignKeyConstraint baseColumnNames="knoten_attribute_id" baseTableName="knoten" constraintName="fk_knoten_knoten_attribute" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="knoten_attribute" validate="true"/>
+    </changeSet>
+    <changeSet author="Tim" id="RAD-423">
+            <dropIndex indexName="kanten_idx"
+            	schemaName="public"
+            	tableName="kante"/>
+            <dropIndex indexName="knoten_idx"
+            	schemaName="public"
+            	tableName="knoten"/>
+            <dropIndex indexName="test_idx"
+	            schemaName="public"
+	            tableName="imported_feature"/>
+
+	        <sql>
+			   CREATE INDEX knoten_idx ON knoten USING GIST (point, quelle)
+			</sql>
+			<sql>
+			   CREATE INDEX kanten_idx ON kante USING GIST (geometry, quelle)
+			</sql>
+			<sql>
+			   CREATE INDEX test_idx ON imported_feature USING GIST (geometrie, quelle, art)
+			</sql>
+    </changeSet>
+</databaseChangeLog>

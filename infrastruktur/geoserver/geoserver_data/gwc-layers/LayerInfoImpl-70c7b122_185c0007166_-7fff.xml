@@ -1,0 +1,53 @@
+<GeoServerTileLayer>
+  <id>LayerInfoImpl-70c7b122:185c0007166:-7fff</id>
+  <enabled>true</enabled>
+  <inMemoryCached>true</inMemoryCached>
+  <name>radvis:massnahmen_lines</name>
+  <mimeFormats>
+    <string>image/png</string>
+    <string>image/jpeg</string>
+  </mimeFormats>
+  <gridSubsets>
+    <gridSubset>
+      <gridSetName>EPSG:4326</gridSetName>
+      <extent>
+        <coords>
+          <double>8.902484630224055</double>
+          <double>48.75641328900978</double>
+          <double>9.001842306422516</double>
+          <double>48.91503524839552</double>
+        </coords>
+      </extent>
+    </gridSubset>
+    <gridSubset>
+      <gridSetName>EPSG:900913</gridSetName>
+      <extent>
+        <coords>
+          <double>991020.0558314862</double>
+          <double>6233630.442953872</double>
+          <double>1002080.5017523018</double>
+          <double>6260456.930844829</double>
+        </coords>
+      </extent>
+    </gridSubset>
+  </gridSubsets>
+  <metaWidthHeight>
+    <int>4</int>
+    <int>4</int>
+  </metaWidthHeight>
+  <expireCache>0</expireCache>
+  <expireClients>0</expireClients>
+  <parameterFilters>
+    <styleParameterFilter>
+      <key>STYLES</key>
+      <defaultValue></defaultValue>
+      <availableStyles class="sorted-set">
+        <string>radvis:Massnahmen (Soll-Standard)</string>
+        <string>radvis:Massnahmen (Umsetzungsstatus)</string>
+      </availableStyles>
+      <defaultStyle>radvis:Massnahmen (Soll-Standard)</defaultStyle>
+    </styleParameterFilter>
+  </parameterFilters>
+  <gutter>0</gutter>
+  <cacheWarningSkips/>
+</GeoServerTileLayer>

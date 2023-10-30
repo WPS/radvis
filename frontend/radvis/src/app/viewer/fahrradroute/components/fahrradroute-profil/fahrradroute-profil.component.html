@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="display-flex ml-5">
+  <span class="mr-4 alle-routen-link" (click)="onClose()">Alle Fahrradrouten</span>
+  <span class="mr-4 breadcrumb-active">&gt;</span>
+  <span class="breadcrumb-active">{{ route?.name ?? 'Keine Route ausgewählt' }}</span>
+  <button
+    [attr.aria-label]="'Fahrradrouten-Profil schließen'"
+    matTooltip="Fahrradrouten-Profil schließen"
+    (click)="onClose()"
+    mat-icon-button
+    class="close-button"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<rad-hoehenprofil
+  *ngIf="lineString; else hoehenprofilNichtVerfuegbar"
+  [route]="lineString"
+  (hoverPositionChange)="onHover($event)"
+>
+  <div class="hover-info display-flex" *ngIf="currentBelagArt && currentRadverkehrsfuehrung">
+    <div
+      class="current-eigenschaft-legende mr-5"
+      [style.background-color]="belagArtLegende.get(currentBelagArt) | colorToCss"
+    ></div>
+    Belagart: {{ currentBelagArt | enumDisplay: belagArtOptions }}
+    <div
+      class="current-eigenschaft-legende mr-5 ml-10"
+      [style.background-color]="radverkehrsfuehrungLegende.get(currentRadverkehrsfuehrung) | colorToCss"
+    ></div>
+    Radverkehrsführung: {{ currentRadverkehrsfuehrung | enumDisplay: radverkehrsfuehrungOptions }}
+  </div>
+  <div class="strecken-eigenschaften">
+    <div
+      *ngFor="let eigenschaft of route?.profilEigenschaften"
+      [style.left.%]="eigenschaft.vonLR * 100"
+      [style.width.%]="(eigenschaft.bisLR - eigenschaft.vonLR) * 100"
+      [style.background-color]="belagArtLegende.get(eigenschaft.belagArt) | colorToCss"
+    ></div>
+  </div>
+  <div class="strecken-eigenschaften">
+    <div
+      *ngFor="let eigenschaft of route?.profilEigenschaften"
+      [style.left.%]="eigenschaft.vonLR * 100"
+      [style.width.%]="(eigenschaft.bisLR - eigenschaft.vonLR) * 100"
+      [style.background-color]="radverkehrsfuehrungLegende.get(eigenschaft.radverkehrsfuehrung) | colorToCss"
+    ></div>
+  </div>
+  <rad-hoehenprofil-position-layer [position]="currentPosition"></rad-hoehenprofil-position-layer>
+</rad-hoehenprofil>
+<ng-template #hoehenprofilNichtVerfuegbar>
+  <div class="ml-5">Ein Hoehenprofil ist für diese Route/Variante nicht verfügbar.</div>
+</ng-template>

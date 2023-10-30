@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="stepper mat-elevation-z3">
+  <a
+    *ngFor="let step of steps; let index = index"
+    class="step"
+    [class.flex-grow]="index !== 0"
+    [class.activated]="index === activeStepIndex"
+    [class.done]="index < activeStepIndex"
+    [attr.aria-current]="index === activeStepIndex ? 'step' : false"
+  >
+    <hr *ngIf="index !== 0" class="horizontal-line"/>
+    <div class="step-number">{{ index + 1 }}</div>
+    {{ step.bezeichnung }}
+  </a>
+</div>
+<div class="map-wrapper">
+  <div class="flex-grow position-relative">
+    <rad-ol-map class="h-100 w-100">
+      <rad-fehlerprotokoll-layer
+        *ngIf="fehlerprotokolleEnabled"
+        [zIndex]="fehlerprotokollZIndex"
+      ></rad-fehlerprotokoll-layer>
+
+      <div class="tool h-100" #toolContainer>
+        <router-outlet></router-outlet>
+      </div>
+    </rad-ol-map>
+  </div>
+</div>

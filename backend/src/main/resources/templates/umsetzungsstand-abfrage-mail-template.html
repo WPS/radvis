@@ -1,0 +1,55 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title th:remove="all">Template for HTML email</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>Sehr geehrte Dame, sehr geehrter Herr,</p>
+<p>
+  Das in der RadSTRATEGIE sowie im Koalitionsvertrag festgeschriebene Ziel des Landes Baden-Württemberg ist es,
+  das RadNETZ bis 2030 vollständig im Zielstandard umgesetzt zu haben.
+  Dies gelingt nur in Zusammenarbeit zwischen Bund, Land und Kommunen.
+</p>
+<p>
+  Im RadVIS ist dazu die Umsetzungsstandabfrage der RadNETZ Maßnahmen gestartet. Sie werden gebeten einige Fragen zum
+  Umsetzungsstand pro Maßnahme in Ihrer Baulast zu beantworten. Diese zentralisierte Abfrage der Umsetzungsstände
+  erleichtert Ihnen die einheitliche Rückmeldung und hilft, die
+  Umsetzung des RadNETZ Baden-Württemberg zu beschleunigen. <br/>
+  Über diesen Link (<a th:href="${radvisLink}" th:text="RadVIS-Umsetzungsstandabfrage"></a>) gelangen Sie zu der
+  Bearbeitung der RadNETZ Maßnahmen in Ihrer Zuständigkeit.
+</p>
+<p>
+  Eine vollständige Rückmeldung ist für den weiteren Fortschritt des RadNETZ unerlässlich. Maßnahmen, zu welchen keine
+  Rückmeldung erfolgt, werden als „nicht umgesetzt“ gewertet, was die Umsetzungsstatistik in Ihrer Kommune und Ihrem
+  Kreisgebiet negativ beeinflusst.
+</p>
+<p>
+  Der Link zur Umsetzungsstandabfrage ist bis zum <span th:text="${beantwortungsfrist}"></span> gültig, alle
+  Eintragungen sind bitte bis
+  dahin vorzunehmen.
+</p>
+<p>
+  Hilfe erhalten Sie im RadVIS Benutzerhandbuch oder unter <a th:href="'mailto:' + ${radvisSupportMail}"
+                                                              th:text="${radvisSupportMail}"></a>.
+</p>
+<p>
+  Diese E-Mail ist eine vom System generierte E-Mail.
+</p>
+<div th:replace="footer::footer(${radvisSupportMail})"></div>
+</body>
+</html>

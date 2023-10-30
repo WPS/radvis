@@ -1,0 +1,86 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+:host {
+  display: block;
+}
+
+.legende-container {
+  width: 18rem;
+}
+
+.legende-accordion {
+  display: block;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
+.legende-button {
+  display: flex;
+  background-color: white;
+  width: 100% !important;
+}
+
+::ng-deep .legende-button > .mat-button-wrapper {
+  width: 100%;
+  display: flex;
+}
+
+.legende-button-icon {
+  align-self: center;
+  margin-left: auto;
+}
+
+::ng-deep.legende-panel .mat-expansion-panel-body {
+  padding: 0 0 0 15px;
+}
+
+.legende-signatur {
+  font-size: 14px;
+}
+
+.legende-wms {
+  width: 16rem;
+  max-width: 16rem;
+  overflow-x: auto;
+}
+
+.legende-farbe {
+  width: 1rem;
+  height: 0.5rem;
+  border: 1px black solid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.font-14px {
+  font-size: 14px;
+}
+
+.legende-expansion-header {
+  padding-left: 15px;
+}
+
+.legende-print {
+  position: absolute;
+  bottom: 0;
+  right: 3rem;
+  alignment: bottom;
+  alignment-baseline: bottom;
+  transform: scale(0.75);
+  transform-origin: bottom right;
+  background-color: white;
+  z-index: 999;
+}

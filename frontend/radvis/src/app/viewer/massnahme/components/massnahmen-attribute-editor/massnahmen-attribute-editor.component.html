@@ -1,0 +1,222 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (save)="onSave()"
+    (resetForm)="onReset()"
+    [dirty]="formGroup.dirty"
+    [fetching]="isFetching"
+    [canEdit]="currentMassnahme?.canEdit || false"
+    [showHeader]="false"
+    class="attribute-editor"
+  >
+    <rad-netzbezug-selektion-control
+      [selectedId]="currentMassnahme!.id"
+      [layerId]="MASSNAHMEN.name"
+      formControlName="netzbezug"
+      class="mt-10 mb-10"
+    ></rad-netzbezug-selektion-control>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="massnahmeKonzeptID">
+      <div class="label">Maßnahmen-ID aus Konzept</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('massnahmeKonzeptID')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="umsetzungsstatusOptions"
+      class="mat-form-field-full-width"
+      formControlName="umsetzungsstatus"
+    >
+      Umsetzungsstatus
+    </rad-enum-dropdown-control>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="bezeichnung">
+      <div class="label">Bezeichnung</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('bezeichnung')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-massnahmenkategorien-dropdown-control formControlName="massnahmenkategorien" class="mat-form-field-full-width">
+      Kategorien
+    </rad-massnahmenkategorien-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('massnahmenkategorien')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <mat-checkbox
+      formControlName="veroeffentlicht"
+      matTooltip="Veröffentlichung im Web-Viewer der Öffentlichkeit."
+      matTooltipPosition="left"
+      class="mb-2"
+    >Veröffentlicht
+    </mat-checkbox>
+
+    <mat-checkbox formControlName="planungErforderlich" class="mb-2">Planung erforderlich</mat-checkbox>
+
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationenOptions | async) || []"
+      class="mat-form-field-full-width"
+      formControlName="baulastZustaendiger"
+    >
+      Baulastträger
+    </rad-organisationen-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('baulastZustaendiger')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="durchfuehrungszeitraum">
+      <div class="label">Durchführungszeitraum</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="prioritaet">
+      <div class="label">Priorität</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('prioritaet')?.errors || null">
+    </rad-validation-error-anzeige>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="kostenannahme">
+      <div class="label">Kostenannahme</div>
+      <div class="suffix">€</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('kostenannahme')?.errors || null">
+    </rad-validation-error-anzeige>
+
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationenOptions | async) || []"
+      class="mat-form-field-full-width"
+      formControlName="markierungsZustaendiger"
+    >
+      Markierungszuständige/r
+    </rad-organisationen-dropdown-control>
+
+    <rad-organisationen-dropdown-control
+      [options]="(alleOrganisationenOptions | async) || []"
+      class="mat-form-field-full-width"
+      formControlName="unterhaltsZustaendiger"
+    >
+      Unterhaltszuständige/r
+    </rad-organisationen-dropdown-control>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="letzteAenderung">
+      <div class="label">Zeitpunkt der letzten Änderung</div>
+    </rad-text-input-control>
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="benutzerLetzteAenderung">
+      <div class="label">Ausführende/r der letzten Änderung</div>
+    </rad-text-input-control>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="maViSID">
+      <div class="label">MaViS-ID</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('maViSID')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="verbaID">
+      <div class="label">Verba-ID (ID der Vereinbarungsdatenbank)</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('verbaID')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="lgvfgid">
+      <div class="label">LGVFG-ID</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('lgvfgid')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-autocomplete-enum-dropdown-control
+      [options]="realisierungshilfeOptions"
+      class="mat-form-field-full-width"
+      formControlName="realisierungshilfe"
+    >
+      Realisierungshilfe
+    </rad-autocomplete-enum-dropdown-control>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="sollStandardOptions"
+      class="mat-form-field-full-width"
+      formControlName="sollStandard"
+    >
+      Soll-Standard
+    </rad-enum-dropdown-control>
+
+    <rad-enum-dropdown-control
+      [nullable]="umsetzungsstatusAbPlanung()"
+      [options]="handlungsverantwortlicherOptions"
+      class="mat-form-field-full-width"
+      formControlName="handlungsverantwortlicher"
+    >
+      Wer soll tätig werden?
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('handlungsverantwortlicher')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="konzeptionsquelleOptions"
+      class="mat-form-field-full-width"
+      formControlName="konzeptionsquelle"
+      matTooltip="Die Konzeptionsquelle von RadNETZ-Maßnahmen kann nicht geändert werden."
+      [matTooltipDisabled]="!isRadNETZMassnahme"
+      matTooltipPosition="left"
+    >
+      Quelle
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('konzeptionsquelle')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-text-input-control
+      *ngIf="sonstigeKonzeptionsquelle()"
+      class="mat-form-field-full-width"
+      formControlName="sonstigeKonzeptionsquelle"
+    >
+      <div class="label">Sonstige Quelle</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <div class="group" formGroupName="netzklassen">
+      <div class="header">Netzklassen</div>
+      <div class="netzklassen-group" role="group" aria-labelledby="radnetz-klassen">
+        <div id="radnetz-klassen">RadNETZ-Klassen:</div>
+        <mat-checkbox formControlName="radnetzAlltag">Alltag</mat-checkbox>
+        <mat-checkbox formControlName="radnetzFreizeit">Freizeit</mat-checkbox>
+        <mat-checkbox formControlName="radnetzZielnetz">Zielnetz</mat-checkbox>
+      </div>
+      <div class="netzklassen-group" role="group" aria-labelledby="kreisnetz-klassen">
+        <div id="kreisnetz-klassen">Kreisnetz-Klassen:</div>
+        <mat-checkbox formControlName="kreisnetzAlltag">Alltag</mat-checkbox>
+        <mat-checkbox formControlName="kreisnetzFreizeit">Freizeit</mat-checkbox>
+      </div>
+      <div class="netzklassen-group" role="group" aria-labelledby="kommunalnetz-klassen">
+        <div id="kommunalnetz-klassen">Kommunalnetz-Klassen:</div>
+        <mat-checkbox formControlName="kommunalnetzAlltag">Alltag</mat-checkbox>
+        <mat-checkbox formControlName="kommunalnetzFreizeit">Freizeit</mat-checkbox>
+      </div>
+      <div class="netzklassen-group" role="group" aria-labelledby="weitere">
+        <div id="weitere">Weitere:</div>
+        <mat-checkbox formControlName="radschnellverbindung">Radschnellverbindung</mat-checkbox>
+        <mat-checkbox formControlName="radvorrangrouten">Radvorrangrouten</mat-checkbox>
+      </div>
+    </div>
+  </rad-attribute-editor>
+</form>

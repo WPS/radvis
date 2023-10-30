@@ -1,0 +1,71 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="content">
+  <h2>Benutzer</h2>
+  <mat-form-field class="align-self-start">
+    <input [formControl]="formControl" matInput/>
+    <mat-icon class="search-icon mr-3" matPrefix radAccessabilityText="Suche">search</mat-icon>
+    <button
+      *ngIf="formControl.value?.length > 0"
+      aria-label="Eingabe zurücksetzen"
+      matTooltip="Eingabe zurücksetzen"
+      (click)="onClearSearch()"
+      mat-icon-button
+      matSuffix
+      class="ml-3"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <table mat-table [dataSource]="benutzerDataSource" matSort class="w-100">
+    <ng-container matColumnDef="nachname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.nachname }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="vorname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Vorname</th>
+      <td mat-cell *matCellDef="let element">{{ element.vorname }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+      <td mat-cell *matCellDef="let element">{{ BenutzerStatus.getDisplayName(element.status) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="organisation">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Organisation</th>
+      <td mat-cell *matCellDef="let element">{{ element.organisation }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+      <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: headerColumns" (click)="onEdit(row.id)" style="cursor: pointer"></tr>
+  </table>
+
+  <mat-paginator
+    (page)="onPage()"
+    [pageSizeOptions]="[10, 20, 50]"
+    [pageIndex]="page$ | async"
+    [pageSize]="pageSize$ | async"
+    showFirstLastButtons
+    [attr.aria-label]="'Seite wählen'"
+  ></mat-paginator>
+</div>

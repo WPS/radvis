@@ -1,0 +1,76 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="keine-dokumente" *ngIf="dokumentListeView.dokumente.length === 0">
+  Es wurden noch keine Dateien hochgeladen.
+</div>
+<div class="dokument-list">
+  <div *ngFor="let dokument of dokumentListeView.dokumente" class="dokument-row">
+    <div class="row-left-side" [matTooltip]="tooltipForDokument(dokument)">
+      <div class="dokument-dateiname">{{ dokument.dateiname }}</div>
+      <div class="dokument-upload-datum">Hochgeladen am: {{ dokument.datum | date: 'dd.MM.yyyy' }}</div>
+    </div>
+    <div class="row-right-side">
+      <span>{{ (dokument.dateigroesseInBytes / 1024 / 1024).toFixed(2).replace('.', ',') }} MB</span>
+      <button
+        *ngIf="dokumentListeView.canEdit"
+        [attr.aria-label]="dokument.dateiname + ' löschen'"
+        [matTooltip]="dokument.dateiname + ' löschen'"
+        (click)="onDelete(dokument)"
+        mat-icon-button
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button
+        [attr.aria-label]="dokument.dateiname + ' herunterladen'"
+        [matTooltip]="dokument.dateiname + ' herunterladen'"
+        (click)="onDownload(dokument)"
+        mat-icon-button
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<form [formGroup]="formGroup" class="uploader" *ngIf="dokumentListeView.canEdit">
+  <div class="upload-selector">
+    <rad-file-upload-control formControlName="file" [maxFileSizeInMB]="100" style="width: 100%">
+      Datei auswählen
+    </rad-file-upload-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('file')?.errors || null"
+      *ngIf="formGroup.get('file')?.dirty"
+    ></rad-validation-error-anzeige>
+  </div>
+  <div class="display-flex buttons justify-content-space-between">
+    <button
+      [disabled]="formGroup.pristine"
+      (click)="resetForm()"
+      mat-flat-button
+      color="primary"
+      class="abbrechen-button"
+    >
+      Abbrechen
+    </button>
+
+    <rad-action-button
+      [waiting]="uploading"
+      [dirty]="formGroup.dirty"
+      [disabled]="formGroup.pristine"
+      (action)="onUpload()"
+      class="upload-button"
+      >Hochladen
+    </rad-action-button>
+  </div>
+</form>

@@ -1,0 +1,161 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-5685" author="jg">
+    <addColumn tableName="fahrradroute">
+      <column name="droute_id" type="varchar(255)"/>
+    </addColumn>
+    <addColumn tableName="fahrradroute_aud">
+      <column name="droute_id" type="varchar(255)"/>
+    </addColumn>
+    <sql>
+      UPDATE fahrradroute SET droute_id = '5' WHERE "name" = 'Saar-Mosel-Main' AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute SET droute_id = '6' WHERE "name" = 'Donauroute' AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute SET droute_id = '8' WHERE "name" = 'Rhein-Route' AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute SET droute_id = '9' WHERE "name" = 'Weser - Romantische Straße' AND kategorie = 'D_ROUTE';
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-2659" author="hst">
+    <sql>
+      ALTER TABLE externer_layer RENAME TO weitere_kartenebene;
+      ALTER TABLE weitere_kartenebene RENAME CONSTRAINT externer_layer_pkey TO weitere_kartenebene_pkey;
+      ALTER TABLE weitere_kartenebene RENAME CONSTRAINT fk_externer_layer_benutzer_id TO fk_weitere_kartenebene_benutzer_id;
+      ALTER INDEX fk_externer_layer_benutzer_id_idx RENAME TO fk_weitere_kartenebene_benutzer_id_idx;
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-5760" author="lb">
+    <renameColumn tableName="weitere_kartenebene"
+      oldColumnName="typ"
+      newColumnName="weitere_kartenebene_typ"/>
+  </changeSet>
+
+  <changeSet id="RAD-5758" author="jg">
+    <addPrimaryKey tableName="datei_layer" columnNames="id" constraintName="datei_layer_pkey"/>
+    <addColumn tableName="weitere_kartenebene">
+      <column name="datei_layer_id" type="bigint">
+        <constraints foreignKeyName="fk_weitere_kartenebene_datei_layer_id" referencedTableName="datei_layer" referencedColumnNames="id" />
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-5981" author="hst">
+    <sql>
+      DELETE FROM weitere_kartenebene WHERE datei_layer_id IS NOT NULL;
+      DELETE FROM datei_layer;
+    </sql>
+    <dropColumn columnName="geometry" schemaName="public" tableName="datei_layer"/>
+    <addColumn schemaName="public" tableName="datei_layer">
+      <column name="geoserver_layer_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <addColumn schemaName="public" tableName="datei_layer">
+      <column name="geoserver_datastore_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2660" author="par">
+    <addColumn schemaName="public" tableName="datei_layer">
+      <column name="geoserver_style_name" type="varchar(255)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+    <addColumn schemaName="public" tableName="datei_layer">
+      <column name="sld_filename" type="varchar(255)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2662" author="lb">
+    <addColumn tableName="weitere_kartenebene">
+      <column name="zindex" type="INTEGER" defaultValueNumeric="1300"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4720" author="par">
+    <modifyDataType schemaName="public" tableName="manueller_import_fehler_konflikt" columnName="uebernommener_wert" newDataType="TEXT" />
+  </changeSet>
+
+  <changeSet id="RAD-5478" author="lb">
+    <addColumn tableName="osm_abbildungs_fehler">
+      <column name="radnetz" type="boolean" defaultValue="false"/>
+      <column name="kreisnetz" type="boolean" defaultValue="false"/>
+      <column name="kommunalnetz" type="boolean" defaultValue="false"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-5658" author="hst+jg">
+    <addColumn tableName="fahrradroute">
+      <column name="custom_profile_id" type="BIGINT"/>
+    </addColumn>
+    <addColumn tableName="fahrradroute_aud">
+      <column name="custom_profile_id" type="BIGINT"/>
+    </addColumn>
+
+    <addColumn tableName="fahrradroute_variante">
+      <column name="custom_profile_id" type="BIGINT"/>
+    </addColumn>
+    <addColumn tableName="fahrradroute_variante_aud">
+      <column name="custom_profile_id" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2748" author="par">
+    <createTable tableName="custom_routing_profile">
+      <column name="id" type="bigint"/>
+      <column name="name" type="varchar(255)"/>
+      <column name="profil_json" type="text"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-6056" author="lb">
+    <!-- Update dtv Werte über 1,000,000 auf 1,000,000 -->
+    <update tableName="kanten_attribut_gruppe">
+      <column name="dtv_pkw" valueNumeric="1000000"/>
+      <where>dtv_pkw > 1000000</where>
+    </update>
+
+    <update tableName="kanten_attribut_gruppe">
+      <column name="dtv_radverkehr" valueNumeric="1000000"/>
+      <where>dtv_radverkehr > 1000000</where>
+    </update>
+
+    <update tableName="kanten_attribut_gruppe">
+      <column name="dtv_fussverkehr" valueNumeric="1000000"/>
+      <where>dtv_fussverkehr > 1000000</where>
+    </update>
+
+    <update tableName="kanten_attribut_gruppe">
+      <column name="sv" valueNumeric="1000000"/>
+      <where>sv > 1000000</where>
+    </update>
+  </changeSet>
+  
+  <changeSet id="RAD-6063" author="par">
+    <addColumn tableName="kante">
+      <column name="geometry3d" type="geometry"/>
+    </addColumn>
+  </changeSet>
+</databaseChangeLog>

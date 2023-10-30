@@ -1,0 +1,71 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<form [formGroup]="form" class="form-group">
+  <h2>Benutzer bearbeiten</h2>
+
+  <div class="display-flex justify-content-flex-end position-relative">
+    <mat-slide-toggle
+      (toggleChange)="onStatusAendern()"
+      [checked]="isAktiv"
+      [disabled]="fetchingNachAktivAenderung"
+    >
+      aktiv
+    </mat-slide-toggle>
+    <mat-spinner *ngIf="fetchingNachAktivAenderung" diameter="28" class="active-toggle-spinner"></mat-spinner>
+  </div>
+
+  <mat-form-field class="mat-form-field-full-width">
+    <mat-label>Vorname</mat-label>
+    <input formControlName="vorname" matInput/>
+  </mat-form-field>
+  <rad-validation-error-anzeige [errors]="form.get('vorname')?.errors || null"></rad-validation-error-anzeige>
+
+  <mat-form-field class="mat-form-field-full-width">
+    <mat-label>Nachname</mat-label>
+    <input formControlName="nachname" matInput/>
+  </mat-form-field>
+  <rad-validation-error-anzeige [errors]="form.get('nachname')?.errors || null"></rad-validation-error-anzeige>
+
+  <mat-form-field class="mat-form-field-full-width">
+    <mat-label>E-Mail-Adresse</mat-label>
+    <input formControlName="email" matInput/>
+  </mat-form-field>
+  <rad-validation-error-anzeige [errors]="form.get('email')?.errors || null"></rad-validation-error-anzeige>
+
+  <rad-organisationen-dropdown-control
+    [options]="organisationen"
+    class="mat-form-field-full-width mt-8"
+    formControlName="organisation"
+  >
+    Organisation
+  </rad-organisationen-dropdown-control>
+  <rad-validation-error-anzeige [errors]="form.get('organisation')?.errors || null"></rad-validation-error-anzeige>
+
+  <mat-form-field>
+    <mat-label> Rollen</mat-label>
+    <mat-select formControlName="rollen" multiple>
+      <mat-option *ngFor="let rolle of rollen" [value]="rolle.name">{{ rolle.displayText }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <rad-validation-error-anzeige [errors]="form.get('rollen')?.errors || null"></rad-validation-error-anzeige>
+
+  <div class="display-flex align-self-end">
+    <button mat-stroked-button color="primary" (click)="onZurueck()" type="button">Zurück</button>
+    <rad-action-button class="ml-8" style="width: 6rem" (action)="onSave()" [dirty]="form.dirty"
+                       [waiting]="fetchingNachSpeicherung">
+      Speichern
+    </rad-action-button>
+  </div>
+</form>

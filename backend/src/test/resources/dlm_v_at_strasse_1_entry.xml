@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<wfs:FeatureCollection
+  xmlns:nora="https://owsproxy.lgl-bw.de/static_files/owsproxy/schemacache/WFS_LGL-BW_ATKIS_Basis-DLM/nora"
+  xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" numberOfFeatures="1000" timeStamp="2021-07-16T12:43:33.107Z"
+  xsi:schemaLocation="http://www.opengis.net/wfs /wfs.xsd https://owsproxy.lgl-bw.de/static_files/owsproxy/schemacache/WFS_LGL-BW_ATKIS_Basis-DLM">
+  <gml:boundedBy>
+    <gml:Envelope srsDimension="2" srsName="urn:x-ogc:def:crs:EPSG:25832">
+      <gml:lowerCorner>389869.48 5268555.88</gml:lowerCorner>
+      <gml:upperCorner>591135.16 5483192.32</gml:upperCorner>
+    </gml:Envelope>
+  </gml:boundedBy>
+  <gml:featureMembers>
+    <nora:v_at_strasse gml:id="v_at_strasse.1072165995">
+      <gml:boundedBy>
+        <gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+          <gml:lowerCorner>547410.63 5284337.91</gml:lowerCorner>
+          <gml:upperCorner>547421.4 5284395.02</gml:upperCorner>
+        </gml:Envelope>
+      </gml:boundedBy>
+      <nora:gml_id>DEBWB0010000to1Y</nora:gml_id>
+      <nora:eigenname>Am Rebberg</nora:eigenname>
+      <nora:bezeichnung>L260</nora:bezeichnung>
+      <nora:geom>
+        <gml:LineString srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+          <gml:posList>547415.78 5284337.91 547410.63 5284354.55 547410.63 5284367.23 547412.94 5284378.39 547416.01
+            5284387.62 547421.4 5284395.02
+          </gml:posList>
+        </gml:LineString>
+      </nora:geom>
+    </nora:v_at_strasse>
+  </gml:featureMembers>
+</wfs:FeatureCollection>

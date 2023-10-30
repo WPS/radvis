@@ -1,0 +1,99 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<ng-container *ngIf="selektierteInfrastrukturen$ | async as selektierteInfrastrukturen">
+  <div
+    role="region"
+    aria-label="Tabellenansicht"
+    aria-keyshortcuts="Control+Alt+Shift+T"
+    class="tab-container"
+    *ngIf="selektierteInfrastrukturen.length > 0 && (tabellenVisible$ | async)"
+    [class.dialog]="asDialog"
+    #tabContainer
+  >
+    <div *ngIf="asDialog" matDialogTitle>
+      <div class="w-100 display-flex justify-content-space-between">
+        Infrastrukturen
+        <button
+          *ngIf="asDialog"
+          [attr.aria-label]="'Schließen'"
+          matTooltip="Schließen"
+          matDialogClose
+          mat-icon-button
+          class="align-self-end"
+        >
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-tab-group class="infrastrukturen-tabs" color="accent">
+      <mat-tab [aria-label]="MASSNAHMEN.displayName" [label]="MASSNAHMEN.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(MASSNAHMEN)">
+        <rad-massnahmen-tabelle></rad-massnahmen-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="FAHRRADROUTE.displayName" [label]="FAHRRADROUTE.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(FAHRRADROUTE)">
+        <rad-fahrradroute-tabelle></rad-fahrradroute-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="IMPORTPROTOKOLLE.displayName" [label]="IMPORTPROTOKOLLE.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(IMPORTPROTOKOLLE)">
+        <rad-importprotokolle-tabelle></rad-importprotokolle-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="ANPASSUNGSWUNSCH.displayName" [label]="ANPASSUNGSWUNSCH.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(ANPASSUNGSWUNSCH)">
+        <rad-anpassungswunsch-tabelle></rad-anpassungswunsch-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="FURTEN_KREUZUNGEN.displayName" [label]="FURTEN_KREUZUNGEN.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(FURTEN_KREUZUNGEN)">
+        <rad-furten-kreuzungen-tabelle></rad-furten-kreuzungen-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="BARRIEREN.displayName" [label]="BARRIEREN.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(BARRIEREN)">
+        <rad-barrieren-tabelle></rad-barrieren-tabelle>
+      </mat-tab>
+      <mat-tab
+        [aria-label]="WEGWEISENDE_BESCHILDERUNG.displayName" [label]="WEGWEISENDE_BESCHILDERUNG.displayName"
+        *ngIf="selektierteInfrastrukturen.includes(WEGWEISENDE_BESCHILDERUNG)"
+      >
+        <rad-wegweisende-beschilderung-tabelle></rad-wegweisende-beschilderung-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="ABSTELLANLAGEN.displayName" [label]="ABSTELLANLAGEN.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(ABSTELLANLAGEN)">
+        <rad-abstellanlage-tabelle></rad-abstellanlage-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="SERVICESTATIONEN.displayName" [label]="SERVICESTATIONEN.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(SERVICESTATIONEN)">
+        <rad-servicestation-tabelle></rad-servicestation-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="LEIHSTATIONEN.displayName" [label]="LEIHSTATIONEN.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(LEIHSTATIONEN)">
+        <rad-leihstation-tabelle></rad-leihstation-tabelle>
+      </mat-tab>
+      <mat-tab [aria-label]="FAHRRADZAEHLSTELLE.displayName" [label]="FAHRRADZAEHLSTELLE.displayName"
+               *ngIf="selektierteInfrastrukturen.includes(FAHRRADZAEHLSTELLE)">
+        <rad-fahrradzaehlstelle-tabelle></rad-fahrradzaehlstelle-tabelle>
+      </mat-tab>
+    </mat-tab-group>
+    <button
+      *ngIf="!asDialog"
+      [attr.aria-label]="'Als Vollbild öffnen'"
+      matTooltip="Als Vollbild öffnen"
+      (click)="onFullScreen()"
+      mat-icon-button
+      class="full-screen-button"
+    >
+      <mat-icon>fullscreen</mat-icon>
+    </button>
+  </div>
+</ng-container>

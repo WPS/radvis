@@ -1,0 +1,69 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<rad-infrastruktur-tabelle-layout
+  *ngIf="data$ | async as data"
+  [data]="data"
+  [displayedColumns]="displayedColumns"
+  [titleColumnIndex]="1"
+  titleColumnPrefix="Abstellanlage mit externer Id"
+  [selectedId]="selectedID$ | async"
+  [fetching]="filterService.fetching"
+  (selectRow)="onSelectRecord($event)"
+  matSort
+  #sort="matSort"
+  [sort]="sort"
+  (changeBreakpointState)="onChangeBreakpointState($event)"
+>
+  <rad-export-button
+    (export)="onExport($event)"
+    [exporting]="exporting"
+    [exportFormate]="exportFormate"
+    class="action-buttons"
+    [isMenuItem]="isSmallViewport"
+  >
+  </rad-export-button>
+  <button
+    class="action-buttons"
+    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    (click)="onCreate()"
+  >
+    <mat-icon>add</mat-icon>
+    Neu anlegen
+  </button>
+  <button
+    *ngIf="csvImportFeatureToggl"
+    class="action-buttons"
+    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    (click)="onOpenCsvImportDialog()"
+  >
+    <mat-icon>upload</mat-icon>
+    CSV-Datei importieren
+  </button>
+  <button
+    class="action-buttons"
+    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    (click)="onFilterReset()"
+  >
+    <mat-icon>filter_alt_off</mat-icon>
+    Alle Filter zurücksetzen
+  </button>
+
+  <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
+    <th mat-header-cell *matHeaderCellDef [mat-sort-header]="column">
+      <span rad-filter-header>{{ getHeader(column) }}</span>
+    </th>
+    <td mat-cell *matCellDef="let element">{{ filterService.getInfrastrukturValueForKey(element, column) }}</td>
+  </ng-container>
+</rad-infrastruktur-tabelle-layout>

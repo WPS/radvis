@@ -1,0 +1,68 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/font-style';
+@import 'src/style/spacing';
+@import 'src/style/colors';
+
+:host {
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+.form-group {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.group > *:first-child {
+  margin-top: 1rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.group .header {
+  align-self: stretch;
+  height: 2rem;
+  background-color: $font-background-peripheral;
+  color: $font-color-peripheral;
+  font-size: $font-size-peripheral;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid map-get($grayscale, 100);
+  border-top: 1px solid map-get($grayscale, 100);
+  margin-left: -$padding-attribute-editor-x;
+  margin-right: -$padding-attribute-editor-x;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  justify-content: space-between;
+}
+
+.attribute-editor {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.editing-not-allowed-hinweis {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid map-get($grayscale, 100);
+}

@@ -1,0 +1,90 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-3172" author="par">
+    <createTable tableName="umsetzungsstand">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="umsetzungsstand_pkey"/>
+      </column>
+      <column name="version" type="bigint" defaultValueNumeric="0"/>
+      <column name="umsetzungsstand_status" type="varchar(255)"/>
+      <column name="umsetzung_gemaess_massnahmenblatt" type="boolean"/>
+      <column name="grund_fuer_abweichung_zum_massnahmenblatt" type="varchar(255)"/>
+      <column name="pruefung_qualitaetsstandards_erfolgt" type="varchar(255)"/>
+      <column name="beschreibung_abweichender_massnahme" type="varchar(3000)"/>
+      <column name="kosten_der_massnahme" type="bigint"/>
+      <column name="grund_fuer_nicht_umsetzung_der_massnahme" type="varchar(255)"/>
+      <column name="anmerkung" type="varchar(3000)"/>
+      <column name="letzte_aenderung" type="date"/>
+    </createTable>
+
+    <createTable tableName="umsetzungsstand_aud">
+      <column name="id" type="bigint"/>
+      <column name="version" type="bigint"/>
+      <column name="umsetzungsstand_status" type="varchar(255)"/>
+      <column name="umsetzung_gemaess_massnahmenblatt" type="boolean"/>
+      <column name="grund_fuer_abweichung_zum_massnahmenblatt" type="varchar(255)"/>
+      <column name="pruefung_qualitaetsstandards_erfolgt" type="varchar(255)"/>
+      <column name="beschreibung_abweichender_massnahme" type="varchar(3000)"/>
+      <column name="kosten_der_massnahme" type="bigint"/>
+      <column name="grund_fuer_nicht_umsetzung_der_massnahme" type="varchar(255)"/>
+      <column name="anmerkung" type="varchar(3000)"/>
+      <column name="letzte_aenderung" type="date"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+
+    <addColumn tableName="massnahme">
+      <column name="umsetzungsstand_id" type="bigint"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="umsetzungsstand_id"
+      constraintName="fk_massnahme_umsetzungsstand"
+      referencedTableName="umsetzungsstand"
+      referencedColumnNames="id"/>
+    <addColumn tableName="massnahme_aud">
+      <column name="umsetzungsstand_id" type="bigint"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-3194" author="par">
+    <modifyDataType tableName="umsetzungsstand" columnName="letzte_aenderung" newDataType="timestamp"/>
+    <modifyDataType tableName="umsetzungsstand_aud" columnName="letzte_aenderung" newDataType="timestamp"/>
+  </changeSet>
+  <changeSet id="RAD-3175" author="par">
+    <addColumn tableName="umsetzungsstand">
+      <column name="benutzer_letzte_aenderung_id" type="bigint"/>
+    </addColumn>
+    <addColumn tableName="umsetzungsstand_aud">
+      <column name="benutzer_letzte_aenderung_id" type="bigint"/>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="umsetzungsstand" baseColumnNames="benutzer_letzte_aenderung_id"
+      constraintName="fk_umsetzungsstand_benutzer_letzte_aenderung"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+  </changeSet>
+  <changeSet id="RAD-3136" author="kho">
+    <renameColumn tableName="mapped_kante" oldColumnName="kanten_id" newColumnName="kante_id"/>
+    <!-- rename kanten_idx to kante_idx, used in CustomKantenRepositoryImpl.buildIndex()-->
+    <sql>
+      CREATE INDEX kante_idx ON kante USING GIST (geometry, quelle);
+      DROP INDEX IF EXISTS kanten_idx;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

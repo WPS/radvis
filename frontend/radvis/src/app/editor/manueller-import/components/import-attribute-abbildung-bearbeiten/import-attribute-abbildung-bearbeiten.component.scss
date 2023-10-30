@@ -1,0 +1,71 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: 1.5rem auto;
+  grid-template-rows: repeat(4, 2rem);
+  grid-gap: 0.5rem;
+  align-items: center;
+  font-weight: bold;
+  font-size: small;
+
+  .kreuz-icon {
+    color: darkorange;
+  }
+
+  .halbmond {
+    width: 20px;
+    height: 20px;
+    margin: auto;
+    border-radius: 50%;
+  }
+
+  .blue {
+    background: linear-gradient(90deg, rgb(28, 91, 154), rgb(28, 91, 154) 50%, rgb(139, 199, 248) 50%, rgb(139, 199, 248) 50%);
+  }
+
+  .green {
+    background: linear-gradient(90deg, rgb(67, 167, 8), rgb(67, 167, 8) 50%, rgb(157, 214, 122, 0.5) 50%, rgb(157, 214, 122, 0.5) 50%);
+  }
+
+  .red {
+    background: linear-gradient(90deg, rgb(216, 27, 96), rgb(216, 27, 96) 50%, rgb(234, 131, 169) 50%, rgb(234, 131, 169) 50%);
+  }
+}
+
+.hinweis {
+  font-style: italic;
+  color: black;
+  margin-top: 1rem;
+}
+
+.buttons {
+  gap: 1rem;
+}
+
+.buttons > * {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+button {
+  height: 36px;
+}

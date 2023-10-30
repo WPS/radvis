@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar radRightDetailsShortcut>
+  <h2 class="flex-grow">Importprotokoll Wegweisende Beschilderung</h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<div class="flex-grow overflow-auto" *ngIf="importprotokoll$ | async as eintrag">
+  <div class="hinweis m-5">
+    Import aus VP-Info vom
+    {{ eintrag.startZeit | date: 'dd.MM.yy hh:mm' }} bis {{ eintrag.endZeit | date: 'dd.MM.yy hh:mm' }}
+  </div>
+
+  <rad-simple-legende-anzeige [eintraege]="legende" class="m-5"></rad-simple-legende-anzeige>
+
+  <b class="m-5">Statistik</b>
+  <rad-statistik-anzeige [statistik]="eintrag.statistik"></rad-statistik-anzeige>
+</div>

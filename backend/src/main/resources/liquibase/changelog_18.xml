@@ -1,0 +1,74 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+
+  <changeSet id="RAD-1516" author="mw">
+    <dropNotNullConstraint tableName="benutzer" columnName="ist_aktiv"/>
+    <dropColumn tableName="benutzer" columnName="ist_aktiv"/>
+    <addColumn tableName="benutzer">
+      <column name="status" type="varchar(255)" defaultValue="INAKTIV">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-1516-2" author="mw">
+    <addColumn tableName="benutzer">
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-1633" author="ls">
+    <addColumn tableName="kante">
+      <column name="is_zweiseitig" type="boolean" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-1584" author="ap">
+    <createTable tableName="benutzer_rollen">
+      <column name="benutzer_id" type="BIGINT"/>
+      <column name="rollen" type="varchar(255)"/>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="benutzer_rollen" baseColumnNames="benutzer_id"
+      constraintName="fk_benutzer_rollen_benutzer" referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+  </changeSet>
+  
+   <changeSet id="RAD-1633-2" author="ls">
+    <addColumn tableName="fuehrungsform_attribut_gruppe">
+      <column name="is_zweiseitig" type="boolean" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-1633-3" author="ls">
+    <addColumn tableName="fahrtrichtung_attribut_gruppe">
+      <column name="is_zweiseitig" type="boolean" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+</databaseChangeLog>

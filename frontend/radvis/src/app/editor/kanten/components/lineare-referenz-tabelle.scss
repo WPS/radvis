@@ -1,0 +1,42 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/spacing';
+@import 'src/style/colors';
+@import 'src/theme';
+
+table {
+  background-color: white;
+  border-collapse: collapse;
+  margin-right: 0.5rem;
+  width: 100%;
+}
+
+td {
+  border: 1px solid map-get($grayscale, 100);
+  text-align: left;
+  padding: 0;
+}
+
+td:last-child {
+  border-right-width: 0;
+}
+
+td:first-child {
+  border-left-width: 0;
+}
+
+tr:first-child td {
+  border-top: 0;
+}

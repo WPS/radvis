@@ -1,0 +1,154 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-2963" author="td">
+    <createTable tableName="massnahme_kantenseitenabschnitte">
+      <column name="massnahme_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+    </createTable>
+    <addForeignKeyConstraint
+      constraintName="fk_massnahme_kantenseitenabschnitte_massnahme_id"
+      referencedTableName="massnahme"
+      referencedColumnNames="id"
+      baseColumnNames="massnahme_id" baseTableName="massnahme_kantenseitenabschnitte"/>
+    <createIndex tableName="massnahme_kantenseitenabschnitte" indexName="fk_massnahme_kantenseitenabschnitte_massnahme_idx">
+      <column name="massnahme_id"/>
+    </createIndex>
+    <createTable tableName="massnahme_kantenseitenabschnitte_aud">
+      <column name="massnahme_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="setordinal" type="integer"/>
+    </createTable>
+    <dropColumn tableName="massnahme" columnName="kante_id"/>
+    <dropColumn tableName="massnahme" columnName="seitenbezug"/>
+    <dropColumn tableName="massnahme" columnName="von"/>
+    <dropColumn tableName="massnahme" columnName="bis"/>
+    <dropColumn tableName="massnahme_aud" columnName="kante_id"/>
+    <dropColumn tableName="massnahme_aud" columnName="seitenbezug"/>
+    <dropColumn tableName="massnahme_aud" columnName="von"/>
+    <dropColumn tableName="massnahme_aud" columnName="bis"/>
+
+    <createTable tableName="massnahme_netzbezug_knoten">
+      <column name="massnahme_id" type="BIGINT"/>
+      <column name="knoten_id" type="BIGINT"/>
+    </createTable>
+    <addForeignKeyConstraint
+      constraintName="fk_massnahme_netzbezug_knoten_massnahme_id"
+      referencedTableName="massnahme"
+      referencedColumnNames="id"
+      baseColumnNames="massnahme_id" baseTableName="massnahme_netzbezug_knoten"/>
+    <createIndex tableName="massnahme_netzbezug_knoten" indexName="fk_massnahme_netzbezug_knoten_massnahme_idx">
+      <column name="massnahme_id"/>
+    </createIndex>
+    <createTable tableName="massnahme_netzbezug_knoten_aud">
+      <column name="massnahme_id" type="BIGINT"/>
+      <column name="knoten_id" type="BIGINT"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-2848" author="td">
+    <dropColumn tableName="massnahme" columnName="kurzbeschreibung"/>
+    <dropColumn tableName="massnahme_aud" columnName="kurzbeschreibung"/>
+  </changeSet>
+
+  <changeSet id="RAD-2848_2" author="td">
+    <addColumn tableName="massnahme">
+      <column name="massnahme_konzept_id" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="massnahme_konzept_id" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2572" author="td">
+    <sql>
+      DELETE FROM benutzer_rollen WHERE rollen = 'MASSNAHMEN_VERANTWORLICHER';
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-2848_3" author="td">
+    <addColumn tableName="massnahme">
+      <column name="soll_standard" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="soll_standard" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2848_4" author="td">
+    <addColumn tableName="massnahme">
+      <column name="handlungsverantwortlicher" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="handlungsverantwortlicher" type="VARCHAR(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-2572" author="mw">
+    <sql>
+      UPDATE benutzer_rollen
+      SET rollen = 'EXTERNER_DIENSTLEISTER'
+      where rollen = 'POWER_USER';
+    </sql>
+  </changeSet>
+  <changeSet id="RAD-2572_2" author="mw">
+    <sql>
+      UPDATE benutzer_rollen
+      SET rollen = 'RADWEGE_ERFASSERIN'
+      where rollen = 'RADWEGE_ERFASSERIN_KOMMUNE_KREIS';
+    </sql>
+    <sql>
+      UPDATE benutzer_rollen
+      SET rollen = 'RADVERKEHRSBEAUFTRAGTER'
+      where rollen = 'RADNETZ_ERFASSERIN_REGIERUNGSBEZIRK';
+    </sql>
+  </changeSet>
+  <changeSet id="RAD-2848_5" author="td">
+    <addColumn tableName="massnahme">
+      <column name="konzeptionsquelle" type="VARCHAR(255)"/>
+      <column name="sonstige_konzeptionsquelle" type="VARCHAR(3000)"/>
+    </addColumn>
+    <addColumn tableName="massnahme_aud">
+      <column name="konzeptionsquelle" type="VARCHAR(255)"/>
+      <column name="sonstige_konzeptionsquelle" type="VARCHAR(3000)"/>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-2572_3" author="mw">
+    <sql>
+      DELETE FROM benutzer_rollen
+      where rollen = 'MASSNAHMEN_VERANTWORLICHER';
+    </sql>
+    <sql>
+      DELETE FROM benutzer_rollen
+      where rollen = 'MASSNAHMEN_VERANTWORTLICHER';
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,213 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+:host {
+  display: flex;
+}
+
+$z-index-map: 1;
+$z-index-bottom-area: 10;
+$z-index-side-bars: 25;
+
+@media print {
+  .nordpfeil {
+    display: block !important;
+  }
+
+  .mitte-unten-oben {
+    position: relative !important;
+  }
+
+  .screen-only {
+    display: none;
+  }
+
+  .links {
+    display: none;
+  }
+}
+
+@media screen {
+  .print-only {
+    display: none;
+  }
+}
+
+.container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+
+  .links {
+    z-index: $z-index-side-bars;
+  }
+
+  .links,
+  .mitte-oben,
+  .mitte-unten-unten,
+  .rechts {
+    pointer-events: auto;
+  }
+
+  .mitte {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex-grow: 1;
+    overflow: hidden;
+
+    .mitte-unten-oben {
+      margin-left: 1rem;
+    }
+
+    // karte controls
+    .mitte-oben {
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      position: sticky;
+      top: 0;
+      z-index: $z-index-map;
+      align-items: flex-start;
+
+      rad-karte-menu-item {
+        margin-bottom: 1rem;
+      }
+    }
+
+    .mitte-oben-links {
+      margin-top: 1rem;
+      margin-left: 1rem;
+      pointer-events: auto;
+      @media screen and (max-width: 1279.98px) {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+      }
+    }
+
+    .mitte-oben-rechts {
+      margin-top: 1rem;
+      margin-right: 1rem;
+      pointer-events: auto;
+    }
+
+    // zoom und massstab
+    .mitte-unten-oben {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      margin-bottom: 1rem;
+
+      .controls-and-bedienhinweis {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        pointer-events: none;
+        margin-bottom: 1rem;
+        width: 60%;
+
+        .aktionen-controls {
+          margin-left: auto;
+        }
+      }
+
+      ::ng-deep rad-karte-button {
+        pointer-events: auto;
+        margin-right: 1rem;
+
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+      }
+
+      .scale-bar {
+        max-width: 30%;
+        position: relative;
+
+        ::ng-deep .ol-scale-bar {
+          position: relative;
+          top: unset;
+          left: unset;
+        }
+
+        ::ng-deep .ol-scale-singlebar {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    }
+
+    .mitte-unten-unten {
+      max-height: 50%;
+      @media screen and (max-width: 1279.98px) {
+        max-height: 70%;
+      }
+      z-index: $z-index-bottom-area;
+    }
+  }
+
+  .rechts {
+    background: white;
+    box-shadow: 3px 0 3px -2px rgb(0 0 0 / 20%), 3px 0 4px 0 rgb(0 0 0 / 14%), 1px 0 8px 0 rgb(0 0 0 / 12%);
+    z-index: $z-index-side-bars;
+  }
+
+  .nordpfeil {
+    display: none;
+    width: 2rem;
+    margin-right: 0.5rem;
+    margin-bottom: -1rem;
+  }
+}
+
+.quellen {
+  max-width: 35rem;
+  max-height: 30vh;
+  overflow: auto;
+  font-size: smaller;
+  padding-left: 0.5rem;
+}
+
+.print-only .quellen {
+  display: flex;
+  background-color: #ffffffba;
+  font-size: xx-small;
+  overflow: hidden;
+  flex-wrap: wrap;
+  white-space: normal;
+  flex-direction: column;
+  max-height: unset;
+  margin-bottom: 1.5rem;
+
+  & .quellen-name {
+    display: none;
+  }
+
+  & .quellen-item {
+    margin: 0px !important;
+  }
+
+  & p {
+    margin: 2px;
+  }
+}
+
+.quellenangaben-button {
+  width: fit-content;
+}

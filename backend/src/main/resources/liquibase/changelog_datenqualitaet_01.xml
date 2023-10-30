@@ -1,0 +1,152 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+<changeSet id="RAD-4232" author="mw" failOnError="false">
+  <sql>
+    create temporary TABLE kantenidstodelete as
+    select id from (
+    select row_number() over (partition by dlm_id order by id desc) as zeile, id from kante k
+    where k.dlm_id in (
+    SELECT dlm_id FROM kante
+    WHERE quelle = 'DLM'
+    GROUP BY kante.dlm_id
+    HAVING count(distinct kante.id) > 1)
+    ) tmp
+    where zeile > 1;
+
+    create temporary TABLE kagids as
+    SELECT kag.id FROM kanten_attribut_gruppe kag
+    LEFT JOIN kante k on kag.id = k.kanten_attributgruppe_id
+    WHERE k.id IN (select id from kantenidstodelete) AND k.quelle = 'DLM';
+
+    create temporary TABLE fagids as
+    SELECT fag.id FROM fuehrungsform_attribut_gruppe fag
+    LEFT JOIN kante k on fag.id = k.fuehrungsform_attribut_gruppe_id
+    WHERE k.id IN (select id from kantenidstodelete) AND k.quelle = 'DLM';
+
+    create temporary TABLE fahgids as
+    SELECT fahg.id FROM fahrtrichtung_attribut_gruppe fahg
+    LEFT JOIN kante k on fahg.id = k.fahrtrichtung_attributgruppe_id
+    WHERE k.id IN (select id from kantenidstodelete) AND k.quelle = 'DLM';
+
+    create temporary TABLE gagids as
+    SELECT gag.id FROM geschwindigkeit_attribut_gruppe gag
+    LEFT JOIN kante k on gag.id = k.geschwindigkeit_attributgruppe_id
+    WHERE k.id IN (select id from kantenidstodelete) AND k.quelle = 'DLM';
+
+    create temporary TABLE zagids as
+    SELECT zag.id FROM zustaendigkeit_attribut_gruppe zag
+    LEFT JOIN kante k on zag.id = k.zustaendigkeit_attributgruppe_id
+    WHERE k.id IN (select id from kantenidstodelete) AND k.quelle = 'DLM';
+
+    ----------- delte references to kante
+
+    DELETE FROM barriere_kantenpunkte bk
+    where bk.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM barriere_kantenseitenabschnitte bksa
+    where bksa.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM fahrradroute_kantenabschnitte fk
+    where fk.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM furt_kreuzung_kantenpunkte fkkp
+    where fkkp.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM furt_kreuzung_kantenseitenabschnitte fkksa
+    where fkksa.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM kante_osm_way_ids kow
+    where kow.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM massnahme_kantenpunkte mk
+    where mk.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM massnahme_kantenseitenabschnitte mksa
+    where mksa.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM mapped_kante mk
+    where mk.kanten_mapping_id IN
+    (SELECT km.id from kanten_mapping km
+    WHERE km.grundnetz_kanten_id IN (select id from kantenidstodelete));
+
+    DELETE FROM mapped_kante mp
+    where mp.kante_id IN (select id from kantenidstodelete);
+
+    DELETE FROM kanten_mapping km
+    where km.grundnetz_kanten_id IN (select id from kantenidstodelete);
+
+    ----------- delete kanten
+    DELETE FROM kante
+    WHERE id IN (select id from kantenidstodelete)
+    AND quelle = 'DLM';
+
+    ----------- delete kag
+    DELETE FROM kanten_attribut_gruppe_netzklassen
+    WHERE kanten_attribut_gruppe_id IN (select id from kagids);
+
+    DELETE FROM kanten_attribut_gruppe_ist_standards
+    WHERE kanten_attribut_gruppe_id IN (select id from kagids);
+
+    DELETE FROM kanten_attribut_gruppe
+    WHERE id IN (select id from kagids);
+
+    ------------ delete fag
+    DELETE FROM fuehrungsform_attribut_gruppe_attribute_links
+    WHERE fuehrungsform_attribut_gruppe_id In (select id from fagids);
+
+    DELETE FROM fuehrungsform_attribut_gruppe_attribute_rechts
+    WHERE fuehrungsform_attribut_gruppe_id In (select id from fagids);
+
+    DELETE FROM fuehrungsform_attribut_gruppe
+    WHERE id In (select id from fagids);
+
+    ---------- delete fahg
+    DELETE FROM fahrtrichtung_attribut_gruppe
+    WHERE id IN (select id from fahgids);
+
+    ----------- delete gag
+    DELETE FROM geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute
+    WHERE geschwindigkeit_attribut_gruppe_id IN (select id from gagids);
+
+    DELETE FROM geschwindigkeit_attribut_gruppe
+    WHERE id IN (select id from gagids);
+
+    ----------- delete zag
+    DELETE FROM zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute
+    WHERE zustaendigkeit_attribut_gruppe_id IN (select id from zagids);
+
+    DELETE FROM zustaendigkeit_attribut_gruppe zag
+    WHERE id IN (select id from zagids);
+
+    ----------- delete kanten
+    DELETE FROM kante
+    WHERE id IN (select id from kantenidstodelete)
+    AND quelle = 'DLM';
+
+    ----------- aufräumen
+    drop table kantenidstodelete;
+    drop table kagids;
+    drop table fagids;
+    drop table fahgids;
+    drop table gagids;
+    drop table zagids;
+  </sql>
+</changeSet>
+</databaseChangeLog>

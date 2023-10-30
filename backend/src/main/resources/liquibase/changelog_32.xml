@@ -1,0 +1,340 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	<changeSet id="RAD-3858" author="par">
+		<addColumn tableName="fahrradroute">
+			<column name="kategorie" type="VARCHAR(255)" />
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="RAD-3666" author="tr">
+		<addColumn tableName="fahrradroute">
+			<column name="info" type="text" />
+			<column name="anstieg" type="float8" />
+			<column name="abstieg" type="float8" />
+			<column name="hat_variante" type="boolean"
+				defaultValue="false" />
+			<column name="zuletzt_bearbeitet" type="timestamp" />
+		</addColumn>
+		<renameColumn tableName="fahrradroute"
+			oldColumnName="website" newColumnName="homepage" />
+		<createTable
+			tableName="fahrradroute_linkszuweiterenmedien">
+			<column name="fahrradroute_id" type="BIGINT" />
+			<column name="link" type="VARCHAR(255)" />
+		</createTable>
+		<addForeignKeyConstraint
+			baseTableName="fahrradroute_linkszuweiterenmedien"
+			baseColumnNames="fahrradroute_id"
+			constraintName="fk_fahrradroute_fahrradroute_linkszuweiterenmedien"
+			referencedTableName="fahrradroute" referencedColumnNames="id" />
+		<createIndex
+			tableName="fahrradroute_linkszuweiterenmedien"
+			indexName="idx_fahrradroute_linkszuweiterenmedien_fahrradroute_id">
+			<column name="fahrradroute_id" />
+		</createIndex>
+	</changeSet>
+
+	<changeSet id="RAD-3875" author="jg">
+		<addColumn tableName="fahrradroute">
+			<column name="tfis_id" type="varchar(255)" />
+		</addColumn>
+		<renameColumn tableName="fahrradroute_aud"
+			oldColumnName="website" newColumnName="homepage" />
+		<addColumn tableName="fahrradroute_aud">
+			<column name="tfis_id" type="varchar(255)" />
+			<column name="info" type="text" />
+			<column name="anstieg" type="float8" />
+			<column name="abstieg" type="float8" />
+			<column name="hat_variante" type="boolean"
+				defaultValue="false" />
+			<column name="zuletzt_bearbeitet" type="timestamp" />
+		</addColumn>
+		<createTable
+			tableName="fahrradroute_linkszuweiterenmedien_aud">
+			<column name="rev" type="BIGINT" />
+			<column name="revtype" type="TINYINT" />
+			<column name="fahrradroute_id" type="BIGINT" />
+			<column name="link" type="VARCHAR(255)" />
+		</createTable>
+	</changeSet>
+	<changeSet id="RAD-3886" author="par">
+		<createIndex tableName="kante"
+			indexName="kante_dlm_id_idx">
+			<column name="dlm_id" />
+		</createIndex>
+	</changeSet>
+	<changeSet id="RAD-3666_Review" author="lb+mw">
+		<sql>
+			DROP VIEW IF EXISTS fahrradroute_list_view;
+		</sql>
+		<modifyDataType tableName="fahrradroute"
+			columnName="offizielle_laenge" newDataType="numeric" />
+		<modifyDataType tableName="fahrradroute_aud"
+			columnName="offizielle_laenge" newDataType="numeric" />
+	</changeSet>
+	<changeSet id="RAD-2705 RAD-3905" author="lb">
+		<addColumn tableName="fahrradroute">
+			<column name="stuetzpunkte" type="Geometry" />
+		</addColumn>
+		<addColumn tableName="fahrradroute_aud">
+			<column name="stuetzpunkte" type="Geometry" />
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="RAD-3491" author="tir">
+		<addForeignKeyConstraint
+			baseTableName="fahrradroute_kantenabschnitte"
+			baseColumnNames="kante_id"
+			constraintName="fk_fahrradroute_kantenabschnitte_kante_id"
+			referencedTableName="kante" referencedColumnNames="id" />
+		<createIndex tableName="fahrradroute_kantenabschnitte"
+			indexName="fk_fahrradroute_kantenabschnitte_kante_id_idx">
+			<column name="kante_id" />
+		</createIndex>
+		<createIndex tableName="fahrradroute"
+			indexName="fahrradroute_tfis_id_idx">
+			<column name="tfis_id" />
+		</createIndex>
+	</changeSet>
+
+	<changeSet id="RAD-2708" author="jg">
+		<createTable tableName="fahrradroute_variante">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true"
+					primaryKeyName="fahrradroute_variante_pkey" />
+			</column>
+			<column name="fahrradroute_id" type="BIGINT" />
+			<column name="name" type="text" />
+			<column name="stuetzpunkte" type="Geometry" />
+			<column name="kategorie" type="VARCHAR(255)" />
+		</createTable>
+		<addForeignKeyConstraint
+			constraintName="fk_fahrradroute_variante_fahrradroute_id"
+			baseTableName="fahrradroute_variante"
+			baseColumnNames="fahrradroute_id" referencedTableName="fahrradroute"
+			referencedColumnNames="id" />
+
+		<createTable
+			tableName="fahrradroute_variante_kantenabschnitte">
+			<column name="fahrradroute_variante_id" type="BIGINT" />
+			<column name="kante_id" type="BIGINT" />
+			<column name="von" type="float8" />
+			<column name="bis" type="float8" />
+		</createTable>
+		<addForeignKeyConstraint
+			constraintName="fk_fahrradroute_variante_kantenabschnitte_variante_id"
+			baseTableName="fahrradroute_variante_kantenabschnitte"
+			baseColumnNames="fahrradroute_variante_id"
+			referencedTableName="fahrradroute_variante"
+			referencedColumnNames="id" />
+		<addForeignKeyConstraint
+			constraintName="fk_fahrradroute_variante_kantenabschnitte_kante_id"
+			baseTableName="fahrradroute_variante_kantenabschnitte"
+			baseColumnNames="kante_id" referencedTableName="kante"
+			referencedColumnNames="id" />
+		<createIndex
+			tableName="fahrradroute_variante_kantenabschnitte"
+			indexName="fk_fahrradroute_variante_kantenabschnitte_idx">
+			<column name="fahrradroute_variante_id" />
+		</createIndex>
+		<createIndex
+			tableName="fahrradroute_variante_kantenabschnitte"
+			indexName="fk_fahrradroute_variante_kantenabschnitte_kante_id_idx">
+			<column name="kante_id" />
+		</createIndex>
+
+		<createTable tableName="fahrradroute_variante_aud">
+			<column name="rev" type="BIGINT" />
+			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT" />
+			<column name="fahrradroute_id" type="BIGINT" />
+			<column name="name" type="text" />
+			<column name="stuetzpunkte" type="Geometry" />
+			<column name="kategorie" type="VARCHAR(255)" />
+		</createTable>
+
+		<createTable
+			tableName="fahrradroute_fahrradroute_variante_aud">
+			<column name="id" type="BIGINT" />
+			<column name="rev" type="BIGINT" />
+			<column name="revtype" type="TINYINT" />
+			<column name="variante_id" type="BIGINT" />
+			<column name="fahrradroute_id" type="BIGINT" />
+		</createTable>
+		<addForeignKeyConstraint
+			constraintName="fk_fahrradroute_fahrradroute_variante_aud_variante_id"
+			baseTableName="fahrradroute_fahrradroute_variante_aud"
+			baseColumnNames="variante_id"
+			referencedTableName="fahrradroute_variante"
+			referencedColumnNames="id" />
+		<addForeignKeyConstraint
+			constraintName="fk_fahrradroute_fahrradroute_variante_aud_fahrradroute_id"
+			baseTableName="fahrradroute_fahrradroute_variante_aud"
+			baseColumnNames="fahrradroute_id" referencedTableName="fahrradroute"
+			referencedColumnNames="id" />
+
+		<createTable
+			tableName="fahrradroute_variante_kantenabschnitte_aud">
+			<column name="rev" type="BIGINT" />
+			<column name="revtype" type="TINYINT" />
+			<column name="setordinal" type="integer" />
+			<column name="fahrradroute_variante_id" type="BIGINT" />
+			<column name="kante_id" type="BIGINT" />
+			<column name="von" type="float8" />
+			<column name="bis" type="float8" />
+		</createTable>
+	</changeSet>
+	<changeSet id="RAD-2708-2" author="mr">
+		<dropForeignKeyConstraint
+			baseTableName="fahrradroute_fahrradroute_variante_aud"
+			constraintName="fk_fahrradroute_fahrradroute_variante_aud_variante_id"/>
+		<dropForeignKeyConstraint
+			baseTableName="fahrradroute_fahrradroute_variante_aud"
+			constraintName="fk_fahrradroute_fahrradroute_variante_aud_fahrradroute_id"/>
+		<createIndex tableName="fahrradroute_variante"
+			indexName="fk_fahrradroute_variante_fahrradroute_id_idx">
+			<column name="fahrradroute_id"/>
+		</createIndex>
+	</changeSet>
+	<!--	<changeSet id="RAD-3704" author="par">-->
+	<!--		<dropColumn tableName="fahrradroutevariante" columnName="name"/>-->
+	<!--		<dropColumn tableName="fahrradroutevariante_aud" columnName="name"/>-->
+	<!--	</changeSet>-->
+
+	<changeSet id="RAD-3891" author="lb">
+		<addColumn tableName="fahrradroute">
+			<column name="netzbezug_line_string" type="GEOMETRY"/>
+		</addColumn>
+		<addColumn tableName="fahrradroute_aud">
+			<column name="netzbezug_line_string" type="GEOMETRY"/>
+		</addColumn>
+	</changeSet>
+	<changeSet id="RAD-3891_2" author="lb">
+		<addColumn tableName="fahrradroute_kantenabschnitte">
+			<column name="fahrradroute_kantenabschnitte_order" type="INTEGER"/>
+		</addColumn>
+		<addColumn tableName="fahrradroute_kantenabschnitte_aud">
+			<column name="fahrradroute_kantenabschnitte_order" type="INTEGER"/>
+		</addColumn>
+	</changeSet>
+	<changeSet id="RAD-3891_3" author="lb+mr+kh">
+		<!-- Beim anlegen der order column wurde vergessen default werte zu setzten, was beim auswaehlen -->
+		<!-- einer Fahrradroute zu einem Fehler fuehrt, wenn die Datenbank einen aelteren Stand enthaelt -->
+		<sql>
+			UPDATE fahrradroute_kantenabschnitte as fka SET fahrradroute_kantenabschnitte_order=(
+				SELECT order_column FROM
+					(SELECT kante_id, row_number() OVER() -1 as order_column FROM fahrradroute_kantenabschnitte
+					 WHERE fahrradroute_id = fka.fahrradroute_id) as fka2
+				WHERE fka2.kante_id = fka.kante_id
+			) WHERE fahrradroute_kantenabschnitte_order IS NULL;
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-3998" author="mr">
+		<addColumn tableName="fahrradroute_variante_kantenabschnitte">
+			<column name="fahrradroute_variante_kantenabschnitte_order"
+				type="integer"></column>
+		</addColumn>
+		<addColumn tableName="fahrradroute_variante">
+			<column name="netzbezug_line_string" type="Geometry"></column>
+		</addColumn>
+		<addColumn tableName="fahrradroute_variante_aud">
+			<column name="netzbezug_line_string" type="Geometry"></column>
+		</addColumn>
+		<addColumn tableName="fahrradroute_variante_kantenabschnitte_aud">
+			<column name="fahrradroute_variante_kantenabschnitte_order"
+				type="integer"></column>
+		</addColumn>
+		<sql>
+			UPDATE fahrradroute_variante_kantenabschnitte as fka SET
+			fahrradroute_variante_kantenabschnitte_order=(
+			SELECT order_column FROM
+			(SELECT kante_id, row_number() OVER() -1 as order_column FROM
+			fahrradroute_variante_kantenabschnitte
+			WHERE fahrradroute_variante_id = fka.fahrradroute_variante_id) as fka2
+			WHERE fka2.kante_id = fka.kante_id
+			)
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-2693" author="mr">
+		<dropView viewName="massnahme_list_view"/>
+		<createView viewName="massnahme_list_view"
+			replaceIfExists="true">
+	 SELECT m.id,
+	    m.bezeichnung,
+	    m.massnahme_konzept_id,
+	    string_agg(DISTINCT (mkat.massnahmenkategorien)::text, ';'::text) AS massnahmenkategorien,
+	    m.von_zeitpunkt,
+	    m.bis_zeitpunkt,
+	    m.geplanter_umsetzungsstart_jahr,
+	    min(baulast.id) AS baulast_id,
+	    min((baulast.name)::text) AS baulast_name,
+	    min((baulast.organisations_art)::text) AS baulast_organisations_art,
+	    min(baulast.uebergeordnete_organisation_id) AS baulast_uebergeordnete_organisation_id,
+	    min(markierung.id) AS markierung_id,
+	    min((markierung.name)::text) AS markierung_name,
+	    min((markierung.organisations_art)::text) AS markierung_organisations_art,
+	    min(markierung.uebergeordnete_organisation_id) AS markierung_uebergeordnete_organisation_id,
+	    min(unterhalt.id) AS unterhalt_id,
+	    min((unterhalt.name)::text) AS unterhalt_name,
+	    min((unterhalt.organisations_art)::text) AS unterhalt_organisations_art,
+	    min(unterhalt.uebergeordnete_organisation_id) AS unterhalt_uebergeordnete_organisation_id,
+	    m.prioritaet,
+	    string_agg(DISTINCT (netzklassen.netzklassen)::text, ';'::text) AS netzklassen,
+	    m.umsetzungsstatus,
+	    m.veroeffentlicht,
+	    m.planung_erforderlich,
+	    m.letzte_aenderung,
+	    min(benutzer_letzte_aenderung.id) AS benutzer_letzte_aenderung_id,
+	    min((benutzer_letzte_aenderung.vorname)::text) AS benutzer_letzte_aenderung_vorname,
+	    min((benutzer_letzte_aenderung.nachname)::text) AS benutzer_letzte_aenderung_nachname,
+	    min((benutzer_letzte_aenderung.status)::text) AS benutzer_letzte_aenderung_status,
+	    min((benutzer_letzte_aenderung_organisation.name)::text) AS benutzer_letzte_aenderung_organisation_name,
+	    min((benutzer_letzte_aenderung.mailadresse)::text) AS benutzer_letzte_aenderung_email,
+	    m.soll_standard,
+	    m.handlungsverantwortlicher,
+       	st_collect(ARRAY[st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis)),
+				   st_union(knot.point),
+				   st_union(st_lineinterpolatepoint(kantefuerpunktreferenz.geometry, mkpu.lineare_referenz))]
+        ) AS geometry,
+	    min((u.umsetzungsstand_status)::text) AS umsetzungsstand_status
+	   FROM ((((((((((((((massnahme m
+	     LEFT JOIN massnahme_massnahmenkategorien mkat ON ((m.id = mkat.massnahme_id)))
+	     LEFT JOIN organisation baulast ON ((m.baulast_zustaendiger_id = baulast.id)))
+	     LEFT JOIN organisation markierung ON ((m.markierungs_zustaendiger_id = markierung.id)))
+	     LEFT JOIN organisation unterhalt ON ((m.unterhalts_zustaendiger_id = unterhalt.id)))
+	     LEFT JOIN massnahme_netzklassen netzklassen ON ((m.id = netzklassen.massnahme_id)))
+	     LEFT JOIN benutzer benutzer_letzte_aenderung ON ((m.benutzer_letzte_aenderung_id = benutzer_letzte_aenderung.id)))
+	     LEFT JOIN organisation benutzer_letzte_aenderung_organisation ON ((benutzer_letzte_aenderung.organisation_id = benutzer_letzte_aenderung_organisation.id)))
+	     LEFT JOIN massnahme_knoten mkno ON ((m.id = mkno.massnahme_id)))
+	     LEFT JOIN knoten knot ON ((mkno.knoten_id = knot.id)))
+	     LEFT JOIN massnahme_kantenseitenabschnitte seitenabschnitt ON ((m.id = seitenabschnitt.massnahme_id)))
+	     LEFT JOIN massnahme_kantenpunkte mkpu ON ((m.id = mkpu.massnahme_id)))
+	     LEFT JOIN kante kantefuerseitenabschnitt ON ((seitenabschnitt.kante_id = kantefuerseitenabschnitt.id)))
+	     LEFT JOIN kante kantefuerpunktreferenz ON ((mkpu.kante_id = kantefuerpunktreferenz.id)))
+	     LEFT JOIN umsetzungsstand u ON ((m.umsetzungsstand_id = u.id)))
+	  WHERE (m.geloescht = false)
+	  GROUP BY m.id;		
+				</createView>
+	</changeSet>
+	<changeSet id="RAD-3927" author="jg + hst">
+		<renameColumn tableName="fahrradroute_variante" oldColumnName="netzbezug_line_string" newColumnName="geometrie"/>
+		<renameColumn tableName="fahrradroute_variante_aud" oldColumnName="netzbezug_line_string" newColumnName="geometrie"/>
+	</changeSet>
+</databaseChangeLog>

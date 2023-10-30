@@ -1,0 +1,1846 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<wfs:FeatureCollection
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:nora="https://owsproxy.lgl-bw.de/static_files/owsproxy/schemacache/WFS_LGL-BW_ATKIS_Basis-DLM/nora"
+	xmlns:wfs="http://www.opengis.net/wfs"
+	xmlns:gml="http://www.opengis.net/gml"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	numberOfFeatures="100" timeStamp="2021-07-21T09:31:32.951Z"
+	xsi:schemaLocation="http://www.opengis.net/wfs https://owsproxy.lgl-bw.de/static_files/owsproxy/schemacache/WFS_LGL-BW_ATKIS_Basis-DLM/wfs.xsd https://owsproxy.lgl-bw.de/static_files/owsproxy/schemacache/WFS_LGL-BW_ATKIS_Basis-DLM https://owsproxy.lgl-bw.de/owsproxy/ows/WFS_LGL-BW_ATKIS_Basis-DLM?request=DescribeFeatureType&amp;version=1.1.0&amp;service=WFS&amp;typename=nora:v_at_weg&amp;user=VM-BW&amp;password=20210420_vm-bw">
+	<gml:boundedBy>
+		<gml:Envelope srsDimension="2"
+			srsName="urn:x-ogc:def:crs:EPSG:25832">
+			<gml:lowerCorner>394435.63 5269288.18</gml:lowerCorner>
+			<gml:upperCorner>582085.95 5447379.19</gml:upperCorner>
+		</gml:Envelope>
+	</gml:boundedBy>
+	<gml:featureMembers>
+		<nora:v_at_weg gml:id="v_at_weg.1074352544">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581308.76 5310278.12</gml:lowerCorner>
+					<gml:upperCorner>581394.97 5310306.12</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000DqM4</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581308.76 5310284.34 581316.37 5310280.43 581322.6
+						5310279.04 581332.06 5310278.12 581341.28 5310278.58 581343.82
+						5310281.8 581347.05 5310285.03 581352.36 5310286.42 581358.13
+						5310286.42 581362.97 5310285.73 581367.12 5310286.19 581371.74
+						5310288.96 581394.97 5310306.12</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352545">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581511.12 5310228.67</gml:lowerCorner>
+					<gml:upperCorner>581582.71 5310262.99</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000DqnX</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581582.71 5310242.48 581571.11 5310241.86 581527.56
+						5310228.67 581524.97 5310229.78 581522.46 5310233.76 581511.12
+						5310262.99</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352546">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>580965.77 5310426.25</gml:lowerCorner>
+					<gml:upperCorner>581241.26 5310603.39</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000IdCo</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>580965.77 5310541.19 580970.95 5310547.6 580976.75
+						5310552.78 580988.64 5310560.7 581000.22 5310566.19 581014.56
+						5310569.86 581042.61 5310577.18 581069.44 5310582.35 581086.53
+						5310586.32 581120.37 5310599.13 581132.88 5310603.09 581140.19
+						5310603.39 581146.94 5310601.53 581153 5310595.78 581160.93
+						5310582.66 581170.99 5310564.97 581176.18 5310552.47 581178.62
+						5310539.97 581181.51 5310528.38 581183.68 5310519.2 581195.09
+						5310500.9 581201.43 5310484.63 581207.75 5310464.31 581221.71
+						5310447.23 581225.01 5310443.21 581241.26 5310426.25</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074703151">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>524345.93 5285496.82</gml:lowerCorner>
+					<gml:upperCorner>524380.76 5285558.62</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D2cV</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>524380.76 5285496.82 524345.93 5285558.62
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1536558286">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>524301.23 5285558.62</gml:lowerCorner>
+					<gml:upperCorner>524345.93 5285630.9</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001eDWO</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>524345.93 5285558.62 524328.13 5285590.19 524309.92
+						5285624.43 524306.54 5285628.78 524301.23 5285630.9</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074649388">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>498485.66 5340206.35</gml:lowerCorner>
+					<gml:upperCorner>498513.92 5340228.57</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001aNPH</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>498485.66 5340228.57 498488.68 5340225.19 498500.61
+						5340216.48 498513.92 5340206.35</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352550">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>580378.2 5314572.14</gml:lowerCorner>
+					<gml:upperCorner>580475.42 5314624.82</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000L9VY</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>580378.2 5314624.82 580391.04 5314604.26 580397.9
+						5314595.26 580405.18 5314589.28 580417.17 5314583.28 580440.73
+						5314573.85 580448.44 5314572.14 580456.87 5314572.14 580475.42
+						5314572.14</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352551">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>511303.17 5406418.63</gml:lowerCorner>
+					<gml:upperCorner>511381.21 5406444.4</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001cLzf</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>511303.17 5406444.4 511381.21 5406427.5 511379.75
+						5406418.63</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074366278">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>446644.87 5310909.26</gml:lowerCorner>
+					<gml:upperCorner>446657.6 5310967.11</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7oZ</nora:gml_id>
+			<nora:eigenname>Panoramaweg</nora:eigenname>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>446644.87 5310909.26 446650.69 5310917.58 446654.13
+						5310931.59 446657.6 5310967.11</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352553">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581282.31 5310312.9</gml:lowerCorner>
+					<gml:upperCorner>581295.14 5310324.91</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB00100015EKM</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581295.14 5310324.91 581282.31 5310312.9</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352554">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581229.31 5310260.41</gml:lowerCorner>
+					<gml:upperCorner>581266.7 5310318.51</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB00100015EKS</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581266.7 5310298.28 581260.99 5310311.53 581258.35
+						5310314.39 581256.55 5310316.29 581255.18 5310318.51 581229.31
+						5310306.24 581238.99 5310286.57 581241.95 5310273.24 581231.16
+						5310268.81 581229.86 5310260.41</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352555">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581069.46 5310384.79</gml:lowerCorner>
+					<gml:upperCorner>581133.66 5310396.12</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB00100016sSU</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581069.46 5310384.79 581104.58 5310396.12 581123.31
+						5310391.69 581133.66 5310388.83</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352556">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581133.66 5310369.89</gml:lowerCorner>
+					<gml:upperCorner>581133.88 5310388.83</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB00100016sSW</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581133.66 5310388.83 581133.88 5310369.89
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076134173">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>545682.74 5284522.94</gml:lowerCorner>
+					<gml:upperCorner>545687.14 5284564.29</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D53m</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>545687.14 5284522.94 545684.5 5284525.47 545683.18
+						5284528.21 545683.38 5284532.17 545687.03 5284560.59 545682.74
+						5284564.29</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352558">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581133.66 5310388.83</gml:lowerCorner>
+					<gml:upperCorner>581204.03 5310395.33</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001asW3</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581204.03 5310395.33 581191.65 5310392.07 581172.45
+						5310389.46 581166.42 5310389.2 581151.99 5310390.77 581133.66
+						5310388.83</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352559">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581241.26 5310422.34</gml:lowerCorner>
+					<gml:upperCorner>581245.01 5310426.25</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001asW4</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581241.26 5310426.25 581245.01 5310422.34
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352560">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581204.03 5310346.24</gml:lowerCorner>
+					<gml:upperCorner>581257.94 5310395.33</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001asW5</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581257.94 5310346.24 581239.65 5310362.45 581233.67
+						5310367.36 581227.78 5310369.9 581223.11 5310372.73 581219.64
+						5310375.21 581212.2 5310382.66 581206.65 5310391.03 581204.03
+						5310395.33</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352561">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581257.94 5310312.9</gml:lowerCorner>
+					<gml:upperCorner>581282.31 5310346.24</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001asW6</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581257.94 5310346.24 581273.1 5310336.25 581276.28
+						5310332.97 581278.31 5310329.74 581279.47 5310325.91 581282.31
+						5310312.9</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352562">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581266.7 5310298.28</gml:lowerCorner>
+					<gml:upperCorner>581282.31 5310312.9</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001asW7</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581282.31 5310312.9 581266.7 5310298.28</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352563">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581282.31 5310300.87</gml:lowerCorner>
+					<gml:upperCorner>581310.78 5310312.9</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001asW8</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>581310.78 5310300.87 581301.36 5310302.59 581295.86
+						5310304.16 581290.6 5310306.83 581282.31 5310312.9</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352564">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>581917.52 5310016.77</gml:lowerCorner>
+					<gml:upperCorner>582085.95 5310269.5</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000MK2g</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>582085.95 5310269.5 582066.53 5310163.52 582053.81
+						5310133.09 582037.04 5310068.43 582031.45 5310061.58 581938.61
+						5310025.41 581917.52 5310016.77</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352565">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>412236.47 5312184.29</gml:lowerCorner>
+					<gml:upperCorner>412446.38 5312300.33</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HGSR</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>412236.47 5312184.29 412249.91 5312201.06 412261.33
+						5312213.27 412280.36 5312222.94 412299.4 5312226.79 412322.26
+						5312227.09 412347.4 5312231.96 412373.04 5312243.93 412400.2
+						5312259.72 412416.7 5312271.93 412434.71 5312289.99 412446.38
+						5312300.33</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074387368">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>513485.17 5291893.93</gml:lowerCorner>
+					<gml:upperCorner>513520.46 5291916.37</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001b1eB</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>513485.17 5291893.93 513502.27 5291904.21 513520.46
+						5291916.37</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075136968">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>548365.27 5274450.38</gml:lowerCorner>
+					<gml:upperCorner>548554.96 5274566.42</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000Hkdf</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>548365.27 5274566.42 548382.41 5274556.99 548401.57
+						5274547.85 548418.94 5274540.22 548437.55 5274534.37 548454.39
+						5274529.27 548466.39 5274523.58 548480.19 5274517.93 548492.94
+						5274513.03 548503.43 5274507.58 548509.85 5274502.33 548516.03
+						5274494.8 548522.02 5274483.71 548525.4 5274477.15 548535.13
+						5274470.93 548545.68 5274460.16 548554.96 5274450.38</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075165532">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>449395.92 5274648.21</gml:lowerCorner>
+					<gml:upperCorner>449492.23 5274709.59</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000TStk</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>449492.23 5274709.59 449483.77 5274708 449416.8
+						5274661.51 449395.92 5274648.21</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074395264">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>399860.17 5298558.7</gml:lowerCorner>
+					<gml:upperCorner>399933.05 5298657.45</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001cpfV</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>399933.05 5298657.45 399921.54 5298647.84 399916.42
+						5298642.02 399882.68 5298597.06 399861.41 5298568.73 399860.17
+						5298564.71 399861.95 5298558.7</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075136907">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>547031.7 5271133.75</gml:lowerCorner>
+					<gml:upperCorner>547044.17 5271149.09</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HQOB</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>547031.7 5271149.09 547044.17 5271133.75</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074419469">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>409789.84 5273515.31</gml:lowerCorner>
+					<gml:upperCorner>409833.51 5273641.67</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GRsG</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>409789.84 5273515.31 409794.41 5273536.88 409801.27
+						5273564.28 409810.66 5273590.92 409822.09 5273619.34 409833.51
+						5273641.67</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1586197334">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>498794.27 5340729.68</gml:lowerCorner>
+					<gml:upperCorner>498890.85 5340743.58</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001eYN5</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>498794.27 5340729.68 498809.4 5340734.13 498821.1
+						5340736.39 498832.38 5340737.24 498856.5 5340739.63 498872.72
+						5340742.31 498883.3 5340743.58 498890.85 5340742.68</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074657935">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>529430.68 5279859.67</gml:lowerCorner>
+					<gml:upperCorner>529453.2 5279868.6</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D1Tt</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>529430.68 5279859.67 529453.2 5279868.6</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352570">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>433553.62 5374292.8</gml:lowerCorner>
+					<gml:upperCorner>433614.27 5374444.63</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KBQl</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>433553.62 5374292.8 433571.68 5374325.44 433581.49
+						5374342.08 433583.93 5374356.63 433594.03 5374390.42 433614.27
+						5374437.96 433611.65 5374444.63</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076099821">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>398643.96 5299202.24</gml:lowerCorner>
+					<gml:upperCorner>398650.07 5299214.59</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000TXae</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>398643.96 5299214.59 398650.07 5299202.24
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074683408">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>519301.81 5291000.65</gml:lowerCorner>
+					<gml:upperCorner>519441.75 5291022.76</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001bO0h</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>519301.81 5291022.76 519311.44 5291016.67 519343.54
+						5291005.01 519378.62 5291001.25 519441.75 5291000.65</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352573">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>513073.11 5279987.45</gml:lowerCorner>
+					<gml:upperCorner>513216.51 5280084.02</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001casL</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>513073.11 5280084.02 513158.57 5280041.42 513127.61
+						5280029.52 513216.51 5279987.45</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074451738">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>398258.37 5324334.04</gml:lowerCorner>
+					<gml:upperCorner>398369.66 5324360.34</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GCeS</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>398258.37 5324360.34 398296.76 5324348.87 398351.62
+						5324338 398359.25 5324335.26 398369.66 5324334.04</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074465973">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>443019.04 5347484</gml:lowerCorner>
+					<gml:upperCorner>443059.45 5347649.65</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KOXu</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>443019.04 5347484 443024.47 5347501.49 443038.19
+						5347548.89 443043.25 5347584.51 443058.64 5347633.42 443059.45
+						5347649.65</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075030260">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>435975.51 5341060.72</gml:lowerCorner>
+					<gml:upperCorner>436105.43 5341148.51</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KOYc</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>435975.51 5341060.72 436042.72 5341098.6 436065.31
+						5341116.68 436079.79 5341125.86 436105.43 5341148.51</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352577">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>513216.51 5279971.51</gml:lowerCorner>
+					<gml:upperCorner>513233.71 5279987.45</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001casM</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>513216.51 5279987.45 513233.71 5279979.78 513231.47
+						5279971.51</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076133407">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>525534.45 5279211.61</gml:lowerCorner>
+					<gml:upperCorner>526181.52 5279468.56</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D1AE</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>526181.52 5279211.61 526140.57 5279218.55 526096.15
+						5279228.47 526050.36 5279240.08 526002.86 5279254.43 525974.84
+						5279263.66 525940.67 5279276.65 525914.69 5279286.9 525863.11
+						5279313.86 525849.43 5279321.64 525840.7 5279325.07 525832.01
+						5279327.96 525759.02 5279363.86 525735.9 5279375.13 525660.97
+						5279411.66 525534.45 5279468.56</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352579">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>408742.69 5311810.64</gml:lowerCorner>
+					<gml:upperCorner>408929.43 5312061.25</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLUQ</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>408742.69 5311810.64 408752.59 5311834.5 408767.29
+						5311872.06 408779.97 5311896.94 408793.68 5311918.53 408816.51
+						5311950.01 408844.18 5311980.5 408859.91 5311998.02 408881.49
+						5312017.09 408904.33 5312034.62 408914.78 5312045.32 408929.43
+						5312061.25</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352580">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>513231.47 5279967.49</gml:lowerCorner>
+					<gml:upperCorner>513239.93 5279971.51</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001casN</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>513231.47 5279971.51 513239.93 5279967.49
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074447124">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>525789.73 5279273.66</gml:lowerCorner>
+					<gml:upperCorner>525882.8 5279300.35</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D1QE</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>525882.8 5279273.66 525866.35 5279281.74 525851.94
+						5279288.37 525842.09 5279292.84 525830.7 5279297.44 525820.9
+						5279300.18 525812.47 5279300.35 525801.33 5279297.35 525792.96
+						5279296.37 525789.73 5279299.14</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074925496">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>395033.96 5310550.04</gml:lowerCorner>
+					<gml:upperCorner>395090.7 5310612.05</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GCl7</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>395033.96 5310550.04 395090.7 5310612.05</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352583">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>403285.95 5319492.53</gml:lowerCorner>
+					<gml:upperCorner>403319.5 5319493.8</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLW4</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>403285.95 5319493.8 403319.5 5319492.53</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074657847">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>546012.08 5272152.72</gml:lowerCorner>
+					<gml:upperCorner>546021.07 5272177.85</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HpCn</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>546012.08 5272152.72 546019.31 5272163.69 546021.07
+						5272171.98 546020.76 5272177.85</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352585">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>402099.96 5316593.35</gml:lowerCorner>
+					<gml:upperCorner>402173.8 5316668.01</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLXD</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>402099.96 5316668.01 402124.74 5316642.79 402173.8
+						5316593.35</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075088567">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>411563.26 5295610.19</gml:lowerCorner>
+					<gml:upperCorner>411573.86 5295641.26</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GMf2</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>411563.26 5295641.26 411569.13 5295618.36 411573.86
+						5295610.19</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074983385">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>525764.63 5279255.81</gml:lowerCorner>
+					<gml:upperCorner>525789.73 5279299.14</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000Kzct</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>525764.63 5279255.81 525789.73 5279299.14
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352588">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>403370.77 5315138.1</gml:lowerCorner>
+					<gml:upperCorner>403416.14 5315208.88</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLYZ</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>403370.77 5315138.1 403416.14 5315208.88</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074656742">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>525930.72 5279170.41</gml:lowerCorner>
+					<gml:upperCorner>526294.86 5279255.71</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000LOMG</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>525930.72 5279255.71 525969.26 5279244.05 525995.69
+						5279233.95 526032.27 5279223.38 526043.59 5279220.98 526091.44
+						5279210.82 526109.84 5279206.59 526135.12 5279200.77 526173.22
+						5279192.73 526244.07 5279179.44 526294.86 5279170.41</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074682194">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>525882.8 5279255.71</gml:lowerCorner>
+					<gml:upperCorner>525930.72 5279273.66</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001bM5A</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>525882.8 5279273.66 525891.64 5279272.39 525900.81
+						5279272.33 525910.05 5279268.81 525930.72 5279255.71</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074459653">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>412942.04 5328916.93</gml:lowerCorner>
+					<gml:upperCorner>413006.18 5329170.51</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000IT1f</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>412942.04 5329170.51 412948.64 5329156.01 412954.21
+						5329143.78 412959.88 5329119.39 412963.03 5329091.23 412963.94
+						5329083.09 412973.07 5329045.75 412980.87 5329000.3 412986.97
+						5328964.24 412994.18 5328942.88 413006.18 5328916.93</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352592">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>407718.6 5311800.49</gml:lowerCorner>
+					<gml:upperCorner>407746.81 5311829.94</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLTL</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>407718.6 5311829.94 407746.81 5311800.49</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352593">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>409034.09 5311819.17</gml:lowerCorner>
+					<gml:upperCorner>409098.89 5311912.96</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLV5</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>409034.09 5311819.17 409036.8 5311825.56 409040.45
+						5311839.41 409045.87 5311855.2 409052.63 5311868.29 409061.43
+						5311880.24 409073.62 5311892.88 409088.05 5311902.48 409098.89
+						5311912.96</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074925952">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>394897.2 5306573.88</gml:lowerCorner>
+					<gml:upperCorner>395013.02 5306611.93</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GGY1</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>394897.2 5306573.88 394917.58 5306580.93 394950.58
+						5306591.01 395013.02 5306611.93</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075065733">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>414827.95 5341972.11</gml:lowerCorner>
+					<gml:upperCorner>414992.07 5342120.01</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000IdQl</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>414827.95 5342120.01 414831.32 5342107.66 414840.5
+						5342081.55 414850.85 5342061.79 414861.84 5342044.68 414874.39
+						5342032.29 414897.21 5342009.91 414924.76 5341990.3 414940.78
+						5341984.23 414974.51 5341976.53 414992.07 5341972.11</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074777406">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>544422.59 5370216.2</gml:lowerCorner>
+					<gml:upperCorner>544467.41 5370241.71</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GEvp</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>544422.59 5370241.71 544447.14 5370230.38 544467.41
+						5370216.2</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075033758">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>443222.23 5342299.63</gml:lowerCorner>
+					<gml:upperCorner>443244.24 5342348.6</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KOZh</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>443230.02 5342299.63 443225.37 5342306.42 443222.75
+						5342312.18 443222.23 5342321.09 443222.75 5342327.89 443229.04
+						5342336.27 443244.24 5342348.6</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074424512">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>398519.94 5299165.85</gml:lowerCorner>
+					<gml:upperCorner>398526.98 5299178.55</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000Lfa1</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>398519.94 5299178.55 398526.98 5299165.85
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075025716">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>439972.29 5342215.51</gml:lowerCorner>
+					<gml:upperCorner>439992.7 5342224.11</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KOZt</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>439972.29 5342224.11 439979.57 5342223.41 439986.44
+						5342220.54 439992.7 5342215.51</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074435980">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>444404.42 5296968.53</gml:lowerCorner>
+					<gml:upperCorner>444479.27 5297086.37</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000LHhr</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>444404.42 5297086.37 444416.65 5297057.4 444464.17
+						5296989.01 444472.94 5296977.13 444478.66 5296969.37 444479.27
+						5296968.53</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074980968">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>549429.78 5296420.26</gml:lowerCorner>
+					<gml:upperCorner>549474.97 5296438.3</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000MWNo</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>549429.78 5296420.26 549456.37 5296429.22 549474.97
+						5296438.3</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141281">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>572411.57 5299780.93</gml:lowerCorner>
+					<gml:upperCorner>572420.36 5299898.67</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D5Ag</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>572420.36 5299780.93 572419.93 5299856.78 572417.43
+						5299863.52 572411.57 5299898.67</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074375617">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>530025.63 5279709.44</gml:lowerCorner>
+					<gml:upperCorner>530173.62 5279776.46</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D1WJ</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>530025.63 5279776.46 530069.45 5279756.92 530114.11
+						5279737.4 530173.62 5279709.44</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352599">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>407625.79 5306811.34</gml:lowerCorner>
+					<gml:upperCorner>408119.42 5307260.64</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLtT</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>407625.79 5307260.64 407687.11 5307178.84 407691.91
+						5307170.2 407694.94 5307160.81 407695.41 5307142.28 407695.27
+						5307132.13 407695.11 5307121.21 407697.62 5307103.7 407705.2
+						5307090.74 407711.78 5307079.56 407718.84 5307055.69 407722.62
+						5307044.76 407730.72 5307033.33 407754.05 5307023.14 407768.77
+						5307016.26 407822 5306978.34 407852.66 5306955.45 407864.83
+						5306948.57 407876.75 5306945.5 407887.67 5306943.2 407899.58
+						5306938.36 407910.49 5306933.01 407934.32 5306918.24 407945.73
+						5306909.34 407959.16 5306895.86 407969.55 5306886.45 408035.85
+						5306855.1 408048.12 5306849.47 408119.42 5306811.34</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141307">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>574426.73 5298377.7</gml:lowerCorner>
+					<gml:upperCorner>574427.53 5298397.91</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D5DR</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>574426.73 5298397.91 574427.25 5298389.05 574427.53
+						5298377.7</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352601">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>403655.01 5316619.73</gml:lowerCorner>
+					<gml:upperCorner>403767.38 5316669.31</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HM0O</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>403655.01 5316619.73 403676.63 5316635.21 403695.82
+						5316643.57 403727.88 5316655.39 403737.59 5316658.75 403762.75
+						5316667.48 403767.38 5316669.31</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352602">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>401579.72 5324639.77</gml:lowerCorner>
+					<gml:upperCorner>401612.13 5324653.73</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HM1P</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>401579.72 5324653.73 401591.13 5324651.87 401602.53
+						5324646.95 401612.13 5324639.77</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141673">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>573585.42 5298978.33</gml:lowerCorner>
+					<gml:upperCorner>573697.94 5299094.13</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D5Rw</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>573585.42 5299094.13 573622.46 5299057.42 573624.51
+						5299055.39 573668.9 5299009.95 573697.94 5298978.33</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074449734">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>574427.53 5298235.13</gml:lowerCorner>
+					<gml:upperCorner>574728.83 5298377.7</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D62C</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>574728.83 5298235.13 574635.16 5298277.56 574518.68
+						5298328.34 574438.12 5298362.11 574427.92 5298367.87 574427.53
+						5298377.7</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352605">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>402449.46 5315244.18</gml:lowerCorner>
+					<gml:upperCorner>402693.24 5315591.19</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HM4c</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>402449.46 5315244.18 402477.09 5315250.46 402502.68
+						5315259.27 402522.68 5315270.58 402535.81 5315281.84 402547.15
+						5315296.89 402567.8 5315324.72 402588.41 5315357.63 402624.85
+						5315420.87 402644.18 5315455.28 402659.47 5315487.39 402671.24
+						5315515.41 402691.96 5315573.45 402693.24 5315591.19</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074449772">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>574837.52 5296851.89</gml:lowerCorner>
+					<gml:upperCorner>575089.43 5296915.09</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7cu</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>574837.52 5296857.51 574838.64 5296853.68 574841.53
+						5296851.89 574846.03 5296853.4 574859.13 5296862.98 574869.35
+						5296868.52 574880.32 5296872.68 574897.87 5296877.76 574923.19
+						5296884.57 574971.07 5296895.22 574996.12 5296900.03 575021.2
+						5296903.86 575089.43 5296915.09</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141724">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>573403.81 5295376.12</gml:lowerCorner>
+					<gml:upperCorner>573453.65 5295406.89</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7e2</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>573403.81 5295376.12 573420.65 5295385.95 573433.85
+						5295392.55 573453.65 5295406.89</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141725">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>572339.98 5299770.49</gml:lowerCorner>
+					<gml:upperCorner>572420.36 5299780.93</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7eI</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>572339.98 5299770.49 572393.25 5299778.3 572420.36
+						5299780.93</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076277916">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>573915.63 5295611.44</gml:lowerCorner>
+					<gml:upperCorner>573935.43 5295618.27</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7eg</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>573915.63 5295618.27 573922.54 5295615.58 573935.43
+						5295611.44</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075161684">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>406773.47 5269288.18</gml:lowerCorner>
+					<gml:upperCorner>406869.1 5269307.85</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000LZtK</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>406869.1 5269288.18 406858.58 5269299.81 406851.76
+						5269302.42 406842.77 5269305.3 406829.09 5269307.85 406818.39
+						5269307.45 406801.27 5269304.55 406773.47 5269299</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074374779">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>527347.18 5279645.52</gml:lowerCorner>
+					<gml:upperCorner>527793.22 5279780.61</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D267</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>527347.18 5279645.52 527367.88 5279663.4 527388.62
+						5279680.89 527411.73 5279698.66 527431.88 5279711.4 527440.17
+						5279716.73 527468.91 5279733.03 527488.47 5279742.51 527509.51
+						5279750.81 527530.25 5279759.39 527544.47 5279764.14 527564.91
+						5279769.77 527593.06 5279775.4 527623.57 5279779.44 527683.07
+						5279780.61 527721.22 5279780.31 527747.54 5279778.24 527793.22
+						5279771.35</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075433062">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>557440.06 5274965.53</gml:lowerCorner>
+					<gml:upperCorner>557718.84 5275313.03</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000THwn</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>557440.06 5274965.53 557453.19 5274979.73 557473.6
+						5274992.93 557489.21 5275004.94 557504.38 5275025.91 557522.42
+						5275043.9 557538.51 5275066.73 557553.68 5275088.25 557620.76
+						5275169.6 557675.91 5275250.25 557718.84 5275313.03</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1572501615">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>449629.25 5274560.62</gml:lowerCorner>
+					<gml:upperCorner>449701.19 5274581.56</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010001eIJU</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>449629.25 5274560.62 449701.19 5274581.56
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074374780">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>527851.38 5279745.81</gml:lowerCorner>
+					<gml:upperCorner>527879.49 5279755.37</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D29O</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>527879.49 5279745.81 527867.15 5279749.88 527851.38
+						5279755.37</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074447745">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>544802.08 5295532.32</gml:lowerCorner>
+					<gml:upperCorner>544832.21 5295577.74</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D53p</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>544802.08 5295532.32 544811.98 5295538.24 544819.94
+						5295549.67 544827.05 5295555.26 544830.94 5295558.81 544832.21
+						5295562.62 544830.92 5295577.74</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074436854">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>435757.84 5284351.89</gml:lowerCorner>
+					<gml:upperCorner>435939.58 5284524.51</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000MWhq</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>435757.84 5284351.89 435761.62 5284361.8 435770.95
+						5284381.87 435782.82 5284400.17 435831.13 5284458.95 435850.88
+						5284479.05 435867.59 5284491.04 435910.67 5284515.29 435929.42
+						5284523.47 435939.58 5284524.51</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352617">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>405358.85 5304324.12</gml:lowerCorner>
+					<gml:upperCorner>405397.2 5304406.19</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HLrj</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>405358.85 5304324.12 405373.84 5304349.02 405383.11
+						5304366.8 405393.27 5304391.31 405397.2 5304406.19</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076144722">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>394435.63 5319942.46</gml:lowerCorner>
+					<gml:upperCorner>394486.91 5319979.6</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000TWeM</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>394486.91 5319979.6 394460.6 5319960.74 394435.63
+						5319942.46</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075023226">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>431546.77 5346277.26</gml:lowerCorner>
+					<gml:upperCorner>431652.04 5346391</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KOwo</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>431546.77 5346391 431555.08 5346383.71 431558.3
+						5346378.74 431568.58 5346360.36 431581.91 5346343.47 431601.38
+						5346330.87 431631.27 5346317.92 431635.55 5346312.55 431643.35
+						5346291.16 431652.04 5346277.26</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074876995">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>408793.1 5319054.26</gml:lowerCorner>
+					<gml:upperCorner>408892.5 5319166.45</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000GMYp</nora:gml_id>
+			<nora:eigenname>Mundenhofer Weg</nora:eigenname>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>408793.1 5319166.45 408824.24 5319135.1 408843.91
+						5319114.1 408858.72 5319097.41 408875.58 5319077.93 408887.6
+						5319063.75 408892.5 5319054.26</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352621">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>406433.6 5308411.72</gml:lowerCorner>
+					<gml:upperCorner>406448.87 5308447.86</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HQSF</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>406433.6 5308447.86 406448.87 5308411.72</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352603">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>407962.59 5311575.38</gml:lowerCorner>
+					<gml:upperCorner>407994.92 5311658.93</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HM1b</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>407962.59 5311575.38 407994.92 5311658.93
+					</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074449782">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>574783.78 5296869.2</gml:lowerCorner>
+					<gml:upperCorner>574831.54 5296879.26</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7kJ</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>574783.78 5296869.2 574796.91 5296871.66 574804.95
+						5296871.88 574810.12 5296872.33 574817.45 5296875.79 574824.73
+						5296879.2 574827.38 5296879.26 574829.92 5296877.24 574831.54
+						5296874.04</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074864365">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>419378.62 5358254.65</gml:lowerCorner>
+					<gml:upperCorner>419950.01 5358301.97</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000J0Fq</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>419378.62 5358254.65 419445.08 5358277.69 419521.82
+						5358293.43 419589.14 5358298.23 419654.7 5358296.92 419727.1
+						5358301.97 419755.85 5358298.78 419800.91 5358300.75 419843.36
+						5358300.14 419888.33 5358294.93 419922.34 5358286.25 419939.37
+						5358286.36 419950.01 5358290.11</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1075137235">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>545825.92 5273865.93</gml:lowerCorner>
+					<gml:upperCorner>546010.27 5274137.92</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HpiP</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>545825.92 5274137.92 545840.11 5274121.13 545854.3
+						5274103.58 545866.95 5274083.24 545879.6 5274057.56 545889.46
+						5274038.24 545898.81 5274017.91 545911.7 5273989.19 545923.84
+						5273963.77 545936.23 5273941.65 545948.13 5273923.35 545963.84
+						5273907.83 545978.81 5273897.63 545993.52 5273884.14 546002.14
+						5273874.98 546010.27 5273865.93</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074741715">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>499523.2 5447360.93</gml:lowerCorner>
+					<gml:upperCorner>499526.28 5447379.19</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000Ia4X</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>499523.2 5447360.93 499525.24 5447373.06 499526.28
+						5447379.19</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074374782">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>527337.74 5279409.98</gml:lowerCorner>
+					<gml:upperCorner>528547.04 5279798.12</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D2j6</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>528547.04 5279421.68 528542.66 5279427.43 528535.16
+						5279432.94 528519.93 5279435.81 528508.67 5279437.14 528499.18
+						5279436.03 528491.67 5279432.94 528485.7 5279428.76 528479.09
+						5279417.05 528477.1 5279413.74 528474.01 5279411.09 528471.14
+						5279409.98 528456.35 5279410.2 528426.76 5279413.96 528396.85
+						5279421.08 528375.58 5279427.22 528331.4 5279443.1 528323.26
+						5279446.84 528307.25 5279454.19 528299.15 5279457.91 528260.06
+						5279478.33 528206.8 5279515.29 528151.54 5279564.43 528113.09
+						5279597.51 528065.69 5279636.3 528011.5 5279680.17 527993.04
+						5279695.28 527976.5 5279706.79 527958.52 5279718.06 527939.81
+						5279730.29 527927.35 5279737.96 527914.15 5279744.19 527898.57
+						5279752.59 527872.59 5279763.98 527863.16 5279768.12 527846.16
+						5279773.14 527828.27 5279778.16 527809.85 5279783.18 527791.82
+						5279787.3 527772.12 5279790.78 527752.17 5279793.74 527730.28
+						5279796.18 527712.25 5279797.34 527689.84 5279798.12 527669.76
+						5279797.86 527650.7 5279796.57 527633.83 5279795.15 527616.96
+						5279792.97 527610.21 5279791.93 527601.9 5279790.65 527587.99
+						5279787.81 527571.77 5279784.34 527558.24 5279780.73 527540.6
+						5279775.58 527524.64 5279770.17 527509.7 5279764.76 527495.79
+						5279759.23 527473.02 5279749.27 527453.21 5279739.25 527413.06
+						5279716.73 527392.07 5279700.17 527382.61 5279692.77 527366.93
+						5279679.47 527353.92 5279668.52 527337.74 5279654.26</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141783">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>572420.36 5299759.02</gml:lowerCorner>
+					<gml:upperCorner>572603.65 5299780.93</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7ln</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>572420.36 5299780.93 572466.85 5299778.74 572529.64
+						5299768.16 572557.23 5299761.28 572578.12 5299759.33 572583.84
+						5299759.02 572585.9 5299759.49 572587.96 5299761.08 572590.5
+						5299764.73 572593.04 5299769.65 572598.43 5299776.15 572603.65
+						5299777.49</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352626">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>403361.68 5301684.72</gml:lowerCorner>
+					<gml:upperCorner>403397.38 5301795.94</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HR12</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>403361.68 5301684.72 403364.32 5301692.55 403370.39
+						5301710.24 403383.34 5301750.93 403397.38 5301795.94</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076141806">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>574200.97 5298397.91</gml:lowerCorner>
+					<gml:upperCorner>574426.73 5298515.49</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D7md</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>574200.97 5298515.49 574268.4 5298478.22 574332.63
+						5298446.57 574401.2 5298416.38 574412.7 5298413.02 574420.85
+						5298412.3 574426.37 5298407.51 574426.73 5298397.91</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074657989">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>527863.63 5279740.22</gml:lowerCorner>
+					<gml:upperCorner>527876.87 5279775.33</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000KesL</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>527876.87 5279775.33 527874.07 5279768.06 527870.27
+						5279757.62 527867.15 5279749.88 527863.63 5279740.22</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1074352629">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>408220.99 5313945.07</gml:lowerCorner>
+					<gml:upperCorner>408280.86 5313961.54</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000HQIW</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>408280.86 5313945.07 408269.37 5313948.23 408262.27
+						5313950.19 408255.9 5313951.94 408250.03 5313953.56 408244.32
+						5313955.12 408231.45 5313958.67 408220.99 5313961.54</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076143934">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>580141.68 5288275.01</gml:lowerCorner>
+					<gml:upperCorner>580166.6 5288594.85</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000D5Ee</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>580152.39 5288594.85 580147.92 5288572.11 580143.46
+						5288568.56 580141.68 5288558.76 580146.14 5288508.92 580150.59
+						5288477.77 580153.26 5288455.52 580157.71 5288440.39 580164.82
+						5288429.7 580166.6 5288420.81 580161.6 5288410.3 580159.63
+						5288397.68 580163.18 5288364.55 580163.97 5288319.98 580164.36
+						5288297.5 580164.75 5288275.01</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+		<nora:v_at_weg gml:id="v_at_weg.1076280512">
+			<gml:boundedBy>
+				<gml:Envelope srsName="urn:x-ogc:def:crs:EPSG:25832"
+					srsDimension="2">
+					<gml:lowerCorner>555741.67 5277953.35</gml:lowerCorner>
+					<gml:upperCorner>555771.37 5277997.94</gml:upperCorner>
+				</gml:Envelope>
+			</gml:boundedBy>
+			<nora:gml_id>DEBWB0010000CPfp</nora:gml_id>
+			<nora:geom>
+				<gml:LineString
+					srsName="urn:x-ogc:def:crs:EPSG:25832" srsDimension="2">
+					<gml:posList>555771.37 5277953.35 555761.25 5277967.29 555752.95
+						5277979.76 555746.96 5277988.31 555741.67 5277997.94</gml:posList>
+				</gml:LineString>
+			</nora:geom>
+		</nora:v_at_weg>
+	</gml:featureMembers>
+</wfs:FeatureCollection>

@@ -1,0 +1,16 @@
+<layer>
+  <name>fehlerprotokoll</name>
+  <id>LayerInfoImpl--10aae2fa:1845bfe908e:-7ff7</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-37b18cc6:14d5d036d48:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--10aae2fa:1845bfe908e:-7ff8</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-11-10 16:00:23.707 UTC</dateCreated>
+</layer>

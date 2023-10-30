@@ -1,0 +1,17 @@
+<layer>
+  <name>massnahmen_lines_extern</name>
+  <id>LayerInfoImpl--9b983eb:1831d53fea4:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-37b18cc6:14d5d036d48:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--9b983eb:1831d53fea4:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-09-08 13:39:50.861 UTC</dateCreated>
+  <dateModified>2023-01-17 14:13:54.718 UTC</dateModified>
+</layer>

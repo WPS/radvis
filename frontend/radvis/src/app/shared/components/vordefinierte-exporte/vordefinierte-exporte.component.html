@@ -1,0 +1,74 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div mat-dialog-title>
+  <div class="display-flex justify-content-space-between">
+    <div>Vordefinierte Exporte</div>
+    <button
+      [attr.aria-label]="'Schließen'"
+      matTooltip="Schließen"
+      mat-dialog-close="true"
+      mat-icon-button
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+<div mat-dialog-content class="content">
+  Laden Sie sich Daten aus RadVIS als Datei herunter:
+  <div class="container">
+    <div>
+      <h3>Daten</h3>
+
+      <ul>
+        <li *ngFor="let exportItem of exportLinksDaten">
+          <div class="download-item">
+            <a target="_blank" [href]="exportItem.url">{{exportItem.title}}</a>
+            <span class="filetype">{{exportItem.filetype}}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h3>Netz</h3>
+      <ul>
+        <li *ngFor="let exportItem of exportLinksNetz">
+          <div class="download-item">
+            <a target="_blank" [href]="exportItem.url">{{exportItem.title}}</a>
+            <span class="filetype">{{exportItem.filetype}}</span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="pt-20 mb-4">
+        Wählen Sie eine Gebietskörperschaft aus, um sich das darin enthaltene Netz herunterzuladen.
+      </div>
+
+      <form class="content display-flex">
+        <rad-organisationen-dropdown-control class="organisation-dropdown"
+                                             #dropdownValue
+                                             [options]="(alleGebietskoerperschaften$ | async) || []"
+                                             [nullable]="false">Gebietskörperschaft auswählen
+        </rad-organisationen-dropdown-control>
+        <button class="button-size" mat-stroked-button color="primary" type="button"
+                [disabled]="dropdownValue.selectedOrganisation===null"
+                (click)="ladeHerunter(dropdownValue.selectedOrganisation)">
+          <span *ngIf="isFetching">Lade...</span>
+          <span *ngIf="!isFetching">Download</span>
+        </button>
+      </form>
+      <div class="info-text">Der Download kann bei großen Gebieten einige Minuten dauern.</div>
+    </div>
+  </div>
+</div>

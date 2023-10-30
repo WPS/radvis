@@ -1,0 +1,83 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<ng-container *ngIf="legenden.length > 0">
+  <ng-container *ngIf="!usePrintLayout; else printLayoutTemplate">
+    <div class="legende-container">
+      <button [attr.aria-label]="legendeOpen ? 'Legende aufklappen' : 'Legende einklappen'" class="legende-button bold"
+              mat-stroked-button
+              (click)="legendeOpen = !legendeOpen">
+        Legende
+        <mat-icon matSuffix class="legende-button-icon" *ngIf="!legendeOpen">keyboard_arrow_down</mat-icon>
+        <mat-icon matSuffix class="legende-button-icon" *ngIf="legendeOpen">keyboard_arrow_up</mat-icon>
+      </button>
+      <mat-accordion [multi]="true" *ngIf="legendeOpen" class="legende-accordion">
+        <mat-expansion-panel expanded="true" *ngFor="let legende of signaturLegenden" class="legende-panel">
+          <mat-expansion-panel-header collapsedHeight="2rem" expandedHeight="2rem" class="legende-expansion-header">
+            <mat-panel-title class="font-14px bold">
+              {{ getDisplayText(legende) }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="legende-signatur">
+            <table class="w-100">
+              <ng-container *ngFor="let entry of legende.entries">
+                <tr *ngIf="entry">
+                  <td>
+                    <div
+                      class="legende-farbe"
+                      [style.background-color]="entry.color"
+                      [style.background-image]="parseDash(entry)"
+                    ></div>
+                  </td>
+                  <td>{{ entry.name }}</td>
+                </tr>
+              </ng-container>
+            </table>
+          </div>
+        </mat-expansion-panel>
+        <mat-expansion-panel expanded="true" *ngFor="let legende of wmsLegenden" class="legende-panel">
+          <mat-expansion-panel-header collapsedHeight="2rem" expandedHeight="2rem" class="legende-expansion-header">
+            <mat-panel-title class="font-14px bold">
+              {{ legende.titel }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="legende-wms">
+            <img [src]="legende.url" [alt]="legende.titel" />
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </ng-container>
+</ng-container>
+<ng-template #printLayoutTemplate>
+  <div class="legende-print">
+    <div class="legende-signatur" *ngFor="let legende of signaturLegenden">
+      <div class="font-14px bold">{{ legende.name }}</div>
+      <table class="w-100">
+        <ng-container *ngFor="let entry of legende.entries">
+          <tr *ngIf="entry">
+            <td>
+              <div class="legende-farbe" [style.background-color]="entry.color"></div>
+            </td>
+            <td>{{ entry.name }}</td>
+          </tr>
+        </ng-container>
+      </table>
+    </div>
+    <div class="legende-wms" *ngFor="let legende of wmsLegenden">
+      <div class="font-14px bold">{{ legende.titel }}</div>
+      <img [src]="legende.url" [alt]="legende.titel" />
+    </div>
+  </div>
+</ng-template>

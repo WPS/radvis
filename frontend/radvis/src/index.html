@@ -1,13 +1,67 @@
-<!doctype html>
-<html lang="en">
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<!DOCTYPE html>
+<html lang="de">
 <head>
-  <meta charset="utf-8">
-  <title>Radvis</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta charset="utf-8"/>
+  <title>RadVIS</title>
+  <base href="/"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
 </head>
 <body>
-  <rad-root></rad-root>
+<div id="radvis-splash-screen" class="splash-screen">
+  <div class="splash-screen-content">
+    <div class="bicycle-container">
+      <div class="splash-text">RadVIS lädt</div>
+      <div class="wheel back-wheel">
+        <div class="tire"></div>
+        <div class="rim"></div>
+        <div class="spokes"></div>
+        <div class="spokes"></div>
+        <div class="hub"></div>
+      </div>
+      <div class="wheel front-wheel">
+        <div class="tire"></div>
+        <div class="rim"></div>
+        <div class="spokes"></div>
+        <div class="spokes"></div>
+        <div class="hub"></div>
+      </div>
+
+      <div class="gear">
+        <div class="gear-red"></div>
+      </div>
+      <div class="tube chain-tube"></div>
+      <div class="tube seat-tube-back"></div>
+      <div class="tube seat-tube-front"></div>
+      <div class="tube seat-tube-post"></div>
+      <div class="tube top-tube"></div>
+      <div class="tube top-handlebar-tube"></div>
+      <div class="tube top-handlebar-tube2"></div>
+      <div class="tube down-tube"></div>
+      <div class="tube head-tube"></div>
+      <div class="tube head-tube-post"></div>
+
+      <div class="saddle"></div>
+    </div>
+  </div>
+</div>
+<rad-root></rad-root>
 </body>
 </html>

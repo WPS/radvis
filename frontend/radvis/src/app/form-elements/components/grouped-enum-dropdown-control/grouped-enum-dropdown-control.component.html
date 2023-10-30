@@ -1,0 +1,41 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-form-field [class.highlight-undetermined]="formControl.value === UNDETERMINED">
+  <mat-label>
+    <ng-content></ng-content>
+  </mat-label>
+  <input
+    matInput
+    (blur)="onBlur()"
+    [matAutocomplete]="auto"
+    [formControl]="formControl"
+    #trigger="matAutocompleteTrigger"
+    (click)="onClick($event, trigger)"
+  />
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)" [displayWith]="displayFn">
+    <mat-option [disabled]="true" [value]="UNDETERMINED" *ngIf="showUndeterminedOption">
+      {{ UNDETERMINED_LABEL }}
+    </mat-option>
+    <mat-option *ngIf="nullable" [value]="null">Keine Angabe</mat-option>
+    <mat-optgroup
+      *ngFor="let group of objectKeys(filteredGroupedOptions)"
+      [label]="filteredGroupedOptions[group].displayText"
+    >
+      <mat-option *ngFor="let option of filteredGroupedOptions[group].options" [value]="option.name">
+        {{ option.displayText }}
+      </mat-option>
+    </mat-optgroup>
+  </mat-autocomplete>
+</mat-form-field>

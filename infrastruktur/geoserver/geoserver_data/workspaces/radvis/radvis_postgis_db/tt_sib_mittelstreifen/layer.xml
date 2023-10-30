@@ -1,0 +1,17 @@
+<layer>
+  <name>tt_sib_mittelstreifen</name>
+  <id>LayerInfoImpl-7fd4cf51:184a3bf5ae7:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-7fd4cf51:184a3bf5ae7:-7ffc</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-7fd4cf51:184a3bf5ae7:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-11-23 09:08:57.777 UTC</dateCreated>
+  <dateModified>2022-11-23 11:42:50.131 UTC</dateModified>
+</layer>

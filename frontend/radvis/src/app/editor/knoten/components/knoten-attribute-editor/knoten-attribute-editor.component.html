@@ -1,0 +1,77 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<form [formGroup]="knotenFormGroup" class="form-group">
+  <div class="editing-not-allowed-hinweis hinweis" *ngIf="!editingAllowed">
+    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
+    <div class="ml-10 mat-small hinweis-text">
+      Knoten kann nicht bearbeitet werden: RadNETZ oder fehlende Berechtigung
+    </div>
+  </div>
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    (save)="onSave()"
+    [disabled]="!editingAllowed"
+    [dirty]="knotenFormGroup.dirty"
+    [fetching]="isFetching"
+    titel="Knoten-Attribute bearbeiten"
+  >
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Ortslage (aus Kanten abgeleitet)</mat-label>
+      <input formControlName="ortslage" matInput />
+    </mat-form-field>
+
+    <rad-grouped-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="knotenForm"
+      [groupedOptions]="knotenFormOptions"
+    >
+      Knotenform
+    </rad-grouped-enum-dropdown-control>
+
+    <rad-organisationen-dropdown-control
+      [options]="(gemeindeOptions | async) || []"
+      class="mat-form-field-full-width"
+      formControlName="gemeinde"
+    >
+      Gemeinde
+    </rad-organisationen-dropdown-control>
+
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Landkreis</mat-label>
+      <input formControlName="landkreis" matInput readonly />
+    </mat-form-field>
+
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Kommentar</mat-label>
+      <textarea class="text-area" formControlName="kommentar" matInput></textarea>
+      <mat-hint align="end"
+        >{{ knotenFormGroup.get('kommentar')?.value?.length || 0 }}/{{ kommentarMaxLength }}</mat-hint
+      >
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="knotenFormGroup.get('kommentar')?.errors || null">
+    </rad-validation-error-anzeige>
+
+    <mat-form-field class="mat-form-field-full-width">
+      <mat-label>Zustandsbeschreibung</mat-label>
+      <textarea class="text-area" formControlName="zustandsbeschreibung" matInput></textarea>
+      <mat-hint align="end"
+        >{{ knotenFormGroup.get('zustandsbeschreibung')?.value?.length || 0 }}/{{ zustandMaxLength }}</mat-hint
+      >
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="knotenFormGroup.get('zustandsbeschreibung')?.errors || null">
+    </rad-validation-error-anzeige>
+  </rad-attribute-editor>
+</form>

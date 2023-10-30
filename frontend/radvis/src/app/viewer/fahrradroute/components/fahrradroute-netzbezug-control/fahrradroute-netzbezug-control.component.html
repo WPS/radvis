@@ -1,0 +1,47 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-form-field *ngIf="customRoutingProfile.length > 0">
+  <mat-label>Routing-Profil</mat-label>
+  <mat-select [formControl]="customProfileSelectionControl" class="mat-form-field-full-width">
+    <mat-option [value]="DEFAULT_PROFILE_ID">Fahrrad (Standard)</mat-option>
+    <mat-option *ngFor="let profil of customRoutingProfile" [value]="profil.id">{{ profil.name }}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<mat-slide-toggle [formControl]="mitFahrtrichtungControl" class="align-self-end mb-8">
+  Fahrtrichtung berücksichtigen
+</mat-slide-toggle>
+
+<ng-container *ngIf="createMode; else wegpunktHinweis">
+  <div class="knoten-info display-flex align-items-center">
+    <mat-icon *ngIf="!startPunkt" color="warn">warning</mat-icon>
+    <mat-icon *ngIf="startPunkt" [style.color]="validInputColor">check_circle</mat-icon>
+    <span>Startpunkt <b>A</b>:</span><span class="italic">{{ startPunkt ? 'Ausgewählt' : 'Bitte auswählen' }}</span>
+  </div>
+  <div class="knoten-info display-flex align-items-center mt-10" [class.auswahl-disabled]="!startPunkt">
+    <mat-icon *ngIf="!endPunkt" color="warn">warning</mat-icon>
+    <mat-icon *ngIf="endPunkt" [style.color]="validInputColor">check_circle</mat-icon>
+    <span>Endpunkt <b>B</b>:</span><span class="italic">{{ endPunkt ? 'Ausgewählt' : 'Bitte auswählen' }}</span>
+  </div>
+</ng-container>
+
+<div *ngIf="loadingRoute" class="display-flex justify-content-flex-end m-2">
+  <mat-spinner diameter="28" class="mr-2"></mat-spinner>
+  <div>Beste Route wird berechnet...</div>
+</div>
+
+<ng-template #wegpunktHinweis>
+  <div [innerText]="BEDIENHINWEIS_STUETZPUNKTE" class="hinweis"></div>
+</ng-template>

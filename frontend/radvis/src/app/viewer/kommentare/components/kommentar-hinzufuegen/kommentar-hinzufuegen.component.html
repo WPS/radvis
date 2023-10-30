@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<form [formGroup]="formGroup" class="display-flex flex-row m-10 align-items-end">
+  <div class="display-flex flex-column align-items-stretch flex-grow mr-10">
+    <mat-form-field appearance="outline" class="kommentar-input">
+      <mat-label>Ihre Nachricht</mat-label>
+      <textarea matInput formControlName="kommentarText" class="kommentar-textarea"></textarea>
+    </mat-form-field>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('kommentarText')?.errors || null"
+      *ngIf="formGroup.get('kommentarText')?.dirty"
+    ></rad-validation-error-anzeige>
+  </div>
+  <button
+    [attr.aria-label]="'Kommentar absenden'"
+    matTooltip="Kommentar absenden"
+    (click)="send()"
+    mat-icon-button
+    color="primary"
+  >
+    <mat-icon>send</mat-icon>
+  </button>
+</form>

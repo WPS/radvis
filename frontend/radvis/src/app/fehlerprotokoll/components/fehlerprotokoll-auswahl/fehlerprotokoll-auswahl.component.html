@@ -1,0 +1,78 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div radAccessabilityTabCircleGroup class="auswahl-container">
+  <div *ngIf="isAnythingSelected && !areFehlerprotokolleVisibleOnZoomlevel">
+    <span class="mat-small zoomstufen-hinweis">Auf aktueller Zoomstufe sind Fehlerprotokolle nicht sichtbar!</span>
+  </div>
+  <mat-checkbox
+    radAccessabilityTabCircleElement
+    *ngFor="let fehlerprotokoll of fehlerprotokolleOptions"
+    [checked]="selectedFehlerprotokolle.includes(fehlerprotokoll)"
+    (change)="onFehlerprotokollClicked(fehlerprotokoll)"
+  >{{ fehlerprotokoll.displayText }}
+  </mat-checkbox>
+  <mat-divider class="my-5"></mat-divider>
+
+  <rad-organisationen-dropdown-control
+    radAccessabilityTabCircleElement
+    [options]="(alleOrganisationenOptions | async) || []"
+    [formControl]="organisationControl"
+    class="mat-form-field-full-width"
+  >
+    Für Bereich
+  </rad-organisationen-dropdown-control>
+  <rad-validation-error-anzeige [errors]="organisationControl.errors"></rad-validation-error-anzeige>
+
+  <mat-checkbox radAccessabilityTabCircleElement [formControl]="netzklassenImportControl"> Manueller Netzklassen
+    Import
+  </mat-checkbox>
+  <mat-checkbox radAccessabilityTabCircleElement [formControl]="attributeImportControl"> Manueller Attribute Import
+  </mat-checkbox>
+  <mat-divider class="my-5"></mat-divider>
+
+  <button (menuOpened)="onKonsistenzregelMenuOpened()"
+          radAccessabilityTabCircleElement
+          mat-stroked-button
+          #matMenuTrigger="matMenuTrigger"
+          [matMenuTriggerFor]="konsistenzregelMenu"
+          *ngIf="isKonsistenzregelnToggleOn">
+    <div class="display-flex" [class.italic]="selectedKonsistenzregelVerletzungsTypen.length > 0">
+      Konsistenzregeln&nbsp;<span class="grey">({{ selectedKonsistenzregelVerletzungsTypen.length }})</span>
+      <mat-icon style="margin-left: auto">arrow_drop_down</mat-icon>
+    </div>
+  </button>
+  <mat-menu #konsistenzregelMenu="matMenu" [hasBackdrop]="false">
+    <div
+      #konsistenzregelMenuInnerContainer
+      radAccessabilityTabCircleGroup
+      (keydown.tab)="$event.stopPropagation()"
+      (keydown.shift.tab)="$event.stopPropagation()"
+      (keydown.escape)="closeMenu()"
+      class="display-flex flex-column align-items-start mat-menu-container">
+      <ng-container *ngFor="let regelGruppe of alleRegelGruppen | keyvalue; let i = index">
+        <div class="mb-3 bold" [class.mt-5]="i > 0">{{ regelGruppe.key }}</div>
+        <mat-checkbox #konsistenzregelMenuItems
+                      radAccessabilityTabCircleElement
+                      (click)="$event.stopPropagation()"
+                      *ngFor="let regel of regelGruppe.value"
+                      (change)="onRegelClicked(regel)"
+                      class="konsistenzregel-selektion"
+                      [checked]="selectedKonsistenzregelVerletzungsTypen.includes(regel.verletzungsTyp)"
+        >{{ regel.titel }}
+        </mat-checkbox>
+      </ng-container>
+    </div>
+  </mat-menu>
+</div>

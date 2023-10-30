@@ -1,0 +1,33 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<rad-ol-popup [coordinate]="selectedLocation" [titel]="titel" (closePopup)="onClosePopup()">
+  <div class="display-flex flex-column align-items-start wrapper">
+    <div class="date">{{ datum | date: 'dd.MM.yy HH:mm' }}</div>
+    <!--  Der Text des Bedienhinweises wird hier durch innerText gesetzt, damit Zeilenumbrücke durch \n funktionieren-->
+    <div class="fehlerprotokoll-text" [innerText]="beschreibung"></div>
+    <a *ngIf="entityLink" [routerLink]="entityLink" queryParamsHandling="merge" class="fehlerprotokoll-text"
+      >Im Viewer anzeigen
+      <mat-icon [inline]="true">keyboard_arrow_right</mat-icon>
+    </a>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="onAddAnpassungswunsch()"
+      *ngIf="canCreateAnpassungswunsch && anpassungswunschAnlegenService"
+    >
+      <mat-icon>add</mat-icon>Anpassungswunsch erstellen
+    </button>
+  </div>
+</rad-ol-popup>

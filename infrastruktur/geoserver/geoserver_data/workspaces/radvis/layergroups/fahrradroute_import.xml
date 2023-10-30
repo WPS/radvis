@@ -1,0 +1,32 @@
+<layerGroup>
+  <id>LayerGroupInfoImpl--393575ca:1840e4cfcc8:-64a1</id>
+  <name>fahrradroute_import</name>
+  <mode>SINGLE</mode>
+  <title>Fahrradrouten Import (beide Layer)</title>
+  <workspace>
+    <id>WorkspaceInfoImpl--238e1e12:182e9c26faa:-7fff</id>
+  </workspace>
+  <internationalTitle/>
+  <internationalAbstract/>
+  <publishables>
+    <published type="layer">
+      <id>LayerInfoImpl-53bad803:1841df4a024:-7ffd</id>
+    </published>
+    <published type="layer">
+      <id>LayerInfoImpl-53bad803:1841df4a024:-7fff</id>
+    </published>
+  </publishables>
+  <styles>
+    <style/>
+    <style/>
+  </styles>
+  <bounds>
+    <minx>369528.09</minx>
+    <maxx>726869.752248585</maxx>
+    <miny>5254839.807</miny>
+    <maxy>5596814.5574790565</maxy>
+    <crs class="projected">EPSG:25832</crs>
+  </bounds>
+  <dateCreated>2022-10-25 10:02:03.841 UTC</dateCreated>
+  <dateModified>2022-10-28 11:33:11.24 UTC</dateModified>
+</layerGroup>

@@ -1,0 +1,72 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar radRightDetailsShortcut>
+  <h2 class="flex-grow">Fahrradroute erstellen</h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (save)="onSave()"
+    (resetForm)="onReset()"
+    [dirty]="formGroup.dirty"
+    [fetching]="isFetching || isRouting"
+    [disabled]="isFetching || isRouting"
+    [showHeader]="false"
+  >
+    <div class="m-5"><b>Routenverlauf</b></div>
+
+    <rad-fahrradroute-netzbezug-control class="my-10" (loading)="isRouting = $event"
+                                        formControlName="netzbezug"></rad-fahrradroute-netzbezug-control>
+    <rad-validation-error-anzeige
+      class="ml-10"
+      [errors]="formGroup.get('netzbezug')?.errors || null"
+    ></rad-validation-error-anzeige>
+    <button (click)="onOeffneHoehenprofil()" mat-stroked-button class="m-5 ">Öffne Höhenprofil</button>
+    <mat-divider></mat-divider>
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="name">
+      <div class="label">Name</div>
+      <div class="hint">{{ formGroup.get('name')?.value?.length || 0 }}/{{ MAX_LENGTH_TEXT }}</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('name')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-form-field class="mat-form-field-full-width w-100">
+      <mat-label>Beschreibung</mat-label>
+      <textarea formControlName="beschreibung" matInput></textarea>
+      <mat-hint align="end"
+      >{{ formGroup.get('beschreibung')?.value?.length || 0 }} /{{ MAX_LENGTH_BESCHREIBUNG }}</mat-hint
+      >
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="formGroup.get('beschreibung')?.errors || null">
+    </rad-validation-error-anzeige>
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="kategorieOptions"
+      class="mat-form-field-full-width"
+      formControlName="kategorie"
+    >
+      Kategorie
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('kategorie')?.errors || null"></rad-validation-error-anzeige>
+
+  </rad-attribute-editor>
+</form>

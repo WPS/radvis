@@ -1,0 +1,186 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<rad-infrastruktur-tabelle-layout
+  *ngIf="data$ | async as data"
+  [displayedColumns]="displayedColumns"
+  [titleColumnIndex]="1"
+  [selectedId]="selectedMassnahmeID$ | async"
+  [fetching]="massnahmeFilterService.fetching"
+  (selectRow)="onSelectRecord($event)"
+  [data]="data"
+  [sort]="sort"
+  [sortingDataAccessor]="sortingDataAccessor"
+  matSort
+  #sort="matSort"
+  (changeBreakpointState)="onChangeBreakpointState($event)"
+>
+  <rad-massnahme-umsetzungsstand-button-menu
+    class="action-buttons"
+    *ngIf="isBenutzerBerechtigtUmsetzungsstandsabfragenZuVerwalten"
+    [isMenuItem]="isSmallViewport"
+  >
+  </rad-massnahme-umsetzungsstand-button-menu>
+
+  <rad-export-button
+    (export)="onExport($event)"
+    [exporting]="exporting"
+    [exportFormate]="exportFormate"
+    class="action-buttons"
+    [isMenuItem]="isSmallViewport"
+  >
+  </rad-export-button>
+
+  <button
+    [routerLink]="massnahmenCreatorRoute"
+    class="create-button action-buttons"
+    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    queryParamsHandling="merge"
+    *ngIf="isBenutzerBerechtigtMassnahmenZuErstellen"
+  >
+    <mat-icon>add</mat-icon>
+    Neu anlegen
+  </button>
+
+  <button
+    class="action-buttons"
+    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    (click)="onFilterReset()"
+  >
+    <mat-icon>filter_alt_off</mat-icon>
+    Alle Filter zurücksetzen
+  </button>
+
+  <div
+    class="action-search display-flex flex-row align-self-end bereich-filter"
+    [class.bereich-filter-breit]="!isSmallViewport"
+  >
+    <rad-organisationen-dropdown-control
+      class="w-100 mat-form-field-full-width"
+      [formControl]="organisationControl"
+      [options]="(alleNonBundeslandOrganisationenOptions | async) || []"
+    >
+      Nur innerhalb Verwaltungseinheit
+    </rad-organisationen-dropdown-control>
+  </div>
+
+  <ng-container matColumnDef="massnahmeKonzeptId">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Maßnahmen-ID</span>
+    </th>
+    <td mat-cell *matCellDef="let element" class="w-medium">{{ getDisplayValue(element, 'massnahmeKonzeptId') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="bezeichnung">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Bezeichnung</span>
+    </th>
+    <td mat-cell *matCellDef="let element" class="w-huge">{{ getDisplayValue(element, 'bezeichnung') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="massnahmenkategorien">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Kategorien</span>
+    </th>
+    <td *matCellDef="let element" mat-cell class="w-huge">
+      <rad-expandable-content [content]="getDisplayValue(element, 'massnahmenkategorien')"></rad-expandable-content>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="durchfuehrungszeitraum">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Durchführungszeitraum</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'durchfuehrungszeitraum') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="umsetzungsstatus">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Umsetzungsstatus</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'umsetzungsstatus') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="umsetzungsstandStatus">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Umsetzungsstand-Status</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'umsetzungsstandStatus') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="veroeffentlicht">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Veröffentlicht</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'veroeffentlicht') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="planungErforderlich">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Planung erforderlich</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'planungErforderlich') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="prioritaet">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Priorität</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'prioritaet') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="netzklassen">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Netzklassen</span>
+    </th>
+    <td mat-cell *matCellDef="let element" class="w-medium">
+      <rad-expandable-content [content]="$any(getDisplayValue(element, 'netzklassen'))"></rad-expandable-content>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="baulastZustaendiger">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Baulastträger</span>
+    </th>
+    <td *matCellDef="let element" mat-cell class="w-large">{{ getDisplayValue(element, 'baulastZustaendiger') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="markierungsZustaendiger">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Markierungszuständige/r</span>
+    </th>
+    <td *matCellDef="let element" mat-cell class="w-large">
+      {{ getDisplayValue(element, 'markierungsZustaendiger') }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="unterhaltsZustaendiger">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Unterhaltszuständige/r</span>
+    </th>
+    <td *matCellDef="let element" mat-cell class="w-large">{{ getDisplayValue(element, 'unterhaltsZustaendiger') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="letzteAenderung">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Letzte Änderung</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'letzteAenderung') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="benutzerLetzteAenderung">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>BenutzerIn der letzten Änderung</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'benutzerLetzteAenderung') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="sollStandard">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Soll-Standard</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'sollStandard') }}</td>
+  </ng-container>
+  <ng-container matColumnDef="handlungsverantwortlicher">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+      <span rad-filter-header>Wer soll tätig werden?</span>
+    </th>
+    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'handlungsverantwortlicher') }}</td>
+  </ng-container>
+</rad-infrastruktur-tabelle-layout>

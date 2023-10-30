@@ -1,0 +1,90 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div mat-dialog-title>
+  <div class="display-flex justify-content-space-between">
+    <div>Routing-Profile verwalten</div>
+    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" mat-dialog-close="true" mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+<div class="display-flex flex-column align-items-center" mat-dialog-content>
+  <div class="accordion-container">
+    <mat-accordion
+      *ngFor="let formGroup of formArrayAsFormGroupArray; let index = index"
+      [@.disabled]="disableAnimation"
+    >
+      <!-- keine id bedeutet es handelt sich um einen neuen Layer-->
+      <mat-expansion-panel [expanded]="!formGroup.get('id')?.value">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ formGroup.get('name')?.value }}</mat-panel-title>
+          <mat-panel-description *ngIf="formGroup.invalid">(enthält Fehler)</mat-panel-description>
+          <div class="display-flex justify-content-flex-end delete-button">
+            <button
+              (click)="onDeleteProfile(index)"
+              [attr.aria-label]="'Profil entfernen'"
+              mat-icon-button
+              matTooltip="Profil entfernen"
+              type="button"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-expansion-panel-header>
+
+        <form [formGroup]="formGroup">
+          <rad-text-input-control formControlName="name">
+            <div class="label">Name des Routing-Profils</div>
+          </rad-text-input-control>
+          <rad-validation-error-anzeige [errors]="formGroup.get('name')?.errors || null"></rad-validation-error-anzeige>
+
+          <rad-text-input-control [asTextarea]="true" formControlName="profilJson" [rows]="10">
+            <div class="label">JSON-Definition des Routing-Profils</div>
+            <div class="suffix">
+              <button
+                (click)="prettyPrint(index)"
+                [attr.aria-label]="'JSON-Definition formatieren'"
+                [disabled]="!formGroup.get('profilJson')?.valid"
+                mat-icon-button
+                matTooltip="JSON-Definition formatieren"
+              >
+                <mat-icon>format_color_text</mat-icon>
+              </button>
+            </div>
+          </rad-text-input-control>
+          <rad-validation-error-anzeige
+            [errors]="formGroup.get('profilJson')?.errors || null"
+          ></rad-validation-error-anzeige>
+        </form>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>
+<span class="hinweis">
+  Eine Anleitung zum Schreiben der JSON-Definition ist im
+  <a href="javascript:void(0);" (click)="onOpenHandbuch()">Handbuch</a>
+  zu finden.
+</span>
+<div class="buttons display-flex justify-content-flex-end" mat-dialog-actions>
+  <button (click)="onAddProfile()" color="primary" mat-stroked-button>
+    <mat-icon>add</mat-icon>
+    Hinzufügen
+  </button>
+  <div class="flex-grow"></div>
+  <button [disabled]="saving" mat-dialog-close="false" mat-stroked-button type="button">Abbrechen</button>
+  <rad-action-button (action)="onSave()" [dirty]="profileFormArray.dirty" [waiting]="saving">
+    Speichern
+  </rad-action-button>
+</div>

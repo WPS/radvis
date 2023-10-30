@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>frontend</artifactId>
+  <!-- simple project creating a ZIP archive using assembly, not a WAR -->
+  <packaging>jar</packaging>
+
+  <name>RADVIS - Web Frontend</name>
+
+  <parent>
+    <groupId>de.wps.radvis</groupId>
+    <artifactId>application</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../</relativePath>
+  </parent>
+
+  <properties>
+    <node.version>v14.21.3</node.version>
+    <npm.version>6.14.18</npm.version>
+    <ng-lint-phase>none</ng-lint-phase>
+    <ng-build-phase>none</ng-build-phase>
+    <ng-install-phase>none</ng-install-phase>
+    <ng-version-phase>none</ng-version-phase>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>ng-lint</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <ng-lint-phase>process-resources</ng-lint-phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>ng-build</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <ng-build-phase>generate-resources</ng-build-phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>ng-version</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <ng-version-phase>generate-resources</ng-version-phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>ng-install</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <ng-install-phase>initialize</ng-install-phase>
+      </properties>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>assembly.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>dist</directory>
+              <includes>
+                <include>*</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.5</version>
+        <configuration>
+          <workingDirectory>radvis</workingDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <npmVersion>${npm.version}</npmVersion>
+            </configuration>
+            <phase>${ng-install-phase}</phase>
+          </execution>
+
+          <execution>
+            <id>set npm package version from maven</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>version --allow-same-version ${project.version}</arguments>
+            </configuration>
+            <phase>${ng-install-phase}</phase>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>ci --cache .npm/ --prefer-offline --no-audit</arguments>
+            </configuration>
+            <phase>${ng-install-phase}</phase>
+          </execution>
+
+          <execution>
+            <id>npm-ng-version</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run ng version</arguments>
+            </configuration>
+            <phase>${ng-version-phase}</phase>
+          </execution>
+
+          <execution>
+            <id>npm-lint</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run lint</arguments>
+            </configuration>
+            <phase>${ng-lint-phase}</phase>
+          </execution>
+
+          <execution>
+            <id>npm-test</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run test-ci</arguments>
+            </configuration>
+            <phase>test</phase>
+          </execution>
+
+          <execution>
+            <id>npm-build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run build-prod</arguments>
+            </configuration>
+            <phase>${ng-build-phase}</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

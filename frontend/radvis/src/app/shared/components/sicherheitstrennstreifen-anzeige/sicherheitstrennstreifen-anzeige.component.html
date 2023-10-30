@@ -1,0 +1,55 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div
+  class="trennstreifen"
+  [class.selected]="selectedSeite === seiteLinks"
+  [class.badge]="linksDirty"
+  (click)="onTrennstreifenClicked(seiteLinks)"
+  [matTooltip]="'Sicherheitstrennstreifen ' + seiteLinks"
+>
+  <span class="trennstreifen-label">{{ seiteLinks }}</span>
+</div>
+<div class="radweg">
+  <span class="radweg-arrow" *ngIf="richtung === Richtung.IN_RICHTUNG" matTooltip="Fahrradweg in Stationierungsrichtung"
+    ><mat-icon>north</mat-icon></span
+  >
+  <span
+    class="radweg-arrow"
+    *ngIf="richtung === Richtung.GEGEN_RICHTUNG"
+    matTooltip="Fahrradweg gegen die Stationierungsrichtung"
+    ><mat-icon>south</mat-icon></span
+  >
+  <span class="radweg-arrow" *ngIf="richtung === Richtung.BEIDE_RICHTUNGEN" matTooltip="Fahrradweg in beide Richtungen"
+    ><mat-icon>south</mat-icon><mat-icon>north</mat-icon></span
+  >
+  <span
+    class="radweg-arrow-unknown"
+    *ngIf="!richtung || richtung === Richtung.UNBEKANNT"
+    matTooltip="Fahrradweg mit unbekannter oder nicht eindeutiger Fahrtrichtung"
+    >?</span
+  >
+</div>
+<div
+  class="trennstreifen"
+  [class.selected]="selectedSeite === seiteRechts"
+  [class.badge]="rechtsDirty"
+  (click)="onTrennstreifenClicked(seiteRechts)"
+  [matTooltip]="'Sicherheitstrennstreifen ' + seiteRechts"
+>
+  <span class="trennstreifen-label">{{ seiteRechts }}</span>
+</div>
+<div *ngIf="hasStationierungsrichtungspfeil" class="stationierungsrichtungspfeil" matTooltip="Stationierungsrichtung">
+  ↑
+</div>

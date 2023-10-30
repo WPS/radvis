@@ -1,0 +1,137 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<mat-toolbar radRightDetailsShortcut>
+  <h2 class="flex-grow">Furt/Kreuzung <span *ngIf="isCreator">erstellen</span></h2>
+  <button
+    [attr.aria-label]="'Schließen'"
+    matTooltip="Schließen"
+    (click)="onClose()"
+    mat-icon-button
+  >
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-toolbar>
+<form [formGroup]="formGroup" class="form-group">
+  <rad-attribute-editor
+    (dismiss)="onClose()"
+    (resetForm)="onReset()"
+    (save)="onSave()"
+    [dirty]="isDirty"
+    [fetching]="isFetching"
+    [showHeader]="false"
+    [canEdit]="isCreator || currentFurtKreuzung?.benutzerDarfBearbeiten || false"
+  >
+    <rad-netzbezug-selektion-control
+      [selectedId]="selectedId"
+      [layerId]="FURTEN_KREUZUNGEN.name"
+      formControlName="netzbezug"
+      class="mt-10 mb-10"
+    ></rad-netzbezug-selektion-control>
+    <rad-organisationen-dropdown-control
+      formControlName="verantwortlicheOrganisation"
+      [options]="(alleOrganisationen$ | async) || []"
+    >
+      Verantwortliche Organisation
+    </rad-organisationen-dropdown-control>
+    <rad-validation-error-anzeige
+      [errors]="formGroup.get('verantwortlicheOrganisation')?.errors || null"
+    ></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [nullable]="false"
+      [options]="typOptions"
+      class="mat-form-field-full-width"
+      formControlName="typ"
+    >
+      Typ
+    </rad-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('typ')?.errors || null"></rad-validation-error-anzeige>
+
+    <rad-grouped-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="knotenForm"
+      [groupedOptions]="knotenFormOptions"
+    >
+      Knotenform
+    </rad-grouped-enum-dropdown-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('knotenForm')?.errors || null"></rad-validation-error-anzeige>
+
+    <mat-checkbox formControlName="radnetzKonform" class="mb-2"> RadNETZ-konform</mat-checkbox>
+
+    <rad-autocomplete-enum-dropdown-control
+      class="mat-form-field-full-width"
+      formControlName="furtKreuzungMusterloesung"
+      [options]="(musterloesungOptions$ | async) ?? []"
+    >
+      Musterlösung
+    </rad-autocomplete-enum-dropdown-control>
+
+    <rad-text-input-control class="mat-form-field-full-width" formControlName="kommentar" [asTextarea]="true">
+      <div class="label">Kommentar</div>
+    </rad-text-input-control>
+    <rad-validation-error-anzeige [errors]="formGroup.get('kommentar')?.errors || null"></rad-validation-error-anzeige>
+    <!--      ################ LSA ###################-->
+    <ng-container formGroupName="lichtsignalAnlageEigenschaften" *ngIf="isLSAKnotenForm">
+      <div class="bold mb-6 mt-6">Eigenschaften der Lichtsignalanlage</div>
+      <mat-checkbox formControlName="fahrradSignal" class="mb-2"> Fahrradsignal</mat-checkbox>
+      <mat-checkbox formControlName="gruenVorlauf" class="mb-2"> Grünvorlauf</mat-checkbox>
+      <mat-checkbox formControlName="getrenntePhasen" class="mb-2"> Getrennte Phasen</mat-checkbox>
+      <rad-enum-dropdown-control
+        class="mat-form-field-full-width"
+        [nullable]="false"
+        [options]="rechtsabbiegerOptions"
+        formControlName="rechtsabbieger"
+      >
+        Rechtsabbieger
+      </rad-enum-dropdown-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('rechtsabbieger')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <rad-enum-dropdown-control
+        class="mat-form-field-full-width"
+        [nullable]="false"
+        [options]="linksabbiegerOptions"
+        formControlName="linksabbieger"
+      >
+        Linksabbieger
+      </rad-enum-dropdown-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('linksabbieger')?.errors || null"
+      ></rad-validation-error-anzeige>
+
+      <mat-checkbox formControlName="vorgezogeneHalteLinie" class="mb-2"> Vorgezogene Haltelinie</mat-checkbox>
+      <mat-checkbox formControlName="radAufstellflaeche" class="mb-2"> Rad-Aufstellfläche</mat-checkbox>
+      <rad-enum-dropdown-control
+        class="mat-form-field-full-width"
+        [nullable]="false"
+        [options]="gruenAnforderungOptions"
+        formControlName="gruenAnforderung"
+      >
+        Grünanforderung
+      </rad-enum-dropdown-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('gruenAnforderung')?.errors || null"
+      ></rad-validation-error-anzeige>
+      <rad-text-input-control class="mat-form-field-full-width w-100" formControlName="umlaufzeit">
+        <div class="label">Umlaufzeit</div>
+        <div class="suffix">Sekunden</div>
+      </rad-text-input-control>
+      <rad-validation-error-anzeige
+        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('umlaufzeit')?.errors || null"
+      ></rad-validation-error-anzeige>
+    </ng-container>
+  </rad-attribute-editor>
+</form>

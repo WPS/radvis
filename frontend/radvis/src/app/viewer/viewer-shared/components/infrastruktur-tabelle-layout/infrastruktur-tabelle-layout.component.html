@@ -1,0 +1,84 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="toolbar display-flex align-items-center">
+  <button *ngIf="isSmallViewport" mat-stroked-button [matMenuTriggerFor]="weitereAktionenMenu">
+    <mat-icon>expand_more</mat-icon>
+    Weitere Aktionen
+  </button>
+  <mat-menu #weitereAktionenMenu="matMenu">
+    <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+  </mat-menu>
+  <ng-container *ngIf="!isSmallViewport">
+    <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+  </ng-container>
+  <ng-content select=".action-search"></ng-content>
+</div>
+
+<ng-template #contentTpl><ng-content select=".action-buttons"></ng-content></ng-template>
+
+<div class="table-wrapper">
+  <table mat-table [dataSource]="dataSource" class="infrastruktur-tabelle-layout">
+    <ng-content select="th"></ng-content>
+    <ng-container matColumnDef="bearbeiten">
+      <th mat-header-cell *matHeaderCellDef class="anzeigen-cell"></th>
+      <td *matCellDef="let row" mat-cell class="anzeigen-cell">
+        <button
+          [attr.aria-label]="
+            titleColumnPrefix + ' ' + row[displayedColumns[titleColumnIndex]] + ' in der rechten Seitenleiste anzeigen'
+          "
+          aria-description="Sprung zur rechten Seitenleiste mit den geöffneten Details ist mittels Strg+Alt+Shift+D möglich."
+          mat-flat-button
+          color="primary"
+          class="anzeigen-button"
+        >
+          {{ 'Öffnen' }}
+        </button>
+      </td>
+    </ng-container>
+    <tr
+      aria-label="Filterbereich"
+      aria-keyshortcuts="Control+Alt+Shift+F"
+      mat-header-row
+      #filterBereich
+      *matHeaderRowDef="displayedColumnsWithEdit; sticky: true"
+    ></tr>
+    <tr
+      aria-keyshortcuts="Control+Alt+Shift+I"
+      mat-row
+      #tabellenInhalt
+      *matRowDef="let row; columns: displayedColumnsWithEdit"
+      (click)="onSelectRecord(row)"
+      [class.highlighted]="row.id === selectedId"
+    ></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="displayedColumnsWithEdit.length">
+        <div *ngIf="fetching" class="display-flex align-items-center mt-10 mb-10">
+          <mat-spinner color="primary" class="mr-10" diameter="24"></mat-spinner>
+          Daten werden geladen...
+        </div>
+
+        <div *ngIf="!fetching" class="mt-10 mb-10">Keine Daten gefunden.</div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div [hidden]="dataSource.data.length === 0" class="pagination-container">
+  <mat-paginator
+    [pageSizeOptions]="[10, 20, 50]"
+    showFirstLastButtons
+    [attr.aria-label]="'Seite wählen'"
+  ></mat-paginator>
+</div>

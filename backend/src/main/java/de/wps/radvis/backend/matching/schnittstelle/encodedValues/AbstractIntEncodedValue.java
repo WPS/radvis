@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+package de.wps.radvis.backend.matching.schnittstelle.encodedValues;
+
+import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.UnsignedIntEncodedValue;
+import com.graphhopper.storage.IntsRef;
+
+// 20 bits = etwas über 1mio., was i.d.R. groß genug ist.
+public abstract class AbstractIntEncodedValue {
+	public static UnsignedIntEncodedValue create(String encodedValueKey) {
+		return new UnsignedIntEncodedValue(encodedValueKey, 20, false);
+	}
+
+	public static UnsignedIntEncodedValue createSeitenbezogen(String encodedValueKey) {
+		return new UnsignedIntEncodedValue(encodedValueKey, 20, true);
+	}
+
+	public static Integer find(String value) {
+		return Integer.parseInt(value);
+	}
+
+	public static void apply(EncodedValue encodedValue, ReaderWay way, String osmTagKey, IntsRef intsRef) {
+		boolean seitenbezogen = encodedValue.isStoreTwoDirections();
+
+		if (!seitenbezogen) {
+			if (way.hasTag(osmTagKey)) {
+				final Integer wayTag = find(way.getTag(osmTagKey));
+				((UnsignedIntEncodedValue) encodedValue).setInt(false, intsRef, wayTag);
+			}
+		} else {
+			if (way.hasTag(osmTagKey)) {
+				final Integer wayTag = find(way.getTag(osmTagKey));
+				((UnsignedIntEncodedValue) encodedValue).setInt(false, intsRef, wayTag);
+				((UnsignedIntEncodedValue) encodedValue).setInt(true, intsRef, wayTag);
+			}
+			if (way.hasTag(osmTagKey + ":right")) {
+				final Integer wayTag = find(way.getTag(osmTagKey + ":right"));
+				((UnsignedIntEncodedValue) encodedValue).setInt(false, intsRef, wayTag);
+			}
+			if (way.hasTag(osmTagKey + ":left")) {
+				final Integer wayTag = find(way.getTag(osmTagKey + ":left"));
+				((UnsignedIntEncodedValue) encodedValue).setInt(true, intsRef, wayTag);
+			}
+		}
+	}
+}

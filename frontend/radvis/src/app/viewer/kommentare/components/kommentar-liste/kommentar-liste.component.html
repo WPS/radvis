@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="keine-kommentare hinweis" *ngIf="kommentarListe.length === 0">Es wurden noch keine Kommentare
+  hinterlassen.
+</div>
+<div #kommentarListeContainer class="display-flex flex-column align-items-start overflow-auto pb-10">
+  <mat-card
+    *ngFor="let kommentar of kommentarListe"
+    [class.align-self-end]="kommentar.fromLoggedInUser"
+    class="mx-10 mt-10 kommentar"
+    [class.fremd]="!kommentar.fromLoggedInUser"
+  >
+    <mat-card-subtitle *ngIf="!kommentar.fromLoggedInUser">{{ kommentar.benutzer }}</mat-card-subtitle>
+    <mat-card-content [innerText]="kommentar.kommentarText" style="overflow-x: auto"></mat-card-content>
+    <mat-card-footer class="hinweis">{{ kommentar.datum | date: 'dd.MM.yy HH:mm' }}</mat-card-footer>
+  </mat-card>
+</div>
+
+<rad-kommentar-hinzufuegen
+  #kommentarHinzufuegen
+  (sendKommentar)="sendKommentar($event)"
+  class="mat-elevation-z8"
+></rad-kommentar-hinzufuegen>

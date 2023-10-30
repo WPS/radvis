@@ -1,0 +1,473 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+  <changeSet id="RAD-4492" author="rw+lb">
+    <createTable tableName="barriere">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="netzbezug" type="BIGINT"/>
+      <column name="verantwortlich_id" type="BIGINT"/>
+    </createTable>
+    <createTable tableName="barriere_aud">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="netzbezug" type="BIGINT"/>
+      <column name="verantwortlich_id" type="BIGINT"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+    <createTable tableName="barriere_knoten">
+      <column name="barriere_id" type="BIGINT"/>
+      <column name="knoten_id" type="BIGINT"/>
+    </createTable>
+    <createTable tableName="barriere_knoten_aud">
+      <column name="barriere_id" type="BIGINT"/>
+      <column name="knoten_id" type="BIGINT"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+    <createTable tableName="barriere_kantenpunkte">
+      <column name="barriere_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="lineare_referenz" type="float8"/>
+    </createTable>
+    <createTable tableName="barriere_kantenpunkte_aud">
+      <column name="barriere_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="lineare_referenz" type="float8"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="setordinal" type="INTEGER"/>
+    </createTable>
+    <createTable tableName="barriere_kantenseitenabschnitte">
+      <column name="barriere_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+    </createTable>
+    <createTable tableName="barriere_kantenseitenabschnitte_aud">
+      <column name="barriere_id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="setordinal" type="INTEGER"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="barriere_kantenpunkte" baseColumnNames="kante_id"
+      constraintName="fk_barriere_kantenpunkte_kante_id"
+      referencedTableName="kante"
+      referencedColumnNames="id"/>
+    <createIndex tableName="barriere_kantenpunkte" indexName="fk_barriere_kantenpunkte_kante_id_idx">
+      <column name="kante_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="barriere_kantenseitenabschnitte" baseColumnNames="kante_id"
+      constraintName="fk_barriere_kantenseitenabschnitte_kante_id"
+      referencedTableName="kante"
+      referencedColumnNames="id"/>
+    <createIndex tableName="barriere_kantenseitenabschnitte"
+      indexName="fk_barriere_kantenseitenabschnitte_kante_id_idx">
+      <column name="kante_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="barriere_knoten" baseColumnNames="knoten_id"
+      constraintName="fk_barriere_knoten_knoten_id"
+      referencedTableName="knoten"
+      referencedColumnNames="id"/>
+    <createIndex tableName="barriere_knoten" indexName="fk_barriere_knoten_knoten_id_idx">
+      <column name="knoten_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-4223" author="kho">
+    <createTable tableName="furt_kreuzung">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="verantwortliche_organisation_id" type="bigint"/>
+    </createTable>
+    <createTable tableName="furt_kreuzung_aud">
+      <column name="id" type="BIGINT"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="verantwortliche_organisation_id" type="bigint"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+
+    <createTable tableName="furt_kreuzung_knoten">
+      <column name="furt_kreuzung_id" type="bigint"/>
+      <column name="knoten_id" type="bigint"/>
+    </createTable>
+    <createTable tableName="furt_kreuzung_knoten_aud">
+      <column name="furt_kreuzung_id" type="bigint"/>
+      <column name="knoten_id" type="bigint"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="furt_kreuzung_knoten" baseColumnNames="knoten_id"
+      constraintName="fk_furt_kreuzung_knoten_knoten_id"
+      referencedTableName="knoten"
+      referencedColumnNames="id"/>
+    <createIndex tableName="furt_kreuzung_knoten" indexName="fk_furt_kreuzung_knoten_knoten_id_idx">
+      <column name="knoten_id"/>
+    </createIndex>
+
+    <createTable tableName="furt_kreuzung_kantenpunkte">
+      <column name="furt_kreuzung_id" type="bigint"/>
+      <column name="kante_id" type="bigint"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="lineare_referenz" type="float8"/>
+    </createTable>
+    <createTable tableName="furt_kreuzung_kantenpunkte_aud">
+      <column name="furt_kreuzung_id" type="bigint"/>
+      <column name="kante_id" type="bigint"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="lineare_referenz" type="float8"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="setordinal" type="integer"/>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="furt_kreuzung_kantenpunkte"
+      baseColumnNames="kante_id"
+      constraintName="fk_furt_kreuzung_kantenpunkte_kante_id"
+      referencedTableName="kante"
+      referencedColumnNames="id"/>
+    <createIndex
+      tableName="furt_kreuzung_kantenpunkte"
+      indexName="fk_furt_kreuzung_kantenpunkte_kante_id_idx">
+      <column name="kante_id"/>
+    </createIndex>
+
+    <createTable tableName="furt_kreuzung_kantenseitenabschnitte">
+      <column name="furt_kreuzung_id" type="bigint"/>
+      <column name="kante_id" type="bigint"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+    </createTable>
+    <createTable tableName="furt_kreuzung_kantenseitenabschnitte_aud">
+      <column name="furt_kreuzung_id" type="bigint"/>
+      <column name="kante_id" type="bigint"/>
+      <column name="seitenbezug" type="VARCHAR(255)"/>
+      <column name="von" type="float8"/>
+      <column name="bis" type="float8"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="setordinal" type="integer"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="furt_kreuzung_kantenseitenabschnitte" baseColumnNames="kante_id"
+      constraintName="fk_furt_kreuzung_kantenseitenabschnitte_kante_id"
+      referencedTableName="kante"
+      referencedColumnNames="id"/>
+    <createIndex tableName="furt_kreuzung_kantenseitenabschnitte"
+      indexName="fk_furt_kreuzung_kantenseitenabschnitte_kante_id_idx">
+      <column name="kante_id"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="RAD-4525" author="rw">
+    <addColumn tableName="furt_kreuzung">
+      <column name="typ" type="VARCHAR(255)"/>
+      <column name="radnetz_konform" type="BOOLEAN"/>
+      <column name="kommentar" type="VARCHAR(1000)"/>
+      <column name="knoten_form" type="VARCHAR(255)"/>
+    </addColumn>
+    <addColumn tableName="furt_kreuzung_aud">
+      <column name="typ" type="VARCHAR(255)"/>
+      <column name="radnetz_konform" type="BOOLEAN"/>
+      <column name="kommentar" type="VARCHAR(1000)"/>
+      <column name="knoten_form" type="VARCHAR(255)"/>
+    </addColumn>
+
+  </changeSet>
+  <changeSet id="RAD-4457" author="tir">
+    <createTable tableName="konsistenzregel_verletzung">
+      <column name="id" type="BIGINT">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="konsistenzregelverletzung_pkey"/>
+      </column>
+      <column name="position" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+      <column name="original_geometry" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+      <column name="datum" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="titel" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="beschreibung" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="typ" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="konsistenzregel_verletzung_aud">
+      <column name="id" type="BIGINT"/>
+      <column name="position" type="GEOMETRY"/>
+      <column name="original_geometry" type="GEOMETRY"/>
+      <column name="datum" type="timestamp"/>
+      <column name="titel" type="VARCHAR(255)"/>
+      <column name="beschreibung" type="text"/>
+      <column name="typ" type="VARCHAR(255)"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-2665" author="kho">
+    <createTable tableName="externer_layer">
+      <column name="id" type="bigint"/>
+      <column name="name" type="varchar(255)"/>
+      <column name="url" type="text"/>
+      <column name="farbe" type="varchar(50)"/>
+      <column name="typ" type="varchar(3)"/>
+      <column name="benutzer_id" type="bigint"/>
+    </createTable>
+  </changeSet>
+  <changeSet id="RAD-4597" author="rw">
+    <modifyDataType
+      columnName="kommentar"
+      newDataType="VARCHAR(2000)"
+      schemaName="public"
+      tableName="furt_kreuzung"/>
+    <modifyDataType
+      columnName="kommentar"
+      newDataType="VARCHAR(2000)"
+      schemaName="public"
+      tableName="furt_kreuzung_aud"/>
+  </changeSet>
+  <changeSet id="RAD-4525-2" author="mr">
+    <sql>UPDATE furt_kreuzung
+         SET radnetz_konform= false,
+             knoten_form='SONSTIGER_KNOTEN',
+             typ='KREUZUNG'</sql>
+    <sql>UPDATE furt_kreuzung_aud
+         SET radnetz_konform= false,
+             knoten_form='SONSTIGER_KNOTEN',
+             typ='KREUZUNG'</sql>
+  </changeSet>
+  <changeSet id="RAD-4598" author="rw">
+    <sql>UPDATE furt_kreuzung
+         SET typ='FURT'
+         WHERE typ = 'FURTE'</sql>
+    <sql>UPDATE furt_kreuzung_aud
+         SET typ='FURT'
+         WHERE typ = 'FURTE'</sql>
+  </changeSet>
+  <changeSet id="RAD-2665" author="tr">
+    <addPrimaryKey columnNames="id" tableName="externer_layer"/>
+    <addForeignKeyConstraint baseTableName="externer_layer" baseColumnNames="benutzer_id"
+      constraintName="fk_externer_layer_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+    <createIndex tableName="externer_layer" indexName="fk_externer_layer_benutzer_id_idx">
+      <column name="benutzer_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-4591" author="mr">
+	<sql>UPDATE job_execution_description SET
+		name='ProfilInformationenUpdateJob' WHERE
+		name='ProfiInformationenUpdateJob'</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-4586" author="mr">
+	<addColumn tableName="furt_kreuzung">
+		<column name="musterloesung" type="varchar(50)"></column>
+	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-4586-2" author="mr">
+	<addColumn tableName="furt_kreuzung_aud">
+		<column name="musterloesung" type="varchar(50)"></column>
+	</addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4508" author="bw">
+    <sql>
+      ALTER TABLE tt_sib_abschnitt_oder_ast
+        ADD COLUMN strassenklasse varchar(10)
+          GENERATED ALWAYS AS (attribute::json ->> 'klasse') STORED;
+    </sql>
+  </changeSet>
+  <changeSet id="RAD-4528" author="par">
+    <addColumn tableName="barriere">
+      <column name="barrieren_form" type="VARCHAR(255)"/>
+      <column name="verbleibende_durchfahrtsbreite" type="VARCHAR(255)"/>
+      <column name="sicherung" type="VARCHAR(255)"/>
+      <column name="markierung" type="VARCHAR(255)"/>
+      <column name="begruendung" type="VARCHAR(2000)"/>
+    </addColumn>
+    <addColumn tableName="barriere_aud">
+      <column name="barrieren_form" type="VARCHAR(255)"/>
+      <column name="verbleibende_durchfahrtsbreite" type="VARCHAR(255)"/>
+      <column name="sicherung" type="VARCHAR(255)"/>
+      <column name="markierung" type="VARCHAR(255)"/>
+      <column name="begruendung" type="VARCHAR(2000)"/>
+    </addColumn>
+    <update tableName="barriere">
+      <column name="barrieren_form" value="SONSTIGE_BARRIERE"/>
+    </update>
+  </changeSet>
+
+  <changeSet id="RAD-4588" author="bw">
+    <createTable tableName="tt_sib_fahrradweg">
+      <column name="id" type="BIGINT" />
+      <column name="geometry" type="GEOMETRY" />
+      <column name="attribute" type="text" />
+    </createTable>
+    <addPrimaryKey columnNames="id" tableName="tt_sib_fahrradweg" />
+  </changeSet>
+
+  <changeSet id="RAD-4650" author="mr">
+	<addColumn tableName="konsistenzregel_verletzung">
+		<column name="identity" type="varchar(255)"></column>
+	</addColumn>
+	<addColumn tableName="konsistenzregel_verletzung_aud">
+		<column name="identity" type="varchar(255)"></column>
+	</addColumn>
+	<sql>
+		UPDATE konsistenzregel_verletzung kv1 SET identity=(SELECT id FROM
+		konsistenzregel_verletzung kv2 WHERE kv1=kv2);
+		UPDATE konsistenzregel_verletzung_aud kv1 SET identity=(SELECT id FROM
+		konsistenzregel_verletzung_aud kv2 WHERE kv1=kv2);
+	</sql>
+	<addNotNullConstraint
+		tableName="konsistenzregel_verletzung" columnName="identity" />
+  </changeSet>
+
+  <changeSet id="RAD-4510" author="bw">
+    <addColumn tableName="externer_layer">
+      <column name="deckkraft" type="float8" />
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4510-2" author="mr">
+    <sql>
+      UPDATE externer_layer
+      SET deckkraft=1.0
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-4619" author="mr">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public" />
+      <column name="table_name" value="geoserver_konsistenzregel_verletzung_view" />
+      <column name="pk_column" value="id" />
+    </insert>
+  </changeSet>
+  
+  <changeSet id="RAD-4640" author="mr">
+	<addColumn tableName="organisation">
+	  <column type="varchar(255)" name="dtype" />
+	</addColumn>
+	<sql>
+		UPDATE organisation SET dtype='Gebietskoerperschaft' WHERE organisations_art
+		in ('REGIERUNGSBEZIRK','KREIS','GEMEINDE','BUNDESLAND');
+		UPDATE organisation SET dtype='Organisation' WHERE organisations_art in
+		('SONSTIGES','REGIONALVERBAND','EXTERNER_DIENSTLEISTER','TOURISMUSVERBAND');
+	</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-4640-2" author="mr">
+	<createTable
+		tableName="organisation_zustaendig_fuer_bereich_of">
+		<column name="organisation_id" type="bigint"></column>
+		<column name="zustaendig_fuer_bereich_of_id" type="bigint"></column>
+	</createTable>
+	<addForeignKeyConstraint
+		constraintName="fk_zustaendigkeit_bereich_organisation_1"
+		referencedTableName="organisation" baseColumnNames="organisation_id"
+		baseTableName="organisation_zustaendig_fuer_bereich_of"
+		referencedColumnNames="id" />
+	<addForeignKeyConstraint
+		constraintName="fk_zustaendigkeit_bereich_organisation_2"
+		referencedTableName="organisation"
+		baseColumnNames="zustaendig_fuer_bereich_of_id"
+		baseTableName="organisation_zustaendig_fuer_bereich_of"
+		referencedColumnNames="id" />
+	<createIndex
+		tableName="organisation_zustaendig_fuer_bereich_of"
+		indexName="organisation_idx">
+		<column name="organisation_id"></column>
+	</createIndex>
+  </changeSet>
+  
+  <changeSet id="RAD-4640-3" author="mr">
+	<addColumn tableName="organisation">
+		<column name="version" type="bigint"></column>
+	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-4640-4" author="mr">
+    <sql>UPDATE organisation SET version=1</sql>
+  </changeSet>
+
+  <changeSet id="RAD-4550" author="kho">
+    <addColumn tableName="organisation">
+      <column name="aktiv" type="boolean" />
+    </addColumn>
+    <sql>UPDATE organisation SET aktiv=true</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-4761" author="sm">
+    <addColumn tableName="externer_layer">
+      <column name="zoomstufe" type="float8" />
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4761-2" author="sm">
+    <sql>UPDATE externer_layer SET zoomstufe=6 WHERE zoomstufe IS NULL</sql>
+  </changeSet>
+
+  <changeSet id="RAD-4672" author="par">
+    <addColumn tableName="furt_kreuzung">
+      <column name="fahrrad_signal" type="BOOLEAN" />
+      <column name="gruen_vorlauf" type="BOOLEAN" />
+      <column name="getrennte_phasen" type="BOOLEAN" />
+      <column name="rechtsabbieger" type="VARCHAR(255)" />
+      <column name="linksabbieger" type="VARCHAR(255)" />
+      <column name="vorgezogene_halte_linie" type="BOOLEAN" />
+      <column name="rad_aufstellflaeche" type="BOOLEAN" />
+      <column name="gruen_anforderung" type="VARCHAR(255)" />
+      <column name="umlaufzeit" type="INTEGER" />
+    </addColumn>
+    <addColumn tableName="furt_kreuzung_aud">
+      <column name="fahrrad_signal" type="BOOLEAN" />
+      <column name="gruen_vorlauf" type="BOOLEAN" />
+      <column name="getrennte_phasen" type="BOOLEAN" />
+      <column name="rechtsabbieger" type="VARCHAR(255)" />
+      <column name="linksabbieger" type="VARCHAR(255)" />
+      <column name="vorgezogene_halte_linie" type="BOOLEAN" />
+      <column name="rad_aufstellflaeche" type="BOOLEAN" />
+      <column name="gruen_anforderung" type="VARCHAR(255)" />
+      <column name="umlaufzeit" type="INTEGER" />
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="addPrimaryKeys" author="bw">
+    <addPrimaryKey tableName="barriere" columnNames="id" constraintName="pk_barriere_id" />
+    <addPrimaryKey tableName="furt_kreuzung" columnNames="id" constraintName="pk_furt_kreuzung_id" />
+  </changeSet>
+</databaseChangeLog>

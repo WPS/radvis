@@ -1,0 +1,76 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/colors';
+@import 'src/style/spacing';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media print {
+  .toolbar {
+    display: none;
+  }
+}
+
+.toolbar {
+  box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
+  margin-bottom: $shadow-spacing;
+  padding: 0.4rem 0.8rem 0.8rem 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.toolbar ::ng-deep > .action-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.table-wrapper {
+  overflow: auto;
+  flex-grow: 1;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+}
+
+tr:hover {
+  &.highlighted {
+    background-color: map-get($radvis-accent-palette, 200);
+  }
+
+  background-color: map-get($grayscale, 100);
+  cursor: pointer;
+}
+
+tr.highlighted {
+  background-color: map-get($radvis-accent-palette, 100);
+}
+
+.infrastruktur-tabelle-layout::ng-deep td.mat-cell:not(:last-of-type) {
+  padding-right: 0.5rem;
+}
+
+.anzeigen-cell {
+  width: 5rem;
+}
+
+.anzeigen-button {
+  width: 100%;
+}

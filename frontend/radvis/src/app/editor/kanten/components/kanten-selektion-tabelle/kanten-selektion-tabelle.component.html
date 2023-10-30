@@ -1,0 +1,68 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<table>
+  <tbody>
+    <ng-container *ngFor="let s of selektion">
+      <tr>
+        <td
+          *ngIf="!s.kante.zweiseitig"
+          colspan="2"
+          (blur)="onTabelleHover(false, s.kante.id)"
+          (focus)="onTabelleHover(true, s.kante.id)"
+          radHover
+          (hover)="onTabelleHover($event, s.kante.id)"
+          class="element"
+          [class.hovered]="isHovered(s.kante.id)"
+          tabindex="0"
+        >
+          <div class="display-flex align-items-center justify-content-center">
+            <mat-checkbox [checked]="true" (click)="onSelect(s.kante.id)"></mat-checkbox>
+          </div>
+        </td>
+        <td
+          *ngIf="s.kante.zweiseitig"
+          (blur)="onTabelleHover(false, s.kante.id, LINKS)"
+          (focus)="onTabelleHover(true, s.kante.id, LINKS)"
+          radHover
+          (hover)="onTabelleHover($event, s.kante.id, LINKS)"
+          class="element"
+          [class.hovered]="isHovered(s.kante.id, LINKS)"
+          tabindex="0"
+        >
+          <div class="display-flex align-items-center justify-content-center">
+            <mat-checkbox (click)="onSelect(s.kante.id, LINKS)" [checked]="s.istSeiteSelektiert(LINKS)"></mat-checkbox>
+          </div>
+        </td>
+        <td
+          *ngIf="s.kante.zweiseitig"
+          (blur)="onTabelleHover(false, s.kante.id, RECHTS)"
+          (focus)="onTabelleHover(true, s.kante.id, RECHTS)"
+          radHover
+          (hover)="onTabelleHover($event, s.kante.id, RECHTS)"
+          class="element"
+          [class.hovered]="isHovered(s.kante.id, RECHTS)"
+          tabindex="0"
+        >
+          <div class="display-flex align-items-center justify-content-center">
+            <mat-checkbox
+              [checked]="s.istSeiteSelektiert(RECHTS)"
+              (click)="onSelect(s.kante.id, RECHTS)"
+            ></mat-checkbox>
+          </div>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>

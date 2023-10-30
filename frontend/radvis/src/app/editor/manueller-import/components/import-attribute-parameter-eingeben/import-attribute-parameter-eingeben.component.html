@@ -1,0 +1,89 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="display-flex align-items-stretch flex-column justify-content-space-between h-100">
+  <form class="form-group">
+    <div *ngIf="loading" class="spinner">
+      <mat-spinner></mat-spinner>
+      <div class="mt-10">Attribute werden geladen und geprüft...</div>
+    </div>
+    <ng-container *ngIf="!loading">
+      <h4 class="mt-10">
+        <span *ngIf="sessionExists"> Folgende Attribute werden importiert: </span>
+        <span *ngIf="!sessionExists">Bitte wählen Sie zu importierende Attribute</span>
+      </h4>
+      <ng-container *ngIf="sessionExists">
+        <ul>
+          <li *ngFor="let attribut of attribute">"{{ attribut }}"</li>
+        </ul>
+        <div class="italic mt-10">Brechen Sie die Session ab, um andere Attribute zu importieren.</div>
+      </ng-container>
+      <ng-container *ngIf="!sessionExists">
+        <div *ngFor="let group of attributeGroups" [formGroup]="group">
+          <mat-checkbox formControlName="selected">
+            {{ group.value.attributDisplayName }} &rarr; {{ group.value.radvisName }}
+          </mat-checkbox>
+        </div>
+        <div *ngIf="attributeGroups.length === 0">
+          Das Shape enthält keine Attribute, die in RadVIS importiert werden können.
+        </div>
+      </ng-container>
+    </ng-container>
+    <div class="ungueltige-werte mt-10" *ngIf="invalidAttributesPresent && !uploading">
+      <div class="hinweis">
+        Folgende Attribute können nicht übernommen werden, da sie nicht erlaubte Werte enthalten:
+      </div>
+      <ul>
+        <li *ngFor="let attribut of ungueltigeWerte | keyvalue">
+          <div class="hinweis ungueltiger-wert-key">{{ attribut.key }}</div>
+          <span class="hinweis">{{ attribut.value.join(', ') }}</span>
+        </li>
+      </ul>
+    </div>
+  </form>
+
+  <rad-validation-error-anzeige class="mt-5" [errors]="attributHinweisTexte">
+  </rad-validation-error-anzeige>
+
+  <div *ngIf="!sessionExists && !uploading" class="display-flex buttons p-10">
+    <button mat-flat-button color="primary" class="buttons" (click)="onAlleAttributeAbwaehlen()">Alle abwählen</button>
+    <button mat-flat-button color="primary" class="buttons" (click)="onAlleAttributeAuswaehlen()">
+      Alle auswählen
+    </button>
+  </div>
+  <div class="display-flex buttons p-10">
+    <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-flat-button color="primary" class="button" [routerLink]="previousLink" queryParamsHandling="merge">
+      Zurück
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      class="button"
+      [routerLink]="nextLink"
+      queryParamsHandling="merge"
+      *ngIf="sessionExists"
+    >
+      Weiter
+    </button>
+    <rad-action-button
+      (action)="onStart()"
+      [waiting]="uploading"
+      *ngIf="!sessionExists"
+      [disabled]="attributeGroups.length === 0 || !isSelektionValid"
+    >
+      Import starten
+    </rad-action-button>
+  </div>
+</div>

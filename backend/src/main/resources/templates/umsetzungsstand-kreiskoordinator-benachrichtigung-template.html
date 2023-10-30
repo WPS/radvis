@@ -1,0 +1,64 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title th:remove="all">Template for HTML email</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p th:text="'Sehr geehrte:r ' + ${empfaenger.getVollerName()} + ','"></p>
+<p>
+  es wurden Umsetzungsstandabfragen für Maßnahmen in Ihrem Zuständigkeitsbereich angefordert.
+  Folgende Personen wurden benachrichtigt mit der Bitte diese zu bearbeiten:
+</p>
+<ul>
+  <li th:each="entry : ${verwaltungseinheitToEmailEmpfaenger}">
+    <span th:text="${entry.key.getDisplayText()}"></span>
+    <table>
+      <tr th:each="benutzer : ${entry.value}">
+        <td th:text="${benutzer.getVollerName()}"></td>
+        <td th:text="${benutzer.getMailadresse().toString()}"></td>
+      </tr>
+    </table>
+  </li>
+</ul>
+<p>
+  Die benachrichtigten Personen haben bis zum <span th:text="${beantwortungsfrist}"></span> Zeit alle
+  Eintragungen vorzunehmen.
+</p>
+<br/>
+<p>
+  Für folgende, als Baulastträger eingetragene Organisationen wurden keine Benutzer:innen gefunden, die für Beantworten
+  der Umsetzungsstandabfrage verantwortlich sind (Dies sind Benutzer:innen der Baulastträger-Organisation mit einer der
+  Rollen: <i>Radwege ErfasserIn - Kommune/Kreis/Regierungsbezirk</i>, <i>KreiskoordinatorIn</i> und
+  <i>RadverkehrsbeauftragteR Regierungsbezirk</i>):
+</p>
+<ul>
+  <li th:each="verwaltungseinheit : ${kreiskoordinatorZustaendigAberOhneRadwegeerfasserin}">
+    <span th:text="${verwaltungseinheit.getDisplayText()}"></span>
+  </li>
+</ul>
+<br/><br/>
+<p>
+  Hilfe erhalten Sie im RadVIS Benutzerhandbuch oder unter <a th:href="'mailto:' + ${radvisSupportMail}"
+                                                              th:text="${radvisSupportMail}"></a>.
+</p>
+<p>
+  Diese E-Mail ist eine vom System generierte E-Mail.
+</p>
+<div th:replace="footer::footer(${radvisSupportMail})"></div>
+</body>
+</html>

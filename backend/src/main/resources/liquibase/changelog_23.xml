@@ -1,0 +1,397 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+	<changeSet id="RAD-2235" author="ap">
+		<createTable tableName="massnahme">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true"
+					primaryKeyName="massnahme_pkey"/>
+			</column>
+			<column name="version" type="BIGINT" defaultValueNumeric="0"/>
+			<column name="bezeichnung" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="kurzbeschreibung" type="VARCHAR(3000)"/>
+			<column name="lgvfgid" type="VARCHAR(255)"/>
+			<column name="ma_visid" type="VARCHAR(255)"/>
+			<column name="verbaID" type="VARCHAR(255)"/>
+			<column name="massnahmenkategorie" type="VARCHAR(255)"/>
+			<column name="umsetzungsstatus" type="VARCHAR(255)"/>
+			<column name="veroeffentlichungsstatus" type="VARCHAR(255)"/>
+			<column name="baulast_zustaendiger_id" type="BIGINT"/>
+			<column name="unterhalts_zustaendiger_id" type="BIGINT"/>
+			<column name="markierungs_zustaendiger_id" type="BIGINT"/>
+			<column name="benutzer_id" type="BIGINT"/>
+			<column name="prioritaet" type="INT"/>
+			<column name="letzte_aenderung" type="timestamp"/>
+			<column name="von_zeitpunkt" type="timestamp"/>
+			<column name="bis_zeitpunkt" type="timestamp"/>
+		</createTable>
+		<createTable tableName="massnahme_dokumente">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="bezeichnung" type="VARCHAR(255)"/>
+		</createTable>
+		<createTable tableName="massnahme_netzklassen">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="netzklassen" type="VARCHAR(255)"/>
+		</createTable>
+		<createTable tableName="massnahme_kommentare">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="kommentar" type="VARCHAR(255)"/>
+			<column name="datum" type="timestamp"/>
+			<column name="benutzer_id" type="BIGINT"/>
+		</createTable>
+		<createTable
+			tableName="massnahme_kanten_seiten_abschnitte">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="kante_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+		</createTable>
+		<createTable tableName="massnahme_knoten">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="knoten_id" type="BIGINT"/>
+		</createTable>
+		<createTable tableName="massnahme_aud">
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT" defaultValueNumeric="0"/>
+			<column name="bezeichnung" type="VARCHAR(255)"/>
+			<column name="kurzbeschreibung" type="VARCHAR(3000)"/>
+			<column name="lgvfgid" type="VARCHAR(255)"/>
+			<column name="ma_visid" type="VARCHAR(255)"/>
+			<column name="verbaid" type="VARCHAR(255)"/>
+			<column name="massnahmenkategorie" type="VARCHAR(255)"/>
+			<column name="umsetzungsstatus" type="VARCHAR(255)"/>
+			<column name="veroeffentlichungsstatus" type="VARCHAR(255)"/>
+			<column name="baulast_zustaendiger_id" type="BIGINT"/>
+			<column name="unterhalts_zustaendiger_id" type="BIGINT"/>
+			<column name="markierungs_zustaendiger_id" type="BIGINT"/>
+			<column name="benutzer_id" type="BIGINT"/>
+			<column name="prioritaet" type="INT"/>
+			<column name="letzte_aenderung" type="timestamp"/>
+			<column name="von_zeitpunkt" type="timestamp"/>
+			<column name="bis_zeitpunkt" type="timestamp"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+		</createTable>
+		<createTable tableName="massnahme_dokumente_aud">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="bezeichnung" type="VARCHAR(255)"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+		</createTable>
+		<createTable tableName="massnahme_netzklassen_aud">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="netzklassen" type="VARCHAR(255)"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+		</createTable>
+		<createTable tableName="massnahme_kommentare_aud">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="kommentar" type="VARCHAR(255)"/>
+			<column name="datum" type="timestamp"/>
+			<column name="benutzer_id" type="BIGINT"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+		</createTable>
+		<createTable
+			tableName="massnahme_kanten_seiten_abschnitte_aud">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="kante_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+		</createTable>
+		<createTable tableName="massnahme_knoten_aud">
+			<column name="massnahme_id" type="BIGINT"/>
+			<column name="knoten_id" type="BIGINT"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+		</createTable>
+	</changeSet>
+
+	<changeSet id="RAD-2254" author="mw + ap">
+		<addColumn tableName="massnahme_dokumente">
+			<column name="bytes" type="bytea"/>
+		</addColumn>
+		<addColumn tableName="massnahme_dokumente_aud">
+			<column name="bytes" type="bytea"/>
+		</addColumn>
+		<renameColumn tableName="massnahme"
+			oldColumnName="benutzer_id"
+			newColumnName="benutzer_letzte_aenderung_id"/>
+		<renameColumn tableName="massnahme_aud"
+			oldColumnName="benutzer_id"
+			newColumnName="benutzer_letzte_aenderung_id"/>
+	</changeSet>
+
+	<changeSet id="RAD-2246" author="mw + ap">
+		<addColumn tableName="massnahme">
+			<column name="monat" type="INTEGER"/>
+		</addColumn>
+		<addColumn tableName="massnahme">
+			<column name="quartal" type="INTEGER"/>
+		</addColumn>
+		<addColumn tableName="massnahme">
+			<column name="jahr" type="INTEGER"/>
+		</addColumn>
+		<addColumn tableName="massnahme_aud">
+			<column name="monat" type="INTEGER"/>
+		</addColumn>
+		<addColumn tableName="massnahme_aud">
+			<column name="quartal" type="INTEGER"/>
+		</addColumn>
+		<addColumn tableName="massnahme_aud">
+			<column name="jahr" type="INTEGER"/>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="RAD-2247" author="mw + ap">
+		<addColumn tableName="massnahme_kanten_seiten_abschnitte">
+			<column name="seitenbezug" type="VARCHAR(255)"/>
+		</addColumn>
+		<addColumn
+			tableName="massnahme_kanten_seiten_abschnitte_aud">
+			<column name="seitenbezug" type="VARCHAR(255)"/>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="RAD-2237" author="mw + ap">
+		<dropColumn tableName="massnahme"
+			columnName="veroeffentlichungsstatus"/>
+		<addColumn tableName="massnahme">
+			<column name="veroeffentlicht" type="boolean"
+				defaultValue="false"/>
+		</addColumn>
+		<dropColumn tableName="massnahme_aud"
+			columnName="veroeffentlichungsstatus"/>
+		<addColumn tableName="massnahme_aud">
+			<column name="veroeffentlicht" type="boolean"
+				defaultValue="false"/>
+		</addColumn>
+		<addNotNullConstraint tableName="massnahme"
+			columnName="massnahmenkategorie"/>
+		<addNotNullConstraint tableName="massnahme"
+			columnName="umsetzungsstatus"/>
+		<addNotNullConstraint tableName="massnahme"
+			columnName="veroeffentlicht"/>
+		<addNotNullConstraint tableName="massnahme"
+			columnName="jahr"/>
+		<addNotNullConstraint tableName="massnahme"
+			columnName="von_zeitpunkt"/>
+		<addNotNullConstraint tableName="massnahme"
+			columnName="bis_zeitpunkt"/>
+		<addNotNullConstraint
+			tableName="massnahme_kanten_seiten_abschnitte" columnName="kante_id"/>
+		<addNotNullConstraint
+			tableName="massnahme_kanten_seiten_abschnitte" columnName="von"/>
+		<addNotNullConstraint
+			tableName="massnahme_kanten_seiten_abschnitte" columnName="bis"/>
+		<addNotNullConstraint
+			tableName="massnahme_kanten_seiten_abschnitte"
+			columnName="seitenbezug"/>
+		<addNotNullConstraint
+			tableName="massnahme_dokumente" columnName="bezeichnung"/>
+		<addNotNullConstraint
+			tableName="massnahme_dokumente" columnName="bytes"/>
+	</changeSet>
+
+	<changeSet id="RAD-2237-2" author="mw + ap">
+		<renameColumn tableName="massnahme"
+			oldColumnName="verbaID" newColumnName="verbaid"/>
+	</changeSet>
+
+	<changeSet id="RAD-2280" author="ap">
+		<modifyDataType tableName="massnahme"
+			columnName="monat" newDataType="varchar(255)"/>
+		<modifyDataType tableName="massnahme"
+			columnName="quartal" newDataType="varchar(255)"/>
+		<modifyDataType tableName="massnahme_aud"
+			columnName="monat" newDataType="varchar(255)"/>
+		<modifyDataType tableName="massnahme_aud"
+			columnName="quartal" newDataType="varchar(255)"/>
+	</changeSet>
+
+	<changeSet id="RAD-2263" author="mw + ap">
+		<dropNotNullConstraint
+			columnName="von_zeitpunkt" tableName="massnahme"/>
+		<dropNotNullConstraint
+			columnName="bis_zeitpunkt" tableName="massnahme"/>
+		<dropNotNullConstraint columnName="jahr"
+			tableName="massnahme"/>
+		<dropNotNullConstraint columnName="jahr"
+			tableName="massnahme"/>
+	</changeSet>
+
+	<changeSet id="RAD-2278" author="sm">
+		<dropView
+			viewName="kante_geschwindigkeit_linearreferenzierteattribute_view"/>
+		<createView
+			viewName="kante_geschwindigkeit_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id,
+																		geometry,
+																		quelle,
+																		geschwindigkeit_attributgruppe_id,
+																		kanten_attributgruppe_id,
+																		is_grundnetz
+														 FROM kante
+		</createView>
+
+		<dropView
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"/>
+		<createView
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id,
+																		geometry,
+																		quelle,
+																		fuehrungsform_attribut_gruppe_id,
+																		kanten_attributgruppe_id,
+																		is_grundnetz
+														 FROM kante
+		</createView>
+
+		<dropView
+			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"/>
+		<createView
+			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id,
+																		geometry,
+																		quelle,
+																		zustaendigkeit_attributgruppe_id,
+																		kanten_attributgruppe_id,
+																		is_grundnetz
+														 FROM kante
+		</createView>
+
+		<dropColumn tableName="kante">
+			<column name="geloescht"/>
+		</dropColumn>
+		<dropColumn tableName="kante_aud">
+			<column name="geloescht"/>
+		</dropColumn>
+	</changeSet>
+
+	<changeSet id="RAD-2327" author="mw + lb">
+		<addColumn tableName="massnahme">
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+			<column name="seitenbezug" type="VARCHAR(255)"/>
+			<column name="kante_id" type="BIGINT"/>
+		</addColumn>
+		<addColumn tableName="massnahme_aud">
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+			<column name="seitenbezug" type="VARCHAR(255)"/>
+			<column name="kante_id" type="BIGINT"/>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="RAD-2320" author="mw">
+		<dropColumn tableName="massnahme" columnName="monat"/>
+		<dropColumn tableName="massnahme" columnName="quartal"/>
+		<renameColumn tableName="massnahme" oldColumnName="jahr" newColumnName="geplanter_umsetzungsstart_jahr"/>
+		<renameColumn tableName="massnahme_aud" oldColumnName="jahr" newColumnName="geplanter_umsetzungsstart_jahr"/>
+
+		<addNotNullConstraint tableName="massnahme" columnName="von" defaultNullValue="0"/>
+		<addNotNullConstraint tableName="massnahme" columnName="bis" defaultNullValue="1"/>
+		<addNotNullConstraint tableName="massnahme" columnName="seitenbezug" defaultNullValue="BEIDSEITIG"/>
+		<addNotNullConstraint tableName="massnahme" columnName="kante_id"/>
+		<addNotNullConstraint tableName="massnahme" columnName="letzte_aenderung"/>
+		<addNotNullConstraint tableName="massnahme" columnName="benutzer_letzte_aenderung_id"/>
+
+		<dropTable tableName="massnahme_kanten_seiten_abschnitte"/>
+		<dropTable tableName="massnahme_kanten_seiten_abschnitte_aud"/>
+	</changeSet>
+
+	<changeSet id="RAD-2202" author="bw">
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_kante_id"
+			referencedTableName="kante"
+			referencedColumnNames="id"
+			baseColumnNames="kante_id" baseTableName="massnahme"/>
+		<createIndex tableName="massnahme" indexName="massnahme_kante_id_idx">
+			<column name="kante_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_dokumente_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_dokumente"/>
+		<createIndex tableName="massnahme_dokumente" indexName="massnahme_dokumente_massnahme_id_idx">
+			<column name="massnahme_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_kommentare_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_kommentare"/>
+		<createIndex tableName="massnahme_kommentare" indexName="massnahme_kommentare_massnahme_id_idx">
+			<column name="massnahme_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_netzklassen_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_netzklassen"/>
+		<createIndex tableName="massnahme_netzklassen" indexName="massnahme_netzklassen_massnahme_id_idx">
+			<column name="massnahme_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_benutzer_letzte_aenderung_id"
+			referencedTableName="benutzer"
+			referencedColumnNames="id"
+			baseColumnNames="benutzer_letzte_aenderung_id" baseTableName="massnahme"/>
+		<createIndex tableName="massnahme" indexName="massnahme_benutzer_letzte_aenderung_id_idx">
+			<column name="benutzer_letzte_aenderung_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_baulast_zustaendiger_id"
+			referencedTableName="organisation"
+			referencedColumnNames="id"
+			baseColumnNames="baulast_zustaendiger_id" baseTableName="massnahme"/>
+		<createIndex tableName="massnahme" indexName="massnahme_baulast_zustaendiger_id_idx">
+			<column name="baulast_zustaendiger_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_unterhalts_zustaendiger_id"
+			referencedTableName="organisation"
+			referencedColumnNames="id"
+			baseColumnNames="unterhalts_zustaendiger_id" baseTableName="massnahme"/>
+		<createIndex tableName="massnahme" indexName="massnahme_unterhalts_zustaendiger_id_idx">
+			<column name="unterhalts_zustaendiger_id"/>
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_massnahme_markierungs_zustaendiger_id"
+			referencedTableName="organisation"
+			referencedColumnNames="id"
+			baseColumnNames="markierungs_zustaendiger_id" baseTableName="massnahme"/>
+		<createIndex tableName="massnahme" indexName="massnahme_markierungs_zustaendiger_id_idx">
+			<column name="markierungs_zustaendiger_id"/>
+		</createIndex>
+	</changeSet>
+</databaseChangeLog>

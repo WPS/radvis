@@ -1,0 +1,110 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/theme';
+@import 'src/style/colors';
+@import 'src/style/spacing';
+
+:host {
+  display: block;
+  background: #ffffff;
+  height: 100%;
+}
+
+@media print {
+  .infrastrukturen-tabs ::ng-deep .mat-tab-header {
+    display: none;
+  }
+
+  .full-screen-button{
+    display: none;
+  }
+}
+
+.tab-container.dialog {
+  max-height: 100%;
+  max-width: 100%;
+  height: unset;
+  box-shadow: none;
+}
+
+.tab-container {
+  max-height: 100%;
+  height: 50rem;
+  transition: height ease 0.3s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 3px 0 3px -2px rgb(0 0 0 / 20%), 3px 0 4px 0 rgb(0 0 0 / 14%), 1px 0 8px 0 rgb(0 0 0 / 12%);
+}
+
+.infrastrukturen-tabs {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.infrastrukturen-tabs ::ng-deep .mat-tab-label {
+  opacity: 1 !important;
+}
+
+.infrastrukturen-tabs ::ng-deep .mat-tab-body-wrapper {
+  flex-grow: 1;
+}
+
+.infrastrukturen-tabs ::ng-deep .mat-tab-header {
+  box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
+  margin-bottom: $shadow-spacing;
+  margin-right: 48px;
+}
+
+.full-screen-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 333;
+  width: 48px;
+  height: 48px;
+  border-radius: 0;
+  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+// Entspricht Breakpoints.TabletLandscape siehe https://material.angular.io/cdk/layout/overview#predefined-breakpoints
+@media screen and (max-width: 1279.98px) {
+  ::ng-deep .tab-container .mat-tab-label {
+    height: 1.5rem !important;
+  }
+
+  ::ng-deep .tab-container .mat-tab-header {
+    margin-bottom: 0 !important;
+  }
+
+  ::ng-deep .tab-container .toolbar {
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  ::ng-deep .tab-container .mat-header-row {
+    height: 1rem !important;
+  }
+
+  ::ng-deep .pagination-container mat-paginator,
+  ::ng-deep .pagination-container .mat-paginator-outer-container,
+  ::ng-deep .pagination-container .mat-paginator-container {
+    min-height: 1rem !important;
+    height: 1rem !important;
+    line-height: 1rem !important;
+    display: inline-flex;
+  }
+}
+

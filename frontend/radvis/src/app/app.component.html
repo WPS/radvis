@@ -1,1 +1,161 @@
-<h1>RadVIS</h1>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="container">
+  <mat-toolbar role="region"
+               aria-label="Kopfleiste mit Hauptnavigation"
+               aria-keyshortcuts="Control+Alt+Shift+N"
+               class="toolbar">
+    <h1>RadVIS</h1>
+    <span class="ml-5" *ngIf="isBenutzerAktiv">|</span>
+    <nav class="ml-10" *ngIf="isBenutzerAktiv">
+      <a #viewerLink
+         [routerLink]="viewerRoute"
+         [class.activated]="viewerActive"
+         [queryParams]="viewerQueryParams$ | async">
+        <div class="nav-link">
+          <mat-icon class="mr-3">map</mat-icon>
+          Viewer
+        </div>
+      </a>
+
+      <a
+        *ngIf="canBenutzerEdit"
+        [class.activated]="editorActive"
+        [routerLink]="editorRoute"
+        queryParamsHandling="merge"
+      >
+        <div class="nav-link">
+          <mat-icon class="mr-3">edit</mat-icon>
+          Editor
+        </div>
+      </a>
+
+      <a [class.activated]="auswertungActive" [routerLink]="auswertungRoute" queryParamsHandling="merge">
+        <div class="nav-link">
+          <mat-icon class="mr-3">insert_chart_outlined</mat-icon>
+          Auswertung
+        </div>
+      </a>
+
+      <a
+        *ngIf="isBenutzerRadNETZQualitaetsSicherIn"
+        [class.activated]="radnetzMatchingActive"
+        [routerLink]="radnetzMatchingRoute"
+        queryParamsHandling="merge"
+      >
+        <div class="nav-link">
+          <mat-icon class="mr-3">compare_arrows</mat-icon>
+          RadNETZ Matching
+        </div>
+      </a>
+    </nav>
+
+    <mat-progress-bar *ngIf="ladend$ | async" mode="indeterminate"></mat-progress-bar>
+    <span class="spacer"></span>
+
+    <button
+      *ngIf="
+        isBenutzerAktiv &&
+        !isBenutzerOrgaUndNutzerVerwalter &&
+        canBenutzerEditBereicheOfOrganisation &&
+        isOrganisationenBearbeitenToggleOn
+      "
+      [attr.aria-label]="'Organisationen öffnen'"
+      class="icon-toolbar"
+      matTooltip="Organisationen öffnen"
+      [routerLink]="administrationOrganisationRoute"
+      queryParamsHandling="merge"
+      mat-icon-button
+    >
+      <mat-icon>account_balance</mat-icon>
+    </button>
+
+    <button
+      *ngIf="isBenutzerAktiv && isBenutzerOrgaUndNutzerVerwalter"
+      class="icon-toolbar"
+      [attr.aria-label]="'Administration öffnen'"
+      matTooltip="Administration öffnen"
+      [matMenuTriggerFor]="menu"
+      mat-icon-button
+    >
+      <mat-icon>settings</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu">
+      <button
+        [routerLink]="administrationBenutzerRoute"
+        queryParamsHandling="merge"
+        mat-menu-item
+      >
+        <span>Benutzer</span>
+      </button>
+      <button
+        *ngIf="isOrganisationenBearbeitenToggleOn"
+        [routerLink]="administrationOrganisationRoute"
+        queryParamsHandling="merge"
+        mat-menu-item
+      >
+        <span>Organisation</span>
+      </button>
+    </mat-menu>
+
+    <button
+      *ngIf="isBenutzerAktiv"
+      [attr.aria-label]="'Benutzerhandbuch öffnen'"
+      matTooltip="Benutzerhandbuch öffnen"
+      (click)="openManual()"
+      mat-icon-button
+      class="icon-toolbar"
+    >
+      <mat-icon>description</mat-icon>
+    </button>
+
+    <button
+      [attr.aria-label]="'Informationen zu RadVIS anzeigen'"
+      matTooltip="Informationen zu RadVIS anzeigen"
+      (click)="openInfoDialog()"
+      mat-icon-button
+      class="icon-toolbar"
+    >
+      <mat-icon>info</mat-icon>
+    </button>
+
+    <button
+      *ngIf="isVordefinierteExporteToggleOn"
+      [attr.aria-label]="'Vordefinierte Exporte öffnen'"
+      matTooltip="Vordefinierte Exporte öffnen"
+      (click)="openVordefinierteExporte()"
+      mat-icon-button
+      class="icon-toolbar"
+    >
+      <mat-icon>download</mat-icon>
+    </button>
+
+    <span class="benutzer-details" *ngIf="isBenutzerRegistriert">
+      Angemeldet als: {{ benutzerVorname }} {{ benutzerName }}
+    </span>
+    <button
+      [attr.aria-label]="'Abmelden'"
+      matTooltip="Abmelden"
+      (click)="logout()"
+      mat-icon-button
+      class="icon-toolbar"
+    >
+      <mat-icon class="ml-1">logout</mat-icon>
+    </button>
+  </mat-toolbar>
+  <rad-print-view></rad-print-view>
+  <router-outlet></router-outlet>
+</div>

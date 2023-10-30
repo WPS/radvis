@@ -1,0 +1,210 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div mat-dialog-title>
+  <div class="display-flex justify-content-space-between">
+    <div>RadVIS</div>
+    <button
+      [attr.aria-label]="'Schließen'"
+      matTooltip="Schließen"
+      mat-dialog-close
+      mat-icon-button
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+</div>
+<div mat-dialog-content class="content">
+  <div class="mt-10 mx-5">
+    RadVIS wird im Auftrag des <i>Ministeriums für Verkehr Baden-Württemberg</i> von der
+    <i>WPS - Workplace Solutions GmbH</i> umgesetzt. <br/>
+    Weitere Informationen zu Radverkehrsförderung finden Sie hier:
+    <a target="_blank" href="https://www.aktivmobil-bw.de/">www.aktivmobil-bw.de/</a> <br/>
+    Die aktuellen RadNETZ-Daten können
+    <a target="_blank" href="https://www.svz-bw.de/die-strassenverkehrszentrale/veroeffentlichungen">hier</a>
+    heruntergeladen werden.
+  </div>
+
+  <mat-accordion [@.disabled]="disableAnimation">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip selected>Zukünftige Versionen</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"></mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Anzeige von Layern aus Quelldateien</li>
+        <li>Import der Sicherheitstrennstreifeninformationen aus den RadNETZ-Daten</li>
+        <li>Maßgeschneiderte Routing-Profile für die Fahrradroutenerstellung</li>
+        <li>Import von Radservice-Punkte von MobiData als Servicestationen</li>
+        <li>Token-basierte Anmeldung an der WFS-/WMS Schnittstelle</li>
+        <li>Manueller Import von Maßnahmen</li>
+        <li>Erweiterung der Auswertungsfunktion</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip color="accent" selected>Version 6.0</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 24.07.2023</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Darstellung der Fahrradzählstellen und Auswertung der erfassten Zähldaten</li>
+        <li>Pflege von Sicherheitstrennstreifeninformationen als Teil der Führungsformattribute</li>
+        <li>Neue Signaturen: Belagart und Radverkehrsführung</li>
+        <li>Import der Fahrradleihstationen aus MobiData</li>
+        <li>Vordefinierte Exporte inklusive Export im RadVIS- und PBF-Datenformat</li>
+        <li>Datenexport im BALM-Datenformat</li>
+        <li>Manueller Import im RadVIS-Datenformat</li>
+        <li>Import der D-Routen</li>
+        <li>Zahlreiche kleine Verbesserungen und Fehlerbehebungen</li>
+        <li>Aktualisierung des Handbuchs inkl. Schulungsvideos</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip color="accent">Version 5.0</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 08.12.2022</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Einführung von Fehlerprotokollen</li>
+        <li>Druckfunktion Viewer</li>
+        <li>Änderung der Darstellung der Legende</li>
+        <li>Messwerkzeug</li>
+        <li>Erweiterung der WFS/WMS-Schnittstelle für angemeldete Nutzer</li>
+        <li>Bugfix manueller Import</li>
+        <li>Handbuchdokumentation zum WFS/WMS-Dienst</li>
+        <li>Verbesserungen an der Benutzeroberfläche und Fehlerbehebungen</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip color="accent">Version 4.0</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 01.11.2022</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Einführung von Fahrradrouten mit umfangreichen Funktionen</li>
+        <li>Geografische Darstellung von Fehlerprotokollen für Importe</li>
+        <li>Öffentliche Schnittstellen und Exportfunktionen für Maßnahmen und Fahrradrouten</li>
+        <li>Verbesserungen an der Benutzeroberfläche und Fehlerbehebungen</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip color="accent">Version 3.0</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 22.08.2022</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Anlage und Bearbeitung von Infrastrukturmaßnahmen</li>
+        <li>Durchführung der Umsetzungsstandsumfrage</li>
+        <li>Kommunikation zu Maßnahmen über Kommentare und Benachrichtigungsfunktion</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip>Version 2.0</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 08.04.2022</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Datenimport von Radverkehrsinfrastrukturinformationen der Kreise und Kommunen</li>
+        <li>Anlegen von Zielnetzstrecken</li>
+        <li>Bearbeitung vom RadNETZ</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip>Version 1.1</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 01.11.2021</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Automatische Übernahme bestehender Daten zu Radwegen in Baden Württemberg</li>
+        <li>Visualisierung der Radwege über die Karte und Detailansicht der Attribute</li>
+        <li>Auswahl verschiedener Hintergrundkarten</li>
+        <li>Pflege der Radwege über die Oberfläche</li>
+        <li>Registrierung und Anmeldung</li>
+        <li>Benutzerverwaltung und Rechteprüfung</li>
+        <li>Einfache Auswertungen</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-list>
+            <mat-chip>Version 1.0</mat-chip>
+          </mat-chip-list>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 01.10.2021</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>
+          Bereitstellung der RadVIS-Routing-Engine über die VERA-Schnittstelle für den Radroutenplaner Deutschland
+        </li>
+      </ul>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <div class="ansprechpartner-dokumente mt-5 display-flex justify-content-space-between">
+    <div>
+      <h2>Ansprechpartner:</h2>
+      <p>Ministerium für Verkehr Baden-Württemberg <br/>
+        Dorotheenstraße 8<br/>
+        70173 Stuttgart<br/>
+        E-Mail: <a href="mailto:RadVIS-support@vm.bwl.de">RadVIS-support@vm.bwl.de</a>
+      </p>
+      <span>Weitere Informationen zu Kontaktanfragen finden Sie im
+        <a href="javascript:void(0);" (click)="openManualWeitereHilfe()">Handbuch</a>
+      </span>
+    </div>
+    <div class="datenschutz-dokumente">
+      <h2>Dokumente:</h2>
+      <p>
+        <a target="_blank" href="assets/RadVIS Datenschutzerklaerung.pdf">Datenschutzerklärung</a>
+        <br/>
+        <a target="_blank" href="assets/RadVIS Datennutzungsbestimmungen.pdf">Datennutzungsbestimmungen</a>
+      </p>
+    </div>
+  </div>
+</div>

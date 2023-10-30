@@ -1,0 +1,17 @@
+<layer>
+  <name>leihstationen</name>
+  <id>LayerInfoImpl-d9dcb62:185a0ed12e3:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--2ea9e9f6:1869788896c:-7fff</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-d9dcb62:185a0ed12e3:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-11 13:02:49.669 UTC</dateCreated>
+  <dateModified>2023-02-28 10:33:42.742 UTC</dateModified>
+</layer>

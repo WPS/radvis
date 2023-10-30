@@ -1,0 +1,17 @@
+<layer>
+  <name>barriere_points_extern</name>
+  <id>LayerInfoImpl--38fd50d5:1857c453a00:-7ffb</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--1b507aaa:186977ef4db:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--38fd50d5:1857c453a00:-7ffc</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-04 15:24:52.483 UTC</dateCreated>
+  <dateModified>2023-02-28 10:13:34.725 UTC</dateModified>
+</layer>

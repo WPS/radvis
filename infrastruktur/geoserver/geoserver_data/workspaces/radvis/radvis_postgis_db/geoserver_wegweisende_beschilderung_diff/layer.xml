@@ -1,0 +1,17 @@
+<layer>
+  <name>geoserver_wegweisende_beschilderung_diff</name>
+  <id>LayerInfoImpl-5c3533cc:1859b47c925:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-5c3533cc:1859b490530:-614d</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-5c3533cc:1859b47c925:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-10 10:44:11.257 UTC</dateCreated>
+  <dateModified>2023-01-10 10:55:56.547 UTC</dateModified>
+</layer>

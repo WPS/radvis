@@ -1,0 +1,39 @@
+{
+  "java.format.enabled": true,
+  "java.format.settings.url": "<Pfad zu Ihrer intelliJ.xml Datei>",
+  "[java]": {
+      "editor.defaultFormatter": "redhat.java"
+  },
+  "editor.formatOnSave": true,
+  "workbench.editor.labelFormat": "default",
+  "editor.renderControlCharacters": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "workbench.colorCustomizations": {},
+  "editor.linkedEditing": false,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true,
+      "source.organizeImports": true
+  },
+  "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "eslint.format.enable": true,
+  "eslint.workingDirectories": [
+        "./frontend/radvis"
+  ],
+"java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
+"java.compile.nullAnalysis.mode": "automatic"
+}

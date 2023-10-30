@@ -1,0 +1,73 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+:host * {
+  z-index: 80000;
+  display: none;
+}
+
+@media print {
+  :host * {
+    display: block !important;
+  }
+}
+
+.kopfzeile{
+  height: 4rem;
+  width: 100%;
+  position: absolute;
+  top:0;
+  left: 0;
+  background-color: white;
+}
+
+.radvis-schriftzug{
+  width: 10rem;
+  position: absolute;
+  top:0;
+  left: 0;
+  height: 4rem;
+  padding-top: 1rem;
+}
+
+.schriftzug{
+  font-weight: bold;
+}
+
+.timestamp{
+  font-size: 0.75rem;
+}
+
+.vm-logo{
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  margin: auto;
+  width: 10rem;
+  height: 4rem;
+}
+
+.radkultur-radnetz-logo {
+  width: 4rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 4rem;
+}
+
+.logo{
+  height: 4rem;
+}
+

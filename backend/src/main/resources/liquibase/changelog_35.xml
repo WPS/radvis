@@ -1,0 +1,534 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+  <changeSet id="RAD-4654" author="hst">
+    <addColumn tableName="fahrradroute">
+      <column name="veroeffentlicht" type="BOOLEAN" defaultValue="false" />
+    </addColumn>
+    <addColumn tableName="fahrradroute_aud">
+      <column name="veroeffentlicht" type="BOOLEAN" defaultValue="false" />
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-4581" author="mw und kho">
+    <createTable tableName="mindestbreite_konsistenzregel">
+      <column name="fahrtrichtung" type="varchar">
+        <constraints nullable="false"/>
+      </column>
+      <column name="radverkehrsfuehrung" type="varchar">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ist_standard" type="varchar">
+        <constraints nullable="false"/>
+      </column>
+      <column name="breite" type="decimal">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey tableName="mindestbreite_konsistenzregel" columnNames="fahrtrichtung,radverkehrsfuehrung,ist_standard" constraintName="primary_key_constraint"/>
+    <createIndex indexName="index_fahrtrichtung_radverkehrsfuehrung_ist_standard" tableName="mindestbreite_konsistenzregel">
+      <column name="fahrtrichtung"/>
+      <column name="radverkehrsfuehrung"/>
+      <column name="ist_standard"/>
+    </createIndex>
+    <sql>
+      -- IN_RICHTUNG
+      INSERT INTO mindestbreite_konsistenzregel VALUES
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'BASISSTANDARD', 2),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 2.5),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 3),
+
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'BASISSTANDARD', 2),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 2.5),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 3),
+
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'BASISSTANDARD', 2),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('IN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'BASISSTANDARD', 2),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('IN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('IN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'SCHUTZSTREIFEN', 'STARTSTANDARD_RADNETZ', 1.5),
+        ('IN_RICHTUNG', 'SCHUTZSTREIFEN', 'ZIELSTANDARD_RADNETZ', 1.5),
+        ('IN_RICHTUNG', 'SCHUTZSTREIFEN', 'BASISSTANDARD', 1.5),
+        ('IN_RICHTUNG', 'SCHUTZSTREIFEN', 'RADVORRANGROUTEN', 2),
+
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN', 'ZIELSTANDARD_RADNETZ', 1.85),
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN', 'BASISSTANDARD', 1.85),
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN', 'RADVORRANGROUTEN', 2.75),
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN', 'RADSCHNELLVERBINDUNG', 3),
+
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR', 'BASISSTANDARD', 3),
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR', 'RADVORRANGROUTEN', 3.5),
+        ('IN_RICHTUNG', 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR', 'RADSCHNELLVERBINDUNG', 3.5),
+
+        ('IN_RICHTUNG', 'BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR', 'BASISSTANDARD', 4.75),
+        ('IN_RICHTUNG', 'BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 4.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 4.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'BETRIEBSWEG_FORST', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_FORST', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_FORST', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_FORST', 'RADVORRANGROUTEN', 4.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_FORST', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'RADVORRANGROUTEN', 4.5),
+        ('IN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('IN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('IN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('IN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'BASISSTANDARD', 2.5),
+        ('IN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'RADVORRANGROUTEN', 4.5),
+        ('IN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'RADSCHNELLVERBINDUNG', 5);
+
+      -- GEGEN_RICHTUNG
+      INSERT INTO mindestbreite_konsistenzregel VALUES
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'BASISSTANDARD', 2),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 2.5),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 3),
+
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'BASISSTANDARD', 2),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 2.5),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 3),
+
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'BASISSTANDARD', 2),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('GEGEN_RICHTUNG', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'BASISSTANDARD', 2),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('GEGEN_RICHTUNG', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('GEGEN_RICHTUNG', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'SCHUTZSTREIFEN', 'STARTSTANDARD_RADNETZ', 1.5),
+        ('GEGEN_RICHTUNG', 'SCHUTZSTREIFEN', 'ZIELSTANDARD_RADNETZ', 1.5),
+        ('GEGEN_RICHTUNG', 'SCHUTZSTREIFEN', 'BASISSTANDARD', 1.5),
+        ('GEGEN_RICHTUNG', 'SCHUTZSTREIFEN', 'RADVORRANGROUTEN', 2),
+
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN', 'STARTSTANDARD_RADNETZ', 1.4),
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN', 'ZIELSTANDARD_RADNETZ', 1.85),
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN', 'BASISSTANDARD', 1.85),
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN', 'RADVORRANGROUTEN', 2.75),
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN', 'RADSCHNELLVERBINDUNG', 3),
+
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR', 'BASISSTANDARD', 3),
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR', 'RADVORRANGROUTEN', 3.5),
+        ('GEGEN_RICHTUNG', 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR', 'RADSCHNELLVERBINDUNG', 3.5),
+
+        ('GEGEN_RICHTUNG', 'BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR', 'BASISSTANDARD', 4.75),
+        ('GEGEN_RICHTUNG', 'BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 4.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 4.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_FORST', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_FORST', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_FORST', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_FORST', 'RADVORRANGROUTEN', 4.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_FORST', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'RADVORRANGROUTEN', 4.5),
+        ('GEGEN_RICHTUNG', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('GEGEN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('GEGEN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('GEGEN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'BASISSTANDARD', 2.5),
+        ('GEGEN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'RADVORRANGROUTEN', 4.5),
+        ('GEGEN_RICHTUNG', 'SONSTIGER_BETRIEBSWEG', 'RADSCHNELLVERBINDUNG', 5);
+
+      -- BEIDE_RICHTUNGEN
+      INSERT INTO mindestbreite_konsistenzregel VALUES
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'BASISSTANDARD', 3),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'SONDERWEG_RADWEG_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'BASISSTANDARD', 3),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GETRENNT_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 4),
+
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEH_RADWEG_GEMEINSAM_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 3),
+        ('BEIDE_RICHTUNGEN', 'GEHWEG_RAD_FREI_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN', 'RADVORRANGROUTEN', 5),
+
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_IN_T30_ZONE', 'RADVORRANGROUTEN', 4.7),
+
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_IN_T20_ZONE', 'RADVORRANGROUTEN', 4),
+
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_IN_FAHRRADSTRASSE', 'RADVORRANGROUTEN', 4.75),
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_IN_FAHRRADSTRASSE', 'RADSCHNELLVERBINDUNG', 4.6),
+
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_IN_FAHRRADZONE', 'RADVORRANGROUTEN', 4.75),
+        ('BEIDE_RICHTUNGEN', 'FUEHRUNG_IN_FAHRRADZONE', 'RADSCHNELLVERBINDUNG', 4.6),
+
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'RADVORRANGROUTEN', 4.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'RADVORRANGROUTEN', 4.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_FORST', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_FORST', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_FORST', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_FORST', 'RADVORRANGROUTEN', 4.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_FORST', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'RADVORRANGROUTEN', 4.5),
+        ('BEIDE_RICHTUNGEN', 'BETRIEBSWEG_WASSERWIRTSCHAFT', 'RADSCHNELLVERBINDUNG', 5),
+
+        ('BEIDE_RICHTUNGEN', 'SONSTIGER_BETRIEBSWEG', 'STARTSTANDARD_RADNETZ', 1.8),
+        ('BEIDE_RICHTUNGEN', 'SONSTIGER_BETRIEBSWEG', 'ZIELSTANDARD_RADNETZ', 2.5),
+        ('BEIDE_RICHTUNGEN', 'SONSTIGER_BETRIEBSWEG', 'BASISSTANDARD', 2.5),
+        ('BEIDE_RICHTUNGEN', 'SONSTIGER_BETRIEBSWEG', 'RADVORRANGROUTEN', 4.5),
+        ('BEIDE_RICHTUNGEN', 'SONSTIGER_BETRIEBSWEG', 'RADSCHNELLVERBINDUNG', 5);
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-2680" author="kho">
+    <createTable tableName="wegweisende_beschilderung">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="wegweisende_beschilderung_pkey"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="pfosten_nr" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="pfosten_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="geometrie" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+      <column name="wegweiser_typ" type="VARCHAR(255)" />
+      <column name="pfosten_typ" type="VARCHAR(255)" />
+      <column name="zustandsbewertung" type="VARCHAR(255)" />
+      <column name="defizit" type="VARCHAR(255)" />
+      <column name="pfostenzustand" type="VARCHAR(255)" />
+      <column name="pfostendefizit" type="VARCHAR(255)" />
+      <column name="gemeinde" type="VARCHAR(255)" />
+      <column name="kreis" type="VARCHAR(255)" />
+      <column name="land" type="VARCHAR(255)" />
+      <column name="zustaendige_verwaltungseinheit_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="wegweisende_beschilderung" indexName="wegweisende_beschilderung_pfosten_nr_idx">
+      <column name="pfosten_nr"/>
+    </createIndex>
+
+    <createIndex tableName="wegweisende_beschilderung" indexName="wegweisende_beschilderung_pfosten_id_idx">
+      <column name="pfosten_id"/>
+    </createIndex>
+
+    <addForeignKeyConstraint
+      constraintName="fk_zustaendige_verwaltungseinheit_id"
+      referencedTableName="organisation"
+      referencedColumnNames="id"
+      baseColumnNames="zustaendige_verwaltungseinheit_id" baseTableName="wegweisende_beschilderung"/>
+
+    <createTable tableName="wegweisende_beschilderung_aud">
+      <column name="id" type="bigint" />
+      <column name="version" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="rev" type="BIGINT"/>
+      <column name="revtype" type="TINYINT"/>
+      <column name="pfosten_nr" type="VARCHAR(255)" />
+      <column name="pfosten_id" type="bigint" />
+      <column name="geometrie" type="GEOMETRY"/>
+      <column name="wegweiser_typ" type="VARCHAR(255)" />
+      <column name="pfosten_typ" type="VARCHAR(255)" />
+      <column name="zustandsbewertung" type="VARCHAR(255)" />
+      <column name="defizit" type="VARCHAR(255)" />
+      <column name="pfostenzustand" type="VARCHAR(255)" />
+      <column name="pfostendefizit" type="VARCHAR(255)" />
+      <column name="gemeinde" type="VARCHAR(255)" />
+      <column name="kreis" type="VARCHAR(255)" />
+      <column name="land" type="VARCHAR(255)" />
+      <column name="zustaendige_verwaltungseinheit_id" type="BIGINT"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-2685_2" author="par">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public" />
+      <column name="table_name" value="geoserver_wegweisende_beschilderung_view" />
+      <column name="pk_column" value="id" />
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-4721" author="par" >
+    <sql>
+      CREATE INDEX konsistenzregel_verletzung_position_idx ON konsistenzregel_verletzung USING GIST (position);
+ 	    CREATE INDEX manueller_import_fehler_icon_position_idx ON manueller_import_fehler USING GIST (icon_position);
+      CREATE INDEX fahrradroute_icon_location_idx ON fahrradroute USING GIST (icon_location);
+      CREATE INDEX fahrradroute_original_geometrie_idx ON fahrradroute USING GIST (original_geometrie);
+      CREATE INDEX fahrradroute_netz_bezug_aenderung_geometry_idx ON fahrradroute_netz_bezug_aenderung USING GIST (geometry);
+      CREATE INDEX massnahme_netz_bezug_aenderung_geometry_idx ON massnahme_netz_bezug_aenderung USING GIST (geometry);
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-4759" author="par">
+    <update tableName="anpassungswunsch">
+      <column name="status" value="ABGELEHNT"/>
+      <where>status = 'NICHT_DLM_KONFORM'</where>
+    </update>
+  </changeSet>
+
+  <changeSet id="RAD-4867" author="par" >
+    <dropNotNullConstraint tableName="konsistenzregel_verletzung" columnName="original_geometry"/>
+  </changeSet>
+
+  <changeSet id="RAD-4869" author="par">
+    <sql>
+      UPDATE manueller_import_fehler
+      SET icon_position = st_setsrid(icon_position, 25832)
+      WHERE st_srid(icon_position) = 0;
+    </sql>
+  </changeSet>
+  
+  <changeSet id="RAD-4805" author="mr">
+	  <createTable tableName="abstellanlage">
+	  	<column name="id" type="bigint">
+	  	  <constraints nullable="false" primaryKey="true" primaryKeyName="abstellanlage_pkey"/>
+	  	</column>
+	  	<column name="version" type="bigint"></column>
+	  	<column name="geometrie" type="geometry"></column>
+	  	<column name="betreiber" type="varchar(255)"></column>
+	  	<column name="externe_id" type="varchar(255)"></column>
+	  </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-4815-2" author="mr">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public" />
+      <column name="table_name" value="geoserver_barriere_points_view" />
+      <column name="pk_column" value="id" />
+    </insert>
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public" />
+      <column name="table_name" value="geoserver_barriere_lines_view" />
+      <column name="pk_column" value="id" />
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-4816-2" author="mr">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public" />
+      <column name="table_name" value="geoserver_furt_kreuzung_points_view" />
+      <column name="pk_column" value="id" />
+    </insert>
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public" />
+      <column name="table_name" value="geoserver_furt_kreuzung_lines_view" />
+      <column name="pk_column" value="id" />
+    </insert>
+  </changeSet>
+  
+  <changeSet id="RAD-2683" author="par">
+    <sql>
+      CREATE INDEX wegweisende_beschilderung_geometrie_idx ON wegweisende_beschilderung USING GIST(geometrie);
+    </sql>
+  </changeSet>
+  
+  <changeSet id="RAD-4841" author="mr">
+	  <createTable tableName="servicestation">
+	  	<column name="id" type="bigint">
+	  	  <constraints nullable="false" primaryKey="true" primaryKeyName="servicestation_pkey"/>
+	  	</column>
+	  	<column name="version" type="bigint"></column>
+	  	<column name="geometrie" type="geometry"></column>
+	  	<column name="name" type="varchar(255)"></column>
+	  </createTable>
+  </changeSet>
+  
+  <changeSet id="RAD-4688" author="mr">
+  	<addColumn tableName="externer_layer">
+  	  <column name="quellangabe" type="varchar(1000)"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-4688-2" author="mr">
+  	<sql>UPDATE externer_layer SET quellangabe='Bitte Quelle eintragen'</sql>
+  </changeSet>
+  <changeSet id="RAD-4842" author="mr">
+	  <createTable tableName="leihstation">
+	  	<column name="id" type="bigint">
+	  	  <constraints nullable="false" primaryKey="true" primaryKeyName="leihstation_pkey"/>
+	  	</column>
+	  	<column name="version" type="bigint"></column>
+	  	<column name="geometrie" type="geometry"></column>
+	  	<column name="betreiber" type="varchar(255)"></column>
+	  </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-4819" author="par">
+    <addColumn tableName="fahrradroute_variante">
+      <column name="anstieg" type="float8"/>
+      <column name="abstieg" type="float8"/>
+    </addColumn>
+    <addColumn tableName="fahrradroute_variante_aud">
+      <column name="anstieg" type="float8"/>
+      <column name="abstieg" type="float8"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,57 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+  <include file="liquibase/changelog_extension.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_base.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_7.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_8.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_9.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_10.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_11.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_12.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_13.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_14.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_15.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_16.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_17.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_18.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_19.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_20.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_21.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_22.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_22_5.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_23.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_24.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_25.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_26.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_27.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_28.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_29.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_30.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_31.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_32.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_33.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_34.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_35.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_test.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_datenqualitaet_01.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_36.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/changelog_37.xml" relativeToChangelogFile="true"/>
+  <include file="liquibase/views.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

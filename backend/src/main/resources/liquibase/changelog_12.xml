@@ -1,0 +1,113 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	<changeSet id="RAD-861" author="ls + par">
+		<addColumn tableName="kante">
+			<column name="dlm_id" type="varchar(255)" />
+		</addColumn>
+	</changeSet>
+	<changeSet id="RAD-867" author="kho">
+		<renameColumn tableName="kante"
+			oldColumnName="fuehrungsform" newColumnName="radverkehrsfuehrung"
+			remarks="Umbenennung zwecks lineare Referenzierung" validate="true" />
+	</changeSet>
+
+	<changeSet id="RAD-876" author="ls">
+		<createTable tableName="parken_attribute"
+			remarks="Hinzufügen der Parken-Attributgruppe">
+			<column name="id" type="BIGINT" />
+			<column name="kante_id" type="BIGINT" />
+			<column name="von" type="float8" />
+			<column name="bis" type="float8" />
+			<column name="form" type="VARCHAR(255)" />
+			<column name="typ" type="VARCHAR(255)" />
+		</createTable>
+		<addPrimaryKey columnNames="id"
+			tableName="parken_attribute" />
+
+		<addForeignKeyConstraint
+			constraintName="fk_parken_attribute_kante"
+			referencedTableName="kante" baseColumnNames="kante_id"
+			baseTableName="parken_attribute" referencedColumnNames="id" />
+	</changeSet>
+
+	<changeSet id="RAD-868" author="kho">
+		<createTable tableName="fuehrungsform_attribute"
+			remarks="Gruppierung von Führungsformattribute und Radverkehrsführung reinziehen">
+			<column name="id" type="BIGINT" />
+			<column name="kante_id" type="BIGINT" />
+			<column name="von" type="float8" />
+			<column name="bis" type="float8" />
+			<column name="radverkehrsfuehrung" type="VARCHAR(255)" />
+		</createTable>
+		<addPrimaryKey columnNames="id"
+			tableName="fuehrungsform_attribute" />
+
+		<addForeignKeyConstraint
+			constraintName="fk_kante" referencedTableName="kante"
+			baseColumnNames="kante_id" baseTableName="fuehrungsform_attribute"
+			referencedColumnNames="id" />
+
+		<dropColumn tableName="kante">
+			<column name="radverkehrsfuehrung" />
+		</dropColumn>
+	</changeSet>
+
+	<changeSet id="870-871-872" author="kho">
+		<addColumn tableName="fuehrungsform_attribute">
+			<column name="strassenquerschnittrast06" type="varchar(255)" />
+		</addColumn>
+		<addColumn tableName="fuehrungsform_attribute">
+			<column name="umfeld" type="varchar(255)" />
+		</addColumn>
+		<addColumn tableName="fuehrungsform_attribute">
+			<column name="breite" type="decimal" />
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="RAD-882" author="andreas">
+		<renameTable newTableName="infrastrukturmerkmale"
+			oldTableName="strassen_begleit_attribute" />
+	</changeSet>
+	
+	<changeSet id="RAD-907" author="andreas">
+	    <addNotNullConstraint tableName="infrastrukturmerkmale" columnName="von"/>
+	    <addNotNullConstraint tableName="infrastrukturmerkmale" columnName="bis"/>
+	    
+	    <addNotNullConstraint tableName="geschwindigkeit_attribute" columnName="von"/>
+	    <addNotNullConstraint tableName="geschwindigkeit_attribute" columnName="bis"/>
+	    <addNotNullConstraint tableName="geschwindigkeit_attribute" columnName="hoechstgeschwindigkeit"/>
+
+	    <addNotNullConstraint tableName="fuehrungsform_attribute" columnName="von"/>
+	    <addNotNullConstraint tableName="fuehrungsform_attribute" columnName="bis"/>
+	    <addNotNullConstraint tableName="fuehrungsform_attribute" columnName="radverkehrsfuehrung"/>
+	    <addNotNullConstraint tableName="fuehrungsform_attribute" columnName="strassenquerschnittrast06"/>
+	    <addNotNullConstraint tableName="fuehrungsform_attribute" columnName="umfeld"/>
+
+	    <addNotNullConstraint tableName="parken_attribute" columnName="von"/>
+	    <addNotNullConstraint tableName="parken_attribute" columnName="bis"/>
+	    <addNotNullConstraint tableName="parken_attribute" columnName="form"/>
+	    <addNotNullConstraint tableName="parken_attribute" columnName="typ"/>
+	</changeSet>
+	
+	<changeSet id="RAD-907-2" author="andreas">
+	    <addNotNullConstraint tableName="kante" columnName="status"/>
+	</changeSet>
+
+</databaseChangeLog>

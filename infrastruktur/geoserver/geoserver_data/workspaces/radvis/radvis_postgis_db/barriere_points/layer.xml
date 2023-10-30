@@ -1,0 +1,17 @@
+<layer>
+  <name>barriere_points</name>
+  <id>LayerInfoImpl-23aeeee8:18577ca1aa5:-7ffd</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--1b507aaa:186977ef4db:-8000</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-23aeeee8:18577ca1aa5:-7ffe</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-01-03 13:25:58.444 UTC</dateCreated>
+  <dateModified>2023-02-28 10:33:25.337 UTC</dateModified>
+</layer>

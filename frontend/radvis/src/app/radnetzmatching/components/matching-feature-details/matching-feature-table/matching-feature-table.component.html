@@ -1,0 +1,106 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div
+  [class.primary-color]="isDLM && highlighted"
+  [class.secondary-color]="isRadNETZ && highlighted"
+  [class.generic-highlight-color]="!isDLM && !isRadNETZ && highlighted"
+  class="feature-header"
+>
+  <div class="ml-3">{{ featureLayerName }}</div>
+  <div *ngIf="nurLeereAttributeHinweisVisible" class="hinweis">(nur leere Attribute)</div>
+  <div class="display-flex flex-row">
+    <button
+      [attr.aria-label]="getVisibilityTooltip()"
+      [matTooltip]="getVisibilityTooltip()"
+      (click)="onToggleLeereAttribute()"
+      mat-icon-button
+    >
+      <mat-icon *ngIf="!leereAttributeVisible">visibility</mat-icon>
+      <mat-icon *ngIf="leereAttributeVisible">visibility_off</mat-icon>
+    </button>
+    <button
+      [attr.aria-label]="'Hauptfeature selektieren'"
+      matTooltip="Hauptfeature selektieren"
+      (click)="onPrimarySelect()"
+      mat-icon-button
+    >
+      <mat-icon>ads_click</mat-icon>
+    </button>
+  </div>
+</div>
+<div class="display-flex mt-5 zuordnen-buttons">
+  <ng-container *ngIf="highlighted">
+    <button
+      *ngIf="isNetzfehler"
+      (click)="onNetzfehlerErledigt()"
+      mat-flat-button
+      color="primary"
+      class="border-primary flex-grow"
+    >
+      <mat-icon class="mr-5">done_all</mat-icon>
+      Als erledigt markieren
+    </button>
+
+    <ng-container *ngIf="isRadNETZ">
+      <button
+        *ngIf="radNetzMatchingState === RadNetzMatchingState.FREE_SELECTION"
+        (click)="onZuordnen()"
+        mat-flat-button
+        color="primary"
+        class="border-primary flex-grow"
+      >
+        <mat-icon class="mr-5">add_link</mat-icon>
+        DLM-Kanten zuordnen
+      </button>
+      <button
+        *ngIf="radNetzMatchingState !== RadNetzMatchingState.FREE_SELECTION"
+        [disabled]="radNetzMatchingState === RadNetzMatchingState.ZUORDNEN_ACTIVE"
+        (click)="onSave()"
+        mat-flat-button
+        color="primary"
+        class="flex-grow border-primary"
+      >
+        <mat-icon class="mr-5">check</mat-icon>
+        Zuordnung speichern
+      </button>
+    </ng-container>
+    <button
+      *ngIf="isDLM && zugeordneteRadnetzKantenVorhanden"
+      (click)="onDelete()"
+      mat-flat-button
+      color="primary"
+      class="flex-grow border-primary"
+    >
+      <mat-icon class="mr-5">link_off</mat-icon>
+      Zuordnung entfernen
+    </button>
+  </ng-container>
+</div>
+<table *ngIf="attributeForTable.data.length > 0" [dataSource]="attributeForTable" mat-table matSort>
+  <ng-container matColumnDef="key">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Attribut</th>
+    <td mat-cell *matCellDef="let attribut" class="wrap">
+      {{ attribut.key }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="value">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Wert</th>
+    <td mat-cell *matCellDef="let attribut" class="wrap">{{ attribut.value }}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

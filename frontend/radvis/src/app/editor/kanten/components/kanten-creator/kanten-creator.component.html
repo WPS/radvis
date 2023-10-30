@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<rad-attribute-editor
+  (dismiss)="onClose()"
+  (resetForm)="knotenSelektionComponent.resetSelection()"
+  (save)="onSave()"
+  [dirty]="isDirty"
+  [fetching]="isFetching"
+  class="creator-body"
+  titel="Kante erstellen"
+>
+  <div class="mt-10 mb-5 ml-5 hinweistext">
+    Wählen Sie mit einem Linksklick den Knoten A aus und mit Strg+Linksklick den Knoten B. Mit Umschalt+Strg+Linksklick
+    kann der Knoten B frei platziert werden.
+  </div>
+  <div class="knoten-info display-flex align-items-center mt-10">
+    <mat-icon *ngIf="!vonKnotenId" radAccessabilityText="Warnung:" color="warn">warning</mat-icon>
+    <mat-icon *ngIf="vonKnotenId" radAccessabilityText="Erledigt:" [style.color]="validInputColor">check_circle
+    </mat-icon>
+    <span>Von Knoten <b>A</b>:</span><span class="italic">{{ vonKnotenId ? 'Ausgewählt' : 'Bitte auswählen' }}</span>
+  </div>
+  <div class="knoten-info display-flex align-items-center mt-10">
+    <mat-icon *ngIf="!bisKnotenId && !bisKnotenGeom" radAccessabilityText="Warnung:" color="warn">warning
+    </mat-icon
+    >
+    <mat-icon *ngIf="bisKnotenId || bisKnotenGeom" radAccessabilityText="Erledigt:" [style.color]="validInputColor">
+      check_circle
+    </mat-icon
+    >
+    <span>Bis Knoten <b>B</b>:</span><span
+    class="italic">{{ bisKnotenId ? 'Ausgewählt' : bisKnotenGeom ? 'Wird neu angelegt' : 'Bitte auswählen' }}</span>
+  </div>
+  <div class="mt-10 mb-5 ml-5 fehlertext" *ngIf="showValidationMessage" [style.color]="'red'">
+    Bitte wählen Sie genau zwei Knoten aus.
+  </div>
+  <rad-kanten-creator-knoten-selektion
+    #knotenSelektionComponent
+    (selectVonKnoten)="onSelectVonKnoten($event)"
+    (selectBisKnoten)="onSelectBisKnoten($event)"
+  ></rad-kanten-creator-knoten-selektion>
+  <div class="mt-20 mb-5 ml-5 hinweistext-netzklassen">
+    Hinweis: Bitte aktivieren Sie alle Netzklassen und stellen auch sicher, dass noch keine nicht-klassifizierten Kanten
+    an der Stelle vorhanden sind, an der Sie eine Kante vermissen!
+  </div>
+</rad-attribute-editor>
+

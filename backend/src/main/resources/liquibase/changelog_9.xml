@@ -1,0 +1,143 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	<changeSet author="Julian und Pawel" id="RAD-310">
+		<createTable tableName="organisation">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="organisation_pkey"/>
+			</column>
+			<column name="fach_id" type="INTEGER"/>
+			<column name="name" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="organisations_art" type="INTEGER">
+				<constraints nullable="false"/>
+			</column>
+			<column name="uebergeordnete_organisation_id" type="BIGINT"/>
+			<column name="bereich" type="GEOMETRY"/>
+		</createTable>
+		<addForeignKeyConstraint baseColumnNames="uebergeordnete_organisation_id" baseTableName="organisation" constraintName="fk_organisation_organisation" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="organisation" validate="true"/>
+	</changeSet>
+	<changeSet author="Malte und Pawel" id="RAD-325">
+		<addColumn schemaName="public" tableName="kanten_attribute">
+			<column name="baulast_traeger_id" type="BIGINT" />
+		</addColumn>
+	</changeSet>
+	<changeSet author="Julian und Kim" id="RAD-22">
+		<createTable tableName="tt_sib_abschnitt_oder_ast">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="tt_sib_abschnitt_oder_ast_pkey"/>
+			</column>
+			<column name="abschnitt_oder_ast_id" type="VARCHAR(255)"/>
+			<column name="vnp" type="VARCHAR(255)"/>
+			<column name="nnp" type="VARCHAR(255)"/>
+			<column name="geometry" type="GEOMETRY"/>
+		</createTable>
+		<createTable tableName="tt_sib_querschnitt">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="tt_sib_querschnitt_pkey"/>
+			</column>
+		</createTable>
+		<createTable tableName="tt_sib_teilabschnitt">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="tt_sib_teilabschnitt_pkey"/>
+			</column>
+			<column name="abschnitt_oder_ast_id" type="BIGINT">
+				<constraints nullable="false" foreignKeyName="fk_ttsibteilabschnitt_ttsibabschnittoderast"
+					references="tt_sib_abschnitt_oder_ast(id)"/>
+			</column>
+			<column name="tt_sib_querschnitt_id" type="BIGINT">
+				<constraints nullable="false" foreignKeyName="fk_ttsibteilabschnitt_ttsibquerschnitt"
+					references="tt_sib_querschnitt(id)"/>
+			</column>
+			<column name="von_station" type="INTEGER">
+				<constraints nullable="false"/>
+			</column>
+			<column name="bis_station" type="INTEGER">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+		<createTable tableName="tt_sib_streifen">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="tt_sib_streifen_pkey"/>
+			</column>
+			<column name="tt_sib_querschnitt_id" type="BIGINT">
+				<constraints nullable="false" foreignKeyName="fk_ttsibstreifen_ttsibquerschnitt"
+					references="tt_sib_querschnitt(id)"/>
+			</column>
+			<column name="breite_von" type="INTEGER"/>
+			<column name="breite_bis" type="INTEGER"/>
+			<column name="art" type="INTEGER"/>
+			<column name="einordnung" type="INTEGER"/>
+			<column name="nr" type="INTEGER"/>
+		</createTable>
+	</changeSet>
+	<changeSet id="RAD-663" author="Tim und Andreas">
+		<addColumn tableName="kante">
+			<column name="id_dublettenkante" type="BIGINT">
+			</column>
+		</addColumn>
+		<sql comment="id_dublettenkante darf nur gesetzt sein wenn auch id_ursprungskante gesetzt ist">
+			ALTER TABLE kante ADD CONSTRAINT CHK_DublettenUrsprung
+			CHECK(id_dublettenkante is null OR id_ursprungskante is not null)
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-656.1" author="Paavo und ich">
+		<sql>
+			ALTER TABLE kanten_attribute
+			ALTER laenge_berechnet TYPE decimal
+			USING laenge_berechnet::decimal;
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-656.2" author="Paavo und ich">
+		<sql>
+			ALTER TABLE kanten_attribute
+			ALTER laenge_manuell_erfasst TYPE decimal
+			USING laenge_manuell_erfasst::decimal;
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-656.3" author="Paavo und ich">
+		<sql>
+			ALTER TABLE kanten_attribute
+			ALTER dtv_fussverkehr TYPE integer
+			USING dtv_fussverkehr::integer;
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-656.4" author="Paavo und ich">
+		<sql>
+			ALTER TABLE kanten_attribute
+			ALTER dtv_pkw TYPE integer
+			USING dtv_pkw::integer;
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-656.5" author="Paavo und ich">
+		<sql>
+			ALTER TABLE kanten_attribute
+			ALTER dtv_radverkehr TYPE integer
+			USING dtv_radverkehr::integer;
+		</sql>
+	</changeSet>
+	<changeSet id="RAD-656.6" author="Paavo und ich">
+		<sql>
+			ALTER TABLE kanten_attribute
+			ALTER sv TYPE integer
+			USING sv::integer;
+		</sql>
+	</changeSet>
+</databaseChangeLog>

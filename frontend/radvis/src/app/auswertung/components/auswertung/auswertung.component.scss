@@ -1,0 +1,75 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+:host {
+  display: block;
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+form {
+  margin: 1rem auto;
+  max-width: 14cm;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-text {
+  font-size: 2rem;
+  font-weight: bold;
+  min-width: 20%;
+  text-align: center;
+}
+
+.explanation-text {
+  font-size: 0.7rem;
+  text-align: left;
+  margin-top: 10px;
+}
+
+.checkbox-column .mat-checkbox {
+  display: block;
+}
+
+.auswertung-button {
+  line-height: 3rem;
+  font-size: 1.5rem;
+}
+
+fieldset {
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+.loading-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+
+  mat-spinner {
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+  }
+}

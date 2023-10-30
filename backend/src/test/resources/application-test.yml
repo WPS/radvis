@@ -1,0 +1,39 @@
+radVis:
+  # Setzt den Pfad zu den externen Daten in der OwnCloud. Der Pfad kann über die genannte Umgebungsvariable gesetzt werden. Falls dies nicht gesetzt ist, wird der Standardwert genutzt.
+  common:
+    externeResourcenBasisPfad: src/test/resources
+    anzahl-tage-importprotokolle-vorhalten: 60
+  osm:
+    # Setzt den Dateinamen zu den OSM-Daten in dem Container. Der Pfad kann über die genannte Umgebungsvariable gesetzt werden. Falls dies nicht gesetzt ist, wird der Standardwert genutzt.
+    osmBasisDaten: test.osm.pbf
+    osmAngereichertDaten: test.angereichert.osm.pbf
+    minOsmWayCoverageForRadNETZ: 0.8
+  graphhopper:
+    osm:
+      cacheVerzeichnis: target/test-routing-graph-cache
+      mappingCacheVerzeichnis: target/test-mapping-cache
+    dlm:
+      dlmBasisDaten: src/test/resources/test.osm.pbf
+      cacheVerzeichnis: target/dlm/test-routing-graph-cache
+      tiffTilesVerzeichnis: /lgl_hoehendaten/tiffTiles
+  postgis:
+    argumentLimit: 2 # Das ist dafür da, damit die Anwendung das Limit kennt - es wird hier durch nicht das Limit in Postgis selbst gesetzt
+  toubiz:
+    token: faketoken
+  jobs:
+    tfisRadwegePath: shp/TFIS-Radwege/TFIS-Radwege-20221121.shp
+    dRoutenPath: shp/D-Routen/D-Routen.shp
+    fahrradzaehlstellenMobiDataImportBaseUrl: "https://mobidata-bw.de/daten/eco-counter/eco_counter_fahrradzaehler_202305.csv.gz"
+    fahrradzaehlstellenMobiDataImportStartDate: 202101
+  dlm:
+    basisUrl: https://owsproxy.lgl-bw.de/owsproxy/ows/WFS_LGL-BW_ATKIS_Basis-DLM
+spring:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+        generate_statistics: false
+
+logging:
+  level:
+    liquibase: ERROR

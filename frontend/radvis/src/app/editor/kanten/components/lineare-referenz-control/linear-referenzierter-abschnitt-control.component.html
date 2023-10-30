@@ -1,0 +1,77 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="context">
+  <mat-list>
+    <ng-container *ngFor="let lineareReferenzControl of lineareReferenzenForm.controls; let i = index; let last = last">
+      <mat-list-item
+        (focus)="onHoverSegment(true, i)"
+        (blur)="onHoverSegment(false, i)"
+        radHover
+        (hover)="onHoverSegment($event, i)"
+        *ngIf="!last"
+        [class.hovered]="hoveredSegmentIndex !== null && hoveredSegmentIndex === i"
+        class="display-flex"
+      >
+        <div class="display-flex justify-content-center" style="width: 100%">
+          <mat-checkbox (click)="onSelectFromTabelle(i)" [checked]="selectedIndices.includes(i)"></mat-checkbox>
+
+          <rad-autocorrecting-number-input-control
+            [formControl]="getBisControl(i)"
+            [isDisabled]="getBisControl(i).disabled"
+            [value]="getBisControl(i).value"
+            [resetToPreviousValueOnEmpty]="true"
+            class="ml-5 mr-5"
+          >
+            <div class="label">Bis</div>
+            <div class="einheit">m</div>
+          </rad-autocorrecting-number-input-control>
+
+          <button
+            [attr.aria-label]="'Segment schneiden'"
+            matTooltip="Segment schneiden"
+            [disabled]="isDisabled"
+            (click)="onCutSegment(i, $event)"
+            mat-icon-button
+          >
+            <mat-icon>content_cut</mat-icon>
+          </button>
+          <button
+            [attr.aria-label]="'Segment löschen'"
+            matTooltip="Segment löschen"
+            [disabled]="i === 0 || isDisabled"
+            (click)="onDeleteSegment(i, $event)"
+            mat-icon-button
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-list-item>
+    </ng-container>
+  </mat-list>
+</div>
+<rad-lineare-referenzierung-layer
+  (deselectElement)="onDeselectFromMap($event)"
+  (segmentierungChanged)="onSegmentierungAufKarteChanged($event)"
+  (selectElement)="onSelectFromMap($event)"
+  (hoveredSegmentIndexChanged)="onHoveredSegmentIndexChanged($event)"
+  [hoveredSegmentIndex]="hoveredSegmentIndex"
+  [originalGeometry]="lineString"
+  [segmentierung]="relativeSegmentPoints"
+  [seitenbezug]="seitenbezug"
+  [selectedIndices]="selectedIndices"
+  [modificationDisabled]="isDisabled"
+  [layerFilter]="layerFilter"
+  [zIndex]="lineareReferenzierungZIndex"
+></rad-lineare-referenzierung-layer>
