@@ -29,25 +29,23 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.apache.commons.io.IOUtils;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage.AbstellanlageBuilder;
 import de.wps.radvis.backend.abstellanlage.domain.entity.AbstellanlageBRImportStatistik;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlStellplaetze;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.ExterneAbstellanlagenId;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -64,6 +62,7 @@ import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -85,8 +84,7 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 		public static final String BESONDERHEITEN_FOTO = "Besonderheiten_Foto";
 		public static final List<String> ALL = List.of(
 			ID, DATENQUELLE, LONGITUDE, LATITUDE, ANLAGENTYP, STELLPLATZANZAHL, UEBERDACHT, NOTIZEN, ANLAGE_FOTO,
-			WEGZUR_ANLAGE_FOTO, HINDERNISZUFAHRT_FOTO, BESONDERHEITEN_FOTO
-		);
+			WEGZUR_ANLAGE_FOTO, HINDERNISZUFAHRT_FOTO, BESONDERHEITEN_FOTO);
 	}
 
 	private final JobConfigurationProperties jobConfigurationProperties;
@@ -140,21 +138,36 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 
 		log.info("Zu importierende Abstellanlagen B+R Csv Dateien: " + urlsToImport);
 
+		Set<ExterneAbstellanlagenId> bereitsImportierteAbstellanlagen = new HashSet<>();
 		for (URL url : urlsToImport) {
 			CsvData csvData;
 			try (InputStream is = url.openStream()) {
 				byte[] bytes = IOUtils.toByteArray(is);
-				csvData = csvRepository.read(bytes, CsvHeader.ALL);
+				csvData = csvRepository.read(bytes, CsvHeader.ALL, ';', true);
 
 			} catch (IOException | CsvReadException e) {
-				log.error(
-					"Die Datei mit der Url: " + url + " konnte aus folgendem Grund nicht eingelesen werden: " + e);
+				log.error("Die Datei mit der Url: {} konnte aus folgendem Grund nicht eingelesen werden: ", url, e);
 				abstellanlageBRImportStatistik.anzahlUrlsOderDateienFehlerhaft++;
 				continue;
 			}
 
+			abstellanlageBRImportStatistik.anzahlBeimCsvImportUebersprungenerZeilen = csvData
+				.getAnzahlUebersprungenerZeilen();
+			log.info("Anzahl zeilen in der csvData: " + csvData.getRows().size());
+
 			for (Map<String, String> csvDataRow : csvData.getRows()) {
 				ExterneAbstellanlagenId externeId = ExterneAbstellanlagenId.of(csvDataRow.get(CsvHeader.ID));
+				if (bereitsImportierteAbstellanlagen.contains(externeId)) {
+					log.error("Duplicate ID found: " + externeId);
+					abstellanlageBRImportStatistik.anzahlAbstellanlagenIdNichtEindeutig++;
+					continue;
+				}
+				if (csvDataRow.get(CsvHeader.DATENQUELLE)
+					.equalsIgnoreCase(AbstellanlagenQuellSystem.RADVIS.toString())) {
+					abstellanlageBRImportStatistik.anzahlRadVISAbstellanlagenUebersprungen++;
+					continue;
+				}
+				bereitsImportierteAbstellanlagen.add(externeId);
 				AbstellanlageBuilder abstellanlageBuilder = getExistingOrNewAbstellanlagenBuilder(externeId);
 				addDefaultBRAttributes(abstellanlageBuilder);
 				try {
@@ -178,8 +191,9 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 			}
 		}
 		if (!urlsToImport.isEmpty()) {
-			int anzahlGeloeschteMobiDataAbstellanlagen = abstellanlageRepository.deleteAllByQuellSystemAndExterneIdNotIn(
-				AbstellanlagenQuellSystem.MOBIDATABW, aktuelleAbstellanlagen);
+			int anzahlGeloeschteMobiDataAbstellanlagen = abstellanlageRepository
+				.deleteAllByQuellSystemAndExterneIdNotIn(
+					AbstellanlagenQuellSystem.MOBIDATABW, aktuelleAbstellanlagen);
 			abstellanlageBRImportStatistik.anzahlGeloescht = anzahlGeloeschteMobiDataAbstellanlagen;
 		}
 
@@ -198,7 +212,7 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 		abstellanlageBuilder.quellSystem(AbstellanlagenQuellSystem.MOBIDATABW)
 			.zustaendig(null)
 			.ueberwacht(Ueberwacht.UNBEKANNT)
-			.istBikeAndRide(IstBikeAndRide.of(true))
+			.abstellanlagenOrt(AbstellanlagenOrt.BIKE_AND_RIDE)
 			.groessenklasse(null)
 			.status(AbstellanlagenStatus.AKTIV);
 	}
@@ -313,8 +327,7 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 	}
 
 	private String generateHtmlLinkIfUrlNotEmpty(String linkName, String linkUrl) {
-		return linkUrl.isEmpty() ?
-			"" :
-			String.format("<li><a href=\"%s\" target=\"_blank\">%s</a></li>\n", linkUrl, linkName);
+		return linkUrl.isEmpty() ? ""
+			: String.format("<li><a href=\"%s\" target=\"_blank\">%s</a></li>\n", linkUrl, linkName);
 	}
 }

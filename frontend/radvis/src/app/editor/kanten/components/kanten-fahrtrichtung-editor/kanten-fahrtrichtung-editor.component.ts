@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
@@ -28,7 +28,7 @@ import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equ
 import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
@@ -46,11 +46,11 @@ type GenericRichtung = {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KantenFahrtrichtungEditorComponent implements DiscardGuard, OnInit, OnDestroy {
+export class KantenFahrtrichtungEditorComponent implements DiscardableComponent, OnInit, OnDestroy {
   public NICHT_BEARBEITBAR_HINWEIS = AbstractAttributGruppeEditor.NICHT_BEARBEITBAR_HINWEIS;
 
   richtungOptions = Richtung.options;
-  displayedAttributeformGroup: FormGroup;
+  displayedAttributeformGroup: UntypedFormGroup;
   hasKanten$: Observable<boolean>;
   showRadNetzHinweis = false;
   editingAllowed = true;
@@ -74,8 +74,8 @@ export class KantenFahrtrichtungEditorComponent implements DiscardGuard, OnInit,
     this.kantenSelektionService.registerForDiscardGuard(this);
     this.hasKanten$ = kantenSelektionService.selektierteKanten$.pipe(map(kanten => kanten.length > 0));
 
-    this.displayedAttributeformGroup = new FormGroup({
-      richtung: new FormControl(null),
+    this.displayedAttributeformGroup = new UntypedFormGroup({
+      richtung: new UntypedFormControl(null),
     });
   }
 

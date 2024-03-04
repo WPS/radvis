@@ -14,7 +14,7 @@
 
 import { ComponentFixture } from '@angular/core/testing';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { _MatOptionBase } from '@angular/material/core';
+import { MatOption } from '@angular/material/core';
 import { By } from '@angular/platform-browser';
 import { MockBuilder, MockRender } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -23,7 +23,7 @@ import { OrtsSucheService } from 'src/app/karte/services/orts-suche.service';
 import { OrtsSucheResult } from 'src/app/shared/models/orts-suche-result';
 import { SharedModule } from 'src/app/shared/shared.module';
 
-describe('OrtsSucheComponent', () => {
+describe(OrtsSucheComponent.name, () => {
   let component: OrtsSucheComponent;
   let fixture: ComponentFixture<OrtsSucheComponent>;
 
@@ -86,7 +86,7 @@ describe('OrtsSucheComponent', () => {
                 name: 'Stuttgart',
                 centerCoordinate: [12, 12],
               } as OrtsSucheResult,
-            } as _MatOptionBase
+            } as MatOption
           )
         );
 

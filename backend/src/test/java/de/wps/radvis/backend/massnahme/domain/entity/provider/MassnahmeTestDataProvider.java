@@ -29,11 +29,11 @@ import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
@@ -59,8 +59,13 @@ public class MassnahmeTestDataProvider {
 
 	public static Massnahme.MassnahmeBuilder withDefaultValues() {
 		Verwaltungseinheit organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.name("Coole Organisation").organisationsArt(
-				OrganisationsArt.BUNDESLAND)
+			.name("Coole Organisation")
+			.organisationsArt(OrganisationsArt.BUNDESLAND)
+			.build();
+
+		Verwaltungseinheit zustaendiger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.name("Mega coole zuständige Organisation")
+			.organisationsArt(OrganisationsArt.REGIERUNGSBEZIRK)
 			.build();
 
 		Benutzer benutzer = BenutzerTestDataProvider.admin(organisation).build();
@@ -73,8 +78,9 @@ public class MassnahmeTestDataProvider {
 
 		return Massnahme.builder()
 			.bezeichnung(Bezeichnung.of("Bezeichnung"))
-			.massnahmenkategorien(Set.of(Massnahmenkategorie.FURTEN_ERNEUERN))
+			.massnahmenkategorien(Set.of(Massnahmenkategorie.FURTEN_ERNEUERN, Massnahmenkategorie.ANPASSUNG_AN_BAUWERK))
 			.netzbezug(netzbezug)
+			.zustaendiger(zustaendiger)
 			.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2022))
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.dokumentListe(new DokumentListe(new ArrayList<>()))
@@ -86,7 +92,7 @@ public class MassnahmeTestDataProvider {
 			.massnahmeKonzeptId(MassnahmeKonzeptID.of("ABC123"))
 			.prioritaet(Prioritaet.of(1))
 			.kostenannahme(Kostenannahme.of(1234L))
-			.netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG))
+			.netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KREISNETZ_FREIZEIT))
 			.benutzerLetzteAenderung(benutzer)
 			.letzteAenderung(LocalDateTime.of(2050, 10, 1, 0, 0))
 			.sollStandard(SollStandard.BASISSTANDARD)
@@ -100,7 +106,7 @@ public class MassnahmeTestDataProvider {
 	}
 
 	public static Massnahme.MassnahmeBuilder withKanten(Kante... kanten) {
-		Set<AbschnittsweiserKantenSeitenBezug> kantenAbschnitte = Arrays.asList(kanten).stream()
+		Set<AbschnittsweiserKantenSeitenBezug> kantenAbschnitte = Arrays.stream(kanten)
 			.map(k -> new AbschnittsweiserKantenSeitenBezug(
 				k, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS))
 			.collect(Collectors.toSet());
@@ -113,8 +119,7 @@ public class MassnahmeTestDataProvider {
 	}
 
 	public static Massnahme.MassnahmeBuilder withKnoten(Knoten... knoten) {
-		Set<Knoten> knotenSet = Arrays.asList(knoten).stream()
-			.collect(Collectors.toSet());
+		Set<Knoten> knotenSet = Arrays.stream(knoten).collect(Collectors.toSet());
 
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(),
@@ -127,6 +132,6 @@ public class MassnahmeTestDataProvider {
 		return withDefaultValues()
 			.baulastZustaendiger(organisation)
 			.unterhaltsZustaendiger(organisation)
-			.markierungsZustaendiger(organisation);
+			.zustaendiger(organisation);
 	}
 }

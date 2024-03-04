@@ -59,6 +59,65 @@
   <numDecimals>0</numDecimals>
   <padWithZeros>false</padWithZeros>
   <forcedDecimal>false</forcedDecimal>
+  <attributes>
+    <attribute>
+      <name>Name</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>Routen-ID</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>D-Route</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+      <source>&quot;D-Route&quot;</source>
+    </attribute>
+    <attribute>
+      <name>EuroVelo</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Integer</binding>
+    </attribute>
+    <attribute>
+      <name>Landesnetz</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Integer</binding>
+    </attribute>
+    <attribute>
+      <name>KommuNetz</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>Radnetz_D</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Integer</binding>
+    </attribute>
+    <attribute>
+      <name>geometry</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>org.locationtech.jts.geom.Geometry</binding>
+    </attribute>
+  </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>
   <skipNumberMatched>false</skipNumberMatched>
   <circularArcPresent>false</circularArcPresent>

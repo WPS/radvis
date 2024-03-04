@@ -94,7 +94,7 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
         <mat-label>5. Beschreibung der abweichenden RadNETZ-Maßnahme</mat-label>
         <textarea class="text-area" formControlName="beschreibungAbweichenderMassnahme" matInput></textarea>
         <mat-hint align="end"
-        >{{ formGroup.get('beschreibungAbweichenderMassnahme')?.value?.length || 0 }}/3000
+          >{{ formGroup.get('beschreibungAbweichenderMassnahme')?.value?.length || 0 }}/3000
         </mat-hint>
       </mat-form-field>
       <rad-validation-error-anzeige [errors]="formGroup.get('beschreibungAbweichenderMassnahme')?.errors || null">
@@ -146,16 +146,10 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
 
   <div class="buttons display-flex p-10" *ngIf="umsetzungsstand?.canEdit">
     <ng-container *ngIf="!aktualisierungAngefordert">
-      <div
-        *ngIf="aktualisiert && umsetzungsstand?.letzteAenderung"
-        class="aktualiteats-hinweis aktualitaet-bestaetigt"
-      >
+      <div *ngIf="aktualisiert && umsetzungsstand?.letzteAenderung" class="aktualiteats-hinweis aktualitaet-bestaetigt">
         Aktualität bestätigt am: {{ umsetzungsstand?.letzteAenderung | date: 'dd.MM.yyyy' }}
       </div>
-      <div
-        *ngIf="importiert && umsetzungsstand?.letzteAenderung"
-        class="aktualiteats-hinweis"
-      >
+      <div *ngIf="importiert && umsetzungsstand?.letzteAenderung" class="aktualiteats-hinweis">
         Beantwortung importiert am: {{ umsetzungsstand?.letzteAenderung | date: 'dd.MM.yyyy' }}
       </div>
       <div

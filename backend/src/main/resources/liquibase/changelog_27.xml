@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-3127" author="par">
     <dropColumn tableName="massnahme" columnName="massnahmenkategorie"/>
@@ -25,10 +25,10 @@
       <column name="massnahmenkategorien" type="VARCHAR(255)"/>
     </createTable>
     <addForeignKeyConstraint
-      constraintName="fk_massnahme_massnahmenkategorien_massnahme_id"
-      referencedTableName="massnahme"
-      referencedColumnNames="id"
-      baseColumnNames="massnahme_id" baseTableName="massnahme_massnahmenkategorien"/>
+			constraintName="fk_massnahme_massnahmenkategorien_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_massnahmenkategorien"/>
     <createIndex tableName="massnahme_massnahmenkategorien" indexName="massnahme_massnahmenkategorien_massnahme_id_idx">
       <column name="massnahme_id"/>
     </createIndex>

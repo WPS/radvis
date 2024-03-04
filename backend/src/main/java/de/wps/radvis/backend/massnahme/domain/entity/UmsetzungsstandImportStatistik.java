@@ -101,7 +101,7 @@ public class UmsetzungsstandImportStatistik extends JobStatistik {
 	public String getUmsetzungErfolgtMappingFehlerFormattedString() {
 		return this.getFormattedString(this.umsetzungErfolgtMappingFehler);
 	}
-	
+
 	private String getFormattedString(Map<String, List<String>> map) {
 		StringBuilder sb = new StringBuilder();
 		map.keySet().forEach(key -> {

@@ -14,51 +14,51 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
   <changeSet id="RAD-661" author="Pawel und Kim">
     <modifyDataType tableName="imported_feature"
-      columnName="art" newDataType="varchar(255)"/>
+			columnName="art" newDataType="varchar(255)"/>
     <modifyDataType tableName="imported_feature"
-      columnName="quelle" newDataType="varchar(255)"/>
+			columnName="quelle" newDataType="varchar(255)"/>
 
     <modifyDataType tableName="kante" columnName="quelle"
-      newDataType="varchar(255)"/>
+			newDataType="varchar(255)"/>
 
     <modifyDataType tableName="kanten_attribute"
-      columnName="ortslage" newDataType="varchar(255)"/>
+			columnName="ortslage" newDataType="varchar(255)"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="hoechstgeschwindigkeit" newDataType="varchar(255)"/>
+			columnName="hoechstgeschwindigkeit" newDataType="varchar(255)"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
-      newDataType="varchar(255)"/>
+			columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
+			newDataType="varchar(255)"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="richtung" newDataType="varchar(255)"/>
+			columnName="richtung" newDataType="varchar(255)"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="wege_niveau" newDataType="varchar(255)"/>
+			columnName="wege_niveau" newDataType="varchar(255)"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="belag_art" newDataType="varchar(255)"/>
+			columnName="belag_art" newDataType="varchar(255)"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="status" newDataType="varchar(255)"/>
+			columnName="status" newDataType="varchar(255)"/>
 
     <modifyDataType tableName="knoten" columnName="quelle"
-      newDataType="varchar(255)"/>
+			newDataType="varchar(255)"/>
 
     <modifyDataType tableName="knoten_attribute"
-      columnName="ortslage" newDataType="varchar(255)"/>
+			columnName="ortslage" newDataType="varchar(255)"/>
     <modifyDataType tableName="knoten_attribute"
-      columnName="knoten_form" newDataType="varchar(255)"/>
+			columnName="knoten_form" newDataType="varchar(255)"/>
     <modifyDataType tableName="knoten_attribute"
-      columnName="knoten_art" newDataType="varchar(255)"/>
+			columnName="knoten_art" newDataType="varchar(255)"/>
 
     <modifyDataType tableName="organisation"
-      columnName="organisations_art" newDataType="varchar(255)"/>
+			columnName="organisations_art" newDataType="varchar(255)"/>
 
     <modifyDataType tableName="tt_sib_streifen"
-      columnName="art" newDataType="varchar(255)"/>
+			columnName="art" newDataType="varchar(255)"/>
     <modifyDataType tableName="tt_sib_streifen"
-      columnName="einordnung" newDataType="varchar(255)"/>
+			columnName="einordnung" newDataType="varchar(255)"/>
   </changeSet>
   <changeSet id="RAD-653" author="marie">
     <dropColumn tableName="kanten_attribute">
@@ -72,27 +72,27 @@
       <column name="bis" type="float8"/>
     </createTable>
     <addPrimaryKey columnNames="id"
-      tableName="geschwindigkeit_attribute"/>
+			tableName="geschwindigkeit_attribute"/>
     <addColumn tableName="kante">
       <column name="geschwindigkeit_attribute_id" type="bigint"/>
     </addColumn>
     <addForeignKeyConstraint
-      constraintName="fk_geschwindigkeit_attribute_kante"
-      referencedTableName="geschwindigkeit_attribute"
-      baseColumnNames="geschwindigkeit_attribute_id" baseTableName="kante"
-      referencedColumnNames="id"/>
+			constraintName="fk_geschwindigkeit_attribute_kante"
+			referencedTableName="geschwindigkeit_attribute"
+			baseColumnNames="geschwindigkeit_attribute_id" baseTableName="kante"
+			referencedColumnNames="id"/>
   </changeSet>
   <changeSet id="RAD-681" author="marie">
     <addColumn tableName="geschwindigkeit_attribute">
       <column name="hoechstgeschwindigkeit" type="varchar(255)"/>
       <column
-        name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
-        type="varchar(255)"/>
+				name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
+				type="varchar(255)"/>
     </addColumn>
     <dropColumn tableName="kanten_attribute">
       <column name="hoechstgeschwindigkeit"/>
       <column
-        name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
+				name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
     </dropColumn>
   </changeSet>
   <changeSet id="RAD-683" author="marie">
@@ -103,18 +103,18 @@
       <column name="beleuchtung" type="VARCHAR(255)"/>
       <column name="belag_art" type="VARCHAR(255)"/>
       <column name="retroreflektierende_randbeleuchtung"
-        type="VARCHAR(255)"/>
+				type="VARCHAR(255)"/>
     </createTable>
     <addPrimaryKey columnNames="id"
-      tableName="strassen_begleit_attribute"/>
+			tableName="strassen_begleit_attribute"/>
     <addColumn tableName="kante">
       <column name="strassen_begleit_attribute_id" type="bigint"/>
     </addColumn>
     <addForeignKeyConstraint
-      constraintName="fk_strassen_begleit_attribute_kante"
-      referencedTableName="strassen_begleit_attribute"
-      baseColumnNames="strassen_begleit_attribute_id" baseTableName="kante"
-      referencedColumnNames="id"/>
+			constraintName="fk_strassen_begleit_attribute_kante"
+			referencedTableName="strassen_begleit_attribute"
+			baseColumnNames="strassen_begleit_attribute_id" baseTableName="kante"
+			referencedColumnNames="id"/>
     <dropColumn tableName="kanten_attribute">
       <column name="beleuchtung"/>
       <column name="belag_art"/>
@@ -126,32 +126,32 @@
       <column name="kante_id" type="bigint"/>
     </addColumn>
     <dropForeignKeyConstraint
-      constraintName="fk_geschwindigkeit_attribute_kante"
-      baseTableName="kante"/>
+			constraintName="fk_geschwindigkeit_attribute_kante"
+			baseTableName="kante"/>
     <dropColumn tableName="kante">
       <column name="geschwindigkeit_attribute_id"/>
     </dropColumn>
     <addForeignKeyConstraint
-      constraintName="fk_geschwindigkeit_attribute_kante"
-      referencedTableName="kante" baseColumnNames="kante_id"
-      baseTableName="geschwindigkeit_attribute"
-      referencedColumnNames="id"/>
+			constraintName="fk_geschwindigkeit_attribute_kante"
+			referencedTableName="kante" baseColumnNames="kante_id"
+			baseTableName="geschwindigkeit_attribute"
+			referencedColumnNames="id"/>
   </changeSet>
   <changeSet id="RAD-682-2" author="marie">
     <addColumn tableName="strassen_begleit_attribute">
       <column name="kante_id" type="bigint"/>
     </addColumn>
     <dropForeignKeyConstraint
-      constraintName="fk_strassen_begleit_attribute_kante"
-      baseTableName="kante"/>
+			constraintName="fk_strassen_begleit_attribute_kante"
+			baseTableName="kante"/>
     <dropColumn tableName="kante">
       <column name="strassen_begleit_attribute_id"/>
     </dropColumn>
     <addForeignKeyConstraint
-      constraintName="fk_strassen_begleit_attribute_kante"
-      referencedTableName="kante" baseColumnNames="kante_id"
-      baseTableName="strassen_begleit_attribute"
-      referencedColumnNames="id"/>
+			constraintName="fk_strassen_begleit_attribute_kante"
+			referencedTableName="kante" baseColumnNames="kante_id"
+			baseTableName="strassen_begleit_attribute"
+			referencedColumnNames="id"/>
   </changeSet>
   <changeSet id="RAD-459" author="Bastian Weinlich">
     <addColumn tableName="tt_sib_abschnitt_oder_ast">
@@ -166,13 +166,13 @@
   </changeSet>
   <changeSet id="RAD-704" author="Andreas">
     <modifyDataType
-      columnName="beleuchtung"
-      tableName="strassen_begleit_attribute"
-      newDataType="boolean"/>
+			columnName="beleuchtung"
+			tableName="strassen_begleit_attribute"
+			newDataType="boolean"/>
     <modifyDataType
-      columnName="retroreflektierende_randbeleuchtung"
-      tableName="strassen_begleit_attribute"
-      newDataType="boolean"/>
+			columnName="retroreflektierende_randbeleuchtung"
+			tableName="strassen_begleit_attribute"
+			newDataType="boolean"/>
   </changeSet>
   <changeSet id="RAD-714" author="bastianUndAndreas">
     <createTable tableName="netzfehler">
@@ -184,7 +184,7 @@
     <addNotNullConstraint tableName="netzfehler" columnName="netzfehler_typ"/>
     <addNotNullConstraint tableName="netzfehler" columnName="netzfehler_beschreibung"/>
     <addPrimaryKey columnNames="id"
-      tableName="netzfehler"/>
+			tableName="netzfehler"/>
   </changeSet>
   <changeSet id="RAD-720" author="tir">
     <addColumn tableName="netzfehler">

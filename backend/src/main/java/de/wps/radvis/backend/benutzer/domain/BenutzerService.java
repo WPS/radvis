@@ -14,12 +14,18 @@
 
 package de.wps.radvis.backend.benutzer.domain;
 
+import static org.valid4j.Assertive.require;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.hibernate.Hibernate;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerDBListView;
@@ -32,7 +38,10 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
+import de.wps.radvis.backend.common.domain.FrontendLinks;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
@@ -50,12 +59,20 @@ public class BenutzerService {
 	private final BenutzerRepository benutzerRepository;
 	private final VerwaltungseinheitService verwaltungseinheitService;
 	private final ServiceBwId technischerBenutzerServiceBwId;
+	private final String basisUrl;
+	private final MailService mailService;
 
-	public BenutzerService(BenutzerRepository benutzerRepository, VerwaltungseinheitService verwaltungseinheitService,
-		String technischerBenutzerServiceBwId) {
+	public BenutzerService(
+		BenutzerRepository benutzerRepository,
+		VerwaltungseinheitService verwaltungseinheitService,
+		String technischerBenutzerServiceBwId,
+		String basisUrl,
+		MailService mailService) {
 		this.benutzerRepository = benutzerRepository;
 		this.verwaltungseinheitService = verwaltungseinheitService;
 		this.technischerBenutzerServiceBwId = ServiceBwId.of(technischerBenutzerServiceBwId);
+		this.basisUrl = basisUrl;
+		this.mailService = mailService;
 	}
 
 	public Benutzer registriereBenutzer(Name vorname, Name nachname, Long organisationsID, Set<Rolle> rollen,
@@ -73,9 +90,15 @@ public class BenutzerService {
 				String.format("Eine Organisation mit der ID '%d' existiert nicht.", organisationsID));
 		}
 
-		return benutzerRepository.save(
-			new Benutzer(vorname, nachname, BenutzerStatus.INAKTIV, organisation.get(), mailadresse, serviceBwId,
-				rollen));
+		return benutzerRepository.save(new Benutzer(
+			vorname,
+			nachname,
+			BenutzerStatus.WARTE_AUF_FREISCHALTUNG,
+			organisation.get(),
+			mailadresse,
+			serviceBwId,
+			rollen
+		));
 	}
 
 	public void registriereAdministrator(Name vorname, Name nachname, ServiceBwId serviceBwId,
@@ -105,7 +128,7 @@ public class BenutzerService {
 		benutzerRepository.save(new Benutzer(
 			vorname,
 			nachname,
-			BenutzerStatus.INAKTIV,
+			BenutzerStatus.WARTE_AUF_FREISCHALTUNG,
 			verwaltungseinheitService.getUnbekannteOrganisation(),
 			mailadresse,
 			serviceBwId,
@@ -116,12 +139,15 @@ public class BenutzerService {
 		return benutzerRepository.existsByServiceBwId(serviceBwId);
 	}
 
-	public Optional<Benutzer> findBenutzerByServiceBwId(ServiceBwId serviceBWID) {
-		return benutzerRepository.findByServiceBwId(serviceBWID);
-	}
-
-	public Iterable<Benutzer> getAlleBenutzer() {
-		return benutzerRepository.findAll();
+	public Optional<Benutzer> findBenutzerByServiceBwIdAndInitialize(ServiceBwId serviceBWID) {
+		Optional<Benutzer> potentialBenutzer = benutzerRepository.findByServiceBwId(serviceBWID);
+		potentialBenutzer.ifPresent((benutzer) -> {
+			if (!benutzer.getOrganisation().getOrganisationsArt().istGebietskoerperschaft()) {
+				Hibernate.initialize(benutzer.getOrganisation());
+				Hibernate.initialize(((Organisation) benutzer.getOrganisation()).getZustaendigFuerBereichOf());
+			}
+		});
+		return potentialBenutzer;
 	}
 
 	public Benutzer getBenutzer(long id) throws BenutzerIstNichtRegistriertException {
@@ -132,7 +158,7 @@ public class BenutzerService {
 		return benutzerRepository.save(benutzer);
 	}
 
-	public Benutzer aendereBenutzerstatus(long id, long version, boolean aktivieren)
+	public Benutzer aendereBenutzerstatus(long id, long version, BenutzerStatus status)
 		throws BenutzerIstNichtRegistriertException {
 		Benutzer benutzer = benutzerRepository.findById(id).orElseThrow(BenutzerIstNichtRegistriertException::new);
 		if (version < benutzer.getVersion()) {
@@ -140,7 +166,7 @@ public class BenutzerService {
 				"Ein/e andere Nutzer/in hat dieses Objekt bearbeitet. "
 					+ "Bitte laden Sie das Objekt neu und führen Sie Ihre Änderungen erneut durch.");
 		}
-		benutzer.setStatus(aktivieren ? BenutzerStatus.AKTIV : BenutzerStatus.INAKTIV);
+		benutzer.setStatus(status);
 		return benutzerRepository.save(benutzer);
 	}
 
@@ -233,7 +259,8 @@ public class BenutzerService {
 	}
 
 	/**
-	 * Gibt alle Rechte zurück mit denen die entsprechende Rolle verbeben werden darf
+	 * Gibt alle Rechte zurück mit denen die entsprechende Rolle verbeben werden
+	 * darf
 	 *
 	 * @param rolle
 	 * 	für die die Vergaberechte ermittelt werden sollen
@@ -265,9 +292,12 @@ public class BenutzerService {
 	}
 
 	/**
-	 * Gibt alle Benutzer zurück, welche aktuell für den gegebenen Benutzer zuständig sind (und z.b. eine Email bei
-	 * einer neuen Registriereung erhalten sollen). Dies ist eine echte Teilmenge der Autorisierten Benutzer. Dabei
-	 * werden nur die Admins der nächst niedrigensten Ebene gefunden, die autorisiert sind.
+	 * Gibt alle Benutzer zurück, welche aktuell für den gegebenen Benutzer
+	 * zuständig sind (und z.b. eine Email bei
+	 * einer neuen Registriereung erhalten sollen). Dies ist eine echte Teilmenge
+	 * der Autorisierten Benutzer. Dabei
+	 * werden nur die Admins der nächst niedrigensten Ebene gefunden, die
+	 * autorisiert sind.
 	 */
 	public List<Benutzer> getAlleZustaendigenBenutzer(Benutzer benutzer) {
 		if (benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
@@ -289,9 +319,60 @@ public class BenutzerService {
 				rolle -> ermittleVergaberechteFuerRolle(rolle).stream().noneMatch(admin::hatRecht)))
 			.collect(Collectors.toList());
 
-		// sollten sich keine zuständigen Admins finden lassen, wird an die Zentraladmins eskaliert
+		// sollten sich keine zuständigen Admins finden lassen, wird an die
+		// Zentraladmins eskaliert
 		return zustaendigenBenutzer.isEmpty()
 			? getRadvisAdmins()
 			: zustaendigenBenutzer;
 	}
+
+	/**
+	 * Ermittelt die freigeschalteten Benutzer (ohne Admins), die sich länger als spezifiziert nicht eingeloggt haben
+	 *
+	 * @param dauerInTagen
+	 * 	Anzahl an Tagen (exklusive), bis Benutzer als inaktiv angesehen werden
+	 * @return Alle Rechte, mit der man die Rolle vergeben darf
+	 */
+	public List<Benutzer> ermittleAktiveBenutzerInaktivLaengerAls(Integer dauerInTagen) {
+		List<Benutzer> benutzerListe = benutzerRepository.findByStatusAndRollenIsNotContaining(
+			BenutzerStatus.AKTIV,
+			Rolle.RADVIS_ADMINISTRATOR
+		);
+
+		return benutzerListe.stream()
+			.filter(b -> ChronoUnit.DAYS.between(b.getLetzteAktivitaet(), LocalDate.now()) > dauerInTagen)
+			.collect(Collectors.toList());
+	}
+
+	public Benutzer beantrageReaktivierungFuerBenutzer(Benutzer benutzer) throws BenutzerIstNichtRegistriertException {
+		require(benutzer.getStatus().equals(BenutzerStatus.INAKTIV),
+			"Nur inaktive Benutzer können reaktiviert werden!");
+		Benutzer beantragenderBenutzer = aendereBenutzerstatus(benutzer.getId(), benutzer.getVersion(),
+			BenutzerStatus.WARTE_AUF_FREISCHALTUNG);
+
+		String mailText = String.format(
+			"Der Benutzer '%s %s' hat eine Reaktivierung beantragt und wartet auf Freischaltung.\n" +
+				"Die Bearbeitung des Benutzers kann erfolgen unter %s .",
+			beantragenderBenutzer.getVorname(),
+			beantragenderBenutzer.getNachname(),
+			this.basisUrl + FrontendLinks.benutzerAdministration(benutzer.getId()));
+
+		this.versendeMailFuerBenutzerAenderungAnZustaendige(
+			beantragenderBenutzer,
+			"Antrag auf Reaktivierung",
+			mailText);
+
+		log.info("Benutzer mit ServiceBW-ID [{}] hat eine Reaktivierung beantragt.",
+			beantragenderBenutzer.getServiceBwId());
+		return beantragenderBenutzer;
+	}
+
+	private void versendeMailFuerBenutzerAenderungAnZustaendige(Benutzer benutzer, String betreff, String mailText) {
+		List<Benutzer> zustaendigeBenutzer = this.getAlleZustaendigenBenutzer(benutzer);
+		List<String> zustaendigeMailadressen = zustaendigeBenutzer.stream()
+			.map(b -> b.getMailadresse().toString())
+			.toList();
+		mailService.sendMail(zustaendigeMailadressen, betreff, mailText);
+	}
+
 }

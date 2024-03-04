@@ -15,8 +15,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
+import { Observable } from 'rxjs';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import invariant from 'tiny-invariant';
+import { VerwaltungseinheitBereichEnvelopeView } from 'src/app/shared/models/verwaltungseinheit-bereich-envelope-view';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +27,10 @@ export class OrganisationenService {
   private url = `/api/organisationen`;
 
   constructor(private http: HttpClient) {}
+
+  getAlleOrganisationen(): Observable<Verwaltungseinheit[]> {
+    return this.http.get<Verwaltungseinheit[]>(this.url);
+  }
 
   getOrganisationen(): Promise<Verwaltungseinheit[]> {
     return this.http.get<Verwaltungseinheit[]>(this.url).toPromise();
@@ -59,5 +65,9 @@ export class OrganisationenService {
 
   liegenAlleInQualitaetsgesichertenLandkreisen(kanteIds: number[]): Promise<boolean> {
     return this.http.get<boolean>(`${this.url}/liegenAlleInQualitaetsgesichertenLandkreisen/${kanteIds}`).toPromise();
+  }
+
+  getBereichEnvelopeView(id: number | undefined): Promise<VerwaltungseinheitBereichEnvelopeView> {
+    return this.http.get<VerwaltungseinheitBereichEnvelopeView>(`${this.url}/bereichEnvelopeView/${id}`).toPromise();
   }
 }

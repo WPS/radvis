@@ -21,7 +21,7 @@
     AXIS[&quot;Geodetic longitude&quot;, EAST], 
     AXIS[&quot;Geodetic latitude&quot;, NORTH], 
     AUTHORITY[&quot;EPSG&quot;,&quot;4258&quot;]], 
-  PROJECTION[&quot;Transverse_Mercator&quot;], 
+  PROJECTION[&quot;Transverse_Mercator&quot;, AUTHORITY[&quot;EPSG&quot;,&quot;9807&quot;]], 
   PARAMETER[&quot;central_meridian&quot;, 9.0], 
   PARAMETER[&quot;latitude_of_origin&quot;, 0.0], 
   PARAMETER[&quot;scale_factor&quot;, 0.9996], 
@@ -59,6 +59,8 @@
     <string>WMS</string>
   </disabledServices>
   <simpleConversionEnabled>false</simpleConversionEnabled>
+  <internationalTitle/>
+  <internationalAbstract/>
   <cqlFilter>kategorie=&apos;LANDESRADFERNWEG&apos;</cqlFilter>
   <maxFeatures>0</maxFeatures>
   <numDecimals>0</numDecimals>
@@ -70,7 +72,7 @@
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
-      <binding>java.lang.String</binding>
+      <binding>java.lang.Long</binding>
     </attribute>
     <attribute>
       <name>geometry</name>
@@ -94,7 +96,119 @@
       <binding>java.lang.String</binding>
     </attribute>
     <attribute>
+      <name>fahrradroute_typ</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>verantwortlich_name</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>verantwortlich_orga_typ</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>kurzbeschreibung</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>beschreibung</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>tourenkategorie</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>laenge</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Double</binding>
+    </attribute>
+    <attribute>
+      <name>offizielle_laenge</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.math.BigDecimal</binding>
+    </attribute>
+    <attribute>
+      <name>homepage</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>lizenz</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>lizenz_namensnennung</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>anstieg</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Double</binding>
+    </attribute>
+    <attribute>
+      <name>abstieg</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Double</binding>
+    </attribute>
+    <attribute>
+      <name>veroeffentlicht</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Boolean</binding>
+    </attribute>
+    <attribute>
+      <name>info</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
       <name>toubiz_id</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>variante_kategorie</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>

@@ -18,7 +18,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class DlmIdUserType implements AttributeConverter<DlmId, String> {
 
 	@Override

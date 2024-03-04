@@ -13,6 +13,7 @@
  */
 
 package de.wps.radvis.backend.benutzer.domain.valueObject;
+
 import static org.valid4j.Assertive.require;
 
 import lombok.EqualsAndHashCode;
@@ -23,20 +24,20 @@ import lombok.NonNull;
 public class ServiceBwId {
 
 	public static final int MAX_LENGTH = 255;
-	
+
 	@NonNull
 	@Getter
 	private String value;
-	
+
 	private ServiceBwId(String value) {
 		require(isValid(value), "Value für ServiceBwID ist nicht valide");
 		this.value = value;
 	}
-	
+
 	public static ServiceBwId of(String value) {
 		return new ServiceBwId(value);
 	}
-	
+
 	public static boolean isValid(String value) {
 		return value.length() <= MAX_LENGTH;
 	}

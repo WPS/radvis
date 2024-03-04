@@ -33,10 +33,10 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.KanteResolver;
@@ -113,6 +113,7 @@ class CreateMassnahmeCommandConverterTest {
 			.planungErforderlich(false)
 			.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2021))
 			.baulastZustaendigerId(testOrganisation.getId())
+			.zustaendigerId(testOrganisation.getId())
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)
 			.sonstigeKonzeptionsquelle("WAMBO")
 			.build();

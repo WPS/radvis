@@ -28,7 +28,7 @@ export class PunktuellerKantenBezuegeVectorLayer extends VectorLayer {
   constructor(minZoom: number | undefined) {
     super({
       source: new VectorSource(),
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: PunktuellerKantenBezuegeVectorLayer.getPointReferenceStyle(),
       minZoom,

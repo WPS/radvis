@@ -13,13 +13,13 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
-import { Knotenformen, KNOTENFORMEN } from 'src/app/shared/models/knotenformen';
+import { KNOTENFORMEN, Knotenformen } from 'src/app/shared/models/knotenformen';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
@@ -43,26 +43,26 @@ import invariant from 'tiny-invariant';
   styleUrls: ['./furten-kreuzungen-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FurtenKreuzungenEditorComponent implements DiscardGuard {
+export class FurtenKreuzungenEditorComponent implements DiscardableComponent {
   isFetching = false;
-  formGroup: FormGroup = new FormGroup({
-    netzbezug: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    verantwortlicheOrganisation: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    kommentar: new FormControl(null, RadvisValidators.maxLength(2000)),
-    typ: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    knotenForm: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    radnetzKonform: new FormControl(null),
-    furtKreuzungMusterloesung: new FormControl({ value: null, disabled: true }),
-    lichtsignalAnlageEigenschaften: new FormGroup({
-      fahrradSignal: new FormControl(null),
-      gruenVorlauf: new FormControl(null),
-      getrenntePhasen: new FormControl(null),
-      rechtsabbieger: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-      linksabbieger: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-      vorgezogeneHalteLinie: new FormControl(null),
-      radAufstellflaeche: new FormControl(null),
-      gruenAnforderung: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-      umlaufzeit: new FormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(9999)]),
+  formGroup: UntypedFormGroup = new UntypedFormGroup({
+    netzbezug: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+    verantwortlicheOrganisation: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+    kommentar: new UntypedFormControl(null, RadvisValidators.maxLength(2000)),
+    typ: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+    knotenForm: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+    radnetzKonform: new UntypedFormControl(null),
+    furtKreuzungMusterloesung: new UntypedFormControl({ value: null, disabled: true }),
+    lichtsignalAnlageEigenschaften: new UntypedFormGroup({
+      fahrradSignal: new UntypedFormControl(null),
+      gruenVorlauf: new UntypedFormControl(null),
+      getrenntePhasen: new UntypedFormControl(null),
+      rechtsabbieger: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      linksabbieger: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      vorgezogeneHalteLinie: new UntypedFormControl(null),
+      radAufstellflaeche: new UntypedFormControl(null),
+      gruenAnforderung: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      umlaufzeit: new UntypedFormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(9999)]),
     }),
   });
 

@@ -23,6 +23,7 @@ import org.locationtech.jts.geom.LineString;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.history.RevisionRepository;
 
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -30,7 +31,8 @@ import de.wps.radvis.backend.netz.domain.entity.KanteElevationView;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 
-public interface KantenRepository extends CrudRepository<Kante, Long>, CustomKantenRepository {
+public interface KantenRepository
+	extends CrudRepository<Kante, Long>, CustomKantenRepository, RevisionRepository<Kante, Long, Long> {
 
 	String GEOSERVER_RADVISNETZ_MAT_VIEW_NAME = "geoserver_radvisnetz_kante_materialized_view";
 

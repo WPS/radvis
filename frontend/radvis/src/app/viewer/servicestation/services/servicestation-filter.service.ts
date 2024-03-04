@@ -22,6 +22,7 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
 import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 @Injectable({
   providedIn: 'root',
@@ -39,6 +40,8 @@ export class ServicestationFilterService extends AbstractInfrastrukturenFilterSe
 
   public getInfrastrukturValueForKey(item: Servicestation, key: string): string | string[] {
     switch (key) {
+      case 'quellSystem':
+        return ServicestationQuellSystem.getDisplayText(item.quellSystem);
       case 'typ':
         return ServicestationTyp.getDisplayText(item.typ);
       case 'status':

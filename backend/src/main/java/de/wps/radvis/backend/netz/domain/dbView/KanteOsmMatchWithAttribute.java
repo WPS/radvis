@@ -17,7 +17,6 @@ package de.wps.radvis.backend.netz.domain.dbView;
 import java.util.Optional;
 
 import jakarta.annotation.Nullable;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -34,6 +33,7 @@ public class KanteOsmMatchWithAttribute {
 	private final Double breite;
 	private final String belagArt;
 	private final String oberflaechenbeschaffenheit;
+	private final boolean dRoute;
 
 	@Nullable
 	public Optional<String> getNetzklassen() {

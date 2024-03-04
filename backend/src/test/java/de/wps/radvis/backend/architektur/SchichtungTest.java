@@ -32,9 +32,10 @@ import com.tngtech.archunit.library.Architectures;
 import de.wps.radvis.backend.abfrage.export.domain.InfrastrukturenExporterFactory;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.schnittstelle.view.FehlerprotokollView;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageBRImportJob;
+import de.wps.radvis.backend.application.schnittstelle.RequestLoggingInterceptor;
+import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoApplier;
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
-import de.wps.radvis.backend.auditing.schnittstelle.AdditionalRevInfoApplier;
-import de.wps.radvis.backend.auditing.schnittstelle.RevInfo;
+import de.wps.radvis.backend.auditing.domain.entity.RevInfo;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.common.TogglzConfiguration;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
@@ -83,7 +84,9 @@ public class SchichtungTest {
 				.or(JavaClass.Predicates.assignableTo(RevisionListener.class))
 				.or(simpleNameEndingWithIncludingGeneratedInnerClasses("Aspect"))
 				.or(simpleNameEndingWithIncludingGeneratedInnerClasses("Konsistenzregel"))
-				.or(simpleName("WithAuditing")))
+				.or(simpleNameEndingWithIncludingGeneratedInnerClasses("AuthenticationProvider"))
+				.or(simpleName("WithAuditing"))
+				.or(fullNameMatching(RequestLoggingInterceptor.class.getName())))
 		.layer("converter")
 		.definedBy(simpleNameEndingWithIncludingGeneratedInnerClasses("Converter")
 			.and(DescribedPredicate.not(simpleNameEndingWith("ExportConverter")
@@ -106,6 +109,9 @@ public class SchichtungTest {
 			.or(JavaClass.Predicates.resideInAPackage("..repositoryImpl..")))
 		.layer("entity")
 		.definedBy(JavaClass.Predicates.resideInAPackage("..entity..")
+			.or(simpleNameIncludingGeneratedInnerClasses("BenutzerBasicAuthenticationToken"))
+			.or(simpleNameIncludingGeneratedInnerClasses("RadVisAuthentication"))
+			.or(simpleNameEndingWithIncludingGeneratedInnerClasses("BenutzerHolder"))
 			.or(simpleNameIncludingGeneratedInnerClasses("RadVisUserDetails"))
 			.or(simpleNameIncludingGeneratedInnerClasses("RevInfo"))
 			.or(simpleNameIncludingGeneratedInnerClasses("KantenViewMitPotentiellAbweichenderTopologie")))
@@ -159,8 +165,7 @@ public class SchichtungTest {
 		.whereLayer("attributeConverter").mayOnlyBeAccessedByLayers("valueObject", "entity", "liquibaseMigration")
 		.whereLayer("liquibaseMigration").mayNotBeAccessedByAnyLayer()
 		// Die RevInfo Entity is speziell. Sie benötigt Zugriff auf den AdditionalRevInfoApplier, der hier unter das
-		// Muster
-		// "service" fällt.
+		// Muster "service" fällt.
 		.ignoreDependency(RevInfo.class, AdditionalRevInfoApplier.class)
 		// Konsistenzregeln machen so eine Art Spagat aus Service und Entity; wir ordnen es als Service ein und ignoren
 		// das hier
@@ -194,9 +199,10 @@ public class SchichtungTest {
 		.layer("AbfrageFehlerprotokoll").definedBy("..abfrage.fehlerprotokoll..")
 		.layer("AbfrageExport").definedBy("..abfrage.export..")
 		.layer("Authentication").definedBy("..authentication..")
+		.layer("BasicAuthentication").definedBy("..basicAuthentication..")
 		.layer("Konsistenzregeln").definedBy("..konsistenz.regeln..")
 		.layer("KonsistenzPruefung").definedBy("..konsistenz.pruefung..")
-		.layer("ManuellerImportSessionabfrage").definedBy("..manuellerimport.sessionabfrage..")
+		.layer("ManuellerImportMassnahmenImport").definedBy("..manuellerimport.massnahmenimport..")
 		.layer("ManuellerImportNetzzugehoerigkeit").definedBy("..manuellerimport.netzzugehoerigkeit..")
 		.layer("ManuellerImportAttributeImport").definedBy("..manuellerimport.attributeimport..")
 		.layer("ManuellerImportCommon").definedBy("..manuellerimport.common..")
@@ -236,14 +242,15 @@ public class SchichtungTest {
 		.whereLayer("Administration").mayNotBeAccessedByAnyLayer()
 		.whereLayer("AbfrageSignatur").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("AbfrageNetzausschnitt").mayOnlyBeAccessedByLayers("AbfrageSignatur", "Application")
-		.whereLayer("ManuellerImportSessionabfrage").mayNotBeAccessedByAnyLayer()
-		.whereLayer("ManuellerImportAttributeImport").mayOnlyBeAccessedByLayers("ManuellerImportSessionabfrage")
-		.whereLayer("ManuellerImportNetzzugehoerigkeit").mayOnlyBeAccessedByLayers("ManuellerImportSessionabfrage")
+		.whereLayer("ManuellerImportMassnahmenImport").mayNotBeAccessedByAnyLayer()
+		.whereLayer("ManuellerImportAttributeImport").mayNotBeAccessedByAnyLayer()
+		.whereLayer("ManuellerImportNetzzugehoerigkeit").mayNotBeAccessedByAnyLayer()
 		.whereLayer("ManuellerImportCommon")
 		.mayOnlyBeAccessedByLayers("ManuellerImportAttributeImport", "ManuellerImportNetzzugehoerigkeit",
-			"ManuellerImportSessionabfrage", "AbfrageFehlerprotokoll")
+			"ManuellerImportMassnahmenImport", "AbfrageFehlerprotokoll")
 		.whereLayer("Massnahme")
-		.mayOnlyBeAccessedByLayers("Application", "AbfrageFehlerprotokoll", "AbfrageExport", "Konsistenzregeln")
+		.mayOnlyBeAccessedByLayers("Application", "AbfrageFehlerprotokoll", "AbfrageExport", "Konsistenzregeln",
+			"ManuellerImportMassnahmenImport")
 		.whereLayer("Konsistenzregeln").mayOnlyBeAccessedByLayers("KonsistenzPruefung")
 		.whereLayer("KonsistenzPruefung").mayOnlyBeAccessedByLayers("Application", "Netzfehler")
 		.whereLayer("IntegrationGrundnetz")
@@ -267,7 +274,7 @@ public class SchichtungTest {
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationNetzbildung", "IntegrationAttributAbbildung",
 			"IntegrationRadnetz", "IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport",
 			"ManuellerImportNetzzugehoerigkeit", "ManuellerImportAttributeImport", "ManuellerImportCommon",
-			"ManuellerImportSessionabfrage", "AbfrageNetzausschnitt", "AbfrageSignatur", "AbfrageAuswertung",
+			"ManuellerImportMassnahmenImport", "AbfrageNetzausschnitt", "AbfrageSignatur", "AbfrageAuswertung",
 			"Massnahme", "Barriere", "FurtKreuzung", "AbfrageFehlerprotokoll", "Fahrradroute", "AbfrageStatistik",
 			"Application", "Konsistenzregeln", "KonsistenzPruefung", "Abstellanlage", "Servicestation", "Leihstation")
 		.whereLayer("Netzfehler")
@@ -295,15 +302,17 @@ public class SchichtungTest {
 		.whereLayer("Organisation")
 		.mayOnlyBeAccessedByLayers("Netz", "Matching", "IntegrationAttributAbbildung", "IntegrationRadnetz",
 			"IntegrationRadwegeDB", "IntegrationGrundnetz", "ManuellerImportNetzzugehoerigkeit",
-			"ManuellerImportAttributeImport", "ManuellerImportCommon", "ManuellerImportSessionabfrage",
+			"ManuellerImportAttributeImport", "ManuellerImportMassnahmenImport", "ManuellerImportCommon",
 			"AbfrageNetzausschnitt", "AbfrageSignatur", "Application", "Benutzer", "AbfrageAuswertung",
-			"Authentication", "Massnahme", "Barriere", "FurtKreuzung", "Fahrradroute", "AbfrageFehlerprotokoll",
+			"Authentication", "BasicAuthentication", "Massnahme", "Barriere", "FurtKreuzung", "Fahrradroute",
+			"AbfrageFehlerprotokoll",
 			"Netzfehler", "Administration", "WegweisendeBeschilderung", "Leihstation", "Servicestation",
 			"Abstellanlage", "Fahrradzaehlstelle")
 		.whereLayer("Benutzer")
-		.mayOnlyBeAccessedByLayers("Application", "Administration", "Authentication", "Netz", "AbfrageNetzausschnitt",
+		.mayOnlyBeAccessedByLayers("Application", "Administration", "Authentication", "BasicAuthentication", "Netz",
+			"AbfrageNetzausschnitt",
 			"Fahrradroute", "Kommentar", "Dokument", "ManuellerImportCommon", "ManuellerImportAttributeImport",
-			"ManuellerImportNetzzugehoerigkeit", "ManuellerImportSessionabfrage", "Massnahme", "WeitereKartenebenen",
+			"ManuellerImportMassnahmenImport", "ManuellerImportNetzzugehoerigkeit", "Massnahme", "WeitereKartenebenen",
 			"IntegrationRadnetz", "Netzfehler", "Auditing", "Common", "Barriere", "FurtKreuzung", "Servicestation",
 			"Abstellanlage", "Leihstation", "Matching")
 		.whereLayer("Ortssuche").mayNotBeAccessedByAnyLayer()
@@ -319,7 +328,7 @@ public class SchichtungTest {
 		.whereLayer("AbfrageFehlerprotokoll").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("WeitereKartenebenen").mayNotBeAccessedByAnyLayer()
 		.whereLayer("Leihstation").mayOnlyBeAccessedByLayers("AbfrageExport", "Application")
-		.whereLayer("Servicestation").mayOnlyBeAccessedByLayers("AbfrageExport")
+		.whereLayer("Servicestation").mayOnlyBeAccessedByLayers("AbfrageExport", "Application")
 		.whereLayer("Abstellanlage").mayOnlyBeAccessedByLayers("AbfrageExport", "Application")
 		.whereLayer("Fahrradzaehlstelle").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("AbfrageExport").mayNotBeAccessedByAnyLayer()
@@ -327,6 +336,8 @@ public class SchichtungTest {
 		.mayOnlyBeAccessedByLayers("Application", "AbfrageNetzausschnitt", "ManuellerImportCommon")
 		.whereLayer("Fahrradroute").mayOnlyBeAccessedByLayers("Application", "AbfrageExport", "AbfrageFehlerprotokoll")
 		.whereLayer("Common").mayNotAccessAnyLayer() // right?
+		.whereLayer("BasicAuthentication").mayOnlyBeAccessedByLayers("Application")
+		.whereLayer("Authentication").mayOnlyBeAccessedByLayers("Application", "Auditing", "Benutzer")
 
 		// TODO fix this!
 		.ignoreDependency(ProfilMatchResult.class, LinearReferenzierteProfilEigenschaften.class)
@@ -347,7 +358,6 @@ public class SchichtungTest {
 	// TODO integrate those!
 	private final Architectures.LayeredArchitecture missingLayers = Architectures.layeredArchitecture()
 		.consideringOnlyDependenciesInLayers()
-		.whereLayer("Authentication").mayOnlyAccessLayers("Benutzer", "Common", "Organisation")
 		.whereLayer("Auditing").mayNotBeAccessedByAnyLayer();
 
 	private static DescribedPredicate<JavaClass> simpleNameEndingWithIncludingGeneratedInnerClasses(String suffix) {

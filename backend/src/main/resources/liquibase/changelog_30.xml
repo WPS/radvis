@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
   <changeSet id="RAD-3453" author="par">
     <renameColumn tableName="massnahme" oldColumnName="massnahmen_packet_id" newColumnName="massnahmen_paket_id"/>
     <renameColumn tableName="massnahme_aud" oldColumnName="massnahmen_packet_id" newColumnName="massnahmen_paket_id"/>
@@ -24,10 +24,10 @@
 
   <changeSet id="RAD-3560" author="lb">
     <!--    Es gibt zwei Tables mit dem Knoten-Netzbezug fuer Massnahmen. -->
-    <!--    Wir koennen den alten Table einfach loeschen, da zu dem Zeitpunkt wo KnotenNetzbezuege dort gespeichert worden-->
-    <!--    waeren, noch keine Sinnvollen knotenNetzbezuege existieren -->
-    <!--    (nur welche die durch den RandomMassnahmenCreationJob erstellt wurden)-->
-    <dropTable tableName="massnahme_netzbezug_knoten"/>
+		<!--    Wir koennen den alten Table einfach loeschen, da zu dem Zeitpunkt wo KnotenNetzbezuege dort gespeichert worden-->
+		<!--    waeren, noch keine Sinnvollen knotenNetzbezuege existieren -->
+		<!--    (nur welche die durch den RandomMassnahmenCreationJob erstellt wurden)-->
+		<dropTable tableName="massnahme_netzbezug_knoten"/>
     <dropTable tableName="massnahme_netzbezug_knoten_aud"/>
   </changeSet>
 
@@ -39,12 +39,12 @@
       <column name="lineare_referenz" type="float8"/>
     </createTable>
     <addForeignKeyConstraint
-      constraintName="fk_massnahme_massnahme_kantenpunkte_massnahme_id"
-      referencedTableName="massnahme"
-      referencedColumnNames="id"
-      baseColumnNames="massnahme_id" baseTableName="massnahme_kantenpunkte"/>
+			constraintName="fk_massnahme_massnahme_kantenpunkte_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_kantenpunkte"/>
     <createIndex tableName="massnahme_kantenpunkte"
-      indexName="fk_massnahme_kantenpunkte_massnahme_idx">
+			indexName="fk_massnahme_kantenpunkte_massnahme_idx">
       <column name="massnahme_id"/>
     </createIndex>
     <createTable tableName="massnahme_kantenpunkte_aud">
@@ -92,10 +92,10 @@
   </changeSet>
   <changeSet id="RAD-3560" author="tir">
     <addForeignKeyConstraint
-      constraintName="fk_massnahme_knoten_massnahme_id"
-      referencedTableName="massnahme"
-      referencedColumnNames="id"
-      baseColumnNames="massnahme_id" baseTableName="massnahme_knoten"/>
+			constraintName="fk_massnahme_knoten_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_knoten"/>
     <createIndex tableName="massnahme_knoten" indexName="fk_massnahme_knoten_massnahme_idx">
       <column name="massnahme_id"/>
     </createIndex>
@@ -170,7 +170,7 @@
       <column name="zu_benachrichtigende_benutzer_id" type="bigint"/>
     </createTable>
     <createIndex tableName="massnahme_zu_benachrichtigende_benutzer"
-      indexName="massnahme_zu_benachrichtigende_benutzer_massnahme_id_idx">
+			indexName="massnahme_zu_benachrichtigende_benutzer_massnahme_id_idx">
       <column name="massnahme_id"/>
     </createIndex>
   </changeSet>

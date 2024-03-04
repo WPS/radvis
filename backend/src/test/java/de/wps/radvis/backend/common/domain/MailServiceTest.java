@@ -19,16 +19,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mail.javamail.JavaMailSender;
+
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 public class MailServiceTest {
 
@@ -45,16 +45,16 @@ public class MailServiceTest {
 		MockitoAnnotations.openMocks(this);
 		when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-		MailConfigurationProperties properties = new MailConfigurationProperties("keinerbitte", 25,
-			"radvis-tests@bwl.de", "RadVIS-Support@vm.bwl.de", "smtp", false, true);
-
-		service = new MailService(mailSender, properties);
+		service = new MailService(mailSender,
+			"testSender@testRadvis.de",
+			List.of("lasgo@testRadvis.de", "jupiter@testRadvis.de"),
+			"testRedirectTarget@testRadvis.de");
 	}
 
 	@Test
 	public void testSendMail_versendetMail() throws MessagingException {
 		// arrange
-		List<String> empfaenger = List.of("batman@gotham.dcu", "spiderman@avengers.mcu");
+		List<String> empfaenger = List.of("batman@testRadvis.dcu", "spiderman@testRadvis.mcu");
 		String betreff = "Justice League beitreten?";
 		String inhalt = "Hey Spiderman, willst du nicht lieber der Justice League beitreten?";
 
@@ -63,16 +63,16 @@ public class MailServiceTest {
 
 		// assert
 		verify(mimeMessage).setSubject(betreff);
-		verify(mimeMessage).setText(inhalt);
+		verify(mimeMessage).setText(inhalt, "UTF-8");
 		verify(mailSender).send(mimeMessage);
 	}
 
 	@Test
 	void testSendMail_MailsAnTestbenutzerAufWpsUmleiten() throws MessagingException {
 		// arrange
-		List<String> ursprunglicheEmpfaenger = List
-			.of("ls@wps.de", "jj@wps.de", "arne.scharping@wps.de", "paavo.guetschow@wps.de",
-				"testbert.testmann@radvis.de");
+		List<String> ursprunglicheEmpfaenger = List.of("lasgo@testRadvis.de", "jupiter@testRadvis.de",
+			"testbert.testmann@testRadvis.de");
+
 		String betreff = "bla";
 		String inhalt = "bla bla bla";
 
@@ -81,11 +81,11 @@ public class MailServiceTest {
 
 		// assert
 		InternetAddress[] modifizierteEmpfaenger = new InternetAddress[2];
-		modifizierteEmpfaenger[0] = new InternetAddress("testbert.testmann@radvis.de");
-		modifizierteEmpfaenger[1] = new InternetAddress("f2b2c37a.wps.de@emea.teams.ms");
+		modifizierteEmpfaenger[0] = new InternetAddress("testRedirectTarget@testRadvis.de");
+		modifizierteEmpfaenger[1] = new InternetAddress("testbert.testmann@testRadvis.de");
 
 		verify(mimeMessage).setSubject(betreff);
-		verify(mimeMessage).setText(inhalt);
+		verify(mimeMessage).setText(inhalt, "UTF-8");
 		verify(mimeMessage).setRecipients(Message.RecipientType.TO, modifizierteEmpfaenger);
 		verify(mailSender).send(mimeMessage);
 	}

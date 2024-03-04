@@ -39,6 +39,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
+import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -172,7 +173,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.withDefaultValues()
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.umsetzungsstand(umsetzungsstand)
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
 			.benutzerLetzteAenderung(
@@ -233,8 +234,8 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 				massnahme.getLetzteAenderung());
 		assertThat(dbView.getBenutzerLetzteAenderungEmail())
 			.isEqualTo(massnahme.getBenutzerLetzteAenderung().getMailadresse());
-		assertThat(dbView.getMarkierungId())
-			.isEqualTo(massnahme.getMarkierungsZustaendiger().map(Verwaltungseinheit::getId).orElse(null));
+		assertThat(dbView.getZustaendigId())
+			.isEqualTo(massnahme.getZustaendiger().map(Verwaltungseinheit::getId).orElse(null));
 		assertThat(dbView.getUnterhaltId())
 			.isEqualTo(
 				massnahme.getunterhaltsZustaendiger().map(Verwaltungseinheit::getId).orElse(null));
@@ -270,7 +271,8 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 		Massnahme massnahmeNurInnerhalb = MassnahmeTestDataProvider
 			.withDefaultValuesAndOrganisation(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+				benutzerRepository.save(
+					BenutzerTestDataProvider.admin(gebietskoerperschaft).serviceBwId(ServiceBwId.of("sbwid1")).build()))
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteVollstaendigInnerhalb))
 			.build();
 
@@ -279,7 +281,8 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 		Massnahme massnahmeTeilweiseInnerhalb = MassnahmeTestDataProvider
 			.withDefaultValuesAndOrganisation(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+				benutzerRepository.save(
+					BenutzerTestDataProvider.admin(gebietskoerperschaft).serviceBwId(ServiceBwId.of("sbwid2")).build()))
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteTeilweiseInnerhalb))
 			.build();
 
@@ -288,7 +291,8 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 		Massnahme massnahmeInnerhalbUndAusserhalb = MassnahmeTestDataProvider
 			.withDefaultValuesAndOrganisation(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+				benutzerRepository.save(
+					BenutzerTestDataProvider.admin(gebietskoerperschaft).serviceBwId(ServiceBwId.of("sbwid3")).build()))
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteVollstaendigInnerhalb, kanteAusserhalb))
 			.build();
 
@@ -297,7 +301,8 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 		Massnahme massnahmeAusserhalb = MassnahmeTestDataProvider
 			.withDefaultValuesAndOrganisation(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+				benutzerRepository.save(
+					BenutzerTestDataProvider.admin(gebietskoerperschaft).serviceBwId(ServiceBwId.of("sbwid4")).build()))
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteAusserhalb))
 			.build();
 
@@ -371,7 +376,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.netzbezug(netzbezug)
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
@@ -456,7 +461,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.netzbezug(netzbezug)
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
@@ -534,7 +539,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.netzbezug(netzbezug)
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
@@ -605,7 +610,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.netzbezug(netzbezug)
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
@@ -675,7 +680,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.netzbezug(netzbezug)
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.umsetzungsstand(umsetzungsstand)
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))

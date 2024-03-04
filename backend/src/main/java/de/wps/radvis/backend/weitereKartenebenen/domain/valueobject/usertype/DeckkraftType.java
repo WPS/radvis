@@ -15,11 +15,10 @@
 package de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.usertype;
 
 import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.Deckkraft;
-
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class DeckkraftType implements AttributeConverter<Deckkraft, Double> {
 
 	@Override

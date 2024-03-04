@@ -16,12 +16,11 @@ package de.wps.radvis.backend.fahrradroute.domain.valueObject;
 
 import java.util.Optional;
 
-import jakarta.persistence.Embeddable;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPoint;
 
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

@@ -16,22 +16,21 @@ package de.wps.radvis.backend.massnahme.schnittstelle;
 
 import java.util.Set;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,6 +65,8 @@ public class CreateMassnahmeCommand {
 	private Boolean planungErforderlich;
 	private Durchfuehrungszeitraum durchfuehrungszeitraum;
 	private Long baulastZustaendigerId;
+	@NotNull
+	private Long zustaendigerId;
 	private Handlungsverantwortlicher handlungsverantwortlicher;
 	private String sonstigeKonzeptionsquelle;
 

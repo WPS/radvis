@@ -17,9 +17,9 @@ package de.wps.radvis.backend.common.domain;
 import java.util.Map;
 import java.util.Set;
 
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 

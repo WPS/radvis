@@ -12,12 +12,14 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<button mat-button
-        #matButton
-        [matTooltip]="accessibilityText ?? ''"
-        matTooltipPosition="above"
-        [class.selected]="selected"
-        [disableRipple]="true"
-        [attr.aria-label]="accessibilityText">
+<button
+  mat-button
+  #matButton
+  [matTooltip]="accessibilityText ?? ''"
+  matTooltipPosition="above"
+  [class.selected]="selected"
+  [disableRipple]="true"
+  [attr.aria-label]="accessibilityText"
+>
   <ng-content></ng-content>
 </button>

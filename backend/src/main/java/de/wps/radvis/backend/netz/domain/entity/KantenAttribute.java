@@ -20,11 +20,6 @@ import static org.valid4j.Assertive.require;
 
 import java.util.Optional;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
@@ -33,11 +28,16 @@ import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -62,11 +62,15 @@ public class KantenAttribute {
 
 	@Getter
 	@Enumerated(EnumType.STRING)
-	private StrassenquerschnittRASt06 strassenquerschnittRASt06;
+	private Umfeld umfeld;
+
+	@Setter
+	@Enumerated(EnumType.STRING)
+	private StrassenkategorieRIN strassenkategorieRIN;
 
 	@Getter
 	@Enumerated(EnumType.STRING)
-	private Umfeld umfeld;
+	private StrassenquerschnittRASt06 strassenquerschnittRASt06;
 
 	@Setter
 	private Laenge laengeManuellErfasst;
@@ -103,7 +107,7 @@ public class KantenAttribute {
 
 	@Builder(builderMethodName = "privateBuilder", toBuilder = true)
 	private KantenAttribute(
-		WegeNiveau wegeNiveau, Beleuchtung beleuchtung, Umfeld umfeld,
+		WegeNiveau wegeNiveau, Beleuchtung beleuchtung, Umfeld umfeld, StrassenkategorieRIN strassenkategorieRIN,
 		StrassenquerschnittRASt06 strassenquerschnittRASt06, Laenge laengeManuellErfasst,
 		VerkehrStaerke dtvFussverkehr, VerkehrStaerke dtvRadverkehr,
 		VerkehrStaerke dtvPkw, VerkehrStaerke sv,
@@ -117,6 +121,7 @@ public class KantenAttribute {
 		this.wegeNiveau = wegeNiveau;
 		this.beleuchtung = beleuchtung;
 		this.umfeld = umfeld;
+		this.strassenkategorieRIN = strassenkategorieRIN;
 		this.strassenquerschnittRASt06 = strassenquerschnittRASt06;
 		this.laengeManuellErfasst = laengeManuellErfasst;
 		this.dtvFussverkehr = dtvFussverkehr;
@@ -156,6 +161,10 @@ public class KantenAttribute {
 
 	public Optional<WegeNiveau> getWegeNiveau() {
 		return Optional.ofNullable(wegeNiveau);
+	}
+
+	public Optional<StrassenkategorieRIN> getStrassenkategorieRIN() {
+		return Optional.ofNullable(strassenkategorieRIN);
 	}
 
 	public Optional<VerkehrStaerke> getDtvPkw() {
@@ -207,6 +216,7 @@ public class KantenAttribute {
 			.wegeNiveau(wegeNiveau)
 			.beleuchtung(beleuchtung)
 			.umfeld(umfeld)
+			.strassenkategorieRIN(strassenkategorieRIN)
 			.strassenquerschnittRASt06(strassenquerschnittRASt06)
 			.laengeManuellErfasst(laengeManuellErfasst)
 			.dtvFussverkehr(dtvFussverkehr)

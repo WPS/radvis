@@ -38,12 +38,12 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
@@ -160,7 +160,7 @@ class SaveMassnahmeCommandConverterTest {
 			.netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG))
 			.baulastZustaendigerId(500L)
 			.unterhaltsZustaendigerId(2L) // <- geändert
-			.markierungsZustaendigerId(1L)
+			.zustaendigerId(1L)
 			.sollStandard(SollStandard.BASISSTANDARD)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)

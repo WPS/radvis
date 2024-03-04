@@ -19,8 +19,6 @@ import static org.valid4j.Assertive.require;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
 import org.hamcrest.Matchers;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
@@ -33,6 +31,7 @@ import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

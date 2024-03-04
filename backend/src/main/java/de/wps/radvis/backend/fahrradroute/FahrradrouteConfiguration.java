@@ -84,7 +84,6 @@ public class FahrradrouteConfiguration {
 	@Autowired
 	private JobConfigurationProperties jobConfigurationProperties;
 
-
 	@Autowired
 	private FahrradrouteNetzBezugAenderungRepository fahrradrouteNetzBezugAenderungRepository;
 

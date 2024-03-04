@@ -25,18 +25,18 @@ public interface ShapeFileAttributeRepository {
 	 * Liest die Attributnamen (keys) aus einer shp-File aus.
 	 *
 	 * @param shpFile
-	 *            Hier kann eine bliebige Datei, die zur SHP gehört, übergeben werden. (Insbesondere die .dbf-File)
+	 * 	Hier kann eine bliebige Datei, die zur SHP gehört, übergeben werden. (Insbesondere die .dbf-File)
 	 * @throws IOException
 	 */
 	Set<String> getAttributnamen(File shpFile) throws IOException;
 
 	/**
 	 * Liest die Werte (values) für einen Attributnamen (key) aus einer shp-File aus.
-	 * 
+	 * <p>
 	 * Unbedingt Stream.close() aufrufen!
 	 *
 	 * @param shpFile
-	 *            Hier kann eine bliebige Datei, die zur SHP gehört, übergeben werden. (Insbesondere die .dbf-File)
+	 * 	Hier kann eine bliebige Datei, die zur SHP gehört, übergeben werden. (Insbesondere die .dbf-File)
 	 * @throws IOException
 	 */
 	Stream<String> getAttributWerte(File shpFile, String attributName) throws IOException;

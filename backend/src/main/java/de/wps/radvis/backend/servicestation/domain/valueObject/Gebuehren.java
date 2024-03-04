@@ -31,9 +31,13 @@ public class Gebuehren extends AbstractBooleanVO {
 	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-	public static Gebuehren of(Boolean value) { return new Gebuehren(value); }
+	public static Gebuehren of(Boolean value) {
+		return new Gebuehren(value);
+	}
 
-	public static Gebuehren of(String value) { return new Gebuehren(value); }
+	public static Gebuehren of(String value) {
+		return new Gebuehren(value);
+	}
 
 	@Override
 	public String toString() {

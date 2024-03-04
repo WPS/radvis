@@ -14,15 +14,14 @@
 
 package de.wps.radvis.backend.netzfehler.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerBeschreibung;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerTyp;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

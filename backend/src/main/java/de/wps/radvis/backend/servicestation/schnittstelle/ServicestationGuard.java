@@ -24,6 +24,7 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.servicestation.domain.ServicestationService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -43,6 +44,8 @@ public class ServicestationGuard {
 	public void save(Long id, SaveServicestationCommand command, Authentication authentication) {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 
+		Servicestation servicestation = servicestationService.loadForModification(id, command.getVersion());
+		assertIstQuellSystemRadvis(servicestation);
 		assertHatRecht(aktiverBenutzer);
 		assertIstImZustaendigkeitsbereich(command.getGeometrie(), aktiverBenutzer);
 	}
@@ -51,8 +54,16 @@ public class ServicestationGuard {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 		Servicestation servicestation = servicestationService.loadForModification(id, command.getVersion());
 
+		assertIstQuellSystemRadvis(servicestation);
 		assertHatRecht(aktiverBenutzer);
 		assertIstImZustaendigkeitsbereich(servicestation.getGeometrie(), aktiverBenutzer);
+	}
+
+	private void assertIstQuellSystemRadvis(Servicestation servicestation) {
+		if (!servicestation.getQuellSystem().equals(ServicestationenQuellSystem.RADVIS)) {
+			throw new AccessDeniedException("Nur Servicestationen mit QuellSystem " + ServicestationenQuellSystem.RADVIS
+				+ " können bearbeitet, gelöscht oder erstellt werden");
+		}
 	}
 
 	private void assertHatRecht(Benutzer aktiverBenutzer) {

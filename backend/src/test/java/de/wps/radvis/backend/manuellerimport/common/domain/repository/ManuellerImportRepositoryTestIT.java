@@ -22,8 +22,8 @@ import java.util.List;
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
@@ -161,7 +161,6 @@ public class ManuellerImportRepositoryTestIT extends DBIntegrationTestIT {
 			.getAllLatestByOrganisationAndTypeInBereich(gebietskoerperschaft, ImportTyp.NETZKLASSE_ZUWEISEN, BEREICH);
 		List<ManuellerImportFehler> fehlerOrg1 = manuellerImportFehlerRepository
 			.getAllLatestByOrganisationAndTypeInBereich(organisation, ImportTyp.NETZKLASSE_ZUWEISEN, BEREICH);
-
 
 		// assert
 		assertThat(fehlerOrg1).containsExactly(fehlerNewOrg1);

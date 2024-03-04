@@ -16,25 +16,25 @@
   display: block;
 }
 
-.first-level-optgroup > ::ng-deep .mat-optgroup-label {
+.first-level-optgroup > ::ng-deep .mat-mdc-optgroup-label {
   font-size: 16px;
   font-weight: bold;
   color: black;
 }
 
-.first-level-optgroup:nth-child(n + 2) > ::ng-deep .mat-optgroup-label {
+.first-level-optgroup:nth-child(n + 2) > ::ng-deep .mat-mdc-optgroup-label {
   margin-top: 16px;
 }
 
-.second-level-optgroup > ::ng-deep .mat-optgroup-label {
+.second-level-optgroup > ::ng-deep .mat-mdc-optgroup-label {
   padding-left: 32px;
   font-size: 16px;
   font-weight: bold;
   color: #525252;
 }
 
-.mat-option-like-optgroup {
-  font-weight: bold;
+.massnahmen-chip-grid ::ng-deep .mat-mdc-chip-action-label {
+  font-weight: 500;
 }
 
 .clicked-kategorie {

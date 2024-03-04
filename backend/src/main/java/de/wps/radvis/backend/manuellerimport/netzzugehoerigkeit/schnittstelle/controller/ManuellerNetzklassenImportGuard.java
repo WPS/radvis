@@ -71,4 +71,8 @@ public class ManuellerNetzklassenImportGuard {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung Streckendaten zu importieren");
 		}
 	}
+
+	public void bearbeitungAbschliessen(Authentication authentication) {
+		authorizeManuellerNetzklassenImport(authentication);
+	}
 }

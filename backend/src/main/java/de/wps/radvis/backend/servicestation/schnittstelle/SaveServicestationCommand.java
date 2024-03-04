@@ -14,9 +14,6 @@
 
 package de.wps.radvis.backend.servicestation.schnittstelle;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
@@ -31,6 +28,8 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationNam
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter

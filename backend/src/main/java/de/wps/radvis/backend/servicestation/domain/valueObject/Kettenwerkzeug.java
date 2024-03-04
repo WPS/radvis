@@ -35,7 +35,9 @@ public class Kettenwerkzeug extends AbstractBooleanVO {
 		return new Kettenwerkzeug(value);
 	}
 
-	public static Kettenwerkzeug of(String value) { return new Kettenwerkzeug(value); }
+	public static Kettenwerkzeug of(String value) {
+		return new Kettenwerkzeug(value);
+	}
 
 	@Override
 	public String toString() {

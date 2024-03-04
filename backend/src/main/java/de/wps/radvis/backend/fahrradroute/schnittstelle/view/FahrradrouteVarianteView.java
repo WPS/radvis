@@ -49,6 +49,7 @@ public class FahrradrouteVarianteView {
 		profilEigenschaften = fahrradrouteVariante.getLinearReferenzierteProfilEigenschaften().stream()
 			.map(LinearReferenzierteProfilEigenschaftenView::new)
 			.collect(Collectors.toList());
-		customProfileId = fahrradrouteVariante.getCustomProfileId().orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
+		customProfileId = fahrradrouteVariante.getCustomProfileId()
+			.orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
 	}
 }

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Optional } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -32,6 +32,7 @@ import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details
 import invariant from 'tiny-invariant';
 import { SaveServicestationCommand } from 'src/app/viewer/servicestation/models/save-servicestation-command';
 import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/services/servicestation-updated.service';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 @Component({
   selector: 'rad-servicestation-editor',
@@ -51,6 +52,7 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
   iconName = SERVICESTATIONEN.iconFileName;
   currentServicestation: Servicestation | null = null;
   alleOrganisationen$: Promise<Verwaltungseinheit[]>;
+  servicestationQuellSystemOptions = ServicestationQuellSystem.options;
   servicestationTypOptions = ServicestationTyp.options;
   servicestationStatusOptions = ServicestationStatus.options;
   organisationAktuellerBenutzer: Verwaltungseinheit | undefined;
@@ -68,21 +70,22 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
     benutzerDetailsService: BenutzerDetailsService
   ) {
     super(
-      new FormGroup({
-        geometrie: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        name: new FormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-        gebuehren: new FormControl(null),
-        oeffnungszeiten: new FormControl(null, RadvisValidators.maxLength(2000)),
-        betreiber: new FormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-        marke: new FormControl(null, RadvisValidators.maxLength(255)),
-        luftpumpe: new FormControl(null),
-        kettenwerkzeug: new FormControl(null),
-        werkzeug: new FormControl(null),
-        fahrradhalterung: new FormControl(null),
-        beschreibung: new FormControl(null, RadvisValidators.maxLength(2000)),
-        organisation: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        typ: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        status: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+      new UntypedFormGroup({
+        geometrie: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        name: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+        quellSystem: new UntypedFormControl({ value: null, disabled: true }),
+        gebuehren: new UntypedFormControl(null),
+        oeffnungszeiten: new UntypedFormControl(null, RadvisValidators.maxLength(2000)),
+        betreiber: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+        marke: new UntypedFormControl(null, RadvisValidators.maxLength(255)),
+        luftpumpe: new UntypedFormControl(null),
+        kettenwerkzeug: new UntypedFormControl(null),
+        werkzeug: new UntypedFormControl(null),
+        fahrradhalterung: new UntypedFormControl(null),
+        beschreibung: new UntypedFormControl(null, RadvisValidators.maxLength(2000)),
+        organisation: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        typ: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        status: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
       }),
       notifyUserService,
       changeDetector,
@@ -111,7 +114,11 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
     this.resetForm(this.currentServicestation);
   }
 
-  protected doSave(formGroup: FormGroup): Promise<void> {
+  public get isQuellsystemMobiData(): boolean {
+    return this.currentServicestation?.quellSystem === ServicestationQuellSystem.MOBIDATABW;
+  }
+
+  protected doSave(formGroup: UntypedFormGroup): Promise<void> {
     const currentId = this.currentServicestation?.id;
     invariant(currentId);
     return this.servicestationService
@@ -126,7 +133,7 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
       });
   }
 
-  protected doCreate(formGroup: FormGroup): Promise<void> {
+  protected doCreate(formGroup: UntypedFormGroup): Promise<void> {
     return this.servicestationService.create(this.readCommand(formGroup)).then(newId => {
       this.formGroup.markAsPristine();
       this.servicestationRoutingService.toInfrastrukturEditor(newId);
@@ -144,7 +151,10 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
         geometrie: servicestation?.geometrie.coordinates,
       });
     } else {
-      this.formGroup.reset({ organisation: this.organisationAktuellerBenutzer });
+      this.formGroup.reset({
+        organisation: this.organisationAktuellerBenutzer,
+        quellSystem: ServicestationQuellSystem.RADVIS,
+      });
     }
 
     if (this.canEdit) {
@@ -152,9 +162,11 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
     } else {
       this.formGroup.disable();
     }
+
+    this.formGroup.get('quellSystem')?.disable();
   }
 
-  private readCommand(formGroup: FormGroup): SaveServicestationCommand {
+  private readCommand(formGroup: UntypedFormGroup): SaveServicestationCommand {
     const coordinate = formGroup.value.geometrie;
     return {
       name: formGroup.value.name,

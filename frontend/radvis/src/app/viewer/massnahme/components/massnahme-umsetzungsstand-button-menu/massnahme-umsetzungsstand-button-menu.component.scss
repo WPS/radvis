@@ -26,9 +26,9 @@ $menu-width: 14rem;
   min-height: 2.25rem;
 }
 
-.menu-icon {
-  position: relative;
-  bottom: 2px;
+.button-label {
+  display: flex;
+  align-items: center;
 }
 
 .menu-button {

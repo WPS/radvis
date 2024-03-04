@@ -14,7 +14,9 @@
 
 <button [disabled]="disabled" (click)="onSave()" mat-flat-button color="primary" [class.badge]="dirty && !waiting">
   <div *ngIf="!waiting">
-    <div class="button-text"><ng-content></ng-content></div>
+    <div class="button-text">
+      <ng-content></ng-content>
+    </div>
   </div>
   <mat-spinner color="accent" *ngIf="waiting" diameter="28"></mat-spinner>
 </button>

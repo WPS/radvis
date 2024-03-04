@@ -12,19 +12,10 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<div class="button-row" style="float: right">
-  <button
-    [attr.aria-label]="'Schließen'"
-    mat-dialog-close
-    mat-icon-button
-    matTooltip="Schließen"
-    type="button"
-    class="close-button"
-  >
-    <mat-icon>clear</mat-icon>
-  </button>
-</div>
-<mat-tab-group class="infrastrukturen-tabs" color="accent">
+<button [attr.aria-label]="'Schließen'" mat-dialog-close mat-button matTooltip="Schließen" class="close-button">
+  <mat-icon style="margin: 0">clear</mat-icon>
+</button>
+<mat-tab-group class="infrastrukturen-tabs" color="accent" mat-stretch-tabs="false">
   <mat-tab label="Ebenenverwaltung">
     <rad-weitere-kartenebenen-verwaltung></rad-weitere-kartenebenen-verwaltung>
   </mat-tab>

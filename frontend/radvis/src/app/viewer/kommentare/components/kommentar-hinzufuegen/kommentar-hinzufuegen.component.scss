@@ -12,12 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-
 :host {
   display: block;
-}
-
-.kommentar-input ::ng-deep .mat-form-field-wrapper {
-  padding: 0;
 }

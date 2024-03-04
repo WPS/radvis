@@ -14,11 +14,10 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 

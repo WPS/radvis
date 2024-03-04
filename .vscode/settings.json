@@ -1,9 +1,10 @@
 {
   "java.format.enabled": true,
-  "java.format.settings.url": "<Pfad zu Ihrer intelliJ.xml Datei>",
   "[java]": {
-      "editor.defaultFormatter": "redhat.java"
+    "editor.defaultFormatter": "redhat.java"
   },
+  "java.format.settings.url": "./eclipseFormatter.xml",
+  "java.format.settings.profile": "bis",
   "editor.formatOnSave": true,
   "workbench.editor.labelFormat": "default",
   "editor.renderControlCharacters": false,
@@ -15,8 +16,11 @@
   "editor.linkedEditing": false,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true,
-      "source.organizeImports": true
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[html]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -35,5 +39,6 @@
         "./frontend/radvis"
   ],
 "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
-"java.compile.nullAnalysis.mode": "automatic"
+"java.compile.nullAnalysis.mode": "automatic",
+"java.configuration.updateBuildConfiguration": "automatic"
 }

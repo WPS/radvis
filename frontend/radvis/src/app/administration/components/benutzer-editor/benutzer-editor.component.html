@@ -15,56 +15,65 @@
 <form [formGroup]="form" class="form-group">
   <h2>Benutzer bearbeiten</h2>
 
-  <div class="display-flex justify-content-flex-end position-relative">
-    <mat-slide-toggle
-      (toggleChange)="onStatusAendern()"
-      [checked]="isAktiv"
-      [disabled]="fetchingNachAktivAenderung"
+  <div class="status-box">
+    <rad-text-input-control formControlName="status" class="w-100">
+      <div class="label">Status</div>
+    </rad-text-input-control>
+    <button
+      *ngIf="benutzerStatus === 'WARTE_AUF_FREISCHALTUNG' || benutzerStatus === 'AKTIV' || benutzerStatus === 'INAKTIV'"
+      mat-stroked-button
+      color="primary"
+      class="action-button"
+      (click)="onAblehnen()"
     >
-      aktiv
-    </mat-slide-toggle>
-    <mat-spinner *ngIf="fetchingNachAktivAenderung" diameter="28" class="active-toggle-spinner"></mat-spinner>
+      Ablehnen
+    </button>
+    <button
+      *ngIf="benutzerStatus === 'ABGELEHNT' || benutzerStatus === 'WARTE_AUF_FREISCHALTUNG'"
+      mat-flat-button
+      color="primary"
+      class="action-button"
+      (click)="onAktivieren()"
+    >
+      Aktivieren
+    </button>
   </div>
 
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>Vorname</mat-label>
-    <input formControlName="vorname" matInput/>
-  </mat-form-field>
-  <rad-validation-error-anzeige [errors]="form.get('vorname')?.errors || null"></rad-validation-error-anzeige>
+  <div class="name-box">
+    <rad-text-input-control formControlName="vorname" class="w-100" [errors]="form.get('vorname')?.errors">
+      <div class="label">Vorname</div>
+    </rad-text-input-control>
 
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>Nachname</mat-label>
-    <input formControlName="nachname" matInput/>
-  </mat-form-field>
-  <rad-validation-error-anzeige [errors]="form.get('nachname')?.errors || null"></rad-validation-error-anzeige>
+    <rad-text-input-control formControlName="nachname" class="w-100" [errors]="form.get('nachname')?.errors">
+      <div class="label">Nachname</div>
+    </rad-text-input-control>
+  </div>
 
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>E-Mail-Adresse</mat-label>
-    <input formControlName="email" matInput/>
-  </mat-form-field>
-  <rad-validation-error-anzeige [errors]="form.get('email')?.errors || null"></rad-validation-error-anzeige>
+  <rad-text-input-control formControlName="email" [errors]="form.get('email')?.errors">
+    <div class="label">E-Mail-Adresse</div>
+  </rad-text-input-control>
 
-  <rad-organisationen-dropdown-control
-    [options]="organisationen"
-    class="mat-form-field-full-width mt-8"
+  <rad-autocomplete-dropdown
     formControlName="organisation"
+    [options]="organisationOptions"
+    [errors]="form.get('organisation')?.errors"
   >
     Organisation
-  </rad-organisationen-dropdown-control>
-  <rad-validation-error-anzeige [errors]="form.get('organisation')?.errors || null"></rad-validation-error-anzeige>
+  </rad-autocomplete-dropdown>
 
-  <mat-form-field>
-    <mat-label> Rollen</mat-label>
-    <mat-select formControlName="rollen" multiple>
-      <mat-option *ngFor="let rolle of rollen" [value]="rolle.name">{{ rolle.displayText }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <rad-validation-error-anzeige [errors]="form.get('rollen')?.errors || null"></rad-validation-error-anzeige>
+  <rad-enum-dropdown-control
+    formControlName="rollen"
+    [options]="rollen"
+    [nullable]="false"
+    [multiple]="true"
+    [errors]="form.get('rollen')?.errors"
+  >
+    Rollen
+  </rad-enum-dropdown-control>
 
-  <div class="display-flex align-self-end">
-    <button mat-stroked-button color="primary" (click)="onZurueck()" type="button">Zurück</button>
-    <rad-action-button class="ml-8" style="width: 6rem" (action)="onSave()" [dirty]="form.dirty"
-                       [waiting]="fetchingNachSpeicherung">
+  <div class="form-actions">
+    <button mat-stroked-button color="primary" class="action-button" (click)="onZurueck()" type="button">Zurück</button>
+    <rad-action-button class="save-button" (action)="onSave()" [dirty]="form.dirty" [waiting]="fetchingNachSpeicherung">
       Speichern
     </rad-action-button>
   </div>

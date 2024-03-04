@@ -21,11 +21,11 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
+import { FormControl, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
 import {
-  UndeterminedValue,
+  AbstractUndeterminedFormControl,
   UNDETERMINED_LABEL,
+  UndeterminedValue,
 } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
@@ -49,7 +49,7 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
   ],
 })
 export class AutocorrectingNumberInputControlComponent
-  extends AbstractFormControl<number | UndeterminedValue>
+  extends AbstractUndeterminedFormControl<number>
   implements OnChanges {
   @Input()
   value: number | null = null;
@@ -60,47 +60,52 @@ export class AutocorrectingNumberInputControlComponent
   @Input()
   resetToPreviousValueOnEmpty = false;
 
-  formControl: FormControl;
+  @Input()
+  touchOnWrite = true;
 
+  @Input()
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
+
+  formControl: FormControl<number | null>;
   previousValue: number | null | UndeterminedValue = null;
 
   readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
-
-  get displayValue(): string {
-    // das !=undefined liegt daran, dass ng-mocks einen bug hat.
-    // einfach nur if(this.value) geht nicht für den fall, dass es 0 ist
-    if (this.formControl.value instanceof UndeterminedValue) {
-      return UNDETERMINED_LABEL;
-    }
-    if (this.value !== null && this.value !== undefined) {
-      return this.value.toFixed(2).replace('.', ',');
-    }
-    return '';
-  }
+  isUndetermined = false;
 
   constructor(private changeDetector: ChangeDetectorRef, notifyUserService: NotifyUserService) {
     super();
-    this.formControl = new FormControl('', { updateOn: 'blur' });
+    this.formControl = new FormControl<number | null>(null, { updateOn: 'blur' });
     this.formControl.valueChanges.subscribe(value => {
-      let convertedValue: number | null = +Number.parseFloat(this.convertToNumberString(value)).toFixed(2);
-      if (value === '' && !this.resetToPreviousValueOnEmpty) {
-        convertedValue = null;
-      } else if (isNaN(convertedValue) || convertedValue === 0.0) {
-        convertedValue = this.previousValue as number | null;
+      const convertedValue: number | null = value ? +value.toFixed(2) : null;
+      let valueToWrite: number | null | UndeterminedValue = convertedValue;
+      if (
+        this.resetToPreviousValueOnEmpty &&
+        (convertedValue === null || isNaN(convertedValue) || convertedValue === 0.0)
+      ) {
+        valueToWrite = this.previousValue;
         notifyUserService.warn('Fehlerhafter Wert. Eingabe wurde nicht übernommen.');
       }
-      this.formControl.reset(convertedValue?.toFixed(2).replace('.', ','), { emitEvent: false });
+
       // Damit das Form nicht dirty wird bei ungültigen Eingaben, werden Änderungen nur bei tatsächlichen Änderungen nach oben gegeben
-      if (this.previousValue !== convertedValue) {
+      if (convertedValue && this.previousValue !== convertedValue) {
         this.onChange(convertedValue);
       }
-      this.previousValue = convertedValue;
+      this.writeValue(valueToWrite);
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.isDisabled) {
       this.setDisabledState(this.isDisabled);
+    }
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
+    }
+    if (changes.value) {
+      this.formControl.reset(this.value ? +this.value.toFixed(2) : null, { emitEvent: false });
+      this.isUndetermined = false;
     }
   }
 
@@ -114,18 +119,21 @@ export class AutocorrectingNumberInputControlComponent
   }
 
   public writeValue(value: number | UndeterminedValue | null): void {
-    if (value instanceof UndeterminedValue) {
-      this.formControl.reset(UNDETERMINED_LABEL, { emitEvent: false });
-    } else if (value !== null) {
-      this.formControl.reset(value.toFixed(2).replace('.', ','), { emitEvent: false });
+    let convertedValue: number | null | UndeterminedValue = value;
+    if (convertedValue instanceof UndeterminedValue) {
+      this.formControl.reset(null, { emitEvent: false });
+      this.isUndetermined = true;
     } else {
-      this.formControl.reset('', { emitEvent: false });
+      const fixedValue = convertedValue ? +convertedValue.toFixed(2) : null;
+      convertedValue = fixedValue;
+      this.formControl.reset(fixedValue, { emitEvent: false });
+      this.isUndetermined = false;
+    }
+
+    if (this.touchOnWrite) {
+      this.formControl.markAsTouched();
     }
     this.changeDetector.markForCheck();
-    this.previousValue = value;
-  }
-
-  private convertToNumberString(value: string): string {
-    return value.replace(',', '.').replace(/[^\d\.]/g, '');
+    this.previousValue = convertedValue;
   }
 }

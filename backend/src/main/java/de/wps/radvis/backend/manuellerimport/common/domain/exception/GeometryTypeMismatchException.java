@@ -14,7 +14,7 @@
 
 package de.wps.radvis.backend.manuellerimport.common.domain.exception;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 public class GeometryTypeMismatchException extends Exception {
 	private static final long serialVersionUID = -5526856966879555520L;

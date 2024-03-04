@@ -26,9 +26,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;

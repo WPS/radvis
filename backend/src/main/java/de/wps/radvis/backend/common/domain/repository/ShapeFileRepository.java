@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeEncodingException;

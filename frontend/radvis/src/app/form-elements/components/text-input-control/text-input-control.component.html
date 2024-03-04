@@ -12,16 +12,19 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<mat-form-field [class.highlight-undetermined]="isUndetermined" class="w-100">
+<mat-form-field class="w-100 form-field" [class.highlight-undetermined]="isUndetermined && !formControl.value">
   <mat-label>
     <ng-content select=".label"></ng-content>
   </mat-label>
-  <input [formControl]="formControl" matInput *ngIf="!asTextarea"/>
+  <input [formControl]="formControl" matInput *ngIf="!asTextarea" [type]="inputType" />
   <textarea [formControl]="formControl" matInput *ngIf="asTextarea" [rows]="rows"></textarea>
   <div class="ml-3" matSuffix>
     <ng-content select=".suffix"></ng-content>
   </div>
-  <mat-hint align="end">
-    <ng-content select=".hint"></ng-content>
-  </mat-hint>
+  <mat-hint *ngIf="isUndetermined && !formControl.value">{{ UNDETERMINED_LABEL }}</mat-hint>
+  <mat-hint *ngIf="maxLength" align="end">{{ formControl.value.length }} / {{ maxLength }}</mat-hint>
+  <mat-error>
+    <mat-hint *ngIf="maxLength" class="error-hint">{{ formControl.value.length }} / {{ maxLength }}</mat-hint>
+    <div *ngFor="let msg of errorMessages">{{ msg }}</div>
+  </mat-error>
 </mat-form-field>

@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.transaction.TestTransaction;
@@ -37,6 +39,7 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
@@ -67,10 +70,16 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @Tag("group7")
 @AutoConfigureTestEntityManager
 @EnableJpaRepositories(basePackageClasses = { MassnahmeConfiguration.class })
-@EntityScan(basePackageClasses = { MassnahmeConfiguration.class, KommentarConfiguration.class,
-	DokumentConfiguration.class })
+@EntityScan(basePackageClasses = {
+	MassnahmeConfiguration.class,
+	KommentarConfiguration.class,
+	DokumentConfiguration.class
+})
 @EnableConfigurationProperties(value = {
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 
@@ -151,66 +160,73 @@ public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKon
 		// fehler
 		Massnahme streckenMassnahmeKreisnetz = massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse).benutzerLetzteAenderung(benutzer)
-				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
+				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).zustaendiger(gebietskoerperschaft).build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse).umsetzungsstatus(Umsetzungsstatus.STORNIERT)
-				.benutzerLetzteAenderung(benutzer)
+				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(radnetzKante).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.SONSTIGE).build());
 
 		// fehler
 		Massnahme streckenMassnahmeGemischt = massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(radnetzKante, kanteOhneNetzklasse)
-				.benutzerLetzteAenderung(benutzer)
+				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// fehler
 		Massnahme streckenMassnahmeDoppelterFehler = massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(kanteKreisnetz, kanteOhneNetzklasse)
-				.benutzerLetzteAenderung(benutzer)
+				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKnoten(knotenGemischt).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKnoten(knotenRadNetz).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// fehler
 		Massnahme knotenMassnahmeKreisnetz = massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKnoten(knotenOhneNetzklasse).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		// fehler
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKnoten(knotenOhneNetzklasse).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).umsetzungsstatus(Umsetzungsstatus.STORNIERT)
 				.build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKnoten(knotenOhneNetzklasse).benutzerLetzteAenderung(benutzer)
+				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.SONSTIGE).build());
 
 		// fehler
 		Massnahme multipleKnotenMassnahme = massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKnoten(knotenOhneNetzklasse, knotenRadNetz)
-				.benutzerLetzteAenderung(benutzer)
+				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
 
 		TestTransaction.flagForCommit();

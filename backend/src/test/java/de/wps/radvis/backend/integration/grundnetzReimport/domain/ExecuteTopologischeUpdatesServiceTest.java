@@ -97,7 +97,7 @@ class ExecuteTopologischeUpdatesServiceTest {
 
 	Comparator<LinearReferenzierterAbschnitt> LR_COMPARATOR_WITH_PRECISION = (a,
 		b) -> Math.abs(a.getVonValue() - b.getVonValue()) < 0.000000001
-			&& Math.abs(a.getBisValue() - b.getBisValue()) < 0.000000001 ? 0 : -1;
+		&& Math.abs(a.getBisValue() - b.getBisValue()) < 0.000000001 ? 0 : -1;
 
 	@BeforeEach
 	void setUp() {
@@ -122,11 +122,11 @@ class ExecuteTopologischeUpdatesServiceTest {
 				new Coordinate(10, 10),
 				new Coordinate(20, 10)))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue().kantenAttribute(
-				KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
-					.strassenName(StrassenName.of("Rainbow Road"))
-					.strassenNummer(StrassenNummer.of("42"))
-					.beleuchtung(Beleuchtung.VORHANDEN)
-					.build())
+					KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
+						.strassenName(StrassenName.of("Rainbow Road"))
+						.strassenNummer(StrassenNummer.of("42"))
+						.beleuchtung(Beleuchtung.VORHANDEN)
+						.build())
 				.build())
 			.fahrtrichtungAttributGruppe(fahrtrichtungAttributGruppe)
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
@@ -265,7 +265,7 @@ class ExecuteTopologischeUpdatesServiceTest {
 		LineString lineStringKante = this.geometryFactory.createLineString(
 			new Coordinate[] { new Coordinate(0, 0), new Coordinate(2, 0), new Coordinate(2, 2) });
 		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider.withLineareReferenz(0.0,
-			1.0).belagArt(
+				1.0).belagArt(
 				BelagArt.ASPHALT)
 			.breite(Laenge.of(2.0)).build();
 		FuehrungsformAttributGruppe fuehrungsformAttributGruppe = new FuehrungsformAttributGruppe(
@@ -480,18 +480,18 @@ class ExecuteTopologischeUpdatesServiceTest {
 		Kante kante = this.buildTestKante(
 			List.of(LinearReferenzierterAbschnitt.of(0.0, 0.34), LinearReferenzierterAbschnitt.of(0.34, 1.0)),
 			new Coordinate[] {
-					new Coordinate(10, 10),
-					new Coordinate(10, 20),
-					new Coordinate(20, 20),
-					new Coordinate(20, 10) });
+				new Coordinate(10, 10),
+				new Coordinate(10, 20),
+				new Coordinate(20, 20),
+				new Coordinate(20, 10) });
 		LineString lineStringFeature = this.geometryFactory.createLineString(
 			new Coordinate[] {
-					// Sobald die nächsten beiden Koordinaten nicht hinzugefügt werden, haben wir keinen Error mehr.
-					new Coordinate(20, 20),
-					new Coordinate(20, 10),
+				// Sobald die nächsten beiden Koordinaten nicht hinzugefügt werden, haben wir keinen Error mehr.
+				new Coordinate(20, 20),
+				new Coordinate(20, 10),
 
-					new Coordinate(10, 10),
-					new Coordinate(10, 20)
+				new Coordinate(10, 10),
+				new Coordinate(10, 20)
 			});
 		this.configureTopologieUpdateServiceMock(lineStringFeature);
 
@@ -520,24 +520,24 @@ class ExecuteTopologischeUpdatesServiceTest {
 		Kante kante = this.buildTestKante(
 			List.of(LinearReferenzierterAbschnitt.of(0.0, 0.34), LinearReferenzierterAbschnitt.of(0.34, 1.0)),
 			new Coordinate[] {
-					new Coordinate(565159.18, 5340709.27),
-					new Coordinate(565143.4, 5340710.08),
-					new Coordinate(565140.07, 5340712.06),
-					new Coordinate(565136.71, 5340717.07),
-					new Coordinate(565137.72, 5340760.35) });
+				new Coordinate(565159.18, 5340709.27),
+				new Coordinate(565143.4, 5340710.08),
+				new Coordinate(565140.07, 5340712.06),
+				new Coordinate(565136.71, 5340717.07),
+				new Coordinate(565137.72, 5340760.35) });
 		LineString lineStringFeature = this.geometryFactory.createLineString(
 			new Coordinate[] {
-					// Sobald die nächsten beiden Koordinaten nicht hinzugefügt werden, haben wir keinen Error mehr.
-					new Coordinate(565140.53, 5340759.94),
-					new Coordinate(565145.3, 5340746.76),
-					new Coordinate(565156.88, 5340727.08),
-					new Coordinate(565159.42, 5340720.41),
-					new Coordinate(565156.41, 5340714.69),
-					new Coordinate(565150.39, 5340712.57),
-					new Coordinate(565144.82, 5340713.42),
-					new Coordinate(565140.53, 5340716.44),
-					new Coordinate(565138.63, 5340723.58),
-					new Coordinate(565140.00, 5340758.00)
+				// Sobald die nächsten beiden Koordinaten nicht hinzugefügt werden, haben wir keinen Error mehr.
+				new Coordinate(565140.53, 5340759.94),
+				new Coordinate(565145.3, 5340746.76),
+				new Coordinate(565156.88, 5340727.08),
+				new Coordinate(565159.42, 5340720.41),
+				new Coordinate(565156.41, 5340714.69),
+				new Coordinate(565150.39, 5340712.57),
+				new Coordinate(565144.82, 5340713.42),
+				new Coordinate(565140.53, 5340716.44),
+				new Coordinate(565138.63, 5340723.58),
+				new Coordinate(565140.00, 5340758.00)
 			});
 
 		this.configureTopologieUpdateServiceMock(lineStringFeature);
@@ -565,11 +565,11 @@ class ExecuteTopologischeUpdatesServiceTest {
 	void error_neuerAnfangZuDichtAnEndeDerKante_realdaten_reversed() throws Exception {
 
 		Coordinate[] koordinaten = new Coordinate[] {
-				new Coordinate(565137.72, 5340760.35),
-				new Coordinate(565136.71, 5340717.07),
-				new Coordinate(565140.07, 5340712.06),
-				new Coordinate(565143.4, 5340710.08),
-				new Coordinate(565159.18, 5340709.27)
+			new Coordinate(565137.72, 5340760.35),
+			new Coordinate(565136.71, 5340717.07),
+			new Coordinate(565140.07, 5340712.06),
+			new Coordinate(565143.4, 5340710.08),
+			new Coordinate(565159.18, 5340709.27)
 		};
 
 		Kante kante = this.buildTestKante(
@@ -577,17 +577,17 @@ class ExecuteTopologischeUpdatesServiceTest {
 			koordinaten);
 		LineString lineStringFeature = this.geometryFactory.createLineString(
 			new Coordinate[] {
-					// Sobald die nächsten beiden Koordinaten nicht hinzugefügt werden, haben wir keinen Error mehr.
-					new Coordinate(565140.53, 5340759.94),
-					new Coordinate(565145.3, 5340746.76),
-					new Coordinate(565156.88, 5340727.08),
-					new Coordinate(565159.42, 5340720.41),
-					new Coordinate(565156.41, 5340714.69),
-					new Coordinate(565150.39, 5340712.57),
-					new Coordinate(565144.82, 5340713.42),
-					new Coordinate(565140.53, 5340716.44),
-					new Coordinate(565138.63, 5340723.58),
-					new Coordinate(565140.53, 5340750.00)
+				// Sobald die nächsten beiden Koordinaten nicht hinzugefügt werden, haben wir keinen Error mehr.
+				new Coordinate(565140.53, 5340759.94),
+				new Coordinate(565145.3, 5340746.76),
+				new Coordinate(565156.88, 5340727.08),
+				new Coordinate(565159.42, 5340720.41),
+				new Coordinate(565156.41, 5340714.69),
+				new Coordinate(565150.39, 5340712.57),
+				new Coordinate(565144.82, 5340713.42),
+				new Coordinate(565140.53, 5340716.44),
+				new Coordinate(565138.63, 5340723.58),
+				new Coordinate(565140.53, 5340750.00)
 			});
 
 		this.configureTopologieUpdateServiceMock(lineStringFeature);
@@ -1020,8 +1020,8 @@ class ExecuteTopologischeUpdatesServiceTest {
 		Kante kante = this.buildTestKante(
 			List.of(LinearReferenzierterAbschnitt.of(0.0, 1.00)),
 			new Coordinate[] { new Coordinate(539886.19, 5388187.42),
-					new Coordinate(539874.52, 5388182.91), new Coordinate(539868.69, 5388181.34),
-					new Coordinate(539864.19, 5388180.12) });
+				new Coordinate(539874.52, 5388182.91), new Coordinate(539868.69, 5388181.34),
+				new Coordinate(539864.19, 5388180.12) });
 		LineString lineStringFeature = this.geometryFactory.createLineString(
 			new CoordinateSequence2D(538956.9, 5387980.36, 538981.27, 5387982.34, 539006.53, 5387986.25, 539056.51,
 				5388000.16, 539081.5, 5388006.36, 539101.41, 5388010.11, 539132.6, 5388015.94, 539151.39, 5388017.63,
@@ -1341,12 +1341,12 @@ class ExecuteTopologischeUpdatesServiceTest {
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getHoechstgeschwindigkeit())
-					.isEqualTo(Hoechstgeschwindigkeit.MAX_70_KMH);
+			.isEqualTo(Hoechstgeschwindigkeit.MAX_70_KMH);
 
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
-					.contains(Hoechstgeschwindigkeit.MAX_100_KMH);
+			.contains(Hoechstgeschwindigkeit.MAX_100_KMH);
 
 		assertThat(topologischStarkVeraenderteKanten).isEmpty();
 	}
@@ -1390,12 +1390,12 @@ class ExecuteTopologischeUpdatesServiceTest {
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getHoechstgeschwindigkeit())
-					.isEqualTo(Hoechstgeschwindigkeit.MAX_100_KMH);
+			.isEqualTo(Hoechstgeschwindigkeit.MAX_100_KMH);
 
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
-					.contains(Hoechstgeschwindigkeit.MAX_70_KMH);
+			.contains(Hoechstgeschwindigkeit.MAX_70_KMH);
 
 		assertThat(topologischStarkVeraenderteKanten).isEmpty();
 	}
@@ -1856,7 +1856,7 @@ class ExecuteTopologischeUpdatesServiceTest {
 			// Geschwindigkeit
 			assertThat(gesplitteteKante.getGeschwindigkeitAttributGruppe()
 				.getGeschwindigkeitAttribute()).containsExactlyInAnyOrderElementsOf(
-					List.of(geschwindigkeitAttribute));
+				List.of(geschwindigkeitAttribute));
 
 			// Umkehrung der Stationierungsrichtung!
 			assertThat(splitPartner.getGeschwindigkeitAttributGruppe().getGeschwindigkeitAttribute()).isEqualTo(
@@ -2262,11 +2262,11 @@ class ExecuteTopologischeUpdatesServiceTest {
 			// arrange
 			// Knoten der ursprünglichen, gesplitteten Kante
 			Knoten altVon = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514965.56, 5372032.2),
-				QuellSystem.DLM)
+					QuellSystem.DLM)
 				.id(10L)
 				.build();
 			Knoten altNach = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514986.89, 5371993.17),
-				QuellSystem.DLM)
+					QuellSystem.DLM)
 				.id(20L)
 				.build();
 
@@ -2340,9 +2340,9 @@ class ExecuteTopologischeUpdatesServiceTest {
 			Knoten neuNach = altNach;
 
 			Kante splitPartner = KanteTestDataProvider.fromKnoten(
-				KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514964.63, 5372032.2), QuellSystem.DLM)
-					.id(30L).build(),
-				altVon)
+					KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514964.63, 5372032.2), QuellSystem.DLM)
+						.id(30L).build(),
+					altVon)
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(514964.63, 5372032.2),
 					new Coordinate(514965.56, 5372033.23)))
 				.id(2L)

@@ -16,6 +16,7 @@ import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage
 import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
 import { defaultGemeinden } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { Ueberwacht } from 'src/app/viewer/abstellanlage/models/ueberwacht';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
 import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstellanlagen-status';
 
@@ -32,7 +33,7 @@ export const defaultAbstellanlage: Abstellanlage = {
   anzahlSchliessfaecher: 200,
   anzahlLademoeglichkeiten: 300,
   ueberwacht: Ueberwacht.KEINE,
-  istBikeAndRide: false,
+  abstellanlagenOrt: AbstellanlagenOrt.UNBEKANNT,
   groessenklasse: undefined,
   stellplatzart: Stellplatzart.DOPPELSTOECKIG,
   ueberdacht: true,

@@ -12,22 +12,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class MatchingAuthorizationGuard implements CanActivate {
-  constructor(private benutzerService: BenutzerDetailsService, private router: Router) {}
-
-  canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (!this.benutzerService.istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin()) {
-      this.router.navigate(['/']);
-      return false;
-    }
-    return true;
+export const matchingAuthorizationGuard: CanActivateFn = () => {
+  const benutzerService: BenutzerDetailsService = inject(BenutzerDetailsService);
+  const router: Router = inject(Router);
+  if (!benutzerService.istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin()) {
+    router.navigate(['/']);
+    return false;
   }
-}
+  return true;
+};

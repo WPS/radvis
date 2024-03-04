@@ -15,13 +15,16 @@
 <table class="w-100" radAccessabilityTabCircleGroup>
   <tr *ngFor="let netzklasse of allNetzklassen" class="mb-3">
     <td>
-      <mat-checkbox radAccessabilityTabCircleElement
-                    (change)="onNetzklassenAuswahlChange(netzklasse, $event.checked)"
-                    [checked]="(selectedNetzklassen$ | async)?.includes(netzklasse)?? false">
+      <mat-checkbox
+        radAccessabilityTabCircleElement
+        (change)="onNetzklassenAuswahlChange(netzklasse, $event.checked)"
+        [checked]="(selectedNetzklassen$ | async)?.includes(netzklasse)?? false"
+      >
         {{ netzklasse.displayText }}
       </mat-checkbox>
       <div
-        *ngIf="((selectedNetzklassen$ | async)?.includes(netzklasse)?? false) && !netzklasse.isVisibleOnZoomlevel(zoom)">
+        *ngIf="((selectedNetzklassen$ | async)?.includes(netzklasse)?? false) && !netzklasse.isVisibleOnZoomlevel(zoom)"
+      >
         <span class="mat-small zoomstufen-hinweis">Auf aktueller Zoomstufe nicht sichtbar!</span>
       </div>
     </td>

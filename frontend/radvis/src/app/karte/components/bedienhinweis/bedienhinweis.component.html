@@ -20,7 +20,8 @@
         [attr.aria-label]="'Schließen'"
         matTooltip="Schließen"
         (click)="onHide()"
-        mat-icon-button
+        mat-button
+        [disableRipple]="true"
       >
         <mat-icon>clear</mat-icon>
       </button>

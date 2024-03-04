@@ -14,10 +14,8 @@
 
 package de.wps.radvis.backend.dokument.schnittstelle;
 
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

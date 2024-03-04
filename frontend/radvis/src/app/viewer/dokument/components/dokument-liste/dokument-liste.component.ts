@@ -14,15 +14,15 @@
 
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import {
   ConfirmationDialogComponent,
   QuestionYesNo,
 } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { RadvisValidators } from 'src/app/shared/models/radvis-validators';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -40,7 +40,7 @@ import invariant from 'tiny-invariant';
 export class DokumentListeComponent implements OnInit, OnDestroy {
   public static readonly DOKUMENTLISTE_DATA_KEY = 'dokumente';
   public dokumentListeView!: DokumentListeView;
-  public formGroup: FormGroup;
+  public formGroup: UntypedFormGroup;
   public uploading = false;
   private subscriptions: Subscription[] = [];
 
@@ -53,8 +53,8 @@ export class DokumentListeComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     activatedRoute: ActivatedRoute
   ) {
-    this.formGroup = new FormGroup({
-      file: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+    this.formGroup = new UntypedFormGroup({
+      file: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
     });
 
     this.subscriptions.push(

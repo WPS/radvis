@@ -1,13 +1,13 @@
-<code_scheme name="Project" version="173">
-  <option name="FORMATTER_TAGS_ENABLED" value="true"/>
+<code_scheme name="RadVIS" version="173">
+  <option name="FORMATTER_TAGS_ENABLED" value="true" />
   <JSCodeStyleSettings version="0">
-    <option name="FORCE_SEMICOLON_STYLE" value="true"/>
-    <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false"/>
-    <option name="USE_DOUBLE_QUOTES" value="false"/>
-    <option name="FORCE_QUOTE_STYlE" value="true"/>
-    <option name="ENFORCE_TRAILING_COMMA" value="WhenMultiline"/>
-    <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true"/>
-    <option name="SPACES_WITHIN_IMPORTS" value="true"/>
+    <option name="FORCE_SEMICOLON_STYLE" value="true" />
+    <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
+    <option name="USE_DOUBLE_QUOTES" value="false" />
+    <option name="FORCE_QUOTE_STYlE" value="true" />
+    <option name="ENFORCE_TRAILING_COMMA" value="WhenMultiline" />
+    <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
+    <option name="SPACES_WITHIN_IMPORTS" value="true" />
   </JSCodeStyleSettings>
   <JavaCodeStyleSettings>
     <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
@@ -37,7 +37,7 @@
     <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
     <option name="USE_DOUBLE_QUOTES" value="false" />
     <option name="FORCE_QUOTE_STYlE" value="true" />
-    <option name="ENFORCE_TRAILING_COMMA" value="WhenMultiline"/>
+    <option name="ENFORCE_TRAILING_COMMA" value="WhenMultiline" />
     <option name="IMPORTS_WRAP" value="1" />
     <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
     <option name="SPACES_WITHIN_IMPORTS" value="true" />
@@ -46,6 +46,7 @@
     <option name="IMPORT_PREFER_ABSOLUTE_PATH" value="TRUE" />
   </TypeScriptCodeStyleSettings>
   <XML>
+    <option name="XML_KEEP_WHITESPACES" value="true" />
     <option name="XML_ALIGN_ATTRIBUTES" value="false" />
   </XML>
   <codeStyleSettings language="HTML">
@@ -72,15 +73,15 @@
     <option name="EXTENDS_LIST_WRAP" value="1" />
     <option name="THROWS_LIST_WRAP" value="1" />
     <option name="EXTENDS_KEYWORD_WRAP" value="1" />
-    <option name="THROWS_KEYWORD_WRAP" value="1"/>
-    <option name="METHOD_CALL_CHAIN_WRAP" value="1"/>
-    <option name="BINARY_OPERATION_WRAP" value="1"/>
-    <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true"/>
-    <option name="TERNARY_OPERATION_WRAP" value="5"/>
-    <option name="ARRAY_INITIALIZER_WRAP" value="1"/>
+    <option name="THROWS_KEYWORD_WRAP" value="1" />
+    <option name="METHOD_CALL_CHAIN_WRAP" value="1" />
+    <option name="BINARY_OPERATION_WRAP" value="1" />
+    <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
+    <option name="TERNARY_OPERATION_WRAP" value="5" />
+    <option name="ARRAY_INITIALIZER_WRAP" value="1" />
     <indentOptions>
-      <option name="CONTINUATION_INDENT_SIZE" value="4"/>
-      <option name="USE_TAB_CHARACTER" value="true"/>
+      <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      <option name="USE_TAB_CHARACTER" value="true" />
     </indentOptions>
     <arrangement>
       <groups>
@@ -117,6 +118,7 @@
       <option name="INDENT_SIZE" value="2" />
       <option name="CONTINUATION_INDENT_SIZE" value="2" />
       <option name="TAB_SIZE" value="2" />
+      <option name="USE_TAB_CHARACTER" value="true" />
     </indentOptions>
   </codeStyleSettings>
 </code_scheme>

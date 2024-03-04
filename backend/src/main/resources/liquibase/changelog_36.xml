@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-2680-2" author="kho">
     <validCheckSum>8:3d14ea19da35a595efc3ac307ef7e68a</validCheckSum>
@@ -296,9 +296,9 @@
       <column name="dokument_liste_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="servicestation" baseColumnNames="dokument_liste_id"
-      constraintName="fk_servicestation_dokument_liste_id"
-      referencedTableName="dokument_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_servicestation_dokument_liste_id"
+			referencedTableName="dokument_liste"
+			referencedColumnNames="id"/>
     <createIndex tableName="servicestation" indexName="servicestation_dokument_liste_idx">
       <column name="dokument_liste_id"/>
     </createIndex>
@@ -309,9 +309,9 @@
       <column name="dokument_liste_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="abstellanlage" baseColumnNames="dokument_liste_id"
-      constraintName="fk_abstellanlage_dokument_liste_id"
-      referencedTableName="dokument_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_abstellanlage_dokument_liste_id"
+			referencedTableName="dokument_liste"
+			referencedColumnNames="id"/>
     <createIndex tableName="abstellanlage" indexName="abstellanlage_dokument_liste_idx">
       <column name="dokument_liste_id"/>
     </createIndex>
@@ -342,9 +342,9 @@
                                   WHERE dokument_liste_id NOT IN (SELECT id FROM dokument_liste));
     </sql>
     <addForeignKeyConstraint baseTableName="servicestation" baseColumnNames="dokument_liste_id"
-      constraintName="fk_servicestation_dokument_liste_id"
-      referencedTableName="dokument_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_servicestation_dokument_liste_id"
+			referencedTableName="dokument_liste"
+			referencedColumnNames="id"/>
 
     <dropForeignKeyConstraint baseTableName="abstellanlage" constraintName="fk_abstellanlage_dokument_liste_id"/>
     <sql>
@@ -359,9 +359,9 @@
 
     </sql>
     <addForeignKeyConstraint baseTableName="abstellanlage" baseColumnNames="dokument_liste_id"
-      constraintName="fk_abstellanlage_dokument_liste_id"
-      referencedTableName="dokument_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_abstellanlage_dokument_liste_id"
+			referencedTableName="dokument_liste"
+			referencedColumnNames="id"/>
   </changeSet>
 
   <changeSet id="RAD-5173" author="kho">
@@ -436,7 +436,7 @@
     <createTable tableName="fahrradzaehlstelle">
       <column name="id" type="BIGINT">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="fahrradzaehlstelle_pkey"/>
+					primaryKeyName="fahrradzaehlstelle_pkey"/>
       </column>
       <column name="version" type="BIGINT" defaultValueNumeric="0"/>
       <column name="geometrie" type="geometry"/>
@@ -449,7 +449,7 @@
     <createTable tableName="channel">
       <column name="id" type="BIGINT">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="channel_pkey"/>
+					primaryKeyName="channel_pkey"/>
       </column>
       <column name="version" type="BIGINT" defaultValueNumeric="0"/>
       <column name="channel_bezeichnung" type="VARCHAR(255)"/>
@@ -457,9 +457,9 @@
       <column name="fahrradzaehlstelle_id" type="BIGINT"/>
     </createTable>
     <addForeignKeyConstraint baseTableName="channel" baseColumnNames="fahrradzaehlstelle_id"
-      constraintName="fk_channel_fahrradzaehlstelle_id"
-      referencedTableName="fahrradzaehlstelle"
-      referencedColumnNames="id"/>
+			constraintName="fk_channel_fahrradzaehlstelle_id"
+			referencedTableName="fahrradzaehlstelle"
+			referencedColumnNames="id"/>
     <createIndex tableName="channel" indexName="channel_fahrradzaehlstelle_idx">
       <column name="fahrradzaehlstelle_id"/>
     </createIndex>
@@ -549,55 +549,55 @@
 
   <changeSet id="RAD-4719" author="hst">
     <!-- Normale Führungsform-Tabellen -->
+		<renameColumn
+			tableName="fuehrungsform_attribut_gruppe_attribute_rechts"
+			oldColumnName="trennstreifen_trennung_mittels_rechts"
+			newColumnName="trennstreifen_trennung_zu_rechts"
+		/>
     <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_rechts"
-      oldColumnName="trennstreifen_trennung_mittels_rechts"
-      newColumnName="trennstreifen_trennung_zu_rechts"
-    />
-    <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_rechts"
-      oldColumnName="trennstreifen_trennung_mittels_links"
-      newColumnName="trennstreifen_trennung_zu_links"
-    />
+			tableName="fuehrungsform_attribut_gruppe_attribute_rechts"
+			oldColumnName="trennstreifen_trennung_mittels_links"
+			newColumnName="trennstreifen_trennung_zu_links"
+		/>
 
     <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_links"
-      oldColumnName="trennstreifen_trennung_mittels_rechts"
-      newColumnName="trennstreifen_trennung_zu_rechts"
-    />
+			tableName="fuehrungsform_attribut_gruppe_attribute_links"
+			oldColumnName="trennstreifen_trennung_mittels_rechts"
+			newColumnName="trennstreifen_trennung_zu_rechts"
+		/>
     <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_links"
-      oldColumnName="trennstreifen_trennung_mittels_links"
-      newColumnName="trennstreifen_trennung_zu_links"
-    />
+			tableName="fuehrungsform_attribut_gruppe_attribute_links"
+			oldColumnName="trennstreifen_trennung_mittels_links"
+			newColumnName="trennstreifen_trennung_zu_links"
+		/>
 
-    <!-- Auditing Tabellen -->
+		<!-- Auditing Tabellen -->
+		<renameColumn
+			tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud"
+			oldColumnName="trennstreifen_trennung_mittels_rechts"
+			newColumnName="trennstreifen_trennung_zu_rechts"
+		/>
     <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud"
-      oldColumnName="trennstreifen_trennung_mittels_rechts"
-      newColumnName="trennstreifen_trennung_zu_rechts"
-    />
-    <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud"
-      oldColumnName="trennstreifen_trennung_mittels_links"
-      newColumnName="trennstreifen_trennung_zu_links"
-    />
+			tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud"
+			oldColumnName="trennstreifen_trennung_mittels_links"
+			newColumnName="trennstreifen_trennung_zu_links"
+		/>
 
     <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_links_aud"
-      oldColumnName="trennstreifen_trennung_mittels_rechts"
-      newColumnName="trennstreifen_trennung_zu_rechts"
-    />
+			tableName="fuehrungsform_attribut_gruppe_attribute_links_aud"
+			oldColumnName="trennstreifen_trennung_mittels_rechts"
+			newColumnName="trennstreifen_trennung_zu_rechts"
+		/>
     <renameColumn
-      tableName="fuehrungsform_attribut_gruppe_attribute_links_aud"
-      oldColumnName="trennstreifen_trennung_mittels_links"
-      newColumnName="trennstreifen_trennung_zu_links"
-    />
+			tableName="fuehrungsform_attribut_gruppe_attribute_links_aud"
+			oldColumnName="trennstreifen_trennung_mittels_links"
+			newColumnName="trennstreifen_trennung_zu_links"
+		/>
   </changeSet>
 
   <changeSet id="RAD-4719-2" author="hst">
     <!-- Normale Tabellen -->
-    <update tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+		<update tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
       <column name="trennstreifen_form_rechts" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
       <where>trennstreifen_form_rechts = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
     </update>
@@ -615,8 +615,8 @@
       <where>trennstreifen_form_links = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
     </update>
 
-    <!-- Auditing Tabellen -->
-    <update tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+		<!-- Auditing Tabellen -->
+		<update tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
       <column name="trennstreifen_form_rechts" value="TRENNUNG_DURCH_SPERRPFOSTEN"/>
       <where>trennstreifen_form_rechts = 'TRENNUNG_DURCH_LEITPFOSTEN'</where>
     </update>

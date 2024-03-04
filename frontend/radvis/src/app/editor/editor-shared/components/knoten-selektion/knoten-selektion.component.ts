@@ -81,7 +81,7 @@ export class KnotenSelektionComponent implements OnDestroy {
       this.knotenLayers.push(
         new VectorLayer({
           source: vectorSource,
-          // @ts-ignore
+          // @ts-expect-error Migration von ts-ignore
           renderOrder: null,
           style: new Style({
             image: MapStyles.circleWithFill(5),

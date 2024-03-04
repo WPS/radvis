@@ -17,6 +17,8 @@ package de.wps.radvis.backend.leihstation.domain.valueObject;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -47,5 +49,9 @@ public class ExterneLeihstationenId {
 	@Override
 	public String toString() {
 		return String.format("ExterneLeihstationenId{value='%s'}", value);
+	}
+
+	public static boolean isValid(String id) {
+		return Objects.nonNull(id) && id.length() > 0 && id.length() <= MAX_LENGTH;
 	}
 }

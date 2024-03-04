@@ -4,7 +4,10 @@
     "projects/**/*"
   ],
   "plugins": [
-    "jasmine","deprecation","header"
+    "jasmine",
+    "deprecation",
+    "prefer-arrow-functions",
+    "header"
   ],
   "overrides": [
     {
@@ -18,18 +21,22 @@
         "createDefaultProgram": true
       },
       "extends": [
-        "plugin:@angular-eslint/ng-cli-compat",
-        "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
+        "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:@typescript-eslint/recommended",
         "prettier/@typescript-eslint",
         "plugin:prettier/recommended"
       ],
       "rules": {
         "deprecation/deprecation": "warn",
+        "@typescript-eslint/no-explicit-any": "warn",
         "@angular-eslint/component-selector": [
           "error",
           {
-            "type": ["element", "attribute"],
+            "type": [
+              "element",
+              "attribute"
+            ],
             "prefix": "rad",
             "style": "kebab-case"
           }
@@ -51,6 +58,16 @@
             ]
           }
         ],
+        "prefer-arrow-functions/prefer-arrow-functions": [
+          "warn",
+          {
+            "allowNamedFunctions": false,
+            "classPropertiesAllowed": false,
+            "disallowPrototype": false,
+            "returnStyle": "unchanged",
+            "singleReturnOnly": false
+          }
+        ],
         "@typescript-eslint/explicit-function-return-type": "error",
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": "error",
@@ -61,7 +78,8 @@
             "allowAfterSuper": true
           }
         ],
-        "no-unused-vars": "error",
+        "no-unused-vars": "warn",
+        "@typescript-eslint/no-unused-vars": "off",
         "jasmine/no-focused-tests": "error",
         "no-restricted-imports": [
           "error",

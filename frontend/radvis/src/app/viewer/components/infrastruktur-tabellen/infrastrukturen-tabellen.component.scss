@@ -23,11 +23,11 @@
 }
 
 @media print {
-  .infrastrukturen-tabs ::ng-deep .mat-tab-header {
+  .infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
     display: none;
   }
 
-  .full-screen-button{
+  .full-screen-button {
     display: none;
   }
 }
@@ -54,15 +54,11 @@
   overflow: hidden;
 }
 
-.infrastrukturen-tabs ::ng-deep .mat-tab-label {
-  opacity: 1 !important;
-}
-
-.infrastrukturen-tabs ::ng-deep .mat-tab-body-wrapper {
+.infrastrukturen-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
   flex-grow: 1;
 }
 
-.infrastrukturen-tabs ::ng-deep .mat-tab-header {
+.infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
   box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
   margin-bottom: $shadow-spacing;
   margin-right: 48px;
@@ -81,11 +77,11 @@
 
 // Entspricht Breakpoints.TabletLandscape siehe https://material.angular.io/cdk/layout/overview#predefined-breakpoints
 @media screen and (max-width: 1279.98px) {
-  ::ng-deep .tab-container .mat-tab-label {
+  ::ng-deep .tab-container .mdc-tab__text-label {
     height: 1.5rem !important;
   }
 
-  ::ng-deep .tab-container .mat-tab-header {
+  ::ng-deep .tab-container .mat-mdc-tab-header {
     margin-bottom: 0 !important;
   }
 
@@ -94,17 +90,16 @@
     padding-top: 0 !important;
   }
 
-  ::ng-deep .tab-container .mat-header-row {
+  ::ng-deep .tab-container .mat-mdc-header-row {
     height: 1rem !important;
   }
 
   ::ng-deep .pagination-container mat-paginator,
-  ::ng-deep .pagination-container .mat-paginator-outer-container,
-  ::ng-deep .pagination-container .mat-paginator-container {
+  ::ng-deep .pagination-container .mat-mdc-paginator-outer-container,
+  ::ng-deep .pagination-container .mat-mdc-paginator-container {
     min-height: 1rem !important;
     height: 1rem !important;
     line-height: 1rem !important;
     display: inline-flex;
   }
 }
-

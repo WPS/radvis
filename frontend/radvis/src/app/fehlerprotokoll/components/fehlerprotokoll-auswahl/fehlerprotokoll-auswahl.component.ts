@@ -23,9 +23,10 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { of, Subscription, zip } from 'rxjs';
+import { Subscription, of, zip } from 'rxjs';
 import { concatMap, distinctUntilChanged, map } from 'rxjs/operators';
 import { FehlerprotokollLayerComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-layer/fehlerprotokoll-layer.component';
 import { FehlerprotokollTyp } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-typ';
@@ -37,14 +38,13 @@ import {
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
 import { KonsistenzregelService } from 'src/app/fehlerprotokoll/services/konsistenzregel.service';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
+import { AccessabilityTabCircleGroupDirective } from 'src/app/shared/components/accessability-tab-circle-group.directive';
 import { Konsistenzregel } from 'src/app/shared/models/konsistenzregel';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { MenuEventService } from 'src/app/shared/services/menu-event.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { AccessabilityTabCircleGroupDirective } from 'src/app/shared/components/accessability-tab-circle-group.directive';
 
 @Component({
   selector: 'rad-fehlerprotokoll-auswahl',
@@ -67,9 +67,9 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
 
   public fehlerprotokolleOptions: FehlerprotokollTyp[] = FehlerprotokollTyp.getAll();
   public alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
-  organisationControl: FormControl;
-  netzklassenImportControl: FormControl;
-  attributeImportControl: FormControl;
+  organisationControl: UntypedFormControl;
+  netzklassenImportControl: UntypedFormControl;
+  attributeImportControl: UntypedFormControl;
 
   alleRegelGruppen = new Map<string, Konsistenzregel[]>();
 
@@ -90,7 +90,7 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
       this.fehlerprotokollSelectionService.selectedOrganisation =
         benutzerDetailsService.aktuellerBenutzerOrganisation() || null;
     }
-    this.organisationControl = new FormControl(
+    this.organisationControl = new UntypedFormControl(
       this.fehlerprotokollSelectionService.selectedOrganisation,
       RadvisValidators.isNotNullOrEmpty
     );
@@ -113,13 +113,15 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
       this.updateFehlerprotokollLoader();
     });
 
-    this.netzklassenImportControl = new FormControl(this.fehlerprotokollSelectionService.netzklassenImportSelected);
+    this.netzklassenImportControl = new UntypedFormControl(
+      this.fehlerprotokollSelectionService.netzklassenImportSelected
+    );
     this.netzklassenImportControl.valueChanges.subscribe(checked => {
       this.fehlerprotokollSelectionService.netzklassenImportSelected = checked;
       this.updateFehlerprotokollLoader();
     });
 
-    this.attributeImportControl = new FormControl(this.fehlerprotokollSelectionService.attributeImportSelected);
+    this.attributeImportControl = new UntypedFormControl(this.fehlerprotokollSelectionService.attributeImportSelected);
     this.attributeImportControl.valueChanges.subscribe(checked => {
       this.fehlerprotokollSelectionService.attributeImportSelected = checked;
       this.updateFehlerprotokollLoader();
@@ -207,7 +209,7 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
 
   onKonsistenzregelMenuOpened(): void {
     // eslint-disable-next-line no-underscore-dangle
-    this.konsistenzregelMenuCheckboxes?.get(0)?._elementRef.nativeElement.querySelector('input').focus();
+    this.konsistenzregelMenuCheckboxes?.get(0)?._elementRef.nativeElement.querySelector('input')?.focus();
   }
 
   private updateFehlerprotokollLoader(): void {

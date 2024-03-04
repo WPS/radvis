@@ -14,43 +14,22 @@
 
 /* eslint-disable no-unused-vars */
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Resolve, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
-import invariant from 'tiny-invariant';
+import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
 
 @Injectable({
   providedIn: 'root',
 })
-export class WeitereKartenebenenRoutingService implements Resolve<RadVisFeature>, CanActivate {
+export class WeitereKartenebenenRoutingService {
   public static ROUTE_LAYER = 'extern';
   public static ROUTE_FEATURE = 'detail';
 
-  private currentFeature: RadVisFeature | null = null;
+  public currentFeature: RadVisFeature | null = null;
 
   constructor(private router: Router, private notifyUserService: NotifyUserService) {}
-
-  public canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
-    if (this.currentFeature !== null) {
-      return true;
-    }
-    this.notifyUserService.inform('Gewähltes Feature nicht mehr verfügbar.');
-    return this.router.createUrlTree([VIEWER_ROUTE]);
-  }
-
-  public resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): RadVisFeature | Observable<RadVisFeature> | Promise<RadVisFeature> {
-    invariant(this.currentFeature);
-    return this.currentFeature;
-  }
 
   public routeToFeature(feature: RadVisFeature): void {
     this.currentFeature = feature;

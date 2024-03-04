@@ -19,40 +19,38 @@ import { BenutzerListComponent } from 'src/app/administration/components/benutze
 import { OrganisationEditorComponent } from 'src/app/administration/components/organisation-editor/organisation-editor.component';
 import { OrganisationListComponent } from 'src/app/administration/components/organisation-list/organisation-list.component';
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
-import { BenutzerListResolverService } from 'src/app/administration/services/benutzer-list.resolver.service';
-import { BenutzerResolverService } from 'src/app/administration/services/benutzer-resolver.service';
-import { OrganisationResolverService } from 'src/app/administration/services/organisation-resolver.service';
-import { BenutzerOrganisationenResolverService } from 'src/app/shared/services/benutzer-organisationen.resolver.service';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
-import { BenutzerAktivGuard } from 'src/app/shared/services/benutzer-aktiv.guard';
-import { BenutzerRegistriertGuard } from 'src/app/shared/services/benutzer-registriert.guard';
+import { benutzerListResolver } from 'src/app/administration/services/benutzer-list.resolver';
+import { benutzerResolver } from 'src/app/administration/services/benutzer.resolver';
+import { organisationResolver } from 'src/app/administration/services/organisation.resolver';
+import { benutzerAktivGuard } from 'src/app/shared/services/benutzer-aktiv.guard';
+import { benutzerOrganisationenResolver } from 'src/app/shared/services/benutzer-organisationen.resolver';
+import { benutzerRegistriertGuard } from 'src/app/shared/services/benutzer-registriert.guard';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 
 const routes: Routes = [
   {
     path: AdministrationRoutingService.ADMINISTRATION_BENUTZER_ROUTE,
-    canActivate: [BenutzerRegistriertGuard, BenutzerAktivGuard],
+    canActivate: [benutzerRegistriertGuard, benutzerAktivGuard],
     component: BenutzerListComponent,
-    resolve: {
-      benutzer: BenutzerListResolverService,
-    },
+    resolve: { benutzer: benutzerListResolver },
   },
   {
     path: `${AdministrationRoutingService.ADMINISTRATION_BENUTZER_ROUTE}/:id`,
-    canDeactivate: [DiscardGuardService],
+    canDeactivate: [discardGuard],
     component: BenutzerEditorComponent,
     resolve: {
-      benutzer: BenutzerResolverService,
-      organisationen: BenutzerOrganisationenResolverService,
+      benutzer: benutzerResolver,
+      organisationen: benutzerOrganisationenResolver,
     },
   },
   {
     path: AdministrationRoutingService.ADMINISTRATION_ORGANISATION_ROUTE,
-    canActivate: [BenutzerRegistriertGuard, BenutzerAktivGuard],
+    canActivate: [benutzerRegistriertGuard, benutzerAktivGuard],
     component: OrganisationListComponent,
   },
   {
     path: `${AdministrationRoutingService.ADMINISTRATION_ORGANISATION_ROUTE}/${AdministrationRoutingService.CREATOR}`,
-    canDeactivate: [DiscardGuardService],
+    canDeactivate: [discardGuard],
     component: OrganisationEditorComponent,
     data: {
       isCreator: true,
@@ -60,11 +58,9 @@ const routes: Routes = [
   },
   {
     path: `${AdministrationRoutingService.ADMINISTRATION_ORGANISATION_ROUTE}/:id`,
-    canDeactivate: [DiscardGuardService],
+    canDeactivate: [discardGuard],
     component: OrganisationEditorComponent,
-    resolve: {
-      organisation: OrganisationResolverService,
-    },
+    resolve: { organisation: organisationResolver },
     data: {
       isCreator: false,
     },

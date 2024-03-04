@@ -53,6 +53,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
@@ -86,6 +87,7 @@ class KantenAttributeMergeServiceTest {
 			ZustaendigkeitAttribute radNetzAttribute2 = new ZustaendigkeitAttribute(
 				LinearReferenzierterAbschnitt.of(0.1, .9),
 				null, null, null, VereinbarungsKennung.of("456"));
+
 			// act
 			ZustaendigkeitAttribute mergedAttribute = kantenAttributeMergeService
 				.mergeZustaendigkeitAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),
@@ -358,7 +360,8 @@ class KantenAttributeMergeServiceTest {
 				TrennstreifenForm.UNBEKANNT,
 				TrennstreifenForm.UNBEKANNT
 			);
-			// act
+
+			// act + assert
 			assertThrows(MehrdeutigeLinearReferenzierteAttributeException.class, () -> kantenAttributeMergeService
 				.mergeFuehrungsformAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),
 					List.of(radNetzAttribute1, radNetzAttribute2), QuellSystem.RadNETZ));
@@ -374,7 +377,7 @@ class KantenAttributeMergeServiceTest {
 				.strassenNummer(StrassenNummer.of("420"))
 				.build();
 			KantenAttribute radNetzAttribute = KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
-				.kommentar(Kommentar.of("Watch Liz and the Blue Bird you cowards"))
+				.kommentar(Kommentar.of("Ein beispielhafter Kommentar"))
 				.wegeNiveau(WegeNiveau.FAHRBAHN)
 				.gemeinde(
 					VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2L).name("LustigeOrganisation")
@@ -387,8 +390,9 @@ class KantenAttributeMergeServiceTest {
 				.strassenNummer(null)
 				.laengeManuellErfasst(Laenge.of(9000))
 				.beleuchtung(Beleuchtung.VORHANDEN)
-				.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 				.umfeld(Umfeld.GEWERBEGEBIET)
+				.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
+				.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 				.build();
 
 			// act
@@ -404,11 +408,12 @@ class KantenAttributeMergeServiceTest {
 			assertThat(mergedAttribute.getSv()).get().isEqualTo(VerkehrStaerke.of(4));
 			assertThat(mergedAttribute.getLaengeManuellErfasst()).get().isEqualTo(Laenge.of(9000));
 			assertThat(mergedAttribute.getKommentar()).get()
-				.isEqualTo(Kommentar.of("Watch Liz and the Blue Bird you cowards"));
+				.isEqualTo(Kommentar.of("Ein beispielhafter Kommentar"));
 			assertThat(mergedAttribute.getBeleuchtung()).isEqualTo(Beleuchtung.VORHANDEN);
+			assertThat(mergedAttribute.getUmfeld()).isEqualTo(Umfeld.GEWERBEGEBIET);
+			assertThat(mergedAttribute.getStrassenkategorieRIN()).get().isEqualTo(StrassenkategorieRIN.NAHRAEUMIG);
 			assertThat(mergedAttribute.getStrassenquerschnittRASt06())
 				.isEqualTo(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE);
-			assertThat(mergedAttribute.getUmfeld()).isEqualTo(Umfeld.GEWERBEGEBIET);
 			assertThat(mergedAttribute.getGemeinde()).get()
 				.isEqualTo(
 					VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2L).name("LustigeOrganisation")
@@ -473,6 +478,7 @@ class KantenAttributeMergeServiceTest {
 	class RadwegeDBMergeTest {
 		@Test
 		void testeMergeKantenAttributeRadwegeDB() {
+			// arrange
 			KantenAttribute grundnetzAttribute = KantenAttribute.builder()
 				.strassenName(StrassenName.of("Entenhausen"))
 				.strassenNummer(StrassenNummer.of("420"))
@@ -480,7 +486,7 @@ class KantenAttributeMergeServiceTest {
 				.build();
 
 			KantenAttribute quellnetzAttribute = KantenAttribute.builder()
-				.kommentar(Kommentar.of("Watch Liz and the Blue Bird you cowards"))
+				.kommentar(Kommentar.of("Ein beispielhafter Kommentar"))
 				.wegeNiveau(WegeNiveau.FAHRBAHN)
 				.gemeinde(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2L).build())
 				.dtvFussverkehr(VerkehrStaerke.of(3))
@@ -491,9 +497,12 @@ class KantenAttributeMergeServiceTest {
 				.strassenNummer(null)
 				.laengeManuellErfasst(Laenge.of(9000))
 				.beleuchtung(Beleuchtung.VORHANDEN) // stimmt nicht mit Wert auf Grundnetz überein
+				.umfeld(Umfeld.GEWERBEGEBIET)
+				.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 				.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
-				.umfeld(Umfeld.GEWERBEGEBIET).build();
+				.build();
 
+			// act
 			KantenAttribute mergedAttribute = kantenAttributeMergeService
 				.mergeKantenAttribute(grundnetzAttribute, quellnetzAttribute, QuellSystem.RadwegeDB);
 
@@ -506,11 +515,12 @@ class KantenAttributeMergeServiceTest {
 			assertThat(mergedAttribute.getSv()).get().isEqualTo(VerkehrStaerke.of(4));
 			assertThat(mergedAttribute.getLaengeManuellErfasst()).get().isEqualTo(Laenge.of(9000));
 			assertThat(mergedAttribute.getKommentar()).get()
-				.isEqualTo(Kommentar.of("Watch Liz and the Blue Bird you cowards"));
+				.isEqualTo(Kommentar.of("Ein beispielhafter Kommentar"));
 			assertThat(mergedAttribute.getBeleuchtung()).isEqualTo(Beleuchtung.NICHT_VORHANDEN); // Grundnetzwert
+			assertThat(mergedAttribute.getUmfeld()).isEqualTo(Umfeld.GEWERBEGEBIET);
+			assertThat(mergedAttribute.getStrassenkategorieRIN()).get().isEqualTo(StrassenkategorieRIN.NAHRAEUMIG);
 			assertThat(mergedAttribute.getStrassenquerschnittRASt06())
 				.isEqualTo(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE);
-			assertThat(mergedAttribute.getUmfeld()).isEqualTo(Umfeld.GEWERBEGEBIET);
 			assertThat(mergedAttribute.getGemeinde()).get()
 				.isEqualTo(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2L).build());
 			assertThat(mergedAttribute.getStrassenName()).get().isEqualTo(StrassenName.of("Entenhausen"));
@@ -532,6 +542,7 @@ class KantenAttributeMergeServiceTest {
 			ZustaendigkeitAttribute quellnetzAttribute2 = new ZustaendigkeitAttribute(
 				LinearReferenzierterAbschnitt.of(0.1, .9),
 				null, organisation, null, VereinbarungsKennung.of("456"));
+
 			// act
 			ZustaendigkeitAttribute mergedAttribute = kantenAttributeMergeService
 				.mergeZustaendigkeitAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),
@@ -752,7 +763,7 @@ class KantenAttributeMergeServiceTest {
 				.breite(Laenge.of(4.6))
 				.build();
 
-			//			// act
+			// act + assert
 			assertThrows(MehrdeutigeLinearReferenzierteAttributeException.class, () -> kantenAttributeMergeService
 				.mergeFuehrungsformAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),
 					List.of(quellnetzAttribute1, quellnetzAttribute2), QuellSystem.RadwegeDB));
@@ -919,7 +930,7 @@ class KantenAttributeMergeServiceTest {
 				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_30_KMH)
 				.build();
 
-			// act & assert
+			// act + assert
 			assertThrows(RuntimeException.class, () -> kantenAttributeMergeService
 				.mergeGeschwindigkeitAttribute(geschwindigkeitAttributeGrundnetzKante,
 					LinearReferenzierterAbschnitt.of(0, 1),

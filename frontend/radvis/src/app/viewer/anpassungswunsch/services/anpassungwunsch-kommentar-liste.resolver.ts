@@ -12,27 +12,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { AnpassungswunschService } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch.service';
 import { KommentarListeResolverData } from 'src/app/viewer/kommentare/models/kommentar-liste-resolver-data';
+import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AnpassungwunschKommentarListeResolver implements Resolve<KommentarListeResolverData> {
-  constructor(private anpassungswunschService: AnpassungswunschService) {}
-
-  resolve(route: ActivatedRouteSnapshot): Promise<KommentarListeResolverData> {
-    const id = route.parent?.paramMap.get('id');
-    if (id) {
-      return this.anpassungswunschService.getKommentarListe(+id).then(kommentarListe => {
-        // Wir bauen hier ein eigenes Objekt samt massnahmeId, damit das data-Observable triggert, wenn zwei mal eine
-        // leere Liste rein kommt (Wechsel zwischen Maßnahmen mit jeweils einer leeren Liste). Angular macht da
-        // "schlaue" vergleiche der Daten und wir möchten, dass IMMER das observable feuert.
-        return { massnahmeId: +id, liste: kommentarListe };
-      });
-    }
-    return Promise.reject('ID in der Route nicht gesetzt');
-  }
-}
+export const anpassungwunschKommentarListeResolver: ResolveFn<KommentarListeResolverData> = (route, state) => {
+  const anpassungswunschService: AnpassungswunschService = inject(AnpassungswunschService);
+  const id = route.parent?.paramMap.get('id');
+  invariant(id, 'Anpassungswunsch-ID muss als Parameter id an der Route gesetzt sein.');
+  return anpassungswunschService.getKommentarListe(+id).then(kommentarListe => {
+    // Wir bauen hier ein eigenes Objekt samt massnahmeId, damit das data-Observable triggert, wenn zwei mal eine
+    // leere Liste rein kommt (Wechsel zwischen Maßnahmen mit jeweils einer leeren Liste). Angular macht da
+    // "schlaue" vergleiche der Daten und wir möchten, dass IMMER das observable feuert.
+    return { massnahmeId: +id, liste: kommentarListe };
+  });
+};

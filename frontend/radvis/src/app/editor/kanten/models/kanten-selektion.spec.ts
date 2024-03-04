@@ -440,7 +440,7 @@ describe('KantenSelektion', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createSelektionOfSegment(kante: Kante, segmentIndex: number, seitenbezug?: Seitenbezug): KantenSelektion {
   const basicSelektion = KantenSelektion.ofGesamteKante(kante);
   return basicSelektion.selectSegment(segmentIndex, seitenbezug);

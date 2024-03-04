@@ -30,8 +30,3 @@ $hightligt-line-overflow-width: 0.6em;
     display: none;
   }
 }
-
-.mat-tab-nav-bar.mat-accent .mat-tab-link.cdk-keyboard-focused:not(.mat-tab-disabled) {
-  background-color: map-get($radvis-accent-palette, 300);
-  opacity: 1 !important;
-}

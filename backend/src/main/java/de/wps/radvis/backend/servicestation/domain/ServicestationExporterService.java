@@ -68,6 +68,7 @@ public class ServicestationExporterService implements ExporterService {
 					servicestation.getOrganisation().getDisplayText());
 				attribute.put(Servicestation.CsvHeader.TYP, servicestation.getTyp().toString());
 				attribute.put(Servicestation.CsvHeader.STATUS, servicestation.getStatus().toString());
+				attribute.put(Servicestation.CsvHeader.QUELL_SYSTEM, servicestation.getQuellSystem().toString());
 
 				return new ExportData(servicestation.getGeometrie(), attribute);
 			}).collect(Collectors.toList());

@@ -16,10 +16,9 @@ package de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.usertype;
 
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zeitstempel;
 import jakarta.persistence.AttributeConverter;
-
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class ZeitstempelUserType implements AttributeConverter<Zeitstempel, Long> {
 
 	@Override

@@ -630,11 +630,11 @@ public class RadNetzAttributMapper {
 		if (KUUTY != null && !KUUTY.equals("null") && !KUUTY.equals("")) {
 			if (KUUTY.equalsIgnoreCase("Führung in Kreisfahrbahn")
 				|| KUUTY.equalsIgnoreCase(
-					"Führung nur über Kreisfahrbahn")
+				"Führung nur über Kreisfahrbahn")
 				|| KUUTY.equalsIgnoreCase(
-					"Führung nur über Nebenanlage")
+				"Führung nur über Nebenanlage")
 				|| KUUTY.equalsIgnoreCase(
-					"Führung über Kreisfahrbahn und Nebenanlage")) {
+				"Führung über Kreisfahrbahn und Nebenanlage")) {
 				if (KDETAIL1 != null) {
 					String beschreibung = "" + KDETAIL1;
 					if (KDETAIL2 != null) {

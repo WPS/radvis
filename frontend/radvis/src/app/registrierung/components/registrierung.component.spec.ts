@@ -24,6 +24,7 @@ import { OrganisationenDropdownControlComponent } from 'src/app/shared/component
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { RegistrierungComponent } from './registrierung.component';
+import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 
 describe('RegistrierungComponent', () => {
   let component: RegistrierungComponent;
@@ -42,18 +43,20 @@ describe('RegistrierungComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(RegistrierungComponent);
     component = fixture.componentInstance;
-    //@ts-ignore
+    // @ts-expect-error Migration von ts-ignore
     spyOn(component, 'reloadApplication').and.callFake(() => {});
     fixture.detectChanges();
   });
 
   it('should read form correct', fakeAsync(() => {
+    const status = BenutzerStatus.getDisplayName(BenutzerStatus.WARTE_AUF_FREISCHALTUNG);
     const vorname = 'Vorname';
     const nachname = 'Nachname';
     const email = 'vorname.nachname@wps.de';
     const organisation = { ...defaultOrganisation, id: 954676 };
     const rollen = [Rolle.RADVIS_ADMINISTRATOR, Rolle.KREISKOORDINATOREN];
     component.registrierungForm.patchValue({
+      status,
       vorname,
       nachname,
       email,

@@ -18,11 +18,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.constraints.NotNull;
-
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter

@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.netzfehler.domain.valueObject;
 
 import jakarta.persistence.Column;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

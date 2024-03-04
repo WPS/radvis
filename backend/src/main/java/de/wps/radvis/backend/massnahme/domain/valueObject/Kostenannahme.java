@@ -14,13 +14,17 @@
 
 package de.wps.radvis.backend.massnahme.domain.valueObject;
 
+import static org.valid4j.Assertive.require;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.*;
 
 import jakarta.persistence.Embeddable;
-
-import static org.valid4j.Assertive.require;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString
@@ -33,13 +37,13 @@ public class Kostenannahme {
 	private Long kostenannahme;
 
 	private Kostenannahme(long value) {
-		require(value >= 0, "Vorbedingung nicht erfüllt: value >= 0, value: " + value);
+		require(isValid(value), "Vorbedingung nicht erfüllt: value >= 0, value: " + value);
 		this.kostenannahme = value;
 	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
 	public static Kostenannahme of(Long value) {
-		if(value == null){
+		if (value == null) {
 			return null;
 		}
 
@@ -55,4 +59,19 @@ public class Kostenannahme {
 		return new Kostenannahme(Long.parseLong(value));
 	}
 
+	public static boolean isValid(String value) {
+		long l;
+
+		try {
+			l = Long.parseLong(value);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+
+		return isValid(l);
+	}
+
+	public static boolean isValid(long value) {
+		return value >= 0;
+	}
 }

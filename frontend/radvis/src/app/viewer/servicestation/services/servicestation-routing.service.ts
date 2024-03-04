@@ -14,16 +14,16 @@
 
 import { Injectable } from '@angular/core';
 import { Route, Router } from '@angular/router';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
 import {
   ServicestationEditorComponent
 } from 'src/app/viewer/servicestation/components/servicestation-editor/servicestation-editor.component';
 import { SERVICESTATIONEN } from 'src/app/viewer/servicestation/models/servicestation.infrastruktur';
 import {
-  ServicestationDokumentListeResolverService
-} from 'src/app/viewer/servicestation/services/servicestation-dokument-liste-resolver.service';
-import { ServicestationService } from 'src/app/viewer/servicestation/services/servicestation.service';
+  servicestationDokumentListeResolver
+} from 'src/app/viewer/servicestation/services/servicestation-dokument-liste.resolver';
+import { servicestationResolver } from 'src/app/viewer/servicestation/services/servicestation.resolver';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
 import {
   AbstractInfrastrukturenRoutingService
@@ -48,16 +48,16 @@ export class ServicestationRoutingService extends AbstractInfrastrukturenRouting
       {
         path: this.EIGENSCHAFTEN,
         component: ServicestationEditorComponent,
-        canDeactivate: [DiscardGuardService],
+        canDeactivate: [discardGuard],
         data: { isCreator: false },
-        resolve: { servicestation: ServicestationService },
+        resolve: { servicestation: servicestationResolver },
       },
       {
         path: this.DATEIEN,
         component: DokumentListeComponent,
-        canDeactivate: [DiscardGuardService],
+        canDeactivate: [discardGuard],
         resolve: {
-          [DokumentListeComponent.DOKUMENTLISTE_DATA_KEY]: ServicestationDokumentListeResolverService,
+          [DokumentListeComponent.DOKUMENTLISTE_DATA_KEY]: servicestationDokumentListeResolver,
         },
       },
     ];

@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
 import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
@@ -23,7 +23,7 @@ import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
   styleUrls: ['./sicherheitstrennstreifen-anzeige.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SicherheitstrennstreifenAnzeigeComponent implements OnInit {
+export class SicherheitstrennstreifenAnzeigeComponent {
   @Input()
   hasStationierungsrichtungspfeil: boolean | undefined;
 
@@ -51,8 +51,6 @@ export class SicherheitstrennstreifenAnzeigeComponent implements OnInit {
   public Richtung = Richtung;
 
   constructor() {}
-
-  ngOnInit(): void {}
 
   onTrennstreifenClicked(seite: TrennstreifenSeite | undefined): void {
     if (this.selectedSeite !== seite) {

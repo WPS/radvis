@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.matching.schnittstelle;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,6 +23,10 @@ import static org.mockito.Mockito.spy;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -129,6 +134,43 @@ class DlmMatchingRepositoryImplTest {
 	}
 
 	@Test
+	void testMatching_concurrency() throws InterruptedException, ExecutionException {
+		// Act & Assert
+		Future<?> future1;
+		Future<?> future2;
+		ExecutorService es = null;
+		try {
+			es = Executors.newFixedThreadPool(2);
+			future1 = es.submit(() -> {
+				assertThatNoException().isThrownBy(
+					() -> {
+						for (int i = 0; i < 100; i++) {
+							dlmMatchingRepository.matchGeometry(testLineString, "bike").getGeometrie();
+						}
+					});
+				return null;
+			});
+			Thread.sleep(10);
+
+			future2 = es.submit(() -> {
+				assertThatNoException().isThrownBy(
+					() -> {
+						for (int i = 0; i < 100; i++) {
+							dlmMatchingRepository.matchGeometry(vergleichsLineString, "bike").getGeometrie();
+						}
+					});
+				return null;
+			});
+		} finally {
+			if (es != null)
+				es.shutdown();
+		}
+
+		future1.get();
+		future2.get();
+	}
+
+	@Test
 	void matcheGeometrie_keinMatch() {
 
 		// Act + Assert
@@ -138,7 +180,7 @@ class DlmMatchingRepositoryImplTest {
 			.hasMessageStartingWith(
 				"Der LineString konnte nicht gematched werden. Dies liegt beispielsweise daran, dass die Geometrie oder"
 					+ " Teile nicht Teil der importierten OsmBasiskarte sind oder dass die Geometrie keine passendes"
-					+ " Pendant in den OSM-Daten hat: Sequence is broken for submitted track at time step");
+					+ " Pendant in den OSM-Daten hat");
 	}
 
 	@SuppressWarnings("unchecked")

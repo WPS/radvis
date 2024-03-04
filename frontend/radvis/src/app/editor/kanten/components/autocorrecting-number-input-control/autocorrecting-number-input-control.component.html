@@ -12,13 +12,16 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<mat-form-field class="autocorrecting-number-input-form-field"
-                [class.highlight-undetermined]="formControl.value === UNDETERMINED_LABEL">
+<mat-form-field class="w-100 form-field" [class.highlight-undetermined]="isUndetermined">
   <mat-label>
     <ng-content select=".label"></ng-content>
   </mat-label>
-  <input matInput [formControl]="formControl" [value]="displayValue"/>
+  <input matInput [formControl]="formControl" type="number" />
   <div matSuffix class="ml-3">
     <ng-content select=".einheit"></ng-content>
   </div>
+  <mat-hint *ngIf="isUndetermined && !formControl.value">{{ UNDETERMINED_LABEL }}</mat-hint>
+  <mat-error>
+    <div *ngFor="let msg of errorMessages">{{ msg }}</div>
+  </mat-error>
 </mat-form-field>

@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.fahrradroute.schnittstelle;
 
 import jakarta.validation.constraints.NotNull;
-
 import lombok.Builder;
 
 @Builder

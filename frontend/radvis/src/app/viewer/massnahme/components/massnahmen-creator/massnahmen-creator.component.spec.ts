@@ -14,11 +14,14 @@
 
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { MockBuilder } from 'ng-mocks';
+import { of } from 'rxjs';
+import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
+import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
@@ -34,7 +37,7 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anyString, anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
-describe('MassnahmenCreatorComponent', () => {
+describe(MassnahmenCreatorComponent.name, () => {
   let component: MassnahmenCreatorComponent;
   let fixture: ComponentFixture<MassnahmenCreatorComponent>;
 
@@ -44,6 +47,7 @@ describe('MassnahmenCreatorComponent', () => {
   let changeDetectorRef: ChangeDetectorRef;
   let notifyUserService: NotifyUserService;
   let errorHandlingService: ErrorHandlingService;
+  let benutzerDetailsService: BenutzerDetailsService;
 
   beforeEach(() => {
     viewerRoutingService = mock(ViewerRoutingService);
@@ -52,6 +56,9 @@ describe('MassnahmenCreatorComponent', () => {
     changeDetectorRef = mock(ChangeDetectorRef);
     notifyUserService = mock(NotifyUserService);
     errorHandlingService = mock(ErrorHandlingService);
+    benutzerDetailsService = mock(BenutzerDetailsService);
+
+    when(organisationenService.getAlleOrganisationen()).thenReturn(of([defaultOrganisation]));
 
     return MockBuilder(MassnahmenCreatorComponent, ViewerModule)
       .provide({
@@ -65,6 +72,10 @@ describe('MassnahmenCreatorComponent', () => {
       .provide({
         provide: MassnahmeService,
         useValue: instance(massnahmeService),
+      })
+      .provide({
+        provide: BenutzerDetailsService,
+        useValue: instance(benutzerDetailsService),
       })
       .provide({
         provide: ChangeDetectorRef,
@@ -92,7 +103,7 @@ describe('MassnahmenCreatorComponent', () => {
 
   describe('save', () => {
     it('should toggle validation message correctly', () => {
-      expect(getValidationMessage(fixture)).toBeUndefined();
+      expect(component.formGroup.errors).toBeNull();
 
       const netzbezug = {
         kantenBezug: [
@@ -111,12 +122,12 @@ describe('MassnahmenCreatorComponent', () => {
         knotenBezug: [],
         punktuellerKantenBezug: [],
       } as Netzbezug;
-      const baulastZustaendiger = {
+
+      const baulastZustaendiger: AutoCompleteOption = {
         id: 5,
         name: 'Orgablaaaa',
-        organisationsArt: OrganisationsArt.GEMEINDE,
-        idUebergeordneteOrganisation: null,
-      } as Verwaltungseinheit;
+        displayText: 'Orgablaaaa (Gemeinde)',
+      };
 
       const values = {
         bezeichnung: 'bezeichnung',
@@ -163,12 +174,18 @@ describe('MassnahmenCreatorComponent', () => {
         knotenBezug: [],
         punktuellerKantenBezug: [],
       } as Netzbezug;
-      const baulastZustaendiger = {
+
+      const baulastZustaendiger: AutoCompleteOption = {
         id: 5,
         name: 'Orgablaaaa',
-        organisationsArt: OrganisationsArt.GEMEINDE,
-        idUebergeordneteOrganisation: null,
-      } as Verwaltungseinheit;
+        displayText: 'Orgablaaaa (Gemeinde)',
+      };
+
+      const zustaendiger: AutoCompleteOption = {
+        id: 24,
+        name: 'Zuständige Organisation',
+        displayText: 'Zuständige Organisation (Regierungsbezirk)',
+      };
 
       const values = {
         bezeichnung: 'bezeichnung',
@@ -179,6 +196,7 @@ describe('MassnahmenCreatorComponent', () => {
         planungErforderlich: false,
         durchfuehrungszeitraum: 2020,
         baulastZustaendiger,
+        zustaendiger,
         sollStandard: SollStandard.KEIN_STANDARD_ERFUELLT,
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
@@ -202,6 +220,7 @@ describe('MassnahmenCreatorComponent', () => {
         planungErforderlich: false,
         durchfuehrungszeitraum: { geplanterUmsetzungsstartJahr: 2020 },
         baulastZustaendigerId: 5,
+        zustaendigerId: 24,
         sollStandard: SollStandard.KEIN_STANDARD_ERFUELLT,
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
@@ -211,7 +230,21 @@ describe('MassnahmenCreatorComponent', () => {
   });
 
   describe(MassnahmenCreatorComponent.prototype.onReset.name, () => {
-    beforeEach(() => {
+    it('should reset correctly', () => {
+      const zustaendiger: Verwaltungseinheit = {
+        id: 24,
+        name: 'Zuständige Organisation',
+        organisationsArt: OrganisationsArt.REGIERUNGSBEZIRK,
+        idUebergeordneteOrganisation: null,
+        aktiv: true,
+      };
+      when(benutzerDetailsService.aktuellerBenutzerOrganisation()).thenReturn(zustaendiger);
+      const zustaendigerOption: AutoCompleteOption = {
+        id: zustaendiger.id,
+        name: zustaendiger.name,
+        displayText: zustaendiger.name + ' (Regierungsbezirk)',
+      };
+
       const netzbezug = {
         kantenBezug: [
           {
@@ -229,12 +262,19 @@ describe('MassnahmenCreatorComponent', () => {
         knotenBezug: [],
         punktuellerKantenBezug: [],
       } as Netzbezug;
-      const baulastZustaendiger = {
+
+      const baulastZustaendiger: AutoCompleteOption = {
         id: 5,
         name: 'Orgablaaaa',
-        organisationsArt: OrganisationsArt.GEMEINDE,
-        idUebergeordneteOrganisation: null,
-      } as Verwaltungseinheit;
+        displayText: 'Orgablaaaa (Gemeinde)',
+      };
+
+      const andererZustaendiger: AutoCompleteOption = {
+        id: 25,
+        name: 'Andere Organisation',
+        displayText: 'Andere Organisation (Kreis)',
+      };
+
       const values = {
         bezeichnung: 'bezeichnung',
         massnahmenkategorien: ['UMWIDMUNG_GEMEINSAMER_RADGEHWEG'],
@@ -244,6 +284,7 @@ describe('MassnahmenCreatorComponent', () => {
         planungErforderlich: false,
         durchfuehrungszeitraum: -5,
         baulastZustaendiger,
+        zustaendiger: andererZustaendiger,
         sollStandard: SollStandard.KEIN_STANDARD_ERFUELLT,
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
@@ -252,9 +293,7 @@ describe('MassnahmenCreatorComponent', () => {
       component.formGroup.patchValue(values);
 
       component.onReset();
-    });
 
-    it('should reset correctly', () => {
       expect(component.formGroup.value).toEqual({
         umsetzungsstatus: Umsetzungsstatus.IDEE,
         massnahmenkategorien: [],
@@ -264,6 +303,7 @@ describe('MassnahmenCreatorComponent', () => {
         netzbezug: null,
         durchfuehrungszeitraum: null,
         baulastZustaendiger: null,
+        zustaendiger: zustaendigerOption,
         sollStandard: null,
         handlungsverantwortlicher: null,
         konzeptionsquelle: null,
@@ -272,8 +312,3 @@ describe('MassnahmenCreatorComponent', () => {
     });
   });
 });
-
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-function getValidationMessage(fixture: ComponentFixture<MassnahmenCreatorComponent>): string | undefined {
-  return fixture.debugElement.queryAll(By.css('.fehlertext'))[0]?.nativeElement.textContent;
-}

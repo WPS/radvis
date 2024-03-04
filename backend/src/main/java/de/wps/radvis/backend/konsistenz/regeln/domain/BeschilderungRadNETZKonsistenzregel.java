@@ -17,8 +17,6 @@ package de.wps.radvis.backend.konsistenz.regeln.domain;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-
 import org.hibernate.query.NativeQuery;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
@@ -27,6 +25,7 @@ import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.entity.WegweisendeBeschilderung;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -18,15 +18,14 @@ import static org.valid4j.Assertive.require;
 
 import java.util.List;
 
+import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
+import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-
-import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
-import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

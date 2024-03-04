@@ -61,7 +61,8 @@ class AnpassungswunschServiceTest {
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
-		anpassungswunschService = new AnpassungswunschService(anpassungswunschRepositoryMock, konsistenzregelVerletzungsRepository);
+		anpassungswunschService = new AnpassungswunschService(anpassungswunschRepositoryMock,
+			konsistenzregelVerletzungsRepository);
 	}
 
 	@Test

@@ -18,10 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
 class AbstractImportSessionTest {
 
@@ -29,11 +29,20 @@ class AbstractImportSessionTest {
 
 	@BeforeEach
 	void setup() {
-		importSession = new AbstractImportSession(BenutzerTestDataProvider.defaultBenutzer().build(),
-			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()) {
+		importSession = new AbstractImportSession(BenutzerTestDataProvider.defaultBenutzer().build()) {
 			@Override
 			public long getAnzahlFeaturesOhneMatch() {
 				return 0;
+			}
+
+			@Override
+			public MultiPolygon getBereich() {
+				return null;
+			}
+
+			@Override
+			public String getBereichName() {
+				return null;
 			}
 		};
 	}

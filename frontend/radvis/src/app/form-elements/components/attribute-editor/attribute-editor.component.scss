@@ -46,5 +46,9 @@
 
 .buttons > * {
   flex-grow: 1;
-  flex-basis: 0;
+  flex-basis: 50%;
+}
+
+.delete-button {
+  min-width: 50%;
 }

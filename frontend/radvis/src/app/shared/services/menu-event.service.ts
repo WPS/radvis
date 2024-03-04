@@ -14,7 +14,7 @@
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MenuCloseReason } from '@angular/material/menu/menu';
+import { MenuCloseReason } from 'src/app/shared/models/menu-close-reason';
 
 @Injectable()
 export abstract class MenuEventService {

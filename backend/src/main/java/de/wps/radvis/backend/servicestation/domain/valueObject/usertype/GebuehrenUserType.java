@@ -18,7 +18,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Gebuehren;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class GebuehrenUserType implements AttributeConverter<Gebuehren, Boolean> {
 
 	@Override

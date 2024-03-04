@@ -21,15 +21,12 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { FormControl, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
+import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import {
-  AbstractUndeterminedFormControl,
-  UndeterminedInvalidValue,
-  UndeterminedValue,
-  UNDETERMINED_INVALID_LABEL,
   UNDETERMINED_LABEL,
+  UndeterminedValue,
 } from 'src/app/form-elements/components/abstract-undetermined-form-control';
-import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 
 @Component({
   selector: 'rad-number-input-control',
@@ -42,40 +39,33 @@ import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators
       useExisting: forwardRef(() => NumberInputControlComponent),
       multi: true,
     },
-    {
-      provide: NG_VALIDATORS,
-      useExisting: NumberInputControlComponent,
-      multi: true,
-    },
   ],
 })
-export class NumberInputControlComponent
-  extends AbstractUndeterminedFormControl<number>
-  implements OnChanges, Validator {
+export class NumberInputControlComponent extends AbstractFormControl<number> implements OnChanges {
   @Input()
   value: number | null = null;
+
   // Bei direkter Zuweisung des Controls kommt kein neues "enabled" rein, daher binden wir das hier zusätzlich
   @Input()
   isDisabled = false;
 
   @Input()
-  anzahlNachkommastellen = 2;
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
 
-  formControl: FormControl;
+  formControl: FormControl<number | null>;
 
+  readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
   isUndetermined = false;
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
-    this.formControl = new FormControl('', RadvisValidators.isPositiveFloatString);
+    this.formControl = new FormControl(null);
     this.formControl.valueChanges.subscribe(value => {
-      if (value === undefined || value === null || value === '') {
+      if (value === undefined || value === null) {
         this.onChange(null);
       } else {
-        const convertedValue: number | null = +Number.parseFloat(value.replace(',', '.')).toFixed(
-          this.anzahlNachkommastellen
-        );
-        this.onChange(convertedValue);
+        this.onChange(value);
       }
     });
   }
@@ -83,6 +73,10 @@ export class NumberInputControlComponent
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.isDisabled) {
       this.setDisabledState(this.isDisabled);
+    }
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
     }
   }
 
@@ -95,22 +89,15 @@ export class NumberInputControlComponent
     this.changeDetector.markForCheck();
   }
 
-  public writeValue(value: number | UndeterminedValue | UndeterminedInvalidValue | null): void {
-    this.isUndetermined = false;
+  public writeValue(value: number | null | UndeterminedValue): void {
     if (value instanceof UndeterminedValue) {
-      this.formControl.reset(UNDETERMINED_LABEL, { emitEvent: false });
       this.isUndetermined = true;
-    } else if (value instanceof UndeterminedInvalidValue) {
-      this.formControl.reset(UNDETERMINED_INVALID_LABEL, { emitEvent: false });
-    } else if (value !== null) {
-      this.formControl.reset(value.toFixed(this.anzahlNachkommastellen).replace('.', ','), { emitEvent: false });
+      this.formControl.reset(null, { emitEvent: false });
     } else {
-      this.formControl.reset('', { emitEvent: false });
+      this.isUndetermined = false;
+      this.formControl.reset(value, { emitEvent: false });
     }
+    this.formControl.markAsTouched();
     this.changeDetector.markForCheck();
-  }
-
-  public validate(): ValidationErrors | null {
-    return this.formControl.errors;
   }
 }

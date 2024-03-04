@@ -26,9 +26,12 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
@@ -56,6 +59,9 @@ import jakarta.persistence.EntityManager;
 @Tag("group7")
 @EnableConfigurationProperties(value = {
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 class StartstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 
@@ -322,8 +328,7 @@ class StartstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 						.build())
 				.build());
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<KonsistenzregelVerletzungsDetails> verletzungsDetails = startstandardRadNETZKonsistenzregel.pruefen();
 
@@ -443,8 +448,7 @@ class StartstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 						.build())
 				.build());
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<KonsistenzregelVerletzungsDetails> verletzungsDetails = startstandardRadNETZKonsistenzregel.pruefen();
 

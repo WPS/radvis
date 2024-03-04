@@ -13,32 +13,41 @@
   -->
 
 <div class="control-container">
-  <rad-enum-dropdown-control [formControl]="artDerAuswertungFormControl"
-                             [nullable]="false"
-                             [options]="artDerAuswertungOptions"
-                             class="mat-form-field-full-width mt-4">
+  <rad-enum-dropdown-control
+    [formControl]="artDerAuswertungFormControl"
+    [nullable]="false"
+    [options]="artDerAuswertungOptions"
+    class="mat-form-field-full-width mt-4"
+  >
     Art der Auswertung
   </rad-enum-dropdown-control>
 
   <ng-container *ngIf="!jahresAuswahlModus; else jahresAuswahl">
-    <rad-date-range-picker-control [artDerAuswertung]="artDerAuswertungFormControl.value"
-                                   [formControl]="rangeFormControl" class="mat-form-field-full-width">
+    <rad-date-range-picker-control
+      [artDerAuswertung]="artDerAuswertungFormControl.value"
+      [formControl]="rangeFormControl"
+      class="mat-form-field-full-width"
+    >
     </rad-date-range-picker-control>
   </ng-container>
   <ng-template #jahresAuswahl>
     <rad-jahreszeitraum-control [formControl]="rangeFormControl"></rad-jahreszeitraum-control>
     <rad-validation-error-anzeige
-      *ngIf="zeitraumSelected && !zeitraumValid" [errors]="{ error: 'Enddatum darf nicht vor Anfangsdatum liegen!' }">
+      *ngIf="zeitraumSelected && !zeitraumValid"
+      [errors]="{ error: 'Enddatum darf nicht vor Anfangsdatum liegen!' }"
+    >
     </rad-validation-error-anzeige>
   </ng-template>
-  <rad-enum-dropdown-control [formControl]="channelFormControl"
-                             [nullable]="false"
-                             [options]="channelOptions"
-                             class="mat-form-field-full-width mt-4">
+  <rad-enum-dropdown-control
+    [formControl]="channelFormControl"
+    [nullable]="false"
+    [options]="channelOptions"
+    class="mat-form-field-full-width mt-4"
+  >
     Richtung
   </rad-enum-dropdown-control>
 </div>
-<div *ngIf="eingabeVollstaendig && !datenVorhanden &&!loading" class="display-flex justify-content-center">
+<div *ngIf="eingabeVollstaendig && !datenVorhanden && !loading" class="display-flex justify-content-center">
   Es sind keine Daten für den angegebenen Zeitraum vorhanden.
 </div>
 <div [style.display]="!datenVorhanden ? 'none' : 'flex'" class="canvas-container flex-grow">

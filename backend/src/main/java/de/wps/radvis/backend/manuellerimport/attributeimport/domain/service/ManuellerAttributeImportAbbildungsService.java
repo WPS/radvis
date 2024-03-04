@@ -26,11 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
@@ -53,6 +51,7 @@ import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.LineStrings;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -74,7 +73,7 @@ public class ManuellerAttributeImportAbbildungsService extends AbstractManueller
 		AbstractImportSession importSession) {
 		MatchingStatistik matchingStatistik = new MatchingStatistik();
 		InMemoryKantenRepository inMemoryKantenRepository = inMemoryKantenRepositoryFactory
-			.create(importSession.getOrganisation());
+			.create(importSession.getBereich());
 
 		AtomicInteger fortschritt = new AtomicInteger(0);
 		AtomicLong index = new AtomicLong(0);
@@ -130,7 +129,8 @@ public class ManuellerAttributeImportAbbildungsService extends AbstractManueller
 		boundingBoxFuerKanten.expandBy(MatchingKorrekturService.MAX_DISTANCE_TO_MATCHED_GEOMETRY);
 
 		InMemoryKantenRepository inMemoryKantenRepository = inMemoryKantenRepositoryFactory.create(
-			boundingBoxFuerKanten, organisation);
+			boundingBoxFuerKanten, organisation.getBereich()
+				.orElse(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createMultiPolygon()));
 
 		return matcheFeatureMapping(featureMapping, new MatchingStatistik(), inMemoryKantenRepository);
 	}

@@ -19,65 +19,65 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 	<changeSet id="RAD-3858" author="par">
 		<addColumn tableName="fahrradroute">
-			<column name="kategorie" type="VARCHAR(255)" />
+			<column name="kategorie" type="VARCHAR(255)"/>
 		</addColumn>
 	</changeSet>
 
 	<changeSet id="RAD-3666" author="tr">
 		<addColumn tableName="fahrradroute">
-			<column name="info" type="text" />
-			<column name="anstieg" type="float8" />
-			<column name="abstieg" type="float8" />
+			<column name="info" type="text"/>
+			<column name="anstieg" type="float8"/>
+			<column name="abstieg" type="float8"/>
 			<column name="hat_variante" type="boolean"
-				defaultValue="false" />
-			<column name="zuletzt_bearbeitet" type="timestamp" />
+				defaultValue="false"/>
+			<column name="zuletzt_bearbeitet" type="timestamp"/>
 		</addColumn>
 		<renameColumn tableName="fahrradroute"
-			oldColumnName="website" newColumnName="homepage" />
+			oldColumnName="website" newColumnName="homepage"/>
 		<createTable
 			tableName="fahrradroute_linkszuweiterenmedien">
-			<column name="fahrradroute_id" type="BIGINT" />
-			<column name="link" type="VARCHAR(255)" />
+			<column name="fahrradroute_id" type="BIGINT"/>
+			<column name="link" type="VARCHAR(255)"/>
 		</createTable>
 		<addForeignKeyConstraint
 			baseTableName="fahrradroute_linkszuweiterenmedien"
 			baseColumnNames="fahrradroute_id"
 			constraintName="fk_fahrradroute_fahrradroute_linkszuweiterenmedien"
-			referencedTableName="fahrradroute" referencedColumnNames="id" />
+			referencedTableName="fahrradroute" referencedColumnNames="id"/>
 		<createIndex
 			tableName="fahrradroute_linkszuweiterenmedien"
 			indexName="idx_fahrradroute_linkszuweiterenmedien_fahrradroute_id">
-			<column name="fahrradroute_id" />
+			<column name="fahrradroute_id"/>
 		</createIndex>
 	</changeSet>
 
 	<changeSet id="RAD-3875" author="jg">
 		<addColumn tableName="fahrradroute">
-			<column name="tfis_id" type="varchar(255)" />
+			<column name="tfis_id" type="varchar(255)"/>
 		</addColumn>
 		<renameColumn tableName="fahrradroute_aud"
-			oldColumnName="website" newColumnName="homepage" />
+			oldColumnName="website" newColumnName="homepage"/>
 		<addColumn tableName="fahrradroute_aud">
-			<column name="tfis_id" type="varchar(255)" />
-			<column name="info" type="text" />
-			<column name="anstieg" type="float8" />
-			<column name="abstieg" type="float8" />
+			<column name="tfis_id" type="varchar(255)"/>
+			<column name="info" type="text"/>
+			<column name="anstieg" type="float8"/>
+			<column name="abstieg" type="float8"/>
 			<column name="hat_variante" type="boolean"
-				defaultValue="false" />
-			<column name="zuletzt_bearbeitet" type="timestamp" />
+				defaultValue="false"/>
+			<column name="zuletzt_bearbeitet" type="timestamp"/>
 		</addColumn>
 		<createTable
 			tableName="fahrradroute_linkszuweiterenmedien_aud">
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
-			<column name="fahrradroute_id" type="BIGINT" />
-			<column name="link" type="VARCHAR(255)" />
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+			<column name="fahrradroute_id" type="BIGINT"/>
+			<column name="link" type="VARCHAR(255)"/>
 		</createTable>
 	</changeSet>
 	<changeSet id="RAD-3886" author="par">
 		<createIndex tableName="kante"
 			indexName="kante_dlm_id_idx">
-			<column name="dlm_id" />
+			<column name="dlm_id"/>
 		</createIndex>
 	</changeSet>
 	<changeSet id="RAD-3666_Review" author="lb+mw">
@@ -85,16 +85,16 @@
 			DROP VIEW IF EXISTS fahrradroute_list_view;
 		</sql>
 		<modifyDataType tableName="fahrradroute"
-			columnName="offizielle_laenge" newDataType="numeric" />
+			columnName="offizielle_laenge" newDataType="numeric"/>
 		<modifyDataType tableName="fahrradroute_aud"
-			columnName="offizielle_laenge" newDataType="numeric" />
+			columnName="offizielle_laenge" newDataType="numeric"/>
 	</changeSet>
 	<changeSet id="RAD-2705 RAD-3905" author="lb">
 		<addColumn tableName="fahrradroute">
-			<column name="stuetzpunkte" type="Geometry" />
+			<column name="stuetzpunkte" type="Geometry"/>
 		</addColumn>
 		<addColumn tableName="fahrradroute_aud">
-			<column name="stuetzpunkte" type="Geometry" />
+			<column name="stuetzpunkte" type="Geometry"/>
 		</addColumn>
 	</changeSet>
 
@@ -103,14 +103,14 @@
 			baseTableName="fahrradroute_kantenabschnitte"
 			baseColumnNames="kante_id"
 			constraintName="fk_fahrradroute_kantenabschnitte_kante_id"
-			referencedTableName="kante" referencedColumnNames="id" />
+			referencedTableName="kante" referencedColumnNames="id"/>
 		<createIndex tableName="fahrradroute_kantenabschnitte"
 			indexName="fk_fahrradroute_kantenabschnitte_kante_id_idx">
-			<column name="kante_id" />
+			<column name="kante_id"/>
 		</createIndex>
 		<createIndex tableName="fahrradroute"
 			indexName="fahrradroute_tfis_id_idx">
-			<column name="tfis_id" />
+			<column name="tfis_id"/>
 		</createIndex>
 	</changeSet>
 
@@ -118,87 +118,87 @@
 		<createTable tableName="fahrradroute_variante">
 			<column name="id" type="BIGINT">
 				<constraints nullable="false" primaryKey="true"
-					primaryKeyName="fahrradroute_variante_pkey" />
+					primaryKeyName="fahrradroute_variante_pkey"/>
 			</column>
-			<column name="fahrradroute_id" type="BIGINT" />
-			<column name="name" type="text" />
-			<column name="stuetzpunkte" type="Geometry" />
-			<column name="kategorie" type="VARCHAR(255)" />
+			<column name="fahrradroute_id" type="BIGINT"/>
+			<column name="name" type="text"/>
+			<column name="stuetzpunkte" type="Geometry"/>
+			<column name="kategorie" type="VARCHAR(255)"/>
 		</createTable>
 		<addForeignKeyConstraint
 			constraintName="fk_fahrradroute_variante_fahrradroute_id"
 			baseTableName="fahrradroute_variante"
 			baseColumnNames="fahrradroute_id" referencedTableName="fahrradroute"
-			referencedColumnNames="id" />
+			referencedColumnNames="id"/>
 
 		<createTable
 			tableName="fahrradroute_variante_kantenabschnitte">
-			<column name="fahrradroute_variante_id" type="BIGINT" />
-			<column name="kante_id" type="BIGINT" />
-			<column name="von" type="float8" />
-			<column name="bis" type="float8" />
+			<column name="fahrradroute_variante_id" type="BIGINT"/>
+			<column name="kante_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
 		</createTable>
 		<addForeignKeyConstraint
 			constraintName="fk_fahrradroute_variante_kantenabschnitte_variante_id"
 			baseTableName="fahrradroute_variante_kantenabschnitte"
 			baseColumnNames="fahrradroute_variante_id"
 			referencedTableName="fahrradroute_variante"
-			referencedColumnNames="id" />
+			referencedColumnNames="id"/>
 		<addForeignKeyConstraint
 			constraintName="fk_fahrradroute_variante_kantenabschnitte_kante_id"
 			baseTableName="fahrradroute_variante_kantenabschnitte"
 			baseColumnNames="kante_id" referencedTableName="kante"
-			referencedColumnNames="id" />
+			referencedColumnNames="id"/>
 		<createIndex
 			tableName="fahrradroute_variante_kantenabschnitte"
 			indexName="fk_fahrradroute_variante_kantenabschnitte_idx">
-			<column name="fahrradroute_variante_id" />
+			<column name="fahrradroute_variante_id"/>
 		</createIndex>
 		<createIndex
 			tableName="fahrradroute_variante_kantenabschnitte"
 			indexName="fk_fahrradroute_variante_kantenabschnitte_kante_id_idx">
-			<column name="kante_id" />
+			<column name="kante_id"/>
 		</createIndex>
 
 		<createTable tableName="fahrradroute_variante_aud">
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
-			<column name="id" type="BIGINT" />
-			<column name="fahrradroute_id" type="BIGINT" />
-			<column name="name" type="text" />
-			<column name="stuetzpunkte" type="Geometry" />
-			<column name="kategorie" type="VARCHAR(255)" />
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+			<column name="id" type="BIGINT"/>
+			<column name="fahrradroute_id" type="BIGINT"/>
+			<column name="name" type="text"/>
+			<column name="stuetzpunkte" type="Geometry"/>
+			<column name="kategorie" type="VARCHAR(255)"/>
 		</createTable>
 
 		<createTable
 			tableName="fahrradroute_fahrradroute_variante_aud">
-			<column name="id" type="BIGINT" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
-			<column name="variante_id" type="BIGINT" />
-			<column name="fahrradroute_id" type="BIGINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+			<column name="variante_id" type="BIGINT"/>
+			<column name="fahrradroute_id" type="BIGINT"/>
 		</createTable>
 		<addForeignKeyConstraint
 			constraintName="fk_fahrradroute_fahrradroute_variante_aud_variante_id"
 			baseTableName="fahrradroute_fahrradroute_variante_aud"
 			baseColumnNames="variante_id"
 			referencedTableName="fahrradroute_variante"
-			referencedColumnNames="id" />
+			referencedColumnNames="id"/>
 		<addForeignKeyConstraint
 			constraintName="fk_fahrradroute_fahrradroute_variante_aud_fahrradroute_id"
 			baseTableName="fahrradroute_fahrradroute_variante_aud"
 			baseColumnNames="fahrradroute_id" referencedTableName="fahrradroute"
-			referencedColumnNames="id" />
+			referencedColumnNames="id"/>
 
 		<createTable
 			tableName="fahrradroute_variante_kantenabschnitte_aud">
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
-			<column name="setordinal" type="integer" />
-			<column name="fahrradroute_variante_id" type="BIGINT" />
-			<column name="kante_id" type="BIGINT" />
-			<column name="von" type="float8" />
-			<column name="bis" type="float8" />
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
+			<column name="setordinal" type="integer"/>
+			<column name="fahrradroute_variante_id" type="BIGINT"/>
+			<column name="kante_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
 		</createTable>
 	</changeSet>
 	<changeSet id="RAD-2708-2" author="mr">
@@ -335,6 +335,7 @@
 	</changeSet>
 	<changeSet id="RAD-3927" author="jg + hst">
 		<renameColumn tableName="fahrradroute_variante" oldColumnName="netzbezug_line_string" newColumnName="geometrie"/>
-		<renameColumn tableName="fahrradroute_variante_aud" oldColumnName="netzbezug_line_string" newColumnName="geometrie"/>
+		<renameColumn tableName="fahrradroute_variante_aud" oldColumnName="netzbezug_line_string"
+			newColumnName="geometrie"/>
 	</changeSet>
 </databaseChangeLog>

@@ -64,7 +64,7 @@
       <name>id</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
-      <nillable>false</nillable>
+      <nillable>true</nillable>
       <binding>java.lang.Long</binding>
     </attribute>
     <attribute>
@@ -111,6 +111,13 @@
     </attribute>
     <attribute>
       <name>verantwortliche_organisation</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>verantwortliche_organisation_orga_typ</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>

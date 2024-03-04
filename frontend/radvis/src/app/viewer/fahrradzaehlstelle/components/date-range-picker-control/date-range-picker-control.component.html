@@ -14,12 +14,16 @@
 
 <mat-form-field [class.mat-form-field-disabled]="false">
   <mat-label>Zeitraum</mat-label>
-  <mat-date-range-input #dateRangeInput (click)="picker.open();" [disabled]="manualDateInputDisabled"
-                        [formGroup]="formGroup"
-                        [rangePicker]="picker"
-                        [max]="maxDate">
-    <input [style.color]="'black'" formControlName="start" matStartDate placeholder="Anfang">
-    <input [style.color]="'black'" formControlName="end" matEndDate placeholder="Ende">
+  <mat-date-range-input
+    #dateRangeInput
+    (click)="picker.open()"
+    [disabled]="manualDateInputDisabled"
+    [formGroup]="formGroup"
+    [rangePicker]="picker"
+    [max]="maxDate"
+  >
+    <input [style.color]="'black'" formControlName="start" matStartDate placeholder="Anfang" />
+    <input [style.color]="'black'" formControlName="end" matEndDate placeholder="Ende" />
   </mat-date-range-input>
   <mat-datepicker-toggle [disabled]="false" [for]="picker" matSuffix></mat-datepicker-toggle>
   <mat-date-range-picker #picker [disabled]="false"></mat-date-range-picker>

@@ -26,8 +26,7 @@ public enum NetzfehlerTyp {
 	NETZBILDUNG("Netzbildungsfehler"),
 	ATTRIBUT_ABBILDUNG("Attribut-Abbildung"),
 	ATTRIBUT_PROJEKTION("Attribut-Projektion"),
-	RADNETZ_SACKGASSE("RadNETZ-Sackgasse")
-	;
+	RADNETZ_SACKGASSE("RadNETZ-Sackgasse");
 
 	@NonNull
 	private String displayText;

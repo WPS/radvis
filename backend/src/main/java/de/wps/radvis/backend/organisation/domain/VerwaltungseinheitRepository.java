@@ -17,14 +17,13 @@ package de.wps.radvis.backend.organisation.domain;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 import de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.validation.constraints.NotNull;
 
 public interface VerwaltungseinheitRepository
 	extends Repository<Verwaltungseinheit, Long>, CustomVerwaltungseinheitRepository {
@@ -53,4 +52,15 @@ public interface VerwaltungseinheitRepository
 	Verwaltungseinheit findByName(String name);
 
 	Optional<Verwaltungseinheit> findByNameAndOrganisationsArt(String name, OrganisationsArt organisationsArt);
+
+	List<Verwaltungseinheit> findAllByNameContainingAndOrganisationsArt(String name, OrganisationsArt organisationsArt);
+
+	List<Verwaltungseinheit> findAllByName(String name);
+
+	List<Verwaltungseinheit> findAllByNameContaining(String operatorString);
+
+	@Query(
+		"SELECT new de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView(organisation.id, organisation.name, organisation.organisationsArt, organisation.uebergeordneteOrganisation.id, organisation.aktiv)"
+			+ " FROM Verwaltungseinheit organisation WHERE organisation.id IN :gebietskoerperschaftIds")
+	List<VerwaltungseinheitDbView> findAllDbViewsById(List<Long> gebietskoerperschaftIds);
 }

@@ -14,21 +14,21 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-2470" author="ap+mw">
     <addColumn tableName="geschwindigkeit_attribut_gruppe">
-      <column name="ortslage" type="varchar(255)" />
+      <column name="ortslage" type="varchar(255)"/>
     </addColumn>
     <addColumn tableName="geschwindigkeit_attribut_gruppe_aud">
-      <column name="ortslage" type="varchar(255)" />
+      <column name="ortslage" type="varchar(255)"/>
     </addColumn>
-    <dropView viewName="kante_geschwindigkeits_attribute_view" />
+    <dropView viewName="kante_geschwindigkeits_attribute_view"/>
     <createView
-      viewName="kante_geschwindigkeits_attribute_view"
-      replaceIfExists="true">SELECT k.id, k.geometry, k.geloescht, k.quelle, g.ortslage, g.hoechstgeschwindigkeit,
+			viewName="kante_geschwindigkeits_attribute_view"
+			replaceIfExists="true">SELECT k.id, k.geometry, k.geloescht, k.quelle, g.ortslage, g.hoechstgeschwindigkeit,
       g.abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung, k.kanten_attributgruppe_id,
       k.is_grundnetz
       FROM kante k, geschwindigkeit_attribut_gruppe g
@@ -69,19 +69,19 @@
       <column name="revtype" type="smallint"/>
     </createTable>
     <addForeignKeyConstraint
-      baseTableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
-      baseColumnNames="geschwindigkeit_attribut_gruppe_id"
-      constraintName="fk_geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
-      referencedTableName="geschwindigkeit_attribut_gruppe"
-      referencedColumnNames="id"/>
+			baseTableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
+			baseColumnNames="geschwindigkeit_attribut_gruppe_id"
+			constraintName="fk_geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
+			referencedTableName="geschwindigkeit_attribut_gruppe"
+			referencedColumnNames="id"/>
     <createIndex tableName="geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute"
-      indexName="geschwindigkeit_attribut_gruppe_idx">
+			indexName="geschwindigkeit_attribut_gruppe_idx">
       <column name="geschwindigkeit_attribut_gruppe_id"/>
     </createIndex>
     <dropView viewName="kante_geschwindigkeits_attribute_view"/>
     <createView
-      viewName="kante_geschwindigkeit_linearreferenzierteattribute_view"
-      replaceIfExists="true">SELECT id, geometry, geloescht, quelle, geschwindigkeit_attributgruppe_id,
+			viewName="kante_geschwindigkeit_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry, geloescht, quelle, geschwindigkeit_attributgruppe_id,
       kanten_attributgruppe_id, is_grundnetz FROM kante
     </createView>
   </changeSet>
@@ -104,8 +104,10 @@
     <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud" columnName="hoechstgeschwindigkeit"/>
     <dropColumn tableName="geschwindigkeit_attribut_gruppe" columnName="ortslage"/>
     <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud" columnName="ortslage"/>
-    <dropColumn tableName="geschwindigkeit_attribut_gruppe" columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
-    <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud" columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe"
+			columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
+    <dropColumn tableName="geschwindigkeit_attribut_gruppe_aud"
+			columnName="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"/>
   </changeSet>
 
 </databaseChangeLog>

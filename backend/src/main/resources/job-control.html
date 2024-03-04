@@ -17,10 +17,15 @@
 <head>
   <meta charset="UTF-8">
   <title>RadVIS Server</title>
+  <style>
+    li {
+      margin-bottom: 0.25rem;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Import-Jobs</h1>
+<h2>Import-Jobs</h2>
 <ul>
   <li><a href="/jobs/initial">Jobs initial ausführen</a></li>
   <li><a href="/jobs/run">Jobs erneut ausführen</a></li>
@@ -30,15 +35,13 @@
     ausführen</a></li>
 </ul>
 
-<h1>Nächtlicher Job Schedule</h1>
+<h2>Nächtlicher Job Schedule</h2>
 <ul>
   <li><a href="/jobs/startNaechtlicherJobSchedule">Nächtlicher Job Schedule jetzt manuell anstoßen</a></li>
 </ul>
 
-<h1>Alle Jobs</h1>
-<ul>
-  $jobs$
-</ul>
+<h2>Alle Jobs</h2>
+$jobs$
 
 </body>
 </html>

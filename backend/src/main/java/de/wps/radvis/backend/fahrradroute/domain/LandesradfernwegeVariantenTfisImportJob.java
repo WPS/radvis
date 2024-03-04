@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
@@ -37,6 +34,8 @@ import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradroutenVariantenTf
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

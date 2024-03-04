@@ -20,14 +20,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -39,6 +31,13 @@ import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Konflikt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ManuellerImportFehlerursache;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -17,11 +17,10 @@ package de.wps.radvis.backend.netz.domain.valueObject;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
-import jakarta.persistence.Embeddable;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

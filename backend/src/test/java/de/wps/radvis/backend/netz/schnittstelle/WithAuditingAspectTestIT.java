@@ -35,7 +35,7 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.auditing.schnittstelle.WithAuditingAspect;
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
-import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetails;
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;

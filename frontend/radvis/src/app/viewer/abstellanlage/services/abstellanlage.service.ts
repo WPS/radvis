@@ -14,19 +14,17 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage';
 import { DeleteAbstellanlageCommand } from 'src/app/viewer/abstellanlage/models/delete-abstellanlage-command';
 import { SaveAbstellanlageCommand } from 'src/app/viewer/abstellanlage/models/save-abstellanlage-command';
 import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
 import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
-import invariant from 'tiny-invariant';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AbstellanlageService implements Resolve<Abstellanlage> {
+export class AbstellanlageService {
   private readonly API = '/api/abstellanlage';
 
   constructor(private http: HttpClient, private fileHandlingService: FileHandlingService) {}
@@ -74,14 +72,6 @@ export class AbstellanlageService implements Resolve<Abstellanlage> {
 
   deleteFile(id: number, dokumentId: number): Promise<void> {
     return this.http.delete<void>(`${this.API}/${id}/dokument/${dokumentId}`).toPromise();
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<Abstellanlage> {
-    // Auch fuer die ToolComponent, darum die Veroderung
-    const id = route.paramMap.get('id') || route.parent?.paramMap.get('id');
-    invariant(id, 'Abstellanlagen-ID muss als Parameter id an der Route gesetzt sein.');
-    return this.http.get<Abstellanlage>(`${this.API}/${id}`).toPromise();
   }
 
   public uploadCsv(formData: FormData): Promise<Blob> {

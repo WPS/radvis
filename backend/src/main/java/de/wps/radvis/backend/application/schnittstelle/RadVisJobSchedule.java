@@ -22,4 +22,6 @@ public interface RadVisJobSchedule {
 	List<Class<? extends AbstractJob>> jobsToRun();
 
 	boolean forceRun();
+
+	boolean verhindereWeitereJobAusfuehrungBeiFehler();
 }

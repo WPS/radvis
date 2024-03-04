@@ -20,11 +20,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineSegment;
@@ -33,6 +28,10 @@ import org.locationtech.jts.geom.LineString;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.quellimport.ttsib.domain.KeinMittelstreifenException;
 import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibEinordnung;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

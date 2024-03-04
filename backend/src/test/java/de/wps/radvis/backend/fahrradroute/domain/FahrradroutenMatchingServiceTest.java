@@ -139,7 +139,8 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		when(dlmMatchingRepository.matchGeometry(lineString, "bike"))
 			.thenThrow(new KeinMatchGefundenException("oh no", new Throwable()));
 		// routing klappt -> geroutete geometrie entspricht exakt der originalgeometrie
-		when(graphhopperRoutingRepository.route(any(), eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), eq(true))).thenReturn(
+		when(graphhopperRoutingRepository.route(any(), eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID),
+			eq(true))).thenReturn(
 			new RoutingResult(List.of(1L),
 				lineString,
 				Hoehenunterschied.of(12.3),

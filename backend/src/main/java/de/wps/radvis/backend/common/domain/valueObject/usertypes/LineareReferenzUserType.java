@@ -18,7 +18,7 @@ import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class LineareReferenzUserType implements AttributeConverter<LineareReferenz, Double> {
 
 	@Override

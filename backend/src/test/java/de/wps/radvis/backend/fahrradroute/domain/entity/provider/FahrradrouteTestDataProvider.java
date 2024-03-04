@@ -31,7 +31,6 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradroutenMatchi
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Tourenkategorie;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -69,7 +68,7 @@ public class FahrradrouteTestDataProvider {
 			.offizielleLaenge(Laenge.of(123))
 			.homepage("https://web.site")
 			.verantwortlich(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
-			.emailAnsprechpartner("e@ma.il")
+			.emailAnsprechpartner("email@testRadvis.de")
 			.lizenz("LI-ZE-NS 2.0")
 			.lizenzNamensnennung("Namen nennen? Ok äh... Hans, Petra, Walter, Kunigunde ... äh Bert ... Waltraut ...")
 			.zuletztBearbeitet(LocalDateTime.of(2022, 8, 1, 10, 0))

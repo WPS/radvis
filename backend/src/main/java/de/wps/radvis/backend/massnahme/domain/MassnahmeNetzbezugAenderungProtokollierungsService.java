@@ -32,7 +32,6 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezugAenderung;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeNetzBezugAenderungRepository;
-import de.wps.radvis.backend.netz.domain.entity.NetzBezugAenderung;
 import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;

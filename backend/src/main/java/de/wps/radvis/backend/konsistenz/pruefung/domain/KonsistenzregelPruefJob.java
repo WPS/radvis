@@ -15,12 +15,12 @@
 package de.wps.radvis.backend.konsistenz.pruefung.domain;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import jakarta.transaction.Transactional;
 
 import org.springframework.util.StopWatch;
 
@@ -39,6 +39,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.domain.entity.KonsistenzregelVe
 import de.wps.radvis.backend.konsistenz.pruefung.domain.event.KonsistenzregelVerletzungenDeletedEvent;
 import de.wps.radvis.backend.konsistenz.regeln.domain.Konsistenzregel;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -142,7 +143,8 @@ public class KonsistenzregelPruefJob extends AbstractJob {
 		log.info("Geloeschte Verletzungen " + statistik.anzahlDeletedProRegel);
 		log.info("Aktualisierte Verletzungen " + statistik.anzahlUpdatedProRegel);
 		log.info("Erzeugte Verletzungen " + statistik.anzahlCreatedProRegel);
-		statistik.dauerProRegel = RadVisStopWatchPrinter.stringify(stopWatch);
+		Map<String, String> verletzteRegeln = new HashMap<>();  // leerer Dummy
+		statistik.dauerProRegel = RadVisStopWatchPrinter.stringify(stopWatch, verletzteRegeln);
 		log.info("Dauer pro Regel \n{}", statistik.dauerProRegel);
 
 		return Optional.of(statistik);

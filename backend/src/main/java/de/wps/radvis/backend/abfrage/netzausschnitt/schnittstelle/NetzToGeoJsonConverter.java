@@ -210,9 +210,12 @@ public class NetzToGeoJsonConverter {
 			setPropertyIfAttributeExists(feature, "wege_niveau", kantenAttribut.getWegeNiveau().orElse(null),
 				attribute);
 			setPropertyIfAttributeExists(feature, "beleuchtung", kantenAttribut.getBeleuchtung(), attribute);
+			setPropertyIfAttributeExists(feature, "umfeld", kantenAttribut.getUmfeld(), attribute);
+			setPropertyIfAttributeExists(feature, "strassenkategorie_rin",
+				kantenAttribut.getStrassenkategorieRIN().orElse(null),
+				attribute);
 			setPropertyIfAttributeExists(feature, "strassenquerschnittrast06",
 				kantenAttribut.getStrassenquerschnittRASt06(), attribute);
-			setPropertyIfAttributeExists(feature, "umfeld", kantenAttribut.getUmfeld(), attribute);
 			setPropertyIfAttributeExists(feature, "laenge_manuell_erfasst",
 				kantenAttribut.getLaengeManuellErfasst().orElse(null), attribute);
 			setPropertyIfAttributeExists(feature, "dtv_fussverkehr",

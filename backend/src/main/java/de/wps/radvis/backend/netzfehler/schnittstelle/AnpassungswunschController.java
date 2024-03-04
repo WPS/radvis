@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-
 import org.locationtech.jts.geom.Point;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -49,6 +46,8 @@ import de.wps.radvis.backend.netzfehler.domain.entity.Anpassungswunsch;
 import de.wps.radvis.backend.netzfehler.schnittstelle.view.AnpassungswunschListenView;
 import de.wps.radvis.backend.netzfehler.schnittstelle.view.AnpassungswunschView;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/anpassungswunsch")

@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -45,6 +44,7 @@ import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 import de.wps.radvis.backend.leihstation.domain.entity.Leihstation;
 import de.wps.radvis.backend.leihstation.domain.valueObject.Anzahl;
@@ -131,7 +131,8 @@ public class LeihstationImportServiceTest {
 			Leihstation leihstation1 = Leihstation.builder().anzahlAbstellmoeglichkeiten(Anzahl.of(1)).id(10l)
 				.betreiber("Mein Betreiber").geometrie(
 					KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 200)))
-				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true).quellSystem(LeihstationQuellSystem.RADVIS)
+				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true)
+				.quellSystem(LeihstationQuellSystem.RADVIS)
 				.build();
 
 			LeihstationRepository leihstationRepository = Mockito.mock(LeihstationRepository.class);

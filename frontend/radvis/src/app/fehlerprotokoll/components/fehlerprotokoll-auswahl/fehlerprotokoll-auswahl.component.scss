@@ -22,15 +22,11 @@
 .mat-menu-container {
   padding: 1rem;
   min-width: 17rem;
-  max-height: 10rem;
+  max-height: 15rem;
 }
 
 .grey {
   color: grey;
-}
-
-.konsistenzregel-selektion ::ng-deep .mat-checkbox-label {
-  white-space: break-spaces;
 }
 
 .zoomstufen-hinweis {

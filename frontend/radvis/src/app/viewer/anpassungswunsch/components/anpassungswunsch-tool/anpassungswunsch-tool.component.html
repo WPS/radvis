@@ -23,17 +23,12 @@
   >
     <mat-icon>delete</mat-icon>
   </button>
-  <button
-    [attr.aria-label]="'Schließen'"
-    matTooltip="Schließen"
-    (click)="onClose()"
-    mat-icon-button
-  >
+  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
 
-<nav mat-tab-nav-bar color="accent" [disableRipple]="true">
+<nav mat-tab-nav-bar color="accent" [disableRipple]="true" [tabPanel]="tabPanel">
   <a
     mat-tab-link
     queryParamsHandling="merge"
@@ -59,4 +54,7 @@
     Kommentare
   </a>
 </nav>
-<router-outlet></router-outlet>
+
+<mat-tab-nav-panel class="tab-panel" #tabPanel>
+  <router-outlet></router-outlet>
+</mat-tab-nav-panel>

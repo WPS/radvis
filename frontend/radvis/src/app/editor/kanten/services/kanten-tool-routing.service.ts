@@ -23,7 +23,7 @@ import { KantenGeschwindigkeitEditorComponent } from 'src/app/editor/kanten/comp
 import { KantenVerlaufEditorComponent } from 'src/app/editor/kanten/components/kanten-verlauf-editor/kanten-verlauf-editor.component';
 import { KantenZustaendigkeitEditorComponent } from 'src/app/editor/kanten/components/kanten-zustaendigkeit-editor/kanten-zustaendigkeit-editor.component';
 import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
-import { KantenSelektionResetService } from 'src/app/editor/kanten/services/kanten-selektion-reset.service';
+import { kantenSelektionResetGuard } from 'src/app/editor/kanten/services/kanten-selektion-reset.guard';
 
 @Injectable({
   providedIn: 'root',
@@ -41,32 +41,32 @@ export class KantenToolRoutingService {
       {
         path: AttributGruppe.ALLGEMEIN,
         component: KantenAttributeEditorComponent,
-        canDeactivate: [KantenSelektionResetService],
+        canDeactivate: [kantenSelektionResetGuard],
       },
       {
         path: AttributGruppe.VERLAUF,
         component: KantenVerlaufEditorComponent,
-        canDeactivate: [KantenSelektionResetService],
+        canDeactivate: [kantenSelektionResetGuard],
       },
       {
         path: AttributGruppe.GESCHWINDIGKEIT,
         component: KantenGeschwindigkeitEditorComponent,
-        canDeactivate: [KantenSelektionResetService],
+        canDeactivate: [kantenSelektionResetGuard],
       },
       {
         path: AttributGruppe.FUEHRUNGSFORM,
         component: KantenFuehrungsformEditorComponent,
-        canDeactivate: [KantenSelektionResetService],
+        canDeactivate: [kantenSelektionResetGuard],
       },
       {
         path: AttributGruppe.ZUSTAENDIGKEIT,
         component: KantenZustaendigkeitEditorComponent,
-        canDeactivate: [KantenSelektionResetService],
+        canDeactivate: [kantenSelektionResetGuard],
       },
       {
         path: AttributGruppe.FAHRTRICHTUNG,
         component: KantenFahrtrichtungEditorComponent,
-        canDeactivate: [KantenSelektionResetService],
+        canDeactivate: [kantenSelektionResetGuard],
       },
       {
         path: EditorRoutingService.EDITOR_CREATE_SUBROUTE,

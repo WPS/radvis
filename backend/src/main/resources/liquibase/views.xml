@@ -98,10 +98,10 @@
 	    min((baulast.name)::text) AS baulast_name,
 	    min((baulast.organisations_art)::text) AS baulast_organisations_art,
 	    min(baulast.uebergeordnete_organisation_id) AS baulast_uebergeordnete_organisation_id,
-	    min(markierung.id) AS markierung_id,
-	    min((markierung.name)::text) AS markierung_name,
-	    min((markierung.organisations_art)::text) AS markierung_organisations_art,
-	    min(markierung.uebergeordnete_organisation_id) AS markierung_uebergeordnete_organisation_id,
+	    min(zustaendig.id) AS zustaendig_id,
+	    min((zustaendig.name)::text) AS zustaendig_name,
+	    min((zustaendig.organisations_art)::text) AS zustaendig_organisations_art,
+	    min(zustaendig.uebergeordnete_organisation_id) AS zustaendig_uebergeordnete_organisation_id,
 	    min(unterhalt.id) AS unterhalt_id,
 	    min((unterhalt.name)::text) AS unterhalt_name,
 	    min((unterhalt.organisations_art)::text) AS unterhalt_organisations_art,
@@ -124,11 +124,16 @@
 				   st_union(knot.point),
 				   st_union(st_lineinterpolatepoint(kantefuerpunktreferenz.geometry, mkpu.lineare_referenz))]
         ) AS geometry,
-	    min((u.umsetzungsstand_status)::text) AS umsetzungsstand_status
+	    min((u.umsetzungsstand_status)::text) AS umsetzungsstand_status,
+	    m.realisierungshilfe,
+	    m.kostenannahme,
+	    m.ma_visid,
+	    m.verbaid,
+	    m.lgvfgid
 	   FROM ((((((((((((((massnahme m
 	     LEFT JOIN massnahme_massnahmenkategorien mkat ON ((m.id = mkat.massnahme_id)))
 	     LEFT JOIN organisation baulast ON ((m.baulast_zustaendiger_id = baulast.id)))
-	     LEFT JOIN organisation markierung ON ((m.markierungs_zustaendiger_id = markierung.id)))
+	     LEFT JOIN organisation zustaendig ON ((m.zustaendiger_id = zustaendig.id)))
 	     LEFT JOIN organisation unterhalt ON ((m.unterhalts_zustaendiger_id = unterhalt.id)))
 	     LEFT JOIN massnahme_netzklassen netzklassen ON ((m.id = netzklassen.massnahme_id)))
 	     LEFT JOIN benutzer benutzer_letzte_aenderung ON ((m.benutzer_letzte_aenderung_id = benutzer_letzte_aenderung.id)))
@@ -207,9 +212,12 @@
         m.umsetzungsstatus,
         m.bezeichnung,
         string_agg(DISTINCT(mkat.massnahmenkategorien)::text, ';'::text) AS massnahmenkategorien,
-        COALESCE(MIN(baulast.name), '') AS baulasttraeger_name,
-        COALESCE(MIN(markierer.name), '') AS markierungs_zustaendiger_name,
-        COALESCE(MIN(unterhaelter.name), '') AS unterhaltszustaeniger_name,
+				COALESCE(MIN(baulast.name), '') AS baulasttraeger_name,
+				COALESCE(MIN(baulast.organisations_art), '') AS baulasttraeger_orga_typ,
+				COALESCE(MIN(zustaendiger.name), '') AS zustaendiger_name,
+				COALESCE(MIN(zustaendiger.organisations_art), '') AS zustaendiger_orga_typ,
+				COALESCE(MIN(unterhaelter.name), '') AS unterhaltszustaeniger_name,
+				COALESCE(MIN(unterhaelter.organisations_art), '') AS unterhaltszustaeniger_orga_typ,
         m.geplanter_umsetzungsstart_jahr AS durchfuehrungszeitraum,
         m.konzeptionsquelle,
         m.veroeffentlicht,
@@ -217,7 +225,7 @@
       FROM massnahme m
         LEFT JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
         LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
-        LEFT JOIN organisation markierer ON m.markierungs_zustaendiger_id = markierer.id
+        LEFT JOIN organisation zustaendiger ON m.zustaendiger_id = zustaendiger.id
         LEFT JOIN organisation unterhaelter ON m.unterhalts_zustaendiger_id = unterhaelter.id
         LEFT JOIN massnahme_kantenseitenabschnitte seitenabschnitt ON m.id = seitenabschnitt.massnahme_id
         LEFT JOIN kante kantefuerseitenabschnitt ON seitenabschnitt.kante_id = kantefuerseitenabschnitt.id
@@ -246,15 +254,18 @@
         m.bezeichnung,
         string_agg(DISTINCT(mkat.massnahmenkategorien)::text, ';'::text) AS massnahmenkategorien,
         COALESCE(MIN(baulast.name), '') AS baulasttraeger_name,
-        COALESCE(MIN(markierer.name), '') AS markierungs_zustaendiger_name,
+        COALESCE(MIN(baulast.organisations_art), '') AS baulasttraeger_orga_typ,
+        COALESCE(MIN(zustaendiger.name), '') AS zustaendiger_name,
+        COALESCE(MIN(zustaendiger.organisations_art), '') AS zustaendiger_orga_typ,
         COALESCE(MIN(unterhaelter.name), '') AS unterhaltszustaeniger_name,
+        COALESCE(MIN(unterhaelter.organisations_art), '') AS unterhaltszustaeniger_orga_typ,
         m.geplanter_umsetzungsstart_jahr AS durchfuehrungszeitraum,
         m.konzeptionsquelle,
         m.veroeffentlicht
       FROM massnahme m
         LEFT JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
         LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
-        LEFT JOIN organisation markierer ON m.markierungs_zustaendiger_id = markierer.id
+        LEFT JOIN organisation zustaendiger ON m.zustaendiger_id = zustaendiger.id
         LEFT JOIN organisation unterhaelter ON m.unterhalts_zustaendiger_id = unterhaelter.id
         LEFT JOIN massnahme_knoten mkno ON m.id = mkno.massnahme_id
         LEFT JOIN knoten knot ON mkno.knoten_id = knot.id
@@ -282,6 +293,7 @@
         f.kategorie,
         f.fahrradroute_typ,
         verantwortlich.name AS verantwortlich_name,
+        verantwortlich.organisations_art AS verantwortlich_orga_typ,
         f.kurzbeschreibung,
         f.beschreibung,
         f.tourenkategorie,
@@ -313,6 +325,7 @@
         f.kategorie,
         f.fahrradroute_typ,
         verantwortlich.name AS verantwortlich_name,
+        verantwortlich.organisations_art AS verantwortlich_orga_typ,
         f.kurzbeschreibung,
         f.beschreibung,
         f.tourenkategorie,
@@ -339,9 +352,10 @@
     <comment>########## VIEWs muessen wegen Abhaengigkeiten in umgekehrte Reihenfolge gedroppt werden ##########
     </comment>
     <sql>
-      DROP VIEW IF EXISTS geoserver_balm_fahrradrouten_view;
-      DROP VIEW IF EXISTS geoserver_balm_kanten_view;
-      DROP VIEW IF EXISTS geoserver_balm_knoten_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_wegweisende_beschilderung_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_fahrradrouten_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_kanten_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_knoten_view;
       DROP
       MATERIALIZED VIEW IF EXISTS geoserver_radvisnetz_kante_materialized_view;
       DROP
@@ -369,13 +383,37 @@
       CREATE
       MATERIALIZED VIEW netzklassen_materialized_view AS
       SELECT kagnetzklassen.kanten_attribut_gruppe_id,
-             string_agg(DISTINCT (kagnetzklassen.netzklasse), ';') AS alle_netzklassen
+             string_agg(DISTINCT (kagnetzklassen.netzklasse), ';') AS alle_netzklassen,
+             CASE
+                 WHEN (bool_or(kagnetzklassen.netzklasse = 'RADNETZ_ALLTAG') AND
+                       bool_or(kagnetzklassen.netzklasse = 'RADNETZ_FREIZEIT'))
+                     THEN 'Alltag und Freizeit (RadNETZ)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'RADNETZ_ALLTAG')
+                     THEN 'Alltag (RadNETZ)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'RADNETZ_FREIZEIT')
+                     THEN 'Freizeit (RadNETZ)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'RADNETZ_ZIELNETZ')
+                     THEN 'Zielnetz (RadNETZ)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'RADSCHNELLVERBINDUNG')
+                     THEN 'Radschnellverbindung'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'RADVORRANGROUTEN')
+                     THEN 'Radvorrangrouten'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'KREISNETZ_ALLTAG')
+                     THEN 'Alltag (Kreisnetz)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'KREISNETZ_FREIZEIT')
+                     THEN 'Freizeit (Kreisnetz)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'KOMMUNALNETZ_ALLTAG')
+                     THEN 'Alltag (Kommunalnetz)'
+                 WHEN bool_or(kagnetzklassen.netzklasse = 'KOMMUNALNETZ_FREIZEIT')
+                     THEN 'Freizeit (Kommunalnetz)'
+                 ELSE ''
+                 END                                as hoechsteNK
       FROM kanten_attribut_gruppe_netzklassen kagnetzklassen
       GROUP BY kagnetzklassen.kanten_attribut_gruppe_id;
     </sql>
     <createIndex tableName="netzklassen_materialized_view"
-      indexName="netzklassen_materialized_view_kanten_attribut_gruppe_id_idx">
-      <column name="kanten_attribut_gruppe_id" />
+			indexName="netzklassen_materialized_view_kanten_attribut_gruppe_id_idx">
+      <column name="kanten_attribut_gruppe_id"/>
     </createIndex>
 
     <comment>########## standards_materialized_view ##########</comment>
@@ -384,7 +422,8 @@
           SELECT kagstadard.kanten_attribut_gruppe_id, string_agg(DISTINCT (kagstadard.standard), ';') AS alle_standards
           	FROM kanten_attribut_gruppe_ist_standards kagstadard GROUP BY kagstadard.kanten_attribut_gruppe_id;
     </sql>
-    <createIndex tableName="standards_materialized_view" indexName="standards_materialized_view_kanten_attribut_gruppe_id_idx">
+    <createIndex tableName="standards_materialized_view"
+			indexName="standards_materialized_view_kanten_attribut_gruppe_id_idx">
       <column name="kanten_attribut_gruppe_id"/>
     </createIndex>
 
@@ -396,7 +435,8 @@
       				  FROM fuehrungsform_attribut_gruppe_attribute_rechts far) AS far_anteil
         WHERE far_anteil.row_num = 1;
     </sql>
-    <createIndex tableName="fuehrungsform_attribute_maxanteil_materialized_view" indexName="fuehrungsform_attribute_maxanteil_materialized_view_fuehrungsform_attribut_gruppe_id_idx">
+    <createIndex tableName="fuehrungsform_attribute_maxanteil_materialized_view"
+			indexName="fuehrungsform_attribute_maxanteil_materialized_view_fuehrungsform_attribut_gruppe_id_idx">
       <column name="fuehrungsform_attribut_gruppe_id"/>
     </createIndex>
 
@@ -408,7 +448,8 @@
       				  FROM geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute gar) AS gar_anteil
         WHERE gar_anteil.row_num = 1;
     </sql>
-    <createIndex tableName="geschwindigkeit_attribute_maxanteil_materialized_view" indexName="geschwindigkeit_attribute_maxanteil_materialized_view_geschwindigkeit_attribut_gruppe_id_idx">
+    <createIndex tableName="geschwindigkeit_attribute_maxanteil_materialized_view"
+			indexName="geschwindigkeit_attribute_maxanteil_materialized_view_geschwindigkeit_attribut_gruppe_id_idx">
       <column name="geschwindigkeit_attribut_gruppe_id"/>
     </createIndex>
 
@@ -420,7 +461,8 @@
                 FROM zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute zar) AS zar_anteil
         WHERE zar_anteil.row_num = 1
     </sql>
-    <createIndex tableName="zustaendigkeit_attribute_maxanteil_materialized_view" indexName="zustaendigkeit_attribute_maxanteil_materialized_view_geschwindigkeit_attribut_gruppe_id_idx">
+    <createIndex tableName="zustaendigkeit_attribute_maxanteil_materialized_view"
+			indexName="zustaendigkeit_attribute_maxanteil_materialized_view_geschwindigkeit_attribut_gruppe_id_idx">
       <column name="zustaendigkeit_attribut_gruppe_id"/>
     </createIndex>
 
@@ -443,11 +485,13 @@
      				gemeinde.name as gemeinde_name,
      				landkreis.name as landkreis_name,
      				kag.beleuchtung,
-     				kag.strassenquerschnittrast06,
      				kag.umfeld,
+     				kag.strassenkategorierin,
+     				kag.strassenquerschnittrast06,
      				kag.status,
 
      				netzklassen.alle_netzklassen as netzklassen,
+     				netzklassen.hoechstenk as hoechstenk,
      				standards.alle_standards as standards,
 
 -- fuehrungsform attribute
@@ -467,8 +511,11 @@
 
 -- zustaendigkeitattribute
      				baulast_traeger.name as baulast_traeger,
+     				baulast_traeger.organisations_art as baulast_traeger_orga_typ,
      				unterhalts_zustaendiger.name as unterhalts_zustaendiger,
+     				unterhalts_zustaendiger.organisations_art as unterhalts_zustaendiger_orga_typ,
      				erhalts_zustaendiger.name as erhalts_zustaendiger,
+     				erhalts_zustaendiger.organisations_art as erhalts_zustaendiger_orga_typ,
      				zar_max.vereinbarungs_kennung,
 
 -- fahrtrichtungattribute
@@ -503,7 +550,8 @@
 
         WHERE (k.quelle = 'DLM' or k.quelle = 'RadVis');
     </sql>
-    <createIndex tableName="geoserver_radvisnetz_kante_materialized_view" indexName="geoserver_radvisnetz_kante_materialized_view_kanteid_idx">
+    <createIndex tableName="geoserver_radvisnetz_kante_materialized_view"
+			indexName="geoserver_radvisnetz_kante_materialized_view_kanteid_idx">
       <column name="id"/>
     </createIndex>
 
@@ -650,7 +698,7 @@
       FROM kanten_lrs
     </sql>
 
-    <sql splitStatements="false" >
+    <sql splitStatements="false">
       <comment>
         Diese PROCEDURE erstellt eine materialized View für KantenAbschnitte auf Basis der angegeben Quelle
         für die lin. Referenzen (z.B.: interpoliert/nicht interpoliert) und mit dem angegeben Namen.
@@ -701,8 +749,9 @@
              gemeinde.name                as gemeinde_name,
              landkreis.name               as landkreis_name,
              kag.beleuchtung,
-             kag.strassenquerschnittrast06,
              kag.umfeld,
+             kag.strassenkategorierin,
+             kag.strassenquerschnittrast06,
              kag.status,
 
              netzklassen.alle_netzklassen as netzklassen,
@@ -898,10 +947,21 @@
           aw.beschreibung,
           aw.status,
           aw.kategorie,
-          verantwortlicheOrganisation.name as verantwortlich
+          verantwortlicheOrganisation.name as verantwortlich,
+          verantwortlicheOrganisation.organisations_art as verantwortlich_orga_typ,
+          k.kommentar_text as letzter_kommentar_text,
+          concat(benutzerLetzterKommentar.vorname, ' ', benutzerLetzterKommentar.nachname) as letzter_kommentar_autor,
+          concat('${BASIS_URL}', '/viewer/anpassungen/', aw.id) as deep_link
       FROM anpassungswunsch aw
       LEFT JOIN benutzer benutzerLetzteAenderung on aw.benutzer_letzte_aenderung_id = benutzerLetzteAenderung.id
-      LEFT JOIN organisation verantwortlicheOrganisation on aw.verantwortliche_organisation_id = verantwortlicheOrganisation.id;
+      LEFT JOIN organisation verantwortlicheOrganisation on aw.verantwortliche_organisation_id = verantwortlicheOrganisation.id
+      LEFT JOIN kommentar k ON aw.kommentar_liste_id = k.kommentar_liste_id
+      LEFT JOIN benutzer benutzerLetzterKommentar ON k.benutzer_id = benutzerLetzterKommentar.id
+      WHERE k.datum = (
+        SELECT max(k1.datum)
+        FROM kommentar k1
+        WHERE k1.kommentar_liste_id = aw.kommentar_liste_id
+      ) OR k IS NULL;
     </createView>
   </changeSet>
 
@@ -918,7 +978,8 @@
              f.titel,
              f.beschreibung,
              f.entity_link,
-             o.name as organisation
+             o.name as organisation,
+             o.organisations_art as organisation_orga_typ
 
       FROM manueller_import_fehler f
       JOIN organisation o on f.organisation_id = o.id
@@ -967,7 +1028,8 @@
              wb.gemeinde,
              wb.kreis,
              wb.land,
-             o.name as zustaendige_verwaltungseinheit_name
+             o.name as zustaendige_verwaltungseinheit_name,
+             o.organisations_art as zustaendige_verwaltungseinheit_orga_typ
       FROM wegweisende_beschilderung wb
       LEFT JOIN organisation o ON o.id = wb.zustaendige_verwaltungseinheit_id;
     </createView>
@@ -986,7 +1048,8 @@
         MIN(b.markierung) as markierung,
         MIN(b.begruendung) as begruendung,
         st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))) AS geometry,
-        COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation
+        COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
+        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ
       FROM barriere b
         LEFT JOIN organisation verantwortlich ON b.verantwortlich_id = verantwortlich.id
         LEFT JOIN barriere_kantenseitenabschnitte seitenabschnitt ON b.id = seitenabschnitt.barriere_id
@@ -1006,6 +1069,7 @@
         MIN(b.markierung) as markierung,
         MIN(b.begruendung) as begruendung,
         COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
+        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ,
         st_multi(
           CASE
             WHEN st_union(knot.point) IS NULL
@@ -1048,7 +1112,8 @@
         MIN(f.gruen_anforderung) as gruen_anforderung,
         MIN(f.umlaufzeit) as umlaufzeit,
         st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))) AS geometry,
-        COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation
+        COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
+        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ
       FROM furt_kreuzung f
         LEFT JOIN organisation verantwortlich ON f.verantwortliche_organisation_id = verantwortlich.id
         LEFT JOIN furt_kreuzung_kantenseitenabschnitte seitenabschnitt ON f.id = seitenabschnitt.furt_kreuzung_id
@@ -1078,6 +1143,7 @@
         MIN(f.gruen_anforderung) as gruen_anforderung,
         MIN(f.umlaufzeit) as umlaufzeit,
         COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
+        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ,
         st_multi(
           CASE
             WHEN st_union(knot.point) IS NULL
@@ -1150,11 +1216,12 @@
              a.externe_id,
              a.quell_system,
              COALESCE(o.name, '') as zustaendig,
+             COALESCE(o.organisations_art, '') as zustaendig_orga_typ,
              a.anzahl_stellplaetze,
              a.anzahl_schliessfaecher,
              a.anzahl_lademoeglichkeiten,
              a.ueberwacht,
-             a.ist_bike_and_ride,
+             a.abstellanlagen_ort,
              a.groessenklasse,
              a.stellplatzart,
              a.ueberdacht,
@@ -1187,6 +1254,7 @@
              s.fahrradhalterung,
              s.beschreibung,
              COALESCE(o.name, '') as zustaendig,
+             COALESCE(o.organisations_art, '') as zustaendig_orga_typ,
              s.typ,
              s.status
       FROM servicestation s
@@ -1194,12 +1262,12 @@
     </createView>
   </changeSet>
 
-  <changeSet id="RAD-5067" author="par" runOnChange="true" runAlways="true">
+  <changeSet id="RAD-5067" author="par" runOnChange="true">
     <sql>
-      DROP VIEW IF EXISTS geoserver_balm_kanten_view CASCADE;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_kanten_view CASCADE;
     </sql>
     <sql>
-        CREATE VIEW geoserver_balm_kanten_view AS
+        CREATE MATERIALIZED VIEW geoserver_balm_kanten_view AS
         WITH kanten_auf_relevanten_routen AS (
           SELECT DISTINCT ON
             (fk.kante_id) fk.kante_id,
@@ -1347,7 +1415,7 @@
                 END                                          as "Licht",
 
             -- ################# Breite ################# --
-            ROUND(breite)::integer                           as "Breite",
+            ROUND(breite*100)::integer                       as "Breite",
 
             -- ################# Lage ################# --
             CASE
@@ -1444,7 +1512,7 @@
 
             -- ################# ext_bw ################# --
             NULL                                             as "ext_bw_EuroVelo",
-            rel_routen.is_d_route                            as "ext_bw_RadNETZ_D",
+            COALESCE(rel_routen.is_d_route, 0)               as "ext_bw_RadNETZ_D",
             CASE
                 WHEN netzklassen LIKE '%RADNETZ_ALLTAG%' OR netzklassen LIKE '%RADNETZ_FREIZEIT%'
                     THEN 1
@@ -1470,21 +1538,23 @@
                EXISTS(SELECT *
                       FROM kanten_auf_relevanten_routen karr
                       WHERE karr.kante_id = geoserver_radvisnetz_kante_abschnitte_balm_materialized_view.kante_id));
+
+      CREATE INDEX geoserver_balm_kanten_view_geom_idx ON geoserver_balm_kanten_view USING GIST ("GeometrieAbschnitt");
     </sql>
   </changeSet>
 
-  <changeSet id="RAD-5461-1" author="hst" runOnChange="true" runAlways="true">
+  <changeSet id="RAD-5461-1" author="hst" runOnChange="true">
     <sql>
-      DROP VIEW IF EXISTS geoserver_balm_fahrradrouten_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_fahrradrouten_view;
     </sql>
     <sql>
-      CREATE VIEW geoserver_balm_fahrradrouten_view AS
+      CREATE MATERIALIZED VIEW geoserver_balm_fahrradrouten_view AS
       SELECT
         f."name"::TEXT                                      AS "Name",
         '08-' || f.id::TEXT                                 AS "Routen-ID",
         f.droute_id::TEXT                                   AS "D-Route",
         0                                                   AS "EuroVelo",
-        MAX(balm_view."ext_bw_Landesnetz")                  AS "Landesnetz",
+        COALESCE(MAX(balm_view."ext_bw_Landesnetz"), 0)     AS "Landesnetz",
         NULL AS "KommuNetz",
         CASE WHEN f.kategorie = 'D_ROUTE' THEN 1 ELSE 0 END AS "Radnetz_D",
         CASE
@@ -1496,15 +1566,17 @@
       LEFT JOIN geoserver_balm_kanten_view balm_view ON balm_view."Routen_ID" LIKE '%08-' || f.id || '%'
       WHERE f.geloescht = FALSE AND f.kategorie IN ('LANDESRADFERNWEG', 'D_ROUTE')
       GROUP BY f.id;
+
+      CREATE INDEX geoserver_balm_fahrradrouten_view_idx ON geoserver_balm_fahrradrouten_view USING GIST ("geometry");
     </sql>
   </changeSet>
 
-  <changeSet id="RAD-5461-2" author="hst" runOnChange="true" runAlways="true">
+  <changeSet id="RAD-5461-2" author="hst" runOnChange="true">
     <sql>
-      DROP VIEW IF EXISTS geoserver_balm_wegweisende_beschilderung_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_wegweisende_beschilderung_view;
     </sql>
     <sql>
-      CREATE VIEW geoserver_balm_wegweisende_beschilderung_view AS
+      CREATE MATERIALIZED VIEW geoserver_balm_wegweisende_beschilderung_view AS
       SELECT
         pfosten_nr::text AS "Schild-ID",
         geometrie AS "GeometrieKnoten",
@@ -1512,15 +1584,17 @@
         NULL AS "lebenszeitIntervallAnfang",
         NULL AS "lebenszeitIntervallEnde"
       FROM wegweisende_beschilderung;
+
+      CREATE INDEX geoserver_balm_wegweisende_beschilderung_view_geom_idx ON geoserver_balm_wegweisende_beschilderung_view USING GIST ("GeometrieKnoten");
     </sql>
   </changeSet>
 
-  <changeSet id="RAD-5463" author="hst" runOnChange="true" runAlways="true">
+  <changeSet id="RAD-5463" author="hst" runOnChange="true">
     <sql>
-      DROP VIEW IF EXISTS geoserver_balm_knoten_view;
+      DROP MATERIALIZED VIEW IF EXISTS geoserver_balm_knoten_view;
     </sql>
     <sql>
-      CREATE VIEW geoserver_balm_knoten_view AS
+      CREATE MATERIALIZED VIEW geoserver_balm_knoten_view AS
       WITH
         relevante_lr_kanten AS (
           SELECT
@@ -1586,7 +1660,9 @@
       LEFT JOIN knoten_aud aud ON aud.id = knoten.id
       LEFT JOIN rev_info ri ON ri.id = aud.rev
       WHERE rel_knoten.ist_kanten_netzklasse_relevant OR kar.auf_relevanter_route
-      GROUP BY knoten.id, knoten.point, ri."timestamp"
+      GROUP BY knoten.id, knoten.point, ri."timestamp";
+
+      CREATE INDEX geoserver_balm_knoten_view_geom_idx ON geoserver_balm_knoten_view USING GIST ("GeometrieKnoten");
     </sql>
   </changeSet>
 

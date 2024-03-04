@@ -30,11 +30,28 @@ form {
   flex-direction: column;
 }
 
-button {
-  flex-shrink: 0;
+.name-box {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-mat-error.organisation-error {
-  font-size: 75%;
-  margin-top: -1.25em;
+.status-box {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.action-button {
+  min-width: 8em;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+
+  .save-button {
+    width: unset;
+  }
 }

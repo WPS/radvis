@@ -21,7 +21,6 @@ import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.schnittstelle.BenutzerView;
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
-import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -32,7 +31,6 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
-import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitView;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -57,7 +55,7 @@ public class MassnahmeListenView {
 	private final Set<Netzklasse> netzklassen;
 	private final LocalDateTime letzteAenderung;
 	private final BenutzerView benutzerLetzteAenderung;
-	private final VerwaltungseinheitView markierungsZustaendiger;
+	private final VerwaltungseinheitView zustaendiger;
 	private final VerwaltungseinheitView unterhaltsZustaendiger;
 	private final SollStandard sollStandard;
 	private final Handlungsverantwortlicher handlungsverantwortlicher;
@@ -88,12 +86,12 @@ public class MassnahmeListenView {
 				: new BenutzerView(
 				massnahmeListenDBView.getBenutzerLetzteAenderungVorname(),
 				massnahmeListenDBView.getBenutzerLetzteAenderungNachname()),
-			massnahmeListenDBView.getMarkierungId() == null ? null
+			massnahmeListenDBView.getZustaendigId() == null ? null
 				: new VerwaltungseinheitView(
-				massnahmeListenDBView.getMarkierungId(),
-				massnahmeListenDBView.getMarkierungName(),
-				massnahmeListenDBView.getMarkierungOrganisationsArt(),
-				massnahmeListenDBView.getMarkierungUebergeordneteOrganisationId(),
+				massnahmeListenDBView.getZustaendigId(),
+				massnahmeListenDBView.getZustaendigName(),
+				massnahmeListenDBView.getZustaendigOrganisationsArt(),
+				massnahmeListenDBView.getZustaendigUebergeordneteOrganisationId(),
 				true),
 			massnahmeListenDBView.getUnterhaltId() == null ? null
 				: new VerwaltungseinheitView(

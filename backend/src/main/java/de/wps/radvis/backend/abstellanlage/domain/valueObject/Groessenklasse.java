@@ -23,7 +23,7 @@ public enum Groessenklasse {
 	BASISANGEBOT_XXS("B+R Basisangebot (XXS)"),
 	BASISANGEBOT_XS("B+R Basisangebot (XS)"),
 	BASISANGEBOT_S("B+R Basisangebot (S)"),
-	STANDARDANGEBOT_M("B+R Standardangebot ( M)"),
+	STANDARDANGEBOT_M("B+R Standardangebot (M)"),
 	SCHWERPUNKT_L("B+R Schwerpunkt (L)"),
 	HOTSPOT_XL("B+R Hotspot (XL)"),
 	GROSSANLAGE_XXL("B+R Großanlage (XXL)");
@@ -44,7 +44,7 @@ public enum Groessenklasse {
 			return Groessenklasse.BASISANGEBOT_XS;
 		case "B+R Basisangebot (S)":
 			return Groessenklasse.BASISANGEBOT_S;
-		case "B+R Standardangebot ( M)":
+		case "B+R Standardangebot (M)":
 			return Groessenklasse.STANDARDANGEBOT_M;
 		case "B+R Schwerpunkt (L)":
 			return Groessenklasse.SCHWERPUNKT_L;

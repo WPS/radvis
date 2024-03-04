@@ -27,6 +27,7 @@ import { infrastrukturLayerZIndex } from 'src/app/viewer/viewer-shared/models/vi
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
+import { Color } from 'ol/color';
 
 export abstract class AbstractInfrastrukturLayerComponent<T> {
   public static BEZEICHNUNG_PROPERTY_NAME = 'bezeichnung';
@@ -38,6 +39,7 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
   protected subscriptions: Subscription[] = [];
 
   protected readonly HIGHLIGHTED_PROPERTY_NAME = 'highlighted';
+  protected readonly ICON_COLOR_PROPERTY_NAME = 'icon-color';
 
   protected get layerId(): string {
     return this._layerId ?? this.infrastruktur.name;
@@ -65,8 +67,8 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
     );
   }
 
-  protected static infrastrukturIconStyle(highlighted: boolean, infrastruktur: Infrastruktur): Style[] {
-    return MapStyles.getInfrastrukturIconStyle(infrastruktur.iconFileName, highlighted);
+  protected static infrastrukturIconStyle(highlighted: boolean, infrastruktur: Infrastruktur, color?: Color): Style[] {
+    return MapStyles.getInfrastrukturIconStyle(infrastruktur.iconFileName, highlighted, color);
   }
 
   protected initServiceSubscriptions(): void {
@@ -98,7 +100,7 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
   protected createLayer(minZoom: number = 0): VectorLayer {
     const olLayer = new VectorLayer({
       source: this.vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.styleFn,
       zIndex: infrastrukturLayerZIndex,
@@ -120,7 +122,8 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
   protected styleFn = (feature: FeatureLike, resolution: number): Style | Style[] => {
     return AbstractInfrastrukturLayerComponent.infrastrukturIconStyle(
       feature.get(this.HIGHLIGHTED_PROPERTY_NAME),
-      this.infrastruktur
+      this.infrastruktur,
+      feature.get(this.ICON_COLOR_PROPERTY_NAME)
     );
   };
 
@@ -136,6 +139,9 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
     styles.push(...(this.styleFn(feature, resolution) as Style[]));
     return styles;
   };
+
+  // eslint-disable-next-line no-unused-vars
+  protected addIconColorAttribute(infrastrukturen: T[]): void {}
 
   protected abstract convertToFeature(infrastruktur: T): Feature[];
 

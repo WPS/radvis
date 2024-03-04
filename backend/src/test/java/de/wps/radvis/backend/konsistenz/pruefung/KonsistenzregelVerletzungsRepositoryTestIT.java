@@ -19,14 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.assertj.core.internal.ConfigurableRecursiveFieldByFieldComparator;
 import org.hibernate.spatial.jts.EnvelopeAdapter;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Polygon;
@@ -47,6 +44,8 @@ import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurat
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group2")
 @ContextConfiguration(classes = { KonsistenzregelVerletzungsRepositoryTestIT.TestConfiguration.class,

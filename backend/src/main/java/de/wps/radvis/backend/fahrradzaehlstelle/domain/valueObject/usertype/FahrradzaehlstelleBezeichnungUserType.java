@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Fahrradzaehls
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class FahrradzaehlstelleBezeichnungUserType
 	implements AttributeConverter<FahrradzaehlstelleBezeichnung, String> {
 

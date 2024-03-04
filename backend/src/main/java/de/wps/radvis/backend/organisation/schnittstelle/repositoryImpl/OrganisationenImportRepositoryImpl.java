@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
@@ -122,7 +122,7 @@ public class OrganisationenImportRepositoryImpl implements VerwaltungseinheitImp
 				fachIdToOrganisation.put(regierungsBezirk.getFachId(), regierungsBezirk);
 			}
 		} catch (FalscherGeometrieTypException e) {
-			throw new RuntimeException("Regierungsbezirk Shapefile enthält falschen GeometrieTyp. " + e.getMessage());
+			throw new RuntimeException("Regierungsbezirk Shapefile enthält falschen GeometrieTyp.", e);
 		}
 
 		// Landkreise
@@ -156,7 +156,7 @@ public class OrganisationenImportRepositoryImpl implements VerwaltungseinheitImp
 				fachIdToOrganisation.put(landkreis.getFachId(), landkreis);
 			}
 		} catch (FalscherGeometrieTypException e) {
-			throw new RuntimeException("Kreis Shapefile enthält falschen GeometrieTyp. " + e.getMessage());
+			throw new RuntimeException("Kreis Shapefile enthält falschen GeometrieTyp.", e);
 		}
 
 		// Gemeinden
@@ -189,7 +189,7 @@ public class OrganisationenImportRepositoryImpl implements VerwaltungseinheitImp
 				fachIdToOrganisation.put(gemeinde.getFachId(), gemeinde);
 			}
 		} catch (FalscherGeometrieTypException e) {
-			throw new RuntimeException("Gemeinde Shapefile enthält falschen GeometrieTyp. " + e.getMessage());
+			throw new RuntimeException("Gemeinde Shapefile enthält falschen GeometrieTyp.", e);
 		}
 
 		List<Gebietskoerperschaft> result = new ArrayList<>(fachIdToOrganisation.values());

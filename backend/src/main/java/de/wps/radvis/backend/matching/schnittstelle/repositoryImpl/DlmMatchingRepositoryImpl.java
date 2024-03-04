@@ -203,8 +203,7 @@ public class DlmMatchingRepositoryImpl implements DlmMatchingRepository {
 			throw new KeinMatchGefundenException(
 				"Der LineString konnte nicht gematched werden. Dies liegt beispielsweise daran, dass die Geometrie oder"
 					+ " Teile nicht Teil der importierten OsmBasiskarte sind oder dass die Geometrie keine passendes"
-					+ " Pendant in den OSM-Daten hat: "
-					+ e.getMessage(),
+					+ " Pendant in den OSM-Daten hat",
 				e);
 		}
 	}

@@ -14,15 +14,15 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
   <changeSet id="RAD-4654" author="hst">
     <addColumn tableName="fahrradroute">
-      <column name="veroeffentlicht" type="BOOLEAN" defaultValue="false" />
+      <column name="veroeffentlicht" type="BOOLEAN" defaultValue="false"/>
     </addColumn>
     <addColumn tableName="fahrradroute_aud">
-      <column name="veroeffentlicht" type="BOOLEAN" defaultValue="false" />
+      <column name="veroeffentlicht" type="BOOLEAN" defaultValue="false"/>
     </addColumn>
   </changeSet>
   <changeSet id="RAD-4581" author="mw und kho">
@@ -40,8 +40,10 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <addPrimaryKey tableName="mindestbreite_konsistenzregel" columnNames="fahrtrichtung,radverkehrsfuehrung,ist_standard" constraintName="primary_key_constraint"/>
-    <createIndex indexName="index_fahrtrichtung_radverkehrsfuehrung_ist_standard" tableName="mindestbreite_konsistenzregel">
+    <addPrimaryKey tableName="mindestbreite_konsistenzregel"
+			columnNames="fahrtrichtung,radverkehrsfuehrung,ist_standard" constraintName="primary_key_constraint"/>
+    <createIndex indexName="index_fahrtrichtung_radverkehrsfuehrung_ist_standard"
+			tableName="mindestbreite_konsistenzregel">
       <column name="fahrtrichtung"/>
       <column name="radverkehrsfuehrung"/>
       <column name="ist_standard"/>
@@ -358,15 +360,15 @@
       <column name="geometrie" type="GEOMETRY">
         <constraints nullable="false"/>
       </column>
-      <column name="wegweiser_typ" type="VARCHAR(255)" />
-      <column name="pfosten_typ" type="VARCHAR(255)" />
-      <column name="zustandsbewertung" type="VARCHAR(255)" />
-      <column name="defizit" type="VARCHAR(255)" />
-      <column name="pfostenzustand" type="VARCHAR(255)" />
-      <column name="pfostendefizit" type="VARCHAR(255)" />
-      <column name="gemeinde" type="VARCHAR(255)" />
-      <column name="kreis" type="VARCHAR(255)" />
-      <column name="land" type="VARCHAR(255)" />
+      <column name="wegweiser_typ" type="VARCHAR(255)"/>
+      <column name="pfosten_typ" type="VARCHAR(255)"/>
+      <column name="zustandsbewertung" type="VARCHAR(255)"/>
+      <column name="defizit" type="VARCHAR(255)"/>
+      <column name="pfostenzustand" type="VARCHAR(255)"/>
+      <column name="pfostendefizit" type="VARCHAR(255)"/>
+      <column name="gemeinde" type="VARCHAR(255)"/>
+      <column name="kreis" type="VARCHAR(255)"/>
+      <column name="land" type="VARCHAR(255)"/>
       <column name="zustaendige_verwaltungseinheit_id" type="BIGINT">
         <constraints nullable="false"/>
       </column>
@@ -381,41 +383,41 @@
     </createIndex>
 
     <addForeignKeyConstraint
-      constraintName="fk_zustaendige_verwaltungseinheit_id"
-      referencedTableName="organisation"
-      referencedColumnNames="id"
-      baseColumnNames="zustaendige_verwaltungseinheit_id" baseTableName="wegweisende_beschilderung"/>
+			constraintName="fk_zustaendige_verwaltungseinheit_id"
+			referencedTableName="organisation"
+			referencedColumnNames="id"
+			baseColumnNames="zustaendige_verwaltungseinheit_id" baseTableName="wegweisende_beschilderung"/>
 
     <createTable tableName="wegweisende_beschilderung_aud">
-      <column name="id" type="bigint" />
+      <column name="id" type="bigint"/>
       <column name="version" type="BIGINT" defaultValueNumeric="0"/>
       <column name="rev" type="BIGINT"/>
       <column name="revtype" type="TINYINT"/>
-      <column name="pfosten_nr" type="VARCHAR(255)" />
-      <column name="pfosten_id" type="bigint" />
+      <column name="pfosten_nr" type="VARCHAR(255)"/>
+      <column name="pfosten_id" type="bigint"/>
       <column name="geometrie" type="GEOMETRY"/>
-      <column name="wegweiser_typ" type="VARCHAR(255)" />
-      <column name="pfosten_typ" type="VARCHAR(255)" />
-      <column name="zustandsbewertung" type="VARCHAR(255)" />
-      <column name="defizit" type="VARCHAR(255)" />
-      <column name="pfostenzustand" type="VARCHAR(255)" />
-      <column name="pfostendefizit" type="VARCHAR(255)" />
-      <column name="gemeinde" type="VARCHAR(255)" />
-      <column name="kreis" type="VARCHAR(255)" />
-      <column name="land" type="VARCHAR(255)" />
+      <column name="wegweiser_typ" type="VARCHAR(255)"/>
+      <column name="pfosten_typ" type="VARCHAR(255)"/>
+      <column name="zustandsbewertung" type="VARCHAR(255)"/>
+      <column name="defizit" type="VARCHAR(255)"/>
+      <column name="pfostenzustand" type="VARCHAR(255)"/>
+      <column name="pfostendefizit" type="VARCHAR(255)"/>
+      <column name="gemeinde" type="VARCHAR(255)"/>
+      <column name="kreis" type="VARCHAR(255)"/>
+      <column name="land" type="VARCHAR(255)"/>
       <column name="zustaendige_verwaltungseinheit_id" type="BIGINT"/>
     </createTable>
   </changeSet>
 
   <changeSet id="RAD-2685_2" author="par">
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_wegweisende_beschilderung_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_wegweisende_beschilderung_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
 
-  <changeSet id="RAD-4721" author="par" >
+  <changeSet id="RAD-4721" author="par">
     <sql>
       CREATE INDEX konsistenzregel_verletzung_position_idx ON konsistenzregel_verletzung USING GIST (position);
  	    CREATE INDEX manueller_import_fehler_icon_position_idx ON manueller_import_fehler USING GIST (icon_position);
@@ -433,7 +435,7 @@
     </update>
   </changeSet>
 
-  <changeSet id="RAD-4867" author="par" >
+  <changeSet id="RAD-4867" author="par">
     <dropNotNullConstraint tableName="konsistenzregel_verletzung" columnName="original_geometry"/>
   </changeSet>
 
@@ -459,27 +461,27 @@
 
   <changeSet id="RAD-4815-2" author="mr">
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_barriere_points_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_barriere_points_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_barriere_lines_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_barriere_lines_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
 
   <changeSet id="RAD-4816-2" author="mr">
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_furt_kreuzung_points_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_furt_kreuzung_points_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_furt_kreuzung_lines_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_furt_kreuzung_lines_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
   

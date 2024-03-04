@@ -32,7 +32,6 @@ import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
-import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 
 class CSVExportConverterTest {
@@ -52,7 +51,7 @@ class CSVExportConverterTest {
 		List<ExportData> exportDataList = new ArrayList<>();
 		Point point = geometryFactory.createPoint(new Coordinate(100.0, 100.0));
 		LineString lineString = geometryFactory.createLineString(new Coordinate[] {
-				new Coordinate(100.0, 100.0), new Coordinate(200.0, 200.0)
+			new Coordinate(100.0, 100.0), new Coordinate(200.0, 200.0)
 		});
 		Geometry[] geometryArray = new Geometry[2];
 		geometryArray[0] = point;
@@ -82,7 +81,7 @@ class CSVExportConverterTest {
 		List<ExportData> exportDataList = new ArrayList<>();
 		Point point = geometryFactory.createPoint(new Coordinate(100.0, 100.0));
 		LineString lineString = geometryFactory.createLineString(new Coordinate[] {
-				new Coordinate(100.0, 100.0), new Coordinate(200.0, 200.0)
+			new Coordinate(100.0, 100.0), new Coordinate(200.0, 200.0)
 		});
 		Geometry[] geometryArray = new Geometry[2];
 		geometryArray[0] = point;

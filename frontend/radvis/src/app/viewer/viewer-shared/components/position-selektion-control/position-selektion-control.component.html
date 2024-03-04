@@ -27,13 +27,7 @@
 <div *ngIf="selectionMode && !disabled" class="display-flex justify-content-space-between p-10 mat-elevation-z3">
   <div class="hinweis mb-2">Ort auswählen</div>
 
-  <button
-    mat-raised-button
-    (click)="onSelektionBeenden()"
-    [disabled]="disabled"
-    *ngIf="selectionMode"
-    color="primary"
-  >
+  <button mat-raised-button (click)="onSelektionBeenden()" [disabled]="disabled" *ngIf="selectionMode" color="primary">
     Auswahl beenden
   </button>
 </div>

@@ -13,9 +13,9 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 
 @Component({
   selector: 'rad-kommentar-hinzufuegen',
@@ -23,17 +23,17 @@ import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
   styleUrls: ['./kommentar-hinzufuegen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KommentarHinzufuegenComponent implements DiscardGuard {
+export class KommentarHinzufuegenComponent implements DiscardableComponent {
   public static readonly KOMMENTAR_MAX_LENGTH = 4000;
 
   @Output()
   sendKommentar = new EventEmitter<string>();
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
 
   constructor() {
-    this.formGroup = new FormGroup({
-      kommentarText: new FormControl(
+    this.formGroup = new UntypedFormGroup({
+      kommentarText: new UntypedFormControl(
         null,
         RadvisValidators.maxLength(KommentarHinzufuegenComponent.KOMMENTAR_MAX_LENGTH)
       ),

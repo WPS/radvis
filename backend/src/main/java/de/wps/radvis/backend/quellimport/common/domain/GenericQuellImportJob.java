@@ -24,8 +24,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
 import org.hamcrest.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +35,7 @@ import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

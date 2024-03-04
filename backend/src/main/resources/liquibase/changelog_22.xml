@@ -20,21 +20,21 @@
 
 	<changeSet id="RAD-2122" author="ap">
 		<addColumn tableName="organisation">
-			<column name="ist_qualitaetsgesichert" type="BOOLEAN" />
+			<column name="ist_qualitaetsgesichert" type="BOOLEAN"/>
 		</addColumn>
 	</changeSet>
 	<changeSet id="RAD-2122-1" author="ap">
 		<addDefaultValue columnName="ist_qualitaetsgesichert"
-			defaultValueBoolean="false" tableName="organisation" />
+			defaultValueBoolean="false" tableName="organisation"/>
 	</changeSet>
 	<changeSet id="RAD-2167" author="par">
 		<addColumn tableName="kante">
 			<column name="is_grundnetz" type="BOOLEAN"
-				defaultValueBoolean="false" />
+				defaultValueBoolean="false"/>
 		</addColumn>
 		<addColumn tableName="kante_aud">
 			<column name="is_grundnetz" type="BOOLEAN"
-				defaultValueBoolean="false" />
+				defaultValueBoolean="false"/>
 		</addColumn>
 		<sql>
 			UPDATE kante
@@ -59,20 +59,20 @@
 	</changeSet>
 	<changeSet id="RAD-2169" author="par">
 		<dropView
-			viewName="kante_fuehrungsform_linearreferenzierteattribute_view" />
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"/>
 		<createView
 			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
 			replaceIfExists="true">SELECT id, geometry,
 			geloescht, quelle, fuehrungsform_attribut_gruppe_id, kanten_attributgruppe_id, is_grundnetz FROM kante
 		</createView>
 		<dropView
-			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view" />
+			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"/>
 		<createView
 			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"
 			replaceIfExists="true">SELECT id, geometry,
 			geloescht, quelle, zustaendigkeit_attributgruppe_id, kanten_attributgruppe_id, is_grundnetz FROM kante
 		</createView>
-		<dropView viewName="kante_geschwindigkeits_attribute_view" />
+		<dropView viewName="kante_geschwindigkeits_attribute_view"/>
 		<createView
 			viewName="kante_geschwindigkeits_attribute_view"
 			replaceIfExists="true">SELECT k.id, k.geometry,
@@ -81,7 +81,7 @@
 			kante k,
 			geschwindigkeit_attribut_gruppe g
 		</createView>
-		<dropView viewName="kante_kanten_attribute_view" />
+		<dropView viewName="kante_kanten_attribute_view"/>
 	</changeSet>
 	<changeSet id="RAD-2212" author="mr">
 		<sql>UPDATE organisation SET ist_qualitaetsgesichert=false WHERE
@@ -90,10 +90,10 @@
 	<changeSet id="RAD-2183" author="mr">
 		<renameColumn tableName="kante"
 			oldColumnName="auf_osm_gematchte_geometry"
-			newColumnName="auf_dlm_abgebildete_geometry" />
+			newColumnName="auf_dlm_abgebildete_geometry"/>
 		<renameColumn tableName="kante_aud"
 			oldColumnName="auf_osm_gematchte_geometry"
-			newColumnName="auf_dlm_abgebildete_geometry" />
+			newColumnName="auf_dlm_abgebildete_geometry"/>
 	</changeSet>
 	<changeSet id="RAD-2283" author="tir">
 		<createIndex tableName="kanten_mapping" indexName="kanten_mapping_grundnetz_kanten_id_idx">

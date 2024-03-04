@@ -17,6 +17,8 @@ package de.wps.radvis.backend.common.domain;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
@@ -33,10 +35,13 @@ public class MailConfigurationProperties {
 	private final String protocol;
 	private final boolean authenticationEnabled;
 	private final boolean startTlsEnabled;
+	private final List<String> wpsTestmails;
+	private final String wpsTestmailsRedirectTarget;
 
 	@ConstructorBinding
 	public MailConfigurationProperties(String host, int port, String sender, String radvisSupportMail, String protocol,
-		boolean authenticationEnabled, boolean startTlsEnabled) {
+		boolean authenticationEnabled, boolean startTlsEnabled, List<String> wpsTestmails,
+		String wpsTestmailsRedirectTarget) {
 		require(host, notNullValue());
 		require(sender, notNullValue());
 		require(radvisSupportMail, notNullValue());
@@ -48,5 +53,7 @@ public class MailConfigurationProperties {
 		this.protocol = protocol;
 		this.authenticationEnabled = authenticationEnabled;
 		this.startTlsEnabled = startTlsEnabled;
+		this.wpsTestmails = wpsTestmails;
+		this.wpsTestmailsRedirectTarget = wpsTestmailsRedirectTarget;
 	}
 }

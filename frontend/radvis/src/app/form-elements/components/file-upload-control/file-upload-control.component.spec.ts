@@ -35,13 +35,24 @@ describe(FileUploadControlComponent.name, () => {
     it('should update file name', () => {
       const fileName = 'test.gpg';
       component.writeValue(new File([], fileName));
-      expect(component.fileName).toEqual(fileName);
+      expect(component.formControl.value).toEqual(fileName);
     });
 
     it('should reset file name if no value', () => {
-      component.fileName = 'test';
+      component.formControl.setValue('test');
       component.writeValue(null);
-      expect(component.fileName).toBeFalsy();
+      expect(component.formControl.value).toBeFalsy();
+    });
+
+    it('should reset file input if no value', () => {
+      component.formControl.setValue('test');
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(new File([''], 'test'));
+      component.fileUploadInput!.nativeElement.files = dataTransfer.files;
+
+      component.writeValue(null);
+      expect(component.formControl.value).toBeFalsy();
+      expect(component.fileUploadInput?.nativeElement.value).toEqual('');
     });
   });
 
@@ -49,7 +60,7 @@ describe(FileUploadControlComponent.name, () => {
     describe('dateiendung', () => {
       it('should be valid if matching dateiEndung', () => {
         component.dateiEndung = 'gpg';
-        component.fileName = 'test.gpg';
+        component.formControl.setValue('test.gpg');
         expect(component.validate()).toBeNull();
       });
 
@@ -59,15 +70,41 @@ describe(FileUploadControlComponent.name, () => {
       });
 
       it('should be valid if no dateiEndung', () => {
-        component.fileName = 'test.gpg';
+        component.formControl.setValue('test.gpg');
         expect(component.validate()).toBeNull();
       });
 
       it('should be invalid if dateiEndung not matching', () => {
         component.dateiEndung = 'gpg';
-        component.fileName = 'test.blubb';
+        component.formControl.setValue('test.blubb');
         expect(component.validate()).not.toBeNull();
         expect(component.validate()?.fileNameMismatch).not.toBeUndefined();
+      });
+
+      describe('multiple Endungen allowed', () => {
+        it('should be valid if matching dateiEndung exists', () => {
+          component.dateiEndung = ['gpg', 'ddd'];
+          component.formControl.setValue('test.gpg');
+          expect(component.validate()).toBeNull();
+        });
+
+        it('should be valid if no file', () => {
+          component.dateiEndung = ['gpg', 'ddd'];
+          expect(component.validate()).toBeNull();
+        });
+
+        it('should be valid if empty List of dateiEndung', () => {
+          component.dateiEndung = [];
+          component.formControl.setValue('test.gpg');
+          expect(component.validate()).toBeNull();
+        });
+
+        it('should be invalid if no dateiEndung is matching', () => {
+          component.dateiEndung = ['gpg', 'ddd'];
+          component.formControl.setValue('test.blubb');
+          expect(component.validate()).not.toBeNull();
+          expect(component.validate()?.fileNameMismatch).not.toBeUndefined();
+        });
       });
     });
     describe('maxFileSize', () => {
@@ -101,7 +138,7 @@ describe(FileUploadControlComponent.name, () => {
       component.fileSizeInMB = 50.1;
       component.maxFileSizeInMB = 50;
       component.dateiEndung = 'gpg';
-      component.fileName = 'test.blubb';
+      component.formControl.setValue('test.blubb');
       expect(component.validate()).not.toBeNull();
       expect(component.validate()?.fileNameMismatch).not.toBeUndefined();
       expect(component.validate()?.fileSizeTooLarge).not.toBeUndefined();
@@ -112,7 +149,7 @@ describe(FileUploadControlComponent.name, () => {
     it('should update file name', () => {
       const fileName = 'test.gpg';
       component.onFileSelected({ target: { files: [new File([], fileName)] } });
-      expect(component.fileName).toEqual(fileName);
+      expect(component.formControl.value).toEqual(fileName);
     });
     it('should update file size', () => {
       const fileName = 'test.gpg';

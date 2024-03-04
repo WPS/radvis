@@ -214,8 +214,7 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 				ToubizFahrradrouteContactInformationErgebnisDto.class);
 		} catch (RestClientException e) {
 			log.error(
-				"RestClientException: Das Abrufen der Homepage ist fehlgeschlagen. Die Route wird ohne Homepage importiert");
-			log.error(e.getMessage());
+				"RestClientException: Das Abrufen der Homepage ist fehlgeschlagen. Die Route wird ohne Homepage importiert", e);
 		}
 		return ergebnis != null && ergebnis.getWebsite() != null ? ergebnis.getWebsite() : "";
 	}
@@ -236,8 +235,7 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 			ergebnis = restTemplate.getForObject(url, ToubizFahrradrouteEmailsErgebnisDto.class);
 		} catch (RestClientException e) {
 			log.error(
-				"RestClientException: Das Abrufen der Email ist fehlgeschlagen. Die Route wird ohne Mailadresse importiert");
-			log.error(e.getMessage());
+				"RestClientException: Das Abrufen der Email ist fehlgeschlagen. Die Route wird ohne Mailadresse importiert", e);
 		}
 
 		return ergebnis != null ? ergebnis.getFirstEmail() : null;

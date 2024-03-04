@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Color } from 'ol/color';
 import { Geometry, LineString } from 'ol/geom';
 import { Observable } from 'rxjs';
@@ -46,7 +46,7 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
 
   // eslint-disable-next-line prettier/prettier
   public override isFetching = false;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   public showRadNetzHinweis = false;
   selektierteKanten$: Observable<Kante[]>;
 
@@ -72,20 +72,20 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
     this.selektierteKanten$ = this.kanteSelektionService.selektierteKanten$;
   }
 
-  get geometryFormControls(): FormControl[] {
-    return (this.formGroup.get('geometries') as FormArray).controls as FormControl[];
+  get geometryFormControls(): UntypedFormControl[] {
+    return (this.formGroup.get('geometries') as UntypedFormArray).controls as UntypedFormControl[];
   }
 
-  get verlaufLinksFormControls(): FormControl[] {
-    return (this.formGroup.get('verlaeufeLinks') as FormArray).controls as FormControl[];
+  get verlaufLinksFormControls(): UntypedFormControl[] {
+    return (this.formGroup.get('verlaeufeLinks') as UntypedFormArray).controls as UntypedFormControl[];
   }
 
-  get verlaufRechtsFormControls(): FormControl[] {
-    return (this.formGroup.get('verlauefeRechts') as FormArray).controls as FormControl[];
+  get verlaufRechtsFormControls(): UntypedFormControl[] {
+    return (this.formGroup.get('verlauefeRechts') as UntypedFormArray).controls as UntypedFormControl[];
   }
 
-  get verlaufEinseitigFormControls(): FormControl[] {
-    return (this.formGroup.get('verlaeufeEinseitig') as FormArray).controls as FormControl[];
+  get verlaufEinseitigFormControls(): UntypedFormControl[] {
+    return (this.formGroup.get('verlaeufeEinseitig') as UntypedFormArray).controls as UntypedFormControl[];
   }
 
   get mindestensEinVerlaufFehlt(): boolean {
@@ -115,12 +115,12 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
     );
   }
 
-  private static createForm(): FormGroup {
-    return new FormGroup({
-      geometries: new FormArray([]),
-      verlaeufeLinks: new FormArray([]),
-      verlauefeRechts: new FormArray([]),
-      verlaeufeEinseitig: new FormArray([]),
+  private static createForm(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      geometries: new UntypedFormArray([]),
+      verlaeufeLinks: new UntypedFormArray([]),
+      verlauefeRechts: new UntypedFormArray([]),
+      verlaeufeEinseitig: new UntypedFormArray([]),
     });
   }
 
@@ -153,7 +153,7 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
   }
 
   getGeometryAtIndex(index: number): Geometry {
-    const kantenGeometrie = (this.formGroup.get('geometries') as FormArray).at(index).value as LineStringGeojson;
+    const kantenGeometrie = (this.formGroup.get('geometries') as UntypedFormArray).at(index).value as LineStringGeojson;
     return new LineString(kantenGeometrie.coordinates);
   }
 
@@ -189,22 +189,22 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
   }
 
   protected resetForm(selektion: KantenSelektion[]): void {
-    (this.formGroup.get('geometries') as FormArray).clear({ emitEvent: false });
-    (this.formGroup.get('verlaeufeLinks') as FormArray).clear({ emitEvent: false });
-    (this.formGroup.get('verlauefeRechts') as FormArray).clear({ emitEvent: false });
-    (this.formGroup.get('verlaeufeEinseitig') as FormArray).clear({ emitEvent: false });
+    (this.formGroup.get('geometries') as UntypedFormArray).clear({ emitEvent: false });
+    (this.formGroup.get('verlaeufeLinks') as UntypedFormArray).clear({ emitEvent: false });
+    (this.formGroup.get('verlauefeRechts') as UntypedFormArray).clear({ emitEvent: false });
+    (this.formGroup.get('verlaeufeEinseitig') as UntypedFormArray).clear({ emitEvent: false });
     selektion.forEach(kantenSelektion => {
-      (this.formGroup.get('geometries') as FormArray).push(new FormControl(kantenSelektion.kante.geometry), {
+      (this.formGroup.get('geometries') as UntypedFormArray).push(new UntypedFormControl(kantenSelektion.kante.geometry), {
         emitEvent: false,
       });
-      (this.formGroup.get('verlaeufeLinks') as FormArray).push(new FormControl(kantenSelektion.kante.verlaufLinks), {
+      (this.formGroup.get('verlaeufeLinks') as UntypedFormArray).push(new UntypedFormControl(kantenSelektion.kante.verlaufLinks), {
         emitEvent: false,
       });
-      (this.formGroup.get('verlauefeRechts') as FormArray).push(new FormControl(kantenSelektion.kante.verlaufRechts), {
+      (this.formGroup.get('verlauefeRechts') as UntypedFormArray).push(new UntypedFormControl(kantenSelektion.kante.verlaufRechts), {
         emitEvent: false,
       });
-      (this.formGroup.get('verlaeufeEinseitig') as FormArray).push(
-        new FormControl(kantenSelektion.kante.verlaufLinks),
+      (this.formGroup.get('verlaeufeEinseitig') as UntypedFormArray).push(
+        new UntypedFormControl(kantenSelektion.kante.verlaufLinks),
         {
           emitEvent: false,
         }
@@ -234,14 +234,14 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
     return this.netzService.saveKanteVerlauf(commands);
   }
 
-  private deleteVerlaufControlValues(formControls: FormControl[]): void {
+  private deleteVerlaufControlValues(formControls: UntypedFormControl[]): void {
     formControls.forEach(formControl => {
       formControl.patchValue(null);
       formControl.markAsDirty();
     });
   }
 
-  private updateVerlaufControls(promises: Promise<LineStringGeojson | null>[], formControls: FormControl[]): void {
+  private updateVerlaufControls(promises: Promise<LineStringGeojson | null>[], formControls: UntypedFormControl[]): void {
     Promise.all(promises).then(verlaeufe => {
       verlaeufe.forEach((verlauf, index) => {
         if (!formControls[index].value) {

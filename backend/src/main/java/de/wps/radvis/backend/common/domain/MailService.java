@@ -22,31 +22,35 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.mail.MailException;
+import org.springframework.mail.javamail.JavaMailSender;
+
 import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MailService {
 
-	private final List<String> wpsTestmails = List
-		.of("ls@wps.de", "jj@wps.de", "arne.scharping@wps.de", "paavo.guetschow@wps.de");
-
 	private final JavaMailSender mailSender;
-	private final MailConfigurationProperties mailConfigurationProperties;
+	private final String sender;
+	private final List<String> wpsTestmails;
+	private final String wpsTestmailsRedirectTarget;
 
-	public MailService(JavaMailSender mailSender, MailConfigurationProperties mailConfigurationProperties) {
+	public MailService(JavaMailSender mailSender, String sender, List<String> wpsTestmails,
+		String wpsTestmailsRedirectTarget) {
 		require(mailSender, notNullValue());
+		require(sender, notNullValue());
+		require(wpsTestmails, notNullValue());
+		require(wpsTestmailsRedirectTarget, notNullValue());
 
 		this.mailSender = mailSender;
-		this.mailConfigurationProperties = mailConfigurationProperties;
+		this.sender = sender;
+		this.wpsTestmails = wpsTestmails;
+		this.wpsTestmailsRedirectTarget = wpsTestmailsRedirectTarget;
 	}
 
 	public void sendMail(List<String> empfaenger, String betreff, String inhalt) {
@@ -60,20 +64,20 @@ public class MailService {
 	private void sendMail(List<String> empfaenger, String betreff, String inhalt, boolean sendAsHtml) {
 		MimeMessage msg = mailSender.createMimeMessage();
 		try {
-			msg.setFrom(convertMailAddress(mailConfigurationProperties.getSender()));
+			msg.setFrom(convertMailAddress(sender));
 			msg.setRecipients(RecipientType.TO, convertMailAddresses(empfaenger));
 			msg.setSubject(betreff);
 			if (sendAsHtml) {
 				msg.setContent(inhalt, "text/html; charset=UTF-8");
 			} else {
-				msg.setText(inhalt);
+				msg.setText(inhalt, "UTF-8");
 			}
 			mailSender.send(msg);
 			log.info("Mail an {} Empfänger versandt: '{}'", empfaenger.size(), betreff);
 		} catch (MessagingException e) {
-			log.error("Mail Inhalt konnte nicht gesetzt werden: " + e.getMessage(), e);
+			log.error("Mail Inhalt konnte nicht gesetzt werden", e);
 		} catch (MailException e) {
-			log.error("Mail konnte nicht versendet werden: " + e.getMessage(), e);
+			log.error("Mail konnte nicht versendet werden", e);
 		}
 	}
 
@@ -82,8 +86,7 @@ public class MailService {
 		addresses.forEach(e -> {
 			try {
 				result.add(new InternetAddress(
-					wpsTestmails.contains(e) ? "f2b2c37a.wps.de@emea.teams.ms" : e
-				));
+					wpsTestmails.contains(e) ? wpsTestmailsRedirectTarget : e));
 			} catch (AddressException ex) {
 				log.error("Mail-Empfänger konnte nicht hinzugefügt werden: " + e, ex);
 			}

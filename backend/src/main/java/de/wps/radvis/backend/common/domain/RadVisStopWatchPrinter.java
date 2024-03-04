@@ -16,26 +16,34 @@ package de.wps.radvis.backend.common.domain;
 
 import java.text.NumberFormat;
 import java.time.Duration;
+import java.util.Map;
 
 import org.springframework.util.StopWatch;
 import org.springframework.util.StopWatch.TaskInfo;
 
 public class RadVisStopWatchPrinter {
-	public static String stringify(StopWatch stopWatch) {
-		StringBuilder sb = new StringBuilder("\nTotal Time [hh:mm:ss]: ")
-			.append(printDuration(Duration.ofMillis(stopWatch.getTotalTimeMillis())));
+	public static String stringify(StopWatch stopWatch, Map<String, String> failedJobs) {
+		StringBuilder sb = new StringBuilder("\nTotal Time [hh:mm:ss]: ");
+		sb.append(printDuration(Duration.ofMillis(stopWatch.getTotalTimeMillis())));
 		sb.append('\n');
-		sb.append("---------------------------------------------\n");
-		sb.append("[hh:mm:ss]     %     Task name\n");
-		sb.append("---------------------------------------------\n");
+		sb.append("-----------------------------------------------------------------------\n");
+		sb.append("[hh:mm:ss]     %     Status      Task name\n");
+		sb.append("-----------------------------------------------------------------------\n");
 		NumberFormat percentFormat = NumberFormat.getPercentInstance();
 		percentFormat.setMinimumIntegerDigits(2);
 		for (TaskInfo task : stopWatch.getTaskInfo()) {
-			sb.append(" ").append(printDuration(Duration.ofMillis(task.getTimeMillis()))).append("   ");
-			sb.append(
-				percentFormat.format((double) task.getTimeNanos() / stopWatch.getTotalTimeNanos()))
-				.append("     ");
-			sb.append(task.getTaskName()).append('\n');
+			sb.append(" ");
+			sb.append(printDuration(Duration.ofMillis(task.getTimeMillis())));
+			sb.append("   ");
+			sb.append(percentFormat.format((double) task.getTimeNanos() / stopWatch.getTotalTimeNanos()));
+			sb.append("     ");
+			String status = failedJobs.containsKey(task.getTaskName())
+				? "FAILURE: " + failedJobs.get(task.getTaskName())
+				: "SUCCESS";
+			sb.append(status);
+			sb.append("     ");
+			sb.append(task.getTaskName());
+			sb.append('\n');
 		}
 		return sb.toString();
 	}

@@ -16,13 +16,12 @@ package de.wps.radvis.backend.fahrradroute.domain;
 
 import java.util.Optional;
 
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
+import jakarta.transaction.Transactional;
 
 public class RecreateFahrradrouteImportDiffViewJob extends AbstractJob {
 	private static final String JOB_NAME = "RecreateFahrradrouteImportDiffViewJob";

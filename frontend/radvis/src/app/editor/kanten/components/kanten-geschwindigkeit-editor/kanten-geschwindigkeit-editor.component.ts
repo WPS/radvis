@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Feature } from 'ol';
 import { LineString } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
@@ -33,7 +33,7 @@ import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-se
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import invariant from 'tiny-invariant';
@@ -54,7 +54,7 @@ export class KantenGeschwindigkeitEditorComponent
     GeschwindigkeitAttribute,
     GeschwindigkeitsAttributGruppe
   >
-  implements DiscardGuard, OnDestroy, OnInit {
+  implements DiscardableComponent, OnDestroy, OnInit {
   public ortslageOptions = KantenOrtslage.options;
   public hoechstgeschwindigkeitOptions = Hoechstgeschwindigkeit.options;
 
@@ -97,11 +97,11 @@ export class KantenGeschwindigkeitEditorComponent
     this.olMapService.removeLayer(this.stationierungsrichtungLayer);
   }
 
-  protected createDisplayedAttributeFormGroup(): FormGroup {
-    return new FormGroup({
-      ortslage: new FormControl(null),
-      hoechstgeschwindigkeit: new FormControl(null),
-      abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung: new FormControl(null),
+  protected createDisplayedAttributeFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      ortslage: new UntypedFormControl(null),
+      hoechstgeschwindigkeit: new UntypedFormControl(null),
+      abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung: new UntypedFormControl(null),
     });
   }
 

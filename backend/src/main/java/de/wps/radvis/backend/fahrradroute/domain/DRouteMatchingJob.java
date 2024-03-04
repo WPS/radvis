@@ -16,8 +16,6 @@ package de.wps.radvis.backend.fahrradroute.domain;
 
 import java.util.Optional;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 
@@ -34,6 +32,7 @@ import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteReposito
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradroutenMatchingAndRoutingInformation;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradroutenMatchingAndRoutingInformation.FahrradroutenMatchingAndRoutingInformationBuilder;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

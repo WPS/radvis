@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -40,12 +40,12 @@ import de.wps.radvis.backend.abstellanlage.domain.entity.AbstellanlageBRImportSt
 import de.wps.radvis.backend.abstellanlage.domain.entity.provider.AbstellanlageTestDataProvider;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlStellplaetze;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.ExterneAbstellanlagenId;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -109,7 +109,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			null,
 			null,
 			Ueberwacht.UNBEKANNT,
-			IstBikeAndRide.of(true),
+			AbstellanlagenOrt.BIKE_AND_RIDE,
 			null,
 			Stellplatzart.ANLEHNBUEGEL,
 			Ueberdacht.of(false),
@@ -119,8 +119,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			AbstellanlagenBeschreibung.of("Direkt neben Steig 1"),
 			AbstellanlagenWeitereInformation.of("nicht an dieser Stelle testen"),
 			AbstellanlagenStatus.AKTIV,
-			new DokumentListe()
-		);
+			new DokumentListe());
 
 		File fileToImport = new File("src/test/resources/BFRK_Fahrradanlage_1Eintrag.csv");
 		when(jobConfigurationProperties.getAbstellanlageBRImportUrlList()).thenReturn(List.of(
@@ -149,7 +148,8 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			.distance(anlageMitAttributenAusCsv.getGeometrie().getCoordinate()))
 			.isLessThan(0.1);
 
-		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik.get();
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
+			.get();
 		assertThat(abstellanlageBRImportStatistik.anzahlNeuErstellt).isEqualTo(1);
 	}
 
@@ -179,7 +179,8 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			.isLessThan(0.1);
 		assertThat(abstellanlagen.get(0).getId()).isEqualTo(mobiDataMitExtIdInCsv.getId());
 
-		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik.get();
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
+			.get();
 		assertThat(abstellanlageBRImportStatistik.anzahlGeupdated).isEqualTo(1);
 	}
 
@@ -208,7 +209,8 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			mobiDataMitExtIdNichtInCsv.getId());
 		assertThat(abstellanlagen.stream().map(AbstractEntity::getId)).contains(radvisMitExtIdNichtInCsv.getId());
 
-		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik.get();
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
+			.get();
 		assertThat(abstellanlageBRImportStatistik.anzahlGeloescht).isEqualTo(1);
 	}
 
@@ -234,6 +236,39 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
+	void doRun_ausCsvDatei_DatenquelleRadVIS_wirdIgnoriert() {
+		// arrange
+		File fileToImport = new File("src/test/resources/BFRK_Fahrradanlage_1EintragMobiData_1EintragRadVIS.csv");
+		when(jobConfigurationProperties.getAbstellanlageBRImportUrlList()).thenReturn(List.of(
+			fileToImport.toURI().toString()));
+
+		// act
+		Optional<JobStatistik> jobStatistik = abstellanlageBRImportJob.doRun();
+
+		// assert
+		List<Abstellanlage> abstellanlagen = StreamSupport.stream(abstellanlageRepository.findAll().spliterator(),
+				false)
+			.collect(Collectors.toList());
+		assertThat(abstellanlagen).hasSize(1);
+		assertThat(abstellanlagen.get(0))
+			.usingRecursiveComparison()
+			.usingOverriddenEquals()
+			.ignoringOverriddenEqualsForTypes(Abstellanlage.class)
+			.ignoringFields("id", "version", "geometrie", "dokumentListe", "weitereInformation")
+			.isEqualTo(anlageMitAttributenAusCsv);
+
+		assertThat(abstellanlagen.get(0).getDokumentListe().getDokumente()).isEmpty();
+		assertThat(abstellanlagen.get(0).getGeometrie().getCoordinate()
+			.distance(anlageMitAttributenAusCsv.getGeometrie().getCoordinate()))
+			.isLessThan(0.1);
+
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
+			.get();
+		assertThat(abstellanlageBRImportStatistik.anzahlNeuErstellt).isEqualTo(1);
+		assertThat(abstellanlageBRImportStatistik.anzahlRadVISAbstellanlagenUebersprungen).isEqualTo(1);
+	}
+
+	@Test
 	void koordinatenTransformFehlgeschlagen_nurEinEintragNichtGelesen() {
 		File fileToImport = new File("src/test/resources/BFRK_Fahrradanlage_2Eintrag_falscheKoordinaten.csv");
 		when(jobConfigurationProperties.getAbstellanlageBRImportUrlList()).thenReturn(List.of(
@@ -250,7 +285,69 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			false).collect(Collectors.toList());
 		assertThat(abstellanlagen).hasSize(1);
 
-		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik.get();
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
+			.get();
 		assertThat(abstellanlageBRImportStatistik.anzahlAbstellanlagenAttributmappingFehlerhaft).isEqualTo(1);
+	}
+
+	@Test
+	void doRun_ausCsvDatei_neuAnlegen_richtigeAttribute_falseQuotationMarksInCsv() {
+		/*
+		 * Wenn in der QuellCsvDatei steht: einige defekte Fahrräder dort ""vergessen"
+		 * Wird das eingelesen zu: einige defekte Fahrräder dort "vergessen
+		 * An dieser Stelle ist die CSV-Datei Fehlerhaft und am Ende fehlt das zweite
+		 * Anführungszeichen, wir müssen aber damit zurecht kommen koennen.
+		 */
+
+		// arrange
+		File fileToImport = new File("src/test/resources/BFRK_Fahrradanlage_1Eintrag_falseQuotation.csv");
+		when(jobConfigurationProperties.getAbstellanlageBRImportUrlList()).thenReturn(List.of(
+			fileToImport.toURI().toString()));
+
+		// act
+		Optional<JobStatistik> jobStatistik = abstellanlageBRImportJob.doRun();
+
+		// assert
+		Abstellanlage expectedAbstellanlage = new Abstellanlage(
+			GeometryTestdataProvider.createPoint(new Coordinate(583112.10, 5423680.94)),
+			AbstellanlagenBetreiber.of("Landratsamt Ostalbkreis"),
+			ExterneAbstellanlagenId.of("INFRA-de:08136:2042-FAHRRADANLAGE-1"),
+			AbstellanlagenQuellSystem.MOBIDATABW,
+			null,
+			AnzahlStellplaetze.of(16),
+			null,
+			null,
+			Ueberwacht.UNBEKANNT,
+			AbstellanlagenOrt.BIKE_AND_RIDE,
+			null,
+			Stellplatzart.ANLEHNBUEGEL,
+			Ueberdacht.of(false),
+			null,
+			null,
+			null,
+			AbstellanlagenBeschreibung.of("einige defekte Fahrräder dort \"vergessen"),
+			AbstellanlagenWeitereInformation.of("nicht an dieser Stelle testen"),
+			AbstellanlagenStatus.AKTIV,
+			new DokumentListe());
+
+		List<Abstellanlage> abstellanlagen = StreamSupport.stream(abstellanlageRepository.findAll().spliterator(),
+				false)
+			.collect(Collectors.toList());
+		assertThat(abstellanlagen).hasSize(1);
+		assertThat(abstellanlagen.get(0))
+			.usingRecursiveComparison()
+			.usingOverriddenEquals()
+			.ignoringOverriddenEqualsForTypes(Abstellanlage.class)
+			.ignoringFields("id", "version", "geometrie", "dokumentListe", "weitereInformation")
+			.isEqualTo(expectedAbstellanlage);
+
+		assertThat(abstellanlagen.get(0).getDokumentListe().getDokumente()).isEmpty();
+		assertThat(abstellanlagen.get(0).getGeometrie().getCoordinate()
+			.distance(expectedAbstellanlage.getGeometrie().getCoordinate()))
+			.isLessThan(0.1);
+
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
+			.get();
+		assertThat(abstellanlageBRImportStatistik.anzahlNeuErstellt).isEqualTo(1);
 	}
 }

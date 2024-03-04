@@ -33,7 +33,8 @@ class ZustandsbeschreibungTest {
 
 	@Test
 	void getValueAndToStringAreCorrect() {
-		assertThat(Zustandsbeschreibung.of("Eine \n gute \n Beschreibung").getValue()).isEqualTo("Eine \n gute \n Beschreibung");
+		assertThat(Zustandsbeschreibung.of("Eine \n gute \n Beschreibung").getValue()).isEqualTo(
+			"Eine \n gute \n Beschreibung");
 		assertThat(Zustandsbeschreibung.of("Eine \n gute \n Beschreibung")).hasToString("Eine \n gute \n Beschreibung");
 	}
 

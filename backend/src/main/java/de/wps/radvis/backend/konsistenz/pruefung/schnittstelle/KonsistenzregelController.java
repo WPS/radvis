@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +34,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.domain.KonsistenzregelVerletzun
 import de.wps.radvis.backend.konsistenz.pruefung.domain.entity.KonsistenzregelVerletzung;
 import de.wps.radvis.backend.konsistenz.pruefung.schnittstelle.view.KonsistenzregelView;
 import de.wps.radvis.backend.konsistenz.regeln.domain.Konsistenzregel;
+import jakarta.transaction.Transactional;
 
 @RestController
 @RadvisViewController

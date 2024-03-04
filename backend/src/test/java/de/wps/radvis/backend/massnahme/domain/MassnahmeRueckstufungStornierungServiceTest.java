@@ -116,7 +116,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			mailConfigurationProperties,
 			commonConfigurationProperties,
 			templateEngine);
-		when(commonConfigurationProperties.getBasisUrl()).thenReturn("basisUrl/");
+		when(commonConfigurationProperties.getBasisUrl()).thenReturn("basisUrl");
 
 		localDateTimeTestValue = LocalDateTime.of(2022, 2, 22, 0, 0);
 
@@ -256,7 +256,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 		verify(massnahmeService, times(1)).findByKanteIdInNetzBezug(eq(kante.getId()));
 		verify(massnahmeService, times(2)).findByKnotenIdInNetzBezug(anyLong());
 
-		String linkTemplate = "basisUrl/app/viewer/massnahmen/%s?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
+		String linkTemplate = "basisUrl/viewer/massnahmen/%s?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
 		assertThat(contextCaptor.getValue().getVariable("radvisLinks"))
 			.asList()
 			.containsExactlyInAnyOrder(
@@ -432,7 +432,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 
 		verify(templateEngine, times(1)).process(any(String.class), contextCaptor.capture());
 
-		String linkTemplate = "basisUrl/app/viewer/massnahmen/%s?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
+		String linkTemplate = "basisUrl/viewer/massnahmen/%s?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
 		assertThat(contextCaptor.getValue().getVariable("radvisLinks"))
 			.asList()
 			.containsExactlyInAnyOrder(

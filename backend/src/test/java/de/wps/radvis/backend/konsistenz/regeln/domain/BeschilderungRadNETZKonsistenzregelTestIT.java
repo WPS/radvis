@@ -33,6 +33,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisherSensitiveTest;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
@@ -85,7 +86,8 @@ import lombok.Setter;
 	@MockBean(LandesradfernwegeVariantenTfisImportJob.class),
 	@MockBean(FahrradroutenToubizImportJob.class),
 	@MockBean(WegweisendeBeschilderungConfigurationProperties.class),
-	@MockBean(OrganisationConfigurationProperties.class)
+	@MockBean(OrganisationConfigurationProperties.class),
+	@MockBean(MailService.class)
 })
 class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT implements
 	RadVisDomainEventPublisherSensitiveTest {

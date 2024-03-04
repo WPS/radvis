@@ -14,14 +14,13 @@
 
 package de.wps.radvis.backend.netz.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Subselect;
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 @Immutable

@@ -20,15 +20,14 @@ import static org.valid4j.Assertive.require;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +36,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Organisation extends Verwaltungseinheit {
+
 	@ManyToMany
 	@Getter
 	private Set<Gebietskoerperschaft> zustaendigFuerBereichOf;

@@ -26,6 +26,7 @@ import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
+import de.wps.radvis.backend.common.domain.service.ZipService;
 import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.common.schnittstelle.ExportConverterFactory;
@@ -45,6 +46,11 @@ public class CommonConfiguration {
 
 	@Autowired
 	CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
+
+	@Bean
+	public ZipService zipService() {
+		return new ZipService();
+	}
 
 	@Bean
 	public ShapeZipService shapeZipService() {

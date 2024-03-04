@@ -21,11 +21,11 @@ import { NetzService } from 'src/app/editor/editor-shared/services/netz.service'
 import { Kante } from 'src/app/editor/kanten/models/kante';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
-export abstract class AbstractAttributGruppeEditor implements DiscardGuard {
+export abstract class AbstractAttributGruppeEditor implements DiscardableComponent {
   public static readonly NICHT_BEARBEITBAR_HINWEIS =
     'In diesem Bereich ist das RadNETZ noch nicht zur Bearbeitung freigegeben';
   public NICHT_BEARBEITBAR_HINWEIS = AbstractAttributGruppeEditor.NICHT_BEARBEITBAR_HINWEIS;

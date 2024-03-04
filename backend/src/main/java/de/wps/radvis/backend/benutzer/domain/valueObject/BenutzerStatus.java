@@ -21,7 +21,9 @@ import lombok.NonNull;
 public enum BenutzerStatus {
 	// @formatter:off
 	AKTIV("Aktiv"),
-	INAKTIV("Inaktiv")
+	INAKTIV("Inaktiv"),
+	WARTE_AUF_FREISCHALTUNG("Warte auf Freischaltung"),
+    ABGELEHNT("Abgelehnt")
 	;
 	// @formatter:on
 

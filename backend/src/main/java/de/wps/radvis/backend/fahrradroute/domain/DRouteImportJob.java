@@ -21,12 +21,10 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
@@ -43,6 +41,7 @@ import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteReposito
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.DrouteId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

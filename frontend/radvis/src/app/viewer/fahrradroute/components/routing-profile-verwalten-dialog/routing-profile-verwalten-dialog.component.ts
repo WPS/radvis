@@ -13,20 +13,26 @@
  */
 
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidationErrors,
+} from '@angular/forms';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
-import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
-import { CustomRoutingProfile } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-// @ts-ignore
+import { CustomRoutingProfile } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
+import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
+// @ts-expect-error Migration von ts-ignore
 import { create } from 'custom-model-editor/src/index';
-import { BelagArt } from 'src/app/shared/models/belag-art';
-import { Beleuchtung } from 'src/app/editor/kanten/models/beleuchtung';
-import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
-import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberflaechenbeschaffenheit';
 import { Subscription } from 'rxjs';
-import { BarrierenForm } from 'src/app/viewer/barriere/models/barrieren-form';
+import { Beleuchtung } from 'src/app/editor/kanten/models/beleuchtung';
+import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberflaechenbeschaffenheit';
+import { BelagArt } from 'src/app/shared/models/belag-art';
+import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
+import { BarrierenForm } from 'src/app/viewer/barriere/models/barrieren-form';
 
 @Component({
   selector: 'rad-routing-profile-verwalten-dialog',
@@ -35,7 +41,7 @@ import { ManualRoutingService } from 'src/app/shared/services/manual-routing.ser
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoutingProfileVerwaltenDialogComponent implements AfterViewInit, OnDestroy {
-  public profileFormArray: FormArray;
+  public profileFormArray: UntypedFormArray;
   public disableAnimation = true;
 
   public saving = false;
@@ -52,7 +58,7 @@ export class RoutingProfileVerwaltenDialogComponent implements AfterViewInit, On
   ) {
     this.customProfileEditor = create(encodedValues, () => {});
 
-    this.profileFormArray = new FormArray([]);
+    this.profileFormArray = new UntypedFormArray([]);
     this.subscriptions.push(
       this.routingProfileService.profiles$.subscribe(profiles => {
         this.resetForm(profiles);
@@ -71,8 +77,8 @@ export class RoutingProfileVerwaltenDialogComponent implements AfterViewInit, On
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  public get formArrayAsFormGroupArray(): FormGroup[] {
-    return this.profileFormArray.controls as FormGroup[];
+  public get formArrayAsFormGroupArray(): UntypedFormGroup[] {
+    return this.profileFormArray.controls as UntypedFormGroup[];
   }
 
   public onDeleteProfile(atIndex: number): void {
@@ -127,11 +133,11 @@ export class RoutingProfileVerwaltenDialogComponent implements AfterViewInit, On
     this.manualRoutingService.openRoutingProfile();
   }
 
-  private createProfileFormGroup(): FormGroup {
-    return new FormGroup({
-      id: new FormControl(null),
-      name: new FormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-      profilJson: new FormControl('', [RadvisValidators.isNotNullOrEmpty, this.customProfileValidator]),
+  private createProfileFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      id: new UntypedFormControl(null),
+      name: new UntypedFormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      profilJson: new UntypedFormControl('', [RadvisValidators.isNotNullOrEmpty, this.customProfileValidator]),
     });
   }
 

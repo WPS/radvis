@@ -51,7 +51,7 @@ public abstract class AbstractNetzklasseEncodedValue {
 	}
 
 	public static void apply(EncodedValue encodedValue, ReaderWay way, String osmKey, IntsRef intsRef) {
-		if(way.hasTag(osmKey)) {
+		if (way.hasTag(osmKey)) {
 			boolean value = Boolean.parseBoolean(way.getTag(osmKey));
 			((SimpleBooleanEncodedValue) encodedValue).setBool(false, intsRef, value);
 		}

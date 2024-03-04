@@ -18,7 +18,7 @@ import de.wps.radvis.backend.leihstation.domain.valueObject.UrlAdresse;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class UrlAdresseUserType implements AttributeConverter<UrlAdresse, String> {
 
 	@Override

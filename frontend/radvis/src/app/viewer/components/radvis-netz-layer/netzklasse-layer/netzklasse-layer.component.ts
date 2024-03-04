@@ -217,7 +217,7 @@ export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
     });
     const olLayer = new VectorLayer({
       source: vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: (feature: FeatureLike, resolution: number): Style | Style[] => {
         const styles: Style | Style[] = getRadvisNetzStyleFunction()(feature, resolution);

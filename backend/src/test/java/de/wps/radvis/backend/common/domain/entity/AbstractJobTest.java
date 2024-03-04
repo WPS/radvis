@@ -157,5 +157,5 @@ class AbstractJobTest {
 		assertThat(result.getStatistic().contains("1")).isFalse();
 		verify(mockService, Mockito.only()).modifySomething();
 	}
-	
+
 }

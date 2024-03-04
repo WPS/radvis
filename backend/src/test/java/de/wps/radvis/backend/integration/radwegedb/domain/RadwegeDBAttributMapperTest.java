@@ -147,7 +147,7 @@ class RadwegeDBAttributMapperTest {
 			.contains(VereinbarungsKennung.of("Mit Gemeinde Ammerbuch"));
 		assertThat(zustaendigkeitAttribute.getLinearReferenzierterAbschnitt())
 			.usingComparator(LineareReferenzTestProvider.lenientComparator).isEqualTo(
-			LinearReferenzierterAbschnitt.of(0, 1));
+				LinearReferenzierterAbschnitt.of(0, 1));
 	}
 
 	@Test
@@ -169,7 +169,7 @@ class RadwegeDBAttributMapperTest {
 		assertThat(fuehrungsformAttribute.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.RADFAHRSTREIFEN);
 		assertThat(fuehrungsformAttribute.getLinearReferenzierterAbschnitt())
 			.usingComparator(LineareReferenzTestProvider.lenientComparator).isEqualTo(
-			LinearReferenzierterAbschnitt.of(0, 1));
+				LinearReferenzierterAbschnitt.of(0, 1));
 	}
 
 	@Test
@@ -191,7 +191,7 @@ class RadwegeDBAttributMapperTest {
 		assertThat(fuehrungsformAttribute.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.UNBEKANNT);
 		assertThat(fuehrungsformAttribute.getLinearReferenzierterAbschnitt())
 			.usingComparator(LineareReferenzTestProvider.lenientComparator).isEqualTo(
-			LinearReferenzierterAbschnitt.of(0, 1));
+				LinearReferenzierterAbschnitt.of(0, 1));
 		Mockito.verify(protokollServiceMock, times(1))
 			.handle(any(AttributNichtImportiertException.class), eq(RadwegeDBNetzbildungJob.class.getSimpleName()));
 	}

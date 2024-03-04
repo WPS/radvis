@@ -20,12 +20,6 @@ import static org.valid4j.Assertive.require;
 
 import java.util.Optional;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.barriere.domain.valueObject.BarriereBegruendung;
@@ -35,6 +29,11 @@ import de.wps.radvis.backend.barriere.domain.valueObject.Sicherung;
 import de.wps.radvis.backend.barriere.domain.valueObject.VerbleibendeDurchfahrtsbreite;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

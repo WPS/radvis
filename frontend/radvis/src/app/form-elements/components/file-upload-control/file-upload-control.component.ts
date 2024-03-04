@@ -22,9 +22,10 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import invariant from 'tiny-invariant';
+import { isArray } from 'rxjs/internal-compatibility';
 
 @Component({
   selector: 'rad-file-upload-control',
@@ -37,55 +38,88 @@ import invariant from 'tiny-invariant';
   ],
 })
 export class FileUploadControlComponent extends AbstractFormControl<File> implements OnChanges, Validator {
+  @ViewChild('fileUpload')
+  fileUploadInput?: ElementRef<HTMLInputElement>;
+
   @Input()
-  dateiEndung = '';
+  dateiEndung: string | string[] = '';
 
   @Input()
   maxFileSizeInMB: null | number = null;
 
-  @ViewChild('fileUpload', { read: ElementRef }) fileUploader: ElementRef | null = null;
+  @Input()
+  touchOnWrite = true;
+
+  @Input()
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
+
+  formControl: FormControl<string>;
 
   fileName: string | null = null;
   fileSizeInMB: number | null = null;
   disabled = false;
 
-  get acceptedFormat(): string {
+  get acceptedFormat(): string | string[] {
+    if (isArray(this.dateiEndung)) {
+      return this.dateiEndung.map(dE => '.' + dE);
+    }
+
     return this.dateiEndung === '' ? '' : '.' + this.dateiEndung;
   }
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
+    this.formControl = new FormControl('', { nonNullable: true });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.dateiEndung && !changes.dateiEndung.firstChange) {
       invariant('Erlaubte Datei-Endung darf nachträglich nicht geändert werden.');
     }
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
+    }
   }
 
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
+      this.formControl.setValue(file.name);
       this.fileName = file.name;
       this.fileSizeInMB = this.convertByteToMB(file.size);
       this.onChange(file);
     } else {
-      this.fileName = '';
+      this.formControl.setValue('');
     }
   }
 
   public writeValue(value: File | null): void {
-    if (value) {
+    if (value !== null) {
+      this.formControl.reset(value.name, { emitEvent: false });
       this.fileName = value.name;
-    } else if (this.fileUploader) {
-      this.fileName = '';
-      this.fileUploader.nativeElement.value = '';
+    } else {
+      this.formControl.reset('', { emitEvent: false });
+      this.fileName = null;
+      if (this.fileUploadInput) {
+        this.fileUploadInput.nativeElement.value = '';
+      }
+    }
+
+    if (this.touchOnWrite) {
+      this.formControl.markAsTouched();
     }
     this.changeDetector.markForCheck();
   }
 
-  public setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+  public setDisabledState(disabled: boolean): void {
+    this.disabled = disabled;
+    if (disabled) {
+      this.formControl.disable({ emitEvent: false });
+    } else {
+      this.formControl.enable({ emitEvent: false });
+    }
     this.changeDetector.markForCheck();
   }
 
@@ -93,11 +127,14 @@ export class FileUploadControlComponent extends AbstractFormControl<File> implem
     let fileNameMismatch;
     let fileSizeTooLarge;
 
-    if (this.fileName !== null) {
-      if (!this.fileName.endsWith(this.dateiEndung)) {
-        fileNameMismatch = 'Falscher Dateityp: Erlaubt ist ' + this.dateiEndung;
+    const value = this.formControl.value;
+    if (value) {
+      if (isArray(this.dateiEndung) && this.dateiEndung.length && !this.dateiEndung.some(dE => value.endsWith(dE))) {
+        fileNameMismatch = `Unerlaubter Dateityp: ${value}. Erlaubt sind ${this.dateiEndung.join(', ')}`;
+      } else if (!isArray(this.dateiEndung) && !value.endsWith(this.dateiEndung)) {
+        fileNameMismatch = `Unerlaubter Dateityp: ${value}. Erlaubt ist ${this.dateiEndung}`;
       }
-      if (this.fileName.length > 255) {
+      if (value.length > 255) {
         fileNameMismatch = 'Dateiname zu lang, erlaubt sind maximal 255 Zeichen';
       }
     }

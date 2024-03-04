@@ -16,10 +16,9 @@ package de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.usertype;
 
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.FahrradzaehlstelleGebietskoerperschaft;
 import jakarta.persistence.AttributeConverter;
-
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class FahrradzaehlstelleGebietskoerperschaftUserType implements
 	AttributeConverter<FahrradzaehlstelleGebietskoerperschaft, String> {
 

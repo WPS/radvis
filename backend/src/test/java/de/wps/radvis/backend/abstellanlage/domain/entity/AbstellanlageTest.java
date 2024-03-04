@@ -23,6 +23,7 @@ import org.valid4j.errors.RequireViolation;
 import de.wps.radvis.backend.abstellanlage.domain.entity.provider.AbstellanlageTestDataProvider;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlLademoeglichkeiten;
@@ -33,7 +34,6 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProJahr;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProTag;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Groessenklasse;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -44,8 +44,10 @@ class AbstellanlageTest {
 	@Test
 	void konstruktor_groessenklasseNurBeiBikeAndRide() {
 		assertThatExceptionOfType(RequireViolation.class).isThrownBy(
-			() -> AbstellanlageTestDataProvider.withDefaultValues().istBikeAndRide(IstBikeAndRide.of(false))
-				.groessenklasse(Groessenklasse.HOTSPOT_XL).build());
+			() -> AbstellanlageTestDataProvider.withDefaultValues()
+				.abstellanlagenOrt(AbstellanlagenOrt.SONSTIGES)
+				.groessenklasse(Groessenklasse.HOTSPOT_XL)
+				.build());
 	}
 
 	@Test
@@ -61,7 +63,7 @@ class AbstellanlageTest {
 					AnzahlSchliessfaecher.of(10),
 					AnzahlLademoeglichkeiten.of(2),
 					Ueberwacht.UNBEKANNT,
-					IstBikeAndRide.of(false),
+					AbstellanlagenOrt.SONSTIGES,
 					Groessenklasse.BASISANGEBOT_XXS,
 					Stellplatzart.FAHRRADBOX,
 					Ueberdacht.of(false),

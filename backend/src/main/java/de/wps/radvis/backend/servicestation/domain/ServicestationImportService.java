@@ -19,7 +19,6 @@ import static org.valid4j.Assertive.require;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +56,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBes
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
 
 public class ServicestationImportService
@@ -68,7 +68,8 @@ public class ServicestationImportService
 	private final String baseUrl;
 
 	public ServicestationImportService(ServicestationRepository servicestationRepository,
-		VerwaltungseinheitService verwaltungseinheitService, ZustaendigkeitsService zustaendigkeitsService, String baseUrl) {
+		VerwaltungseinheitService verwaltungseinheitService, ZustaendigkeitsService zustaendigkeitsService,
+		String baseUrl) {
 		super(Servicestation.CsvHeader.ALL, Servicestation.CsvHeader.RAD_VIS_ID);
 		this.servicestationRepository = servicestationRepository;
 		this.verwaltungseinheitService = verwaltungseinheitService;
@@ -78,16 +79,18 @@ public class ServicestationImportService
 
 	@Override
 	protected String createUrl(Servicestation savedServicestation) {
-		return baseUrl + "app" + FrontendLinks.servicestationDetails(savedServicestation.getId());
+		return baseUrl + FrontendLinks.servicestationDetails(savedServicestation.getId());
 	}
 
 	public CsvData importCsv(CsvData csvData, Benutzer benutzer) throws CsvImportException {
 		if (!benutzer.getRechte()
 			.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Servicestationen zu erstellen oder zu bearbeiten.");
+			throw new AccessDeniedException(
+				"Sie haben nicht die Berechtigung Servicestationen zu erstellen oder zu bearbeiten.");
 		}
 
-		return super.importCsv(csvData, (servicestationBuilder, row) -> this.mapAttributes(servicestationBuilder, row, benutzer));
+		return super.importCsv(csvData,
+			(servicestationBuilder, row) -> this.mapAttributes(servicestationBuilder, row, benutzer));
 	}
 
 	public Servicestation mapAttributes(ServicestationBuilder servicestationBuilder, Map<String, String> row,
@@ -95,6 +98,24 @@ public class ServicestationImportService
 		throws ServicestationAttributMappingException {
 
 		PreparedGeometry boundingArea = verwaltungseinheitService.getBundeslandBereichPrepared();
+
+		// QUELLSYSTEM
+		ServicestationenQuellSystem quellSystem;
+		try {
+			quellSystem = ServicestationenQuellSystem.fromString(
+				row.get(Servicestation.CsvHeader.QUELL_SYSTEM));
+		} catch (Exception exception) {
+			throw new ServicestationAttributMappingException(
+				"Quellsystem (" + row.get(Servicestation.CsvHeader.QUELL_SYSTEM)
+					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(ServicestationenQuellSystem.values())
+					.map(ServicestationenQuellSystem::toString).collect(Collectors.joining(", ")));
+		}
+		if (quellSystem.equals(ServicestationenQuellSystem.MOBIDATABW)) {
+			throw new ServicestationAttributMappingException(
+				"Servicestationen mit dem Quellsystem MobiDataBW können nicht über den manuellen CSV-Import importiert werden.");
+		} else {
+			servicestationBuilder.quellSystem(quellSystem);
+		}
 
 		// GEOMETRIE
 		try {
@@ -271,7 +292,7 @@ public class ServicestationImportService
 	@Override
 	protected Optional<ServicestationBuilder> getBuilderFromPosition(Geometry extractedPosition) {
 		require(extractedPosition.getGeometryType().equals(Geometry.TYPENAME_POINT), "Position muss ein Punkt sein");
-		return servicestationRepository.findByPosition((Point) extractedPosition)
+		return servicestationRepository.findByPositionAndQuellSystemRadvis((Point) extractedPosition)
 			.map(Servicestation::toBuilder);
 	}
 
@@ -282,7 +303,7 @@ public class ServicestationImportService
 
 	@Override
 	protected Optional<ServicestationBuilder> getBuilderFromId(long id) {
-		return servicestationRepository.findById(id)
+		return servicestationRepository.findByIdAndQuellSystem(id, ServicestationenQuellSystem.RADVIS)
 			.map(Servicestation::toBuilder);
 	}
 

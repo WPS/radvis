@@ -12,29 +12,31 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MockBuilder } from 'ng-mocks';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { skip } from 'rxjs/operators';
-import { EditorModule } from 'src/app/editor/editor.module';
 import { OrganisationenDropdownControlComponent } from 'src/app/shared/components/organisationen-dropdown-control/organisationen-dropdown-control.component';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { SharedModule } from 'src/app/shared/shared.module';
 
-describe('OrganisationenDropdownControlComponent', () => {
+describe(OrganisationenDropdownControlComponent.name, () => {
   let component: OrganisationenDropdownControlComponent;
-  let fixture: ComponentFixture<OrganisationenDropdownControlComponent>;
+  let fixture: MockedComponentFixture<OrganisationenDropdownControlComponent>;
 
   beforeEach(() => {
-    return MockBuilder(OrganisationenDropdownControlComponent, EditorModule);
+    return MockBuilder(OrganisationenDropdownControlComponent, SharedModule);
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(OrganisationenDropdownControlComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(OrganisationenDropdownControlComponent, ({
+      options: [],
+    } as unknown) as OrganisationenDropdownControlComponent);
+    component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
 
   describe('filterOptions', () => {
-    it('should filter options on type', (done: DoneFn) => {
+    it('should filter options on type', () => {
       component.options = [
         {
           id: 1,
@@ -59,9 +61,6 @@ describe('OrganisationenDropdownControlComponent', () => {
         },
       ];
 
-      component.ngOnChanges();
-
-      // der erste Wert wird übersprungen, da ngOnChanges mit startWith arbeitet
       component.filteredOptions$.pipe(skip(1)).subscribe(filtered => {
         expect(filtered).toEqual([
           {
@@ -79,13 +78,12 @@ describe('OrganisationenDropdownControlComponent', () => {
             aktiv: true,
           },
         ]);
-        done();
       });
 
       component.formControl.patchValue('Tes');
     });
 
-    it('should emit all if value null', (done: DoneFn) => {
+    it('should emit all if value null', () => {
       component.options = [
         {
           id: 1,
@@ -109,7 +107,6 @@ describe('OrganisationenDropdownControlComponent', () => {
           aktiv: true,
         },
       ];
-      component.ngOnChanges();
 
       component.formControl.patchValue('Tes');
 
@@ -137,12 +134,11 @@ describe('OrganisationenDropdownControlComponent', () => {
             aktiv: true,
           },
         ]);
-        done();
       });
       component.formControl.patchValue(null);
     });
 
-    it('should emit all if value is Organisation', (done: DoneFn) => {
+    it('should emit all if value is Organisation', () => {
       component.options = [
         {
           id: 1,
@@ -166,7 +162,6 @@ describe('OrganisationenDropdownControlComponent', () => {
           aktiv: true,
         },
       ];
-      component.ngOnChanges();
 
       component.formControl.patchValue('Tes');
 
@@ -194,25 +189,26 @@ describe('OrganisationenDropdownControlComponent', () => {
             aktiv: true,
           },
         ]);
-        done();
       });
       component.formControl.patchValue({
         id: 1,
         name: 'Test2',
         organisationsArt: OrganisationsArt.KREIS,
         idUebergeordneteOrganisation: 2,
+        aktiv: true,
       });
     });
   });
 
   describe('options input', () => {
-    it('should update filterOptions on changes', (done: DoneFn) => {
+    it('should update filterOptions on changes', () => {
       const onChangesSpy = spyOn(component, 'onChange').and.callFake(() => {});
-      const formValue = {
+      const formValue: Verwaltungseinheit = {
         id: 1,
         name: 'Test1',
         organisationsArt: OrganisationsArt.KREIS,
         idUebergeordneteOrganisation: 2,
+        aktiv: true,
       };
       component.writeValue(formValue);
       expect(onChangesSpy).not.toHaveBeenCalled();
@@ -241,17 +237,14 @@ describe('OrganisationenDropdownControlComponent', () => {
         },
       ];
 
-      component.ngOnChanges();
-
       component.filteredOptions$.subscribe(filteredOptions$ => {
         expect(filteredOptions$).toEqual(component.options);
         expect(onChangesSpy).not.toHaveBeenCalled();
         expect(component.formControl.value).toEqual(formValue);
-        done();
       });
     });
 
-    it('should consider current input', (done: DoneFn) => {
+    it('should consider current input', () => {
       const onChangesSpy = spyOn(component, 'onChange').and.callFake(() => {});
       const formValue = 'Tes';
       component.formControl.patchValue(formValue);
@@ -281,7 +274,7 @@ describe('OrganisationenDropdownControlComponent', () => {
         },
       ];
 
-      component.ngOnChanges();
+      component.ngOnInit();
 
       component.filteredOptions$.subscribe(filteredOptions$ => {
         expect(filteredOptions$).toEqual([
@@ -302,7 +295,6 @@ describe('OrganisationenDropdownControlComponent', () => {
         ]);
         expect(onChangesSpy).not.toHaveBeenCalled();
         expect(component.formControl.value).toEqual(formValue);
-        done();
       });
     });
   });

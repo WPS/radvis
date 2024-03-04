@@ -19,6 +19,10 @@ import static org.valid4j.Assertive.require;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
+import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
+import de.wps.radvis.backend.netz.domain.entity.AbstractNetzBezug;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
@@ -26,11 +30,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
-
-import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.entity.AbstractNetzBezug;
-import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

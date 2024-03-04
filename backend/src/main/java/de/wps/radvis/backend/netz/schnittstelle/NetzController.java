@@ -122,7 +122,8 @@ public class NetzController {
 	public KanteEditView getKanteEditView(@PathVariable("id") Long id, Authentication authentication) {
 		Kante kante = netzService.getKante(id);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		return new KanteEditView(kante, zustaendigkeitsService.istImZustaendigkeitsbereich(kante, benutzer));
+		return new KanteEditView(kante, zustaendigkeitsService.istImZustaendigkeitsbereich(kante, benutzer),
+			netzGuard.isLoeschenErlaubt(kante, benutzer));
 	}
 
 	@GetMapping("kanten/berechneNebenKante/{id}/{seite}")
@@ -192,12 +193,7 @@ public class NetzController {
 
 		netzService.aktualisiereKantenZweiseitig(zweiseitigkeitMap);
 
-		return netzService.getKanten(kanteIds)
-			.stream()
-			.map(kante -> new KanteEditView(kante,
-				zustaendigkeitsService.istImZustaendigkeitsbereich(kante,
-					benutzerResolver.fromAuthentication(authentication))))
-			.collect(Collectors.toList());
+		return createKantenEditViews(authentication, kanteIds);
 	}
 
 	@PostMapping(path = "kanten/saveVerlauf")
@@ -349,7 +345,7 @@ public class NetzController {
 	@PostMapping(path = "kanten/create")
 	@WithAuditing(context = AuditingContext.CREATE_KANTE_COMMAND)
 	public KanteEditView createKante(@RequestBody @Valid CreateKanteCommand command, Authentication authentication) {
-		this.netzGuard.createKante(command, authentication);
+		netzGuard.createKante(command, authentication);
 
 		Kante kante;
 		if (Objects.isNull(command.getBisKnotenId())) {
@@ -362,7 +358,8 @@ public class NetzController {
 		}
 
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		return new KanteEditView(kante, zustaendigkeitsService.istImZustaendigkeitsbereich(kante, benutzer));
+		return new KanteEditView(kante, zustaendigkeitsService.istImZustaendigkeitsbereich(kante, benutzer),
+			netzGuard.isLoeschenErlaubt(kante, benutzer));
 	}
 
 	@PostMapping(path = "knoten/save")
@@ -390,11 +387,12 @@ public class NetzController {
 	 */
 	@DeleteMapping("kante/{id}")
 	@WithAuditing(context = AuditingContext.DELETE_KANTE)
-	public void deleteRadVISKanteById(@PathVariable("id") Long id) {
+	public void deleteRadVISKanteById(@PathVariable("id") Long id, Authentication authentication) {
 		if (!FeatureTogglz.KANTE_LOESCHEN_ENDPUNKT.isActive()) {
 			throw new AccessDeniedException(
 				"Diese Funktion ist derzeit deaktiviert.");
 		}
+		netzGuard.deleteRadVISKanteById(id, authentication);
 
 		Kante kante = netzService.getKante(id);
 		if (kante.getQuelle().equals(QuellSystem.RadVis)) {
@@ -405,12 +403,12 @@ public class NetzController {
 				kante.getId());
 		}
 	}
-
 	/*
 	 * Dieser Endpunkt wird nicht im RadVIS-Frontend aufgerufen. Er ist zur aktualisierung der Materialized Views
 	 *  durch Entwickler:innen da und kann z.B. ueber curl angesprochen werden. Dabei muessen die Authorization, die SessionID
 	 * und ein XSRF-TOKEN aus einer anderen Anfrage im Browser herausgefunden werden (analog zu Kante loeschen)
 	 */
+
 	@GetMapping(path = "refreshMatViews")
 	public void refreshRadVisNetzMaterializedViews(Authentication authentication) {
 		if (!FeatureTogglz.REFRESH_MATERIALIZED_VIEWS_ENDPUNKT.isActive()) {
@@ -421,16 +419,18 @@ public class NetzController {
 		netzGuard.refreshRadVisNetzMaterializedViews(authentication);
 
 		log.info("RefreshRadVisNetzMaterializedViews Endpunkt getriggert.");
-		netzService.refreshRadVisNetzMaterializedViews();
+		netzService.refreshNetzMaterializedViews();
 		log.info("RefreshRadVisNetzMaterializedViews Endpunkt Done.");
 	}
 
 	private List<KanteEditView> createKantenEditViews(Authentication authentication, Set<Long> kanteIds) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 		return netzService
 			.getKanten(kanteIds).stream()
-			.map(kante -> new KanteEditView(kante,
-				zustaendigkeitsService.istImZustaendigkeitsbereich(kante,
-					benutzerResolver.fromAuthentication(authentication))))
+			.map(kante -> new KanteEditView(
+				kante,
+				zustaendigkeitsService.istImZustaendigkeitsbereich(kante, benutzer),
+				netzGuard.isLoeschenErlaubt(kante, benutzer)))
 			.collect(Collectors.toList());
 	}
 

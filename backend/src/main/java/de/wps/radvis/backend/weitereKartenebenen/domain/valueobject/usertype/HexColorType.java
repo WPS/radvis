@@ -15,11 +15,10 @@
 package de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.usertype;
 
 import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.HexColor;
-
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class HexColorType implements AttributeConverter<HexColor, String> {
 
 	@Override

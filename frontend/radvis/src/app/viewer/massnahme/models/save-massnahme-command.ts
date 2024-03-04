@@ -35,7 +35,7 @@ export interface SaveMassnahmeCommand {
   prioritaet: number | null;
   kostenannahme: number | null;
   netzklassen: Netzklasse[];
-  markierungsZustaendigerId: number | null;
+  zustaendigerId: number;
   unterhaltsZustaendigerId: number | null;
   maViSID: string | null;
   verbaID: string | null;

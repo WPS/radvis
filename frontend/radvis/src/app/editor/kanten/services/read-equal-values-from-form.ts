@@ -13,13 +13,13 @@
  */
 
 /* eslint-disable @typescript-eslint/dot-notation */
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import {
   UndeterminedInvalidValue,
   UndeterminedValue,
 } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 
-export const readEqualValuesFromForm = (form: FormGroup): { [id: string]: any } => {
+export const readEqualValuesFromForm = (form: UntypedFormGroup): { [id: string]: any } => {
   const formKeys = Object.keys(form.value);
   const result: { [id: string]: any } = {};
   formKeys.forEach(key => {

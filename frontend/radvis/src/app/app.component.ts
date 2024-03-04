@@ -15,13 +15,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, NavigationError, Params, Router } from '@angular/router';
+import { ActivatedRoute, IsActiveMatchOptions, NavigationError, Params, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
+import { ImportRoutes } from 'src/app/import/models/import-routes';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { RadnetzMatchingRoutingService } from 'src/app/radnetzmatching/services/radnetz-matching-routing.service';
+import { VerwaltungZugangsdatenComponent } from 'src/app/shared/components/verwaltung-zugangsdaten/verwaltung-zugangsdaten.component';
+import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
 import { MapQueryParams } from 'src/app/shared/models/map-query-params';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
@@ -31,7 +34,6 @@ import { ManualRoutingService } from 'src/app/shared/services/manual-routing.ser
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { InfoComponent } from './info/info.component';
-import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
 
 @Component({
   selector: 'rad-root',
@@ -45,6 +47,7 @@ export class AppComponent {
   public viewerRoute = VIEWER_ROUTE;
   public radnetzMatchingRoute = RadnetzMatchingRoutingService.RADNETZ_MATCHING_ROUTE;
   public editorRoute = EditorRoutingService.EDITOR_ROUTE;
+  public importRoute = ImportRoutes.IMPORT_ROUTE;
 
   public administrationBenutzerRoute = AdministrationRoutingService.ADMINISTRATION_BENUTZER_ROUTE;
   public administrationOrganisationRoute = AdministrationRoutingService.ADMINISTRATION_ORGANISATION_ROUTE;
@@ -61,10 +64,17 @@ export class AppComponent {
   public benutzerOrganisation?: string;
   public ladend$: Observable<boolean>;
   public canBenutzerEdit: boolean;
+  public hasBenutzerImportRecht: boolean;
+  routerLinkActiveOptions: IsActiveMatchOptions = {
+    paths: 'subset',
+    queryParams: 'ignored',
+    fragment: 'ignored',
+    matrixParams: 'ignored',
+  };
 
   constructor(
     private router: Router,
-    private activatedRoute: ActivatedRoute,
+    activatedRoute: ActivatedRoute,
     mapQueryParamsService: MapQueryParamsService,
     ladeZustandService: LadeZustandService,
     private benutzerDetailsService: BenutzerDetailsService,
@@ -95,6 +105,7 @@ export class AppComponent {
     this.benutzerVorname = benutzerDetailsService.aktuellerBenutzerVorname();
     this.benutzerOrganisation = benutzerDetailsService.aktuellerBenutzerOrganisationName();
     this.canBenutzerEdit = benutzerDetailsService.canEdit();
+    this.hasBenutzerImportRecht = benutzerDetailsService.canBenutzerImport();
     router.events.pipe(filter(e => e instanceof NavigationError)).subscribe(e => {
       errorHandlingService.handleError(
         (e as NavigationError).error,
@@ -117,20 +128,8 @@ export class AppComponent {
     return this.featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_VORDEFINIERTE_EXPORTE);
   }
 
-  get viewerActive(): boolean {
-    return this.checkActive(this.viewerRoute);
-  }
-
-  get radnetzMatchingActive(): boolean {
-    return this.checkActive(this.radnetzMatchingRoute);
-  }
-
-  get editorActive(): boolean {
-    return this.checkActive(this.editorRoute);
-  }
-
-  get auswertungActive(): boolean {
-    return this.checkActive(this.auswertungRoute);
+  get isBasicAuthZugangsdatenVerwaltenToggleOn(): boolean {
+    return this.featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_BASIC_AUTH_VERWALTEN_ANZEIGEN);
   }
 
   logout(): void {
@@ -152,12 +151,7 @@ export class AppComponent {
     this.manualRoutingService.openManual();
   }
 
-  private checkActive(route: string): boolean {
-    return this.router.isActive(route, {
-      paths: 'subset',
-      queryParams: 'ignored',
-      fragment: 'ignored',
-      matrixParams: 'ignored',
-    });
+  openVerwaltungZugangsdaten(): void {
+    this.dialog.open(VerwaltungZugangsdatenComponent);
   }
 }

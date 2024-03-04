@@ -14,10 +14,10 @@
 
 package de.wps.radvis.backend.manuellerimport.common.domain.service;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.manuellerimport.common.domain.exception.GeometryTypeMismatchException;
 

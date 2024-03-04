@@ -18,7 +18,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class VereinbarungsKennungUserType implements AttributeConverter<VereinbarungsKennung, String> {
 
 	@Override

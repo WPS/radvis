@@ -27,7 +27,7 @@ public interface ImportSessionRepository {
 
 	boolean exists(Benutzer benutzer);
 
-	Optional<AbstractImportSession> find(Benutzer benutzer);
+	public <T extends AbstractImportSession> Optional<T> find(Benutzer benutzer, Class<T> sessionClass);
 
 	void clear();
 }

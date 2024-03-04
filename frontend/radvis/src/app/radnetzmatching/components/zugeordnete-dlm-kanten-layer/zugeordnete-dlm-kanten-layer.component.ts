@@ -69,7 +69,7 @@ export class ZugeordneteDlmKantenLayerComponent implements OnDestroy {
   private createLayer(): VectorLayer {
     return new VectorLayer({
       source: this.vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.zugeordneteDlmKantenLayer.style,
       minZoom: this.zugeordneteDlmKantenLayer.minZoom,

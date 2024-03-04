@@ -217,6 +217,7 @@ public class MassnahmeConfiguration {
 	}
 
 	@Bean
+	@SuppressWarnings("deprecation")
 	public MassnahmenImportJob massnahmenImportJob() {
 		Path shpFileFolderRoot = Paths.get(commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getRadnetzMassnahmenImportPath());
@@ -244,6 +245,7 @@ public class MassnahmeConfiguration {
 	}
 
 	@Bean
+	@SuppressWarnings("deprecation")
 	public MassnahmenMappingService massnahmenMappingService() {
 		return new MassnahmenMappingService(verwaltungseinheitService);
 	}

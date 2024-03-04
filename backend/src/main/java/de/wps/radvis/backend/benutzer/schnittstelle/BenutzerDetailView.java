@@ -28,33 +28,31 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BenutzerDetailView {
 
-	@Getter
 	private boolean registriert;
 
-	@Getter
 	private String name;
 
-	@Getter
 	private String vorname;
 
-	@Getter
+	private String basicAuthAnmeldename;
+
 	private VerwaltungseinheitView organisation;
 
-	@Getter
 	private Set<Recht> rechte;
 
-	@Getter
-	private boolean aktiv;
+	private BenutzerStatus status;
 
 	public BenutzerDetailView(Benutzer benutzer) {
 		registriert = true;
-		aktiv = benutzer.getStatus() == BenutzerStatus.AKTIV;
+		status = benutzer.getStatus();
 		name = benutzer.getNachname().getValue();
 		vorname = benutzer.getVorname().getValue();
+		basicAuthAnmeldename = benutzer.getBasicAuthAnmeldeName();
 		organisation = new VerwaltungseinheitView(benutzer.getOrganisation());
 		rechte = benutzer.getRollen().stream()
 			.map(Rolle::getRechte)

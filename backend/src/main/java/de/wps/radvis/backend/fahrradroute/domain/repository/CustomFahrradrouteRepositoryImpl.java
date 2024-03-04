@@ -20,7 +20,6 @@ import java.time.temporal.ChronoUnit;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

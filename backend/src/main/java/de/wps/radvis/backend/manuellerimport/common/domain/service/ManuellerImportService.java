@@ -50,16 +50,20 @@ public class ManuellerImportService {
 
 	public ManuellerImportService(@NonNull ImportSessionRepository importSessionRepository,
 		ShapeZipService shapeZipService, ShapeFileRepository shapeFileRepository,
-		ManuellerImportFehlerRepository manuellerImportFehlerRepository
-	) {
+		ManuellerImportFehlerRepository manuellerImportFehlerRepository) {
 		this.shapeFileRepository = shapeFileRepository;
 		this.shapeZipService = shapeZipService;
 		this.importSessionRepository = importSessionRepository;
 		this.manuellerImportFehlerRepository = manuellerImportFehlerRepository;
 	}
 
-	public Optional<AbstractImportSession> findImportSessionFromBenutzer(Benutzer benutzer) {
-		return importSessionRepository.find(benutzer);
+	public <T extends AbstractImportSession> Optional<T> findImportSessionFromBenutzer(Benutzer benutzer,
+		Class<T> sessionClass) {
+		return importSessionRepository.find(benutzer, sessionClass);
+	}
+
+	public boolean importSessionExists(Benutzer benutzer) {
+		return importSessionRepository.exists(benutzer);
 	}
 
 	public void saveImportSession(AbstractImportSession importSession) {
@@ -95,12 +99,9 @@ public class ManuellerImportService {
 	}
 
 	public void deleteIfExists(Benutzer benutzer) {
-		Optional<AbstractImportSession> importSession = importSessionRepository.find(benutzer);
-		if (importSession.isPresent()) {
+		if (importSessionExists(benutzer)) {
 			importSessionRepository.delete(benutzer);
-			log.info("ImportSession beendet. SessionTyp/Benutzer-Id: {}/{}",
-				importSession.get().getClass().getSimpleName(),
-				importSession.get().getBenutzer().getId());
+			log.info("ImportSession beendet. Benutzer-Id: {}", benutzer.getId());
 		}
 	}
 

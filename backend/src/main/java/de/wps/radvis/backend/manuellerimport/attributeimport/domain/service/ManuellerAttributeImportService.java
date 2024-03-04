@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.scheduling.annotation.Async;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
@@ -52,7 +52,6 @@ import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImpo
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AttributeImportFormat;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
@@ -90,23 +89,19 @@ public class ManuellerAttributeImportService {
 		this.manuellerImportFehlerRepository = manuellerImportFehlerRepository;
 	}
 
-	public AttributeImportSession getAttributeImportSession(Benutzer benutzer) {
-		Optional<AbstractImportSession> importSession = manuellerImportService.findImportSessionFromBenutzer(benutzer);
-
-		if (importSession.isEmpty() || !(importSession.get() instanceof AttributeImportSession)) {
-			throw new RuntimeException("Keine AttributeImportSession für den Benutzer verfügbar");
-		}
-
-		return (AttributeImportSession) importSession.get();
+	public Optional<AttributeImportSession> getAttributeImportSession(Benutzer benutzer) {
+		return manuellerImportService.findImportSessionFromBenutzer(benutzer, AttributeImportSession.class);
 	}
 
 	@Async
 	public void runAutomatischeAbbildung(AttributeImportSession session, File shpDirectory) {
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_RUNNING);
+		session.setSchritt(AttributeImportSession.AUTOMATISCHE_ABBILDUNG);
+		session.setExecuting(true);
 
 		try (Stream<SimpleFeature> features = this.shapeFileRepository
 			.readShape(zipService.getShapeFileFromDirectory(shpDirectory).orElseThrow(
-				() -> new RuntimeException("Directory " + shpDirectory.getName() + " enthält keine .shp Datei")))) {
+				() -> new RuntimeException(
+					"Directory " + shpDirectory.getName() + " enthält keine .shp Datei")))) {
 
 			AtomicInteger numberOfNullGeometries = new AtomicInteger();
 			List<SimpleFeature> featuresInBereich = features
@@ -118,12 +113,11 @@ public class ManuellerAttributeImportService {
 						return true;
 					}
 				})
-				.filter(feature -> session.getOrganisation().getBereich()
-					.map(bereich -> bereich.intersects(CoordinateReferenceSystemConverterUtility.transformGeometry(
+				.filter(feature -> session.getBereich()
+					.intersects(CoordinateReferenceSystemConverterUtility.transformGeometry(
 						(Geometry) feature.getDefaultGeometry(),
 						KoordinatenReferenzSystem.ETRS89_UTM32_N)))
-					.orElse(false)
-				).collect(Collectors.toList());
+				.collect(Collectors.toList());
 
 			if (numberOfNullGeometries.get() > 0) {
 				session.addLogEintrag(
@@ -135,7 +129,7 @@ public class ManuellerAttributeImportService {
 			if (featuresInBereich.isEmpty()) {
 				session.addLogEintrag(
 					ImportLogEintrag.ofWarnung("Shapefile enthält keine Features im Bereich der Organisation "
-						+ session.getOrganisation().getName()));
+						+ session.getBereichName()));
 			}
 
 			session.setAktuellerImportSchritt(AutomatischerImportSchritt.ABBILDUNG_AUF_RADVIS_NETZ);
@@ -159,7 +153,13 @@ public class ManuellerAttributeImportService {
 			if (shpDirectory != null) {
 				zipService.deleteUploadedFiles(shpDirectory);
 			}
-			session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+			if (session.hatFehler()) {
+				session.setSchritt(AttributeImportSession.AUTOMATISCHE_ABBILDUNG);
+			} else {
+				session.setSchritt(AttributeImportSession.ABBILDUNG_BEARBEITEN);
+			}
+
+			session.setExecuting(false);
 		}
 	}
 
@@ -167,9 +167,10 @@ public class ManuellerAttributeImportService {
 	@WithAuditing(context = AuditingContext.MANUELLER_ATTRIBUTE_IMPORT)
 	@Transactional
 	public void runUpdate(AttributeImportSession session) {
-		require(session.getStatus() == ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE,
-			"Eine Session darf nur nach der automatischen Abbildung und nur einmal ausgeführt werden");
-		session.setStatus(ImportSessionStatus.UPDATE_EXECUTING);
+		require(session.getSchritt().equals(AttributeImportSession.IMPORT_ABSCHLIESSEN),
+			"Eine Session darf nur nach dem Abschluss der Bearbeitung ausgeführt werden");
+		require(!session.isExecuting(), "Die Session wird bereits ausgeführt!");
+		session.setExecuting(true);
 		LocalDateTime importZeitpunkt = LocalDateTime.now();
 
 		AttributeImportKonfliktProtokoll attributeImportKonfliktProtokoll = new AttributeImportKonfliktProtokoll();
@@ -186,8 +187,8 @@ public class ManuellerAttributeImportService {
 					.map(fm -> new ManuellerImportFehler(
 						CoordinateReferenceSystemConverterUtility.transformGeometry(
 							fm.getImportedLineString(),
-							KoordinatenReferenzSystem.ETRS89_UTM32_N)
-						, ImportTyp.ATTRIBUTE_UEBERNEHMEN, importZeitpunkt,
+							KoordinatenReferenzSystem.ETRS89_UTM32_N),
+						ImportTyp.ATTRIBUTE_UEBERNEHMEN, importZeitpunkt,
 						session.getBenutzer(),
 						session.getOrganisation()))
 					.collect(Collectors.toList()));
@@ -203,17 +204,19 @@ public class ManuellerAttributeImportService {
 					.map(Optional::get)
 					.collect(Collectors.toList()));
 
-			session.setStatus(ImportSessionStatus.UPDATE_DONE);
+			session.setSchritt(AbstractImportSession.CLOSED);
 		} catch (OptimisticLockException e) {
-			session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 			throw new OptimisticLockException(
 				"Kanten in der Organisation wurden während des Speicherns aus einer anderen Quelle verändert."
 					+ " Bitte versuchen Sie es erneut.");
 		} catch (Throwable e) {
 			session.addLogEintrag(
 				ImportLogEintrag.ofError("Es ist ein unerwarteter Fehler aufgetreten."));
-			session.setStatus(ImportSessionStatus.UPDATE_DONE);
+			session.setSchritt(AbstractImportSession.CLOSED);
 			throw e;
+		} finally {
+			log.info("runUpdate done");
+			session.setExecuting(false);
 		}
 	}
 
@@ -241,8 +244,8 @@ public class ManuellerAttributeImportService {
 
 						boolean areWerteValid = ungueltigeAttributWerte.isEmpty();
 
-						// Hier zunächst alle Attribute einzeln, Gruppierung erfolgt im collect, deshalb nur
-						// attributName & isValid interessant
+						// Hier zunächst alle Attribute einzeln, Gruppierung erfolgt im collect, deshalb
+						// nur attributName & isValid interessant
 						return ImportierbaresAttribut.of(attrName, mapper.getRadVisAttributName(attrName), attrName,
 							areWerteValid, ungueltigeAttributWerte);
 					} catch (IOException e) {
@@ -251,9 +254,12 @@ public class ManuellerAttributeImportService {
 						attributWerte.close();
 					}
 				}).collect(Collectors.groupingBy(attr -> mapper.getImportGruppe(attr.getAttributName()),
-					// Für alle ImportierbarenAttribute einer Gruppe, wollen wir die Namen konkatenieren und die Validität ver"und"en.
-					// Am Ende haben wir nur ein Importierbares Attribut für jede Gruppe und holen uns nur für das "Hauptattribut" der ImportGruppe den Namen
-					// (z.B.: "BREITST, ST, BREITST2" (displayName) -> "Sicherheitstrennstreifeninformationen" (RadVIS-Name).
+					// Für alle ImportierbarenAttribute einer Gruppe, wollen wir die Namen
+					// konkatenieren und die Validität ver"und"en.
+					// Am Ende haben wir nur ein Importierbares Attribut für jede Gruppe und holen
+					// uns nur für das "Hauptattribut" der ImportGruppe den Namen
+					// (z.B.: "BREITST, ST, BREITST2" (displayName) ->
+					// "Sicherheitstrennstreifeninformationen" (RadVIS-Name).
 					Collectors.reducing((next, curr) -> {
 						String importGruppe = mapper.getImportGruppe(next.getAttributName());
 						return ImportierbaresAttribut.of(
@@ -261,9 +267,11 @@ public class ManuellerAttributeImportService {
 							mapper.getRadVisAttributName(importGruppe),
 							next.getAttributDisplayName() + ", " + curr.getAttributDisplayName(),
 							next.isValid() && curr.isValid(),
-							Stream.concat(next.getUngueltigeWerte().stream(), curr.getUngueltigeWerte().stream())
+							Stream.concat(next.getUngueltigeWerte().stream(),
+									curr.getUngueltigeWerte().stream())
 								.collect(Collectors.toSet()));
-					}))).values().stream().filter(Optional::isPresent).map(Optional::get).toList();
+					})))
+				.values().stream().filter(Optional::isPresent).map(Optional::get).toList();
 
 			return result;
 		} finally {
@@ -283,5 +291,11 @@ public class ManuellerAttributeImportService {
 		manuellerAttributeImportAbbildungsService.rematchFeaturemapping(featureMapping, session.getOrganisation());
 
 		return featureMapping;
+	}
+
+	public void bearbeitungAbschliessen(AttributeImportSession session) {
+		require(session.getSchritt().equals(AttributeImportSession.ABBILDUNG_BEARBEITEN),
+			"Die Bearbeitung darf nur nach der Automatischen Abbildung erfolgen");
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 	}
 }

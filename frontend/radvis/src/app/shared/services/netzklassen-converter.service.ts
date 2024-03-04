@@ -12,23 +12,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { NetzklasseFlat, NetzklasseFlatUndertermined } from 'src/app/shared/models/netzklasse-flat';
 
 export class NetzklassenConverterService {
-  public static createFormGroup(): FormGroup {
-    return new FormGroup({
-      radnetzAlltag: new FormControl(null),
-      radnetzFreizeit: new FormControl(null),
-      radnetzZielnetz: new FormControl(null),
-      kreisnetzAlltag: new FormControl(null),
-      kreisnetzFreizeit: new FormControl(null),
-      kommunalnetzAlltag: new FormControl(null),
-      kommunalnetzFreizeit: new FormControl(null),
-      radschnellverbindung: new FormControl(null),
-      radvorrangrouten: new FormControl(null),
+  public static createFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      radnetzAlltag: new UntypedFormControl(null),
+      radnetzFreizeit: new UntypedFormControl(null),
+      radnetzZielnetz: new UntypedFormControl(null),
+      kreisnetzAlltag: new UntypedFormControl(null),
+      kreisnetzFreizeit: new UntypedFormControl(null),
+      kommunalnetzAlltag: new UntypedFormControl(null),
+      kommunalnetzFreizeit: new UntypedFormControl(null),
+      radschnellverbindung: new UntypedFormControl(null),
+      radvorrangrouten: new UntypedFormControl(null),
     });
   }
 

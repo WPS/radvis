@@ -14,23 +14,6 @@
 
 package de.wps.radvis.backend.matching.schnittstelle.repositoryImpl;
 
-import com.graphhopper.storage.DAType;
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.GHDirectory;
-
-import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
-import de.wps.radvis.backend.matching.domain.entity.ElevationDataFileNotFoundException;
-import de.wps.radvis.backend.matching.domain.entity.ElevationTile;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.comparator.DefaultFileComparator;
-import org.geotools.gce.geotiff.GeoTiffReader;
-import org.geotools.util.factory.Hints;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.index.strtree.STRtree;
-
-import jakarta.validation.constraints.NotNull;
 import java.awt.image.Raster;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -39,6 +22,24 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.io.comparator.DefaultFileComparator;
+import org.geotools.gce.geotiff.GeoTiffReader;
+import org.geotools.util.factory.Hints;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.index.strtree.STRtree;
+
+import com.graphhopper.storage.DAType;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.GHDirectory;
+
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.matching.domain.entity.ElevationDataFileNotFoundException;
+import de.wps.radvis.backend.matching.domain.entity.ElevationTile;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ElevationDataSpatialIndexRepository {
@@ -121,7 +122,7 @@ public class ElevationDataSpatialIndexRepository {
 
 							fillDataAccessWithElevationData(raster, heights);
 						} catch (IOException e) {
-							log.error(e.getMessage());
+							log.error(e.getMessage(), e);
 						}
 					});
 				directoryIndex.getAndIncrement();

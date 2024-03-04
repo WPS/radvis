@@ -33,6 +33,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -136,9 +137,11 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTestIT extend
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Coole Organisation")
 				.organisationsArt(
 					OrganisationsArt.BUNDESLAND).build());
-		testBenutzer = benutzerService.save(BenutzerTestDataProvider.admin(testVerwaltungseinheit).build());
+		testBenutzer = benutzerService.save(BenutzerTestDataProvider.admin(testVerwaltungseinheit).serviceBwId(
+			ServiceBwId.of("testBenutzer")).build());
 		kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
 		massnahme = MassnahmeTestDataProvider.withDefaultValues()
+			.zustaendiger(testVerwaltungseinheit)
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 		gebietskoerperschaftRepository
 			.save((Gebietskoerperschaft) massnahme.getBenutzerLetzteAenderung().getOrganisation());

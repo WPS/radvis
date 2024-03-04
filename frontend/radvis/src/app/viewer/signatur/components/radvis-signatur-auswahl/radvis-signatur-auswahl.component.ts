@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Signatur } from 'src/app/shared/models/signatur';
 import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
@@ -40,7 +40,7 @@ export class RadvisSignaturAuswahlComponent implements OnInit {
   selectElement: MatSelect | null = null;
 
   public signaturenSubject$: BehaviorSubject<Signatur[]> = new BehaviorSubject<Signatur[]>([]);
-  public formControl: FormControl;
+  public formControl: UntypedFormControl;
   public compareSignatur = Signatur.compare;
 
   private massnahmenInfrastrukturSelected = false;
@@ -50,7 +50,7 @@ export class RadvisSignaturAuswahlComponent implements OnInit {
     private featureTogglzService: FeatureTogglzService,
     private infrastrukturenSelectionService: InfrastrukturenSelektionService
   ) {
-    this.formControl = new FormControl();
+    this.formControl = new UntypedFormControl();
     this.formControl.valueChanges.subscribe(value => {
       this.selectRadVisSignatur.emit(value);
     });

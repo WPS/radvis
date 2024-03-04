@@ -12,13 +12,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input, OnInit } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
+import { FormControl, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import {
   AbstractUndeterminedFormControl,
-  UndeterminedValue,
   UNDETERMINED_LABEL,
+  UndeterminedValue,
 } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-options';
@@ -32,16 +41,22 @@ import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-op
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => GroupedEnumDropdownControlComponent), multi: true },
   ],
 })
-export class GroupedEnumDropdownControlComponent extends AbstractUndeterminedFormControl<string> implements OnInit {
+export class GroupedEnumDropdownControlComponent
+  extends AbstractUndeterminedFormControl<string>
+  implements OnInit, OnChanges {
   @Input()
   groupedOptions: GroupedEnumOptions = {};
 
   @Input()
   nullable = true;
 
+  @Input()
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
+
   selectedOption: string | UndeterminedValue | null = null;
 
-  formControl: FormControl;
+  formControl: FormControl<string | null>;
   filteredGroupedOptions: GroupedEnumOptions = {};
 
   public readonly UNDETERMINED = 'UNDETERMINED';
@@ -60,21 +75,30 @@ export class GroupedEnumDropdownControlComponent extends AbstractUndeterminedFor
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
+    }
+  }
+
   ngOnInit(): void {
     this.filteredGroupedOptions = this.groupedOptions;
   }
 
   public writeValue(value: string | UndeterminedValue | null): void {
-    let formValue = value;
+    let formValue: string | null;
     if (value instanceof UndeterminedValue) {
       formValue = this.UNDETERMINED;
       this.showUndeterminedOption = true;
       this.changeDetector.detectChanges();
     } else {
+      formValue = value;
       this.showUndeterminedOption = false;
     }
     this.formControl.reset(formValue, { emitEvent: false });
     this.selectedOption = value;
+    this.formControl.markAsTouched();
     this.changeDetector.markForCheck();
   }
 

@@ -14,15 +14,13 @@
 
 import { Injectable } from '@angular/core';
 import { Route, Router } from '@angular/router';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 import {
   AbstellanlageEditorComponent
 } from 'src/app/viewer/abstellanlage/components/abstellanlage-editor/abstellanlage-editor.component';
 import { ABSTELLANLAGEN } from 'src/app/viewer/abstellanlage/models/abstellanlage.infrastruktur';
-import { AbstellanlageService } from 'src/app/viewer/abstellanlage/services/abstellanlage.service';
-import {
-  AbstellanlageDokumentListeResolverService
-} from 'src/app/viewer/abstellanlage/services/servicestation-dokument-liste-resolver.service';
+import { abstellanlageDokumentListeResolver } from 'src/app/viewer/abstellanlage/services/abstellanlage-dokument-liste.resolver';
+import { abstellanlageResolver } from 'src/app/viewer/abstellanlage/services/abstellanlage.resolver';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
 import {
@@ -48,16 +46,16 @@ export class AbstellanlageRoutingService extends AbstractInfrastrukturenRoutingS
       {
         path: this.EIGENSCHAFTEN,
         component: AbstellanlageEditorComponent,
-        canDeactivate: [DiscardGuardService],
+        canDeactivate: [discardGuard],
         data: { isCreator: false },
-        resolve: { abstellanlage: AbstellanlageService },
+        resolve: { abstellanlage: abstellanlageResolver },
       },
       {
         path: this.DATEIEN,
         component: DokumentListeComponent,
-        canDeactivate: [DiscardGuardService],
+        canDeactivate: [discardGuard],
         resolve: {
-          [DokumentListeComponent.DOKUMENTLISTE_DATA_KEY]: AbstellanlageDokumentListeResolverService,
+          [DokumentListeComponent.DOKUMENTLISTE_DATA_KEY]: abstellanlageDokumentListeResolver,
         },
       },
     ];

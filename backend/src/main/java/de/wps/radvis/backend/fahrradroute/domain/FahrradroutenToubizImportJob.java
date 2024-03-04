@@ -21,8 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 
@@ -48,6 +46,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierte
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

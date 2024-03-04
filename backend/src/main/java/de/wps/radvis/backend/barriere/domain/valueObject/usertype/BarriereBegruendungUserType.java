@@ -18,7 +18,7 @@ import de.wps.radvis.backend.barriere.domain.valueObject.BarriereBegruendung;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class BarriereBegruendungUserType
 	implements AttributeConverter<BarriereBegruendung, String> {
 

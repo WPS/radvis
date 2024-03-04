@@ -27,20 +27,20 @@
   </div>
   <div class="knoten-info display-flex align-items-center mt-10">
     <mat-icon *ngIf="!vonKnotenId" radAccessabilityText="Warnung:" color="warn">warning</mat-icon>
-    <mat-icon *ngIf="vonKnotenId" radAccessabilityText="Erledigt:" [style.color]="validInputColor">check_circle
+    <mat-icon *ngIf="vonKnotenId" radAccessabilityText="Erledigt:" [style.color]="validInputColor"
+      >check_circle
     </mat-icon>
     <span>Von Knoten <b>A</b>:</span><span class="italic">{{ vonKnotenId ? 'Ausgewählt' : 'Bitte auswählen' }}</span>
   </div>
   <div class="knoten-info display-flex align-items-center mt-10">
-    <mat-icon *ngIf="!bisKnotenId && !bisKnotenGeom" radAccessabilityText="Warnung:" color="warn">warning
-    </mat-icon
-    >
+    <mat-icon *ngIf="!bisKnotenId && !bisKnotenGeom" radAccessabilityText="Warnung:" color="warn">warning</mat-icon>
     <mat-icon *ngIf="bisKnotenId || bisKnotenGeom" radAccessabilityText="Erledigt:" [style.color]="validInputColor">
       check_circle
-    </mat-icon
-    >
-    <span>Bis Knoten <b>B</b>:</span><span
-    class="italic">{{ bisKnotenId ? 'Ausgewählt' : bisKnotenGeom ? 'Wird neu angelegt' : 'Bitte auswählen' }}</span>
+    </mat-icon>
+    <span>Bis Knoten <b>B</b>:</span
+    ><span class="italic">{{
+      bisKnotenId ? 'Ausgewählt' : bisKnotenGeom ? 'Wird neu angelegt' : 'Bitte auswählen'
+    }}</span>
   </div>
   <div class="mt-10 mb-5 ml-5 fehlertext" *ngIf="showValidationMessage" [style.color]="'red'">
     Bitte wählen Sie genau zwei Knoten aus.
@@ -55,4 +55,3 @@
     an der Stelle vorhanden sind, an der Sie eine Kante vermissen!
   </div>
 </rad-attribute-editor>
-

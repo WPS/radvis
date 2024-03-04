@@ -300,9 +300,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
       const panelOpenSpy = spyOn(component, 'onPanelOpened');
       await fixture.whenRenderingDone();
 
-      (fixture.debugElement.query(By.css('.mat-chip'))?.nativeElement as HTMLElement).dispatchEvent(new Event('click'));
+      (fixture.debugElement.query(By.css('.mat-mdc-chip'))?.nativeElement as HTMLElement).dispatchEvent(
+        new Event('click')
+      );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
       expect(panelOpenSpy).toHaveBeenCalled();
       panelOpenSpy.calls.reset();
@@ -311,9 +313,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
       fixture.detectChanges();
       await fixture.whenRenderingDone();
 
-      (fixture.debugElement.query(By.css('.mat-chip'))?.nativeElement as HTMLElement).dispatchEvent(new Event('click'));
+      (fixture.debugElement.query(By.css('.mat-mdc-chip'))?.nativeElement as HTMLElement).dispatchEvent(
+        new Event('click')
+      );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
       expect(panelOpenSpy).not.toHaveBeenCalled();
     });
@@ -357,9 +361,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
 
       await fixture.whenRenderingDone();
 
-      (fixture.debugElement.query(By.css('.mat-chip'))?.nativeElement as HTMLElement).dispatchEvent(new Event('click'));
+      (fixture.debugElement.query(By.css('.mat-mdc-chip'))?.nativeElement as HTMLElement).dispatchEvent(
+        new Event('click')
+      );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
 
       const highlightedKategorie = fixture.debugElement.query(
@@ -382,9 +388,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
       await fixture.whenRenderingDone();
       expect(panelOpenSpy).toHaveBeenCalled();
 
-      (fixture.debugElement.query(By.css('.mat-chip'))?.nativeElement as HTMLElement).dispatchEvent(new Event('click'));
+      (fixture.debugElement.query(By.css('.mat-mdc-chip'))?.nativeElement as HTMLElement).dispatchEvent(
+        new Event('click')
+      );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
 
       const highlightedKategorie = fixture.debugElement.query(
@@ -402,11 +410,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
 
       await fixture.whenRenderingDone();
 
-      (fixture.debugElement.queryAll(By.css('.mat-chip'))[0].nativeElement as HTMLElement).dispatchEvent(
+      (fixture.debugElement.queryAll(By.css('.mat-mdc-chip'))[0].nativeElement as HTMLElement).dispatchEvent(
         new Event('click')
       );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
 
       const highlightedKategorie1 = fixture.debugElement.query(
@@ -415,11 +423,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
       expect(highlightedKategorie1).toBeTruthy();
       expect(highlightedKategorie1.nativeElement.id).toBe(component.getElementIdByKategorie(clickedKategorie1));
 
-      (fixture.debugElement.queryAll(By.css('.mat-chip'))[1].nativeElement as HTMLElement).dispatchEvent(
+      (fixture.debugElement.queryAll(By.css('.mat-mdc-chip'))[1].nativeElement as HTMLElement).dispatchEvent(
         new Event('click')
       );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
 
       const highlightedKategorie2 = fixture.debugElement.query(
@@ -436,9 +444,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
       fixture.detectChanges();
       await fixture.whenRenderingDone();
 
-      (fixture.debugElement.query(By.css('.mat-chip'))?.nativeElement as HTMLElement).dispatchEvent(new Event('click'));
+      (fixture.debugElement.query(By.css('.mat-mdc-chip'))?.nativeElement as HTMLElement).dispatchEvent(
+        new Event('click')
+      );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
 
       const highlightedKategorie = fixture.debugElement.query(
@@ -456,9 +466,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
 
       await fixture.whenRenderingDone();
 
-      (fixture.debugElement.query(By.css('.mat-chip'))?.nativeElement as HTMLElement).dispatchEvent(new Event('click'));
+      (fixture.debugElement.query(By.css('.mat-mdc-chip'))?.nativeElement as HTMLElement).dispatchEvent(
+        new Event('click')
+      );
       // bis das panel offen ist, ist leider eine magic number. wenn der test fehlschlägt, erstmal probieren, hochzusetzen
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await fixture.whenRenderingDone();
 
       component.onPanelClosed();

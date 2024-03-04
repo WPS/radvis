@@ -52,7 +52,7 @@
     </button>
   </mat-toolbar>
 
-  <nav mat-tab-nav-bar color="accent" [disableRipple]="true">
+  <nav mat-tab-nav-bar color="accent" class="mat-tab-nav" [disableRipple]="true" [tabPanel]="tabPanel">
     <a
       mat-tab-link
       queryParamsHandling="merge"
@@ -114,4 +114,6 @@
   </ng-container>
 </ng-container>
 
-<router-outlet></router-outlet>
+<mat-tab-nav-panel class="tab-panel" #tabPanel>
+  <router-outlet></router-outlet>
+</mat-tab-nav-panel>

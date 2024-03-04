@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
@@ -45,6 +46,7 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
@@ -85,6 +87,9 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 @ActiveProfiles(profiles = "test")
 public class NetzausschnittControllerTestIT extends DBIntegrationTestIT {

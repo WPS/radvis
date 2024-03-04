@@ -67,7 +67,9 @@
           </button>
           <button
             *ngIf="mindestensEinVerlaufVorhanden"
-            [attr.aria-label]="(multipleKantenSelected$ | async) ? 'Verlauf für alle Kanten löschen' : 'Verlauf Löschen'"
+            [attr.aria-label]="
+              (multipleKantenSelected$ | async) ? 'Verlauf für alle Kanten löschen' : 'Verlauf Löschen'
+            "
             [matTooltip]="(multipleKantenSelected$ | async) ? 'Verlauf für alle Kanten löschen' : 'Verlauf Löschen'"
             [disabled]="formGroup.disabled"
             (click)="verlaeufeLoeschen()"

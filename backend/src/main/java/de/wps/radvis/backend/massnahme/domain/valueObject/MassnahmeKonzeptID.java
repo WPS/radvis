@@ -31,7 +31,8 @@ public class MassnahmeKonzeptID {
 	String value;
 
 	private MassnahmeKonzeptID(String value) {
-		require(isValid(value), String.format("MassnahmeKonzeptID muss alphanumerisch sein. %s ist somit ungültig", value));
+		require(isValid(value),
+			String.format("MassnahmeKonzeptID muss alphanumerisch sein. %s ist somit ungültig", value));
 		this.value = value;
 	}
 

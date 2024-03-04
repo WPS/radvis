@@ -21,8 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -34,6 +32,7 @@ import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataPro
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.entity.provider.ServicestationTestDataProvider;
+import jakarta.persistence.EntityNotFoundException;
 
 class ServicestationServiceTest {
 	private ServicestationService servicestationService;
@@ -47,7 +46,8 @@ class ServicestationServiceTest {
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.openMocks(this);
-		servicestationService = new ServicestationService(servicestationRepository, benutzerResolver, zustaendigkeitsService);
+		servicestationService = new ServicestationService(servicestationRepository, benutzerResolver,
+			zustaendigkeitsService);
 	}
 
 	@Test

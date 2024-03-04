@@ -19,14 +19,13 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.ManyToOne;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

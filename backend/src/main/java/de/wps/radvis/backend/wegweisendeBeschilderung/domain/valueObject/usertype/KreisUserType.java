@@ -18,7 +18,7 @@ import de.wps.radvis.backend.wegweisendeBeschilderung.domain.valueObject.Kreis;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class KreisUserType implements AttributeConverter<Kreis, String> {
 
 	@Override

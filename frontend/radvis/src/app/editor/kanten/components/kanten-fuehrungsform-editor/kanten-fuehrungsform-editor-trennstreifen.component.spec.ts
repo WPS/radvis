@@ -13,45 +13,45 @@
  */
 
 /* eslint-disable @typescript-eslint/dot-notation */
+import { fakeAsync, tick } from '@angular/core/testing';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router, RouterState, RouterStateSnapshot } from '@angular/router';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { Feature, MapBrowserEvent, Overlay } from 'ol';
+import { Coordinate } from 'ol/coordinate';
+import { FeatureLike } from 'ol/Feature';
+import Geometry from 'ol/geom/Geometry';
+import Interaction from 'ol/interaction/Interaction';
+import BaseLayer from 'ol/layer/Base';
+import Layer from 'ol/layer/Layer';
+import { Pixel } from 'ol/pixel';
+import Source from 'ol/source/Source';
 import { Observable, of } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { KantenFuehrungsformEditorComponent } from 'src/app/editor/kanten/components/kanten-fuehrungsform-editor/kanten-fuehrungsform-editor.component';
+import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
 import { Kante } from 'src/app/editor/kanten/models/kante';
 import {
   defaultFuehrungsformAttribute,
   defaultKante,
 } from 'src/app/editor/kanten/models/kante-test-data-provider.spec';
-import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
-import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import Interaction from 'ol/interaction/Interaction';
-import BaseLayer from 'ol/layer/Base';
-import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
-import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
-import { WMSLegende } from 'src/app/shared/models/wms-legende';
-import { Feature, MapBrowserEvent, Overlay } from 'ol';
-import { Coordinate } from 'ol/coordinate';
-import Layer from 'ol/layer/Layer';
-import Source from 'ol/source/Source';
-import { FeatureLike } from 'ol/Feature';
-import { Pixel } from 'ol/pixel';
-import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
-import Geometry from 'ol/geom/Geometry';
+import { Richtung } from 'src/app/editor/kanten/models/richtung';
+import { SaveFuehrungsformAttributGruppeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
 import { TrennstreifenForm } from 'src/app/editor/kanten/models/trennstreifen-form';
 import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
-import { Richtung } from 'src/app/editor/kanten/models/richtung';
-import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
-import { SaveFuehrungsformAttributGruppeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
-import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
+import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
+import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
+import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
+import { WMSLegende } from 'src/app/shared/models/wms-legende';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { OlMapService } from 'src/app/shared/services/ol-map.service';
+import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 /* eslint-disable no-unused-vars */
 class TestOlMapService extends OlMapService {
@@ -140,10 +140,11 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
   let component: KantenFuehrungsformEditorComponent;
   let fixture: MockedComponentFixture<KantenFuehrungsformEditorComponent>;
   let netzService: NetzService;
-  let discardGuardService: DiscardGuardService;
   let kantenSelektionService: KantenSelektionService;
   let benutzerDetails: BenutzerDetailsService;
   let olMapService: OlMapService;
+  let route: ActivatedRoute;
+  let router: Router;
 
   beforeEach(() => {
     const netzbearbeitungsModusService = mock(NetzBearbeitungModusService);
@@ -152,9 +153,13 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
     netzService = mock(NetzService);
     benutzerDetails = mock(BenutzerDetailsService);
     olMapService = mock(TestOlMapService);
+    route = mock(ActivatedRoute);
+    router = mock(Router);
 
-    discardGuardService = mock(DiscardGuardService);
-    when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+    when(route.snapshot).thenReturn(instance(mock(ActivatedRouteSnapshot)));
+    const routerState = mock(RouterState);
+    when(routerState.snapshot).thenReturn(instance(mock(RouterStateSnapshot)));
+    when(router.routerState).thenReturn(instance(routerState));
 
     return MockBuilder(KantenFuehrungsformEditorComponent, EditorModule)
       .provide({
@@ -170,8 +175,12 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
         useValue: instance(olMapService),
       })
       .provide({
-        provide: DiscardGuardService,
-        useValue: instance(discardGuardService),
+        provide: ActivatedRoute,
+        useValue: instance(route),
+      })
+      .provide({
+        provide: Router,
+        useValue: instance(router),
       })
       .provide({
         provide: NetzBearbeitungModusService,

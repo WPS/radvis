@@ -41,7 +41,7 @@ public class AbstractBooleanVO {
 	}
 
 	protected AbstractBooleanVO(String value) {
-		require( (value.toLowerCase().equals("ja") || value.toLowerCase().equals("nein")),"muss ja oder nein sein");
+		require((value.toLowerCase().equals("ja") || value.toLowerCase().equals("nein")), "muss ja oder nein sein");
 		this.value = value.toLowerCase().equals("ja");
 	}
 

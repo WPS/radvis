@@ -18,7 +18,7 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class MailadresseUserType implements AttributeConverter<Mailadresse, String> {
 
 	@Override

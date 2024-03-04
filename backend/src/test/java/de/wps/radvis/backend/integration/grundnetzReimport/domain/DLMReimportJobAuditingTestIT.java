@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -59,6 +60,7 @@ import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -149,6 +151,9 @@ import jakarta.persistence.PersistenceContext;
 	GraphhopperOsmConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
 	GraphhopperDlmConfigurationProperties.class,
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 @ActiveProfiles("dev")
 @RecordApplicationEvents
@@ -430,7 +435,7 @@ class DLMReimportJobAuditingTestIT extends AuditingTestIT {
 		// Repositories mit bestehende Knoten und Kanten fuellen
 		transactionTemplate.executeWithoutResult((status) -> {
 			erstelleVeraltetesBasisnetz();
-			netzService.refreshRadVisNetzMaterializedViews();
+			netzService.refreshNetzMaterializedViews();
 		});
 		transactionTemplate.executeWithoutResult((status) -> assertThat(kantenRepository.findAll()).hasSize(6));
 

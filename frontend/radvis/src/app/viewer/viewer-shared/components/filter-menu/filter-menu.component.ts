@@ -22,7 +22,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatInput } from '@angular/material/input';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
@@ -49,7 +49,7 @@ export class FilterMenuComponent implements OnInit {
 
   public isAktiv = false;
 
-  public filterControl = new FormControl('');
+  public filterControl = new UntypedFormControl('');
 
   constructor(
     private filterService: AbstractInfrastrukturenFilterService<any>,

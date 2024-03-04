@@ -18,7 +18,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Marke;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class MarkeUserType implements AttributeConverter<Marke, String> {
 
 	@Override

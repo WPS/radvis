@@ -24,6 +24,11 @@ public class FrontendLinks {
 		return String.format("/viewer/massnahmen/%d", id);
 	}
 
+	public static String infrastrukturTabelleWithFilter(String infrastruktur, String filter) {
+		return String.format("/viewer?infrastrukturen=%s&tabellenVisible=true&filter_massnahmen=%s", infrastruktur,
+			filter);
+	}
+
 	public static String kanteDetailView(Long id) {
 		return String.format("/viewer/kante/%d", id);
 	}
@@ -40,4 +45,7 @@ public class FrontendLinks {
 		return String.format("/viewer/servicestation/%d", id);
 	}
 
+	public static String benutzerAdministration(Long id) {
+		return String.format("/administration/benutzer/%d", id);
+	}
 }

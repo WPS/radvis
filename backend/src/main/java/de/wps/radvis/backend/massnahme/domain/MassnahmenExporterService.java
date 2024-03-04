@@ -65,8 +65,7 @@ public class MassnahmenExporterService implements ExporterService {
 			massnahme.getDurchfuehrungszeitraum() == null ? ""
 				: massnahme.getDurchfuehrungszeitraum().getGeplanterUmsetzungsstartJahr() == null ? ""
 				: massnahme.getDurchfuehrungszeitraum().getGeplanterUmsetzungsstartJahr().toString());
-		result.put("Umsetzungsstatus",
-			massnahme.getUmsetzungsstatus() == null ? "" : massnahme.getUmsetzungsstatus().toString());
+		result.put("Umsetzungsstatus", massnahme.getUmsetzungsstatus().toString());
 		result.put("Umsetzungsstand-Status",
 			massnahme.getUmsetzungsstandStatus() == null ? "" : massnahme.getUmsetzungsstandStatus().toString());
 		result.put("Veröffentlicht",
@@ -77,9 +76,9 @@ public class MassnahmenExporterService implements ExporterService {
 		result.put("Netzklassen", massnahme.getNetzklassenString());
 		result.put("Baulastträger",
 			Verwaltungseinheit.combineNameAndArt(massnahme.getBaulastName(), massnahme.getBaulastOrganisationsArt()));
-		result.put("Markierungszuständige/r",
-			Verwaltungseinheit.combineNameAndArt(massnahme.getMarkierungName(),
-				massnahme.getMarkierungOrganisationsArt()));
+		result.put("Zuständige/r",
+			Verwaltungseinheit.combineNameAndArt(massnahme.getZustaendigName(),
+				massnahme.getZustaendigOrganisationsArt()));
 		result.put("Unterhaltszuständige/r",
 			Verwaltungseinheit.combineNameAndArt(massnahme.getUnterhaltName(),
 				massnahme.getUnterhaltOrganisationsArt()));
@@ -87,10 +86,18 @@ public class MassnahmenExporterService implements ExporterService {
 			massnahme.getLetzteAenderung().format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm")));
 		result.put("BenutzerIn der letzten Änderung",
 			massnahme.getBenutzerLetzteAenderungVorname() + " " + massnahme.getBenutzerLetzteAenderungNachname());
+		result.put("Soll-Standard", massnahme.getSollStandard().toString());
 		result.put("Wer soll tätig werden?", massnahme.getHandlungsverantwortlicher() == null ? ""
 			: massnahme.getHandlungsverantwortlicher().toString());
 		result.put("Massnahme-ID", massnahme.getMassnahmeKonzeptId() == null ? ""
 			: massnahme.getMassnahmeKonzeptId().toString());
+		result.put("Realisierungshilfe", massnahme.getRealisierungshilfe() == null ? ""
+			: massnahme.getRealisierungshilfe().toString());
+		result.put("Kostenannahme",
+			massnahme.getKostenannahme() == null ? "" : massnahme.getKostenannahme().getKostenannahme().toString());
+		result.put("MaViS-ID", massnahme.getMaViSID() == null ? "" : massnahme.getMaViSID().toString());
+		result.put("Verba-ID", massnahme.getVerbaID() == null ? "" : massnahme.getVerbaID().toString());
+		result.put("LGVFG-ID", massnahme.getLgvfgID() == null ? "" : massnahme.getLgvfgID().toString());
 		return result;
 	}
 }

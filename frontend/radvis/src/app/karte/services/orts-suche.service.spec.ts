@@ -35,22 +35,12 @@ describe('OrtsSucheService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should give empty list if invalid searchterm', (done: DoneFn) => {
-    service.sucheOrt('').subscribe((ortsSucheResult: OrtsSucheResult[]) => {
-      expect(ortsSucheResult).toEqual([]);
-      done();
-    });
-
-    const stringThatIsNull: any = null;
-    service.sucheOrt(stringThatIsNull).subscribe((ortsSucheResult: OrtsSucheResult[]) => {
-      expect(ortsSucheResult).toEqual([]);
-      done();
-    });
-
-    const stringThatIsUndefined: any = undefined;
-    service.sucheOrt(stringThatIsUndefined).subscribe((ortsSucheResult: OrtsSucheResult[]) => {
-      expect(ortsSucheResult).toEqual([]);
-      done();
+  ['', null, undefined].forEach(str => {
+    it(`should give empty list if invalid, empty searchterm: ${str}`, (done: DoneFn) => {
+      service.sucheOrt('').subscribe((ortsSucheResult: OrtsSucheResult[]) => {
+        expect(ortsSucheResult).toEqual([]);
+        done();
+      });
     });
   });
 });

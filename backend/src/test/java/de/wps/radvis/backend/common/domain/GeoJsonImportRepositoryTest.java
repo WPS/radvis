@@ -23,15 +23,17 @@ import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import org.mockito.MockitoAnnotations;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.referencing.FactoryException;
 
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
@@ -45,7 +47,7 @@ class GeoJsonImportRepositoryTest {
 	private GeoJsonImportRepository geoJsonImportRepository;
 
 	@BeforeEach
-	void setUp() throws IOException {
+	void setUp() {
 		MockitoAnnotations.openMocks(this);
 		Envelope badenWuerttembergEnvelope = new Envelope(
 			new Coordinate(378073.54, 5255657.09),
@@ -132,6 +134,42 @@ class GeoJsonImportRepositoryTest {
 		assertThat(f1.getAttribute("Farbe")).isNull();
 		assertThat(f2.getAttribute("Farbe")).isNull();
 		assertThat(f3.getAttribute("Farbe")).isEqualTo("Blau");
+	}
+
+	@Test
+	void getSimpleFeatures_firstFeatureHasComplexPropertyWithNullValue_addsAttributeCorrectly()
+		throws IOException, ReadGeoJSONException {
+		// arrange and act
+		URL url = (new File("src/test/resources/testServicestationMobiDataNullProperties.geojson")).toURI()
+			.toURL();
+		String fileContentAsString = geoJsonImportRepository.getFileContentAsString(url);
+		SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+		ftb.setName("name");
+		ftb.setCRS(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeotoolsCRS());
+		ftb.add("geometry", Point.class);
+		ftb.nillable(true).add("supplier", Object.class);
+
+		List<SimpleFeature> features = geoJsonImportRepository.getSimpleFeatures(fileContentAsString,
+			ftb.buildFeatureType());
+
+		// assert
+		assertThat(features).hasSize(3);
+
+		SimpleFeature f1 = features.get(0);
+		SimpleFeature f2 = features.get(1);
+		SimpleFeature f3 = features.get(2);
+
+		assertThat(
+			f1.getAttribute("supplier").toString()).isEqualTo("null");
+		assertThat(
+			f2.getAttribute("supplier")).isNotNull();
+		assertThat(
+			f2.getAttribute("supplier").toString()).isEqualTo("{\"name\":\"supplier1\"}");
+		assertThat(
+			f3.getAttribute("supplier")).isNotNull();
+		assertThat(
+			f3.getAttribute("supplier").toString()).isEqualTo("{\"name\":\"supplier2\"}");
+
 	}
 
 	@Test

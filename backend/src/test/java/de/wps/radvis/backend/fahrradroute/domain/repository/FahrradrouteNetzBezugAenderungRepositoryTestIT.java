@@ -19,17 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -61,6 +58,8 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group6")
 @ContextConfiguration(classes = { FahrradrouteNetzBezugAenderungRepositoryTestIT.TestConfiguration.class,
@@ -69,10 +68,10 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
 	PostgisConfigurationProperties.class })
 public class FahrradrouteNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
-	@EnableJpaRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
-			"de.wps.radvis.backend.organisation", "de.wps.radvis.backend.benutzer" })
+	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
+		"de.wps.radvis.backend.organisation", "de.wps.radvis.backend.benutzer" })
 	@EntityScan(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.organisation",
-			"de.wps.radvis.backend.netz", "de.wps.radvis.backend.benutzer", "de.wps.radvis.backend.common" })
+		"de.wps.radvis.backend.netz", "de.wps.radvis.backend.benutzer", "de.wps.radvis.backend.common" })
 	public static class TestConfiguration {
 		@Autowired
 		private KantenRepository kantenRepository;

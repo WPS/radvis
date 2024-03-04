@@ -20,7 +20,7 @@ import { UndeterminedValue } from 'src/app/form-elements/components/abstract-und
 import { TextInputControlComponent } from 'src/app/form-elements/components/text-input-control/text-input-control.component';
 import { MaterialDesignModule } from 'src/app/material-design.module';
 
-describe('TextInputControlComponent', () => {
+describe(TextInputControlComponent.name, () => {
   let fixture: ComponentFixture<TextInputControlComponent>;
   let component: TextInputControlComponent;
 
@@ -56,8 +56,8 @@ describe('TextInputControlComponent', () => {
     fixture.detectChanges();
 
     expect(onChangeSpy).not.toHaveBeenCalled();
-    expect(component.formControl.value).toBe('Mehrere Werte ausgewählt');
-    expect(fixture.debugElement.query(By.css('input'))?.nativeElement.value).toEqual('Mehrere Werte ausgewählt');
+    expect(component.formControl.value).toBe('');
+    expect(fixture.debugElement.query(By.css('mat-hint')).nativeElement.innerText).toEqual('Mehrere Werte ausgewählt');
   });
 
   it('should process null', () => {

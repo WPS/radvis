@@ -1,7 +1,7 @@
 <ruleset comparisonMethod="maven"
-  xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 https://www.mojohaus.org/versions-maven-plugin/xsd/rule-2.0.0.xsd">
+	xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 https://www.mojohaus.org/versions-maven-plugin/xsd/rule-2.0.0.xsd">
   <ignoreVersions>
     <ignoreVersion type="regex">.*[-_\.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_\.]?[0-9]*</ignoreVersion>
   </ignoreVersions>
@@ -21,11 +21,19 @@
         <ignoreVersion type="regex">5\..*</ignoreVersion>
       </ignoreVersions>
     </rule>
-    <!--
-    RAD-5658 hst: Wir MÜSSEN Janino 3.1.2 nehmen, weil ein workaround in Graphhopper eines Janino bugs nicht mit
-    Janino > 3.1.2 funktioniert.
-    -->
-    <rule groupId="org.codehaus.janino" artifactId="janino" comparisonMethod="maven">
+		<!--
+		RAD-5658 hst: Wir MÜSSEN Janino 3.1.2 nehmen, weil ein workaround in Graphhopper eines Janino bugs nicht mit
+		Janino > 3.1.2 funktioniert.
+		-->
+		<rule groupId="org.codehaus.janino" artifactId="janino" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">.*</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+		<!--
+		Ignoriere alle Versionen, da explizite Version angegeben, siehe Kommentar pom.xml zu JDBC.
+		-->
+		<rule groupId="org.xerial" artifactId="sqlite-jdbc" comparisonMethod="maven">
       <ignoreVersions>
         <ignoreVersion type="regex">.*</ignoreVersion>
       </ignoreVersions>

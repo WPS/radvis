@@ -67,10 +67,8 @@ class CharonConfiguration {
 						reverseproxyConfiguarationProperties.getGeoserverUrl()))
 					.set(
 						regexRequestPathRewriter()
-							.paths("api/geoserver/saml/(?<path>.*)", "geoserver/<path>")
-					)
-					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/saml"))
-			)
+							.paths("api/geoserver/saml/(?<path>.*)", "geoserver/<path>"))
+					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/saml")))
 			.add(
 				requestMapping("geoserver saml (datei-layer)")
 					.pathRegex("/api/geoserver/saml/datei-layer/.*")
@@ -78,10 +76,8 @@ class CharonConfiguration {
 						reverseproxyConfiguarationProperties.getGeoserverDateiLayerUrl()))
 					.set(
 						regexRequestPathRewriter()
-							.paths("api/geoserver/saml/(?<path>.*)", "geoserver/<path>")
-					)
-					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/saml"))
-			)
+							.paths("api/geoserver/saml/(?<path>.*)", "geoserver/<path>"))
+					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/saml")))
 			.add(
 				requestMapping("geoserver toubiz")
 					.pathRegex("/api/geoserver/basic/toubiz/.*")
@@ -89,18 +85,25 @@ class CharonConfiguration {
 						reverseproxyConfiguarationProperties.getGeoserverUrl()))
 					.set(
 						regexRequestPathRewriter()
-							.paths("api/geoserver/basic/toubiz/(?<path>.*)", "geoserver/toubiz/<path>")
-					)
-					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/basic"))
-			)
+							.paths("api/geoserver/basic/toubiz/(?<path>.*)",
+								"geoserver/toubiz/<path>"))
+					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/basic")))
+			.add(
+				requestMapping("geoserver basicAuth externe Schnittstelle")
+					.pathRegex("/api/geoserver/basicauth/.*")
+					.set(requestServerNameRewriter().outgoingServers(
+						reverseproxyConfiguarationProperties.getGeoserverUrl()))
+					.set(
+						regexRequestPathRewriter()
+							.paths("api/geoserver/basicauth/(?<path>.*)", "geoserver/<path>"))
+					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/basicauth")))
 			.add(
 				requestMapping("grafana redirection")
 					.pathRegex("/logs.*")
 					.set(requestServerNameRewriter().outgoingServers(
 						reverseproxyConfiguarationProperties.getGrafanaUrl()))
 					.set(regexRequestPathRewriter()
-						.paths("/logs(?<path>.*)", "<path>"))
-			)
+						.paths("/logs(?<path>.*)", "<path>")))
 			.add(
 				requestMapping("beschilderung")
 					.pathRegex("/api/wegweisendebeschilderung/kataster.*")
@@ -108,8 +111,8 @@ class CharonConfiguration {
 						reverseproxyConfiguarationProperties.getBeschilderungsKatasterDomain()))
 					.set(regexRequestPathRewriter()
 						.paths("/api/wegweisendebeschilderung/kataster/(?<path>.*)",
-							reverseproxyConfiguarationProperties.getBeschilderungsKatasterPath() + "/<path>"))
-			);
+							reverseproxyConfiguarationProperties.getBeschilderungsKatasterPath()
+								+ "/<path>")));
 	}
 
 	static class HttpBasicAuthHeaderRemoverInterceptor implements RequestForwardingInterceptor {

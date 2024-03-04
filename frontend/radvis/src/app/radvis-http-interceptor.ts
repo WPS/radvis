@@ -57,10 +57,14 @@ export class RadvisHttpInterceptor implements HttpInterceptor {
       }),
       catchError(
         (error: HttpErrorResponse): Observable<any> => {
-          if (error.status === 401) {
-            window.location.replace(window.location.origin);
+          switch (error.status) {
+            case 401:
+            case 301:
+              window.location.reload();
+              break;
+            default:
+              this.errorHandlingService.handleHttpError(error);
           }
-          this.errorHandlingService.handleHttpError(error);
           return throwError(error);
         }
       )

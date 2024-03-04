@@ -37,7 +37,7 @@
     <button
       [routerLink]="fahrradroutenCreatorRoute"
       class="create-button action-buttons"
-      [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+      [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
       queryParamsHandling="merge"
       routerLinkActive="activated"
       *ngIf="isBenutzerBerechtigtFahrradroutenZuErstellen"
@@ -48,7 +48,7 @@
 
     <button
       class="action-buttons"
-      [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+      [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
       (click)="onFilterReset()"
     >
       <mat-icon>filter_alt_off</mat-icon>
@@ -59,7 +59,7 @@
       *ngIf="isBenutzerAdmin"
       class="action-buttons display-flex flex-row align-self-end"
       style="margin-left: auto"
-      [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+      [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
       (click)="onRoutingProfileVerwalten()"
     >
       <mat-icon>settings</mat-icon>

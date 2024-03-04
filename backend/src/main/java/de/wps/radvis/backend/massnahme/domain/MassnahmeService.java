@@ -22,10 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.OptimisticLockException;
-import jakarta.transaction.Transactional;
-
 import org.springframework.context.event.EventListener;
 
 import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntityService;
@@ -44,8 +40,12 @@ import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Transactional
@@ -252,8 +252,10 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 	@EventListener
 	public void onKanteGeloescht(KanteDeletedEvent event) {
 		List<Massnahme> massnahmen = findByKanteIdInNetzBezug(event.getKanteId());
-		massnahmeNetzbezugAenderungProtokollierungsService.protokolliereNetzBezugAenderungFuerGeloeschteKante(
-			massnahmen.stream().filter(m -> !m.isGeloescht()).collect(Collectors.toList()), event);
+		if (!event.getAusloeser().equals(NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN)) {
+			massnahmeNetzbezugAenderungProtokollierungsService.protokolliereNetzBezugAenderungFuerGeloeschteKante(
+				massnahmen.stream().filter(m -> !m.isGeloescht()).collect(Collectors.toList()), event);
+		}
 		for (Massnahme massnahme : massnahmen) {
 			massnahme.removeKanteFromNetzbezug(event.getKanteId());
 			massnahmeRepository.save(massnahme);

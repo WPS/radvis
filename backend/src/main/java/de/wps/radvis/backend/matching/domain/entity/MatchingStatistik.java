@@ -41,7 +41,7 @@ public class MatchingStatistik extends JobStatistik {
 
 	public int matchAberNichtSimple;
 	public int anzahlKorrekturInvalid;
-	
+
 	public void reportLaengeMismatch(long mismatchLaenge) {
 		if (mismatchLaenge < 40) {
 			anzahlLaengeMismatchLessThan40m++;

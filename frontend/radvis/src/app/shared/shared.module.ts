@@ -20,6 +20,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { FormElementsModule } from 'src/app/form-elements/form-elements.module';
 import { MaterialDesignModule } from 'src/app/material-design.module';
+import { AccessabilityTabCircleElementDirective } from 'src/app/shared/components/accessability-tab-circle-element.directive';
+import { AccessabilityTabCircleGroupDirective } from 'src/app/shared/components/accessability-tab-circle-group.directive';
+import { AccessabilityTextDirective } from 'src/app/shared/components/accessability-text.directive';
 import { BenutzerNamePipe } from 'src/app/shared/components/benutzer-name.pipe';
 import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -29,18 +32,18 @@ import { HoverDirective } from 'src/app/shared/components/hover.directive';
 import { KommazahlPipe } from 'src/app/shared/components/kommazahl.pipe';
 import { LineareReferenzierungLayerComponent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
 import { OlPopupComponent } from 'src/app/shared/components/ol-popup/ol-popup.component';
-import { OrganisationPipe } from 'src/app/shared/components/organisation.pipe';
 import { OrganisationenDropdownControlComponent } from 'src/app/shared/components/organisationen-dropdown-control/organisationen-dropdown-control.component';
 import { PrintViewComponent } from 'src/app/shared/components/print-view/print-view.component';
-import { TruncateTextPipe } from 'src/app/shared/components/truncate-text.pipe';
-import { MatPaginatorIntlLocalizationService } from './services/mat-paginator-intl-localization.service';
-import { SimpleLegendeAnzeigeComponent } from 'src/app/shared/components/simple-legende-anzeige/simple-legende-anzeige.component';
-import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
-import { AccessabilityTextDirective } from 'src/app/shared/components/accessability-text.directive';
-import { SicherheitstrennstreifenAnzeigeComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige/sicherheitstrennstreifen-anzeige.component';
+import { RegenerateCredentialsConfirmComponent } from 'src/app/shared/components/regenerate-credentials-confirm/regenerate-credentials-confirm.component';
 import { SicherheitstrennstreifenAnzeigeKomplettComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige-komplett.component/sicherheitstrennstreifen-anzeige-komplett.component';
-import { AccessabilityTabCircleGroupDirective } from 'src/app/shared/components/accessability-tab-circle-group.directive';
-import { AccessabilityTabCircleElementDirective } from 'src/app/shared/components/accessability-tab-circle-element.directive';
+import { SicherheitstrennstreifenAnzeigeComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige/sicherheitstrennstreifen-anzeige.component';
+import { SimpleLegendeAnzeigeComponent } from 'src/app/shared/components/simple-legende-anzeige/simple-legende-anzeige.component';
+import { TruncateTextPipe } from 'src/app/shared/components/truncate-text.pipe';
+import { VerwaltungZugangsdatenComponent } from 'src/app/shared/components/verwaltung-zugangsdaten/verwaltung-zugangsdaten.component';
+import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
+import { WahlkreisDropdownControlComponent } from 'src/app/shared/components/wahlkreis-dropdown-control/wahlkreis-dropdown-control.component';
+import { MatPaginatorIntlLocalizationService } from './services/mat-paginator-intl-localization.service';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 const allDeclarations = [
   OlPopupComponent,
@@ -51,13 +54,15 @@ const allDeclarations = [
   LineareReferenzierungLayerComponent,
   ColorToCssPipe,
   BenutzerNamePipe,
-  OrganisationPipe,
   EnumDisplayPipe,
   TruncateTextPipe,
   PrintViewComponent,
   OrganisationenDropdownControlComponent,
+  WahlkreisDropdownControlComponent,
   SimpleLegendeAnzeigeComponent,
   VordefinierteExporteComponent,
+  VerwaltungZugangsdatenComponent,
+  RegenerateCredentialsConfirmComponent,
   AccessabilityTextDirective,
   SicherheitstrennstreifenAnzeigeComponent,
   SicherheitstrennstreifenAnzeigeKomplettComponent,
@@ -74,6 +79,7 @@ const allDeclarations = [
     MaterialDesignModule,
     BrowserAnimationsModule,
     RouterModule,
+    ClipboardModule,
   ],
   exports: [
     ...allDeclarations,

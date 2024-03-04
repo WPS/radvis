@@ -17,8 +17,8 @@
   </parent>
 
   <properties>
-    <node.version>v14.21.3</node.version>
-    <npm.version>6.14.18</npm.version>
+    <node.version>v18.18.2</node.version>
+    <npm.version>9.8.1</npm.version>
     <ng-lint-phase>none</ng-lint-phase>
     <ng-build-phase>none</ng-build-phase>
     <ng-install-phase>none</ng-install-phase>

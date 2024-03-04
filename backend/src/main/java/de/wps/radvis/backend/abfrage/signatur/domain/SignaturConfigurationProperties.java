@@ -34,7 +34,8 @@ public class SignaturConfigurationProperties {
 	@ConstructorBinding
 	public SignaturConfigurationProperties(String signaturStylePath, String massnahmenSignaturenStylePath) {
 		require(isValidDateipfad(signaturStylePath), "signaturStylePath muss Dateipfadstruktur haben");
-		require(isValidDateipfad(massnahmenSignaturenStylePath), "massnahmenSignaturenStylePath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(massnahmenSignaturenStylePath),
+			"massnahmenSignaturenStylePath muss Dateipfadstruktur haben");
 		this.signaturStylePath = signaturStylePath;
 		this.massnahmenSignaturenStylePath = massnahmenSignaturenStylePath;
 	}

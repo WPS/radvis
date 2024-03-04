@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -33,8 +35,6 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -63,7 +63,7 @@ class TransformationsServiceTest {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
 
 		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(type);
 		f1.add(geometry1);
@@ -71,7 +71,7 @@ class TransformationsServiceTest {
 		SimpleFeature simpleFeature1 = f1.buildFeature("id");
 
 		MultiLineString geometry2 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(30, 0), new Coordinate(50, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(30, 0), new Coordinate(50, 100)) });
 
 		SimpleFeatureBuilder f2 = new SimpleFeatureBuilder(type);
 		f2.add(geometry2);
@@ -117,7 +117,7 @@ class TransformationsServiceTest {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
 
 		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(type);
 		f1.add(geometry1);
@@ -153,7 +153,7 @@ class TransformationsServiceTest {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
 
 		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(type);
 		f1.add(geometry1);
@@ -188,7 +188,7 @@ class TransformationsServiceTest {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
 
 		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(type);
 		f1.add(geometry1);
@@ -223,7 +223,7 @@ class TransformationsServiceTest {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
 
 		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(type);
 		f1.add(geometry1);
@@ -254,7 +254,7 @@ class TransformationsServiceTest {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
-				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
+			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(100, 100)) });
 
 		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(type);
 		f1.add(geometry1);

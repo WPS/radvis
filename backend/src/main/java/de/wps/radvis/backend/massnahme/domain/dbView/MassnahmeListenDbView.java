@@ -20,13 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 
@@ -36,14 +29,25 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
+import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
+import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,11 +76,11 @@ public class MassnahmeListenDbView {
 	OrganisationsArt baulastOrganisationsArt;
 	Long baulastUebergeordneteOrganisationId;
 
-	Long markierungId;
-	String markierungName;
+	Long zustaendigId;
+	String zustaendigName;
 	@Enumerated(EnumType.STRING)
-	OrganisationsArt markierungOrganisationsArt;
-	Long markierungUebergeordneteOrganisationId;
+	OrganisationsArt zustaendigOrganisationsArt;
+	Long zustaendigUebergeordneteOrganisationId;
 
 	Long unterhaltId;
 	String unterhaltName;
@@ -106,12 +110,18 @@ public class MassnahmeListenDbView {
 	GeometryCollection geometry;
 	@Enumerated(EnumType.STRING)
 	UmsetzungsstandStatus umsetzungsstandStatus;
+	@Enumerated(EnumType.STRING)
+	Realisierungshilfe realisierungshilfe;
+	Kostenannahme kostenannahme;
+	MaViSID maViSID;
+	VerbaID verbaID;
+	LGVFGID lgvfgID;
 
 	public Set<Netzklasse> getNetzklassen() {
 		return netzklassen == null ? Collections.emptySet()
 			: Stream.of(netzklassen.split(";"))
-				.map(Netzklasse::valueOf)
-				.collect(Collectors.toSet());
+			.map(Netzklasse::valueOf)
+			.collect(Collectors.toSet());
 	}
 
 	public String getNetzklassenString() {

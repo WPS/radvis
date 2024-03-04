@@ -22,10 +22,6 @@ describe(BedienhinweisService.name, () => {
     service = new BedienhinweisService();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
   it('should fire change event with correct bedienhinweis', (done: DoneFn) => {
     const expectedBedienhinweis = 'Foo bar';
 
@@ -39,7 +35,7 @@ describe(BedienhinweisService.name, () => {
   });
 
   it('should fire change event when hiding bedienhinweis', (done: DoneFn) => {
-    service.bedienhinweis$.subscribe(bedienhinweis => {
+    service.bedienhinweis$.pipe(skip(1)).subscribe(bedienhinweis => {
       expect(bedienhinweis).toEqual(null);
       expect(service.getBedienhinweis()).toBeNull();
       done();

@@ -42,7 +42,7 @@ export const defaultMassnahmeListView: MassnahmeListenView = {
     nachname: 'Mustermensch',
     vorname: 'M.',
   },
-  markierungsZustaendiger: null,
+  zustaendiger: null,
   unterhaltsZustaendiger: null,
   geometry: {
     coordinates: [],
@@ -78,7 +78,7 @@ export const getTestMassnahmeListenViews = (): MassnahmeListenView[] => {
         nachname: 'Musteralien',
         vorname: 'A.',
       },
-      markierungsZustaendiger: null,
+      zustaendiger: null,
       unterhaltsZustaendiger: null,
       geometry: {
         coordinates: [],
@@ -110,7 +110,7 @@ export const getTestMassnahmeListenViews = (): MassnahmeListenView[] => {
         nachname: 'Musteralien',
         vorname: 'A.',
       },
-      markierungsZustaendiger: null,
+      zustaendiger: null,
       unterhaltsZustaendiger: null,
       geometry: {
         coordinates: [],

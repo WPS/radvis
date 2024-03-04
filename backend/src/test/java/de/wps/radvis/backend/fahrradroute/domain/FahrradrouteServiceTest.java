@@ -351,7 +351,8 @@ class FahrradrouteServiceTest {
 			service.onFahrradrouteCreated(new FahrradrouteCreatedEvent(fahrradrouteWithoutNetzbezugLineString));
 
 			// Assert
-			verify(graphhopperRoutingRepository, never()).route(any(), eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), anyBoolean());
+			verify(graphhopperRoutingRepository, never()).route(any(),
+				eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), anyBoolean());
 			assertThat(fahrradrouteWithoutNetzbezugLineString.getAnstieg()).isEmpty();
 			assertThat(fahrradrouteWithoutNetzbezugLineString.getAbstieg()).isEmpty();
 		}
@@ -362,7 +363,8 @@ class FahrradrouteServiceTest {
 			service.onFahrradrouteUpdated(new FahrradrouteUpdatedEvent(fahrradrouteWithoutNetzbezugLineString));
 
 			// Assert
-			verify(graphhopperRoutingRepository, never()).route(any(), eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), anyBoolean());
+			verify(graphhopperRoutingRepository, never()).route(any(),
+				eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), anyBoolean());
 			assertThat(fahrradrouteWithoutNetzbezugLineString.getAnstieg()).isEmpty();
 			assertThat(fahrradrouteWithoutNetzbezugLineString.getAbstieg()).isEmpty();
 		}
@@ -483,13 +485,13 @@ class FahrradrouteServiceTest {
 		// arrange
 		int anzahlTage = 2;
 		JobExecutionDescription tfisImportJob = JobExecutionDescriptionTestDataProvider.withDefaultValues()
-			.executionStart(LocalDateTime.now().minusDays(1)).id(1l)
+			.executionStart(LocalDateTime.now().minusDays(1)).id(1L)
 			.name(FahrradroutenTfisImportJob.class.getSimpleName()).build();
 		JobExecutionDescription tfisUpdateJob = JobExecutionDescriptionTestDataProvider.withDefaultValues()
-			.executionStart(LocalDateTime.now().minusHours(1)).id(2l)
+			.executionStart(LocalDateTime.now().minusHours(1)).id(2L)
 			.name(FahrradroutenTfisUpdateJob.class.getSimpleName()).build();
 		JobExecutionDescription toubizImportJob = JobExecutionDescriptionTestDataProvider.withDefaultValues()
-			.executionStart(LocalDateTime.now().minusDays(3)).id(3l)
+			.executionStart(LocalDateTime.now().minusDays(3)).id(3L)
 			.name(FahrradroutenToubizImportJob.class.getSimpleName()).build();
 		when(jobExecutionDescriptionRepository.findAllByNameInAfterOrderByExecutionStartDesc(any(), any()))
 			.thenReturn(List.of(tfisImportJob, tfisUpdateJob, toubizImportJob));
@@ -535,4 +537,30 @@ class FahrradrouteServiceTest {
 			.usingRecursiveFieldByFieldElementComparator()
 			.containsExactly(tfisImportProtokoll, tfisUpdateProtokoll, toubizImportProtokoll);
 	}
+
+	@Test
+	void protokolliereNetzbezugAenderungNichtFuerAusloeserRadVisKanteLoeschen_kanteLoeschen() {
+		// arrange
+		Kante kante = KanteTestDataProvider.withDefaultValues().id(123L).build();
+		Fahrradroute radvisRoute = FahrradrouteTestDataProvider.onKante(kante).id(2L)
+			.fahrradrouteTyp(FahrradrouteTyp.RADVIS_ROUTE).build();
+		assertThat(radvisRoute.getAbschnittsweiserKantenBezug()).hasSize(1);
+
+		when(fahrradrouteRepository.findByKanteIdInNetzBezug(kante.getId()))
+			.thenReturn(List.of(radvisRoute));
+
+		KanteDeletedEvent deleteEvent = new KanteDeletedEvent(
+			kante.getId(),
+			GeometryTestdataProvider.createLineString(),
+			NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN,
+			LocalDateTime.now());
+
+		// act
+		service.onKanteGeloescht(deleteEvent);
+
+		// assert
+		verify(fahrradrouteNetzBezugAenderungRepository, never()).save(any());
+		assertThat(radvisRoute.getAbschnittsweiserKantenBezug()).isEmpty();
+	}
+
 }

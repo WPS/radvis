@@ -16,17 +16,16 @@ package de.wps.radvis.backend.netz.domain.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.OneToOne;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -29,21 +29,24 @@ import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
 import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
-import { DiscardGuard, DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service';
 import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
 
-describe('KantenSelektionService', () => {
+describe(KantenSelektionService.name, () => {
   let service: KantenSelektionService;
   let netzService: NetzService;
-  let discardGuardService: DiscardGuardService;
   let bearbeitungModusService: NetzBearbeitungModusService;
   const bearbeitungModusSubject = new BehaviorSubject<AttributGruppe | null>(null);
 
+  let discardGuardService: DiscardGuardService;
+
   beforeEach(() => {
     netzService = mock(NetzService);
-    discardGuardService = mock(DiscardGuardService);
     bearbeitungModusService = mock(NetzBearbeitungModusService);
+    discardGuardService = mock(DiscardGuardService);
+
     when(bearbeitungModusService.getAktiveKantenGruppe()).thenReturn(bearbeitungModusSubject);
     service = new KantenSelektionService(
       instance(netzService),
@@ -59,8 +62,9 @@ describe('KantenSelektionService', () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.select(1, false);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -162,8 +166,9 @@ describe('KantenSelektionService', () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.select(1, false, Seitenbezug.LINKS);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should check discard if Kante is implicitly deselected', () => {
@@ -174,8 +179,9 @@ describe('KantenSelektionService', () => {
       ]);
       service.select(anotherKante.id, false, Seitenbezug.RECHTS);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -267,6 +273,7 @@ describe('KantenSelektionService', () => {
 
     it('should set anzahlSegmente correctly', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       const kanteId1 = 1;
       const kante1 = {
         ...defaultKante,
@@ -291,6 +298,7 @@ describe('KantenSelektionService', () => {
 
     it('should reset selektion to consistent state when canDiscard after insert segment', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       bearbeitungModusSubject.next(AttributGruppe.ZUSTAENDIGKEIT);
       tick();
 
@@ -329,6 +337,7 @@ describe('KantenSelektionService', () => {
     beforeEach(
       waitForAsync(() => {
         when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
         const kante1 = {
           ...defaultKante,
           id: kanteId1,
@@ -361,8 +370,9 @@ describe('KantenSelektionService', () => {
       tick();
 
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
       expect(service.selektion[0].istSeiteSelektiert(Seitenbezug.LINKS)).toBeFalse();
     }));
 
@@ -406,18 +416,21 @@ describe('KantenSelektionService', () => {
   describe('deselectKante - Seitenbezug', () => {
     it('should check discard', () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofSeite(anotherKante, Seitenbezug.LINKS),
       ]);
       service.deselect(anotherKante.id, Seitenbezug.LINKS);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofSeite(anotherKante, Seitenbezug.LINKS),
@@ -429,6 +442,7 @@ describe('KantenSelektionService', () => {
 
     it('should deselect gesamte kante', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofSeite(anotherKante, Seitenbezug.LINKS),
@@ -441,6 +455,7 @@ describe('KantenSelektionService', () => {
 
     it('should deselect seite', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       service['selektionSubject'].next([KantenSelektion.ofGesamteKante(defaultKante)]);
       service.deselect(defaultKante.id, Seitenbezug.LINKS);
       tick();
@@ -453,18 +468,21 @@ describe('KantenSelektionService', () => {
   describe('deselectKante', () => {
     it('should check discard', () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofGesamteKante(anotherKante),
       ]);
       service.deselect(anotherKante.id);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofGesamteKante(anotherKante),
@@ -476,6 +494,7 @@ describe('KantenSelektionService', () => {
 
     it('should deselect gesamte kante', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofGesamteKante(anotherKante),
@@ -490,18 +509,21 @@ describe('KantenSelektionService', () => {
   describe('deselectKantenelement', () => {
     it('should check discard', () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofSeite(anotherKante, Seitenbezug.LINKS),
       ]);
       service.deselect(anotherKante.id, Seitenbezug.LINKS, 0);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofSeite(anotherKante, Seitenbezug.LINKS),
@@ -513,6 +535,7 @@ describe('KantenSelektionService', () => {
 
     it('should deselect gesamte kante', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(defaultKante),
         KantenSelektion.ofSeite(anotherKante, Seitenbezug.LINKS),
@@ -525,6 +548,7 @@ describe('KantenSelektionService', () => {
 
     it('should deselect element', fakeAsync(() => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
+
       service['selektionSubject'].next([KantenSelektion.ofGesamteKante(defaultKante, 3, 1)]);
       service.deselect(defaultKante.id, undefined, 1);
       tick();
@@ -641,12 +665,12 @@ describe('KantenSelektionService', () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.cleanUp(false);
       verify(discardGuardService.canDeactivate(anything())).once();
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardGuard'] as DiscardGuard);
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
+        service['discardableComponent'] as DiscardableComponent
+      );
     });
 
     it('should return false when cannot discard', (done: DoneFn) => {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       const spy = spyOn(service['selektionSubject'], 'next');
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.cleanUp(true).then(returnValue => {
@@ -657,7 +681,6 @@ describe('KantenSelektionService', () => {
     });
 
     it('should replace if parameter true', fakeAsync(() => {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       service['selektionSubject'].next([KantenSelektion.ofGesamteKante(defaultKante)]);
       tick();
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
@@ -667,7 +690,6 @@ describe('KantenSelektionService', () => {
     }));
 
     it('should not replace if parameter false', fakeAsync(() => {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       service['selektionSubject'].next([KantenSelektion.ofGesamteKante(defaultKante)]);
       tick();
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
@@ -685,7 +707,6 @@ describe('KantenSelektionService', () => {
       const kanteId2 = 2;
       const kante2 = { ...defaultKante, id: kanteId2 };
 
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       service['selektionSubject'].next([
         KantenSelektion.ofGesamteKante(kante1),
         KantenSelektion.ofGesamteKante(kante2),
@@ -697,7 +718,7 @@ describe('KantenSelektionService', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createSelektionOfSegment(kante: Kante, segmentIndex: number, seitenbezug?: Seitenbezug): KantenSelektion {
   const basicSelektion = KantenSelektion.ofGesamteKante(kante);
   return basicSelektion.selectSegment(segmentIndex, seitenbezug);

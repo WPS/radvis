@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class ToubizIdUserType implements AttributeConverter<ToubizId, String> {
 	@Override
 	public String convertToDatabaseColumn(ToubizId toubizId) {

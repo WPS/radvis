@@ -53,7 +53,8 @@ public class ServicestationExporterServiceTest {
 		// Es werden nicht alle Werte getestet, dieser Test ist dafür da um die unterschiedlichen Mappings zu testen
 		assertThat(result.get(0).getGeometry().getNumGeometries()).isEqualTo(1);
 		assertThat(result.get(0).getGeometry().getGeometryN(0).getGeometryType()).isEqualTo("Point");
-		assertThat(result.get(0).getProperties()).hasSize(16);
+		assertThat(result.get(0).getProperties()).hasSize(17);
+		assertThat(result.get(0).getProperties().get("Quellsystem")).isEqualTo("RadVIS");
 		assertThat(result.get(0).getProperties().get("Luftpumpe")).isEqualTo("ja");
 		assertThat(result.get(0).getProperties().get("Kettenwerkzeug")).isEqualTo("nein");
 		assertThat(result.get(0).getProperties().get("Zuständig in RadVIS"))

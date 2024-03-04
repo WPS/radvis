@@ -12,24 +12,23 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<mat-form-field>
+<mat-form-field class="w-100">
   <mat-label>
     <ng-content></ng-content>
   </mat-label>
-  <mat-chip-list #chipList>
-    <mat-chip
+  <mat-chip-grid #chipList class="massnahmen-chip-grid">
+    <mat-chip-row
       *ngFor="let kategorie of selectedOptions"
       [matTooltip]="displayFn(kategorie) + ' (' + displayOberkategorie(kategorie) + ')'"
-      [selectable]="true"
       [removable]="true"
       (click)="onChipClick(kategorie, trigger)"
       (removed)="onRemoved(kategorie)"
     >
       {{ displayFn(kategorie) | slice: 0:30 }}{{ kategorie.length > 30 ? ' ...' : '' }}
-      <mat-icon matChipRemove *ngIf="formControl.enabled" radAccessabilityText="Kategorie aus Auswahl entfernen">
-        cancel
-      </mat-icon>
-    </mat-chip>
+      <button matChipRemove *ngIf="formControl.enabled" aria-label="Kategorie aus Auswahl entfernen">
+        <mat-icon> cancel</mat-icon>
+      </button>
+    </mat-chip-row>
     <input
       [hidden]="disabled"
       matInput
@@ -42,14 +41,14 @@
       #trigger="matAutocompleteTrigger"
       (click)="onClick($event, trigger)"
     />
-  </mat-chip-list>
+  </mat-chip-grid>
   <mat-autocomplete
     #auto="matAutocomplete"
     (optionSelected)="onOptionSelected($event, autoInput)"
     (opened)="onPanelOpened()"
     (closed)="onPanelClosed()"
   >
-    <mat-option disabled="true" *ngIf="filteredGroupedOptions.length === 0">Keine passenden Ergebnisse </mat-option>
+    <mat-option disabled="true" *ngIf="filteredGroupedOptions.length === 0">Keine passenden Ergebnisse</mat-option>
     <mat-optgroup
       class="first-level-optgroup"
       *ngFor="let firstLevelGroup of filteredGroupedOptions"

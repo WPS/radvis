@@ -14,12 +14,7 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">Furt/Kreuzung <span *ngIf="isCreator">erstellen</span></h2>
-  <button
-    [attr.aria-label]="'Schließen'"
-    matTooltip="Schließen"
-    (click)="onClose()"
-    mat-icon-button
-  >
+  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>

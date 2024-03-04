@@ -20,11 +20,11 @@ import java.util.Set;
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.schnittstelle.BenutzerView;
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
@@ -58,7 +58,7 @@ public class MassnahmeEditView {
 	private final Set<Netzklasse> netzklassen;
 	private final LocalDateTime letzteAenderung;
 	private final BenutzerView benutzerLetzteAenderung;
-	private final VerwaltungseinheitView markierungsZustaendiger;
+	private final VerwaltungseinheitView zustaendiger;
 	private final VerwaltungseinheitView unterhaltsZustaendiger;
 	private final MaViSID maViSID;
 	private final VerbaID verbaID;
@@ -84,7 +84,7 @@ public class MassnahmeEditView {
 		this.umsetzungsstatus = massnahme.getUmsetzungsstatus();
 		this.durchfuehrungszeitraum = massnahme.getDurchfuehrungszeitraum().orElse(null);
 		this.baulastZustaendiger = massnahme.getBaulastZustaendiger().map(VerwaltungseinheitView::new).orElse(null);
-		this.markierungsZustaendiger = massnahme.getMarkierungsZustaendiger().map(VerwaltungseinheitView::new)
+		this.zustaendiger = massnahme.getZustaendiger().map(VerwaltungseinheitView::new)
 			.orElse(null);
 		this.unterhaltsZustaendiger = massnahme.getunterhaltsZustaendiger().map(VerwaltungseinheitView::new)
 			.orElse(null);

@@ -87,12 +87,13 @@ public abstract class AuditingTestIT {
 			@SuppressWarnings("unchecked")
 			List<String> tablesToclear = testEntityManager.getEntityManager()
 				.createNativeQuery(
-					"select relname from pg_stat_all_tables " +
-						"where schemaname = 'public' and NOT ("
-						+ "relname LIKE 'databasechangelog%' "
-						+ "OR relname = 'spatial_ref_sys' "
-						+ "OR relname LIKE '%materialized_view' "
-						+ ")")
+					"""
+						SELECT t.tablename
+						FROM pg_catalog.pg_tables t
+						WHERE t.schemaname = 'public'
+							AND t.tablename != 'spatial_ref_sys'
+							AND t.tablename NOT LIKE 'databasechangelog%'
+						""")
 				.getResultList();
 
 			tablesToclear.forEach(table -> {

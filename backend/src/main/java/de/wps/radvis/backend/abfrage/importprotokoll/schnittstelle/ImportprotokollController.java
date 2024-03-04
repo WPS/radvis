@@ -35,7 +35,8 @@ public class ImportprotokollController {
 	private final CommonConfigurationProperties commonConfigurationProperties;
 	private final List<ImportprotokollService> importprotokollServices;
 
-	public ImportprotokollController(@Autowired CommonConfigurationProperties commonConfigurationProperties, @Autowired List<ImportprotokollService> importprotokollServices) {
+	public ImportprotokollController(@Autowired CommonConfigurationProperties commonConfigurationProperties,
+		@Autowired List<ImportprotokollService> importprotokollServices) {
 		this.commonConfigurationProperties = commonConfigurationProperties;
 		this.importprotokollServices = importprotokollServices;
 	}

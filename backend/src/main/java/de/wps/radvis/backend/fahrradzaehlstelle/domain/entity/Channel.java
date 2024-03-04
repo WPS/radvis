@@ -23,18 +23,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
+import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.ChannelBezeichnung;
+import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.ChannelId;
+import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstand;
+import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zeitstempel;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OrderBy;
-
-import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
-import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.ChannelBezeichnung;
-import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.ChannelId;
-import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstand;
-import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zeitstempel;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

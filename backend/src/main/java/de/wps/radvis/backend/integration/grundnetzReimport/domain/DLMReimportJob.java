@@ -26,9 +26,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 
@@ -58,7 +55,8 @@ import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMWFSImportRepository;
-import lombok.extern.log4j.Log4j2;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -141,7 +139,7 @@ public class DLMReimportJob extends AbstractJob {
 		log.info("... Elevation Update done");
 
 		log.info("Refreshing RadVisNetz-Materialized-Views");
-		this.netzService.refreshRadVisNetzMaterializedViews();
+		this.netzService.refreshNetzMaterializedViews();
 		log.info("Finished refreshing RadVisNetz-Materialized-Views");
 
 		if (FeatureTogglz.VERNETZUNG_KORREKTUR.isActive()) {

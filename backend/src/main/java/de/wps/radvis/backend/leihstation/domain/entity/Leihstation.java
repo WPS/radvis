@@ -20,10 +20,6 @@ import static org.valid4j.Assertive.require;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 import org.hibernate.envers.Audited;
 import org.locationtech.jts.geom.Point;
 
@@ -34,6 +30,9 @@ import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationQuellSyst
 import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationStatus;
 import de.wps.radvis.backend.leihstation.domain.valueObject.UrlAdresse;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -16,7 +16,7 @@
   display: block;
 }
 
-button {
+.mat-mdc-button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -28,18 +28,22 @@ button {
   height: 36px;
   min-width: unset;
 
-  color: white;
+  color: white !important;
 
   &:hover {
     background: rgba(6, 60, 104, 0.9);
   }
 
-  &.selected, &:active {
+  &.selected,
+  &:active {
     background: rgba(6, 60, 104, 1);
   }
 
   &:focus {
     background: rgba(6, 60, 104, 1);
   }
+}
 
+.mat-mdc-button ::ng-deep .mat-icon {
+  display: flex;
 }

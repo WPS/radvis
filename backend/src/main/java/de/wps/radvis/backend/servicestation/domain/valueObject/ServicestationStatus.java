@@ -21,7 +21,7 @@ import lombok.NonNull;
 public enum ServicestationStatus {
 
 	GEPLANT("Geplant"),
- 	AKTIV("Aktiv"),
+	AKTIV("Aktiv"),
 	AUSSER_BETRIEB("Außer Betrieb");
 
 	@NonNull

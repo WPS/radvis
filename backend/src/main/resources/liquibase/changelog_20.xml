@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-1868" author="par">
     <addColumn tableName="kanten_attribut_gruppe">
@@ -42,17 +42,17 @@
 
   <changeSet id="RAD-1861-2" author="par">
     <modifyDataType
-      columnName="kanten_laenge"
-      newDataType="INTEGER"
-      tableName="kante"/>
+			columnName="kanten_laenge"
+			newDataType="INTEGER"
+			tableName="kante"/>
     <sql>
       UPDATE kante
       SET kanten_laenge = st_length(geometry) * 100
       WHERE geometry IS NOT NULL
     </sql>
   </changeSet>
-  <!-- Erstes Produktiv Deployment  -->
-  <changeSet id="RAD-1861-3" author="tr">
+	<!-- Erstes Produktiv Deployment  -->
+	<changeSet id="RAD-1861-3" author="tr">
     <renameColumn tableName="kante" oldColumnName="kanten_laenge" newColumnName="kanten_laenge_in_cm"/>
   </changeSet>
 </databaseChangeLog>

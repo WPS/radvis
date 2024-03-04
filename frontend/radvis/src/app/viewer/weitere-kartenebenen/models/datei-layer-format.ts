@@ -26,7 +26,7 @@ export namespace DateiLayerFormat {
     (k: string): EnumOption => {
       switch (k) {
         case DateiLayerFormat.SHAPE:
-          return { name: k, displayText: 'Shapefile' };
+          return { name: k, displayText: 'Shapefile (Shape-ZIP)' };
         case DateiLayerFormat.GEOJSON:
           return { name: k, displayText: 'GeoJSON' };
         case DateiLayerFormat.GEOPACKAGE:

@@ -14,6 +14,8 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BelagArt } from 'src/app/shared/models/belag-art';
+import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +27,7 @@ export class AuswertungService {
 
   public getAuswertung(params: {
     gemeindeKreisBezirkId: number | '';
+    wahlkreisId: number | '';
     netzklassen: string[];
     beachteNichtKlassifizierteKanten: boolean;
     istStandards: string[];
@@ -32,6 +35,8 @@ export class AuswertungService {
     baulastId: number | '';
     unterhaltId: number | '';
     erhaltId: number | '';
+    belagart: BelagArt | '';
+    fuehrung: Radverkehrsfuehrung | '';
   }): Promise<number> {
     return this.http
       .get<number>(`${this.auswertungApi}`, { params })

@@ -19,14 +19,13 @@ import static org.valid4j.Assertive.require;
 
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

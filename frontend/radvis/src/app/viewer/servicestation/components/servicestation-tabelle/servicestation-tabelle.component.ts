@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewContainerRef, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
@@ -51,6 +51,7 @@ export class ServicestationTabelleComponent implements CsvImportService {
 
   private columnMapping: Map<string, string> = new Map([
     ['name', 'Name'],
+    ['quellSystem', 'Quellsystem'],
     ['gebuehren', 'Gebühren'],
     ['betreiber', 'Betreiber'],
     ['marke', 'Marke'],

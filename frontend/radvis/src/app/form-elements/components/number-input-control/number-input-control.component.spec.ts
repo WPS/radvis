@@ -13,15 +13,13 @@
  */
 
 import { ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { MockBuilder, MockRender } from 'ng-mocks';
 import { EditorModule } from 'src/app/editor/editor.module';
-import {
-  UndeterminedValue,
-  UNDETERMINED_LABEL,
-} from 'src/app/form-elements/components/abstract-undetermined-form-control';
+import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { NumberInputControlComponent } from 'src/app/form-elements/components/number-input-control/number-input-control.component';
 
-describe('NumberInputControlComponent', () => {
+describe(NumberInputControlComponent.name, () => {
   let component: NumberInputControlComponent;
   let fixture: ComponentFixture<NumberInputControlComponent>;
 
@@ -32,7 +30,6 @@ describe('NumberInputControlComponent', () => {
   beforeEach(() => {
     fixture = MockRender(NumberInputControlComponent);
     component = fixture.componentInstance;
-    component.anzahlNachkommastellen = 2;
     fixture.detectChanges();
   });
 
@@ -43,48 +40,23 @@ describe('NumberInputControlComponent', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('should handle undetermined value', () => {
-      component.writeValue(new UndeterminedValue());
-      expect(component.formControl.value).toEqual(UNDETERMINED_LABEL);
-    });
-
     it('should set form correct', () => {
       component.writeValue(3.4);
-      expect(component.formControl.value).toBe('3,40');
+      expect(component.formControl.value).toBe(3.4);
 
       component.writeValue(3.416);
-      expect(component.formControl.value).toBe('3,42');
-    });
-  });
-
-  describe('onChange', () => {
-    it('should convert string to number', () => {
-      const spy = spyOn(component, 'onChange');
-      component.formControl.setValue('2,457');
-      expect(spy).toHaveBeenCalled();
-      expect(spy.calls.mostRecent().args[0]).toEqual(2.46);
+      expect(component.formControl.value).toBe(3.416);
     });
 
-    it('should return NaN for invalid input', () => {
-      const spy = spyOn(component, 'onChange');
-      component.formControl.setValue('abc');
-      expect(spy).toHaveBeenCalled();
-      expect(spy.calls.mostRecent().args[0]).toBeNaN();
-    });
-  });
-
-  describe('validate', () => {
-    it('should be invalid for string input', () => {
-      component.formControl.setValue('abc');
-      expect(component.formControl.valid).toBeFalse();
-      expect(component.validate()).toEqual({ isFloat: 'Nur Kommazahlen erlaubt' });
-    });
-
-    it('should not be invalid for undeterminedValue', () => {
+    it('should process UndeterminedValue', () => {
       component.writeValue(new UndeterminedValue());
-      component.formControl.updateValueAndValidity();
-      expect(component.formControl.valid).toBeTrue();
-      expect(component.validate()).toEqual(null);
+      fixture.detectChanges();
+
+      expect(component.formControl.value).toBe(null);
+      expect(component.isUndetermined).toBeTrue();
+      expect(fixture.debugElement.query(By.css('mat-hint')).nativeElement.innerText).toEqual(
+        'Mehrere Werte ausgewählt'
+      );
     });
   });
 });

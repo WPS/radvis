@@ -16,16 +16,26 @@ package de.wps.radvis.backend.massnahme.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.locationtech.jts.geom.Coordinate;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -42,7 +52,9 @@ import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProv
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
+import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 
 class MassnahmeServiceTest {
@@ -66,13 +78,19 @@ class MassnahmeServiceTest {
 
 	@Mock
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+	private AutoCloseable openMocks;
 
 	@BeforeEach
 	void setUp() {
-		openMocks(this);
+		openMocks = openMocks(this);
 		massnahmeService = new MassnahmeService(massnahmeRepository, massnahmeViewRepository,
 			massnahmeUmsetzungsstandViewRepository, umsetzungsstandRepository, kantenRepository,
 			massnahmeNetzbezugAenderungProtokollierungsService);
+	}
+
+	@AfterEach
+	void cleanUp() throws Exception {
+		openMocks.close();
 	}
 
 	@Test
@@ -151,4 +169,100 @@ class MassnahmeServiceTest {
 
 	}
 
+	@Test
+	void testOnKanteGeloescht_ausloeserRadVisKanteGeloescht_keinProtokollEintrag() {
+		// arrange
+		Kante kanteRadVis = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis)
+			.id(10L)
+			.build();
+
+		Kante kanteDLM = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM)
+			.id(20L)
+			.build();
+
+		Massnahme abschnittsweiseRadVis = MassnahmeTestDataProvider.withDefaultValues()
+			.id(1L)
+			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteRadVis))
+			.build();
+
+		Massnahme punktuellRadVis = MassnahmeTestDataProvider.withDefaultValues()
+			.id(2L)
+			.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kanteRadVis))
+			.build();
+
+		Massnahme abschnittsweiseDlm = MassnahmeTestDataProvider.withDefaultValues()
+			.id(3L)
+			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteDLM))
+			.build();
+
+		when(massnahmeRepository.findByKanteInNetzBezug(10L)).thenReturn(
+			List.of(abschnittsweiseRadVis, punktuellRadVis));
+		when(massnahmeRepository.findByKanteInNetzBezug(20L)).thenReturn(List.of(abschnittsweiseDlm));
+
+		// act
+		massnahmeService.onKanteGeloescht(new KanteDeletedEvent(kanteRadVis.getId(), kanteRadVis.getGeometry(),
+			NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN,
+			LocalDateTime.now()));
+
+		// assert
+		assertThat(abschnittsweiseRadVis.getNetzbezug().getImmutableKantenAbschnittBezug()).isEmpty();
+		assertThat(punktuellRadVis.getNetzbezug().getImmutableKantenPunktBezug()).isEmpty();
+		assertThat(abschnittsweiseDlm.getNetzbezug().getImmutableKantenAbschnittBezug()).hasSize(1);
+
+		verifyNoInteractions(massnahmeNetzbezugAenderungProtokollierungsService);
+	}
+
+	@ParameterizedTest
+	@EnumSource(
+		value = NetzAenderungAusloeser.class,
+		names = { "RADVIS_KANTE_LOESCHEN" },
+		mode = EnumSource.Mode.EXCLUDE)
+	void testOnKanteGeloescht_ausloeserNichtRadVisKanteLoeschen_protokollEintrag(
+		NetzAenderungAusloeser netzAenderungAusloeser) {
+		// arrange
+		Kante kanteRadVis = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis)
+			.id(10L)
+			.build();
+
+		Kante kanteDLM = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM)
+			.id(20L)
+			.build();
+
+		Massnahme abschnittsweiseRadVis = MassnahmeTestDataProvider.withDefaultValues()
+			.id(1L)
+			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteRadVis))
+			.build();
+
+		Massnahme punktuellRadVis = MassnahmeTestDataProvider.withDefaultValues()
+			.id(2L)
+			.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kanteRadVis))
+			.build();
+
+		Massnahme abschnittsweiseDlm = MassnahmeTestDataProvider.withDefaultValues()
+			.id(3L)
+			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kanteDLM))
+			.build();
+
+		when(massnahmeRepository.findByKanteInNetzBezug(10L)).thenReturn(
+			List.of(abschnittsweiseRadVis, punktuellRadVis));
+		when(massnahmeRepository.findByKanteInNetzBezug(20L)).thenReturn(List.of(abschnittsweiseDlm));
+
+		// act
+		massnahmeService.onKanteGeloescht(new KanteDeletedEvent(kanteRadVis.getId(), kanteRadVis.getGeometry(),
+			netzAenderungAusloeser,
+			LocalDateTime.now()));
+
+		// assert
+		assertThat(abschnittsweiseRadVis.getNetzbezug().getImmutableKantenAbschnittBezug()).isEmpty();
+		assertThat(punktuellRadVis.getNetzbezug().getImmutableKantenPunktBezug()).isEmpty();
+		assertThat(abschnittsweiseDlm.getNetzbezug().getImmutableKantenAbschnittBezug()).hasSize(1);
+
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<Massnahme>> massnahmenCaptor = ArgumentCaptor.forClass(List.class);
+		verify(massnahmeNetzbezugAenderungProtokollierungsService,
+			times(1)).protokolliereNetzBezugAenderungFuerGeloeschteKante(massnahmenCaptor.capture(), any());
+		assertThat(massnahmenCaptor.getValue()).containsExactlyInAnyOrder(abschnittsweiseRadVis,
+			punktuellRadVis);
+		verifyNoMoreInteractions(massnahmeNetzbezugAenderungProtokollierungsService);
+	}
 }

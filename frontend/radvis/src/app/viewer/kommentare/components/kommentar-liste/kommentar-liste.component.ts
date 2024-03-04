@@ -15,7 +15,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { AddKommentarCommand } from 'src/app/viewer/kommentare/models/add-kommentar-command';
 import { Kommentar } from 'src/app/viewer/kommentare/models/kommentar';
 import { KommentarService } from 'src/app/viewer/kommentare/services/kommentar.service';
@@ -26,11 +26,11 @@ import { KommentarService } from 'src/app/viewer/kommentare/services/kommentar.s
   styleUrls: ['./kommentar-liste.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KommentarListeComponent implements OnDestroy, DiscardGuard {
+export class KommentarListeComponent implements OnDestroy, DiscardableComponent {
   public static readonly KOMMENTARLISTE_DATA_KEY = 'kommentare';
 
   @ViewChild('kommentarHinzufuegen')
-  private kommentarHinzufuegen: DiscardGuard | undefined;
+  private kommentarHinzufuegen: DiscardableComponent | undefined;
 
   @ViewChild('kommentarListeContainer')
   private kommentarListeContainer: ElementRef | undefined;

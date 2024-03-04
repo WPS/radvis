@@ -63,7 +63,7 @@ tr.highlighted {
   background-color: map-get($radvis-accent-palette, 100);
 }
 
-.infrastruktur-tabelle-layout::ng-deep td.mat-cell:not(:last-of-type) {
+.infrastruktur-tabelle-layout::ng-deep td.mat-mdc-cell:not(:last-of-type) {
   padding-right: 0.5rem;
 }
 

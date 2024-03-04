@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -38,8 +40,6 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
@@ -83,9 +83,8 @@ public class ShpExportConverter implements ExportConverter {
 					log.debug("Erstelle Shapefile für Geometrietyp " + geometryType);
 					exportAsShpToDir(exportData, finalExportDir, geometryType);
 				} catch (IOException e) {
-					log.warn("SHP-Export von Geometrietyp {} nach {} fehlgeschlagen: {}", geometryType, finalExportDir,
-						e.getMessage());
-					log.warn(e.getMessage(), e);
+					log.warn("SHP-Export von Geometrietyp {} nach {} fehlgeschlagen: ", geometryType, finalExportDir,
+						e);
 				}
 			});
 

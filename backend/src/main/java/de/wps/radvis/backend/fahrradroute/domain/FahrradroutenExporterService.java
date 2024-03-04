@@ -68,7 +68,8 @@ public class FahrradroutenExporterService implements ExporterService {
 		result.put("Homepage", fahrradroute.getHomepage());
 		result.put("Lizenz", fahrradroute.getLizenz());
 		result.put("Lizenz Namensnennung", fahrradroute.getLizenzNamensnennung());
-		result.put("Zeitpunkt der letzten Änderung", fahrradroute.getZuletztBearbeitet().format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm")));
+		result.put("Zeitpunkt der letzten Änderung",
+			fahrradroute.getZuletztBearbeitet().format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm")));
 
 		return result;
 	}

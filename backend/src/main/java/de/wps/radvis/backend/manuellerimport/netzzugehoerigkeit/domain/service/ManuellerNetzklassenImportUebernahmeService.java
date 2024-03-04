@@ -17,14 +17,12 @@ package de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.service;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.EntityManager;
-
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklasseImportSession;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

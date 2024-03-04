@@ -16,6 +16,8 @@ package de.wps.radvis.backend.massnahme.domain.entity;
 
 import java.util.Set;
 
+import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -24,9 +26,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
-
-import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
-import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import lombok.Getter;
 
 @Entity

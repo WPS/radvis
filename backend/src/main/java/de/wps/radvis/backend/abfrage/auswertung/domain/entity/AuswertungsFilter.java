@@ -14,39 +14,70 @@
 
 package de.wps.radvis.backend.abfrage.auswertung.domain.entity;
 
+import static org.valid4j.Assertive.require;
+
+import java.util.Objects;
 import java.util.Set;
 
+import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
-import lombok.AllArgsConstructor;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import lombok.Builder;
 import lombok.Getter;
 
-@AllArgsConstructor
+@Getter
 @Builder
 public class AuswertungsFilter {
 
-	@Getter
 	private Long gemeindeKreisBezirkId;
 
-	@Getter
+	private Long wahlkreisId;
+
 	Set<Netzklasse> netzklassen;
 
-	@Getter
 	boolean beachteNichtKlassifizierteKanten;
 
-	@Getter
 	Set<IstStandard> istStandards;
 
-	@Getter
 	boolean beachteKantenOhneStandards;
 
-	@Getter
-	private Long baulastId;
+	private Verwaltungseinheit baulast;
 
-	@Getter
-	private Long unterhaltId;
+	private Verwaltungseinheit unterhalt;
 
-	@Getter
-	private Long erhaltId;
+	private Verwaltungseinheit erhalt;
+
+	private BelagArt belagArt;
+
+	private Radverkehrsfuehrung radverkehrsfuehrung;
+
+	public AuswertungsFilter(Long gemeindeKreisBezirkId, Long wahlkreisId, Set<Netzklasse> netzklassen,
+		boolean beachteNichtKlassifizierteKanten, Set<IstStandard> istStandards, boolean beachteKantenOhneStandards,
+		Verwaltungseinheit baulast, Verwaltungseinheit unterhalt, Verwaltungseinheit erhalt, BelagArt belagArt,
+		Radverkehrsfuehrung radverkehrsfuehrung) {
+		require(Objects.isNull(gemeindeKreisBezirkId) || Objects.isNull(wahlkreisId),
+			"Es dürfen nicht beide IDs gesetzt sein.");
+
+		this.gemeindeKreisBezirkId = gemeindeKreisBezirkId;
+		this.wahlkreisId = wahlkreisId;
+		this.netzklassen = netzklassen;
+		this.beachteNichtKlassifizierteKanten = beachteNichtKlassifizierteKanten;
+		this.istStandards = istStandards;
+		this.beachteKantenOhneStandards = beachteKantenOhneStandards;
+		this.baulast = baulast;
+		this.unterhalt = unterhalt;
+		this.erhalt = erhalt;
+		this.belagArt = belagArt;
+		this.radverkehrsfuehrung = radverkehrsfuehrung;
+	}
+
+	public boolean isWahlkreis() {
+		return Objects.nonNull(wahlkreisId);
+	}
+
+	public boolean isGemeindeKreisBezirk() {
+		return Objects.nonNull(gemeindeKreisBezirkId);
+	}
 }

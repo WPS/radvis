@@ -19,9 +19,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +35,8 @@ import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.barriere.schnittstelle.view.BarriereEditView;
 import de.wps.radvis.backend.barriere.schnittstelle.view.BarriereListenView;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/barriere")

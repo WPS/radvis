@@ -49,7 +49,7 @@ public class ReverseproxyConfiguarationProperties {
 		String beschilderungsKatasterPath) {
 		require(geoserverUrl, notNullValue());
 		require(beschilderungsKatasterDomain, notNullValue());
-		
+
 		this.beschilderungsKatasterDomain = beschilderungsKatasterDomain;
 		this.beschilderungsKatasterPath = beschilderungsKatasterPath;
 		this.geoserverUrl = geoserverUrl;

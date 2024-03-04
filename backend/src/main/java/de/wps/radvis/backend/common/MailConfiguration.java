@@ -54,7 +54,8 @@ public class MailConfiguration {
 
 	@Bean
 	public MailService mailService(JavaMailSender javaMailSender) {
-		return new MailService(javaMailSender, mailConfigurationProperties);
+		return new MailService(javaMailSender, mailConfigurationProperties.getSender(),
+			mailConfigurationProperties.getWpsTestmails(), mailConfigurationProperties.getWpsTestmailsRedirectTarget());
 	}
 
 	@Bean

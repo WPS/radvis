@@ -69,7 +69,7 @@ class MassnahmenBenachrichtigungsServiceTest {
 		openMocks(this);
 		massnahmenBenachrichtigungsService = new MassnahmenBenachrichtigungsService(massnahmeService, mailService,
 			mailConfigurationProperties, commonConfigurationProperties, templateEngine);
-		when(commonConfigurationProperties.getBasisUrl()).thenReturn("basisUrl/");
+		when(commonConfigurationProperties.getBasisUrl()).thenReturn("basisUrl");
 	}
 
 	@Test
@@ -80,9 +80,11 @@ class MassnahmenBenachrichtigungsServiceTest {
 
 		when(massnahmeService.get(42L)).thenReturn(massnahme);
 
-		Benutzer benutzer1 = BenutzerTestDataProvider.defaultBenutzer().mailadresse(Mailadresse.of("benutzer1@wps.de"))
+		Benutzer benutzer1 = BenutzerTestDataProvider.defaultBenutzer()
+			.mailadresse(Mailadresse.of("benutzer1@testRadvis.de"))
 			.id(10L).build();
-		Benutzer benutzer2 = BenutzerTestDataProvider.defaultBenutzer().mailadresse(Mailadresse.of("benutzer2@wps.de"))
+		Benutzer benutzer2 = BenutzerTestDataProvider.defaultBenutzer()
+			.mailadresse(Mailadresse.of("benutzer2@testRadvis.de"))
 			.id(20L).build();
 
 		massnahme.fuegeZuBenachrichtigendenBenutzerHinzu(benutzer1);
@@ -103,7 +105,7 @@ class MassnahmenBenachrichtigungsServiceTest {
 			List.of(benutzer2.getMailadresse().toString()));
 		assertThat(betreffCaptor.getAllValues()).hasSize(2).allMatch(betreff -> betreff.contains("Good Ol' Massnahme"));
 		assertThat(contextCaptor.getAllValues()).hasSize(2).allMatch(ctx -> ctx.getVariable("radvisLink").toString()
-			.equals("basisUrl/app/viewer/massnahmen/42?infrastrukturen=massnahmen&tabellenVisible=true"));
+			.equals("basisUrl/viewer/massnahmen/42?infrastrukturen=massnahmen&tabellenVisible=true"));
 
 	}
 

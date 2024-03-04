@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -46,6 +44,7 @@ import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import jakarta.persistence.EntityManager;
 
 class ManuellerAttributeImportUebernahmeServiceTest {
 

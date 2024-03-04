@@ -82,6 +82,8 @@ public class MusterTest {
 			"de.wps.radvis.backend.massnahme.schnittstelle.MassnahmeController.deleteMassnahme(java.lang.Long, org.springframework.security.core.Authentication, de.wps.radvis.backend.massnahme.schnittstelle.DeleteMassnahmeCommand)")
 		.and().doNotHaveFullName(
 			"de.wps.radvis.backend.massnahme.schnittstelle.MassnahmeController.uploadDatei(java.lang.Long, de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand, org.springframework.security.core.Authentication)")
+		.and().doNotHaveFullName(
+			"de.wps.radvis.backend.netz.schnittstelle.NetzController.createKante(de.wps.radvis.backend.netz.schnittstelle.command.CreateKanteCommand, org.springframework.security.core.Authentication)")
 		.should(callCorrespondingGuard());
 
 	private static DescribedPredicate<List<JavaClass>> containing(DescribedPredicate<JavaClass> clazz) {

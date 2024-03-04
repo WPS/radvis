@@ -174,6 +174,24 @@ export class RadvisValidators {
     };
   }
 
+  public static maxDecimalPlaces(max: number): ValidatorFn {
+    return (ctrl: AbstractControl<number | null | UndeterminedValue>): ValidationErrors | null => {
+      if (ctrl.value === undefined || ctrl.value === null || ctrl.value instanceof UndeterminedValue) {
+        return null;
+      }
+      const value = ctrl.value;
+      if (Math.floor(value) === value) {
+        return null;
+      }
+      if ((value.toString().split('.')[1].length || 0) <= max) {
+        return null;
+      }
+      return {
+        maxDecimalPlaces: 'Darf maximal ' + max + ' Nachkommastellen haben',
+      } as ValidationErrors;
+    };
+  }
+
   public static isValidEuroString(ctrl: AbstractControl): ValidationErrors | null {
     if (!ctrl.value) {
       return null;

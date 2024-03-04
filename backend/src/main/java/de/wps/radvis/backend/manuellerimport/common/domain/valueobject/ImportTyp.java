@@ -14,7 +14,8 @@
 
 package de.wps.radvis.backend.manuellerimport.common.domain.valueobject;
 
+// TODO: Dieser Enum ist jetzt nur noch für ImportFehler des Attribute und Netzklassenimportes relevant -> evtl verschieben/umbenennen
 public enum ImportTyp {
 	NETZKLASSE_ZUWEISEN,
-	ATTRIBUTE_UEBERNEHMEN;
+	ATTRIBUTE_UEBERNEHMEN
 }

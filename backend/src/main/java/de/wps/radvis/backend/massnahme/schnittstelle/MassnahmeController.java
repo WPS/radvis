@@ -64,7 +64,6 @@ import de.wps.radvis.backend.massnahme.schnittstelle.view.MassnahmeToolView;
 import de.wps.radvis.backend.massnahme.schnittstelle.view.UmsetzungsstandEditView;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.weitereKartenebenen.schnittstelle.CreateDateiLayerCommand;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -217,8 +216,11 @@ public class MassnahmeController {
 	}
 
 	@PostMapping("/umsetzungsstand/auswertung")
-	public void getUmsetzungsstandAuswertung(@RequestBody List<Long> massnahmenIds,
+	public void getUmsetzungsstandAuswertung(
+		Authentication authentication,
+		@RequestBody List<Long> massnahmenIds,
 		HttpServletResponse response) throws IOException {
+		massnahmeGuard.getUmsetzungsstandAuswertung(authentication);
 
 		String timestamp = LocalDate.now().toString("yyyy-MM-dd");
 

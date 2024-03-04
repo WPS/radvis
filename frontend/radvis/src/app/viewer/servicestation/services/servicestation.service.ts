@@ -14,19 +14,17 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
 import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
+import { DeleteServicestationCommand } from 'src/app/viewer/servicestation/models/delete-servicestation-command';
 import { SaveServicestationCommand } from 'src/app/viewer/servicestation/models/save-servicestation-command';
 import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
-import { DeleteServicestationCommand } from 'src/app/viewer/servicestation/models/delete-servicestation-command';
-import invariant from 'tiny-invariant';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ServicestationService implements Resolve<Servicestation> {
+export class ServicestationService {
   private readonly api = '/api/servicestation';
 
   constructor(private http: HttpClient, private fileHandlingService: FileHandlingService) {}
@@ -74,14 +72,6 @@ export class ServicestationService implements Resolve<Servicestation> {
 
   deleteFile(servicestationId: number, dokumentId: number): Promise<void> {
     return this.http.delete<void>(`${this.api}/${servicestationId}/dokument/${dokumentId}`).toPromise();
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<Servicestation> {
-    // Auch fuer die ToolComponent, darum die Veroderung
-    const id = route.paramMap.get('id') || route.parent?.paramMap.get('id');
-    invariant(id);
-    return this.get(+id);
   }
 
   public uploadCsv(file: File): Promise<Blob> {

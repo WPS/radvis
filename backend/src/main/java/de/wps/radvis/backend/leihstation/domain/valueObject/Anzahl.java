@@ -16,6 +16,8 @@ package de.wps.radvis.backend.leihstation.domain.valueObject;
 
 import static org.valid4j.Assertive.require;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -47,6 +49,18 @@ public class Anzahl {
 		}
 
 		return new Anzahl(Integer.parseInt(value));
+	}
+
+	public static boolean isValid(String value) {
+		if (Objects.isNull(value) || value.isEmpty()) {
+			return false;
+		}
+		try {
+			Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

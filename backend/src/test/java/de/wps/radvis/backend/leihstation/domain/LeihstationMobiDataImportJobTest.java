@@ -22,11 +22,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.assertj.core.groups.Tuple;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
@@ -35,11 +39,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
+import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.leihstation.domain.entity.Leihstation;
 import de.wps.radvis.backend.leihstation.domain.entity.LeihstationMobiDataImportStatistik;
-import de.wps.radvis.backend.leihstation.domain.entity.LeihstationMobidataWFSElement;
 import de.wps.radvis.backend.leihstation.domain.valueObject.Anzahl;
 import de.wps.radvis.backend.leihstation.domain.valueObject.ExterneLeihstationenId;
 import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationQuellSystem;
@@ -52,7 +58,7 @@ class LeihstationMobiDataImportJobTest {
 	@Mock
 	private LeihstationRepository leihstationRepository;
 	@Mock
-	private LeihstationMobiDataWFSRepository mobidataRepository;
+	private GeoJsonImportRepository geoJsonImportRepository;
 	@Mock
 	private VerwaltungseinheitService verwaltungseinheitService;
 
@@ -60,6 +66,7 @@ class LeihstationMobiDataImportJobTest {
 	ArgumentCaptor<Leihstation> leihstationenCaptor;
 
 	LeihstationMobiDataImportJob job;
+	private String mobiDataLeihstationenGeoJsonWFSUrl;
 
 	@BeforeEach
 	void setup() {
@@ -67,12 +74,13 @@ class LeihstationMobiDataImportJobTest {
 		PreparedGeometry bawue = mock(PreparedGeometry.class);
 		when(bawue.intersects(any())).thenReturn(true);
 		when(verwaltungseinheitService.getBundeslandBereichPrepared()).thenReturn(bawue);
+		mobiDataLeihstationenGeoJsonWFSUrl = "https://url.de";
 		job = new LeihstationMobiDataImportJob(jobRepository, verwaltungseinheitService, leihstationRepository,
-			mobidataRepository);
+			geoJsonImportRepository, mobiDataLeihstationenGeoJsonWFSUrl);
 	}
 
 	@Test
-	void doRun() {
+	void doRun() throws IOException, ReadGeoJSONException {
 		// Arrange
 		/*
 		/ Alte Leistationen. Es gibt 4 stück.
@@ -127,11 +135,14 @@ class LeihstationMobiDataImportJobTest {
 			.anzahlFahrraeder(Anzahl.of(21))
 			.build();
 
-		Stream<LeihstationMobidataWFSElement> wfsFeatures = Stream.of(
-			leihstationZuDto(neuMobi),
-			leihstationZuDto(alteMobiBleibt1),
-			leihstationZuDto(veraenderMobi));
-		when(mobidataRepository.readBikeStationFeatures()).thenReturn(wfsFeatures);
+		List<SimpleFeature> wfsFeatures = List.of(
+			leihstationZuSimpleFeature(neuMobi),
+			leihstationZuSimpleFeature(alteMobiBleibt1),
+			leihstationZuSimpleFeature(veraenderMobi));
+		String jsonString = "jsonString";
+		when(geoJsonImportRepository.getFileContentAsString(
+			URI.create(mobiDataLeihstationenGeoJsonWFSUrl).toURL())).thenReturn(jsonString);
+		when(geoJsonImportRepository.getSimpleFeatures(jsonString)).thenReturn(wfsFeatures);
 
 		when(leihstationRepository.deleteByExterneIdNotInAndQuellSystem(
 			eq(Set.of(ExterneLeihstationenId.of("neu"), ExterneLeihstationenId.of("bleibt1_unveraendert"),
@@ -159,12 +170,13 @@ class LeihstationMobiDataImportJobTest {
 
 	}
 
-	private LeihstationMobidataWFSElement leihstationZuDto(Leihstation neuMobi) {
-		LeihstationMobidataWFSElement neueLeihstation = new LeihstationMobidataWFSElement();
-		neueLeihstation.setId(neuMobi.getExterneId().get());
-		neueLeihstation.setAnzahlFahrraeder(neuMobi.getAnzahlFahrraeder().get().getValue());
-		neueLeihstation.setPosition(neuMobi.getGeometrie());
-		return neueLeihstation;
+	private SimpleFeature leihstationZuSimpleFeature(Leihstation neuMobi) {
+		Map<String, String> attributes = Map.of(
+			LeihstationMobiDataImportJob.BIKESTATION_COUNT_KEY, neuMobi.getAnzahlFahrraeder().get().toString(),
+			LeihstationMobiDataImportJob.BIKESTATION_ID_KEY, neuMobi.getExterneId().get().getValue()
+		);
+
+		return SimpleFeatureTestDataProvider.withPointAndAttributes(attributes, neuMobi.getGeometrie().getCoordinate());
 	}
 
 }

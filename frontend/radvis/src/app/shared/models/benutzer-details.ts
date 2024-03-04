@@ -12,14 +12,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { Recht } from 'src/app/shared/models/recht';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 
 export interface BenutzerDetails {
   registriert: boolean;
-  aktiv: boolean;
+  status: BenutzerStatus;
   name?: string;
   vorname?: string;
+  basicAuthAnmeldename?: string;
   organisation?: Verwaltungseinheit;
   rechte?: Recht[];
 }

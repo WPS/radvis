@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div class="display-flex flex-column align-items-start py-10">
+  <div
+    *ngFor="let schritt of automatischeImportschritte; let i = index"
+    class="display-flex flex-row align-items-center"
+    [class.grey]="getAktuellerImportSchrittNumber() < i"
+  >
+    <mat-icon *ngIf="getAktuellerImportSchrittNumber() > i" radAccessabilityText="Erledigt:">check</mat-icon>
+
+    <mat-icon
+      *ngIf="getAktuellerImportSchrittNumber() < i || (getAktuellerImportSchrittNumber() === i && !hasFehler)"
+      radAccessabilityText="Noch nicht erledigt:"
+      >more_horiz
+    </mat-icon>
+    <mat-icon *ngIf="getAktuellerImportSchrittNumber() === i && hasFehler" radAccessabilityText="Fehlgeschlagen:"
+      >close
+    </mat-icon>
+    {{ schritt }}
+  </div>
+  <div class="display-flex flex-row align-items-center" [class.grey]="getAktuellerImportSchrittNumber() < 2">
+    <mat-icon *ngIf="getAktuellerImportSchrittNumber() === 2" radAccessabilityText="Erledigt:">check</mat-icon>
+    <mat-icon *ngIf="getAktuellerImportSchrittNumber() < 2" radAccessabilityText="Noch nicht erledigt:"
+      >more_horiz
+    </mat-icon>
+    Automatische Abbildung abgeschlossen
+  </div>
+</div>
+<mat-accordion [multi]="true">
+  <mat-expansion-panel *ngIf="hasFehler" [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <div class="display-flex">
+          <mat-icon class="error">report</mat-icon>
+          <div class="ml-3">Fehler</div>
+          <div class="ml-3 hinweis">({{ fehler.length }})</div>
+        </div>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="log-eintrag-wrapper">
+      <div *ngFor="let f of fehler">{{ f }}</div>
+    </div>
+  </mat-expansion-panel>
+  <mat-expansion-panel *ngIf="hasWarnung">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <div class="display-flex">
+          <mat-icon class="warning">warning</mat-icon>
+          <div class="ml-3">Warnungen</div>
+          <div class="hinweis ml-3">({{ warnungen.length }})</div>
+        </div>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="log-eintrag-wrapper">
+      <div *ngFor="let w of warnungen">{{ w }}</div>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<div class="display-flex flex-grow align-self-center flex-column my-5">
+  <mat-spinner *ngIf="isAutomatischeAbbildungRunning"></mat-spinner>
+</div>
+
+<div class="buttons display-flex p-10">
+  <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+  <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+  <button
+    [disabled]="isAutomatischeAbbildungRunning || hasFehler"
+    mat-flat-button
+    color="primary"
+    class="button"
+    (click)="onNext()"
+  >
+    Weiter
+  </button>
+</div>

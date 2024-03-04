@@ -113,7 +113,8 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 		NetzBezugAenderungsArt netzBezugAenderungsArt) {
 		List<Fahrradroute> fahrradrouten = fahrradrouteRepository.findByKanteIdInNetzBezug(betroffeneKanteId);
 		for (Fahrradroute fahrradroute : fahrradrouten) {
-			if (isNetzBezugAenderungProtokollNoetig(fahrradroute)) {
+			if (!ausloeser.equals(NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN) &&
+				isNetzBezugAenderungProtokollNoetig(fahrradroute)) {
 				boolean aenderungIstInHauptroute = fahrradroute.getAbschnittsweiserKantenBezug().stream().anyMatch(
 					abschnittsweiserKantenBezug -> abschnittsweiserKantenBezug.getKante().getId()
 						.equals(betroffeneKanteId));
@@ -195,8 +196,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 						fahrradrouteVariante.getId() != null ?
 							fahrradrouteVariante.getId() :
 							fahrradroute.getName() + fahrradrouteVariante.getKategorie().toString(),
-						e.getMessage());
-					log.info("Details: ", e);
+						e.getMessage(), e);
 					fahrradrouteVariante.updateAbgeleiteteRoutenInformationen(null, null);
 				}
 			}
@@ -222,8 +222,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 		} catch (KeineRouteGefundenException e) {
 			log.error("Konnte keine abgeleiteten Routeninformationen für Fahrradroute {} ermitteln: {}",
 				fahrradroute.getId() != null ? fahrradroute.getId() : fahrradroute.getName(),
-				e.getMessage());
-			log.info("Details: ", e);
+				e.getMessage(), e);
 			fahrradroute.updateAbgeleiteteRoutenInformationen(null, null);
 			return false;
 		}
@@ -260,8 +259,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 				} catch (KeineRouteGefundenException e) {
 					log.error("Konnte keine neuen ProfilEigenschaften für Fahrradroute {} ermitteln: {}",
 						fahrradroute.getId() != null ? fahrradroute.getId() : fahrradroute.getName(),
-						e.getMessage());
-					log.info("Details: ", e);
+						e.getMessage(), e);
 					profilInformationenUpdateStatistik.anzahlRoutingFehlgeschlagen++;
 				}
 			},

@@ -14,8 +14,8 @@
   -->
 
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
     <changeSet author="Marie (generated)" id="1618904812151-1">
         <createTable tableName="job_execution_description">
             <column name="id" type="BIGINT">
@@ -70,7 +70,8 @@
         </createTable>
     </changeSet>
     <changeSet author="Marie (generated)" id="1618904812151-7">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807" minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+					minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
     </changeSet>
     <changeSet author="Marie (generated)" id="1618904812151-8">
         <createTable tableName="imported_feature">
@@ -127,15 +128,23 @@
         </createIndex>
     </changeSet>
     <changeSet author="Marie (generated)" id="1618904812151-14">
-        <addForeignKeyConstraint baseColumnNames="von_knoten_id" baseTableName="kante" constraintName="fka0c9xquq7m878q9mjybkqm4m0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="knoten" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="von_knoten_id" baseTableName="kante"
+					constraintName="fka0c9xquq7m878q9mjybkqm4m0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+					onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="knoten" validate="true"/>
     </changeSet>
     <changeSet author="Marie (generated)" id="1618904812151-15">
-        <addForeignKeyConstraint baseColumnNames="kante_id" baseTableName="kante_osm_knoten_id_pairs" constraintName="fkn1wx13qgj3mogei1wp6tsvlvw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="kante" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="kante_id" baseTableName="kante_osm_knoten_id_pairs"
+					constraintName="fkn1wx13qgj3mogei1wp6tsvlvw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+					onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="kante" validate="true"/>
     </changeSet>
     <changeSet author="Marie (generated)" id="1618904812151-16">
-        <addForeignKeyConstraint baseColumnNames="nach_knoten_id" baseTableName="kante" constraintName="fkopnuv4ys5haqsfg7qd6tmrop0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="knoten" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="nach_knoten_id" baseTableName="kante"
+					constraintName="fkopnuv4ys5haqsfg7qd6tmrop0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+					onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="knoten" validate="true"/>
     </changeSet>
     <changeSet author="Marie (generated)" id="1618904812151-17">
-        <addForeignKeyConstraint baseColumnNames="kanten_attribute_id" baseTableName="kante" constraintName="fkp48p9ssr08defe6sonxha11h4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="kanten_attribute" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="kanten_attribute_id" baseTableName="kante"
+					constraintName="fkp48p9ssr08defe6sonxha11h4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+					onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="kanten_attribute" validate="true"/>
     </changeSet>
 </databaseChangeLog>

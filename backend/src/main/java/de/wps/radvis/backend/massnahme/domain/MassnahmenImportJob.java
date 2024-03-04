@@ -34,13 +34,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.Point;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
@@ -68,9 +66,15 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.LineStrings;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @deprecated RAD-6071: Das Zuständigkeitsfeld an Massnahmen ist ein Pflichtfeld. Der MappingService ist deprecated,
+ * da er einen veralteten Import implementiert, der nicht mehr genutzt wird. Dieser ImportJob wird langfristig entfernt.
+ */
 @Slf4j
+@Deprecated
 public class MassnahmenImportJob extends AbstractJob {
 	private static final double KNOTEN_PREFERENCE_TOLERANZ = 2;
 	private final ShapeFileRepository shapeFileRepository;

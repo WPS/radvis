@@ -21,13 +21,7 @@
   <mat-toolbar *ngIf="titel" cdkDragHandle class="draggable">
     <div class="popup-titel">{{ titel }}</div>
     <div class="flex-grow"></div>
-    <button
-      [attr.aria-label]="'Schließen'"
-      matTooltip="Schließen"
-      (click)="onClose()"
-      mat-icon-button
-      class="ml-20"
-    >
+    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button class="ml-20">
       <mat-icon>clear</mat-icon>
     </button>
   </mat-toolbar>

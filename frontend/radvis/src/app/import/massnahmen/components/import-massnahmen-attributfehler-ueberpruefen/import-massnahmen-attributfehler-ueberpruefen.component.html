@@ -1,0 +1,79 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<rad-import-step-layout>
+  <div *ngIf="loading"
+       class="import-step-content display-flex flex-column align-self-center justify-content-center h-100">
+    <mat-spinner></mat-spinner>
+    <div class="mt-10">Zuordnungs- und Attributfehler werden geladen und geprüft...</div>
+  </div>
+  <table *ngIf="!loading" mat-table [dataSource]="dataSource" class="import-step-content zuordnung-table">
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef class="status-cell">Art</th>
+      <td
+        mat-cell
+        *matCellDef="let element"
+        class="status-cell"
+        [attr.rowspan]="element.rowspan"
+        [style.display]="element.first ? 'table-cell' : 'none' "
+        [ngSwitch]="element.status"
+      >
+        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.GEMAPPT"
+                  svgIcon="massnahmeZuordnungGemappt"></mat-icon>
+        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.NEU" svgIcon="massnahmeZuordnungNeu"></mat-icon>
+        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.GELOESCHT"
+                  svgIcon="massnahmeZuordnungGeloescht"></mat-icon>
+        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.FEHLERHAFT"
+                  svgIcon="massnahmeZuordnungFehlerhaft"></mat-icon>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef class="id-cell">Massnahmen-ID</th>
+      <td
+        mat-cell
+        *matCellDef="let element"
+        class="id-cell"
+        [attr.rowspan]="element.rowspan"
+        [style.display]="element.first ? 'table-cell' : 'none' "
+      >
+        {{ element.id }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="attribut">
+      <th mat-header-cell *matHeaderCellDef>Attribute</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.attribut }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="hinweis">
+      <th mat-header-cell *matHeaderCellDef>Fehler</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.hinweis }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="hinweis-row"></tr>
+  </table>
+
+  <div class="import-step-footer-message hinweis pt-10 pl-9 footer-shadow">
+    Maßnahmen mit Fehlern können nicht importiert werden
+  </div>
+
+  <div class="import-step-footer-buttons">
+    <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+    <button mat-flat-button color="primary" class="button" (click)="onNext()">Weiter</button>
+  </div>
+</rad-import-step-layout>

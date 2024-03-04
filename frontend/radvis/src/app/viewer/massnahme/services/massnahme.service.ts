@@ -14,19 +14,20 @@
 
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
+import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
+import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
 import { AddKommentarCommand } from 'src/app/viewer/kommentare/models/add-kommentar-command';
 import { Kommentar } from 'src/app/viewer/kommentare/models/kommentar';
 import { CreateMassnahmeCommand } from 'src/app/viewer/massnahme/models/create-massnahme-command';
 import { DeleteMassnahmeCommand } from 'src/app/viewer/massnahme/models/delete-massnahme-command';
 import { Massnahme } from 'src/app/viewer/massnahme/models/massnahme';
-import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
 import { MassnahmeListenView } from 'src/app/viewer/massnahme/models/massnahme-listen-view';
 import { MassnahmeToolView } from 'src/app/viewer/massnahme/models/massnahme-tool-view';
 import { SaveMassnahmeCommand } from 'src/app/viewer/massnahme/models/save-massnahme-command';
 import { SaveUmsetzungsstandCommand } from 'src/app/viewer/massnahme/models/save-umsetzungsstand-command';
 import { Umsetzungsstand } from 'src/app/viewer/massnahme/models/umsetzungsstand';
-import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 
 @Injectable({
   providedIn: 'root',
@@ -97,8 +98,8 @@ export class MassnahmeService {
     return this.http.get<Umsetzungsstand>(`${this.api}/${massnahmeId}/editUmsetzungsstand`).toPromise();
   }
 
-  hasUmsetzungstand(massnahmeId: number): Promise<boolean> {
-    return this.http.get<boolean>(`${this.api}/${massnahmeId}/hasUmsetzungsstand`).toPromise();
+  hasUmsetzungstand(massnahmeId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.api}/${massnahmeId}/hasUmsetzungsstand`);
   }
 
   starteUmsetzungsstandsabfrage(massnahmeIds: number[]): Promise<void> {

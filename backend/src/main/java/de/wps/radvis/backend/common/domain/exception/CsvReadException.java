@@ -24,8 +24,12 @@ public class CsvReadException extends Exception {
 		super(message);
 	}
 
+	public CsvReadException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4687893445484579146L;
 

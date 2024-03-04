@@ -13,9 +13,8 @@
   -->
 
 <div class="second-nav-bar mat-elevation-z3">
-  <nav mat-tab-nav-bar color="accent" [disableRipple]="true">
+  <nav mat-tab-nav-bar color="accent" [disableRipple]="true" [tabPanel]="tabPanel">
     <a mat-tab-link queryParamsHandling="merge" [routerLink]="kantenRoute" [active]="kantenAktiv$ | async">Kanten</a>
     <a mat-tab-link queryParamsHandling="merge" [routerLink]="knotenRoute" [active]="knotenAktiv$ | async">Knoten</a>
-    <a mat-tab-link queryParamsHandling="merge" [routerLink]="importRoute" [active]="importAktiv$ | async">Import</a>
   </nav>
 </div>

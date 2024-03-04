@@ -15,7 +15,7 @@
 import { Coordinate } from 'ol/coordinate';
 
 export interface Geojson {
-  type: 'LineString' | 'Point' | 'FeatureCollection' | 'Feature' | 'MultiLineString';
+  type: 'LineString' | 'Point' | 'FeatureCollection' | 'Feature' | 'MultiLineString' | 'Polygon';
 }
 
 export interface PointGeojson extends Geojson {
@@ -27,6 +27,10 @@ export interface LineStringGeojson extends Geojson {
 }
 
 export interface MultiLineStringGeojson extends Geojson {
+  coordinates: Coordinate[][];
+}
+
+export interface PolygonGeojson extends Geojson {
   coordinates: Coordinate[][];
 }
 

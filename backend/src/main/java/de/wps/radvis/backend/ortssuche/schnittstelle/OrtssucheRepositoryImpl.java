@@ -88,7 +88,7 @@ public class OrtssucheRepositoryImpl implements OrtssucheRepository {
 				.collect(Collectors.toList());
 
 		} catch (Exception e) {
-			log.error("BKG Suche konnte nicht durchgeführt werden: {}", e.getMessage());
+			log.error("BKG Suche konnte nicht durchgeführt werden", e);
 		}
 		return result;
 	}

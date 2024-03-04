@@ -200,12 +200,14 @@ public class AttributProjektionsService {
 
 		if (ueberschneidungsAnfang != projektionDesAnfangs) {
 			return new LineareReferenzProjektionsergebnis(
-				LinearReferenzierterAbschnitt.of(ueberschneidungsAnfang, ueberschneidungsEnde, locationIndexedGrundnetzGeometrie),
+				LinearReferenzierterAbschnitt.of(ueberschneidungsAnfang, ueberschneidungsEnde,
+					locationIndexedGrundnetzGeometrie),
 				ueberschneidungsAnfang, ueberschneidungsEnde,
 				true);
 		} else {
 			return new LineareReferenzProjektionsergebnis(
-				LinearReferenzierterAbschnitt.of(ueberschneidungsAnfang, ueberschneidungsEnde, locationIndexedGrundnetzGeometrie),
+				LinearReferenzierterAbschnitt.of(ueberschneidungsAnfang, ueberschneidungsEnde,
+					locationIndexedGrundnetzGeometrie),
 				ueberschneidungsAnfang, ueberschneidungsEnde,
 				false);
 		}

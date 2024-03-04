@@ -17,6 +17,8 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
 export enum BenutzerStatus {
   AKTIV = 'AKTIV',
   INAKTIV = 'INAKTIV',
+  WARTE_AUF_FREISCHALTUNG = 'WARTE_AUF_FREISCHALTUNG',
+  ABGELEHNT = 'ABGELEHNT',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -25,11 +27,15 @@ export namespace BenutzerStatus {
     (k: string): EnumOption => {
       switch (k) {
         case BenutzerStatus.AKTIV:
-          return { name: k, displayText: 'aktiv' };
+          return { name: k, displayText: 'Aktiv' };
         case BenutzerStatus.INAKTIV:
-          return { name: k, displayText: 'inaktiv' };
+          return { name: k, displayText: 'Inaktiv' };
+        case BenutzerStatus.WARTE_AUF_FREISCHALTUNG:
+          return { name: k, displayText: 'Warte auf Freischaltung' };
+        case BenutzerStatus.ABGELEHNT:
+          return { name: k, displayText: 'Abgelehnt' };
       }
-      throw new Error('Beschreibung für enum Oberflaechenbeschaffenheit fehlt: ' + k);
+      throw new Error('Beschreibung für enum BenutzerStatus fehlt: ' + k);
     }
   );
 

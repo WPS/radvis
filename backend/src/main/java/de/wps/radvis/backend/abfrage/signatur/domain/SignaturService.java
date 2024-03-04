@@ -24,10 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.constraints.NotNull;
-
 import de.wps.radvis.backend.abfrage.signatur.domain.valueObject.SignaturTyp;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import jakarta.validation.constraints.NotNull;
 
 public class SignaturService {
 

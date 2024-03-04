@@ -12,14 +12,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MASSNAHMENKATEGORIEN, Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 
 describe(Massnahmenkategorien.isValidMassnahmenKategorienCombination.name, () => {
   it('should not allow multiple Kategorien from same OberKategorie ', () => {
     expect(
       Massnahmenkategorien.isValidMassnahmenKategorienCombination(
-        new FormControl([
+        new UntypedFormControl([
           MASSNAHMENKATEGORIEN[0].options[0].options[0].name,
           MASSNAHMENKATEGORIEN[0].options[0].options[1].name,
         ])
@@ -28,19 +28,22 @@ describe(Massnahmenkategorien.isValidMassnahmenKategorienCombination.name, () =>
 
     expect(
       Massnahmenkategorien.isValidMassnahmenKategorienCombination(
-        new FormControl(['AENDERUNG_DER_VERKEHRSRECHTLICHEN_ANORDUNG', 'BARRIERE_SICHERN_BZW_PRUEFUNG_AUF_VERZICHT'])
+        new UntypedFormControl([
+          'AENDERUNG_DER_VERKEHRSRECHTLICHEN_ANORDUNG',
+          'BARRIERE_SICHERN_BZW_PRUEFUNG_AUF_VERZICHT',
+        ])
       )
     ).not.toBeNull();
 
     expect(
       Massnahmenkategorien.isValidMassnahmenKategorienCombination(
-        new FormControl(['BAU_EINER_FAHRBAHNEINENGUNG', 'MARKIERUNGSTECHNISCHE_MASSNAHME'])
+        new UntypedFormControl(['BAU_EINER_FAHRBAHNEINENGUNG', 'MARKIERUNGSTECHNISCHE_MASSNAHME'])
       )
     ).toBeNull();
   });
 
   it('should allow null and empty value', () => {
-    expect(Massnahmenkategorien.isValidMassnahmenKategorienCombination(new FormControl([]))).toBeNull();
-    expect(Massnahmenkategorien.isValidMassnahmenKategorienCombination(new FormControl(null))).toBeNull();
+    expect(Massnahmenkategorien.isValidMassnahmenKategorienCombination(new UntypedFormControl([]))).toBeNull();
+    expect(Massnahmenkategorien.isValidMassnahmenKategorienCombination(new UntypedFormControl(null))).toBeNull();
   });
 });

@@ -20,9 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +39,8 @@ import de.wps.radvis.backend.furtKreuzung.domain.repository.FurtKreuzungReposito
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtKreuzungMusterloesung;
 import de.wps.radvis.backend.furtKreuzung.schnittstelle.view.FurtKreuzungEditView;
 import de.wps.radvis.backend.furtKreuzung.schnittstelle.view.FurtKreuzungListenView;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/furtkreuzung")

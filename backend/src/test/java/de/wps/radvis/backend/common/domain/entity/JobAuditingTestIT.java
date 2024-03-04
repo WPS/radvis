@@ -28,13 +28,15 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import de.wps.radvis.backend.application.JacksonConfiguration;
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
-import de.wps.radvis.backend.auditing.schnittstelle.RevInfo;
+import de.wps.radvis.backend.auditing.domain.entity.RevInfo;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -44,6 +46,7 @@ import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
 import de.wps.radvis.backend.integration.grundnetz.IntegrationGrundnetzConfiguration;
@@ -72,13 +75,15 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	BenutzerConfiguration.class,
 	JacksonConfiguration.class,
 	IntegrationGrundnetzConfiguration.class,
-	NetzfehlerConfiguration.class, KommentarConfiguration.class,
+	NetzfehlerConfiguration.class,
+	KommentarConfiguration.class,
 	ImportsCommonConfiguration.class,
 	CommonConfiguration.class,
 	ImportsGrundnetzConfiguration.class,
 	IntegrationAttributAbbildungConfiguration.class,
 	IntegrationRadNetzConfiguration.class,
-	IntegrationRadwegeDBConfiguration.class, KonsistenzregelPruefungsConfiguration.class,
+	IntegrationRadwegeDBConfiguration.class,
+	KonsistenzregelPruefungsConfiguration.class,
 	KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
@@ -89,6 +94,9 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 class JobAuditingTestIT extends AuditingTestIT {
 

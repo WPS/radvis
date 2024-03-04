@@ -16,7 +16,6 @@ package de.wps.radvis.backend.netz.domain.valueObject;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

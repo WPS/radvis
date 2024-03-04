@@ -25,6 +25,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import de.wps.radvis.backend.application.domain.InitialImportService;
 import de.wps.radvis.backend.application.schnittstelle.RadVisJobScheduler;
+import de.wps.radvis.backend.application.schnittstelle.RequestLoggingInterceptor;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjektionsJob;
 import de.wps.radvis.backend.integration.grundnetz.domain.DLMNetzbildungJob;
@@ -132,5 +133,10 @@ public class ApplicationConfiguration {
 	@Bean
 	public RadVisJobScheduler radVisJobScheduler() {
 		return new RadVisJobScheduler(jobs);
+	}
+
+	@Bean
+	public RequestLoggingInterceptor requestLoggingInterceptor() {
+		return new RequestLoggingInterceptor();
 	}
 }

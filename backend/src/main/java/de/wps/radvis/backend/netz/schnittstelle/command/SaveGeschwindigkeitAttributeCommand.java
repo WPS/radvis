@@ -14,12 +14,11 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
-
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 

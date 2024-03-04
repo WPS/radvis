@@ -12,22 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { FahrradrouteImportprotokoll } from 'src/app/viewer/importprotokolle/models/fahrradroute-importprotokoll';
 import { ImportprotokollService } from 'src/app/viewer/importprotokolle/services/importprotokoll.service';
 import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class FahrradrouteImportprotokollResolver implements Resolve<FahrradrouteImportprotokoll> {
-  constructor(private importprotokollService: ImportprotokollService) {}
-
-  // eslint-disable-next-line no-unused-vars
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<FahrradrouteImportprotokoll> {
-    const idFromRoute = route.paramMap.get('id');
-    invariant(idFromRoute);
-    return this.importprotokollService.getFahrradrouteImportprotokoll(+idFromRoute);
-  }
-}
+export const fahrradrouteImportprotokollResolver: ResolveFn<FahrradrouteImportprotokoll> = (route, state) => {
+  const importprotokollService: ImportprotokollService = inject(ImportprotokollService);
+  const id = route.paramMap.get('id');
+  invariant(id);
+  return importprotokollService.getFahrradrouteImportprotokoll(+id);
+};

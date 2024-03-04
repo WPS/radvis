@@ -17,12 +17,11 @@ package de.wps.radvis.backend.common.domain.service;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.OptimisticLockException;
-
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 
 public abstract class AbstractVersionierteEntityService<T extends VersionierteEntity> {
 	private CrudRepository<T, Long> repository;

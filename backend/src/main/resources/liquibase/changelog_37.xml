@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-5685" author="jg">
     <addColumn tableName="fahrradroute">
@@ -26,10 +26,22 @@
       <column name="droute_id" type="varchar(255)"/>
     </addColumn>
     <sql>
-      UPDATE fahrradroute SET droute_id = '5' WHERE "name" = 'Saar-Mosel-Main' AND kategorie = 'D_ROUTE';
-      UPDATE fahrradroute SET droute_id = '6' WHERE "name" = 'Donauroute' AND kategorie = 'D_ROUTE';
-      UPDATE fahrradroute SET droute_id = '8' WHERE "name" = 'Rhein-Route' AND kategorie = 'D_ROUTE';
-      UPDATE fahrradroute SET droute_id = '9' WHERE "name" = 'Weser - Romantische Straße' AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute
+      SET droute_id = '5'
+      WHERE "name" = 'Saar-Mosel-Main'
+        AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute
+      SET droute_id = '6'
+      WHERE "name" = 'Donauroute'
+        AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute
+      SET droute_id = '8'
+      WHERE "name" = 'Rhein-Route'
+        AND kategorie = 'D_ROUTE';
+      UPDATE fahrradroute
+      SET droute_id = '9'
+      WHERE "name" = 'Weser - Romantische Straße'
+        AND kategorie = 'D_ROUTE';
     </sql>
   </changeSet>
 
@@ -38,29 +50,34 @@
       ALTER TABLE externer_layer RENAME TO weitere_kartenebene;
       ALTER TABLE weitere_kartenebene RENAME CONSTRAINT externer_layer_pkey TO weitere_kartenebene_pkey;
       ALTER TABLE weitere_kartenebene RENAME CONSTRAINT fk_externer_layer_benutzer_id TO fk_weitere_kartenebene_benutzer_id;
-      ALTER INDEX fk_externer_layer_benutzer_id_idx RENAME TO fk_weitere_kartenebene_benutzer_id_idx;
+      ALTER
+      INDEX fk_externer_layer_benutzer_id_idx RENAME TO fk_weitere_kartenebene_benutzer_id_idx;
     </sql>
   </changeSet>
 
   <changeSet id="RAD-5760" author="lb">
     <renameColumn tableName="weitere_kartenebene"
-      oldColumnName="typ"
-      newColumnName="weitere_kartenebene_typ"/>
+			oldColumnName="typ"
+			newColumnName="weitere_kartenebene_typ"/>
   </changeSet>
 
   <changeSet id="RAD-5758" author="jg">
     <addPrimaryKey tableName="datei_layer" columnNames="id" constraintName="datei_layer_pkey"/>
     <addColumn tableName="weitere_kartenebene">
       <column name="datei_layer_id" type="bigint">
-        <constraints foreignKeyName="fk_weitere_kartenebene_datei_layer_id" referencedTableName="datei_layer" referencedColumnNames="id" />
+        <constraints foreignKeyName="fk_weitere_kartenebene_datei_layer_id" referencedTableName="datei_layer"
+					referencedColumnNames="id"/>
       </column>
     </addColumn>
   </changeSet>
 
   <changeSet id="RAD-5981" author="hst">
     <sql>
-      DELETE FROM weitere_kartenebene WHERE datei_layer_id IS NOT NULL;
-      DELETE FROM datei_layer;
+      DELETE
+      FROM weitere_kartenebene
+      WHERE datei_layer_id IS NOT NULL;
+      DELETE
+      FROM datei_layer;
     </sql>
     <dropColumn columnName="geometry" schemaName="public" tableName="datei_layer"/>
     <addColumn schemaName="public" tableName="datei_layer">
@@ -95,7 +112,8 @@
   </changeSet>
 
   <changeSet id="RAD-4720" author="par">
-    <modifyDataType schemaName="public" tableName="manueller_import_fehler_konflikt" columnName="uebernommener_wert" newDataType="TEXT" />
+    <modifyDataType schemaName="public" tableName="manueller_import_fehler_konflikt" columnName="uebernommener_wert"
+			newDataType="TEXT"/>
   </changeSet>
 
   <changeSet id="RAD-5478" author="lb">
@@ -132,7 +150,7 @@
 
   <changeSet id="RAD-6056" author="lb">
     <!-- Update dtv Werte über 1,000,000 auf 1,000,000 -->
-    <update tableName="kanten_attribut_gruppe">
+		<update tableName="kanten_attribut_gruppe">
       <column name="dtv_pkw" valueNumeric="1000000"/>
       <where>dtv_pkw > 1000000</where>
     </update>
@@ -152,10 +170,199 @@
       <where>sv > 1000000</where>
     </update>
   </changeSet>
-  
+
   <changeSet id="RAD-6063" author="par">
     <addColumn tableName="kante">
       <column name="geometry3d" type="geometry"/>
     </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-4717" author="rw+par">
+    <createTable tableName="wahlkreis">
+      <column name="id" type="bigint"/>
+      <column name="nummer" type="INTEGER"/>
+      <column name="name" type="varchar(255)"/>
+      <column name="bereich" type="geometry"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-5105" author="lb">
+    <createTable tableName="benutzer_basic_auth">
+      <column name="benutzer_id" type="bigint">
+        <constraints primaryKey="true" primaryKeyName="benutzer_auth_pkey" nullable="false"
+					foreignKeyName="fk_benutzer_auth_benutzer_id" referencedTableName="benutzer" referencedColumnNames="id"/>
+      </column>
+      <column name="passwort_hash" type="varchar(60)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="RAD-6071" author="jg">
+    <dropForeignKeyConstraint
+			baseTableName="massnahme"
+			constraintName="fk_massnahme_markierungs_zustaendiger_id"/>
+    <renameColumn
+			tableName="massnahme"
+			oldColumnName="markierungs_zustaendiger_id"
+			newColumnName="zustaendiger_id"/>
+    <addForeignKeyConstraint
+			baseTableName="massnahme"
+			baseColumnNames="zustaendiger_id"
+			constraintName="fk_massnahme_zustaendiger_id"
+			referencedTableName="organisation"
+			referencedColumnNames="id"/>
+
+    <renameColumn
+			tableName="massnahme_aud"
+			oldColumnName="markierungs_zustaendiger_id"
+			newColumnName="zustaendiger_id"/>
+  </changeSet>
+
+  <changeSet id="RAD-6071-B" author="jg + pr">
+    <sql>
+      UPDATE massnahme
+      SET zustaendiger_id = (SELECT id FROM organisation org WHERE org.name = 'Unbekannt')
+      WHERE zustaendiger_id IS NULL
+        AND baulast_zustaendiger_id IS NULL;
+    </sql>
+    <sql>
+      UPDATE massnahme AS m
+      SET zustaendiger_id = (SELECT org.id
+                             FROM organisation org
+                                    LEFT JOIN massnahme_knoten mkno ON m.id = mkno.massnahme_id
+                                    LEFT JOIN knoten knot ON mkno.knoten_id = knot.id
+                                    LEFT JOIN massnahme_kantenpunkte mkpt ON m.id = mkpt.massnahme_id
+                                    LEFT JOIN kante mkptk ON mkpt.kante_id = mkptk.id
+                                    LEFT JOIN massnahme_kantenseitenabschnitte seitenabschnitt
+                                              ON m.id = seitenabschnitt.massnahme_id
+                                    LEFT JOIN kante kantefuerseitenabschnitt
+                                              ON seitenabschnitt.kante_id = kantefuerseitenabschnitt.id
+                             WHERE org.organisations_art = 'REGIERUNGSBEZIRK'
+                             GROUP BY org.id
+                             HAVING ST_intersects(org.bereich, st_union(
+                               CASE
+                                 WHEN st_linesubstring(kantefuerseitenabschnitt.geometry,
+                                                       seitenabschnitt.von, seitenabschnitt.bis) IS NOT NULL
+                                   THEN st_linesubstring(kantefuerseitenabschnitt.geometry,
+                                                         seitenabschnitt.von, seitenabschnitt.bis)
+                                 WHEN st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz) IS NULL
+                                   THEN knot.point
+                                 ELSE st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)
+                                 END))
+        LIMIT 1)
+      WHERE baulast_zustaendiger_id IN (SELECT id
+        FROM organisation org
+        WHERE org.name = 'Bundesrepublik Deutschland'
+         OR org.name = 'Baden-Württemberg')
+        AND zustaendiger_id IS NULL;
+    </sql>
+    <sql>
+      UPDATE massnahme
+      SET zustaendiger_id = baulast_zustaendiger_id
+      WHERE zustaendiger_id IS NULL;
+    </sql>
+  </changeSet>
+  <changeSet id="RAD-6202" author="rw">
+    <sql>
+      UPDATE benutzer
+      SET status = 'WARTE_AUF_FREISCHALTUNG'
+      WHERE status = 'INAKTIV'
+        AND Version = 0;
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-6069" author="was">
+    <dropView ifExists="true" viewName="geoserver_abstellanlage_view"/>
+    <addColumn tableName="abstellanlage">
+      <column name="abstellanlagen_ort" type="VARCHAR(255)"/>
+    </addColumn>
+    <update tableName="abstellanlage">
+      <column name="abstellanlagen_ort" value="UNBEKANNT"/>
+      <where>ist_bike_and_ride = FALSE</where>
+    </update>
+    <update tableName="abstellanlage">
+      <column name="abstellanlagen_ort" value="BIKE_AND_RIDE"/>
+      <where>ist_bike_and_ride = TRUE</where>
+    </update>
+    <dropColumn tableName="abstellanlage">
+      <column name="ist_bike_and_ride"/>
+    </dropColumn>
+    <addColumn tableName="abstellanlage_aud">
+      <column name="abstellanlagen_ort" type="VARCHAR(255)"/>
+    </addColumn>
+    <update tableName="abstellanlage_aud">
+      <column name="abstellanlagen_ort" value="UNBEKANNT"/>
+      <where>ist_bike_and_ride = FALSE</where>
+    </update>
+    <update tableName="abstellanlage_aud">
+      <column name="abstellanlagen_ort" value="BIKE_AND_RIDE"/>
+      <where>ist_bike_and_ride = TRUE</where>
+    </update>
+    <dropColumn tableName="abstellanlage_aud">
+      <column name="ist_bike_and_ride"/>
+    </dropColumn>
+  </changeSet>
+
+  <changeSet id="RAD-6113" author="par">
+    <addColumn tableName="servicestation">
+      <column name="quell_system" type="VARCHAR(255)" value="RADVIS"/>
+    </addColumn>
+    <addColumn tableName="servicestation_aud">
+      <column name="quell_system" type="VARCHAR(255)"/>
+    </addColumn>
+    <sql>
+      <comment>Creating GIST-Index on Servicestation(geometrie, quell_system)</comment>
+      CREATE INDEX servicestation_geometrie_quellsystem_idx ON servicestation USING GIST (geometrie, quell_system);
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-6203" author="was">
+    <addColumn tableName="benutzer">
+      <column name="letzte_aktivitaet" type="DATE" defaultValueComputed="CURRENT_DATE"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-6252" author="was">
+    <addColumn tableName="kanten_attribut_gruppe">
+      <column name="strassenkategorierin" type="varchar(255)"/>
+    </addColumn>
+    <addColumn tableName="kanten_attribut_gruppe_aud">
+      <column name="strassenkategorierin" type="varchar(255)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="RAD-6355" author="par">
+    <createIndex indexName="benutzer_service_bw_id_uidx" tableName="benutzer" unique="true">
+      <column name="service_bw_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="RAD-6241" author="hst">
+    <sql>
+      -- DROP VIEW statements, da diese hier nach zu MATERIALIZED VIEWs werden und die DROP-statements in der views.xml sonst nicht funktionieren.
+      DROP VIEW IF EXISTS geoserver_balm_wegweisende_beschilderung_view;
+      DROP VIEW IF EXISTS geoserver_balm_fahrradrouten_view;
+      DROP VIEW IF EXISTS geoserver_balm_kanten_view;
+      DROP VIEW IF EXISTS geoserver_balm_knoten_view;
+
+      DELETE FROM gt_pk_metadata WHERE table_name = 'geoserver_balm_wegweisende_beschilderung_view';
+      DELETE FROM gt_pk_metadata WHERE table_name = 'geoserver_balm_fahrradrouten_view';
+      DELETE FROM gt_pk_metadata WHERE table_name = 'geoserver_balm_kanten_view';
+      DELETE FROM gt_pk_metadata WHERE table_name = 'geoserver_balm_knoten_view';
+
+      INSERT INTO gt_pk_metadata VALUES('public', 'geoserver_balm_wegweisende_beschilderung_view', 'Schild-ID');
+      INSERT INTO gt_pk_metadata VALUES('public', 'geoserver_balm_fahrradrouten_view', 'Routen-ID');
+      INSERT INTO gt_pk_metadata VALUES('public', 'geoserver_balm_kanten_view', 'Quell-ID');
+      INSERT INTO gt_pk_metadata VALUES('public', 'geoserver_balm_knoten_view', 'Quell-ID');
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-6518" author="hst" runInTransaction="false">
+    <sql>
+      -- Liquibase dazu zwingen die BALM-Views neu zu bauen (passiert in genau den Changeset mit den angegebenen IDs).
+      -- Der "runInTransaction=false" Parameter ist nötig, da alle Changesets in einer gemeinsamen Transaktion laufen
+      -- und sonst die Änderungen vom DROP-Befehl nicht von der views.xml erfasst werden. Die BALM-Views wären also
+      -- hinterher immer noch nicht da.
+      DELETE FROM databasechangelog WHERE id IN ('RAD-5461-1', 'RAD-5461-2', 'RAD-5463', 'RAD-5067');
+    </sql>
   </changeSet>
 </databaseChangeLog>

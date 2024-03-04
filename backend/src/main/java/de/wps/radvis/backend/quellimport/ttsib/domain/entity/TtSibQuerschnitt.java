@@ -21,13 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import de.wps.radvis.backend.quellimport.ttsib.domain.KeinMittelstreifenException;
+import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibEinordnung;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-
-import de.wps.radvis.backend.quellimport.ttsib.domain.KeinMittelstreifenException;
-import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibEinordnung;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +44,12 @@ public class TtSibQuerschnitt extends TtSibAbstractEntity {
 		require(
 			!neuerTtSibStreifen.getEinordnung().equals(TtSibEinordnung.MITTE)
 				|| this.ttSibStreifen.stream().noneMatch(streifen -> streifen.getEinordnung().equals(
-					TtSibEinordnung.MITTE)),
+				TtSibEinordnung.MITTE)),
 			"Es gibt bereits einen Streifen M");
 
 		require(this.ttSibStreifen.stream().noneMatch(
-			streifen -> streifen.getEinordnung().equals(neuerTtSibStreifen.getEinordnung()) && streifen.getNr()
-				.equals(neuerTtSibStreifen.getNr())),
+				streifen -> streifen.getEinordnung().equals(neuerTtSibStreifen.getEinordnung()) && streifen.getNr()
+					.equals(neuerTtSibStreifen.getNr())),
 			String
 				.format("Streifen mit TtSibEinordnung %s hat bereits die Nummer %d", neuerTtSibStreifen.getEinordnung(),
 					neuerTtSibStreifen.getNr()));

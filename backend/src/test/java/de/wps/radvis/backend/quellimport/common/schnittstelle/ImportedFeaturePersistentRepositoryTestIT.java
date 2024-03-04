@@ -22,11 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -43,6 +40,8 @@ import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeatureBuilder;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeatureMapView;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group2")
 @ContextConfiguration(classes = ImportedFeaturePersistentRepositoryTestIT.TestConfiguration.class)
@@ -51,8 +50,8 @@ public class ImportedFeaturePersistentRepositoryTestIT extends DBIntegrationTest
 	@Configuration
 	@EnableJpaRepositories(basePackages = "de.wps.radvis.backend.quellimport.common")
 	@EntityScan({ "de.wps.radvis.backend.quellimport.common.domain.entity",
-			"de.wps.radvis.backend.quellimport.common.domain.valueObject",
-			"de.wps.radvis.backend.common.domain.valueObject" })
+		"de.wps.radvis.backend.quellimport.common.domain.valueObject",
+		"de.wps.radvis.backend.common.domain.valueObject" })
 	public static class TestConfiguration {
 	}
 
@@ -198,7 +197,7 @@ public class ImportedFeaturePersistentRepositoryTestIT extends DBIntegrationTest
 
 		List<ImportedFeature> result = repository.getAllByQuelleAndArtAndGeometryType(QuellSystem.RadNETZ, Art.Strecke,
 			ImportedFeaturePersistentRepository.LINESTRING).collect(
-				Collectors.toList());
+			Collectors.toList());
 
 		// Assert
 		assertThat(result).isNotEmpty();

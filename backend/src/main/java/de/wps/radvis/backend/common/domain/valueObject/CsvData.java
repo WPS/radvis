@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,11 +34,15 @@ public class CsvData {
 	@NonNull
 	private final List<String> header;
 
-	private CsvData(List<Map<String, String>> rows, List<String> header) {
+	@Getter
+	private final Integer anzahlUebersprungenerZeilen;
+
+	private CsvData(List<Map<String, String>> rows, List<String> header, Integer anzahlUebersprungenerZeilen) {
 		require(rowsEnthaltenGenauHeader(rows, header),
 			"Die Keys in den Zeilen müssen genau mit den Headern übereinstimmen");
 		this.header = Collections.unmodifiableList(header);
-		this.rows = rows.stream().map(r -> Collections.unmodifiableMap(r)).collect(Collectors.toUnmodifiableList());
+		this.rows = rows.stream().map(Collections::unmodifiableMap).toList();
+		this.anzahlUebersprungenerZeilen = anzahlUebersprungenerZeilen;
 	}
 
 	private boolean rowsEnthaltenGenauHeader(List<Map<String, String>> rows, List<String> header) {
@@ -53,6 +56,10 @@ public class CsvData {
 	}
 
 	public static CsvData of(List<Map<String, String>> rows, List<String> header) {
-		return new CsvData(rows, header);
+		return new CsvData(rows, header, 0);
+	}
+
+	public static CsvData of(List<Map<String, String>> rows, List<String> header, Integer anzahlUebersprungenerZeilen) {
+		return new CsvData(rows, header, anzahlUebersprungenerZeilen);
 	}
 }

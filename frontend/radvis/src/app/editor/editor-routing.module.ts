@@ -20,16 +20,13 @@ import { KantenToolComponent } from 'src/app/editor/kanten/components/kanten-too
 import { KantenToolRoutingService } from 'src/app/editor/kanten/services/kanten-tool-routing.service';
 import { KnotenToolComponent } from 'src/app/editor/knoten/components/knoten-tool/knoten-tool.component';
 import { KnotenToolRoutingService } from 'src/app/editor/knoten/services/knoten-tool-routing.service';
-import { ImportToolComponent } from 'src/app/editor/manueller-import/components/import-tool/import-tool.component';
-import { IMPORT_STEPS } from 'src/app/editor/manueller-import/models/import-steps';
-import { ManuellerImportRoutingService } from 'src/app/editor/manueller-import/services/manueller-import-routing.service';
-import { BenutzerAktivGuard } from 'src/app/shared/services/benutzer-aktiv.guard';
-import { BenutzerRegistriertGuard } from 'src/app/shared/services/benutzer-registriert.guard';
+import { benutzerAktivGuard } from 'src/app/shared/services/benutzer-aktiv.guard';
+import { benutzerRegistriertGuard } from 'src/app/shared/services/benutzer-registriert.guard';
 
 const routes: Routes = [
   {
     path: EditorRoutingService.EDITOR_ROUTE,
-    canActivate: [BenutzerRegistriertGuard, BenutzerAktivGuard],
+    canActivate: [benutzerRegistriertGuard, benutzerAktivGuard],
     component: EditorComponent,
     children: [
       {
@@ -46,11 +43,6 @@ const routes: Routes = [
         path: EditorRoutingService.EDITOR_KNOTEN_ROUTE,
         component: KnotenToolComponent,
         children: KnotenToolRoutingService.getChildRoutes(),
-      },
-      {
-        path: EditorRoutingService.EDITOR_IMPORT_ROUTE,
-        component: ImportToolComponent,
-        children: ManuellerImportRoutingService.getChildRoutes(IMPORT_STEPS),
       },
     ],
   },

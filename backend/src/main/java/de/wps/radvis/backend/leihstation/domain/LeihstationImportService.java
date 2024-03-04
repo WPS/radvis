@@ -67,7 +67,7 @@ public class LeihstationImportService extends AbstractCsvImportService<Leihstati
 
 	@Override
 	protected String createUrl(Leihstation savedLeihstation) {
-		return baseUrl + "app" + FrontendLinks.leihstationDetails(savedLeihstation.getId());
+		return baseUrl + FrontendLinks.leihstationDetails(savedLeihstation.getId());
 	}
 
 	public CsvData importCsv(CsvData csvData, Benutzer benutzer) throws CsvImportException {

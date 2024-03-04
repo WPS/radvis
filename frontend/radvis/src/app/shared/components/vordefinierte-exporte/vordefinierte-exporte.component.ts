@@ -12,13 +12,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
+import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
+import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 
 @Component({
   selector: 'rad-vordefinierte-exporte',
@@ -26,7 +26,7 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
   styleUrls: ['./vordefinierte-exporte.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VordefinierteExporteComponent implements AfterViewInit {
+export class VordefinierteExporteComponent {
   private static readonly FILETYPE_SHAPE_ZIP = '(Shape-ZIP)';
   private static readonly FILETYPE_PBF = '(PBF)';
 
@@ -35,75 +35,76 @@ export class VordefinierteExporteComponent implements AfterViewInit {
 
   alleGebietskoerperschaften$: Promise<Verwaltungseinheit[]>;
 
-  readonly geoserverBaseUrl =
-    '/api/geoserver/saml/radvis/wfs?service=WFS&version=1.0.0&request=GetFeature&outputFormat=SHAPE-ZIP';
+  readonly geoserverBaseUrl = '/api/geoserver/saml/radvis/wfs?service=WFS&version=1.0.0&request=GetFeature';
+  readonly geoserverBaseUrlShapezip = this.geoserverBaseUrl + '&outputFormat=SHAPE-ZIP';
+  readonly geoserverBaseUrlGeoPackage = this.geoserverBaseUrl + '&outputFormat=gpkg';
 
   public exportLinksDaten = [
     {
-      url: this.geoserverBaseUrl + '&typeName=radvis:massnahmen_points,radvis:massnahmen_lines',
-      title: 'Maßnahmen',
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:abstellanlage',
+      title: 'Abstellanlagen',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
     {
-      url: this.geoserverBaseUrl + '&typeName=radvis:fahrradroute',
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:anpassungswunsch',
+      title: 'Anpassungswünsche',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:barriere_points,radvis:barriere_lines',
+      title: 'Barrieren',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:fahrradroute',
       title: 'Fahrradrouten',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
     {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:fahrradzaehlstelle',
+      title: 'Fahrradzählstellen',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:fehlerprotokoll',
+      title: 'Fehlerprotokolle exkl. Konsistenzfehler',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
       url:
-        this.geoserverBaseUrl +
+        this.geoserverBaseUrlShapezip +
         '&typeName=radvis:geoserver_furt_kreuzung_lines_view,radvis:geoserver_furt_kreuzung_points_view',
       title: 'Furten & Kreuzungen',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
     {
-      url: this.geoserverBaseUrl + '&typeName=radvis:barriere_points,radvis:barriere_lines',
-      title: 'Barrieren',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:wegweisende_beschilderung',
-      title: 'Wegweisende Beschilderung',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:abstellanlage',
-      title: 'Abstellanlagen',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:servicestation',
-      title: 'Servicestationen',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:leihstationen',
-      title: 'Leihstation',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:fahrradzaehlstelle',
-      title: 'Fahrradzählstellen',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:anpassungswunsch',
-      title: 'Anpassungswünsche',
-      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
-    },
-    {
-      url: this.geoserverBaseUrl + '&typeName=radvis:geoserver_fahrradroute_import_diff_materialized_view',
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:geoserver_fahrradroute_import_diff_materialized_view',
       title: 'Importprotokolle (Unterschiede)',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
     {
-      url: this.geoserverBaseUrl + '&typeName=radvis:fehlerprotokoll',
-      title: 'Fehlerprotokolle exkl. Konsistenzfehler',
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:geoserver_konsistenzregel_verletzung_view',
+      title: 'Konsistenzregel-Verletzungen',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
     {
-      url: this.geoserverBaseUrl + '&typeName=radvis:geoserver_konsistenzregel_verletzung_view',
-      title: 'Konsistenzregel-Verletzungen',
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:leihstationen',
+      title: 'Leihstation',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:massnahmen_points,radvis:massnahmen_lines',
+      title: 'Maßnahmen',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:servicestation',
+      title: 'Servicestationen',
+      filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
+    },
+    {
+      url: this.geoserverBaseUrlShapezip + '&typeName=radvis:wegweisende_beschilderung',
+      title: 'Wegweisende Beschilderung',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
   ];
@@ -111,7 +112,7 @@ export class VordefinierteExporteComponent implements AfterViewInit {
   public exportLinksNetz = [
     {
       url:
-        this.geoserverBaseUrl +
+        this.geoserverBaseUrlShapezip +
         '&typeName=radvis%3Aradvisnetz_klassifiziert&cql_filter=netzklassen%20like%20%27%25RADNETZ_FREIZEIT%25%27%20OR%20netzklassen%20like%20%27%25RADNETZ_ALLTAG%25%27%20',
       title: 'RadNETZ-Freizeit & RadNETZ-Alltag',
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
@@ -134,8 +135,6 @@ export class VordefinierteExporteComponent implements AfterViewInit {
     this.alleGebietskoerperschaften$ = organisationenService.getGebietskoerperschaften();
   }
 
-  ngAfterViewInit(): void {}
-
   ladeHerunter(value: Verwaltungseinheit | null): Promise<void> | null {
     this.isFetching = true;
     return this.organisationenService
@@ -144,7 +143,7 @@ export class VordefinierteExporteComponent implements AfterViewInit {
         const body = new URLSearchParams();
         body.set('CQL_FILTER', 'INTERSECTS(geometry,' + bereich + ')');
         const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-        const url = this.geoserverBaseUrl + '&typeName=radvis:radvisnetz_kante_abschnitte';
+        const url = this.geoserverBaseUrlGeoPackage + '&typeName=radvis:radvisnetz_kante_abschnitte';
 
         return this.http
           .post<Blob>(url, body, {

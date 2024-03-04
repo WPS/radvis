@@ -14,10 +14,9 @@
 
 package de.wps.radvis.backend.abfrage.statistik.domain;
 
+import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
-import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 
 public class StatistikRepository {
 
@@ -27,7 +26,7 @@ public class StatistikRepository {
 	public double getDlmMatchingQuote(QuellSystem quelle) {
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-			"SELECT count(kante.aufDlmAbgebildeteGeometry) * 1.0 / count(kante) FROM Kante kante")
+				"SELECT count(kante.aufDlmAbgebildeteGeometry) * 1.0 / count(kante) FROM Kante kante")
 			.append(" WHERE kante.quelle = :quelle");
 
 		return entityManager.createQuery(hqlStringBuilder.toString(), Double.class)

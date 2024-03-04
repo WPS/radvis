@@ -111,7 +111,8 @@ public class Attributprojektionsbeschreibung {
 				Double::sum);
 
 		potentiellInkonsistenteProjizierteNetzklassen
-			.merge(segment.getNetzklassen(), new ArrayList<>(List.of(segment.getLinearReferenzierterAbschnittAufZielnetzKante())),
+			.merge(segment.getNetzklassen(),
+				new ArrayList<>(List.of(segment.getLinearReferenzierterAbschnittAufZielnetzKante())),
 				(list1, list2) -> {
 					list1.addAll(list2);
 					return list1;
@@ -131,7 +132,8 @@ public class Attributprojektionsbeschreibung {
 		Map<Richtung, Double> result = new HashMap<>();
 
 		seitenbezogeneProjizierteAttribute.forEach(attribute -> {
-			result.merge(attribute.getRichtung(), attribute.getLinearReferenzierterAbschnittAufZielnetzkante().relativeLaenge(),
+			result.merge(attribute.getRichtung(),
+				attribute.getLinearReferenzierterAbschnittAufZielnetzkante().relativeLaenge(),
 				Double::sum);
 		});
 		return result;

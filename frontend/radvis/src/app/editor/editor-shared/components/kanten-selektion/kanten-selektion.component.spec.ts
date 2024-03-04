@@ -663,7 +663,7 @@ describe(KantenSelektionComponent.name, () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createEmptyFeatureCollection(): GeoJSONFeatureCollection {
   return {
     type: 'FeatureCollection',
@@ -671,7 +671,7 @@ function createEmptyFeatureCollection(): GeoJSONFeatureCollection {
   };
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatureCollection(): GeoJSONFeatureCollection {
   return {
     type: 'FeatureCollection',
@@ -709,7 +709,7 @@ function createDummyFeatureCollection(): GeoJSONFeatureCollection {
   } as GeoJSONFeatureCollection;
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatureCollectionWithSeitenAttribute(): GeoJSONFeatureCollection {
   const collection = createDummyFeatureCollection();
   collection.features = collection.features.map(feature => {

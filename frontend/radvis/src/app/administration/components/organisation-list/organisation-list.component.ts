@@ -20,7 +20,7 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -51,7 +51,7 @@ export class OrganisationListComponent implements AfterViewInit, OnDestroy {
   organisationDataSource: MatTableDataSource<Verwaltungseinheit> = new MatTableDataSource<Verwaltungseinheit>();
   isFetching = false;
   headerColumns = ['name', 'organisationsArt', 'status'];
-  formControl: FormControl;
+  formControl: UntypedFormControl;
   OrganisationsArt = OrganisationsArt;
 
   private subscriptions: Subscription[] = [];
@@ -76,7 +76,7 @@ export class OrganisationListComponent implements AfterViewInit, OnDestroy {
         this.isFetching = false;
         changeDetector.markForCheck();
       });
-    this.formControl = new FormControl('');
+    this.formControl = new UntypedFormControl('');
     this.formControl.valueChanges.pipe(debounceTime(100)).subscribe(() => this.updateQueryParams());
     this.subscriptions.push(
       this.activatedRoute.queryParamMap.subscribe((route: ParamMap) => {

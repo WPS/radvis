@@ -23,11 +23,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-
 import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
@@ -38,6 +33,10 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Fahrradzaehls
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Seriennummer;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlintervall;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zeitstempel;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

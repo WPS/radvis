@@ -18,62 +18,62 @@
     Hier erstellte Layer können von allen Nutzer:innen unter "Ebenenverwaltung" zu ihren "Weiteren Kartenebenen"
     hinzugefügt werden.
   </span>
-  <mat-card>
-    <form [formGroup]="formGroupDateiLayer">
-      <rad-text-input-control formControlName="name">
-        <div class="label">Layername</div>
-      </rad-text-input-control>
-      <rad-validation-error-anzeige
-        [errors]="formGroupDateiLayer.get('name')?.errors || null"
-      ></rad-validation-error-anzeige>
-
-      <rad-enum-dropdown-control
-        class="mt-10"
-        [nullable]="false"
-        [options]="dateiLayerFormatOptions"
-        formControlName="format"
-      >
-        Dateityp
-      </rad-enum-dropdown-control>
-
-      <div class="display-flex flex-column align-items-start" *ngIf="maxFileSizeInMB !== undefined">
-        <div class="hinweis">Bitte laden Sie eine Layer-Datei hoch (max. Dateigröße {{ maxFileSizeInMB }}MB)</div>
-        <rad-file-upload-control
-          formControlName="file"
-          [dateiEndung]="getErlaubteDateiEndung()"
-          [maxFileSizeInMB]="maxFileSizeInMB"
-          style="width: 100%"
+  <mat-card appearance="outlined">
+    <mat-card-content>
+      <form [formGroup]="formGroupDateiLayer">
+        <rad-text-input-control
+          formControlName="name"
+          [touchOnWrite]="false"
+          [errors]="formGroupDateiLayer.get('name')?.errors"
         >
-          Datei hochladen
-        </rad-file-upload-control>
-        <rad-validation-error-anzeige
-          [errors]="formGroupDateiLayer.get('file')?.errors || null"
-        ></rad-validation-error-anzeige>
-      </div>
-      <div class="display-flex flex-column align-items-start">
-        <div class="hinweis">
-          Nachdem der Layer erfolgreich angelegt wurde, haben Sie die Möglichkeit über den Upload einer SLD-Datei einen
-          Style für den Layer hinzuzufügen.
-        </div>
-      </div>
-      <rad-text-input-control [asTextarea]="true" formControlName="quellangabe">
-        <div class="label">Quelle/Lizenzbedingungen</div>
-        <div class="hint">
-          ({{ formGroupDateiLayer.get('quellangabe')?.value?.length || 0 }}/{{ QUELLANGABE_MAX_LENGTH }})
-        </div>
-      </rad-text-input-control>
-      <rad-validation-error-anzeige [errors]="formGroupDateiLayer.get('quellangabe')?.errors || null">
-      </rad-validation-error-anzeige>
-    </form>
+          <div class="label">Layername</div>
+        </rad-text-input-control>
 
-    <rad-action-button
-      (action)="onCreate()"
-      [dirty]="formGroupDateiLayer.dirty"
-      [waiting]="saving"
-      [disabled]="!formGroupDateiLayer.valid"
-    >
-      Speichern
-    </rad-action-button>
+        <rad-enum-dropdown-control formControlName="format" [options]="dateiLayerFormatOptions" [nullable]="false">
+          Dateityp
+        </rad-enum-dropdown-control>
+
+        <div class="display-flex flex-column align-items-start mt-8" *ngIf="maxFileSizeInMB !== undefined">
+          <div class="hinweis">Bitte laden Sie eine Layer-Datei hoch (max. Dateigröße {{ maxFileSizeInMB }}MB)</div>
+          <rad-file-upload-control
+            formControlName="file"
+            class="w-100"
+            [dateiEndung]="getErlaubteDateiEndung()"
+            [maxFileSizeInMB]="maxFileSizeInMB"
+            [touchOnWrite]="false"
+            [errors]="formGroupDateiLayer.get('file')?.errors"
+          >
+            Datei Hochladen
+          </rad-file-upload-control>
+        </div>
+        <div class="display-flex flex-column align-items-start mt-8">
+          <div class="hinweis">
+            Nachdem der Layer erfolgreich angelegt wurde, haben Sie die Möglichkeit über den Upload einer SLD-Datei
+            einen Style für den Layer hinzuzufügen.
+          </div>
+        </div>
+        <rad-text-input-control
+          formControlName="quellangabe"
+          [asTextarea]="true"
+          [maxLength]="QUELLANGABE_MAX_LENGTH"
+          [touchOnWrite]="false"
+          [errors]="formGroupDateiLayer.get('quellangabe')?.errors"
+        >
+          <div class="label">Quelle/Lizenzbedingungen</div>
+        </rad-text-input-control>
+      </form>
+      <div class="display-flex justify-content-flex-end">
+        <rad-action-button
+          class="save-button"
+          (action)="onCreate()"
+          [dirty]="formGroupDateiLayer.dirty"
+          [waiting]="saving"
+          [disabled]="!formGroupDateiLayer.valid"
+        >
+          Speichern
+        </rad-action-button>
+      </div>
+    </mat-card-content>
   </mat-card>
 
   <div *ngIf="dateiLayers$ | async as dateiLayers">
@@ -158,11 +158,11 @@
         dateiEndung="sld"
         [maxFileSizeInMB]="1"
         [formControl]="data.formControl"
+        [errors]="data.formControl.errors"
         style="width: 100%"
       >
         SLD-Datei hochladen
       </rad-file-upload-control>
-      <rad-validation-error-anzeige [errors]="data.formControl.errors || null"></rad-validation-error-anzeige>
     </div>
     <div>
       <rad-action-button

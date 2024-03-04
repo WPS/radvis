@@ -28,6 +28,7 @@ import { Status } from 'src/app/editor/kanten/models/status';
 import { StrassenquerschnittRASt06 } from 'src/app/editor/kanten/models/strassenquerschnittrast06';
 import { Umfeld } from 'src/app/editor/kanten/models/umfeld';
 import { WegeNiveau } from 'src/app/editor/kanten/models/wege-niveau';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { ZustaendigkeitAttribute } from 'src/app/editor/kanten/models/zustaendigkeit-attribute';
 import { BelagArt } from 'src/app/shared/models/belag-art';
 import { IstStandard } from 'src/app/shared/models/ist-standard';
@@ -94,6 +95,7 @@ export const defaultKante: Kante = {
   zweiseitig: true,
   geometrieAenderungErlaubt: true,
   liegtInZustaendigkeitsbereich: true,
+  loeschenErlaubt: true,
   kantenAttributGruppe: {
     id: 1,
     version: 0,
@@ -102,6 +104,7 @@ export const defaultKante: Kante = {
     beleuchtung: Beleuchtung.VORHANDEN,
     strassenquerschnittRASt06: StrassenquerschnittRASt06.ANBAUFREIE_STRASSE,
     umfeld: Umfeld.GESCHAEFTSSTRASSE,
+    strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
     laengeBerechnet: 100.23475,
     laengeManuellErfasst: 100,
     dtvFussverkehr: 1,
@@ -165,6 +168,7 @@ export const anotherKante: Kante = {
   zweiseitig: true,
   geometrieAenderungErlaubt: true,
   liegtInZustaendigkeitsbereich: true,
+  loeschenErlaubt: true,
   kantenAttributGruppe: {
     id: 2,
     version: 0,
@@ -173,6 +177,7 @@ export const anotherKante: Kante = {
     beleuchtung: Beleuchtung.NICHT_VORHANDEN,
     strassenquerschnittRASt06: StrassenquerschnittRASt06.DOERFLICHE_HAUPTSTRASSE,
     umfeld: Umfeld.GEWERBEGEBIET,
+    strassenkategorieRIN: StrassenkategorieRIN.GROSSRAEUMIG,
     laengeBerechnet: 50.33,
     laengeManuellErfasst: 90,
     dtvFussverkehr: 5,

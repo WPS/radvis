@@ -14,22 +14,22 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-972" author="mw_und_ap">
-    <dropTable  cascadeConstraints="true"
-      tableName="kante_osm_knoten_id_pairs"/>
+    <dropTable cascadeConstraints="true"
+			tableName="kante_osm_knoten_id_pairs"/>
   </changeSet>
   
   <changeSet id="RAD-1089" author="ap">
     <renameColumn tableName="kante"
-      oldColumnName="zweite_ebene_links" newColumnName="verlauf_links"
-      remarks="Umbenennung zwecks Verständlichkeit" validate="true" />
+			oldColumnName="zweite_ebene_links" newColumnName="verlauf_links"
+			remarks="Umbenennung zwecks Verständlichkeit" validate="true"/>
     <renameColumn tableName="kante"
-      oldColumnName="zweite_ebene_rechts" newColumnName="verlauf_rechts"
-      remarks="Umbenennung zwecks Verständlichkeit" validate="true" />
+			oldColumnName="zweite_ebene_rechts" newColumnName="verlauf_rechts"
+			remarks="Umbenennung zwecks Verständlichkeit" validate="true"/>
   </changeSet>
 
 </databaseChangeLog>

@@ -12,22 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { Barriere } from 'src/app/viewer/barriere/models/barriere';
 import { BarrierenService } from 'src/app/viewer/barriere/services/barrieren.service';
 import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class BarriereResolver implements Resolve<Barriere> {
-  constructor(private barriereService: BarrierenService) {}
-
-  // eslint-disable-next-line no-unused-vars
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<Barriere> {
-    const idFromRoute = route.paramMap.get('id');
-    invariant(idFromRoute);
-    return this.barriereService.getBarriere(+idFromRoute);
-  }
-}
+export const barriereResolver: ResolveFn<Barriere> = (route, state) => {
+  const barriereService: BarrierenService = inject(BarrierenService);
+  const id = route.paramMap.get('id');
+  invariant(id);
+  return barriereService.getBarriere(+id);
+};

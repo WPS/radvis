@@ -14,31 +14,32 @@
 
 package de.wps.radvis.backend.architektur;
 
-import com.tngtech.archunit.core.importer.ImportOption;
-import com.tngtech.archunit.junit.AnalyzeClasses;
-import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchRule;
+import static com.tngtech.archunit.core.domain.properties.CanBeAnnotated.Predicates.annotatedWith;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static com.tngtech.archunit.core.domain.properties.CanBeAnnotated.Predicates.annotatedWith;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
 
 @AnalyzeClasses(packages = "de.wps.radvis.backend", importOptions = ImportOption.OnlyIncludeTests.class)
 public class TestNamingConventionTest {
 
-    @ArchTest
-    static final ArchRule INTEGRATION_TESTS_HAVE_SUFFIX_IT = classes()
-            .that().areAssignableTo(annotatedWith(DataJpaTest.class)).or()
-            .areAssignableTo(annotatedWith(WebMvcTest.class)).or()
-            .areAssignableTo(annotatedWith(SpringBootTest.class))
-            .should().haveNameMatching(".*IT");
+	@ArchTest
+	static final ArchRule INTEGRATION_TESTS_HAVE_SUFFIX_IT = classes()
+		.that().areAssignableTo(annotatedWith(DataJpaTest.class)).or()
+		.areAssignableTo(annotatedWith(WebMvcTest.class)).or()
+		.areAssignableTo(annotatedWith(SpringBootTest.class))
+		.should().haveNameMatching(".*IT");
 
-    @ArchTest
-    static final ArchRule TEST_WITH_SUFFIX_IT_ARE_INTEGRATION_TEST = classes()
-            .that().haveNameMatching(".*IT")
-            .should().beAssignableTo(annotatedWith(DataJpaTest.class)).orShould()
-            .beAssignableTo(annotatedWith(WebMvcTest.class)).orShould()
-            .beAssignableTo(annotatedWith(SpringBootTest.class));
+	@ArchTest
+	static final ArchRule TEST_WITH_SUFFIX_IT_ARE_INTEGRATION_TEST = classes()
+		.that().haveNameMatching(".*IT")
+		.should().beAssignableTo(annotatedWith(DataJpaTest.class)).orShould()
+		.beAssignableTo(annotatedWith(WebMvcTest.class)).orShould()
+		.beAssignableTo(annotatedWith(SpringBootTest.class));
 }

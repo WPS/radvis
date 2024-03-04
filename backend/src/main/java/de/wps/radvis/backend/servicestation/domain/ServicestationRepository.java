@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.servicestation.domain;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Point;
@@ -21,9 +22,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 
 public interface ServicestationRepository extends CrudRepository<Servicestation, Long> {
 
-	@Query(value = "Select * FROM servicestation WHERE ST_DWithin(?1, geometrie, 1) LIMIT 1", nativeQuery = true)
-	Optional<Servicestation> findByPosition(Point position);
+	@Query(value = "Select * FROM servicestation WHERE quell_system = 'RADVIS' AND ST_DWithin(?1, geometrie, 1) LIMIT 1", nativeQuery = true)
+	Optional<Servicestation> findByPositionAndQuellSystemRadvis(Point position);
+
+	Optional<Servicestation> findByIdAndQuellSystem(Long id, ServicestationenQuellSystem quellsystem);
+
+	@Query(value = """
+		Select s FROM Servicestation s
+		WHERE s.name = ?1 AND s.quellSystem = ?2
+		AND	WITHIN(?3, BUFFER(s.geometrie, ?4)) = TRUE
+		ORDER BY distance(?3, s.geometrie)
+		""")
+	Optional<Servicestation> findNearestByNameAndQuellSystemAndPosition(ServicestationName name,
+		ServicestationenQuellSystem quellSystem, Point position, Double distanceWithin);
+
+	int deleteByIdNotInAndQuellSystem(Collection<Long> namen, ServicestationenQuellSystem quellSystem);
 }

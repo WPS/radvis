@@ -18,7 +18,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class PrioritaetUserType implements AttributeConverter<Prioritaet, Integer> {
 
 	@Override

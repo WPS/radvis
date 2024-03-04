@@ -14,16 +14,15 @@
 
 package de.wps.radvis.backend.leihstation.schnittstelle;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.leihstation.domain.valueObject.Anzahl;
 import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationStatus;
 import de.wps.radvis.backend.leihstation.domain.valueObject.UrlAdresse;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter

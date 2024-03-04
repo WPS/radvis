@@ -23,7 +23,7 @@ import { Hoechstgeschwindigkeit } from 'src/app/editor/kanten/models/hoechstgesc
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { EnumDropdownControlComponent } from 'src/app/form-elements/components/enum-dropdown-control/enum-dropdown-control.component';
 
-describe('EnumDropdownControlComponent', () => {
+describe(EnumDropdownControlComponent.name, () => {
   let fixture: ComponentFixture<EnumDropdownControlComponent>;
   let component: EnumDropdownControlComponent;
 
@@ -58,7 +58,7 @@ describe('EnumDropdownControlComponent', () => {
   });
 });
 
-describe('EnumDropdownControlComponent - embedded', () => {
+describe(EnumDropdownControlComponent.name + ' - embedded', () => {
   let fixture: ComponentFixture<EnumDropdownControlComponent>;
   let component: EnumDropdownControlComponent;
 
@@ -82,8 +82,6 @@ describe('EnumDropdownControlComponent - embedded', () => {
 
     expect(component.formControl.value).toBe(component.UNDETERMINED);
     expect(component.showUndeterminedOption).toBeTrue();
-    expect(fixture.debugElement.query(By.css('.mat-select-value-text'))?.nativeElement.innerText).toEqual(
-      'Mehrere Werte ausgewählt'
-    );
+    expect(fixture.debugElement.query(By.css('mat-hint')).nativeElement.innerText).toEqual('Mehrere Werte ausgewählt');
   });
 });

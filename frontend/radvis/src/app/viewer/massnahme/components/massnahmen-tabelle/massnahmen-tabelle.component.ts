@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
@@ -51,7 +51,7 @@ export class MassnahmenTabelleComponent {
     'prioritaet',
     'netzklassen',
     'baulastZustaendiger',
-    'markierungsZustaendiger',
+    'zustaendiger',
     'unterhaltsZustaendiger',
     'letzteAenderung',
     'benutzerLetzteAenderung',
@@ -63,9 +63,10 @@ export class MassnahmenTabelleComponent {
 
   public getDisplayValue = MassnahmeListenView.getDisplayValueForKey;
   public isBenutzerBerechtigtMassnahmenZuErstellen: boolean;
-  public isBenutzerBerechtigtUmsetzungsstandsabfragenZuVerwalten: boolean;
+  public isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten: boolean;
+  public isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten: boolean;
   public massnahmenCreatorRoute: string;
-  organisationControl: FormControl;
+  organisationControl: UntypedFormControl;
 
   public exporting = false;
 
@@ -80,7 +81,8 @@ export class MassnahmenTabelleComponent {
     organisationenService: OrganisationenService
   ) {
     this.isBenutzerBerechtigtMassnahmenZuErstellen = benutzerDetailsService.canCreateMassnahmen();
-    this.isBenutzerBerechtigtUmsetzungsstandsabfragenZuVerwalten = benutzerDetailsService.canAdministrateUmsetzungsstandsabfragen();
+    this.isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten = benutzerDetailsService.canStartUmsetzungsstandsabfragen();
+    this.isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten = benutzerDetailsService.canEvaluateUmsetzungsstandsabfragen();
     this.massnahmenCreatorRoute = this.massnahmenRoutingService.getCreatorRoute();
     this.selectedMassnahmeID$ = this.massnahmenRoutingService.selectedInfrastrukturId$;
     this.data$ = this.massnahmeFilterService.filteredList$;
@@ -88,7 +90,7 @@ export class MassnahmenTabelleComponent {
       .getOrganisationen()
       .then(organisationen => organisationen.filter(organisation => !Verwaltungseinheit.isLandesweit(organisation)));
 
-    this.organisationControl = new FormControl(
+    this.organisationControl = new UntypedFormControl(
       this.massnahmeFilterService.organisation,
       RadvisValidators.isNotNullOrEmpty
     );

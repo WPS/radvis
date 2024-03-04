@@ -13,11 +13,11 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
@@ -41,16 +41,16 @@ import invariant from 'tiny-invariant';
   styleUrls: ['./barriere-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BarriereEditorComponent implements DiscardGuard {
+export class BarriereEditorComponent implements DiscardableComponent {
   isFetching = false;
-  formGroup: FormGroup = new FormGroup({
-    netzbezug: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    verantwortlicheOrganisation: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    barrierenForm: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-    verbleibendeDurchfahrtsbreite: new FormControl(null),
-    sicherung: new FormControl(null),
-    markierung: new FormControl(null),
-    begruendung: new FormControl(null, RadvisValidators.maxLength(2000)),
+  formGroup: UntypedFormGroup = new UntypedFormGroup({
+    netzbezug: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+    verantwortlicheOrganisation: new FormControl<Verwaltungseinheit | null>(null, RadvisValidators.isNotNullOrEmpty),
+    barrierenForm: new FormControl<string>('', RadvisValidators.isNotNullOrEmpty),
+    verbleibendeDurchfahrtsbreite: new FormControl<VerbleibendeDurchfahrtsbreite | null>(null),
+    sicherung: new FormControl<Sicherung | null>(null),
+    markierung: new FormControl<Markierung | null>(null),
+    begruendung: new FormControl<string | null>(null, RadvisValidators.maxLength(2000)),
   });
   isCreator = false;
   BARRIEREN = BARRIEREN;

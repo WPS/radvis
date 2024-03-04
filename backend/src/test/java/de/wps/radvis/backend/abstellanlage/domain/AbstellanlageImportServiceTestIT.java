@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.mockito.Mockito;
@@ -38,7 +38,6 @@ import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 
-import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.abstellanlage.AbstellanlageConfiguration;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.entity.provider.AbstellanlageTestDataProvider;
@@ -57,6 +56,7 @@ import de.wps.radvis.backend.common.domain.exception.CsvReadException;
 import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
+import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
@@ -96,7 +96,8 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		when(verwaltungseinheitService.getBundeslandBereichPrepared())
 			.thenReturn(
 				PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000)));
-		when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(true);
+		when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
+			true);
 	}
 
 	@Test
@@ -135,7 +136,7 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Hinzugefügt");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 	}
 
@@ -168,7 +169,7 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Aktualisiert");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 	}
 
@@ -238,7 +239,7 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Hinzugefügt");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 	}
 

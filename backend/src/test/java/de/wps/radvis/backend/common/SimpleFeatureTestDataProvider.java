@@ -16,6 +16,7 @@ package de.wps.radvis.backend.common;
 
 import java.util.Map;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.locationtech.jts.geom.Coordinate;
@@ -23,7 +24,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
-import org.opengis.feature.simple.SimpleFeature;
+import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -67,6 +68,40 @@ public class SimpleFeatureTestDataProvider {
 			GeometryTestdataProvider.createLineString(coordinates) });
 
 		SimpleFeatureTypeBuilder typeBuilder = typeWithGeometry(MultiLineString.class);
+		attributes.keySet().forEach(key -> {
+			typeBuilder.add(key, String.class);
+		});
+
+		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(typeBuilder.buildFeatureType());
+		f1.add(geometry1);
+		attributes.keySet().forEach(key -> {
+			f1.add(attributes.get(key));
+		});
+		return f1.buildFeature("id");
+	}
+
+	public static SimpleFeature withGeometryAndAttributes(Map<String, String> attributes,
+		Geometry geometry) {
+
+		SimpleFeatureTypeBuilder typeBuilder = typeWithGeometry(geometry.getClass());
+		attributes.keySet().forEach(key -> {
+			typeBuilder.add(key, String.class);
+		});
+
+		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(typeBuilder.buildFeatureType());
+		f1.add(geometry);
+		attributes.keySet().forEach(key -> {
+			f1.add(attributes.get(key));
+		});
+		return f1.buildFeature("id");
+	}
+
+	public static SimpleFeature withPointAndAttributes(Map<String, String> attributes,
+		Coordinate coordinate) {
+
+		Point geometry1 = GeometryTestdataProvider.createPoint(coordinate);
+
+		SimpleFeatureTypeBuilder typeBuilder = typeWithGeometry(Point.class);
 		attributes.keySet().forEach(key -> {
 			typeBuilder.add(key, String.class);
 		});

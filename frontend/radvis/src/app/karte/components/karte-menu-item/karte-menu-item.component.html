@@ -12,17 +12,21 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<rad-karte-button [accessibilityText]="headline"
-                  (click)="openMenu()"
-                  #karteButton>
+<rad-karte-button [accessibilityText]="headline" (click)="openMenu()" #karteButton>
   <mat-icon>{{ icon }}</mat-icon>
 </rad-karte-button>
-<div class="invisible-trigger" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="menu"
-     (menuOpened)="onMenuOpen()"></div>
-<mat-menu #menu="matMenu" yPosition="below" xPosition="after" (closed)="onMenuClosed($event)">
-  <div class="mat-menu-container"
-       (keydown.tab)="$event.stopPropagation()"
-       (keydown.shift.tab)="$event.stopPropagation()">
+<div
+  class="invisible-trigger"
+  #menuTrigger="matMenuTrigger"
+  [matMenuTriggerFor]="menu"
+  (menuOpened)="onMenuOpen()"
+></div>
+<mat-menu #menu="matMenu" yPosition="below" xPosition="after" (closed)="onMenuClosed($event)" class="karte-menu">
+  <div
+    class="mat-menu-container"
+    (keydown.tab)="$event.stopPropagation()"
+    (keydown.shift.tab)="$event.stopPropagation()"
+  >
     <mat-toolbar>
       {{ headline }}
     </mat-toolbar>

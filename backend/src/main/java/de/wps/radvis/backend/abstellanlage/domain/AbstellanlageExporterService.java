@@ -75,9 +75,8 @@ public class AbstellanlageExporterService implements ExporterService {
 					abstellanlage.getAnzahlLademoeglichkeiten().map(AnzahlLademoeglichkeiten::getValue)
 						.map(Objects::toString).orElse(""));
 				attribute.put(Abstellanlage.CsvHeader.UEBERWACHT, abstellanlage.getUeberwacht().toString());
-				attribute.put(Abstellanlage.CsvHeader.B_AND_R,
-					abstellanlage.getIstBikeAndRide() != null && abstellanlage.getIstBikeAndRide().getValue() ? "Ja" :
-						"Nein");
+				attribute.put(Abstellanlage.CsvHeader.ABSTELLANLAGEN_ORT, abstellanlage.getAbstellanlagenOrt()
+					.toString());
 				attribute.put(Abstellanlage.CsvHeader.GROESSENKLASSE, abstellanlage.getGroessenklasse().map(
 					Groessenklasse::toString).orElse(""));
 				attribute.put(Abstellanlage.CsvHeader.STELLPLATZART, abstellanlage.getStellplatzart().toString());
@@ -98,7 +97,7 @@ public class AbstellanlageExporterService implements ExporterService {
 				attribute.put(Abstellanlage.CsvHeader.WEITERE_INFORMATION,
 					abstellanlage.getWeitereInformation().map(AbstellanlagenWeitereInformation::getValue)
 						.map(Objects::toString).orElse(""));
-				attribute.put(Abstellanlage.CsvHeader.ABSTELLANLAGENSTATUS, abstellanlage.getStatus().toString());
+				attribute.put(Abstellanlage.CsvHeader.ABSTELLANLAGEN_STATUS, abstellanlage.getStatus().toString());
 
 				return new ExportData(abstellanlage.getGeometrie(), attribute);
 			}).collect(Collectors.toList());

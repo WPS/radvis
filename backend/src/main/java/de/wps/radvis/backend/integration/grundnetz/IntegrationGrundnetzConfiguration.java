@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.integration.grundnetz;
 
-import jakarta.persistence.EntityManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +26,7 @@ import de.wps.radvis.backend.integration.grundnetz.domain.DLMNetzbildungService;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
+import jakarta.persistence.EntityManager;
 
 @Configuration
 public class IntegrationGrundnetzConfiguration {

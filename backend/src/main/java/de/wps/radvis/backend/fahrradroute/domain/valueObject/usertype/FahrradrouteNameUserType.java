@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class FahrradrouteNameUserType implements AttributeConverter<FahrradrouteName, String> {
 
 	@Override

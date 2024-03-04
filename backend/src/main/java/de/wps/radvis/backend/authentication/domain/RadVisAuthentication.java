@@ -17,11 +17,15 @@ package de.wps.radvis.backend.authentication.domain;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class RadVisAuthentication extends AbstractAuthenticationToken {
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
+import de.wps.radvis.backend.benutzer.domain.BenutzerHolder;
+import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+
+public class RadVisAuthentication extends AbstractAuthenticationToken implements BenutzerHolder {
 
 	private static final long serialVersionUID = 606178871122732432L;
 
-	private UserDetails userDetails;
+	private final UserDetails userDetails;
 
 	public RadVisAuthentication(UserDetails userDetails) {
 		super(userDetails.getAuthorities());
@@ -39,4 +43,8 @@ public class RadVisAuthentication extends AbstractAuthenticationToken {
 		return userDetails;
 	}
 
+	@Override
+	public Benutzer getBenutzer() {
+		return ((RadVisUserDetails) getPrincipal()).getBenutzer();
+	}
 }

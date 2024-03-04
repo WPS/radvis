@@ -12,9 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Rolle } from 'src/app/administration/models/rolle';
+
 export interface RegistriereBenutzerCommand {
   vorname: string;
   nachname: string;
   email: string;
   organisation: number;
+  rollen: Rolle[];
 }

@@ -12,18 +12,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { HttpClientModule } from '@angular/common/http';
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MockComponents } from 'ng-mocks';
 import { Feature, MapBrowserEvent, PluggableMap } from 'ol';
 import { buffer, getCenter } from 'ol/extent';
 import { MultiLineString, Point } from 'ol/geom';
+import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
+import { TileWMS } from 'ol/source';
 import VectorSource from 'ol/source/Vector';
 import { FehlerprotokollLayerComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-layer/fehlerprotokoll-layer.component';
 import { HintergrundAuswahlComponent } from 'src/app/karte/components/hintergrund-auswahl/hintergrund-auswahl.component';
@@ -38,8 +38,6 @@ import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.s
 import { MapQueryParams } from 'src/app/shared/models/map-query-params';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { instance, mock, when } from 'ts-mockito';
-import TileLayer from 'ol/layer/Tile';
-import { TileWMS } from 'ol/source';
 
 @Component({
   template: ` <rad-ol-map #component style="position: absolute; top: 0; left:0; width: 1000px; height: 500px">

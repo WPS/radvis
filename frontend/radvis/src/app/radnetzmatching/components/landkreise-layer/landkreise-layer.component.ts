@@ -73,7 +73,7 @@ export class LandkreiseLayerComponent implements OnInit, OnDestroy {
 
     this.olLayer = new VectorLayer({
       source: vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.layer.style,
       zIndex: 700,

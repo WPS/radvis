@@ -20,9 +20,6 @@ import static org.valid4j.Assertive.require;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Polygon;
@@ -30,6 +27,8 @@ import org.locationtech.jts.geom.Polygon;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerTyp;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 public class CustomNetzfehlerRepositoryImpl implements CustomNetzfehlerRepository {
 
@@ -44,7 +43,7 @@ public class CustomNetzfehlerRepositoryImpl implements CustomNetzfehlerRepositor
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-			"SELECT netzfehler FROM Netzfehler netzfehler")
+				"SELECT netzfehler FROM Netzfehler netzfehler")
 			.append(" WHERE")
 			.append(whereClauseFuerBereich())
 			.append(" AND netzfehler.erledigt = false");
@@ -63,7 +62,7 @@ public class CustomNetzfehlerRepositoryImpl implements CustomNetzfehlerRepositor
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-			"SELECT netzfehler FROM Netzfehler netzfehler")
+				"SELECT netzfehler FROM Netzfehler netzfehler")
 			.append(" WHERE").append(whereClauseFuerBereich())
 			.append(" AND netzfehler.netzfehlerTyp IN :netzfehlerTypen")
 			.append(" AND netzfehler.erledigt = false");

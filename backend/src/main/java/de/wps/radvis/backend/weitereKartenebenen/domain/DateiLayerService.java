@@ -76,10 +76,8 @@ public class DateiLayerService {
 
 	@Transactional
 	public void deleteDateiLayer(Long id) throws EntityNotFoundException, IOException, InterruptedException {
-		Optional<DateiLayer> dateiLayer = dateiLayerRepository.findById(id);
-		if (dateiLayer.isEmpty()) {
-			throw new EntityNotFoundException("Der angegebene DateiLayer konnte nicht gefunden werden.");
-		}
+		DateiLayer dateiLayer = dateiLayerRepository.findById(id)
+			.orElseThrow(() -> new EntityNotFoundException("Der angegebene DateiLayer konnte nicht gefunden werden."));
 
 		weitereKartenebenenRepository.deleteAllByDateiLayerId(id);
 		dateiLayerRepository.deleteById(id);
@@ -87,8 +85,10 @@ public class DateiLayerService {
 		// Erst in der DB, dann am Geoserver löschen. Sollte dieser Aufruf fehlschlagen wird obiges durch ein rollback
 		// rückgängig gemacht. Schlägt obiges Löschen aus DB fehl, dann wird das hier gar nicht aufgerufen. Es entstehen
 		// somit keine Datei-Leichen im Geoserver.
-		geoserverRepository.removeDatastoreAndLayer(dateiLayer.get().getGeoserverDatastoreName());
-		geoserverRepository.deleteStyle(dateiLayer.get().getGeoserverStyleName());
+		geoserverRepository.removeDatastoreAndLayer(dateiLayer.getGeoserverDatastoreName());
+		if (dateiLayer.hasStyle()) {
+			geoserverRepository.deleteStyle(dateiLayer.getGeoserverStyleName());
+		}
 	}
 
 	public void validateStyleForLayer(Long layerId, MultipartFile sldFile) throws IOException, InterruptedException {
@@ -105,9 +105,9 @@ public class DateiLayerService {
 					GeoserverStyleName.withTimestamp(dateiLayer.getName().getValue()), sldFile
 				);
 			} catch (IOException | InterruptedException e) {
-				log.info("Style für Datei-Layer {} konnte für die Validierung nicht angelegt werden. Ursache: {}",
+				log.error("Style für Datei-Layer {} konnte für die Validierung nicht angelegt werden",
 					dateiLayer.getName(),
-					e.getMessage());
+					e);
 				throw new SldValidationException(
 					"Style für Datei-Layer konnte für die Validierung nicht angelegt werden.",
 					e);
@@ -121,9 +121,9 @@ public class DateiLayerService {
 			try {
 				geoserverRepository.addStyleToLayer(dateiLayer.getGeoserverLayerName(), geoserverStyleName, false);
 			} catch (IOException | InterruptedException e) {
-				log.info(
-					"Style für Datei-Layer {} konnte zwar angelegt, aber nicht beim Layer für die Validierung hinterlegt werden. Ursache: {}",
-					dateiLayer.getName(), e.getMessage());
+				log.error(
+					"Style für Datei-Layer {} konnte zwar angelegt, aber nicht beim Layer für die Validierung hinterlegt werden.",
+					dateiLayer.getName(), e);
 				throw new SldValidationException(
 					"Style für Datei-Layer konnte zwar angelegt, aber nicht beim Layer für die Validierung hinterlegt werden.",
 					e);
@@ -192,8 +192,7 @@ public class DateiLayerService {
 				GeoserverStyleName.withTimestamp(dateiLayer.getName().getValue()), sldFile
 			);
 		} catch (IOException | InterruptedException e) {
-			log.info("Style für Datei-Layer {} konnte nicht angelegt werden. Ursache: {}", dateiLayer.getName(),
-				e.getMessage());
+			log.info("Style für Datei-Layer {} konnte nicht angelegt werden.", dateiLayer.getName(), e);
 			return false;
 		}
 

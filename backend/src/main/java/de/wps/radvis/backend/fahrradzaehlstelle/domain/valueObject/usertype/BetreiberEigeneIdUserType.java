@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.BetreiberEige
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class BetreiberEigeneIdUserType implements AttributeConverter<BetreiberEigeneId, Long> {
 
 	@Override

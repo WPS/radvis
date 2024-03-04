@@ -31,9 +31,13 @@ public class Fahrradhalterung extends AbstractBooleanVO {
 	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-	public static Fahrradhalterung of(Boolean value) { return new Fahrradhalterung(value); }
+	public static Fahrradhalterung of(Boolean value) {
+		return new Fahrradhalterung(value);
+	}
 
-	public static Fahrradhalterung of(String value) { return new Fahrradhalterung(value);}
+	public static Fahrradhalterung of(String value) {
+		return new Fahrradhalterung(value);
+	}
 
 	@Override
 	public String toString() {

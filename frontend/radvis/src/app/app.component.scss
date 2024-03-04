@@ -38,7 +38,7 @@ $hightligt-line-overflow-width: 0.6em;
   overflow: hidden;
 }
 
-mat-progress-bar {
+.mat-mdc-progress-bar {
   position: absolute;
   top: 0;
   left: 0;
@@ -82,7 +82,7 @@ mat-progress-bar {
   }
 }
 
-::ng-deep .mat-snack-bar-container {
+::ng-deep .mat-mdc-snack-bar-container {
   background-color: #fff;
   color: #000;
 }

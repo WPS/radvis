@@ -45,7 +45,6 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
@@ -53,6 +52,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum
 import de.wps.radvis.backend.massnahme.domain.valueObject.GrundFuerAbweichungZumMassnahmenblatt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.GrundFuerNichtUmsetzungDerMassnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.PruefungQualitaetsstandardsErfolgt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
@@ -178,7 +178,7 @@ class MassnahmeTest {
 			.build())
 			.isInstanceOf(RequireViolation.class)
 			.hasMessageContaining(
-				"Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.");
+				"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
 	}
 
 	@Test
@@ -195,7 +195,7 @@ class MassnahmeTest {
 			.build())
 			.isInstanceOf(RequireViolation.class)
 			.hasMessageContaining(
-				"Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.");
+				"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
 	}
 
 	@Test
@@ -229,7 +229,7 @@ class MassnahmeTest {
 			Set.of(Massnahmenkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME),
 			new MassnahmeNetzBezug(Set.of(abschnittsweiserKantenSeitenBezug), Set.of(), Collections.emptySet()),
 			Umsetzungsstatus.PLANUNG, true, true, Durchfuehrungszeitraum.of(2021),
-			testOrganisation, LocalDateTime.of(2021, 12, 17, 14, 20),
+			testOrganisation, testOrganisation, LocalDateTime.of(2021, 12, 17, 14, 20),
 			BenutzerTestDataProvider.admin(testOrganisation).build(), SollStandard.BASISSTANDARD,
 			Handlungsverantwortlicher.BAULASTTRAEGER, Konzeptionsquelle.KOMMUNALES_KONZEPT, null);
 
@@ -414,7 +414,7 @@ class MassnahmeTest {
 			massnahme.getLetzteAenderung(),
 			massnahme.getBaulastZustaendiger().orElse(null),
 			massnahme.getunterhaltsZustaendiger().orElse(null),
-			massnahme.getMarkierungsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
 			massnahme.getMassnahmeKonzeptID().get(),
 			massnahme.getSollStandard(),
 			massnahme.getHandlungsverantwortlicher().get(),
@@ -472,7 +472,7 @@ class MassnahmeTest {
 			massnahme.getLetzteAenderung(),
 			massnahme.getBaulastZustaendiger().get(),
 			massnahme.getunterhaltsZustaendiger().orElse(null),
-			massnahme.getMarkierungsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
 			massnahme.getMassnahmeKonzeptID().get(),
 			massnahme.getSollStandard(),
 			massnahme.getHandlungsverantwortlicher().get(),
@@ -518,7 +518,7 @@ class MassnahmeTest {
 				massnahme.getLetzteAenderung(),
 				massnahme.getBaulastZustaendiger().orElse(null),
 				massnahme.getunterhaltsZustaendiger().orElse(null),
-				massnahme.getMarkierungsZustaendiger().orElse(null),
+				massnahme.getZustaendiger().orElse(null),
 				massnahme.getMassnahmeKonzeptID().get(),
 				massnahme.getSollStandard(),
 				massnahme.getHandlungsverantwortlicher().get(),
@@ -556,7 +556,7 @@ class MassnahmeTest {
 			massnahme.getLetzteAenderung(),
 			massnahme.getBaulastZustaendiger().orElse(null),
 			massnahme.getunterhaltsZustaendiger().orElse(null),
-			massnahme.getMarkierungsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
 			massnahme.getMassnahmeKonzeptID().get(),
 			massnahme.getSollStandard(),
 			massnahme.getHandlungsverantwortlicher().get(),
@@ -601,7 +601,7 @@ class MassnahmeTest {
 			massnahme.getLetzteAenderung(),
 			massnahme.getBaulastZustaendiger().orElse(null),
 			massnahme.getunterhaltsZustaendiger().orElse(null),
-			massnahme.getMarkierungsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
 			massnahme.getMassnahmeKonzeptID().get(),
 			massnahme.getSollStandard(),
 			massnahme.getHandlungsverantwortlicher().get(),

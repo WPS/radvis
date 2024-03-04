@@ -28,6 +28,9 @@ import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, instance, mock, when } from 'ts-mockito';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
+import { InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { MassnahmeModule } from 'src/app/viewer/massnahme/massnahme.module';
 
 describe('MassnahmeDokumentListeResolver', () => {
   let massnahmeService: MassnahmeService;
@@ -40,7 +43,8 @@ describe('MassnahmeDokumentListeResolver', () => {
   });
 
   beforeEach(() =>
-    MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
+    MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], [ViewerModule, MassnahmeModule])
+      .keep(InfrastrukturToken)
       .keep(ViewerComponent)
       .keep(MassnahmenToolComponent)
       .exclude(NG_MOCKS_GUARDS)
@@ -52,11 +56,15 @@ describe('MassnahmeDokumentListeResolver', () => {
         provide: MapQueryParamsService,
         useValue: instance(mapQueryParamsService),
       })
+      .provide({
+        provide: BenutzerDetailsService,
+        useValue: instance(mock(BenutzerDetailsService)),
+      })
   );
 
   // It is important to run routing tests in fakeAsync.
   it('should emit data if list remains empty', fakeAsync(() => {
-    const fixture = MockRender(RouterOutlet);
+    const fixture = MockRender(RouterOutlet, {});
     const router: Router = fixture.point.injector.get(Router);
     const location: Location = fixture.point.injector.get(Location);
 
@@ -73,6 +81,8 @@ describe('MassnahmeDokumentListeResolver', () => {
       fixture.ngZone.run(() => router.initialNavigation());
       tick(); // is needed for rendering of the current route.
     }
+
+    fixture.detectChanges();
 
     // Checking that we are on the right page.
     expect(location.path()).toEqual('/viewer/massnahmen/1/dateien');

@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
@@ -48,6 +48,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
+@SuppressWarnings("deprecation")
 class MassnahmenMappingServiceTest {
 	@Mock
 	private VerwaltungseinheitService verwaltungseinheitService;
@@ -134,6 +135,9 @@ class MassnahmenMappingServiceTest {
 			List.of(
 				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1L).build()));
 
+		when(verwaltungseinheitService.getUnbekannteOrganisation()).thenReturn(
+			VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2L).build());
+
 		// act
 		List<Massnahme> result = massnahmenMappingService.createMassnahmen(simpleFeatureType, netzbezug,
 			protokoll, BenutzerTestDataProvider.defaultBenutzer().build());
@@ -188,6 +192,9 @@ class MassnahmenMappingServiceTest {
 		when(verwaltungseinheitService.getOrganisationenByOrganisationsArtFuerGeometrie(any(), any())).thenReturn(
 			List.of(
 				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1L).build()));
+
+		when(verwaltungseinheitService.getUnbekannteOrganisation()).thenReturn(
+			VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2L).build());
 
 		// act
 		List<Massnahme> result = massnahmenMappingService.createMassnahmen(simpleFeatureType, netzbezug,
@@ -246,6 +253,9 @@ class MassnahmenMappingServiceTest {
 		when(verwaltungseinheitService.getOrganisationenByOrganisationsArtFuerGeometrie(any(), any())).thenReturn(
 			List.of(
 				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1L).build()));
+
+		when(verwaltungseinheitService.getUnbekannteOrganisation()).thenReturn(
+			VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2L).build());
 
 		// act
 		List<Massnahme> result = massnahmenMappingService.createMassnahmen(simpleFeatureType, netzbezug,

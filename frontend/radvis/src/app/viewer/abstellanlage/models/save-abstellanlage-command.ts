@@ -14,6 +14,7 @@
 
 import { PointGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { Ueberwacht } from 'src/app/viewer/abstellanlage/models/ueberwacht';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Groessenklasse } from 'src/app/viewer/abstellanlage/models/groessenklasse';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
 import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstellanlagen-status';
@@ -28,7 +29,7 @@ export interface SaveAbstellanlageCommand {
   anzahlSchliessfaecher: number | null;
   anzahlLademoeglichkeiten: number | null;
   ueberwacht: Ueberwacht;
-  istBikeAndRide: boolean;
+  abstellanlagenOrt: AbstellanlagenOrt;
   groessenklasse: Groessenklasse | null;
   stellplatzart: Stellplatzart;
   ueberdacht: boolean;

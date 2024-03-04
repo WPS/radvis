@@ -26,7 +26,7 @@ import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -56,7 +56,7 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 
 @Tag("group7")
-@EnableJpaRepositories(basePackageClasses = { FahrradrouteConfiguration.class,
+@EnableEnversRepositories(basePackageClasses = { FahrradrouteConfiguration.class,
 	NetzConfiguration.class })
 @EntityScan(basePackageClasses = { FahrradrouteConfiguration.class,
 	NetzConfiguration.class, OrganisationConfiguration.class, BenutzerConfiguration.class })

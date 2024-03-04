@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
@@ -81,9 +81,10 @@ export class DateiLayerVerwaltungComponent implements OnInit {
         this.resetCreateLayerFormGroup();
       })
       .catch(reason => {
-        let errorMessage = 'Kartenebene konnte nicht erstellt werden';
+        let errorMessage =
+          'Kartenebene konnte nicht erstellt werden, achten Sie auf korrekte Dateien. Mehr Infos dazu finden Sie im Handbuch.';
         if (reason && reason.error && reason.error.message) {
-          errorMessage += ': ' + reason.error.message;
+          errorMessage += '\n\nDetails: ' + reason.error.message;
         }
         this.notifyUserService.warn(errorMessage);
       })
@@ -135,7 +136,7 @@ export class DateiLayerVerwaltungComponent implements OnInit {
 
   onManageStyles(layer: DateiLayer): void {
     invariant(this.styleDialogRef);
-    const formControl = new FormControl(null);
+    const formControl = new UntypedFormControl(null);
 
     this.dialog.open(this.styleDialogRef, { id: this.STYLE_DIALOG_ID, data: { layer, formControl }, width: '30%' });
   }
@@ -166,15 +167,15 @@ export class DateiLayerVerwaltungComponent implements OnInit {
     return DateiLayerFormat.getDisplayText(format);
   }
 
-  private createLayerFormGroup(): FormGroup {
-    return new FormGroup({
-      name: new FormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-      format: new FormControl(DateiLayerFormat.SHAPE, RadvisValidators.isNotNullOrEmpty),
-      quellangabe: new FormControl(null, [
+  private createLayerFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      name: new UntypedFormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      format: new UntypedFormControl(DateiLayerFormat.SHAPE, RadvisValidators.isNotNullOrEmpty),
+      quellangabe: new UntypedFormControl(null, [
         RadvisValidators.isNotNullOrEmpty,
         RadvisValidators.maxLength(this.QUELLANGABE_MAX_LENGTH),
       ]),
-      file: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+      file: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
     });
   }
 

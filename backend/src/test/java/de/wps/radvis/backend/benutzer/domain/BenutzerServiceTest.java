@@ -19,8 +19,13 @@ import static de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -34,6 +39,7 @@ import org.mockito.MockitoAnnotations;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerDBListView;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.benutzer.domain.exception.BenutzerIstNichtRegistriertException;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
@@ -41,6 +47,7 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
@@ -57,11 +64,18 @@ class BenutzerServiceTest {
 
 	BenutzerService benutzerService;
 
+	@Mock
+	MailService mailService;
+
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		benutzerService = new BenutzerService(benutzerRepository, verwaltungseinheitService,
-			"technischerBenutzerServiceBwId");
+		benutzerService = new BenutzerService(
+			benutzerRepository,
+			verwaltungseinheitService,
+			"technischerBenutzerServiceBwId",
+			"basisUrl",
+			mailService);
 	}
 
 	@Test
@@ -207,36 +221,36 @@ class BenutzerServiceTest {
 
 		// benutzer
 		Benutzer lowbobBenutzer = new Benutzer(Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@mail.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130000"), Set.of(Rolle.RADWEGE_ERFASSERIN));
 		// zuständige Admins
 		Benutzer radvisAdmin = new Benutzer(Name.of("Radvis"), Name.of("Admin"), BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("admin@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("admin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		Benutzer kreiskoodinator = new Benutzer(Name.of("Kreis"), Name.of("Koordinator"), BenutzerStatus.AKTIV,
-			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@radvis.de"),
+			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer radnetzErfasserInRegierungsbezirk = new Benutzer(Name.of("Radnetz"), Name.of("Erfasser"),
 			BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("erfasser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		Benutzer bearbeiterVMadministration = new Benutzer(Name.of("bearbeiterVM"), Name.of("Radnetzadministrator"),
 			BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("radnetzadmin@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("radnetzadmin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130004"),
 			Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN));
 		// nicht zuständige Admins
 		Benutzer nichtZustaendigKreiskoodinator = new Benutzer(Name.of("anderer"), Name.of("kreiskoodrinator"),
 			BenutzerStatus.AKTIV,
-			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
+			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer nichtZustaendigradneterfasserRegierungsbezirk = new Benutzer(Name.of("anderer"),
 			Name.of("kreiskoodrinator"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130006"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		when(benutzerRepository.findByRollenAndStatus(Rolle.RADVIS_ADMINISTRATOR, BenutzerStatus.AKTIV))
@@ -264,22 +278,22 @@ class BenutzerServiceTest {
 		assertThat(zustaendigeBenutzer)
 			.extracting("mailadresse")
 			.containsExactlyInAnyOrder(
-				Mailadresse.of("erfasser@radvis.de"))
+				Mailadresse.of("erfasser@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sind nicht für die Organisation Zuständig
-				Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
-				Mailadresse.of("anderer.erfasser@radvis.de"))
+				Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
+				Mailadresse.of("anderer.erfasser@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sollten nicht benachrichtigt werden, weil es Admins auf einer unteren Ebene gibt, die
 				// zuständig wären
-				Mailadresse.of("admin@radvis.de"),
-				Mailadresse.of("kreiskoordinator@radvis.de"))
+				Mailadresse.of("admin@testRadvis.de"),
+				Mailadresse.of("kreiskoordinator@testRadvis.de"))
 			.doesNotContain(
 				// Diese User sind in der richtigen Organisation, haben aber keine Adminrechte (einer davoin ist der
 				// User selbst)
-				Mailadresse.of("meinemail@mail.de"),
-				Mailadresse.of("poweruser@radvis.de"),
-				Mailadresse.of("radnetzadmin@radvis.de"));
+				Mailadresse.of("meinemail@testRadvis.de"),
+				Mailadresse.of("poweruser@testRadvis.de"),
+				Mailadresse.of("radnetzadmin@testRadvis.de"));
 	}
 
 	@Test
@@ -306,27 +320,27 @@ class BenutzerServiceTest {
 
 		// benutzer
 		Benutzer lowbobBenutzer = new Benutzer(Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@mail.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130000"), Set.of(Rolle.RADWEGE_ERFASSERIN));
 		// zuständige Admins
 		Benutzer radvisAdmin = new Benutzer(Name.of("Radvis"), Name.of("Admin"), BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("admin@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("admin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		Benutzer kreiskoodinator = new Benutzer(Name.of("Kreis"), Name.of("Koordinator"), BenutzerStatus.AKTIV,
-			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@radvis.de"),
+			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"), Set.of(Rolle.KREISKOORDINATOREN));
 		// nicht zuständige Admins
 		Benutzer nichtZustaendigKreiskoodinator = new Benutzer(Name.of("anderer"), Name.of("kreiskoodrinator"),
 			BenutzerStatus.AKTIV,
-			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
+			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer nichtZustaendigradneterfasserRegierungsbezirk = new Benutzer(Name.of("anderer"),
 			Name.of("kreiskoodrinator"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130006"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		when(benutzerRepository.findByRollenAndStatus(Rolle.RADVIS_ADMINISTRATOR, BenutzerStatus.AKTIV))
@@ -354,20 +368,20 @@ class BenutzerServiceTest {
 		assertThat(zustaendigeBenutzer)
 			.extracting("mailadresse")
 			.containsExactlyInAnyOrder(
-				Mailadresse.of("kreiskoordinator@radvis.de"))
+				Mailadresse.of("kreiskoordinator@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sind nicht für die Organisation Zuständig
-				Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
-				Mailadresse.of("anderer.erfasser@radvis.de"))
+				Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
+				Mailadresse.of("anderer.erfasser@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sollten nicht benachrichtigt werden, weil es Admins auf einer unteren Ebene gibt, die
 				// zuständig wären
-				Mailadresse.of("admin@radvis.de"))
+				Mailadresse.of("admin@testRadvis.de"))
 			.doesNotContain(
 				// Diese User sind in der richtigen Organisation, haben aber keine Adminrechte (einer davoin ist der
 				// User selbst)
-				Mailadresse.of("meinemail@mail.de"),
-				Mailadresse.of("poweruser@radvis.de"));
+				Mailadresse.of("meinemail@testRadvis.de"),
+				Mailadresse.of("poweruser@testRadvis.de"));
 	}
 
 	@Test
@@ -394,32 +408,32 @@ class BenutzerServiceTest {
 
 		// benutzer
 		Benutzer lowbobBenutzer = new Benutzer(Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@mail.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130000"), Set.of(Rolle.RADWEGE_ERFASSERIN));
 		// zuständige Admins
 		Benutzer radvisAdmin = new Benutzer(Name.of("Radvis"), Name.of("Admin"), BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("admin@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("admin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		Benutzer andererRadvisAdmin = new Benutzer(Name.of("Raaaaaadvis"), Name.of("WaaaaaAdmin"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("zweiterAdmin@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("zweiterAdmin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130021"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		Benutzer landesVMrandetzBearbeiter = new Benutzer(Name.of("VM ARbeiter"), Name.of("Regierungsbezirk"),
 			BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("landesVMrandetzBearbeiter@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("landesVMrandetzBearbeiter@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"),
 			Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN));
 		// nicht zuständige Admins
 		Benutzer nichtZustaendigKreiskoodinator = new Benutzer(Name.of("anderer"), Name.of("kreiskoodrinator"),
 			BenutzerStatus.AKTIV,
-			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
+			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer nichtZustaendigradneterfasserRegierungsbezirk = new Benutzer(Name.of("anderer"),
 			Name.of("kreiskoodrinator"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130006"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		when(benutzerRepository.findByRollenAndStatus(Rolle.RADVIS_ADMINISTRATOR, BenutzerStatus.AKTIV))
@@ -445,21 +459,21 @@ class BenutzerServiceTest {
 		assertThat(zustaendigeBenutzer)
 			.extracting("mailadresse")
 			.containsExactlyInAnyOrder(
-				Mailadresse.of("admin@radvis.de"))
+				Mailadresse.of("admin@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sind nicht für die Organisation Zuständig
-				Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
-				Mailadresse.of("anderer.erfasser@radvis.de"))
+				Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
+				Mailadresse.of("anderer.erfasser@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sollten nicht benachrichtigt werden, weil es Admins auf einer unteren Ebene gibt, die
 				// zuständig wären
-				Mailadresse.of("zweiterAdmin@radvis.de"))
+				Mailadresse.of("zweiterAdmin@testRadvis.de"))
 			.doesNotContain(
 				// Diese User sind in der richtigen Organisation, haben aber keine Adminrechte (einer davoin ist der
 				// User selbst)
-				Mailadresse.of("meinemail@mail.de"),
-				Mailadresse.of("landesVMrandetzBearbeiter@radvis.de"),
-				Mailadresse.of("poweruser@radvis.de"));
+				Mailadresse.of("meinemail@testRadvis.de"),
+				Mailadresse.of("landesVMrandetzBearbeiter@testRadvis.de"),
+				Mailadresse.of("poweruser@testRadvis.de"));
 	}
 
 	@Test
@@ -486,24 +500,24 @@ class BenutzerServiceTest {
 
 		// benutzer
 		Benutzer lowbobBenutzer = new Benutzer(Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@mail.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130000"), Set.of(Rolle.RADWEGE_ERFASSERIN));
 		// zuständige Admins
 		Benutzer andererRadvisAdmin = new Benutzer(Name.of("Raaaaaadvis"), Name.of("WaaaaaAdmin"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("zweiterAdmin@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("zweiterAdmin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130021"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		// nicht zuständige Admins
 		Benutzer nichtZustaendigKreiskoodinator = new Benutzer(Name.of("anderer"), Name.of("kreiskoodrinator"),
 			BenutzerStatus.AKTIV,
-			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
+			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer nichtZustaendigradneterfasserRegierungsbezirk = new Benutzer(Name.of("anderer"),
 			Name.of("kreiskoodrinator"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130006"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		when(benutzerRepository.findByRollenAndStatus(Rolle.RADVIS_ADMINISTRATOR, BenutzerStatus.AKTIV))
@@ -527,16 +541,16 @@ class BenutzerServiceTest {
 		assertThat(zustaendigeBenutzer)
 			.extracting("mailadresse")
 			.containsExactlyInAnyOrder(
-				Mailadresse.of("zweiterAdmin@radvis.de"))
+				Mailadresse.of("zweiterAdmin@testRadvis.de"))
 			.doesNotContain(
 				// Diese Admins sind nicht für die Organisation Zuständig
-				Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
-				Mailadresse.of("anderer.erfasser@radvis.de"))
+				Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
+				Mailadresse.of("anderer.erfasser@testRadvis.de"))
 			.doesNotContain(
 				// Diese User sind in der richtigen Organisation, haben aber keine Adminrechte (einer davoin ist der
 				// User selbst)
-				Mailadresse.of("meinemail@mail.de"),
-				Mailadresse.of("poweruser@radvis.de"));
+				Mailadresse.of("meinemail@testRadvis.de"),
+				Mailadresse.of("poweruser@testRadvis.de"));
 	}
 
 	@Test
@@ -563,39 +577,39 @@ class BenutzerServiceTest {
 
 		// benutzer
 		Benutzer neuerAdmin = new Benutzer(Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@mail.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("meinemail@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130000"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		// zuständige Admins
 		Benutzer radvisAdmin = new Benutzer(Name.of("Radvis"), Name.of("Admin"), BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("admin@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("admin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		Benutzer andererRadvisAdmin = new Benutzer(Name.of("Raaaaaadvis"), Name.of("WaaaaaAdmin"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("zweiterAdmin@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("zweiterAdmin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130021"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		// nicht zuständige Admins
 		Benutzer kreiskoodinator = new Benutzer(Name.of("Kreis"), Name.of("Koordinator"), BenutzerStatus.AKTIV,
-			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@radvis.de"),
+			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer radneterfasserRegierungsbezirk = new Benutzer(Name.of("Radnetz"), Name.of("Erfasser"),
 			BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("erfasser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		Benutzer bearbeiterVMadministration = new Benutzer(Name.of("bearbeiterVM"), Name.of("Radnetzadministrator"),
 			BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("radnetzadmin@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("radnetzadmin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130004"),
 			Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN));
 		Benutzer nichtZustaendigKreiskoodinator = new Benutzer(Name.of("anderer"), Name.of("kreiskoodrinator"),
 			BenutzerStatus.AKTIV,
-			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
+			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.KREISKOORDINATOREN));
 		Benutzer nichtZustaendigradneterfasserRegierungsbezirk = new Benutzer(Name.of("anderer"),
 			Name.of("kreiskoodrinator"), BenutzerStatus.AKTIV,
-			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@radvis.de"),
+			andereLandesOrganisation, Mailadresse.of("anderer.erfasser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		when(benutzerRepository.findByRollenAndStatus(Rolle.RADVIS_ADMINISTRATOR, BenutzerStatus.AKTIV))
@@ -620,8 +634,8 @@ class BenutzerServiceTest {
 		assertThat(potentiellZustaendigeBenutzer)
 			.extracting("mailadresse")
 			.containsExactlyInAnyOrder(
-				Mailadresse.of("admin@radvis.de"),
-				Mailadresse.of("zweiterAdmin@radvis.de"));
+				Mailadresse.of("admin@testRadvis.de"),
+				Mailadresse.of("zweiterAdmin@testRadvis.de"));
 	}
 
 	@Test
@@ -642,27 +656,27 @@ class BenutzerServiceTest {
 		// zuständige Admins
 		Benutzer radvisAdmin = BenutzerTestDataProvider.defaultBenutzer().vorname(Name.of("Radvis"))
 			.nachname(Name.of("Admin")).status(BenutzerStatus.AKTIV)
-			.organisation(obersteOrganisation).mailadresse(Mailadresse.of("admin@radvis.de"))
+			.organisation(obersteOrganisation).mailadresse(Mailadresse.of("admin@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"))
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR)).id(1L).build();
 		Benutzer andererRadvisAdmin = BenutzerTestDataProvider.defaultBenutzer().vorname(Name.of("Radvis"))
 			.nachname(Name.of("AdminZwei")).status(BenutzerStatus.AKTIV)
-			.organisation(mittlereOrganisation).mailadresse(Mailadresse.of("zweiterAdmin@radvis.de"))
+			.organisation(mittlereOrganisation).mailadresse(Mailadresse.of("zweiterAdmin@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130021"))
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR)).id(2L).build();
 		Benutzer kreiskoodinator = BenutzerTestDataProvider.defaultBenutzer().vorname(Name.of("Kreis"))
 			.nachname(Name.of("Koordinator")).status(BenutzerStatus.AKTIV)
-			.organisation(mittlereOrganisation).mailadresse(Mailadresse.of("kreiskoordinator@radvis.de"))
+			.organisation(mittlereOrganisation).mailadresse(Mailadresse.of("kreiskoordinator@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"))
 			.rollen(Set.of(Rolle.KREISKOORDINATOREN)).id(3L).build();
 		Benutzer benutzerEins = BenutzerTestDataProvider.defaultBenutzer().vorname(Name.of("Benutzer"))
 			.nachname(Name.of("Eins")).status(BenutzerStatus.AKTIV)
-			.organisation(untereOrganisation).mailadresse(Mailadresse.of("erfasser@radvis.de"))
+			.organisation(untereOrganisation).mailadresse(Mailadresse.of("erfasser@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"))
 			.rollen(Set.of(Rolle.EXTERNER_DIENSTLEISTER)).id(4L).build();
 		Benutzer benutzerZwei = BenutzerTestDataProvider.defaultBenutzer().vorname(Name.of("Benutzer"))
 			.nachname(Name.of("Zwei")).status(BenutzerStatus.AKTIV)
-			.organisation(obersteOrganisation).mailadresse(Mailadresse.of("anderer.erfasser@radvis.de"))
+			.organisation(obersteOrganisation).mailadresse(Mailadresse.of("anderer.erfasser@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"))
 			.rollen(Set.of(Rolle.EXTERNER_DIENSTLEISTER)).id(5L).build();
 
@@ -705,5 +719,60 @@ class BenutzerServiceTest {
 				getDbListView(kreiskoodinator),
 				getDbListView(benutzerEins));
 		assertThat(alleBenutzerByZustaendigerBenutzerFuerBenutzer).isEmpty();
+	}
+
+	@Test
+	void testErmittleAlleBenutzerInaktivLaengerAls_findetKorrekteBenutzer() {
+		// arrange
+		Integer inaktivitaetsTimeout = 365;
+		Long id = 0L;
+		Long version = 1L;
+
+		Benutzer aktiverBenutzer = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(++id)
+			.version(++version)
+			.letzteAktivitaet(LocalDate.now().minusDays(inaktivitaetsTimeout))
+			.build();
+
+		Benutzer inaktiverBenutzer = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(++id)
+			.version(++version)
+			.letzteAktivitaet(LocalDate.now().minusDays(inaktivitaetsTimeout + 1))
+			.build();
+
+		when(benutzerRepository.findByStatusAndRollenIsNotContaining(BenutzerStatus.AKTIV, Rolle.RADVIS_ADMINISTRATOR))
+			.thenReturn(List.of(aktiverBenutzer, inaktiverBenutzer));
+
+		// act
+		List<Benutzer> benutzerListe = benutzerService.ermittleAktiveBenutzerInaktivLaengerAls(inaktivitaetsTimeout);
+
+		// assert
+		assertThat(benutzerListe).contains(inaktiverBenutzer);
+		assertThat(benutzerListe).doesNotContain(aktiverBenutzer);
+	}
+
+	@Test
+	void testReaktiviereBenutzer_aendertBenutzerStatus() throws BenutzerIstNichtRegistriertException {
+		// arrange
+		Benutzer inaktiverBenutzer = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(2L)
+			.version(1L)
+			.status(BenutzerStatus.INAKTIV)
+			.letzteAktivitaet(LocalDate.now().minusDays(366))
+			.build();
+
+		when(benutzerRepository.findById(2L)).thenReturn(Optional.of(inaktiverBenutzer));
+		when(benutzerRepository.save(any(Benutzer.class))).thenAnswer(
+			invocationOnMock -> invocationOnMock.getArguments()[0]);
+
+		// act
+		Benutzer reaktivierterBenutzer = benutzerService.beantrageReaktivierungFuerBenutzer(inaktiverBenutzer);
+
+		// assert
+		assertThat(reaktivierterBenutzer.getStatus()).isEqualTo(BenutzerStatus.WARTE_AUF_FREISCHALTUNG);
+		verify(mailService).sendMail(anyList(), eq("Antrag auf Reaktivierung"), anyString());
 	}
 }

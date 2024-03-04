@@ -24,8 +24,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Envelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +36,7 @@ import de.wps.radvis.backend.common.domain.Job;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.JobExecutionInputSummarySupplier;
 import de.wps.radvis.backend.common.domain.RamUsageUtility;
+import jakarta.transaction.Transactional;
 
 public abstract class AbstractJob implements Job {
 

@@ -26,9 +26,11 @@ import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.administration.AdministrationConfiguration;
@@ -40,6 +42,7 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -68,8 +71,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group1")
-@ContextConfiguration(classes = { NetzConfiguration.class, CommonConfiguration.class, AdministrationConfiguration.class,
-	OrganisationConfiguration.class, BenutzerConfiguration.class, GeoConverterConfiguration.class })
+@ContextConfiguration(classes = {
+	NetzConfiguration.class,
+	CommonConfiguration.class,
+	AdministrationConfiguration.class,
+	OrganisationConfiguration.class,
+	BenutzerConfiguration.class,
+	GeoConverterConfiguration.class
+})
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
@@ -77,11 +86,15 @@ import jakarta.persistence.PersistenceContext;
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
 })
+@MockBeans({
+	@MockBean(MailService.class),
+})
 public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 
 	@Configuration
-	@EnableJpaRepositories(basePackages = { "de.wps.radvis.backend.netz", })
-	@EntityScan({ "de.wps.radvis.backend.netz.domain.entity",
+	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.netz", })
+	@EntityScan({
+		"de.wps.radvis.backend.netz.domain.entity",
 		"de.wps.radvis.backend.netz.domain.valueObject",
 		"de.wps.radvis.backend.organisation.domain.entity",
 		"de.wps.radvis.backend.common.domain.entity",
@@ -140,7 +153,7 @@ public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 	@PersistenceContext
 	EntityManager entityManager;
 
-	private static GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
+	private static final GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
 	@Test
 	public void deleteKante_keepsKnoten() {

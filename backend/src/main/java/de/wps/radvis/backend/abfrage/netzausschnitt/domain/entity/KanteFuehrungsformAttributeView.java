@@ -14,16 +14,15 @@
 
 package de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import lombok.Getter;
 
 @Entity

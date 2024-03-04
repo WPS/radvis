@@ -19,9 +19,6 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Geometry;
@@ -29,6 +26,8 @@ import org.locationtech.jts.geom.Geometry;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

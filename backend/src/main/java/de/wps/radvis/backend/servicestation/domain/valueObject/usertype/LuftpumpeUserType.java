@@ -18,7 +18,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class LuftpumpeUserType implements AttributeConverter<Luftpumpe, Boolean> {
 
 	@Override

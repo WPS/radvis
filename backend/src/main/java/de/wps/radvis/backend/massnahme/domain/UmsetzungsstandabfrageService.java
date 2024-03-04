@@ -29,8 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -39,6 +37,7 @@ import com.google.common.collect.Lists;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
+import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
@@ -48,6 +47,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Transactional
@@ -103,15 +103,16 @@ public class UmsetzungsstandabfrageService {
 		Map<Benutzer, Set<Benutzer>> kreiskoordinatorToMailempfaenger = new HashMap<>();
 		Set<Verwaltungseinheit> verwaltungseinheitOhneZustaendigeBearbeiter = new HashSet<>();
 
-		log.info("Versende Benachrichtigungen zur Beantwortung der Umsetzungsstandsabfragen basierend auf {} Maßnahmen", massnahmen.size());
+		log.info("Versende Benachrichtigungen zur Beantwortung der Umsetzungsstandsabfragen basierend auf {} Maßnahmen",
+			massnahmen.size());
 
 		massnahmen
 			.stream()
 			.flatMap(massnahme -> {
 				List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 					massnahme);
-				if (massnahme.getBaulastZustaendiger().isPresent() && zustaendigeBearbeiter.isEmpty()) {
-					verwaltungseinheitOhneZustaendigeBearbeiter.add(massnahme.getBaulastZustaendiger().get());
+				if (massnahme.getZustaendiger().isPresent() && zustaendigeBearbeiter.isEmpty()) {
+					verwaltungseinheitOhneZustaendigeBearbeiter.add(massnahme.getZustaendiger().get());
 				}
 				return zustaendigeBearbeiter.stream();
 			})
@@ -220,10 +221,12 @@ public class UmsetzungsstandabfrageService {
 	}
 
 	protected String getRadvisLink(Verwaltungseinheit organisation) {
-		return commonConfigurationProperties.getBasisUrl()
-			+ "app/viewer?infrastrukturen=massnahmen&tabellenVisible=true"
-			+ "&filter_massnahmen=umsetzungsstandStatus:Aktualisierung%2520angefordert,baulastZustaendiger:"
-			+ organisation.getName().replaceAll(" ", "%2520");
+		String massnahmenFilterQuery =
+			"umsetzungsstandStatus:Aktualisierung%2520angefordert,zustaendiger:" + organisation.getName()
+				.replaceAll(" ", "%2520");
+
+		return commonConfigurationProperties.getBasisUrl() + FrontendLinks.infrastrukturTabelleWithFilter("massnahmen",
+			massnahmenFilterQuery);
 	}
 
 	public Stream<Massnahme> getMassnahmenStream(List<Long> massnahmeIds) {

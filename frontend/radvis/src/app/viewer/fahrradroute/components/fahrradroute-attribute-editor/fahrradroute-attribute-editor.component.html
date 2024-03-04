@@ -29,12 +29,7 @@
     >
       <mat-icon>save_alt</mat-icon>
     </button>
-    <button
-      [attr.aria-label]="'Schließen'"
-      matTooltip="Schließen"
-      (click)="onClose()"
-      mat-icon-button
-    >
+    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </mat-toolbar>
@@ -160,8 +155,8 @@
           <mat-label>Kurzbeschreibung</mat-label>
           <textarea class="text-area" formControlName="kurzbeschreibung" matInput></textarea>
           <mat-hint align="end"
-          >{{ formGroup.get('kurzbeschreibung')?.value?.length || 0 }}/{{ MAX_LENGTH_KURZBESCHREIBUNG }}</mat-hint
-          >
+            >{{ formGroup.get('kurzbeschreibung')?.value?.length || 0 }}/{{ MAX_LENGTH_KURZBESCHREIBUNG }}
+          </mat-hint>
         </mat-form-field>
         <rad-validation-error-anzeige [errors]="formGroup.get('kurzbeschreibung')?.errors || null">
         </rad-validation-error-anzeige>
@@ -176,8 +171,8 @@
           <mat-label>Beschreibung</mat-label>
           <textarea formControlName="beschreibung" matInput></textarea>
           <mat-hint align="end"
-          >{{ formGroup.get('beschreibung')?.value?.length || 0 }}/{{ MAX_LENGTH_BESCHREIBUNG }}</mat-hint
-          >
+            >{{ formGroup.get('beschreibung')?.value?.length || 0 }}/{{ MAX_LENGTH_BESCHREIBUNG }}
+          </mat-hint>
         </mat-form-field>
         <rad-validation-error-anzeige [errors]="formGroup.get('beschreibung')?.errors || null">
         </rad-validation-error-anzeige>
@@ -252,33 +247,53 @@
         <div class="label mt-5">Belagarten:</div>
         <div *ngFor="let belagArt of belagArtOptions">
           <ng-container *ngIf="getProfilAuswertungFuerBelagArt($any(belagArt.name)) as belagArtAuswertung">
-            <div matTooltip="{{belagArt.displayText}}" matTooltipPosition="after"
-                 *ngIf="belagArtAuswertung.kilometer !== 0"
-                 class="display-flex">
+            <div
+              matTooltip="{{ belagArt.displayText }}"
+              matTooltipPosition="after"
+              *ngIf="belagArtAuswertung.kilometer !== 0"
+              class="display-flex"
+            >
               <div
                 class="current-eigenschaft-legende mr-5 ml-5"
-                [style.background-color]="belagArtLegende.get($any(belagArt.name)) | colorToCss">
-              </div>
-              {{ (belagArt.displayText.length > 30) ? (belagArt.displayText | slice:0:30) + '... :' : (belagArt.displayText) + ':' }}
-              {{ belagArtAuswertung.kilometer.toLocaleString('de') }} km
-              ({{ belagArtAuswertung.prozent.toLocaleString('de') }}%)
+                [style.background-color]="belagArtLegende.get($any(belagArt.name)) | colorToCss"
+              ></div>
+              {{
+                belagArt.displayText.length > 30
+                  ? (belagArt.displayText | slice: 0:30) + '... :'
+                  : belagArt.displayText + ':'
+              }}
+              {{ belagArtAuswertung.kilometer.toLocaleString('de') }} km ({{
+                belagArtAuswertung.prozent.toLocaleString('de')
+              }}%)
             </div>
           </ng-container>
         </div>
 
-
         <div class="label mt-5">Radverkehrsführung:</div>
         <div *ngFor="let radverkehrsfuehrung of radverkehrsfuehrungOptions">
           <ng-container
-            *ngIf="getProfilAuswertungFuerRadverkehrsfuehrung(radverkehrsfuehrung.name) as radverkehrsfuehrungAuswertung">
-            <div matTooltip="{{radverkehrsfuehrung.displayText}}" matTooltipPosition="after"
-                 *ngIf="radverkehrsfuehrungAuswertung.kilometer !== 0" class="display-flex">
-              <div class="current-eigenschaft-legende mr-5 ml-5"
-                   [style.background-color]="radverkehrsfuehrungLegende.get(radverkehrsfuehrung.name) | colorToCss"
+            *ngIf="
+              getProfilAuswertungFuerRadverkehrsfuehrung(radverkehrsfuehrung.name) as radverkehrsfuehrungAuswertung
+            "
+          >
+            <div
+              matTooltip="{{ radverkehrsfuehrung.displayText }}"
+              matTooltipPosition="after"
+              *ngIf="radverkehrsfuehrungAuswertung.kilometer !== 0"
+              class="display-flex"
+            >
+              <div
+                class="current-eigenschaft-legende mr-5 ml-5"
+                [style.background-color]="radverkehrsfuehrungLegende.get(radverkehrsfuehrung.name) | colorToCss"
               ></div>
-              {{ (radverkehrsfuehrung.displayText.length > 30) ? (radverkehrsfuehrung.displayText | slice:0:30) + '... :' : (radverkehrsfuehrung.displayText) + ':' }}
-              {{ radverkehrsfuehrungAuswertung.kilometer.toLocaleString('de')}} km
-              ({{ radverkehrsfuehrungAuswertung.prozent.toLocaleString('de') }}%)
+              {{
+                radverkehrsfuehrung.displayText.length > 30
+                  ? (radverkehrsfuehrung.displayText | slice: 0:30) + '... :'
+                  : radverkehrsfuehrung.displayText + ':'
+              }}
+              {{ radverkehrsfuehrungAuswertung.kilometer.toLocaleString('de') }} km ({{
+                radverkehrsfuehrungAuswertung.prozent.toLocaleString('de')
+              }}%)
             </div>
           </ng-container>
         </div>
@@ -286,16 +301,16 @@
 
       <div class="mt-8">
         <div class="display-flex flex-row">
-          <rad-number-input-control
+          <rad-float-input-control
             formControlName="offizielleLaenge"
             class="flex-grow mr-10"
             [anzahlNachkommastellen]="3"
           >
             <div class="label">Offizielle Länge</div>
             <div class="einheit">km</div>
-          </rad-number-input-control>
+          </rad-float-input-control>
 
-          <rad-number-input-control
+          <rad-float-input-control
             formControlName="laengeHauptstrecke"
             class="flex-grow"
             [anzahlNachkommastellen]="3"
@@ -303,7 +318,7 @@
           >
             <div class="label">Länge der Hauptstrecke (berechnet)</div>
             <div class="einheit">km</div>
-          </rad-number-input-control>
+          </rad-float-input-control>
         </div>
 
         <rad-validation-error-anzeige
@@ -332,10 +347,12 @@
       >
         <div class="label">Toubiz-ID</div>
       </rad-text-input-control>
-      <rad-validation-error-anzeige
-        [errors]="formGroup.get('toubizId')?.errors || null"></rad-validation-error-anzeige>
-      <mat-card *ngIf="formGroup.get('toubizId')?.value && formGroup.get('toubizId')?.enabled && canEditAttribute"
-                class="hinweisbox">
+      <rad-validation-error-anzeige [errors]="formGroup.get('toubizId')?.errors || null"></rad-validation-error-anzeige>
+      <mat-card
+        appearance="outlined"
+        *ngIf="formGroup.get('toubizId')?.value && formGroup.get('toubizId')?.enabled && canEditAttribute"
+        class="hinweisbox"
+      >
         <mat-card-content>
           Bei Angabe einer gültigen Toubiz-ID werden alle anderen Attribute der Fahrradroute regelmäßig mit den Werten
           von Toubiz überschrieben.
@@ -348,7 +365,7 @@
 
       <div *ngIf="formGroup.get('info')?.value">
         <mat-label>Zusätzliche Informationen:</mat-label>
-        <br/>
+        <br />
         <span [innerHTML]="formGroup.get('info')?.value" class="mb-10"></span>
       </div>
     </rad-attribute-editor>

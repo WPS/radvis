@@ -25,10 +25,17 @@ import lombok.Getter;
 @Getter
 public class OrganisationConfigurationProperties {
 	private final int zustaendigkeitBufferInMeter;
+	private final int zustaendigkeitSimplificationToleranceInMeter;
 
 	@ConstructorBinding
-	public OrganisationConfigurationProperties(int zustaendigkeitBufferInMeter) {
-		require(zustaendigkeitBufferInMeter >= 0, "Der Zuständigkeits-Puffer in Metern muss größer oder gleich 0 sein.");
+	public OrganisationConfigurationProperties(int zustaendigkeitBufferInMeter,
+		int zustaendigkeitSimplificationToleranceInMeter) {
+		require(zustaendigkeitBufferInMeter >= 0,
+			"Der Zuständigkeits-Puffer in Metern muss größer oder gleich 0 sein.");
+		require(zustaendigkeitSimplificationToleranceInMeter >= 0,
+			"Simplification-tolerance in Metern muss größer oder gleich 0 sein.");
+
 		this.zustaendigkeitBufferInMeter = zustaendigkeitBufferInMeter;
+		this.zustaendigkeitSimplificationToleranceInMeter = zustaendigkeitSimplificationToleranceInMeter;
 	}
 }

@@ -15,13 +15,10 @@
 package de.wps.radvis.backend.integration.attributAbbildung.domain;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import de.wps.radvis.backend.common.domain.exception.KeineUeberschneidungException;
-import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.entity.KanteDublette;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import lombok.extern.slf4j.Slf4j;

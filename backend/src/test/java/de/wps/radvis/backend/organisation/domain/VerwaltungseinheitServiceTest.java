@@ -25,7 +25,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
@@ -49,7 +48,8 @@ class VerwaltungseinheitServiceTest {
 	void setup() {
 		MockitoAnnotations.openMocks(this);
 
-		this.service = new VerwaltungseinheitService(repository, gebietskoerperschaftRepository, organisationRepository);
+		this.service = new VerwaltungseinheitService(repository, gebietskoerperschaftRepository,
+			organisationRepository);
 	}
 
 	@Test

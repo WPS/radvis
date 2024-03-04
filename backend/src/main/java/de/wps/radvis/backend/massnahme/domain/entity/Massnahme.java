@@ -23,21 +23,9 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 
 import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.envers.Audited;
@@ -51,11 +39,11 @@ import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
@@ -73,6 +61,16 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -167,7 +165,7 @@ public class Massnahme extends VersionierteEntity {
 
 	@ManyToOne
 	@Audited(targetAuditMode = NOT_AUDITED)
-	private Verwaltungseinheit markierungsZustaendiger;
+	private Verwaltungseinheit zustaendiger;
 
 	private MassnahmeKonzeptID massnahmeKonzeptId;
 
@@ -192,7 +190,7 @@ public class Massnahme extends VersionierteEntity {
 	@OptimisticLock(excluded = true)
 	private Set<Benutzer> zuBenachrichtigendeBenutzer;
 
-	@Builder(builderMethodName = "privateBuilder")
+	@Builder(builderMethodName = "privateBuilder", toBuilder = true)
 	private Massnahme(Long id, Long version, Bezeichnung bezeichnung,
 		Set<Massnahmenkategorie> massnahmenkategorien, MassnahmeNetzBezug netzbezug,
 		Durchfuehrungszeitraum durchfuehrungszeitraum, Umsetzungsstatus umsetzungsstatus,
@@ -201,7 +199,7 @@ public class Massnahme extends VersionierteEntity {
 		Kostenannahme kostenannahme, Set<Netzklasse> netzklassen, Benutzer benutzerLetzteAenderung,
 		LocalDateTime letzteAenderung,
 		Verwaltungseinheit baulastZustaendiger, Verwaltungseinheit unterhaltsZustaendiger,
-		Verwaltungseinheit markierungsZustaendiger,
+		Verwaltungseinheit zustaendiger,
 		MassnahmeKonzeptID massnahmeKonzeptId, SollStandard sollStandard,
 		Handlungsverantwortlicher handlungsverantwortlicher,
 		Konzeptionsquelle konzeptionsquelle, String sonstigeKonzeptionsquelle, Umsetzungsstand umsetzungsstand,
@@ -211,20 +209,22 @@ public class Massnahme extends VersionierteEntity {
 		require(bezeichnung, notNullValue());
 		require(massnahmenkategorien, notNullValue());
 		require(massnahmenkategorien, is(not(empty())));
+		require(zustaendiger, notNullValue());
 		require(hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien),
-			"Nur eine Massnahmenkategorie pro Oberkategorie erlaubt");
+			"Nur eine Maßnahmenkategorie pro Oberkategorie erlaubt");
 		require(netzbezug, notNullValue());
 		require(umsetzungsstatus, notNullValue());
 		require(dokumentListe, notNullValue());
 		require(kommentarListe, notNullValue());
 		require(veroeffentlicht, notNullValue());
+		require(planungErforderlich, notNullValue());
 		require(letzteAenderung, notNullValue());
 		require(benutzerLetzteAenderung, notNullValue());
 		require(pflichtFelderAbPlanung(umsetzungsstatus, baulastZustaendiger, durchfuehrungszeitraum,
-			handlungsverantwortlicher),
-			"Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.");
+				handlungsverantwortlicher),
+			"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
-			sonstigeKonzeptionsquelle),
+				sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
 		require(umsetzungsstandNurFuerRadNETZMassnahmenVorhanden(umsetzungsstand, konzeptionsquelle),
 			"Nur Massnahmen mit Konzeptionsquelle 'RadNETZ-Maßnahme' können einen Umsetzungsstand haben");
@@ -249,7 +249,7 @@ public class Massnahme extends VersionierteEntity {
 		this.letzteAenderung = letzteAenderung;
 		this.baulastZustaendiger = baulastZustaendiger;
 		this.unterhaltsZustaendiger = unterhaltsZustaendiger;
-		this.markierungsZustaendiger = markierungsZustaendiger;
+		this.zustaendiger = zustaendiger;
 		this.massnahmeKonzeptId = massnahmeKonzeptId;
 		this.sollStandard = sollStandard;
 		this.handlungsverantwortlicher = handlungsverantwortlicher;
@@ -273,6 +273,7 @@ public class Massnahme extends VersionierteEntity {
 		Boolean planungErforderlich,
 		Durchfuehrungszeitraum durchfuehrungszeitraum,
 		Verwaltungseinheit baulastZustaendiger,
+		Verwaltungseinheit zustaendiger,
 		LocalDateTime letzteAenderung,
 		Benutzer benutzerLetzteAenderung,
 		SollStandard sollStandard,
@@ -283,7 +284,7 @@ public class Massnahme extends VersionierteEntity {
 			new DokumentListe(), veroeffentlicht, planungErforderlich, new KommentarListe(), null, null, null,
 			null, null, new HashSet<>(), benutzerLetzteAenderung,
 			letzteAenderung,
-			baulastZustaendiger, null, null, null, sollStandard, handlungsverantwortlicher, konzeptionsquelle,
+			baulastZustaendiger, null, zustaendiger, null, sollStandard, handlungsverantwortlicher, konzeptionsquelle,
 			sonstigeKonzeptionsquelle,
 			konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME ? new Umsetzungsstand() : null, null, null,
 			new HashSet<>(), false, null);
@@ -300,7 +301,7 @@ public class Massnahme extends VersionierteEntity {
 		MaViSID maViSID, VerbaID verbaID, LGVFGID lgvfgid, Prioritaet prioritaet, Kostenannahme kostenannahme,
 		Set<Netzklasse> netzklassen, Benutzer benutzerLetzteAenderung, LocalDateTime letzteAenderung,
 		Verwaltungseinheit baulastZustaendiger, Verwaltungseinheit unterhaltsZustaendiger,
-		Verwaltungseinheit markierungsZustaendiger,
+		Verwaltungseinheit zustaendiger,
 		MassnahmeKonzeptID massnahmeKonzeptID, SollStandard sollStandard,
 		Handlungsverantwortlicher handlungsverantwortlicher, Konzeptionsquelle konzeptionsquelle,
 		String sonstigeKonzeptionsquelle, Realisierungshilfe realisierungshilfe) {
@@ -316,13 +317,13 @@ public class Massnahme extends VersionierteEntity {
 		require(letzteAenderung, notNullValue());
 		require(benutzerLetzteAenderung, notNullValue());
 		require(pflichtFelderAbPlanung(umsetzungsstatus, baulastZustaendiger, durchfuehrungszeitraum,
-			handlungsverantwortlicher),
+				handlungsverantwortlicher),
 			"Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.");
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
-			sonstigeKonzeptionsquelle),
+				sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
 		require(this.konzeptionsquelle != Konzeptionsquelle.RADNETZ_MASSNAHME
-			|| konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME,
+				|| konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME,
 			"Eine RadNETZ-Maßnahme darf nicht zu einer Non-RadNETZ-Maßnahme werden!");
 
 		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
@@ -343,7 +344,7 @@ public class Massnahme extends VersionierteEntity {
 		this.letzteAenderung = letzteAenderung;
 		this.baulastZustaendiger = baulastZustaendiger;
 		this.unterhaltsZustaendiger = unterhaltsZustaendiger;
-		this.markierungsZustaendiger = markierungsZustaendiger;
+		this.zustaendiger = zustaendiger;
 		this.massnahmeKonzeptId = massnahmeKonzeptID;
 		this.sollStandard = sollStandard;
 		this.handlungsverantwortlicher = handlungsverantwortlicher;
@@ -418,8 +419,8 @@ public class Massnahme extends VersionierteEntity {
 		return Optional.ofNullable(unterhaltsZustaendiger);
 	}
 
-	public Optional<Verwaltungseinheit> getMarkierungsZustaendiger() {
-		return Optional.ofNullable(markierungsZustaendiger);
+	public Optional<Verwaltungseinheit> getZustaendiger() {
+		return Optional.ofNullable(zustaendiger);
 	}
 
 	public Optional<Umsetzungsstand> getUmsetzungsstand() {
@@ -448,10 +449,7 @@ public class Massnahme extends VersionierteEntity {
 	public static boolean pflichtFelderAbPlanung(Umsetzungsstatus umsetzungsstatus, Long baulastZustaendigerId,
 		Durchfuehrungszeitraum durchfuehrungszeitraum, Handlungsverantwortlicher handlungsverantwortlicher) {
 
-		List<Umsetzungsstatus> umsetzungsstatusListe = List.of(Umsetzungsstatus.PLANUNG, Umsetzungsstatus.UMGESETZT,
-			Umsetzungsstatus.UMSETZUNG);
-
-		if (umsetzungsstatusListe.contains(umsetzungsstatus)) {
+		if (Umsetzungsstatus.isAbPlanung(umsetzungsstatus)) {
 			return handlungsverantwortlicher != null && baulastZustaendigerId != null && durchfuehrungszeitraum != null
 				&& durchfuehrungszeitraum.getGeplanterUmsetzungsstartJahr() != null;
 		}
@@ -469,7 +467,7 @@ public class Massnahme extends VersionierteEntity {
 			.collect(Collectors.toSet()).size() == massnahmenkategorien.size();
 	}
 
-	private static boolean umsetzungsstandNurFuerRadNETZMassnahmenVorhanden(Umsetzungsstand umsetzungsstand,
+	public static boolean umsetzungsstandNurFuerRadNETZMassnahmenVorhanden(Umsetzungsstand umsetzungsstand,
 		Konzeptionsquelle konzeptionsquelle) {
 		return umsetzungsstand != null ? konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME : true;
 	}

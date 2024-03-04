@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-2963" author="td">
     <createTable tableName="massnahme_kantenseitenabschnitte">
@@ -27,11 +27,12 @@
       <column name="bis" type="float8"/>
     </createTable>
     <addForeignKeyConstraint
-      constraintName="fk_massnahme_kantenseitenabschnitte_massnahme_id"
-      referencedTableName="massnahme"
-      referencedColumnNames="id"
-      baseColumnNames="massnahme_id" baseTableName="massnahme_kantenseitenabschnitte"/>
-    <createIndex tableName="massnahme_kantenseitenabschnitte" indexName="fk_massnahme_kantenseitenabschnitte_massnahme_idx">
+			constraintName="fk_massnahme_kantenseitenabschnitte_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_kantenseitenabschnitte"/>
+    <createIndex tableName="massnahme_kantenseitenabschnitte"
+			indexName="fk_massnahme_kantenseitenabschnitte_massnahme_idx">
       <column name="massnahme_id"/>
     </createIndex>
     <createTable tableName="massnahme_kantenseitenabschnitte_aud">
@@ -58,10 +59,10 @@
       <column name="knoten_id" type="BIGINT"/>
     </createTable>
     <addForeignKeyConstraint
-      constraintName="fk_massnahme_netzbezug_knoten_massnahme_id"
-      referencedTableName="massnahme"
-      referencedColumnNames="id"
-      baseColumnNames="massnahme_id" baseTableName="massnahme_netzbezug_knoten"/>
+			constraintName="fk_massnahme_netzbezug_knoten_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"
+			baseColumnNames="massnahme_id" baseTableName="massnahme_netzbezug_knoten"/>
     <createIndex tableName="massnahme_netzbezug_knoten" indexName="fk_massnahme_netzbezug_knoten_massnahme_idx">
       <column name="massnahme_id"/>
     </createIndex>

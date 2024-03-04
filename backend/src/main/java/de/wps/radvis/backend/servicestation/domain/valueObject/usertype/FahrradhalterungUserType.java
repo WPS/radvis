@@ -18,7 +18,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Fahrradhalterung;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class FahrradhalterungUserType implements AttributeConverter<Fahrradhalterung, Boolean> {
 
 	@Override

@@ -19,9 +19,6 @@ import static de.wps.radvis.backend.common.domain.Validators.isValidURL;
 
 import java.util.List;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,6 +28,8 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Tourenkategorie;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

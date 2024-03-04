@@ -16,7 +16,6 @@
 
 <rad-hintergrund-layer></rad-hintergrund-layer>
 
-
 <div class="container h-100 w-100">
   <div class="links" #menuLinks>
     <ng-content select=".left-menu"></ng-content>
@@ -37,15 +36,23 @@
             #ortsSuche
           ></rad-orts-suche>
         </rad-karte-menu-item>
-        <rad-karte-menu-item icon="layers" aria-label="Hintergrund" headline="Hintergrund"
-                             (menuOpen)="hintergrundAuswahl.setFocusOnSelectedButton()">
+        <rad-karte-menu-item
+          icon="layers"
+          aria-label="Hintergrund"
+          headline="Hintergrund"
+          (menuOpen)="hintergrundAuswahl.setFocusOnSelectedButton()"
+        >
           <rad-hintergrund-auswahl #hintergrundAuswahl></rad-hintergrund-auswahl>
         </rad-karte-menu-item>
         <rad-karte-menu-item icon="filter_alt" aria-label="Netzklassen-Filter" headline="Netzklasse-Filter">
           <rad-netzklassen-auswahl [zoom]="zoom"></rad-netzklassen-auswahl>
         </rad-karte-menu-item>
-        <rad-karte-menu-item *ngIf="featureTogglzService.fehlerprotokoll" icon="warning" aria-label="Fehlerprotokolle"
-                             headline="Fehlerprotokolle">
+        <rad-karte-menu-item
+          *ngIf="featureTogglzService.fehlerprotokoll"
+          icon="warning"
+          aria-label="Fehlerprotokolle"
+          headline="Fehlerprotokolle"
+        >
           <rad-fehlerprotokoll-auswahl [zoom]="zoom"></rad-fehlerprotokoll-auswahl>
         </rad-karte-menu-item>
         <ng-content select=".karte-button"></ng-content>
@@ -63,11 +70,16 @@
 
     <div class="mitte-unten-oben">
       <div>
-        <rad-karte-menu-item icon="info_outline" aria-label="Quellangaben" headline="Quellangaben"
-                             *ngIf="quellen.length > 0"
-                             class="screen-only quellenangaben-button" #quellangabenMenu
-                             (menuOpen)="quellangabenMenu.setFocus()"
-                             (keydown.escape)="quellangabenMenu.close()">
+        <rad-karte-menu-item
+          icon="info_outline"
+          aria-label="Quellangaben"
+          headline="Quellangaben"
+          *ngIf="quellen.length > 0"
+          class="screen-only quellenangaben-button"
+          #quellangabenMenu
+          (menuOpen)="quellangabenMenu.setFocus()"
+          (keydown.escape)="quellangabenMenu.close()"
+        >
           <ng-container *ngTemplateOutlet="quellangabe"></ng-container>
         </rad-karte-menu-item>
         <div class="print-only mb-5">
@@ -81,18 +93,14 @@
 
         <div class="aktionen-controls">
           <ng-content select=".karte-aktion-button"></ng-content>
-          <rad-karte-button (click)="zoomIn()"
-                            class="karte-aktion-button"
-                            accessibilityText="Reinzoomen">
+          <rad-karte-button (click)="zoomIn()" class="karte-aktion-button" accessibilityText="Reinzoomen">
             <mat-icon>add</mat-icon>
           </rad-karte-button>
-          <rad-karte-button (click)="zoomOut()"
-                            class="karte-aktion-button"
-                            accessibilityText="Rauszoomen">
+          <rad-karte-button (click)="zoomOut()" class="karte-aktion-button" accessibilityText="Rauszoomen">
             <mat-icon>remove</mat-icon>
           </rad-karte-button>
           <div class="nordpfeil">
-            <img src="assets/north-arrow-2.svg" alt="Nordpfeil"/>
+            <img src="assets/north-arrow-2.svg" alt="Nordpfeil" />
           </div>
         </div>
       </div>
@@ -102,7 +110,6 @@
       <ng-content select=".unten"></ng-content>
     </div>
   </div>
-
 
   <div class="rechts" #tool>
     <ng-content select=".tool"></ng-content>

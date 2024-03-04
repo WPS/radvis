@@ -26,40 +26,44 @@
     <mat-spinner *ngIf="fetchingNachAktivAenderung" diameter="28" class="active-toggle-spinner"></mat-spinner>
   </div>
 
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>Name</mat-label>
-    <input formControlName="name" matInput/>
-  </mat-form-field>
-  <rad-validation-error-anzeige [errors]="form.get('name')?.errors || null"></rad-validation-error-anzeige>
+  <rad-text-input-control formControlName="name" [errors]="form.get('name')?.errors">
+    <div class="label">Name</div>
+  </rad-text-input-control>
 
-  <mat-form-field class="mat-form-field-full-width" *ngIf="!isCreator">
-    <mat-label>Übergeordnete Organisation</mat-label>
-    <input formControlName="uebergeordneteOrganisation" matInput/>
-  </mat-form-field>
+  <rad-text-input-control
+    formControlName="uebergeordneteOrganisation"
+    [errors]="form.get('uebergeordneteOrganisation')?.errors"
+    *ngIf="!isCreator"
+  >
+    <div class="label">Übergeordnete Organisation</div>
+  </rad-text-input-control>
 
-  <rad-validation-error-anzeige
-    [errors]="form.get('uebergeordneteOrganisation')?.errors || null"
-  ></rad-validation-error-anzeige>
-
-  <mat-form-field>
-    <mat-label> Organisations-Art</mat-label>
-    <mat-select formControlName="organisationsArt">
-      <mat-option *ngFor="let art of organisationsArten" [value]="art.name">{{ art.displayText }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <rad-validation-error-anzeige [errors]="form.get('organisationsArt')?.errors || null"></rad-validation-error-anzeige>
+  <rad-enum-dropdown-control
+    formControlName="organisationsArt"
+    [options]="organisationsArten"
+    [nullable]="false"
+    [errors]="form.get('organisationsArt')?.errors"
+  >
+    Organisations-Art
+  </rad-enum-dropdown-control>
 
   <rad-multi-organisationen-dropdown-control
     [options]="(zuweisbareOrganisationen$ | async) ?? []"
     formControlName="zustaendigFuerBereichOf"
   >
-    Zuständig für Bereiche
+    <div class="ueberschrift">Zuständig für Bereiche</div>
+    <div class="beschreibung">
+      {{
+        form.get('zustaendigFuerBereichOf')?.value?.length
+          ? 'Weitere Gebietskörperschaften...'
+          : 'Gebietskörperschaften'
+      }}
+    </div>
   </rad-multi-organisationen-dropdown-control>
 
-  <div class="display-flex align-self-end">
+  <div class="form-actions">
     <button mat-stroked-button color="primary" (click)="onZurueck()" type="button">Zurück</button>
-    <rad-action-button class="ml-8" style="width: 6rem" (action)="onSave()" [dirty]="form.dirty"
-                       [waiting]="fetchingNachSpeicherung">
+    <rad-action-button class="save-button" (action)="onSave()" [dirty]="form.dirty" [waiting]="fetchingNachSpeicherung">
       Speichern
     </rad-action-button>
   </div>

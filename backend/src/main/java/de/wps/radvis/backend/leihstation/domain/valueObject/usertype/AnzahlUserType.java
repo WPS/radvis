@@ -18,7 +18,7 @@ import de.wps.radvis.backend.leihstation.domain.valueObject.Anzahl;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class AnzahlUserType implements AttributeConverter<Anzahl, Integer> {
 
 	@Override

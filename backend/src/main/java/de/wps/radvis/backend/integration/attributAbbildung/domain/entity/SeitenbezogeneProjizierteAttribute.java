@@ -39,7 +39,8 @@ public class SeitenbezogeneProjizierteAttribute {
 	@NonNull
 	private final List<FuehrungsformAttribute> fuehrungsformAttribute;
 
-	SeitenbezogeneProjizierteAttribute(LinearReferenzierterAbschnitt linearReferenzierterAbschnittAufZielnetzkante, Haendigkeit haendigkeit,
+	SeitenbezogeneProjizierteAttribute(LinearReferenzierterAbschnitt linearReferenzierterAbschnittAufZielnetzkante,
+		Haendigkeit haendigkeit,
 		Richtung richtung, List<FuehrungsformAttribute> fuehrungsformAttribute) {
 		this.linearReferenzierterAbschnittAufZielnetzkante = linearReferenzierterAbschnittAufZielnetzkante;
 		this.haendigkeit = haendigkeit;

@@ -13,17 +13,24 @@
   -->
 
 <div class="container">
-  <mat-toolbar role="region"
-               aria-label="Kopfleiste mit Hauptnavigation"
-               aria-keyshortcuts="Control+Alt+Shift+N"
-               class="toolbar">
+  <mat-toolbar
+    role="region"
+    aria-label="Kopfleiste mit Hauptnavigation"
+    aria-keyshortcuts="Control+Alt+Shift+N"
+    class="toolbar"
+  >
     <h1>RadVIS</h1>
     <span class="ml-5" *ngIf="isBenutzerAktiv">|</span>
     <nav class="ml-10" *ngIf="isBenutzerAktiv">
-      <a #viewerLink
-         [routerLink]="viewerRoute"
-         [class.activated]="viewerActive"
-         [queryParams]="viewerQueryParams$ | async">
+      <a
+        #viewerLink
+        [routerLink]="viewerRoute"
+        routerLinkActive
+        #rlaViewer="routerLinkActive"
+        [routerLinkActiveOptions]="routerLinkActiveOptions"
+        [class.activated]="rlaViewer.isActive"
+        [queryParams]="viewerQueryParams$ | async"
+      >
         <div class="nav-link">
           <mat-icon class="mr-3">map</mat-icon>
           Viewer
@@ -32,8 +39,11 @@
 
       <a
         *ngIf="canBenutzerEdit"
-        [class.activated]="editorActive"
         [routerLink]="editorRoute"
+        routerLinkActive
+        #rlaEditor="routerLinkActive"
+        [routerLinkActiveOptions]="routerLinkActiveOptions"
+        [class.activated]="rlaEditor.isActive"
         queryParamsHandling="merge"
       >
         <div class="nav-link">
@@ -42,7 +52,29 @@
         </div>
       </a>
 
-      <a [class.activated]="auswertungActive" [routerLink]="auswertungRoute" queryParamsHandling="merge">
+      <a
+        *ngIf="hasBenutzerImportRecht"
+        routerLinkActive
+        #rlaImport="routerLinkActive"
+        [routerLinkActiveOptions]="routerLinkActiveOptions"
+        [class.activated]="rlaImport.isActive"
+        [routerLink]="importRoute"
+        queryParamsHandling="merge"
+      >
+        <div class="nav-link">
+          <mat-icon class="mr-3">upload</mat-icon>
+          Import
+        </div>
+      </a>
+
+      <a
+        routerLinkActive
+        #rlaAuswertung="routerLinkActive"
+        [routerLinkActiveOptions]="routerLinkActiveOptions"
+        [class.activated]="rlaAuswertung.isActive"
+        [routerLink]="auswertungRoute"
+        queryParamsHandling="merge"
+      >
         <div class="nav-link">
           <mat-icon class="mr-3">insert_chart_outlined</mat-icon>
           Auswertung
@@ -51,7 +83,10 @@
 
       <a
         *ngIf="isBenutzerRadNETZQualitaetsSicherIn"
-        [class.activated]="radnetzMatchingActive"
+        routerLinkActive
+        #rlaRadnetzMatching="routerLinkActive"
+        [routerLinkActiveOptions]="routerLinkActiveOptions"
+        [class.activated]="rlaRadnetzMatching.isActive"
         [routerLink]="radnetzMatchingRoute"
         queryParamsHandling="merge"
       >
@@ -94,11 +129,7 @@
     </button>
 
     <mat-menu #menu="matMenu">
-      <button
-        [routerLink]="administrationBenutzerRoute"
-        queryParamsHandling="merge"
-        mat-menu-item
-      >
+      <button [routerLink]="administrationBenutzerRoute" queryParamsHandling="merge" mat-menu-item>
         <span>Benutzer</span>
       </button>
       <button
@@ -133,7 +164,7 @@
     </button>
 
     <button
-      *ngIf="isVordefinierteExporteToggleOn"
+      *ngIf="isBenutzerAktiv && isVordefinierteExporteToggleOn"
       [attr.aria-label]="'Vordefinierte Exporte öffnen'"
       matTooltip="Vordefinierte Exporte öffnen"
       (click)="openVordefinierteExporte()"
@@ -141,6 +172,17 @@
       class="icon-toolbar"
     >
       <mat-icon>download</mat-icon>
+    </button>
+
+    <button
+      *ngIf="isBenutzerAktiv && isBasicAuthZugangsdatenVerwaltenToggleOn"
+      [attr.aria-label]="'Zugangsdaten verwalten'"
+      matTooltip="Zugangsdaten verwalten"
+      (click)="openVerwaltungZugangsdaten()"
+      mat-icon-button
+      class="icon-toolbar"
+    >
+      <mat-icon>vpn_key</mat-icon>
     </button>
 
     <span class="benutzer-details" *ngIf="isBenutzerRegistriert">

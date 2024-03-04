@@ -15,15 +15,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RegistrierungComponent } from 'src/app/registrierung/components/registrierung.component';
-import { RegistrierungOrganisationenResolverService } from 'src/app/registrierung/services/registrierung-organisationen.resolver.service';
+import { registrierungOrganisationenResolver } from 'src/app/registrierung/services/registrierung-organisationen.resolver';
 
 const routes: Routes = [
   {
     path: 'registrierung',
     component: RegistrierungComponent,
-    resolve: {
-      organisationen: RegistrierungOrganisationenResolverService,
-    },
+    resolve: { organisationen: registrierungOrganisationenResolver },
   },
 ];
 

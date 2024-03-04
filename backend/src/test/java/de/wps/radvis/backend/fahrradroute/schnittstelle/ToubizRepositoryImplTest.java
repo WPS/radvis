@@ -167,12 +167,12 @@ class ToubizRepositoryImplTest {
 			.extracting(Geometry::getCoordinates)
 			.containsExactly(
 				new Coordinate[] {
-						new Coordinate(0, 0),
-						new Coordinate(1, 1)
+					new Coordinate(0, 0),
+					new Coordinate(1, 1)
 				},
 				new Coordinate[] {
-						new Coordinate(20, 20),
-						new Coordinate(22, 22)
+					new Coordinate(20, 20),
+					new Coordinate(22, 22)
 				});
 
 		assertThat(captor.getAllValues()).extracting(Geometry::getCoordinates).containsExactly(

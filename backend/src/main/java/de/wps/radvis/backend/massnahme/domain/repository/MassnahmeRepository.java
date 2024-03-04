@@ -24,7 +24,10 @@ import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
+import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmenPaketId;
+import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 
 public interface MassnahmeRepository extends CrudRepository<Massnahme, Long> {
 
@@ -35,6 +38,13 @@ public interface MassnahmeRepository extends CrudRepository<Massnahme, Long> {
 	Stream<Massnahme> findAllByIdInAndGeloeschtFalse(Iterable<Long> massnahmeIds);
 
 	List<Massnahme> findByMassnahmenPaketId(MassnahmenPaketId massnahmenPaketId);
+
+	List<Massnahme> findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(MassnahmeKonzeptID massnahmeKonzeptID,
+		Konzeptionsquelle konzeptionsquelle);
+
+	List<Massnahme> findByMassnahmeKonzeptIdAndKonzeptionsquelleAndSollStandardAndGeloeschtFalse(
+		MassnahmeKonzeptID massnahmeKonzeptID,
+		Konzeptionsquelle konzeptionsquelle, SollStandard sollStandard);
 
 	@Query(
 		"SELECT massnahme.massnahmenPaketId FROM Massnahme massnahme " +

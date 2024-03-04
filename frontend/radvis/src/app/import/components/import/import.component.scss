@@ -1,0 +1,187 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/colors';
+@import 'src/style/spacing';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.import-tools-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.map-left-tools {
+  background-color: white;
+  border-right: 1px solid map-get($grayscale, 300);
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu {
+  margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.95);
+
+  .mat-mdc-toolbar {
+    background: map-get($radvis-accent-palette, 600);
+    color: #fff;
+  }
+
+  .mat-mdc-list-item {
+    cursor: pointer;
+
+    &:focus,
+    &:hover {
+      background: map-get($radvis-accent-palette, 100);
+    }
+  }
+
+  // kleines Pfeilchen unterhalb contextmenu
+  .arrow {
+    display: block;
+    position: absolute;
+    width: 1rem;
+    height: 0.5rem;
+    left: 48%;
+
+    &:before,
+    &:after {
+      position: absolute;
+      display: block;
+      content: '';
+      border-color: transparent;
+      border-style: solid;
+      border-width: 0.5rem 0.5rem 0;
+    }
+
+    &:before {
+      bottom: -0.09rem;
+      border-top-color: rgb(0 0 0 / 16%);
+    }
+
+    &:after {
+      bottom: 0.04rem;
+      border-top-color: #fff;
+    }
+  }
+}
+
+.hinweis-text {
+  width: 10rem;
+}
+
+.hinweis {
+  border-bottom: 1px solid map-get($grayscale, 100);
+}
+
+.loading-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+
+  .mat-mdc-progress-spinner {
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.map-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+$circle-diameter: 2rem;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.stepper {
+  flex-shrink: 0;
+
+  display: flex;
+  justify-content: space-between;
+
+  height: 3rem; // Gleiche Hoehe wie KantenTool-Tab-Leiste
+  z-index: 10; // Wird benoetigt, damit der Schatten ueber die darunter liegende componente geht
+  padding: 0 1rem;
+}
+
+.step {
+  //flex-grow: 1;
+  color: black;
+  display: flex;
+  text-decoration: none;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.step-number {
+  height: $circle-diameter;
+  width: $circle-diameter;
+  border-radius: $circle-diameter;
+  background-color: map-get($grayscale, 800);
+  color: white;
+  font-weight: 500;
+  line-height: $circle-diameter;
+  text-align: center;
+  margin-right: 0.3rem;
+}
+
+.done .step-number {
+  background-color: $primary-color;
+}
+
+.activated .step-number {
+  background-color: $secondary-color;
+}
+
+.horizontal-line {
+  flex-grow: 1;
+
+  border-width: 0;
+  height: 1px;
+
+  background-color: map-get($grayscale, 300);
+
+  margin: 0 0.5rem;
+}
+
+.tool {
+  display: flex;
+  flex-direction: column;
+  width: $editor-side-bar-width - 2 * $manueller-import-sub-tool-padding;
+  padding: 0 $manueller-import-sub-tool-padding $manueller-import-sub-tool-padding;
+  border-left: 1px solid map-get($grayscale, 300);
+}

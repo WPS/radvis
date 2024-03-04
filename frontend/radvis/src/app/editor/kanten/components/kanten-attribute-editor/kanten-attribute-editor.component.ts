@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS, MatSlideToggleDefaultOptions } from '@angular/material/slide-toggle';
 import { Subscription } from 'rxjs';
@@ -50,6 +50,8 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
 import { NetzklassenConverterService } from 'src/app/shared/services/netzklassen-converter.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import invariant from 'tiny-invariant';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 
 interface IstStandardFlat {
   radnetzStartstandard: boolean | UndeterminedValue;
@@ -79,17 +81,15 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
   public wegeniveauOptions = WegeNiveau.options;
   public beleuchtungsOptions = Beleuchtung.options;
   public umfeldOptions = Umfeld.options;
+  public strassenkategorieRINOptions = StrassenkategorieRIN.options;
   public strassenquerschnittRASt06Options = StrassenquerschnittRASt06.options;
   public alleOrganisationenOptions: Promise<Verwaltungseinheit[]> = Promise.resolve([]);
   public statusOptions = Status.options;
-
-  public disableRadNetzIstStandards = false;
-
   public gemeindeOptions: Promise<Verwaltungseinheit[]> = Promise.resolve([]);
 
   public readonly kommentarMaxLength = 2000;
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   netzklassenSubscription: Subscription | undefined;
   changeSeitenbezug = false;
   seitenbezogenUndetermined = false;
@@ -123,6 +123,13 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     this.gemeindeOptions = this.organisationenService.getGemeinden();
 
     this.subscribeToGemeindeChanges();
+  }
+
+  get canDelete(): boolean {
+    return (
+      this.kanteSelektionService.selektierteKanten.length === 1 &&
+      this.kanteSelektionService.selektierteKanten[0].loeschenErlaubt
+    );
   }
 
   ngOnInit(): void {
@@ -196,6 +203,36 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     } else {
       changeSeitenbezug();
     }
+  }
+
+  onDelete(): void {
+    invariant(this.canDelete);
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        question:
+          'Wollen Sie die Kante wirklich löschen? Durch das Löschen der Kante kann es zur Anpassung des Netzbezugs von anderen Objekten (z.B. Maßnahmen) kommen.',
+        labelYes: 'Ja',
+        labelNo: 'Nein',
+      } as QuestionYesNo,
+    });
+    dialogRef.afterClosed().subscribe(yes => {
+      if (yes) {
+        this.netzService
+          .deleteKante(this.currentKante.id)
+          .then(() => {
+            this.notifyUserService.inform('RadVIS-Kante erfolgreich gelöscht.');
+            this.notifyGeometryChangedService.notify();
+            this.onClose();
+          })
+          .catch(() => {
+            this.resetForm(this.kanteSelektionService.selektion);
+          })
+          .finally(() => {
+            this.changeDetectorRef.detectChanges();
+          });
+      }
+    });
   }
 
   protected getForm(): AbstractControl {
@@ -284,6 +321,7 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
         wegeNiveau: kantenAttributGruppe.wegeNiveau,
         beleuchtung: kantenAttributGruppe.beleuchtung,
         umfeld: kantenAttributGruppe.umfeld,
+        strassenkategorieRIN: kantenAttributGruppe.strassenkategorieRIN,
         strassenquerschnittRASt06: kantenAttributGruppe.strassenquerschnittRASt06,
         laengeManuellErfasst: kantenAttributGruppe.laengeManuellErfasst,
         dtvFussverkehr: kantenAttributGruppe.dtvFussverkehr,
@@ -341,7 +379,7 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
   }
 
   private subscribeToGemeindeChanges(): Subscription {
-    return (this.formGroup.get('gemeinde') as FormControl).valueChanges.subscribe(value => {
+    return (this.formGroup.get('gemeinde') as UntypedFormControl).valueChanges.subscribe(value => {
       const organisation = value as Verwaltungseinheit;
       if (organisation && organisation.idUebergeordneteOrganisation) {
         this.organisationenService
@@ -397,12 +435,12 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     });
   }
 
-  private getIstStandardsFromGroup(): FormGroup {
-    return this.formGroup.get('istStandards') as FormGroup;
+  private getIstStandardsFromGroup(): UntypedFormGroup {
+    return this.formGroup.get('istStandards') as UntypedFormGroup;
   }
 
-  private getNetzklassenFromGroup(): FormGroup {
-    return this.formGroup.get('netzklassen') as FormGroup;
+  private getNetzklassenFromGroup(): UntypedFormGroup {
+    return this.formGroup.get('netzklassen') as UntypedFormGroup;
   }
 
   private getIstStandardsFlat(istStandards: IstStandard[]): IstStandardFlat {
@@ -453,33 +491,40 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     return result;
   }
 
-  private createForm(): FormGroup {
-    return new FormGroup({
-      wegeNiveau: new FormControl(null),
-      beleuchtung: new FormControl(null),
-      umfeld: new FormControl(null),
-      strassenquerschnittRASt06: new FormControl(null),
-      laengeBerechnet: new FormControl({ value: 0, disabled: true }),
-      laengeManuellErfasst: new FormControl(null),
-      gemeinde: new FormControl(null),
-      landkreis: new FormControl({ value: 0, disabled: true }),
-      dtvFussverkehr: new FormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(1_000_000)]),
-      dtvRadverkehr: new FormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(1_000_000)]),
-      dtvPkw: new FormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(1_000_000)]),
-      sv: new FormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(1_000_000)]),
-      kommentar: new FormControl(null, RadvisValidators.maxLength(this.kommentarMaxLength)),
-      strassenName: new FormControl({ value: 0, disabled: true }),
-      strassenNummer: new FormControl({ value: 0, disabled: true }),
-      status: new FormControl(null),
+  private createForm(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      wegeNiveau: new UntypedFormControl(null),
+      beleuchtung: new UntypedFormControl(null),
+      umfeld: new UntypedFormControl(null),
+      strassenkategorieRIN: new UntypedFormControl(null),
+      strassenquerschnittRASt06: new UntypedFormControl(null),
+      laengeBerechnet: new UntypedFormControl({ value: 0, disabled: true }),
+      laengeManuellErfasst: new UntypedFormControl(null),
+      gemeinde: new UntypedFormControl(null),
+      landkreis: new UntypedFormControl({ value: 0, disabled: true }),
+      dtvFussverkehr: new UntypedFormControl(null, [
+        RadvisValidators.isPositiveInteger,
+        RadvisValidators.max(1_000_000),
+      ]),
+      dtvRadverkehr: new UntypedFormControl(null, [
+        RadvisValidators.isPositiveInteger,
+        RadvisValidators.max(1_000_000),
+      ]),
+      dtvPkw: new UntypedFormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(1_000_000)]),
+      sv: new UntypedFormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(1_000_000)]),
+      kommentar: new UntypedFormControl(null, RadvisValidators.maxLength(this.kommentarMaxLength)),
+      strassenName: new UntypedFormControl({ value: 0, disabled: true }),
+      strassenNummer: new UntypedFormControl({ value: 0, disabled: true }),
+      status: new UntypedFormControl(null),
 
       netzklassen: NetzklassenConverterService.createFormGroup(),
 
-      istStandards: new FormGroup({
-        radnetzStartstandard: new FormControl(null),
-        radnetzZielstandard: new FormControl(null),
-        radschnellverbindung: new FormControl(null),
-        basisstandard: new FormControl(null),
-        radvorrangrouten: new FormControl(null),
+      istStandards: new UntypedFormGroup({
+        radnetzStartstandard: new UntypedFormControl(null),
+        radnetzZielstandard: new UntypedFormControl(null),
+        radschnellverbindung: new UntypedFormControl(null),
+        basisstandard: new UntypedFormControl(null),
+        radvorrangrouten: new UntypedFormControl(null),
       }),
     });
   }

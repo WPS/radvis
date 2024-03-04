@@ -21,15 +21,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.OptimisticLockException;
-
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

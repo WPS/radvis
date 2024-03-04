@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;

@@ -21,20 +21,13 @@ import static org.valid4j.Assertive.require;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
@@ -46,7 +39,6 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProJahr;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProTag;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Groessenklasse;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -54,6 +46,13 @@ import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -75,7 +74,7 @@ public class Abstellanlage extends VersionierteEntity {
 		public static final String ANZAHL_SCHLIESSFAECHER = "Anzahl Schließfächer";
 		public static final String ANZAHL_LADEMOEGLICHKEITEN = "Anzahl Lademöglichkeiten";
 		public static final String UEBERWACHT = "Überwacht";
-		public static final String B_AND_R = "B+R";
+		public static final String ABSTELLANLAGEN_ORT = "Ort";
 		public static final String GROESSENKLASSE = "Größenklasse";
 		public static final String STELLPLATZART = "Stellplatzart";
 		public static final String UEBERDACHT = "Überdacht";
@@ -84,7 +83,7 @@ public class Abstellanlage extends VersionierteEntity {
 		public static final String GEBUEHREN_PRO_JAHR = "Gebühren pro Jahr (Cent)";
 		public static final String BESCHREIBUNG = "Beschreibung";
 		public static final String WEITERE_INFORMATION = "Weitere Information";
-		public static final String ABSTELLANLAGENSTATUS = "AbstellanlagenStatus";
+		public static final String ABSTELLANLAGEN_STATUS = "Status";
 
 		public static final List<String> ALL = List.of(RAD_VIS_ID,
 			POSITION_X_UTM32_N,
@@ -97,7 +96,7 @@ public class Abstellanlage extends VersionierteEntity {
 			ANZAHL_SCHLIESSFAECHER,
 			ANZAHL_LADEMOEGLICHKEITEN,
 			UEBERWACHT,
-			B_AND_R,
+			ABSTELLANLAGEN_ORT,
 			GROESSENKLASSE,
 			STELLPLATZART,
 			UEBERDACHT,
@@ -106,7 +105,7 @@ public class Abstellanlage extends VersionierteEntity {
 			GEBUEHREN_PRO_JAHR,
 			BESCHREIBUNG,
 			WEITERE_INFORMATION,
-			ABSTELLANLAGENSTATUS);
+			ABSTELLANLAGEN_STATUS);
 	}
 
 	@Getter
@@ -136,7 +135,8 @@ public class Abstellanlage extends VersionierteEntity {
 	private Ueberwacht ueberwacht;
 
 	@Getter
-	private IstBikeAndRide istBikeAndRide;
+	@Enumerated(EnumType.STRING)
+	private AbstellanlagenOrt abstellanlagenOrt;
 
 	@Enumerated(EnumType.STRING)
 	private Groessenklasse groessenklasse;
@@ -180,7 +180,7 @@ public class Abstellanlage extends VersionierteEntity {
 		AnzahlSchliessfaecher anzahlSchliessfaecher,
 		AnzahlLademoeglichkeiten anzahlLademoeglichkeiten,
 		Ueberwacht ueberwacht,
-		IstBikeAndRide istBikeAndRide,
+		AbstellanlagenOrt abstellanlagenOrt,
 		Groessenklasse groessenklasse,
 		Stellplatzart stellplatzart,
 		Ueberdacht ueberdacht,
@@ -196,13 +196,13 @@ public class Abstellanlage extends VersionierteEntity {
 		require(betreiber, notNullValue());
 		require(quellSystem, notNullValue());
 		require(ueberwacht, notNullValue());
-		require(istBikeAndRide, notNullValue());
+		require(abstellanlagenOrt, notNullValue());
 		require(stellplatzart, notNullValue());
 		require(ueberdacht, notNullValue());
 		require(status, notNullValue());
 		require(dokumentListe, notNullValue());
 
-		require(istBikeAndRide.getValue() || groessenklasse == null,
+		require(abstellanlagenOrt == AbstellanlagenOrt.BIKE_AND_RIDE || groessenklasse == null,
 			"Größenklasse darf nur bei vorhandenem B+R gesetzt sein.");
 
 		this.geometrie = geometrie;
@@ -215,7 +215,7 @@ public class Abstellanlage extends VersionierteEntity {
 		this.anzahlSchliessfaecher = anzahlSchliessfaecher;
 		this.anzahlLademoeglichkeiten = anzahlLademoeglichkeiten;
 		this.ueberwacht = ueberwacht;
-		this.istBikeAndRide = istBikeAndRide;
+		this.abstellanlagenOrt = abstellanlagenOrt;
 		this.groessenklasse = groessenklasse;
 		this.stellplatzart = stellplatzart;
 		this.ueberdacht = ueberdacht;
@@ -238,7 +238,7 @@ public class Abstellanlage extends VersionierteEntity {
 		AnzahlSchliessfaecher anzahlSchliessfaecher,
 		AnzahlLademoeglichkeiten anzahlLademoeglichkeiten,
 		Ueberwacht ueberwacht,
-		IstBikeAndRide istBikeAndRide,
+		AbstellanlagenOrt abstellanlagenOrt,
 		Groessenklasse groessenklasse,
 		Stellplatzart stellplatzart,
 		Ueberdacht ueberdacht,
@@ -261,7 +261,7 @@ public class Abstellanlage extends VersionierteEntity {
 			anzahlSchliessfaecher,
 			anzahlLademoeglichkeiten,
 			ueberwacht,
-			istBikeAndRide,
+			abstellanlagenOrt,
 			groessenklasse,
 			stellplatzart,
 			ueberdacht,
@@ -283,7 +283,7 @@ public class Abstellanlage extends VersionierteEntity {
 		AnzahlSchliessfaecher anzahlSchliessfaecher,
 		AnzahlLademoeglichkeiten anzahlLademoeglichkeiten,
 		Ueberwacht ueberwacht,
-		IstBikeAndRide istBikeAndRide,
+		AbstellanlagenOrt abstellanlagenOrt,
 		Groessenklasse groessenklasse,
 		Stellplatzart stellplatzart,
 		Ueberdacht ueberdacht,
@@ -298,12 +298,12 @@ public class Abstellanlage extends VersionierteEntity {
 		require(betreiber, notNullValue());
 		require(anzahlStellplaetze, notNullValue());
 		require(ueberwacht, notNullValue());
-		require(istBikeAndRide, notNullValue());
+		require(abstellanlagenOrt, notNullValue());
 		require(stellplatzart, notNullValue());
 		require(ueberdacht, notNullValue());
 		require(status, notNullValue());
 
-		require(istBikeAndRide.getValue() || groessenklasse == null,
+		require(abstellanlagenOrt == AbstellanlagenOrt.BIKE_AND_RIDE || groessenklasse == null,
 			"Größenklasse darf nur bei vorhandenem B+R gesetzt sein.");
 
 		this.geometrie = geometrie;
@@ -315,7 +315,7 @@ public class Abstellanlage extends VersionierteEntity {
 		this.anzahlSchliessfaecher = anzahlSchliessfaecher;
 		this.anzahlLademoeglichkeiten = anzahlLademoeglichkeiten;
 		this.ueberwacht = ueberwacht;
-		this.istBikeAndRide = istBikeAndRide;
+		this.abstellanlagenOrt = abstellanlagenOrt;
 		this.groessenklasse = groessenklasse;
 		this.stellplatzart = stellplatzart;
 		this.ueberdacht = ueberdacht;

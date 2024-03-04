@@ -31,13 +31,13 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
-import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.data.util.Lazy;
 
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;

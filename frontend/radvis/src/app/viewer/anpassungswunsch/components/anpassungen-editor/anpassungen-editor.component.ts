@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Coordinate } from 'ol/coordinate';
 import { Subscription } from 'rxjs';
@@ -21,7 +21,7 @@ import { EditorRoutingService } from 'src/app/editor/editor-shared/services/edit
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
@@ -42,25 +42,25 @@ import invariant from 'tiny-invariant';
   styleUrls: ['./anpassungen-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AnpassungenEditorComponent implements OnDestroy, DiscardGuard {
+export class AnpassungenEditorComponent implements OnDestroy, DiscardableComponent {
   isFetching = false;
   AnpassungswunschStatus = AnpassungswunschStatus;
   AnpassungswunschKategorie = AnpassungswunschKategorie;
   BESCHREIBUNG_MAX_LENGTH = Anpassungswunsch.BESCHREIBUNG_MAX_LENGTH;
   iconName = ANPASSUNGSWUNSCH.iconFileName;
 
-  public formGroup = new FormGroup({
-    geometrie: new FormControl(null),
-    beschreibung: new FormControl(null, [
+  public formGroup = new UntypedFormGroup({
+    geometrie: new UntypedFormControl(null),
+    beschreibung: new UntypedFormControl(null, [
       RadvisValidators.isNotNullOrEmpty,
       RadvisValidators.maxLength(Anpassungswunsch.BESCHREIBUNG_MAX_LENGTH),
     ]),
-    status: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-    erstellung: new FormControl(null),
-    aenderung: new FormControl(null),
-    benutzerLetzteAenderung: new FormControl(null),
-    verantwortlicheOrganisation: new FormControl(null),
-    kategorie: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+    status: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+    erstellung: new UntypedFormControl(null),
+    aenderung: new UntypedFormControl(null),
+    benutzerLetzteAenderung: new UntypedFormControl(null),
+    verantwortlicheOrganisation: new UntypedFormControl(null),
+    kategorie: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
   });
 
   currentAnpassungswunsch: Anpassungswunsch | undefined;

@@ -14,7 +14,7 @@
 
 /* eslint-disable no-unused-vars */
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MockBuilder } from 'ng-mocks';
 import { of, Subject } from 'rxjs';
@@ -23,13 +23,14 @@ import { EditorModule } from 'src/app/editor/editor.module';
 import { KantenAttributeEditorComponent } from 'src/app/editor/kanten/components/kanten-attribute-editor/kanten-attribute-editor.component';
 import { Beleuchtung } from 'src/app/editor/kanten/models/beleuchtung';
 import { Kante } from 'src/app/editor/kanten/models/kante';
-import { defaultKante } from 'src/app/editor/kanten/models/kante-test-data-provider.spec';
+import { anotherKante, defaultKante } from 'src/app/editor/kanten/models/kante-test-data-provider.spec';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { SaveKantenAttributGruppeCommand } from 'src/app/editor/kanten/models/save-kanten-attribut-gruppe-command';
 import { Status } from 'src/app/editor/kanten/models/status';
 import { StrassenquerschnittRASt06 } from 'src/app/editor/kanten/models/strassenquerschnittrast06';
 import { Umfeld } from 'src/app/editor/kanten/models/umfeld';
 import { WegeNiveau } from 'src/app/editor/kanten/models/wege-niveau';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NotifyGeometryChangedService } from 'src/app/editor/kanten/services/notify-geometry-changed.service';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
@@ -42,9 +43,9 @@ import {
 } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
-import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { anything, capture, instance, mock, objectContaining, verify, when } from 'ts-mockito';
 
-describe('KantenAttributeEditorComponent', () => {
+describe(KantenAttributeEditorComponent.name, () => {
   let component: KantenAttributeEditorComponent;
   let fixture: ComponentFixture<KantenAttributeEditorComponent>;
   let netzService: NetzService;
@@ -112,6 +113,7 @@ describe('KantenAttributeEditorComponent', () => {
         beleuchtung: Beleuchtung.VORHANDEN,
         strassenquerschnittRASt06: StrassenquerschnittRASt06.ANBAUFREIE_STRASSE,
         umfeld: Umfeld.GESCHAEFTSSTRASSE,
+        strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
         laengeManuellErfasst: 100,
         dtvFussverkehr: 1,
         dtvRadverkehr: 2,
@@ -190,6 +192,7 @@ describe('KantenAttributeEditorComponent', () => {
           gemeinde: { ...defaultOrganisation, id: 1 },
           dtvRadverkehr: 2,
           wegeNiveau: WegeNiveau.FAHRBAHN,
+          strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
         },
       };
       const kante2 = {
@@ -202,6 +205,7 @@ describe('KantenAttributeEditorComponent', () => {
           gemeinde: { ...defaultOrganisation, id: 2 },
           dtvRadverkehr: 5,
           wegeNiveau: WegeNiveau.GEHWEG,
+          strassenkategorieRIN: StrassenkategorieRIN.NAHRAEUMIG,
         },
       };
 
@@ -214,6 +218,7 @@ describe('KantenAttributeEditorComponent', () => {
         gemeinde: new UndeterminedValue(),
         dtvRadverkehr: new UndeterminedValue(),
         wegeNiveau: new UndeterminedValue(),
+        strassenkategorieRIN: new UndeterminedValue(),
         netzklassen: {
           radnetzAlltag: true,
           radnetzFreizeit: false,
@@ -320,6 +325,7 @@ describe('KantenAttributeEditorComponent', () => {
           version: gruppenVersion1,
           wegeNiveau: WegeNiveau.GEHWEG,
           umfeld: Umfeld.GEWERBEGEBIET,
+          strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
           dtvFussverkehr: 9,
           dtvRadverkehr: 10,
           kommentar: 'kommentar1',
@@ -340,6 +346,7 @@ describe('KantenAttributeEditorComponent', () => {
           version: gruppenVersion2,
           wegeNiveau: WegeNiveau.FAHRBAHN,
           umfeld: Umfeld.UNBEKANNT,
+          strassenkategorieRIN: StrassenkategorieRIN.NAHRAEUMIG,
           dtvFussverkehr: 7,
           dtvRadverkehr: 8,
           kommentar: 'kommentar2',
@@ -377,6 +384,7 @@ describe('KantenAttributeEditorComponent', () => {
           gruppenVersion: gruppenVersion1,
           wegeNiveau: WegeNiveau.GEHWEG,
           umfeld: Umfeld.GEWERBEGEBIET,
+          strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
           dtvFussverkehr: 9,
           dtvRadverkehr: 10,
           gemeinde: equalValues.gemeinde.id,
@@ -388,6 +396,7 @@ describe('KantenAttributeEditorComponent', () => {
           gruppenVersion: gruppenVersion2,
           wegeNiveau: WegeNiveau.FAHRBAHN,
           umfeld: Umfeld.UNBEKANNT,
+          strassenkategorieRIN: StrassenkategorieRIN.NAHRAEUMIG,
           dtvFussverkehr: 7,
           dtvRadverkehr: 8,
           gemeinde: equalValues.gemeinde.id,
@@ -410,6 +419,7 @@ describe('KantenAttributeEditorComponent', () => {
           version: gruppenVersion1,
           wegeNiveau: WegeNiveau.GEHWEG,
           umfeld: Umfeld.GEWERBEGEBIET,
+          strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
           dtvFussverkehr: 9,
           dtvRadverkehr: 10,
           kommentar: 'kommentar1',
@@ -439,6 +449,7 @@ describe('KantenAttributeEditorComponent', () => {
           version: gruppenVersion2,
           wegeNiveau: WegeNiveau.FAHRBAHN,
           umfeld: Umfeld.UNBEKANNT,
+          strassenkategorieRIN: StrassenkategorieRIN.NAHRAEUMIG,
           dtvFussverkehr: 7,
           dtvRadverkehr: 8,
           kommentar: 'kommentar2',
@@ -525,6 +536,7 @@ describe('KantenAttributeEditorComponent', () => {
         beleuchtung: Beleuchtung.NICHT_VORHANDEN,
         strassenquerschnittRASt06: StrassenquerschnittRASt06.ANBAUFREIE_STRASSE,
         umfeld: Umfeld.STRASSE_MIT_GERINGER_BIS_MITTLERER_WOHNDICHTE,
+        strassenkategorieRIN: StrassenkategorieRIN.KLEINRAEUMIG,
         laengeManuellErfasst: 100,
         dtvFussverkehr: 3,
         dtvRadverkehr: 4,
@@ -639,6 +651,104 @@ describe('KantenAttributeEditorComponent', () => {
     }));
   });
 
+  describe('canDelete', () => {
+    it('should be false when multiple Kanten selected', fakeAsync(() => {
+      updateSelektierteKanten([
+        { ...defaultKante, loeschenErlaubt: true },
+        {
+          ...anotherKante,
+          loeschenErlaubt: false,
+        },
+      ]);
+      tick();
+      expect(component.canDelete).toBeFalse();
+      updateSelektierteKanten([
+        { ...defaultKante, loeschenErlaubt: true },
+        { ...anotherKante, loeschenErlaubt: true },
+      ]);
+      tick();
+      expect(component.canDelete).toBeFalse();
+    }));
+
+    it('should be false when selected Kante is not deletable', fakeAsync(() => {
+      updateSelektierteKanten([{ ...defaultKante, loeschenErlaubt: false }]);
+      tick();
+      expect(component.canDelete).toBeFalse();
+    }));
+
+    it('should be true when selected Kante is deletable', fakeAsync(() => {
+      updateSelektierteKanten([{ ...defaultKante, loeschenErlaubt: true }]);
+      tick();
+      expect(component.canDelete).toBeTrue();
+    }));
+  });
+
+  describe(KantenAttributeEditorComponent.prototype.onDelete.name, () => {
+    it('should throw Error when canDelete is false', fakeAsync(() => {
+      updateSelektierteKanten([{ ...defaultKante, loeschenErlaubt: false }]);
+      tick();
+      expect(component.canDelete).toBeFalse();
+      expect(() => component.onDelete()).toThrowError('Invariant failed');
+    }));
+
+    it('should open Dialog ', fakeAsync(() => {
+      updateSelektierteKanten([defaultKante]);
+      tick();
+      expect(component.canDelete).toBeTrue();
+
+      when(dialog.open(anything(), anything())).thenReturn({
+        afterClosed: () => of(),
+      } as MatDialogRef<ConfirmationDialogComponent>);
+
+      component.onDelete();
+      verify(
+        dialog.open(
+          ConfirmationDialogComponent,
+          objectContaining({
+            data: {
+              question:
+                'Wollen Sie die Kante wirklich löschen? Durch das Löschen der Kante kann es zur Anpassung des Netzbezugs von anderen Objekten (z.B. Maßnahmen) kommen.',
+            },
+          })
+        )
+      ).once();
+    }));
+
+    it('should call delete-api-endpoint if dialog was confirmed', fakeAsync(() => {
+      updateSelektierteKanten([{ ...defaultKante, id: 8 }]);
+      tick();
+      expect(component.canDelete).toBeTrue();
+
+      when(dialog.open(anything(), anything())).thenReturn({
+        afterClosed: () => of(true),
+      } as MatDialogRef<ConfirmationDialogComponent>);
+
+      when(netzService.deleteKante(anything())).thenResolve();
+
+      component.onDelete();
+      tick();
+
+      verify(netzService.deleteKante(8)).once();
+    }));
+
+    it('should not call delete-api-endpoint if dialog was rejected', fakeAsync(() => {
+      updateSelektierteKanten([defaultKante]);
+      tick();
+      expect(component.canDelete).toBeTrue();
+
+      when(dialog.open(anything(), anything())).thenReturn({
+        afterClosed: () => of(false),
+      } as MatDialogRef<ConfirmationDialogComponent>);
+
+      when(netzService.deleteKante(anything())).thenResolve();
+
+      component.onDelete();
+      tick();
+
+      verify(netzService.deleteKante(anything())).never();
+    }));
+  });
+
   describe('seitenbezogen', () => {
     it('should be false if all false', fakeAsync(() => {
       updateSelektierteKanten([
@@ -689,7 +799,7 @@ describe('KantenAttributeEditorComponent', () => {
       tick();
 
       // Bitte wieder component.formGroup.get('netzklassen')?.value nutzen, wenn RadNETZ-Klassen an Grundnetzkanten gesetzt werden können!
-      const rawNetzklassenValue = (component.formGroup.get('netzklassen') as FormGroup).getRawValue();
+      const rawNetzklassenValue = (component.formGroup.get('netzklassen') as UntypedFormGroup).getRawValue();
       expect(rawNetzklassenValue).toEqual({
         radnetzAlltag: true,
         radnetzFreizeit: false,
@@ -751,7 +861,7 @@ describe('KantenAttributeEditorComponent', () => {
       tick();
 
       // Bitte wieder component.formGroup.get('netzklassen')?.value nutzen, wenn RadNETZ-Klassen an Grundnetzkanten gesetzt werden können!
-      const rawNetzklassenValue = (component.formGroup.get('netzklassen') as FormGroup).getRawValue();
+      const rawNetzklassenValue = (component.formGroup.get('netzklassen') as UntypedFormGroup).getRawValue();
       expect(rawNetzklassenValue.radnetzAlltag).toBeTrue();
       expect(rawNetzklassenValue.kreisnetzAlltag).toBeInstanceOf(UndeterminedValue);
       expect(rawNetzklassenValue.kommunalnetzAlltag).toBeInstanceOf(UndeterminedValue);

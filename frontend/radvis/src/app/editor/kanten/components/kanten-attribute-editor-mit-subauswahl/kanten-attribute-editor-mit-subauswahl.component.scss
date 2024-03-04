@@ -35,12 +35,11 @@
   overflow: hidden;
 }
 
-mat-tab-group {
-  width: 100%;
+.mat-mdc-tab-group {
   height: 100%;
 }
 
-mat-tab-group ::ng-deep .mat-tab-body-wrapper {
+.mat-mdc-tab-group ::ng-deep .mat-mdc-tab-body-wrapper {
   height: 100%;
 }
 

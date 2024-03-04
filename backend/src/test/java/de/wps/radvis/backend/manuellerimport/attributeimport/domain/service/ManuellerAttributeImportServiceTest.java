@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,6 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opengis.feature.simple.SimpleFeature;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -66,6 +66,7 @@ import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.Featu
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.repository.ShapeFileAttributeRepository;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.ImportierbaresAttribut;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.KantenKonfliktProtokoll;
+import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.ManuellerImportFehler;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerImportFehlerRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
@@ -73,7 +74,6 @@ import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Attribute
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Konflikt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ManuellerImportFehlerursache;
@@ -177,6 +177,7 @@ class ManuellerAttributeImportServiceTest {
 		when(zustaendigkeitsBereichMock.intersects(any())).thenReturn(false);
 		when(organisationMock.getBereich()).thenReturn(Optional.of(zustaendigkeitsBereichMock));
 		when(sessionMock.getOrganisation()).thenReturn(organisationMock);
+		when(sessionMock.getBereich()).thenReturn(zustaendigkeitsBereichMock);
 
 		// act + assert
 		assertThatNoException().isThrownBy(
@@ -207,6 +208,7 @@ class ManuellerAttributeImportServiceTest {
 			.createMultiPolygon(new Polygon[] { polygon });
 		when(organisationMock.getBereich()).thenReturn(Optional.of(zustaendigkeitsBereich));
 		when(sessionMock.getOrganisation()).thenReturn(organisationMock);
+		when(sessionMock.getBereich()).thenReturn(zustaendigkeitsBereich);
 
 		// act + assert
 		assertThatNoException().isThrownBy(
@@ -241,7 +243,8 @@ class ManuellerAttributeImportServiceTest {
 		// assert
 		assertThat(session.getAktuellerImportSchritt()).isEqualTo(
 			AutomatischerImportSchritt.AUTOMATISCHE_ABBILDUNG_ABGESCHLOSSEN);
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AttributeImportSession.ABBILDUNG_BEARBEITEN);
+		assertThat(session.isExecuting()).isFalse();
 	}
 
 	@Test
@@ -285,16 +288,16 @@ class ManuellerAttributeImportServiceTest {
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
 		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
-		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
-		Verwaltungseinheit organisation = benutzer.getOrganisation();
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
 
 		// act
 		this.manuellerAttributeImportService.runUpdate(session);
 
 		// assert
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.UPDATE_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AbstractImportSession.CLOSED);
+		assertThat(session.isExecuting()).isFalse();
 	}
 
 	@Test
@@ -303,9 +306,8 @@ class ManuellerAttributeImportServiceTest {
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
 		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
-		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
-		Verwaltungseinheit organisation = benutzer.getOrganisation();
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
 		doThrow(new OptimisticLockException("Oh no!")).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(), any());
@@ -316,7 +318,30 @@ class ManuellerAttributeImportServiceTest {
 			.hasMessage("Kanten in der Organisation wurden während des Speicherns aus einer anderen Quelle verändert."
 				+ " Bitte versuchen Sie es erneut.");
 		// assert
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AttributeImportSession.IMPORT_ABSCHLIESSEN);
+		assertThat(session.isExecuting()).isFalse();
+		assertThat(session.getLog()).isEmpty();
+	}
+
+	@Test
+	void testRunUpdate_wirdBereitsAusgefuehrt_RequireViolationNichtGelogt() {
+		// arrange
+		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
+			AttributeImportFormat.LUBW);
+		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
+
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
+		session.setExecuting(true);
+
+		session.setFeatureMappings(List.of());
+
+		// act
+		assertThatThrownBy(() -> this.manuellerAttributeImportService.runUpdate(session)).isInstanceOf(
+				RequireViolation.class)
+			.hasMessageContaining("Die Session wird bereits ausgeführt");
+		// assert
+		assertThat(session.getSchritt()).isEqualTo(AttributeImportSession.IMPORT_ABSCHLIESSEN);
+		assertThat(session.isExecuting()).isTrue();
 		assertThat(session.getLog()).isEmpty();
 	}
 
@@ -326,9 +351,8 @@ class ManuellerAttributeImportServiceTest {
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
 		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
-		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
-		Verwaltungseinheit organisation = benutzer.getOrganisation();
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
 		doThrow(new RequireViolation("Oh no!")).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(), any());
@@ -339,7 +363,8 @@ class ManuellerAttributeImportServiceTest {
 			.hasMessage("Oh no!");
 
 		// assert
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.UPDATE_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AbstractImportSession.CLOSED);
+		assertThat(session.isExecuting()).isFalse();
 		assertThat(session.getLog()).containsExactly(
 			ImportLogEintrag.ofError("Es ist ein unerwarteter Fehler aufgetreten."));
 	}
@@ -353,9 +378,8 @@ class ManuellerAttributeImportServiceTest {
 		doThrow(new RuntimeException()).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(),
 			any());
-		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
-		Verwaltungseinheit organisation = benutzer.getOrganisation();
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
 
 		// act & assert
@@ -363,7 +387,8 @@ class ManuellerAttributeImportServiceTest {
 			.isThrownBy(() -> this.manuellerAttributeImportService.runUpdate(session));
 
 		// assert
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.UPDATE_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AbstractImportSession.CLOSED);
+		assertThat(session.isExecuting()).isFalse();
 		assertThat(session.getLog().size()).isEqualTo(1);
 	}
 
@@ -376,9 +401,8 @@ class ManuellerAttributeImportServiceTest {
 		doThrow(new RuntimeException()).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(),
 			any());
-		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
-		Verwaltungseinheit organisation = benutzer.getOrganisation();
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+
+		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
 
 		// act & assert
@@ -387,6 +411,8 @@ class ManuellerAttributeImportServiceTest {
 
 		// assert
 		assertThat(session.getAttributeImportKonfliktProtokoll()).isNotNull();
+		assertThat(session.getSchritt()).isEqualTo(AbstractImportSession.CLOSED);
+		assertThat(session.isExecuting()).isFalse();
 	}
 
 	@Test
@@ -407,7 +433,8 @@ class ManuellerAttributeImportServiceTest {
 		assertThat(session.getLog().size()).isEqualTo(1);
 		assertThat(session.getAktuellerImportSchritt()).isEqualTo(
 			AutomatischerImportSchritt.IMPORT_DER_DATEN);
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AttributeImportSession.AUTOMATISCHE_ABBILDUNG);
+		assertThat(session.isExecuting()).isFalse();
 	}
 
 	@Test
@@ -436,7 +463,8 @@ class ManuellerAttributeImportServiceTest {
 		assertThat(session.getLog()).contains(ImportLogEintrag.ofError("Es ist ein unerwarteter Fehler aufgetreten."));
 		assertThat(session.getAktuellerImportSchritt()).isEqualTo(
 			AutomatischerImportSchritt.ABBILDUNG_AUF_RADVIS_NETZ);
-		assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		assertThat(session.getSchritt()).isEqualTo(AttributeImportSession.AUTOMATISCHE_ABBILDUNG);
+		assertThat(session.isExecuting()).isFalse();
 	}
 
 	@Test

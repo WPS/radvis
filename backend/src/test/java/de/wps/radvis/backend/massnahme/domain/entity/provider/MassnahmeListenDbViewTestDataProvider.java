@@ -18,22 +18,75 @@ import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
+import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 
 public class MassnahmeListenDbViewTestDataProvider {
 	public static MassnahmeListenDbView.MassnahmeListenDbViewBuilder withMassnahme(Massnahme massnahme) {
-		return MassnahmeListenDbView.builder()
+		// Pflichtfelder
+		MassnahmeListenDbView.MassnahmeListenDbViewBuilder builder = MassnahmeListenDbView.builder()
 			.id(massnahme.getId())
-			.netzklassen(String.join(";",
-				massnahme.getNetzklassen().stream().map(n -> n.toString()).collect(Collectors.toList())))
-			.letzteAenderung(massnahme.getLetzteAenderung()).planungErforderlich(massnahme.getPlanungErforderlich())
-			.unterhaltName(massnahme.getunterhaltsZustaendiger().map(Verwaltungseinheit::getName).orElse(""))
-			.unterhaltOrganisationsArt(
-				massnahme.getunterhaltsZustaendiger()
-					.map(Verwaltungseinheit::getOrganisationsArt)
-					.orElse(null))
-			.geometry(massnahme.getNetzbezug().getGeometrie()).bezeichnung(massnahme.getBezeichnung())
-			.umsetzungsstandStatus(
-				massnahme.getUmsetzungsstand().map(ust -> ust.getUmsetzungsstandStatus()).orElse(null));
+			.bezeichnung(massnahme.getBezeichnung())
+			.massnahmenkategorien(massnahme.getMassnahmenkategorien()
+				.stream()
+				.map(Massnahmenkategorie::name)
+				.collect(Collectors.joining(";")))
+			.netzklassen(massnahme.getNetzklassen()
+				.stream()
+				.map(Netzklasse::name)
+				.collect(Collectors.joining(";")))
+			.umsetzungsstatus(massnahme.getUmsetzungsstatus())
+			.letzteAenderung(massnahme.getLetzteAenderung())
+			.benutzerLetzteAenderungVorname(massnahme.getBenutzerLetzteAenderung().getVorname())
+			.benutzerLetzteAenderungNachname(massnahme.getBenutzerLetzteAenderung().getNachname())
+			.veroeffentlicht(massnahme.getVeroeffentlicht())
+			.planungErforderlich(massnahme.getPlanungErforderlich())
+			.sollStandard(massnahme.getSollStandard())
+			.geometry(massnahme.getNetzbezug().getGeometrie());
+
+		// optionale Felder
+		massnahme.getMassnahmeKonzeptID()
+			.ifPresent(builder::massnahmeKonzeptId);
+		massnahme.getDurchfuehrungszeitraum()
+			.ifPresent(builder::durchfuehrungszeitraum);
+		massnahme.getBaulastZustaendiger()
+			.map(Verwaltungseinheit::getName)
+			.ifPresent(builder::baulastName);
+		massnahme.getBaulastZustaendiger()
+			.map(Verwaltungseinheit::getOrganisationsArt)
+			.ifPresent(builder::baulastOrganisationsArt);
+		massnahme.getZustaendiger()
+			.map(Verwaltungseinheit::getName)
+			.ifPresent(builder::zustaendigName);
+		massnahme.getZustaendiger()
+			.map(Verwaltungseinheit::getOrganisationsArt)
+			.ifPresent(builder::zustaendigOrganisationsArt);
+		massnahme.getunterhaltsZustaendiger()
+			.map(Verwaltungseinheit::getName)
+			.ifPresent(builder::unterhaltName);
+		massnahme.getunterhaltsZustaendiger()
+			.map(Verwaltungseinheit::getOrganisationsArt)
+			.ifPresent(builder::unterhaltOrganisationsArt);
+		massnahme.getPrioritaet()
+			.ifPresent(builder::prioritaet);
+		massnahme.getHandlungsverantwortlicher()
+			.ifPresent(builder::handlungsverantwortlicher);
+		massnahme.getUmsetzungsstand()
+			.map(Umsetzungsstand::getUmsetzungsstandStatus)
+			.ifPresent(builder::umsetzungsstandStatus);
+		massnahme.getRealisierungshilfe()
+			.ifPresent(builder::realisierungshilfe);
+		massnahme.getKostenannahme()
+			.ifPresent(builder::kostenannahme);
+		massnahme.getMaViSID()
+			.ifPresent(builder::maViSID);
+		massnahme.getVerbaID()
+			.ifPresent(builder::verbaID);
+		massnahme.getLGVFGID()
+			.ifPresent(builder::lgvfgID);
+
+		return builder;
 	}
 }

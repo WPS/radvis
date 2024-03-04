@@ -40,7 +40,7 @@ public class ExportData {
 
 	/**
 	 * Über das Feld Headers kann die Reihenfolge beim Rausschreiben gesteuert werden, falls relevant
-	 * 
+	 *
 	 * @param geometry
 	 * @param properties
 	 * @param headers

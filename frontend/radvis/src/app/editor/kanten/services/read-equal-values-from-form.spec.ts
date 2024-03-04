@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equal-values-from-form';
 import {
   UndeterminedInvalidValue,
@@ -23,9 +23,9 @@ import {
 
 describe('readEqualValuesFromForm', () => {
   it('should not consider UndeterminedValue', () => {
-    const form = new FormGroup({
-      testEqual: new FormControl('test'),
-      testUndetermined: new FormControl(new UndeterminedValue()),
+    const form = new UntypedFormGroup({
+      testEqual: new UntypedFormControl('test'),
+      testUndetermined: new UntypedFormControl(new UndeterminedValue()),
     });
 
     expect(readEqualValuesFromForm(form)).toEqual({
@@ -34,9 +34,9 @@ describe('readEqualValuesFromForm', () => {
   });
 
   it('should not consider UndeterminedInvalidValue', () => {
-    const form = new FormGroup({
-      testEqual: new FormControl('test'),
-      testUndetermined: new FormControl(new UndeterminedInvalidValue()),
+    const form = new UntypedFormGroup({
+      testEqual: new UntypedFormControl('test'),
+      testUndetermined: new UntypedFormControl(new UndeterminedInvalidValue()),
     });
 
     expect(readEqualValuesFromForm(form)).toEqual({
@@ -45,9 +45,9 @@ describe('readEqualValuesFromForm', () => {
   });
 
   it('should not consider disabled values', () => {
-    const form = new FormGroup({
-      testEqual: new FormControl({ value: 'test', disabled: true }),
-      testUndetermined: new FormControl(new UndeterminedValue()),
+    const form = new UntypedFormGroup({
+      testEqual: new UntypedFormControl({ value: 'test', disabled: true }),
+      testUndetermined: new UntypedFormControl(new UndeterminedValue()),
     });
 
     expect(form.get('testEqual')?.disabled).toBeTrue();

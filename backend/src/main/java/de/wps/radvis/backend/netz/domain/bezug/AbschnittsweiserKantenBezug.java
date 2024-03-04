@@ -28,11 +28,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
-
 import org.springframework.data.util.Pair;
 import org.valid4j.errors.RequireViolation;
 
@@ -42,6 +37,10 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.StreckeVonKanten;
 import de.wps.radvis.backend.netz.domain.entity.Topologie;
 import de.wps.radvis.backend.netz.domain.valueObject.Aequivalenzklasse;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

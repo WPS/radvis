@@ -117,4 +117,9 @@ export class NetzService {
     invariant(command, 'Kante muss gesetzt sein');
     return this.http.post<Kante>(`${NetzService.BASE_URL}/kanten/create`, command).toPromise();
   }
+
+  deleteKante(id: number): Promise<void> {
+    invariant(id, 'Kante-Id muss gesetzt sein');
+    return this.http.delete<void>(`${NetzService.BASE_URL}/kante/${id}`).toPromise();
+  }
 }

@@ -18,7 +18,7 @@ import de.wps.radvis.backend.wegweisendeBeschilderung.domain.valueObject.Zustand
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class ZustandsbewertungUserType implements AttributeConverter<Zustandsbewertung, String> {
 
 	@Override

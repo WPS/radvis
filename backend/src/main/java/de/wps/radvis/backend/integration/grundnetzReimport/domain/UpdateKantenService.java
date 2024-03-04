@@ -109,7 +109,7 @@ public class UpdateKantenService {
 	 * sollten noch keine topologischen Updates bestehender DLM-Kanten ausgeführt wurden sein.
 	 *
 	 * @param topologischesUpdate
-	 *            ein Geometrieänderung mit topologischer Konsequenz, die ein Split sein könnte
+	 * 	ein Geometrieänderung mit topologischer Konsequenz, die ein Split sein könnte
 	 * @return Ein SplitUpdate, was die neuen Von
 	 */
 	public Optional<SplitUpdate> findSplitIfExists(TopologischesUpdate topologischesUpdate,
@@ -200,7 +200,7 @@ public class UpdateKantenService {
 				null,
 				topologischeMapInBereich.get(originalKante.getVonKnoten()),
 				buffer)
-					.orElseThrow();
+				.orElseThrow();
 		} catch (NoSuchElementException exception) {
 			return Optional.empty();
 		}
@@ -256,8 +256,8 @@ public class UpdateKantenService {
 
 		ensure(splitStrecke.abgeschlossen());
 		ensure((splitStrecke.getVonKnoten().equals(originalKante.getVonKnoten()) && splitStrecke.getNachKnoten()
-			.equals(originalKante.getNachKnoten()))
-			|| (splitStrecke.getVonKnoten().equals(originalKante.getNachKnoten()) && splitStrecke.getNachKnoten()
+				.equals(originalKante.getNachKnoten()))
+				|| (splitStrecke.getVonKnoten().equals(originalKante.getNachKnoten()) && splitStrecke.getNachKnoten()
 				.equals(originalKante.getVonKnoten())),
 			"Endpunkte der SplitStrecke müssen den Endpunkten der OriginalKante entsprechen");
 		ensure(buffer.contains(splitStrecke.getStrecke()));
@@ -303,10 +303,10 @@ public class UpdateKantenService {
 		return kandidatenStream.reduce(
 			(k1, k2) -> (k1.getVonKnoten().getPoint().distance(ursprungsGeometrie)
 				+ k1.getNachKnoten().getPoint().distance(ursprungsGeometrie)) <= (k2.getVonKnoten().getPoint()
-					.distance(ursprungsGeometrie)
-					+ k2.getNachKnoten().getPoint().distance(ursprungsGeometrie))
-						? k1
-						: k2);
+				.distance(ursprungsGeometrie)
+				+ k2.getNachKnoten().getPoint().distance(ursprungsGeometrie))
+				? k1
+				: k2);
 	}
 
 	private KantenAttribute getUpdatedAttribute(ImportedFeature importedFeature, KantenAttribute bestehendeAttribute) {

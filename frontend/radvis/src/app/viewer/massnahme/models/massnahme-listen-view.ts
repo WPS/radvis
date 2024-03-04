@@ -39,7 +39,7 @@ export interface MassnahmeListenView {
   netzklassen: Set<Netzklasse>;
   letzteAenderung: string;
   benutzerLetzteAenderung: BenutzerName;
-  markierungsZustaendiger: Verwaltungseinheit | null;
+  zustaendiger: Verwaltungseinheit | null;
   unterhaltsZustaendiger: Verwaltungseinheit | null;
   sollStandard: SollStandard;
   handlungsverantwortlicher: Handlungsverantwortlicher;
@@ -66,8 +66,8 @@ export namespace MassnahmeListenView {
         return item.durchfuehrungszeitraum?.geplanterUmsetzungsstartJahr?.toString() ?? EMPTY_FIELD_INDICATOR;
       case 'baulastZustaendiger':
         return Verwaltungseinheit.getDisplayName(item.baulastZustaendiger) ?? EMPTY_FIELD_INDICATOR;
-      case 'markierungsZustaendiger':
-        return Verwaltungseinheit.getDisplayName(item.markierungsZustaendiger) ?? EMPTY_FIELD_INDICATOR;
+      case 'zustaendiger':
+        return Verwaltungseinheit.getDisplayName(item.zustaendiger) ?? EMPTY_FIELD_INDICATOR;
       case 'unterhaltsZustaendiger':
         return Verwaltungseinheit.getDisplayName(item.unterhaltsZustaendiger) ?? EMPTY_FIELD_INDICATOR;
       case 'netzklassen':

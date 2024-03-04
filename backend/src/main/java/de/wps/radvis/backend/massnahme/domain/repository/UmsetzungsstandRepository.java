@@ -18,4 +18,5 @@ import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 
-public interface UmsetzungsstandRepository extends CrudRepository<Umsetzungsstand, Long> {}
+public interface UmsetzungsstandRepository extends CrudRepository<Umsetzungsstand, Long> {
+}

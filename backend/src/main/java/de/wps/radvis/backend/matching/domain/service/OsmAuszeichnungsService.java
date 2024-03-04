@@ -141,6 +141,7 @@ public class OsmAuszeichnungsService {
 							Oberflaechenbeschaffenheit.UNBEKANNT.name(),
 							statistik);
 						addTag(osmWay, "status", flattenedKante.getStatus(), null, statistik);
+						addTag(osmWay, "droute", flattenedKante.isDRoute() ? "1" : "0", null, statistik);
 
 						statistik.anzahlWaysTagged++;
 					}
@@ -193,7 +194,8 @@ public class OsmAuszeichnungsService {
 
 	private void tagBelagart(Way osmWay, KanteOsmMatchWithAttribute flattenedKante, PbfJobStatistik statistik) {
 		if (RELEVANTE_BELAGARTEN_TO_OSMVALUE.containsKey(flattenedKante.getBelagArt())) {
-			addTag(osmWay, "surface", RELEVANTE_BELAGARTEN_TO_OSMVALUE.get(flattenedKante.getBelagArt()), null, statistik);
+			addTag(osmWay, "surface", RELEVANTE_BELAGARTEN_TO_OSMVALUE.get(flattenedKante.getBelagArt()), null,
+				statistik);
 		}
 	}
 

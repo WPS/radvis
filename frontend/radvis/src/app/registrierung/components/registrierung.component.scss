@@ -13,23 +13,22 @@
  */
 
 :host {
-  display: block;
+  display: flex;
+  justify-content: center;
   overflow: auto;
 }
 
-form {
-  margin: 1rem auto;
-  border: 1px solid rgba(0, 0, 0, 0.03);
-  box-shadow: 0 2px 2px rgb(0 0 0 / 24%), 0 0 2px rgb(0 0 0 / 12%);
+.registrierung-form {
   max-width: 50%;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
+  margin: 1rem 0;
 }
 
-button {
-  margin-top: 1rem;
-  margin-left: auto;
+.registrierung-card-header {
+  padding: 1.5rem 1.5rem 0;
+}
+
+.registrierung-card-content {
+  padding: 0 1.5rem 1.5rem;
 }
 
 .registrierung-hinweis {

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Subject, Subscription } from 'rxjs';
 import { delay, first } from 'rxjs/operators';
@@ -48,7 +48,7 @@ export class MassnahmenkategorienDropdownControlComponent
 
   selectedOptions: string[] = [];
 
-  formControl: FormControl;
+  formControl: UntypedFormControl;
   filteredGroupedOptions: MassnahmenkategorieOptionGroup[] = [];
 
   public displayFn = Massnahmenkategorien.getDisplayTextForMassnahmenKategorie;
@@ -61,7 +61,7 @@ export class MassnahmenkategorienDropdownControlComponent
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
-    this.formControl = new FormControl(null);
+    this.formControl = new UntypedFormControl(null);
     this.formControl.valueChanges.subscribe(searchTerm => {
       this.updateFilteredOptions(searchTerm);
       this.changeDetector.markForCheck();

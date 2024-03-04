@@ -22,7 +22,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { LayerId, RadVisLayer } from 'src/app/shared/models/layers/rad-vis-layer';
 import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
 
@@ -44,9 +44,9 @@ export class LayerAuswahlComponent implements OnChanges, OnInit {
   @Output()
   public hideLayer = new EventEmitter<LayerId>();
 
-  public formArray: FormArray;
+  public formArray: UntypedFormArray;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: UntypedFormBuilder) {
     this.formArray = formBuilder.array([]);
   }
 
@@ -77,8 +77,8 @@ export class LayerAuswahlComponent implements OnChanges, OnInit {
     }
   }
 
-  public asFormControl(control: AbstractControl | null): FormControl {
-    return control as FormControl;
+  public asFormControl(control: AbstractControl | null): UntypedFormControl {
+    return control as UntypedFormControl;
   }
 
   private applyLayerVisibility(): void {

@@ -18,19 +18,23 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import org.jetbrains.annotations.NotNull;
 
 import de.wps.radvis.backend.abfrage.auswertung.domain.entity.AuswertungsFilter;
 import de.wps.radvis.backend.abfrage.auswertung.domain.repository.AuswertungRepository;
+import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AuswertungRepositoryImpl implements AuswertungRepository {
 
 	@PersistenceContext
@@ -41,119 +45,105 @@ public class AuswertungRepositoryImpl implements AuswertungRepository {
 		require(auswertungsFilter, notNullValue());
 
 		String additionalWhereClauses = "";
-		String additionalFrom = "";
-		String additionalJoins = "";
-		String berechneterAnteil = "1";
+		String joins = "";
 		Map<String, Object> additionalParameters = new HashMap<>();
 
-		boolean addSqlForZustaendigkeit = false;
-
 		// GemeindeKreisBezirk
-		if (auswertungsFilter.getGemeindeKreisBezirkId() != null) {
-			additionalFrom += " ,Organisation org";
-			additionalWhereClauses += " AND org.id = :organisationsId";
-			additionalWhereClauses += " AND st_intersects(kante.geometry, org.bereich)";
+		if (auswertungsFilter.isWahlkreis()) {
+			joins += " LEFT JOIN Wahlkreis wahlkreis ON wahlkreis.id = :wahlkreisId ";
+			additionalWhereClauses += " AND st_intersects(abschnitt.geometry, wahlkreis.bereich)";
+			additionalParameters.put("wahlkreisId", auswertungsFilter.getWahlkreisId());
+		} else if (auswertungsFilter.isGemeindeKreisBezirk()) {
+			joins += " LEFT JOIN Organisation org ON org.id = :organisationsId ";
+			additionalWhereClauses += " AND st_intersects(abschnitt.geometry, org.bereich)";
 			additionalParameters.put("organisationsId", auswertungsFilter.getGemeindeKreisBezirkId());
 		}
 
 		// Baulast
-		if (auswertungsFilter.getBaulastId() != null) {
-			addSqlForZustaendigkeit = true;
-			additionalWhereClauses += " AND za.baulast_traeger_id = :baulastId";
-			additionalParameters.put("baulastId", auswertungsFilter.getBaulastId());
+		if (auswertungsFilter.getBaulast() != null) {
+			additionalWhereClauses += " AND abschnitt.baulast_traeger = :baulast";
+			additionalParameters.put("baulast", getOrgaBezeichnungInMaterializedView(auswertungsFilter.getBaulast()));
 		}
 
 		// Unterhalt
-		if (auswertungsFilter.getUnterhaltId() != null) {
-			addSqlForZustaendigkeit = true;
-			additionalWhereClauses += " AND za.unterhalts_zustaendiger_id = :unterhaltId";
-			additionalParameters.put("unterhaltId", auswertungsFilter.getUnterhaltId());
+		if (auswertungsFilter.getUnterhalt() != null) {
+			additionalWhereClauses += " AND abschnitt.unterhalts_zustaendiger = :unterhalt";
+			additionalParameters.put("unterhalt",
+				getOrgaBezeichnungInMaterializedView(auswertungsFilter.getUnterhalt()));
 		}
+
 		// Erhalt
-		if (auswertungsFilter.getErhaltId() != null) {
-			addSqlForZustaendigkeit = true;
-			additionalWhereClauses += " AND za.erhalts_zustaendiger_id = :erhaltId";
-			additionalParameters.put("erhaltId", auswertungsFilter.getErhaltId());
+		if (auswertungsFilter.getErhalt() != null) {
+			additionalWhereClauses += " AND abschnitt.erhalts_zustaendiger = :erhalt";
+			additionalParameters.put("erhalt",
+				getOrgaBezeichnungInMaterializedView(auswertungsFilter.getErhalt()));
 		}
 
 		// Netzklassen
 		if (auswertungsFilter.getNetzklassen() != null || auswertungsFilter.isBeachteNichtKlassifizierteKanten()) {
-			additionalWhereClauses += " AND (nk.netzklasse in :netzklassen";
-			additionalWhereClauses += auswertungsFilter.isBeachteNichtKlassifizierteKanten() ? " OR nk IS NULL" : "";
-			additionalWhereClauses += ")";
-
-			Set<String> netzklassenParam = Collections.emptySet();
+			Set<String> netzklassenClauses = new HashSet<>();
 			if (auswertungsFilter.getNetzklassen() != null) {
-				netzklassenParam = auswertungsFilter.getNetzklassen().stream()
+				auswertungsFilter.getNetzklassen().stream()
 					.map(Enum::name)
-					.collect(Collectors.toSet());
+					.map(nkStr -> "(abschnitt.netzklassen IS NOT NULL AND position('" + nkStr
+						+ "' IN abschnitt.netzklassen ) > 0)")
+					.forEach(netzklassenClauses::add);
 			}
-			additionalParameters.put("netzklassen", netzklassenParam);
+
+			if (auswertungsFilter.isBeachteNichtKlassifizierteKanten()) {
+				netzklassenClauses.add("abschnitt.netzklassen IS NULL");
+			}
+
+			additionalWhereClauses +=
+				" AND " + netzklassenClauses.stream().collect(Collectors.joining(" OR ", " (", ") "));
 		}
 
 		// IstStandards
 		if (auswertungsFilter.getIstStandards() != null || auswertungsFilter.isBeachteKantenOhneStandards()) {
-			additionalWhereClauses += " AND (standard.standard in :iststandards";
-			additionalWhereClauses += auswertungsFilter.isBeachteKantenOhneStandards() ? " OR standard IS NULL" : "";
-			additionalWhereClauses += ")";
-			Set<String> iststandardsParam = Collections.emptySet();
+			Set<String> iststandardClauses = new HashSet<>();
 			if (auswertungsFilter.getIstStandards() != null) {
-				iststandardsParam = auswertungsFilter.getIstStandards().stream()
+				auswertungsFilter.getIstStandards().stream()
 					.map(Enum::name)
-					.collect(Collectors.toSet());
+					.map(standardStr -> "(abschnitt.standards IS NOT NULL AND position('" + standardStr
+						+ "' IN abschnitt.standards ) > 0)")
+					.forEach(iststandardClauses::add);
 			}
-			additionalParameters.put("iststandards", iststandardsParam);
-			additionalJoins += " LEFT OUTER JOIN kanten_attribut_gruppe_ist_standards standard"
-				+ " ON standard.kanten_attribut_gruppe_id = kag.id";
+
+			if (auswertungsFilter.isBeachteKantenOhneStandards()) {
+				iststandardClauses.add("abschnitt.standards IS NULL");
+			}
+
+			additionalWhereClauses +=
+				" AND " + iststandardClauses.stream().collect(Collectors.joining(" OR ", " (", ") "));
+
 		}
 
-		// Der Join für die ZuständigkeitsAttribute muss nach dem Join für die IstStandars kommen,
-		// da der IstStandard-Join anhängig ist vom Join für die Kantenattributgruppe
-		if (addSqlForZustaendigkeit) {
-			additionalJoins += " LEFT OUTER JOIN zustaendigkeit_attribut_gruppe zag"
-				+ " ON zag.id = kante.zustaendigkeit_attributgruppe_id"
-				+ " LEFT OUTER JOIN zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute za"
-				+ " ON za.zustaendigkeit_attribut_gruppe_id = zag.id";
-
-			berechneterAnteil = "COALESCE(SUM(DISTINCT za.bis) - SUM(DISTINCT za.von), 1)";
+		// BelagArt
+		if (auswertungsFilter.getBelagArt() != null) {
+			additionalWhereClauses += " AND abschnitt.belag_art = :belag";
+			additionalParameters.put("belag", auswertungsFilter.getBelagArt().name());
 		}
 
-		//@formatter:off
+		// Radverkehrsführung
+		if (auswertungsFilter.getRadverkehrsfuehrung() != null) {
+			additionalWhereClauses += " AND abschnitt.radverkehrsfuehrung = :radverkehrsfuehrung";
+			additionalParameters.put("radverkehrsfuehrung", auswertungsFilter.getRadverkehrsfuehrung().name());
+		}
+
 		String sqlString =
-			// Wir müssen das Aufsummieren im Nachgang machen, um Kanten nicht ungewollt
-			// mehrfach in die Summe aufzunehmen
-			"SELECT CAST(COALESCE(SUM(effektive_kanten_laenge * anteil), 0) as bigint) FROM ("
-				// In diesem Subselect gruppieren wir auf der KanteId, beachten die Filter und berechnen die korrekte Länge
-				// über das Feld kanten_laenge unter Einbeziehung der Zweiseitigkeit
-				+ "SELECT "
-				// Falls an der Kante Zustaendigkeitsattribute hängen, die dem Filter (baulast, unterhalt, erhalt) entsprechen,
-				// müssen wir die kanten_laenge anteilig berechnen, weil Zustaendigkeitsattribute linear referenziert sind.
-				// Da wir dieselben Zustaendigkeitsattribute in mehreren Rows haben können, falls die Kante z.B. mehrere Netzklassen
-				// oder Iststandards hat, müssen wir über 'DISTINCT' eine Deduplizierung vornehmen
-				+ berechneterAnteil + " AS anteil, "
-				// Wir berechnen die kanten_laenge doppelt, falls die Kante zweisetig ist
-				+ "kante.kanten_laenge_in_cm * CASE WHEN kante.is_zweiseitig THEN 2 ELSE 1 END AS effektive_kanten_laenge"
-				+ " FROM kante kante"
-				+ " LEFT OUTER JOIN kanten_attribut_gruppe kag"
-				+ " ON kag.id = kante.kanten_attributgruppe_id"
-				+ " LEFT OUTER JOIN kanten_attribut_gruppe_netzklassen nk"
-				+ " ON nk.kanten_attribut_gruppe_id = kag.id"
-				+ additionalJoins
-				+ additionalFrom
-				// Wir betrachten nur Kanten mit Status.UNTER_VERKEHR
-				+ " WHERE kag.status = 'UNTER_VERKEHR'"
-				// Wir betrachten nur GrundnetzKanten, d.h.:
-				// In qualitätsgesicherten Landkreisen: Kanten mit Quelle DLM oder Radvis
-				// Sonst: Kanten mit Quelle RadNETZ sowie Kanten mit Quelle DLM oder RadVis,
-				//        die keine RadNetzKlasse gesetzt haben
-				+ " AND kante.is_grundnetz = true "
-				+ additionalWhereClauses
-				+ " GROUP BY kante.id) T1";
+			"""
+					SELECT COALESCE(sum(st_length(abschnitt.geometry)), 0) FROM geoserver_radvisnetz_kante_abschnitte_materialized_view abschnitt
+				""" + joins + " WHERE abschnitt.status = 'UNTER_VERKEHR'" + additionalWhereClauses;
 
 		Query query = entityManager
 			.createNativeQuery(sqlString);
 		additionalParameters.forEach(query::setParameter);
 
-		return BigInteger.valueOf((Long)query.getSingleResult());
+		return BigInteger.valueOf(Double.valueOf((double) query.getSingleResult() * 100.0).longValue());
+	}
+
+	@NotNull
+	private static String getOrgaBezeichnungInMaterializedView(Verwaltungseinheit verwaltungseinheit) {
+		return verwaltungseinheit.getName() + " (" + verwaltungseinheit.getOrganisationsArt().name() + ")";
 	}
 }

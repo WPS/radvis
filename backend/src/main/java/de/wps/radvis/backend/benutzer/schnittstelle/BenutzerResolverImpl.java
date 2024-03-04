@@ -16,17 +16,16 @@ package de.wps.radvis.backend.benutzer.schnittstelle;
 
 import org.springframework.security.core.Authentication;
 
-import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetails;
+import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 
 public class BenutzerResolverImpl implements BenutzerResolver {
 
 	public Benutzer fromAuthentication(Authentication authentication) {
-		if (authentication == null) {
+		if (!(authentication instanceof RadVisAuthentication)) {
 			return null;
 		}
-		RadVisUserDetails userDetails = (RadVisUserDetails) authentication.getPrincipal();
-		return userDetails.getBenutzer();
+		return ((RadVisAuthentication) authentication).getBenutzer();
 	}
 }

@@ -204,7 +204,7 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTest {
 		return MassnahmeTestDataProvider.withDefaultValues()
 			.baulastZustaendiger(testOrganisation)
 			.unterhaltsZustaendiger(testOrganisation)
-			.markierungsZustaendiger(testOrganisation)
+			.zustaendiger(testOrganisation)
 			.letzteAenderung(testAenderungsDatum)
 			.benutzerLetzteAenderung(testBenutzer);
 	}

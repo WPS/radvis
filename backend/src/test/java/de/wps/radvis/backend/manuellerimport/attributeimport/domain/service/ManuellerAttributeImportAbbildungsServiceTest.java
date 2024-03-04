@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,11 +39,11 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opengis.feature.simple.SimpleFeature;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
@@ -88,8 +89,8 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 
 		InMemoryKantenRepositoryFactory factory = mock(InMemoryKantenRepositoryFactory.class);
 
-		when(factory.create(any(Verwaltungseinheit.class))).thenReturn(inMemoryKantenRepository);
-		when(factory.create(any(Envelope.class), any(Verwaltungseinheit.class))).thenReturn(inMemoryKantenRepository);
+		when(factory.create(any(MultiPolygon.class))).thenReturn(inMemoryKantenRepository);
+		when(factory.create(any(Envelope.class), any(MultiPolygon.class))).thenReturn(inMemoryKantenRepository);
 
 		this.manuellerAttributeImportAbbildungsService = new ManuellerAttributeImportAbbildungsService(factory,
 			matchingService);

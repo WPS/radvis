@@ -13,9 +13,10 @@
  */
 
 /* eslint-disable @typescript-eslint/dot-notation */
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOption } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -28,6 +29,7 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { BelagArt } from 'src/app/shared/models/belag-art';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
+import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -46,11 +48,10 @@ import { VarianteKategorie } from 'src/app/viewer/fahrradroute/models/variante-k
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
+import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
 import { FahrradrouteTyp } from 'src/app/viewer/viewer-shared/models/fahrradroute-typ';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, deepEqual, instance, mock, verify, when } from 'ts-mockito';
-import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
-import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 
 describe(FahrradrouteAttributeEditorComponent.name, () => {
   let fixture: ComponentFixture<FahrradrouteAttributeEditorComponent>;
@@ -165,7 +166,8 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         provide: FahrradrouteProfilService,
         useValue: instance(fahrradrouteProfilService),
       })
-      .keep(MatButtonModule);
+      .keep(MatButtonModule)
+      .keep(BreakpointObserver);
   });
 
   it(
@@ -859,13 +861,13 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
     it('should return correct variante netzbezug control', () => {
       component.onVarianteAdded(VarianteKategorie.ALTERNATIVSTRECKE);
       expect(component.selectedNetzbezugControl).toBe(
-        component.variantenFormArray.at(0).get('netzbezug') as FormControl
+        component.variantenFormArray.at(0).get('netzbezug') as UntypedFormControl
       );
     });
 
     it('should return Hauptstrecke netzbezug control', () => {
       component.selectedVarianteControl.setValue(component.HAUPTSTRECKE);
-      expect(component.selectedNetzbezugControl).toBe(component.formGroup.get('netzbezug') as FormControl);
+      expect(component.selectedNetzbezugControl).toBe(component.formGroup.get('netzbezug') as UntypedFormControl);
     });
   });
 

@@ -43,6 +43,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
@@ -72,7 +73,9 @@ public class NetzToFeatureDetailsConverter {
 			kantenAttribute.getWegeNiveau().map(WegeNiveau::toString).orElse(null));
 		attributeAufGanzerLaenge.put("Beleuchtung", kantenAttribute.getBeleuchtung().toString());
 		attributeAufGanzerLaenge.put("Umfeld", kantenAttribute.getUmfeld().toString());
-		attributeAufGanzerLaenge.put("Strassenquerschnitt nach RASt 06",
+		attributeAufGanzerLaenge.put("Straßenkategorie nach RIN",
+			kantenAttribute.getStrassenkategorieRIN().map(StrassenkategorieRIN::toString).orElse(null));
+		attributeAufGanzerLaenge.put("Straßenquerschnitte nach RASt 06",
 			kantenAttribute.getStrassenquerschnittRASt06().toString());
 		attributeAufGanzerLaenge.put("Länge (berechnet)", kante.getLaengeBerechnet().toString());
 		attributeAufGanzerLaenge.put("Länge (manuell)",
@@ -230,7 +233,9 @@ public class NetzToFeatureDetailsConverter {
 			kantenAttribute.getBeleuchtung().toString(), false));
 		attributes.add(new AttributeView("Umfeld",
 			kantenAttribute.getUmfeld().toString(), true));
-		attributes.add(new AttributeView("Strassenquerschnitt nach RASt 06",
+		attributes.add(new AttributeView("Straßenkategorie nach RIN",
+			kantenAttribute.getStrassenkategorieRIN().map(StrassenkategorieRIN::toString).orElse(null), false));
+		attributes.add(new AttributeView("Straßenquerschnitte nach RASt 06",
 			kantenAttribute.getStrassenquerschnittRASt06().toString(), true));
 		attributes.add(new AttributeView("Länge (berechnet)",
 			kante.getLaengeBerechnet().toString(), false));

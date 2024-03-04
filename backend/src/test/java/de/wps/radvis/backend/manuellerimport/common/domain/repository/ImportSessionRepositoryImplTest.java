@@ -16,12 +16,15 @@ package de.wps.radvis.backend.manuellerimport.common.domain.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklasseImportSession;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
@@ -64,8 +67,9 @@ public class ImportSessionRepositoryImplTest {
 
 				// Assert
 				assertThat(importSessionRepositoryImpl.exists(benutzer)).isTrue();
-				assertThat(importSessionRepositoryImpl.find(benutzer)).isNotEmpty();
-				assertThat(importSessionRepositoryImpl.find(benutzer).get()).isEqualTo(netzklasseImportSession);
+				assertThat(importSessionRepositoryImpl.find(benutzer, NetzklasseImportSession.class)).isNotEmpty();
+				assertThat(importSessionRepositoryImpl.find(benutzer, NetzklasseImportSession.class).get())
+					.isEqualTo(netzklasseImportSession);
 			}
 
 			@Test
@@ -78,7 +82,7 @@ public class ImportSessionRepositoryImplTest {
 
 				// Assert
 				assertThat(importSessionRepositoryImpl.exists(benutzer)).isFalse();
-				assertThat(importSessionRepositoryImpl.find(benutzer)).isEmpty();
+				assertThat(importSessionRepositoryImpl.find(benutzer, NetzklasseImportSession.class)).isEmpty();
 			}
 
 			@Test
@@ -91,7 +95,21 @@ public class ImportSessionRepositoryImplTest {
 
 				// Assert
 				assertThat(importSessionRepositoryImpl.exists(benutzer)).isFalse();
-				assertThat(importSessionRepositoryImpl.find(benutzer)).isEmpty();
+				assertThat(importSessionRepositoryImpl.find(benutzer, NetzklasseImportSession.class)).isEmpty();
+			}
+
+			@Test
+			public void findWithAbstractSuperclass() {
+				// Arrange
+				importSessionRepositoryImpl.save(netzklasseImportSession);
+
+				// Act
+				Optional<AbstractImportSession> result = importSessionRepositoryImpl.find(benutzer,
+					AbstractImportSession.class);
+
+				// Assert
+				assertThat(result).isNotEmpty();
+				assertThat(result.get()).isEqualTo(netzklasseImportSession);
 			}
 		}
 

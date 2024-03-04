@@ -16,10 +16,9 @@ package de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.usertype;
 
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Seriennummer;
 import jakarta.persistence.AttributeConverter;
-
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class SeriennummerUserType implements AttributeConverter<Seriennummer, String> {
 
 	@Override

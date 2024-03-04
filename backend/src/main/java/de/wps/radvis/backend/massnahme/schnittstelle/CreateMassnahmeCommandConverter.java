@@ -76,6 +76,8 @@ public class CreateMassnahmeCommandConverter {
 			unterhaltsZustaendigerLoaded = verwaltungseinheitResolver.resolve(command.getBaulastZustaendigerId());
 		}
 
+		Verwaltungseinheit zustaendiger = verwaltungseinheitResolver.resolve(command.getZustaendigerId());
+
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 
 		return new Massnahme(
@@ -87,6 +89,7 @@ public class CreateMassnahmeCommandConverter {
 			command.getPlanungErforderlich(),
 			command.getDurchfuehrungszeitraum(),
 			unterhaltsZustaendigerLoaded,
+			zustaendiger,
 			LocalDateTime.now(),
 			aktiverBenutzer,
 			command.getSollStandard(),

@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -37,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -47,6 +49,7 @@ import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
@@ -55,6 +58,7 @@ import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
+import de.wps.radvis.backend.servicestation.domain.entity.provider.ServicestationTestDataProvider;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Fahrradhalterung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Gebuehren;
@@ -63,6 +67,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
 
 class ServicestationImportServiceTest {
@@ -116,6 +121,7 @@ class ServicestationImportServiceTest {
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_KLEIN)
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
+			.quellSystem(ServicestationenQuellSystem.RADVIS)
 			.build();
 		Servicestation servicestation2 = Servicestation.builder()
 			.id(20L)
@@ -132,6 +138,7 @@ class ServicestationImportServiceTest {
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_GROSS)
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
+			.quellSystem(ServicestationenQuellSystem.RADVIS)
 			.build();
 
 		when(servicestationRepository.findAllById(any())).thenReturn(List.of(servicestation1, servicestation2));
@@ -144,9 +151,11 @@ class ServicestationImportServiceTest {
 
 		// act
 		Servicestation result1 = servicestationImportService
-			.mapAttributes(Servicestation.builder().id(servicestation1.getId()), csvData.getRows().get(0), adminBenutzer);
+			.mapAttributes(Servicestation.builder().id(servicestation1.getId()), csvData.getRows().get(0),
+				adminBenutzer);
 		Servicestation result2 = servicestationImportService
-			.mapAttributes(Servicestation.builder().id(servicestation2.getId()), csvData.getRows().get(1), adminBenutzer);
+			.mapAttributes(Servicestation.builder().id(servicestation2.getId()), csvData.getRows().get(1),
+				adminBenutzer);
 
 		// assert
 		assertThat(result1).usingRecursiveComparison().usingOverriddenEquals().isEqualTo(servicestation1);
@@ -173,6 +182,7 @@ class ServicestationImportServiceTest {
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_KLEIN)
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
+			.quellSystem(ServicestationenQuellSystem.RADVIS)
 			.build();
 		Servicestation servicestation2 = Servicestation.builder()
 			.id(20L)
@@ -189,9 +199,10 @@ class ServicestationImportServiceTest {
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_GROSS)
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
+			.quellSystem(ServicestationenQuellSystem.RADVIS)
 			.build();
 
-		when(servicestationRepository.findByPosition(any())).thenAnswer(
+		when(servicestationRepository.findByPositionAndQuellSystemRadvis(any())).thenAnswer(
 			invocationOnMock -> {
 				Geometry position = invocationOnMock.getArgument(0);
 				if (position.distance(servicestation1.getGeometrie()) < 1) {
@@ -212,6 +223,8 @@ class ServicestationImportServiceTest {
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(300, 300)));
 
 		// assert
+		verify(servicestationRepository, times(3)).findByPositionAndQuellSystemRadvis(any());
+		verifyNoMoreInteractions(servicestationRepository);
 		assertThat(builderForStation1).isPresent();
 		assertThat(builderForStation1.get().build()).extracting(AbstractEntity::getId)
 			.isEqualTo(servicestation1.getId());
@@ -221,6 +234,52 @@ class ServicestationImportServiceTest {
 			.isEqualTo(servicestation2.getId());
 
 		assertThat(noBuilder).isEmpty();
+	}
+
+	@Test
+	void getBuilderFromId() {
+		// arrange
+		Servicestation servicestationRadVIS = ServicestationTestDataProvider.withDefaultValues()
+			.id(10L)
+			.quellSystem(ServicestationenQuellSystem.RADVIS)
+			.build();
+
+		Servicestation servicestationMobiData = ServicestationTestDataProvider.withDefaultMobiDataValues()
+			.id(20L)
+			.name(ServicestationName.of("MobiDataServicepoint"))
+			.quellSystem(ServicestationenQuellSystem.MOBIDATABW)
+			.organisation(servicestationRadVIS.getOrganisation())
+			.typ(ServicestationTyp.RADSERVICE_PUNKT_GROSS)
+			.build();
+
+		when(servicestationRepository.findByIdAndQuellSystem(any(), any())).thenAnswer(
+			invocationOnMock -> {
+				ServicestationenQuellSystem quellSystem = invocationOnMock.getArgument(1);
+				if (!quellSystem.equals(ServicestationenQuellSystem.RADVIS)) {
+					return Optional.empty();
+				}
+				Long id = invocationOnMock.getArgument(0);
+				if (id.equals(servicestationRadVIS.getId())) {
+					return Optional.of(servicestationRadVIS);
+				}
+				return Optional.empty();
+			});
+
+		// act
+		Optional<Servicestation.ServicestationBuilder> builderRadVIS = servicestationImportService.getBuilderFromId(
+			servicestationRadVIS.getId());
+		Optional<Servicestation.ServicestationBuilder> emptyBuilderMobiData = servicestationImportService.getBuilderFromId(
+			servicestationMobiData.getId());
+
+		// assert
+		verify(servicestationRepository, times(2)).findByIdAndQuellSystem(any(),
+			eq(ServicestationenQuellSystem.RADVIS));
+		verifyNoMoreInteractions(servicestationRepository);
+		assertThat(builderRadVIS).isPresent();
+		assertThat(builderRadVIS.get().build()).extracting(AbstractEntity::getId)
+			.isEqualTo(servicestationRadVIS.getId());
+
+		assertThat(emptyBuilderMobiData).isEmpty();
 	}
 
 	@Nested
@@ -249,6 +308,7 @@ class ServicestationImportServiceTest {
 				.typ(ServicestationTyp.RADSERVICE_PUNKT_KLEIN)
 				.organisation(verwaltungseinheit)
 				.dokumentListe(new DokumentListe())
+				.quellSystem(ServicestationenQuellSystem.RADVIS)
 				.build();
 
 			ServicestationRepository servicestationRepository = Mockito.mock(ServicestationRepository.class);
@@ -324,7 +384,8 @@ class ServicestationImportServiceTest {
 			incorrectAttributes.put(Servicestation.CsvHeader.ZUSTAENDIG_IN_RAD_VIS, "Quatschburg (Landkreis)");
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
-			assertThatThrownBy(() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+			assertThatThrownBy(
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
 					adminBenutzer))
 				.isInstanceOf(ServicestationAttributMappingException.class)
 				.hasMessageContaining("Verwaltungseinheit 'Quatschburg (Landkreis)' konnte nicht gefunden werden");
@@ -340,8 +401,9 @@ class ServicestationImportServiceTest {
 			incorrectAttributes.put(Servicestation.CsvHeader.ZUSTAENDIG_IN_RAD_VIS, "Quatschburg (foo)");
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
-			assertThatThrownBy(() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
-				adminBenutzer))
+			assertThatThrownBy(
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+					adminBenutzer))
 				.isInstanceOf(ServicestationAttributMappingException.class)
 				.hasMessageContaining("Verwaltungseinheit 'Quatschburg (foo)' konnte nicht verarbeitet werden");
 		}
@@ -374,10 +436,12 @@ class ServicestationImportServiceTest {
 
 		@Test
 		void nicht_im_zustaendigkeitsbereich() {
-			assertDoesNotThrow(() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
-				adminBenutzer));
+			assertDoesNotThrow(
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+					adminBenutzer));
 
-			when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(false);
+			when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
+				false);
 
 			assertThrows(ServicestationAttributMappingException.class,
 				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),

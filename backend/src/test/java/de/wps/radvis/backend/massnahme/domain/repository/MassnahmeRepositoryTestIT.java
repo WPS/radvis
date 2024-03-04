@@ -439,7 +439,7 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 		return MassnahmeTestDataProvider.withDefaultValues()
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
-			.markierungsZustaendiger(gebietskoerperschaft)
+			.zustaendiger(gebietskoerperschaft)
 			.letzteAenderung(testAenderungsDatum)
 			.benutzerLetzteAenderung(testBenutzer);
 	}

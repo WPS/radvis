@@ -68,7 +68,8 @@ class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 	@BeforeEach
 	void setUp() {
 		openMocks(this);
-		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager, barriereRepository, kantenRepository);
+		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager,
+			barriereRepository, kantenRepository);
 	}
 
 	@Test

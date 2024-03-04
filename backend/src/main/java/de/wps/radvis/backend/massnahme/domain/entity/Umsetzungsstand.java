@@ -20,11 +20,6 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -34,6 +29,10 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.GrundFuerNichtUmsetzun
 import de.wps.radvis.backend.massnahme.domain.valueObject.PruefungQualitaetsstandardsErfolgt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 
 @Audited

@@ -20,10 +20,6 @@ import static org.valid4j.Assertive.require;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Polygon;
@@ -41,6 +37,9 @@ import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.repository.CommonQueryLibrary;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 

@@ -185,7 +185,8 @@ class GraphhopperRoutingRepositoryImplITTest {
 			assertThatThrownBy(() ->
 				graphhopperRoutingRepository.route(
 					List.of(new Coordinate(8650, 5000), new Coordinate(5000, 5000),
-						new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID, true)).isInstanceOf(
+						new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
+					true)).isInstanceOf(
 					KeineRouteGefundenException.class)
 				.hasMessageContaining("com.graphhopper.util.exceptions.PointNotFoundException");
 		}
@@ -195,7 +196,8 @@ class GraphhopperRoutingRepositoryImplITTest {
 			assertThatThrownBy(() ->
 				graphhopperRoutingRepository.route(
 					List.of(new Coordinate(10050, 10050), new Coordinate(5000, 5000),
-						new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID, true)).isInstanceOf(
+						new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
+					true)).isInstanceOf(
 					KeineRouteGefundenException.class)
 				.hasMessageContaining("com.graphhopper.util.exceptions.PointOutOfBoundsException");
 		}

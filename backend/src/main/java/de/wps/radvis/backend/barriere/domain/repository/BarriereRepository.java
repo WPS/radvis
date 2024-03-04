@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.barriere.domain.repository;
 
-import java.util.Optional;
-
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.barriere.domain.entity.Barriere;

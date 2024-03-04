@@ -17,11 +17,13 @@ package de.wps.radvis.backend.netz.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 import org.springframework.security.access.AccessDeniedException;
+import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.RadVisDomainEvent;
@@ -68,6 +71,7 @@ import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
+import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KanteGeometrieChangedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent;
@@ -959,6 +963,41 @@ class NetzServiceTest {
 
 			// assert
 			domainPublisherMock.verifyNoInteractions();
+		}
+
+		@Test
+		void testDeleteKante() {
+			// arrange
+			ArgumentCaptor<Kante> kanteCaptor = ArgumentCaptor.forClass(Kante.class);
+			doNothing().when(kantenRepositoryMock).delete(kanteCaptor.capture());
+
+			// act
+			netzService.deleteKante(
+				KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(1L).build());
+
+			// assert
+			domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(eventCaptor.capture()));
+			domainPublisherMock.verifyNoMoreInteractions();
+			assertThat(eventCaptor.getValue()).usingRecursiveComparison().ignoringFields("geometry", "datum")
+				.isEqualTo(
+					new KanteDeletedEvent(1L, null, NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN, LocalDateTime.now()));
+
+		}
+
+		@Test
+		void testDeleteKante_NotRadVis() {
+			// arrange
+			ArgumentCaptor<Kante> kanteCaptor = ArgumentCaptor.forClass(Kante.class);
+			doNothing().when(kantenRepositoryMock).delete(kanteCaptor.capture());
+
+			// act & assert
+
+			assertThatThrownBy(() -> netzService.deleteKante(
+				KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).id(1L).build())).isInstanceOf(
+				RequireViolation.class);
+
+			domainPublisherMock.verifyNoInteractions();
+
 		}
 	}
 

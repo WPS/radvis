@@ -16,13 +16,13 @@ package de.wps.radvis.backend.common.schnittstelle;
 
 import static org.valid4j.Assertive.require;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.feature.SchemaException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
 import de.wps.radvis.backend.common.domain.KoordinateAusserhalbDesUnterstuetztenBereichsException;

@@ -15,3 +15,16 @@
 :host {
   display: block;
 }
+
+:host ::ng-deep .mat-mdc-tab {
+  width: 23rem;
+}
+
+.close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  height: 48px;
+  width: 64px;
+}

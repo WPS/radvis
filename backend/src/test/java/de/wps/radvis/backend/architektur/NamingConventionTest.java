@@ -17,8 +17,6 @@ package de.wps.radvis.backend.architektur;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
-import jakarta.validation.constraints.AssertTrue;
-
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -26,6 +24,8 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+
+import jakarta.validation.constraints.AssertTrue;
 
 @AnalyzeClasses(packages = "de.wps.radvis.backend", importOptions = ImportOption.DoNotIncludeTests.class)
 public class NamingConventionTest {

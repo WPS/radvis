@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
@@ -67,25 +67,25 @@ export class LeihstationEditorComponent extends SimpleEditorCreatorComponent<Lei
     private errorHandlingService: ErrorHandlingService
   ) {
     super(
-      new FormGroup({
-        geometrie: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        betreiber: new FormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-        quellSystem: new FormControl({ value: null, disabled: true }),
-        anzahlFahrraeder: new FormControl(null, [
+      new UntypedFormGroup({
+        geometrie: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        betreiber: new FormControl<string>('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+        quellSystem: new UntypedFormControl({ value: null, disabled: true }),
+        anzahlFahrraeder: new FormControl<number | null>(null, [
           RadvisValidators.isPositiveInteger,
           RadvisValidators.isSmallerThanIntegerMaxValue,
         ]),
-        anzahlPedelecs: new FormControl(null, [
+        anzahlPedelecs: new FormControl<number | null>(null, [
           RadvisValidators.isPositiveInteger,
           RadvisValidators.isSmallerThanIntegerMaxValue,
         ]),
-        anzahlAbstellmoeglichkeiten: new FormControl(null, [
+        anzahlAbstellmoeglichkeiten: new FormControl<number | null>(null, [
           RadvisValidators.isPositiveInteger,
           RadvisValidators.isSmallerThanIntegerMaxValue,
         ]),
-        freiesAbstellen: new FormControl(null),
-        buchungsUrl: new FormControl(null),
-        status: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+        freiesAbstellen: new FormControl<boolean>(false),
+        buchungsUrl: new FormControl<string | null>(null),
+        status: new FormControl<LeihstationStatus>(LeihstationStatus.AKTIV, RadvisValidators.isNotNullOrEmpty),
       }),
       notifyUserService,
       changeDetector,
@@ -153,7 +153,7 @@ export class LeihstationEditorComponent extends SimpleEditorCreatorComponent<Lei
     }
   }
 
-  protected doSave(formGroup: FormGroup): Promise<void> {
+  protected doSave(formGroup: UntypedFormGroup): Promise<void> {
     const coordinate = formGroup.value.geometrie;
     const currentId = this.currentLeihstation?.id;
     invariant(currentId);
@@ -170,9 +170,9 @@ export class LeihstationEditorComponent extends SimpleEditorCreatorComponent<Lei
 
     return this.leihstationService
       .save(currentId, {
-        anzahlPedelecs: anzahlPedelecs || null,
-        anzahlFahrraeder: anzahlFahrraeder || null,
-        anzahlAbstellmoeglichkeiten: anzahlAbstellmoeglichkeiten || null,
+        anzahlPedelecs,
+        anzahlFahrraeder,
+        anzahlAbstellmoeglichkeiten,
         freiesAbstellen,
         status,
         betreiber,
@@ -180,7 +180,7 @@ export class LeihstationEditorComponent extends SimpleEditorCreatorComponent<Lei
           coordinates: coordinate,
           type: 'Point',
         },
-        buchungsUrl: buchungsUrl || null,
+        buchungsUrl,
         version: this.currentLeihstation?.version,
       })
       .then(saved => {
@@ -189,7 +189,7 @@ export class LeihstationEditorComponent extends SimpleEditorCreatorComponent<Lei
       });
   }
 
-  protected doCreate(formGroup: FormGroup): Promise<void> {
+  protected doCreate(formGroup: UntypedFormGroup): Promise<void> {
     const coordinate = formGroup.value.geometrie;
     return this.leihstationService
       .create({

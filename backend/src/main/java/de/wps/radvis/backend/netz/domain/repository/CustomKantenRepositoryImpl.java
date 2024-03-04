@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.WKBWriter;
 import org.springframework.data.domain.Slice;
@@ -271,10 +272,11 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	}
 
 	@Override
-	public Set<Kante> getKantenInOrganisationsbereich(Verwaltungseinheit organisation) {
-		if (organisation.getBereich().isEmpty()) {
+	public Set<Kante> getKantenInBereich(MultiPolygon bereich) {
+		if (bereich.isEmpty()) {
 			return new HashSet<>();
 		}
+
 		String hqlStringBuilder = "SELECT kante FROM Kante kante "
 			+ " WHERE "
 			+ CommonQueryLibrary.whereClauseFuerBereichKante()
@@ -282,7 +284,7 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 			+ CommonQueryLibrary.whereClauseGrundnetz(true);
 
 		return entityManager.createQuery(hqlStringBuilder, Kante.class)
-			.setParameter("bereich", organisation.getBereich().get())
+			.setParameter("bereich", bereich)
 			.getResultStream().collect(Collectors.toSet());
 	}
 
@@ -368,7 +370,7 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 		Polygon bereich = EnvelopeAdapter.toPolygon(envelope, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 		// Relevant bedeutet, dass die Kanten in den, fuer die OSM-Ausleitung relevanten Attributen, vom Default abweichen
 
-		String sqlString =
+		String hqlString =
 			"SELECT new de.wps.radvis.backend.netz.domain.entity.KanteGeometryView(k.id, k.geometry) "
 				+ " FROM Kante k "
 				+ " WHERE k.id IN ("
@@ -382,9 +384,13 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 				+ " 	   OR ka.oberflaechenbeschaffenheit NOT LIKE 'UNBEKANNT' "
 				+ " 	   OR ka.status NOT LIKE 'UNTER_VERKEHR' "
 				+ "  	   OR ka.netzklassen IS NOT NULL OR ka.netzklassen NOT LIKE '' )"
-				+ ")";
+				+ "		) "
+				+ "	OR (EXISTS (SELECT 1 FROM Fahrradroute f JOIN f.abschnittsweiserKantenBezug AS fka WHERE f.drouteId IS NOT NULL AND fka.kante.id = k.id)"
+				+ "		AND intersects(CAST(:bereich as org.locationtech.jts.geom.Geometry), CAST(k.geometry as org.locationtech.jts.geom.Geometry)) = true "
+				+ "		AND k.kantenAttributGruppe.kantenAttribute.status NOT LIKE 'FIKTIV'"
+				+ "		)";
 
-		return entityManager.createQuery(sqlString, KanteGeometryView.class)
+		return entityManager.createQuery(hqlString, KanteGeometryView.class)
 			.setParameter("bereich", bereich)
 			.getResultList();
 	}
@@ -393,38 +399,41 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	@Override
 	public Stream<KanteOsmMatchWithAttribute> getKanteOsmMatchesWithOsmAttributes(
 		double minimaleUeberdeckungFuerAttributAuszeichnung) {
-		String sqlString = "SELECT "
-			+ "    most_relevant_mapping.kante_id, "
-			+ "    most_relevant_mapping.value, "
-			+ "    kante.status, "
-			+ "    kante.netzklassen, "
-			+ "    kante.radverkehrsfuehrung, "
-			+ "    kante.breite, "
-			+ "    kante.belag_art, "
-			+ "    kante.oberflaechenbeschaffenheit "
-			+ "FROM ("
-			+ "    SELECT "
-			+ "        relevant_mapping.kante_id, "
-			+ "        relevant_mapping.value "
-			+ "    FROM ("
-			+ "        SELECT"
-			+ "            kowi.kante_id, "
-			+ "            kowi.value, "
-			+ "            RANK() OVER ("
-			+ "                PARTITION BY kowi.value"
-			+ "                ORDER BY SUM(kowi.bis-kowi.von) DESC"
-			+ "            ) AS pos"
-			+ "        FROM ( "
-			+ "            SELECT k.value FROM kante_osm_way_ids k "
-			+ "            GROUP BY k.value "
-			+ "            HAVING SUM(k.bis-k.von) >= :minimaleUeberdeckungFuerAttributAuszeichnung "
-			+ "        ) relevant_way "
-			+ "        JOIN kante_osm_way_ids kowi ON kowi.value = relevant_way.value "
-			+ "        GROUP BY kowi.kante_id, kowi.value "
-			+ "    ) relevant_mapping "
-			+ "    WHERE pos = 1 "
-			+ ") AS most_relevant_mapping "
-			+ "JOIN geoserver_radvisnetz_kante_materialized_view kante ON kante.id = most_relevant_mapping.kante_id;";
+		String sqlString =
+			"WITH drouteKantenIds AS (SELECT DISTINCT fk.kante_id AS id FROM fahrradroute f JOIN fahrradroute_kantenabschnitte fk on f.id = fk.fahrradroute_id WHERE f.droute_id IS NOT NULL) "
+				+ "SELECT "
+				+ "    most_relevant_mapping.kante_id, "
+				+ "    most_relevant_mapping.value, "
+				+ "    kante.status, "
+				+ "    kante.netzklassen, "
+				+ "    kante.radverkehrsfuehrung, "
+				+ "    kante.breite, "
+				+ "    kante.belag_art, "
+				+ "    kante.oberflaechenbeschaffenheit, "
+				+ "	   kante.id IN (SELECT * FROM drouteKantenIds) AS dRoute "
+				+ "FROM ("
+				+ "    SELECT "
+				+ "        relevant_mapping.kante_id, "
+				+ "        relevant_mapping.value "
+				+ "    FROM ("
+				+ "        SELECT"
+				+ "            kowi.kante_id, "
+				+ "            kowi.value, "
+				+ "            RANK() OVER ("
+				+ "                PARTITION BY kowi.value"
+				+ "                ORDER BY SUM(kowi.bis-kowi.von) DESC"
+				+ "            ) AS pos"
+				+ "        FROM ( "
+				+ "            SELECT k.value FROM kante_osm_way_ids k "
+				+ "            GROUP BY k.value "
+				+ "            HAVING SUM(k.bis-k.von) >= :minimaleUeberdeckungFuerAttributAuszeichnung "
+				+ "        ) relevant_way "
+				+ "        JOIN kante_osm_way_ids kowi ON kowi.value = relevant_way.value "
+				+ "        GROUP BY kowi.kante_id, kowi.value "
+				+ "    ) relevant_mapping "
+				+ "    WHERE pos = 1 "
+				+ ") AS most_relevant_mapping "
+				+ "JOIN geoserver_radvisnetz_kante_materialized_view kante ON kante.id = most_relevant_mapping.kante_id;";
 
 		Stream<Object[]> resultStream = entityManager.createNativeQuery(sqlString)
 			.setParameter("minimaleUeberdeckungFuerAttributAuszeichnung", minimaleUeberdeckungFuerAttributAuszeichnung)
@@ -438,7 +447,8 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 				(String) objects[4],// Radverkehrsfuehrung name des Enums
 				objects[5] != null ? ((BigDecimal) objects[5]).doubleValue() : null, // Breite
 				(String) objects[6],// BelagArt name des Enums
-				(String) objects[7] // Oberflaechenbeschaffenheit name des Enums
+				(String) objects[7], // Oberflaechenbeschaffenheit name des Enums
+				(Boolean) objects[8] // DRoutenzugehörigkeit
 			)
 		);
 	}
@@ -459,33 +469,24 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	}
 
 	@Override
-	@Transactional
-	public void refreshRadVisNetzMaterializedView() {
-
-		List<String> alleViews = List.of(
+	public void refreshNetzMaterializedViews() {
+		// Reihenfolge beachten, da Views tlw. aufeinander aufbauen, was gerade bei materialized Views relevant ist.
+		List<String> materializedViews = List.of(
 			"netzklassen_materialized_view",
 			"standards_materialized_view",
 			"fuehrungsform_attribute_maxanteil_materialized_view",
 			"geschwindigkeit_attribute_maxanteil_materialized_view",
 			"zustaendigkeit_attribute_maxanteil_materialized_view",
-			"geoserver_radvisnetz_kante_materialized_view"
-		);
-
-		alleViews.forEach(materializedView -> {
-			log.info("Refreshing Materialized View {}", materializedView);
-			entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW " + materializedView).executeUpdate();
-		});
-
-		log.info("Done!");
-	}
-
-	@Override
-	public void refreshRadVisNetzAbschnitteMaterializedView() {
-		List<String> materializedViews = List.of(
+			"geoserver_radvisnetz_kante_materialized_view",
 			"kante_lr_materialized_view",
 			"kante_lr_interpolated_materialized_view",
 			"geoserver_radvisnetz_kante_abschnitte_materialized_view",
-			"geoserver_radvisnetz_kante_abschnitte_balm_materialized_view");
+			"geoserver_radvisnetz_kante_abschnitte_balm_materialized_view",
+			"geoserver_balm_knoten_view",
+			"geoserver_balm_kanten_view",
+			"geoserver_balm_fahrradrouten_view",
+			"geoserver_balm_wegweisende_beschilderung_view"
+		);
 		materializedViews.forEach(materializedView -> {
 			log.info("Refreshing Materialized View {}", materializedView);
 			entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW " + materializedView).executeUpdate();
@@ -507,8 +508,7 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 					try {
 						hex = WKBWriter.toHex(wkbWriter.write(insert.getGeometry3d()));
 					} catch (Exception e) {
-						log.error("Couldn't serialize Geometry as hex: {}. Reason: {} ", insert.getGeometry3d(),
-							e.getMessage());
+						log.error("Couldn't serialize Geometry as hex: {}", insert.getGeometry3d(), e);
 						hex = WKBWriter.toHex(wkbWriter.write(
 							KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createLineString()));
 					}

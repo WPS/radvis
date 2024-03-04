@@ -56,16 +56,17 @@ public class ImportSessionRepositoryImpl implements ImportSessionRepository {
 	@Override
 	public boolean exists(Benutzer benutzer) {
 		require(benutzer, notNullValue());
-
 		return this.map.containsKey(benutzer);
 	}
 
 	@Override
-	public Optional<AbstractImportSession> find(Benutzer benutzer) {
+	public <T extends AbstractImportSession> Optional<T> find(Benutzer benutzer, Class<T> sessionClass) {
 		require(benutzer, notNullValue());
+		require(sessionClass, notNullValue());
 
-		if (exists(benutzer)) {
-			return Optional.of(this.map.get(benutzer));
+		AbstractImportSession session = this.map.get(benutzer);
+		if (session != null && sessionClass.isInstance(session)) {
+			return Optional.of(sessionClass.cast(session));
 		} else {
 			return Optional.empty();
 		}

@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geopkg.FeatureEntry;
 import org.geotools.geopkg.GeoPackage;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
@@ -77,46 +77,6 @@ public class GeoPackageExportConverter implements ExportConverter {
 	@Override
 	public String getDateinamenSuffix() {
 		return "_geopackage_" + LocalDate.now().format(DateTimeFormatter.ISO_DATE) + ".gpkg";
-	}
-
-	public byte[] convertMulti(Map<String, List<ExportData>> dataCollections) {
-
-		List<ListFeatureCollection> featureCollections = new ArrayList<>();
-
-		dataCollections.forEach((name, data) -> {
-
-			Map<String, String> properties = data.get(0).getProperties();
-			SimpleFeatureType simpleFeatureType = SimpleFeatureTypeFactory.createSimpleFeatureType(
-				properties,
-				Geometry.class,
-				SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_THE_GEOM, name);
-			ListFeatureCollection collection = getListFeatureCollection(data, simpleFeatureType);
-			featureCollections.add(collection);
-		});
-
-		File exportGeoPkgFile = null;
-		byte[] result;
-		try {
-			exportGeoPkgFile = Files.createTempFile("export", "gpkg").toFile();
-			exportGeoPkgFile.deleteOnExit();
-			GeoPackage geopkg = new GeoPackage(exportGeoPkgFile);
-			geopkg.init();
-			for (ListFeatureCollection collection : featureCollections) {
-				FeatureEntry entry = new FeatureEntry();
-				entry.setZ(true);
-				geopkg.add(entry, collection);
-			}
-			geopkg.addCRS(KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-			geopkg.close();
-			result = FileUtils.readFileToByteArray(exportGeoPkgFile);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (exportGeoPkgFile != null) {
-				exportGeoPkgFile.delete();
-			}
-		}
-		return result;
 	}
 
 	@NotNull

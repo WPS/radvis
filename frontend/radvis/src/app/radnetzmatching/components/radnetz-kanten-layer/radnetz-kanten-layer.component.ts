@@ -113,7 +113,7 @@ export class RadnetzKantenLayerComponent implements OnDestroy, OnChanges {
   private createLayer(): VectorLayer {
     return new VectorLayer({
       source: this.vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.layer.style,
       minZoom: this.layer.minZoom,

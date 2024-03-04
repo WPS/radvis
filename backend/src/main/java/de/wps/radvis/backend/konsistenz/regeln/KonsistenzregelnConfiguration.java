@@ -14,9 +14,6 @@
 
 package de.wps.radvis.backend.konsistenz.regeln;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +35,8 @@ import de.wps.radvis.backend.konsistenz.regeln.domain.StartstandardRadNETZKonsis
 import de.wps.radvis.backend.konsistenz.regeln.domain.ZielstandardRadNETZKonsistenzregel;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Configuration
 @EnableJpaRepositories

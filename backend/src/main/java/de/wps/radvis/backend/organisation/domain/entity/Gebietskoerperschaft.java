@@ -19,12 +19,11 @@ import static org.valid4j.Assertive.require;
 
 import java.util.Optional;
 
-import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-
 import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

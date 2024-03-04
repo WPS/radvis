@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -134,6 +135,8 @@ class NetzControllerTest {
 	private ArgumentCaptor<List<FuehrungsformAttributGruppe>> fuehrungsformAttributGruppeCaptor;
 	@Captor
 	private ArgumentCaptor<Kante> kanteCaptor;
+	@Captor
+	private ArgumentCaptor<Benutzer> benutzerCaptor;
 
 	private NetzController netzController;
 
@@ -1048,20 +1051,44 @@ class NetzControllerTest {
 		}
 
 		@Test
-		void testeDeleteRadvisKante() {
+		void testeDeleteEigeneRadvisKante() {
 			// arrange
 			long kanteId = 10L;
 			Kante kante = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(kanteId).version(1L)
 				.build();
 			when(netzService.getKante(kanteId)).thenReturn(kante);
+			when(netzService.wurdeAngelegtVon(kante, benutzer)).thenReturn(true);
 
 			// act
-			netzController.deleteRadVISKanteById(kanteId);
+			netzController.deleteRadVISKanteById(kanteId, authentication);
 
 			// assert
+			verify(netzService, times(2)).getKante(kanteId); // Guard & Controller holen die Entity unabhängig
 			verify(netzService, times(1)).deleteKante(kanteCaptor.capture());
-			Kante deletedKante = kanteCaptor.getValue();
-			assertThat(deletedKante).isEqualTo(kante);
+			verify(netzService, times(1)).wurdeAngelegtVon(kanteCaptor.capture(), benutzerCaptor.capture());
+			verifyNoMoreInteractions(netzService);
+			assertThat(kanteCaptor.getAllValues()).contains(kante, kante);
+			assertThat(benutzerCaptor.getValue()).isEqualTo(benutzer);
+		}
+
+		@Test
+		void testeDeleteFremdeRadvisKante() {
+			// arrange
+			long kanteId = 10L;
+			Kante kante = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(kanteId).version(1L)
+				.build();
+			when(netzService.getKante(kanteId)).thenReturn(kante);
+			when(netzService.wurdeAngelegtVon(kante, benutzer)).thenReturn(false);
+
+			// act
+			assertThatThrownBy(() -> netzController.deleteRadVISKanteById(kanteId, authentication)).isInstanceOf(
+				AccessDeniedException.class);
+			// assert
+			verify(netzService, times(1)).getKante(kanteId);
+			verify(netzService, times(1)).wurdeAngelegtVon(kanteCaptor.capture(), benutzerCaptor.capture());
+
+			verifyNoMoreInteractions(netzService);
+			assertThat(benutzerCaptor.getValue()).isEqualTo(benutzer);
 		}
 
 		@Test
@@ -1073,10 +1100,12 @@ class NetzControllerTest {
 			when(netzService.getKante(kanteId)).thenReturn(kante);
 
 			// act
-			netzController.deleteRadVISKanteById(kanteId);
+			assertThatThrownBy(() -> netzController.deleteRadVISKanteById(kanteId, authentication)).isInstanceOf(
+				AccessDeniedException.class);
 
 			// assert
-			verify(netzService, never()).deleteKante(any());
+			verify(netzService, times(1)).getKante(kanteId);
+			verifyNoMoreInteractions(netzService);
 		}
 	}
 
@@ -1085,7 +1114,7 @@ class NetzControllerTest {
 	class WithAllFeatureTogglesDisabled {
 		@Test
 		void testeDeleteKante() {
-			assertThrows(AccessDeniedException.class, () -> netzController.deleteRadVISKanteById(10L));
+			assertThrows(AccessDeniedException.class, () -> netzController.deleteRadVISKanteById(10L, authentication));
 		}
 	}
 }

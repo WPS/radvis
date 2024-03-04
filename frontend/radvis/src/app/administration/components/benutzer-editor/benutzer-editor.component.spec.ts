@@ -24,10 +24,16 @@ import { SaveBenutzerCommand } from 'src/app/administration/models/save-benutzer
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 import { BenutzerService } from 'src/app/administration/services/benutzer.service';
 import { ActionButtonComponent } from 'src/app/form-elements/components/action-button/action-button.component';
-import { ValidationErrorAnzeigeComponent } from 'src/app/form-elements/components/validation-error-anzeige/validation-error-anzeige.component';
+import {
+  AutocompleteDropdownComponent,
+  AutoCompleteOption,
+} from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
+import { EnumDropdownControlComponent } from 'src/app/form-elements/components/enum-dropdown-control/enum-dropdown-control.component';
+import { TextInputControlComponent } from 'src/app/form-elements/components/text-input-control/text-input-control.component';
 import { MaterialDesignModule } from 'src/app/material-design.module';
-import { OrganisationenDropdownControlComponent } from 'src/app/shared/components/organisationen-dropdown-control/organisationen-dropdown-control.component';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
+import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { BenutzerEditorComponent } from './benutzer-editor.component';
@@ -45,16 +51,41 @@ describe(BenutzerEditorComponent.name, () => {
     organisation: defaultOrganisation,
     rollen: [Rolle.RADVIS_ADMINISTRATOR, Rolle.RADWEGE_ERFASSERIN],
   };
+  const testOrganisationen: Verwaltungseinheit[] = [
+    defaultOrganisation,
+    {
+      id: 3,
+      name: 'Gemeinde Organisation 1',
+      organisationsArt: OrganisationsArt.GEMEINDE,
+      idUebergeordneteOrganisation: null,
+      aktiv: true,
+    },
+    {
+      id: 4,
+      name: 'Kreis Organisation 2',
+      organisationsArt: OrganisationsArt.KREIS,
+      idUebergeordneteOrganisation: null,
+      aktiv: true,
+    },
+  ];
   const activatedRoute = {
     snapshot: {
       data: {
         benutzer: existingBenutzer,
+        organisationen: testOrganisationen,
       },
       params: {
         id: benutzerId,
       },
     },
   };
+
+  const defaultGewaehlteOrganisation: AutoCompleteOption = {
+    id: defaultOrganisation.id,
+    name: defaultOrganisation.name,
+    displayText: Verwaltungseinheit.getDisplayName(defaultOrganisation),
+  };
+
   let benutzerService: BenutzerService;
   let administrationRoutingService: AdministrationRoutingService;
 
@@ -66,8 +97,9 @@ describe(BenutzerEditorComponent.name, () => {
       declarations: [
         BenutzerEditorComponent,
         MockComponent(ActionButtonComponent),
-        MockComponent(OrganisationenDropdownControlComponent),
-        MockComponent(ValidationErrorAnzeigeComponent),
+        MockComponent(AutocompleteDropdownComponent),
+        MockComponent(TextInputControlComponent),
+        MockComponent(EnumDropdownControlComponent),
       ],
       imports: [RouterTestingModule, MockModule(MaterialDesignModule), MockModule(ReactiveFormsModule)],
       providers: [
@@ -87,10 +119,11 @@ describe(BenutzerEditorComponent.name, () => {
 
   it('should fill form', () => {
     const expectedBenutzerinForm = {
+      status: BenutzerStatus.getDisplayName(BenutzerStatus.AKTIV),
       vorname: existingBenutzer.vorname,
       nachname: existingBenutzer.nachname,
       email: existingBenutzer.email,
-      organisation: existingBenutzer.organisation,
+      organisation: defaultGewaehlteOrganisation,
       rollen: ['RADVIS_ADMINISTRATOR', 'RADWEGE_ERFASSERIN'],
     };
     expect(component.form.getRawValue()).toEqual(expectedBenutzerinForm);
@@ -102,7 +135,7 @@ describe(BenutzerEditorComponent.name, () => {
     component.form.patchValue({
       nachname: 'Test',
       organisation: {
-        ...defaultOrganisation,
+        ...defaultGewaehlteOrganisation,
         id: organisationId,
       },
     });
@@ -161,7 +194,7 @@ describe(BenutzerEditorComponent.name, () => {
         nachname: '   test   ',
         vorname: '   test   ',
         email: benutzer.email,
-        organisation: benutzer.organisation,
+        organisation: defaultGewaehlteOrganisation,
         rollen: benutzer.rollen,
       });
 
@@ -176,7 +209,7 @@ describe(BenutzerEditorComponent.name, () => {
         nachname: 'test',
         vorname: 'test',
         email: benutzer.email,
-        organisation: benutzer.organisation?.id,
+        organisation: defaultGewaehlteOrganisation.id!,
         rollen: benutzer.rollen,
       });
     });

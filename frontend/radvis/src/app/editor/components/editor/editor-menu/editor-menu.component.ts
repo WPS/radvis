@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { MatTabNavPanel } from '@angular/material/tabs';
 import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -26,21 +27,21 @@ import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditorMenuComponent {
+  @Input()
+  public tabPanel!: MatTabNavPanel;
+
   AttributGruppe = AttributGruppe;
 
   kantenRoute: string;
   knotenRoute: string;
-  importRoute: string | null;
 
   kantenAktiv$ = new BehaviorSubject<boolean>(false);
   knotenAktiv$ = new BehaviorSubject<boolean>(false);
-  importAktiv$ = new BehaviorSubject<boolean>(false);
   anpassungenAktiv$ = new BehaviorSubject<boolean>(false);
 
   constructor(private routingService: EditorRoutingService, router: Router) {
     this.kantenRoute = this.routingService.getKantenRoute();
     this.knotenRoute = this.routingService.getKnotenRoute();
-    this.importRoute = this.routingService.getImportRoute();
 
     router.events
       .pipe(
@@ -50,13 +51,6 @@ export class EditorMenuComponent {
       .subscribe(url => {
         this.kantenAktiv$.next(url.includes(this.kantenRoute));
         this.knotenAktiv$.next(url.includes(this.knotenRoute));
-        this.importAktiv$.next(url.includes(this.routingService.getImportRoute()));
-
-        if (url.includes(this.routingService.getImportRoute())) {
-          this.importRoute = null;
-        } else {
-          this.importRoute = this.routingService.getImportRoute();
-        }
       });
   }
 }

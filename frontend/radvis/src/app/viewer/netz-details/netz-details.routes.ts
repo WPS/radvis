@@ -12,23 +12,29 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Route } from '@angular/router';
+import { ActivatedRouteSnapshot, Route } from '@angular/router';
 import { KantenDetailViewComponent } from 'src/app/viewer/netz-details/components/kanten-detail-view/kanten-detail-view.component';
 import { KnotenDetailViewComponent } from 'src/app/viewer/netz-details/components/knoten-detail-view/knoten-detail-view.component';
-import { KanteDetailsResolverService } from 'src/app/viewer/netz-details/services/kante-details-resolver.service';
-import { KnotenDetailsResolverService } from 'src/app/viewer/netz-details/services/knoten-details-resolver.service';
+import { kanteDetailsResolver } from 'src/app/viewer/netz-details/services/kante-details.resolver';
+import { knotenDetailsResolver } from 'src/app/viewer/netz-details/services/knoten-details.resolver';
 import { NetzdetailRoutingService } from 'src/app/viewer/netz-details/services/netzdetail-routing.service';
 
 export const NETZ_DETAIL_ROUTES: Route[] = [
   {
     path: NetzdetailRoutingService.KANTE + '/:id',
     component: KantenDetailViewComponent,
-    resolve: { kante: KanteDetailsResolverService },
-    runGuardsAndResolvers: KanteDetailsResolverService.runGuardsAndResolvers,
+    resolve: { kante: kanteDetailsResolver },
+    runGuardsAndResolvers: (from: ActivatedRouteSnapshot, to: ActivatedRouteSnapshot): boolean => {
+      return (
+        from.paramMap.get('id') !== to.paramMap.get('id') ||
+        from.queryParamMap.get('seite') !== to.queryParamMap.get('seite') ||
+        from.queryParamMap.get('position') !== to.queryParamMap.get('position')
+      );
+    },
   },
   {
     path: NetzdetailRoutingService.KNOTEN + '/:id',
     component: KnotenDetailViewComponent,
-    resolve: { knoten: KnotenDetailsResolverService },
+    resolve: { knoten: knotenDetailsResolver },
   },
 ];

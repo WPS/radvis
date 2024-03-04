@@ -35,7 +35,9 @@ public class Werkzeug extends AbstractBooleanVO {
 		return new Werkzeug(value);
 	}
 
-	public static Werkzeug of(String value) { return new Werkzeug(value); }
+	public static Werkzeug of(String value) {
+		return new Werkzeug(value);
+	}
 
 	@Override
 	public String toString() {

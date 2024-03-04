@@ -22,7 +22,8 @@ public enum GrundFuerNichtUmsetzungDerMassnahme {
 
 	RADNETZ_VERLEGUNG("RadNetz Verlegung (keine neue Maßnahme erforderlich)"),
 	LAUT_VERKEHRSSCHAU_NICHT_ERFORDERLICH("Maßnahme laut Verkehrsschau nicht erforderlich"),
-	AUS_SUBJEKTIVER_SICHT_NICHT_ERFORDERLICH("Maßnahme aus subjektiver Sicht nicht erforderlich (Begründung und Ansprechpartner im Anmerkungsfeld ergänzen)"),
+	AUS_SUBJEKTIVER_SICHT_NICHT_ERFORDERLICH(
+		"Maßnahme aus subjektiver Sicht nicht erforderlich (Begründung und Ansprechpartner im Anmerkungsfeld ergänzen)"),
 	NOCH_IN_PLANUNG_UMSETZUNG("Maßnahme ist derzeit noch in der Planung/Umsetzung"),
 	KAPAZITAETSGRUENDE("Maßnahme aus Kapazitätsgründen noch nicht angegangen"),
 	SONSTIGER_GRUND("Sonstiger Grund (Erläuterung erfolgt im Anmerkungsfeld)");

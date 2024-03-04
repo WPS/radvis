@@ -22,10 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-
-import jakarta.transaction.Transactional;
-
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.AttributeImportKonfliktProtokoll;
@@ -39,6 +36,8 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,7 +66,9 @@ public class ManuellerAttributeImportUebernahmeService {
 
 		log.info("FeatureMappings werden zu KantenMappings invertiert");
 
-		InMemoryKantenRepository inMemoryKantenRepository = inMemoryKantenRepositoryFactory.create(organisation);
+		InMemoryKantenRepository inMemoryKantenRepository = inMemoryKantenRepositoryFactory.create(
+			organisation.getBereich().orElse(
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createMultiPolygon()));
 
 		List<KantenMapping> kantenMappings = invertMappingAndCreateMappedFeatures(featureMappings,
 			inMemoryKantenRepository, attributeMapper);
@@ -145,8 +146,7 @@ public class ManuellerAttributeImportUebernahmeService {
 
 	private Optional<Seitenbezug> hatAttributiertenSeitenbezug(Map<String, Object> featureProperties,
 		AttributeMapper attributeMapper) {
-		if (attributeMapper instanceof AttributivSeitenbezogenerMapper) {
-			AttributivSeitenbezogenerMapper attributivSeitenbezogenerMapper = (AttributivSeitenbezogenerMapper) attributeMapper;
+		if (attributeMapper instanceof AttributivSeitenbezogenerMapper attributivSeitenbezogenerMapper) {
 			if (featureProperties.containsKey(attributivSeitenbezogenerMapper.getSeiteAttributName())) {
 				return attributivSeitenbezogenerMapper.mapSeiteIfPresentAndValid(
 					(String) featureProperties.get(attributivSeitenbezogenerMapper.getSeiteAttributName())

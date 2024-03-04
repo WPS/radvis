@@ -233,6 +233,7 @@ class MassnahmeAuditingTestIT extends AuditingTestIT {
 		Benutzer benutzer = massnahme.getBenutzerLetzteAenderung();
 		Verwaltungseinheit organisation = benutzer.getOrganisation();
 
+		gebietskoerperschaftRepository.save((Gebietskoerperschaft) massnahme.getZustaendiger().get());
 		gebietskoerperschaftRepository.save((Gebietskoerperschaft) organisation);
 		benutzerRepository.save(benutzer);
 		kanteRepository.save(kante);

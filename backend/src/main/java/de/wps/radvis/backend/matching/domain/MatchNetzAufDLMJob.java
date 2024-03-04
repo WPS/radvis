@@ -23,9 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-
 import org.hamcrest.Matchers;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
@@ -53,6 +50,8 @@ import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -182,10 +181,9 @@ public class MatchNetzAufDLMJob extends AbstractJob {
 					kantenStatistik.anzahlStreckenmatchesZuWeitEntfernt++;
 					streckenMatchZuSchlecht = true;
 				} catch (Exception e) {
-					log.error("Es ist ein unbekannter fehler beim Matching aufgetreten: {}", e.getMessage());
+					log.error("Es ist ein unbekannter fehler beim Matching aufgetreten: ", e);
 					throw new RuntimeException(
-						String.format("Es ist ein unbekannter fehler beim Matching aufgetreten:%s}", e.getMessage()),
-						e);
+						String.format("Es ist ein unbekannter fehler beim Matching aufgetreten:"), e);
 				} finally {
 					if (streckenMatchZuSchlecht) {
 						strecke.getKanten()

@@ -13,14 +13,14 @@
  */
 
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { HinweisDialogComponent } from 'src/app/shared/components/hinweis-dialog/hinweis-dialog.component';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { GrundFuerAbweichungZumMassnahmenblatt } from 'src/app/viewer/massnahme/models/grund-fuer-abweichung-zum-massnahmenblatt';
 import { GrundFuerNichtUmsetzungDerMassnahme } from 'src/app/viewer/massnahme/models/grund-fuer-nicht-umsetzung-der-massnahme';
@@ -42,10 +42,10 @@ import invariant from 'tiny-invariant';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MassnahmenUmsetzungsstandComponent implements OnDestroy, DiscardGuard {
+export class MassnahmenUmsetzungsstandComponent implements OnDestroy, DiscardableComponent {
   public isFetching = false;
 
-  public formGroup: FormGroup;
+  public formGroup: UntypedFormGroup;
 
   public grundFuerAbweichungZumMassnahmenblattOptions = GrundFuerAbweichungZumMassnahmenblatt.options;
   public pruefungQualitaetsstandardsErfolgtOptions = PruefungQualitaetsstandardsErfolgt.options;
@@ -64,17 +64,17 @@ export class MassnahmenUmsetzungsstandComponent implements OnDestroy, DiscardGua
     massnahmeNetzbezugDisplayService: MassnahmeNetzbezugDisplayService
   ) {
     massnahmeNetzbezugDisplayService.showNetzbezug(true);
-    this.formGroup = new FormGroup({
-      umsetzungGemaessMassnahmenblatt: new FormControl(null),
-      grundFuerAbweichungZumMassnahmenblatt: new FormControl(null),
-      pruefungQualitaetsstandardsErfolgt: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-      beschreibungAbweichenderMassnahme: new FormControl(null, [RadvisValidators.maxLength(3000)]),
-      kostenDerMassnahme: new FormControl(null, [
+    this.formGroup = new UntypedFormGroup({
+      umsetzungGemaessMassnahmenblatt: new UntypedFormControl(null),
+      grundFuerAbweichungZumMassnahmenblatt: new UntypedFormControl(null),
+      pruefungQualitaetsstandardsErfolgt: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      beschreibungAbweichenderMassnahme: new UntypedFormControl(null, [RadvisValidators.maxLength(3000)]),
+      kostenDerMassnahme: new UntypedFormControl(null, [
         RadvisValidators.isPositiveInteger,
         RadvisValidators.between(0, 1000000000),
       ]),
-      grundFuerNichtUmsetzungDerMassnahme: new FormControl(null),
-      anmerkung: new FormControl('', [RadvisValidators.maxLength(3000)]),
+      grundFuerNichtUmsetzungDerMassnahme: new UntypedFormControl(null),
+      anmerkung: new UntypedFormControl('', [RadvisValidators.maxLength(3000)]),
     });
 
     this.subscriptions.push(

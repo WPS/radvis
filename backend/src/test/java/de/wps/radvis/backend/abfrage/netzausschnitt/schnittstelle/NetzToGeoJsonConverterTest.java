@@ -72,6 +72,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
@@ -332,8 +333,9 @@ class NetzToGeoJsonConverterTest {
 			.strassenName(StrassenName.of("Eppendorfer Weg"))
 			.strassenNummer(StrassenNummer.of("B273"))
 			.gemeinde(organisation)
-			.strassenquerschnittRASt06(StrassenquerschnittRASt06.UNBEKANNT)
 			.umfeld(Umfeld.UNBEKANNT)
+			.strassenkategorieRIN(StrassenkategorieRIN.REGIONAL)
+			.strassenquerschnittRASt06(StrassenquerschnittRASt06.UNBEKANNT)
 			.status(Status.defaultWert())
 			.build();
 

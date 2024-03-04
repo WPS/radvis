@@ -14,7 +14,7 @@
 
 import { fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { Subject } from 'rxjs';
 import { defaultGemeinden, defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
@@ -25,6 +25,7 @@ import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage
 import { defaultAbstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage-testdata-provider.spec';
 import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
 import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstellanlagen-status';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Groessenklasse } from 'src/app/viewer/abstellanlage/models/groessenklasse';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
 import { Ueberwacht } from 'src/app/viewer/abstellanlage/models/ueberwacht';
@@ -110,11 +111,11 @@ describe(AbstellanlageEditorComponent.name, () => {
 
     it('should enable groessenklasse only if B+R is selected', fakeAsync(() => {
       tick();
-      expect(component.formGroup.get('istBikeAndRide')?.value).toBeNull();
+      expect(component.formGroup.get('abstellanlagenOrt')?.value).toBeNull();
       expect(component.formGroup.get('groessenklasse')?.disabled).toBeTrue();
-      component.formGroup.patchValue({ istBikeAndRide: true });
+      component.formGroup.patchValue({ abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE });
       tick();
-      expect(component.formGroup.get('istBikeAndRide')?.value).toBeTrue();
+      expect(component.formGroup.get('abstellanlagenOrt')?.value).toEqual(AbstellanlagenOrt.BIKE_AND_RIDE);
       expect(component.formGroup.get('groessenklasse')?.disabled).toBeFalse();
     }));
 
@@ -137,7 +138,7 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: null,
         anzahlLademoeglichkeiten: null,
         ueberwacht: null,
-        istBikeAndRide: null,
+        abstellanlagenOrt: null,
         groessenklasse: null,
         stellplatzart: null,
         ueberdacht: null,
@@ -165,13 +166,13 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: 2,
         anzahlLademoeglichkeiten: 3,
         ueberwacht: Ueberwacht.VIDEO,
-        istBikeAndRide: true,
+        abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE,
         groessenklasse: Groessenklasse.BASISANGEBOT_XS,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         ueberdacht: false,
-        gebuehrenProTag: 400,
-        gebuehrenProMonat: 500,
-        gebuehrenProJahr: 600,
+        gebuehrenProTag: 4,
+        gebuehrenProMonat: 5,
+        gebuehrenProJahr: 6,
         beschreibung: 'beschreibung neu',
         weitereInformation: 'weitere Info neu',
         status: AbstellanlagenStatus.AUSSER_BETRIEB,
@@ -191,7 +192,7 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: 2,
         anzahlLademoeglichkeiten: 3,
         ueberwacht: Ueberwacht.VIDEO,
-        istBikeAndRide: true,
+        abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE,
         groessenklasse: Groessenklasse.BASISANGEBOT_XS,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         ueberdacht: false,
@@ -220,6 +221,7 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlStellplaetze: 1,
         anzahlSchliessfaecher: 2,
         ueberwacht: Ueberwacht.VIDEO,
+        abstellanlagenOrt: AbstellanlagenOrt.UNBEKANNT,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         status: AbstellanlagenStatus.AUSSER_BETRIEB,
         zustaendig: undefined,
@@ -239,7 +241,7 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: 2,
         anzahlLademoeglichkeiten: null,
         ueberwacht: Ueberwacht.VIDEO,
-        istBikeAndRide: false,
+        abstellanlagenOrt: AbstellanlagenOrt.UNBEKANNT,
         groessenklasse: null,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         ueberdacht: false,
@@ -284,11 +286,14 @@ describe(AbstellanlageEditorComponent.name, () => {
 
     it('should enable groessenklasse only if B+R is selected', fakeAsync(() => {
       tick();
-      expect(component.formGroup.get('istBikeAndRide')?.value).toBeFalse();
+      expect(component.formGroup.get('abstellanlagenOrt')?.value).toEqual(AbstellanlagenOrt.UNBEKANNT);
       expect(component.formGroup.get('groessenklasse')?.disabled).toBeTrue();
-      data$.next({ isCreator: false, abstellanlage: { ...defaultAbstellanlage, istBikeAndRide: true } });
+      data$.next({
+        isCreator: false,
+        abstellanlage: { ...defaultAbstellanlage, abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE },
+      });
       tick();
-      expect(component.formGroup.get('istBikeAndRide')?.value).toBeTrue();
+      expect(component.formGroup.get('abstellanlagenOrt')?.value).toEqual(AbstellanlagenOrt.BIKE_AND_RIDE);
       expect(component.formGroup.get('groessenklasse')?.disabled).toBeFalse();
     }));
 
@@ -303,13 +308,13 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: 2,
         anzahlLademoeglichkeiten: 3,
         ueberwacht: Ueberwacht.VIDEO,
-        istBikeAndRide: true,
+        abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE,
         groessenklasse: Groessenklasse.BASISANGEBOT_XS,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         ueberdacht: false,
-        gebuehrenProTag: 400,
-        gebuehrenProMonat: 500,
-        gebuehrenProJahr: 600,
+        gebuehrenProTag: 4,
+        gebuehrenProMonat: 5,
+        gebuehrenProJahr: 6,
         beschreibung: 'beschreibung neu',
         weitereInformation: 'weitere Info neu',
         status: AbstellanlagenStatus.AUSSER_BETRIEB,
@@ -330,13 +335,13 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: defaultAbstellanlage.anzahlSchliessfaecher,
         anzahlLademoeglichkeiten: defaultAbstellanlage.anzahlLademoeglichkeiten,
         ueberwacht: defaultAbstellanlage.ueberwacht,
-        istBikeAndRide: defaultAbstellanlage.istBikeAndRide,
+        abstellanlagenOrt: defaultAbstellanlage.abstellanlagenOrt,
         groessenklasse: null,
         stellplatzart: defaultAbstellanlage.stellplatzart,
         ueberdacht: defaultAbstellanlage.ueberdacht,
-        gebuehrenProTag: defaultAbstellanlage.gebuehrenProTag,
-        gebuehrenProMonat: defaultAbstellanlage.gebuehrenProMonat,
-        gebuehrenProJahr: defaultAbstellanlage.gebuehrenProJahr,
+        gebuehrenProTag: 4,
+        gebuehrenProMonat: 5,
+        gebuehrenProJahr: 6,
         beschreibung: defaultAbstellanlage.beschreibung,
         weitereInformation: defaultAbstellanlage.weitereInformation,
         status: defaultAbstellanlage.status,
@@ -358,13 +363,13 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: 2,
         anzahlLademoeglichkeiten: 3,
         ueberwacht: Ueberwacht.VIDEO,
-        istBikeAndRide: true,
+        abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE,
         groessenklasse: Groessenklasse.BASISANGEBOT_XS,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         ueberdacht: false,
-        gebuehrenProTag: 420,
-        gebuehrenProMonat: 500,
-        gebuehrenProJahr: 600,
+        gebuehrenProTag: 4.2,
+        gebuehrenProMonat: 5,
+        gebuehrenProJahr: 6,
         beschreibung: 'beschreibung geändert',
         weitereInformation: 'weitere Info geändert',
         status: AbstellanlagenStatus.AUSSER_BETRIEB,
@@ -385,7 +390,7 @@ describe(AbstellanlageEditorComponent.name, () => {
         anzahlSchliessfaecher: 2,
         anzahlLademoeglichkeiten: 3,
         ueberwacht: Ueberwacht.VIDEO,
-        istBikeAndRide: true,
+        abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE,
         groessenklasse: Groessenklasse.BASISANGEBOT_XS,
         stellplatzart: Stellplatzart.ANLEHNBUEGEL,
         ueberdacht: false,

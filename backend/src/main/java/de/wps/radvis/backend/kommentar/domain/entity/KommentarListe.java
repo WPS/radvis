@@ -20,13 +20,12 @@ import static org.valid4j.Assertive.require;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-
-import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import lombok.Getter;
 
 @Entity

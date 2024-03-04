@@ -53,6 +53,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
@@ -181,19 +182,27 @@ abstract public class AttributeMapper {
 				kantenAttributGruppe.getKantenAttribute().toBuilder().strassenNummer(strassennummer).build());
 	}
 
-	protected void applyStrassenquerschnitt(Kante kante, StrassenquerschnittRASt06 strassenquerschnittrast06) {
-		KantenAttributGruppe kantenAttributGruppe = kante.getKantenAttributGruppe();
-		kantenAttributGruppe
-			.update(kantenAttributGruppe.getNetzklassen(), kantenAttributGruppe.getIstStandards(),
-				kantenAttributGruppe.getKantenAttribute().toBuilder()
-					.strassenquerschnittRASt06(strassenquerschnittrast06).build());
-	}
-
 	protected void applyUmfeld(Kante kante, Umfeld umfeld) {
 		KantenAttributGruppe kantenAttributGruppe = kante.getKantenAttributGruppe();
 		kantenAttributGruppe
 			.update(kantenAttributGruppe.getNetzklassen(), kantenAttributGruppe.getIstStandards(),
 				kantenAttributGruppe.getKantenAttribute().toBuilder().umfeld(umfeld).build());
+	}
+
+	protected void applyStrassenkategorieRIN(Kante kante, StrassenkategorieRIN strassenkategorieRIN) {
+		KantenAttributGruppe kantenAttributGruppe = kante.getKantenAttributGruppe();
+		kantenAttributGruppe
+			.update(kantenAttributGruppe.getNetzklassen(), kantenAttributGruppe.getIstStandards(),
+				kantenAttributGruppe.getKantenAttribute().toBuilder().strassenkategorieRIN(strassenkategorieRIN)
+					.build());
+	}
+
+	protected void applyStrassenquerschnittRASt06(Kante kante, StrassenquerschnittRASt06 strassenquerschnittrast06) {
+		KantenAttributGruppe kantenAttributGruppe = kante.getKantenAttributGruppe();
+		kantenAttributGruppe
+			.update(kantenAttributGruppe.getNetzklassen(), kantenAttributGruppe.getIstStandards(),
+				kantenAttributGruppe.getKantenAttribute().toBuilder()
+					.strassenquerschnittRASt06(strassenquerschnittrast06).build());
 	}
 
 	protected void applyStatus(Kante kante, Status status) {

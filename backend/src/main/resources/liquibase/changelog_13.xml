@@ -20,18 +20,18 @@
 
 	<changeSet id="RAD-627" author="mw_und_bw">
 		<createTable tableName="rad_netz_netzklasse">
-			<column name="id" type="BIGINT" />
-			<column name="kante_id" type="BIGINT" />
-			<column name="rad_netz_kategorie" type="VARCHAR(255)" />
-			<column name="rad_netz_standard" type="VARCHAR(255)" />
+			<column name="id" type="BIGINT"/>
+			<column name="kante_id" type="BIGINT"/>
+			<column name="rad_netz_kategorie" type="VARCHAR(255)"/>
+			<column name="rad_netz_standard" type="VARCHAR(255)"/>
 		</createTable>
 		<addPrimaryKey columnNames="id"
-			tableName="rad_netz_netzklasse" />
+			tableName="rad_netz_netzklasse"/>
 
 		<addForeignKeyConstraint
 			constraintName="fk_netzklasse_kante"
 			baseTableName="rad_netz_netzklasse" baseColumnNames="kante_id"
-			referencedTableName="kante" referencedColumnNames="id" />
+			referencedTableName="kante" referencedColumnNames="id"/>
 	</changeSet>
 
 	<changeSet id="RAD-847" author="tr">
@@ -40,14 +40,14 @@
 			ALTER TABLE kante DROP CONSTRAINT CHK_DublettenUrsprung;
 		</sql>
 		<dropColumn tableName="kante"
-			columnName="id_dublettenkante" />
+			columnName="id_dublettenkante"/>
 		<dropColumn tableName="kante"
-			columnName="id_ursprungskante" />
+			columnName="id_ursprungskante"/>
 	</changeSet>
 
 	<changeSet id="RAD-988-nachtrag" author="marie">
 		<renameTable newTableName="netzklasse"
-			oldTableName="rad_netz_netzklasse" />
+			oldTableName="rad_netz_netzklasse"/>
 		<addColumn tableName="netzklasse">
 			<column name="dtype" type="varchar(255)">
 			</column>
@@ -55,9 +55,9 @@
 	</changeSet>
 
 	<changeSet id="RAD-841" author="malte_julian_kim">
-		<addColumn tableName="kante" >
-			<column name="zweite_ebene_links" type="GEOMETRY" />
-			<column name="zweite_ebene_rechts" type="GEOMETRY"  />
+		<addColumn tableName="kante">
+			<column name="zweite_ebene_links" type="GEOMETRY"/>
+			<column name="zweite_ebene_rechts" type="GEOMETRY"/>
 		</addColumn>
 	</changeSet>
 

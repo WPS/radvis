@@ -15,9 +15,12 @@
 <ng-container *ngIf="legenden.length > 0">
   <ng-container *ngIf="!usePrintLayout; else printLayoutTemplate">
     <div class="legende-container">
-      <button [attr.aria-label]="legendeOpen ? 'Legende aufklappen' : 'Legende einklappen'" class="legende-button bold"
-              mat-stroked-button
-              (click)="legendeOpen = !legendeOpen">
+      <button
+        [attr.aria-label]="legendeOpen ? 'Legende aufklappen' : 'Legende einklappen'"
+        class="legende-button bold"
+        mat-stroked-button
+        (click)="legendeOpen = !legendeOpen"
+      >
         Legende
         <mat-icon matSuffix class="legende-button-icon" *ngIf="!legendeOpen">keyboard_arrow_down</mat-icon>
         <mat-icon matSuffix class="legende-button-icon" *ngIf="legendeOpen">keyboard_arrow_up</mat-icon>

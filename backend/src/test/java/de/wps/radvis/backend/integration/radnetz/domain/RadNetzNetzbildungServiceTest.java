@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -53,6 +51,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataProvider;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
+import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 
 class RadNetzNetzbildungServiceTest {
@@ -181,9 +180,11 @@ class RadNetzNetzbildungServiceTest {
 		assertThat(result.getFahrtrichtungAttributGruppe().getFahrtrichtungRechts())
 			.isEqualTo(Richtung.BEIDE_RICHTUNGEN);
 
-		assertThat(result.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0).getOrtslage())
+		assertThat(
+			result.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0).getOrtslage())
 			.contains(KantenOrtslage.AUSSERORTS);
-		assertThat(result.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0).getHoechstgeschwindigkeit())
+		assertThat(result.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
+			.getHoechstgeschwindigkeit())
 			.isEqualTo(Hoechstgeschwindigkeit.MAX_50_KMH);
 
 		assertThat(result.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).hasSize(1);

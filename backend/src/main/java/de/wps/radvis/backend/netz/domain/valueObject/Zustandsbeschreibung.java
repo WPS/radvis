@@ -16,11 +16,10 @@ package de.wps.radvis.backend.netz.domain.valueObject;
 
 import static org.valid4j.Assertive.require;
 
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;

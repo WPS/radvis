@@ -21,16 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/benutzerdetails")
+@AllArgsConstructor
+@Slf4j
 public class BenutzerDetailsController {
 
 	private final BenutzerResolver benutzerResolver;
-
-	public BenutzerDetailsController(BenutzerResolver benutzerResolver) {
-		this.benutzerResolver = benutzerResolver;
-	}
 
 	@GetMapping
 	public BenutzerDetailView getAktuellenBenutzer(Authentication authentication) {
@@ -40,4 +40,5 @@ public class BenutzerDetailsController {
 			? new BenutzerDetailView(benutzer)
 			: BenutzerDetailView.ofUnregisteredUser();
 	}
+
 }

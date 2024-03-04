@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
@@ -70,6 +71,7 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
@@ -177,6 +179,9 @@ import jakarta.persistence.PersistenceContext;
 	GraphhopperOsmConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
 	GraphhopperDlmConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 @ActiveProfiles("dev")
 @RecordApplicationEvents
@@ -1357,14 +1362,18 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			.save(BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build());
 
 		Massnahme kantenMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
+				.unterhaltsZustaendiger(null)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante1)).build());
 
 		Massnahme kantenPunktMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
+				.unterhaltsZustaendiger(null)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kante1)).build());
 
@@ -1476,15 +1485,19 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			.save(BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build());
 
 		Massnahme kantenMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.unterhaltsZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.geloescht(true)
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante1)).build());
 
 		Massnahme kantenPunktMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
+				.unterhaltsZustaendiger(null)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.geloescht(true)
 				.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kante1)).build());
@@ -1544,8 +1557,10 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			.save(BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build());
 
 		Massnahme knotenMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
+				.unterhaltsZustaendiger(null)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.netzbezug(NetzBezugTestDataProvider.forKnoten(k1)).build());
 
@@ -1600,8 +1615,10 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			.save(BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build());
 
 		Massnahme knotenMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
+				.unterhaltsZustaendiger(null)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.geloescht(true)
 				.netzbezug(NetzBezugTestDataProvider.forKnoten(k1)).build());
@@ -1656,8 +1673,10 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			.save(BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build());
 
 		Massnahme kantenMassnahme = massnahmeRepository.save(
-			MassnahmeTestDataProvider.withDefaultValues().baulastZustaendiger(null)
-				.unterhaltsZustaendiger(null).markierungsZustaendiger(null)
+			MassnahmeTestDataProvider.withDefaultValues()
+				.baulastZustaendiger(null)
+				.zustaendiger(gebietskoerperschaft)
+				.unterhaltsZustaendiger(null)
 				.benutzerLetzteAenderung(benutzerLetzteAenderung)
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante1)).build());
 

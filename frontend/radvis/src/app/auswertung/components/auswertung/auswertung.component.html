@@ -14,7 +14,22 @@
 
 <form [formGroup]="form" class="form-group">
   <h2>Auswertung</h2>
-  <div class="display-flex">
+
+  <mat-button-toggle-group
+    [formControl]="gebietskoerperschaftOderWahlkreisControl"
+    class="display-flex"
+    value="{{ AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT }}"
+  >
+    <mat-button-toggle class="w-100" value="{{ AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT }}"
+      >Gebietskörperschaft
+    </mat-button-toggle>
+    <mat-button-toggle class="w-100" value="{{ AuswertungGebietsauswahl.WAHLKREIS }}">Wahlkreis</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <div
+    class="display-flex mt-10 mb-10"
+    *ngIf="gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT"
+  >
     <rad-organisationen-dropdown-control
       [options]="(gemeindeKreisBezirkOptions | async) || []"
       class="ml-1 mat-form-field-full-width w-100"
@@ -24,12 +39,25 @@
     </rad-organisationen-dropdown-control>
   </div>
 
+  <div
+    class="display-flex mt-10 mb-10"
+    *ngIf="gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.WAHLKREIS"
+  >
+    <rad-wahlkreis-dropdown-control
+      [options]="(wahlkreisOptions | async) || []"
+      class="ml-1 mat-form-field-full-width w-100"
+      formControlName="wahlkreis"
+    >
+      Wahlkreis
+    </rad-wahlkreis-dropdown-control>
+  </div>
+
   <div>
     <mat-checkbox
       class="mr-3"
       (change)="toggleFormArray('netzklassen', $event.checked)"
       formControlName="useNetzklassen"
-    >Netzklassen
+      >Netzklassen
     </mat-checkbox>
     <div
       class="display-flex align-items-start align-items-stretch justify-content-space-between mt-10"
@@ -74,7 +102,7 @@
       class="mr-3"
       (change)="toggleFormArray('istStandards', $event.checked)"
       formControlName="useIstStandards"
-    >Ist-Standards
+      >Ist-Standards
     </mat-checkbox>
     <div
       class="display-flex align-items-start justify-content-space-between mt-10"
@@ -130,6 +158,26 @@
       Erhalt
     </rad-organisationen-dropdown-control>
   </div>
+
+  <div class="display-flex mt-4">
+    <rad-enum-dropdown-control
+      [options]="belagartOptions"
+      class="ml-1 mat-form-field-full-width w-100"
+      formControlName="belagart"
+    >
+      Belagart
+    </rad-enum-dropdown-control>
+  </div>
+
+  <div class="display-flex mt-4">
+    <rad-grouped-enum-dropdown-control
+      [groupedOptions]="radverkehrsfuehrungOptions"
+      class="ml-1 mat-form-field-full-width w-100"
+      formControlName="fuehrung"
+    >
+      Radverkehrsführung
+    </rad-grouped-enum-dropdown-control>
+  </div>
   <button
     class="auswertung-button"
     mat-flat-button
@@ -140,19 +188,21 @@
   >
     Auswerten
   </button>
-  <mat-card class="mt-10">
-    <div class="display-flex flex-column justify-content-center">
-      <mat-spinner mode="indeterminate" *ngIf="fetching"></mat-spinner>
-      <div *ngIf="!fetching">
-        <div>Anzahl an Kilometern, auf die die Auswahl zutrifft:</div>
-        <div role="status" class="result-text">{{ ergebnis / 100000 | kommazahl: ' km' }}</div>
-        <div class="explanation-text">
-          Es werden nur die Abschnitte berücksichtigt, die als mit dem Fahrrad befahrbar gekennzeichnet sind.
-          Zweiseitige Kanten werden doppelt gezählt. Die Aussagekraft ist stark abhängig von der Pflege der Daten (wenn
-          z.B. im betrachteten Bereich die Baulastträger der einzelnen Abschnitte nicht gepflegt sind, ist die
-          Auswertung nicht sehr aussagekräfitg).
+  <mat-card appearance="outlined" class="mt-10">
+    <mat-card-content>
+      <div class="display-flex flex-column justify-content-center">
+        <mat-spinner mode="indeterminate" *ngIf="fetching"></mat-spinner>
+        <div *ngIf="!fetching">
+          <div class="mb-2">Anzahl an Kilometern, auf die die Auswahl zutrifft:</div>
+          <div role="status" class="result-text">{{ ergebnis / 100000 | kommazahl: ' km' }}</div>
+          <div class="explanation-text">
+            Es werden nur die Abschnitte berücksichtigt, die als mit dem Fahrrad befahrbar gekennzeichnet sind.
+            Zweiseitige Kanten werden doppelt gezählt. Die Aussagekraft ist stark abhängig von der Pflege der Daten
+            (wenn z.B. im betrachteten Bereich die Baulastträger der einzelnen Abschnitte nicht gepflegt sind, ist die
+            Auswertung nicht sehr aussagekräfitg).
+          </div>
         </div>
       </div>
-    </div>
+    </mat-card-content>
   </mat-card>
 </form>

@@ -209,13 +209,13 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
 
   describe('resetSelection', () => {
     it('should clear interaction and emit events', () => {
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       component.onSelect({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureA],
         deselected: [],
       } as SelectEvent);
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       component.onSelect({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureB],

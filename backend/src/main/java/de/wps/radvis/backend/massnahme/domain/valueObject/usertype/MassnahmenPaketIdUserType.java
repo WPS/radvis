@@ -18,7 +18,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmenPaketId;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class MassnahmenPaketIdUserType implements AttributeConverter<MassnahmenPaketId, String> {
 
 	@Override

@@ -17,16 +17,12 @@ package de.wps.radvis.backend.benutzer.domain.entity;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import org.hibernate.annotations.Formula;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -38,6 +34,12 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -68,6 +70,11 @@ public class Benutzer extends VersionierteEntity {
 
 	private ServiceBwId serviceBwId;
 
+	// Achtung, auf dieses Feld kann nur zugegriffen werden, wenn die Entity
+	// schonmal in die DB-gespeichert wurde
+	@Formula("(SUBSTRING(vorname, 1, 1) || SUBSTRING(nachname, 1, 1) || CAST(id AS text))")
+	private String basicAuthAnmeldeName;
+
 	@Getter
 	@Setter
 	@JsonIgnore
@@ -75,15 +82,18 @@ public class Benutzer extends VersionierteEntity {
 	@Enumerated(EnumType.STRING)
 	private Set<Rolle> rollen;
 
+	@Getter
+	private LocalDate letzteAktivitaet;
+
 	public Benutzer(Name vorname, Name nachname, BenutzerStatus status,
-		Verwaltungseinheit organisation, Mailadresse mailadresse, ServiceBwId serviceBwId,
-		Set<Rolle> rollen) {
-		this(null, null, vorname, nachname, status, organisation, mailadresse, serviceBwId, rollen);
+		Verwaltungseinheit organisation, Mailadresse mailadresse, ServiceBwId serviceBwId, Set<Rolle> rollen) {
+		this(null, null, vorname, nachname, status, organisation, mailadresse, serviceBwId, rollen, LocalDate.now());
 	}
 
 	@Builder
 	private Benutzer(Long id, Long version, Name vorname, Name nachname, BenutzerStatus status,
-		Verwaltungseinheit organisation, Mailadresse mailadresse, ServiceBwId serviceBwId, Set<Rolle> rollen) {
+		Verwaltungseinheit organisation, Mailadresse mailadresse, ServiceBwId serviceBwId, Set<Rolle> rollen,
+		LocalDate letzteAktivitaet) {
 		super(id, version);
 		require(vorname, notNullValue());
 		require(nachname, notNullValue());
@@ -93,6 +103,7 @@ public class Benutzer extends VersionierteEntity {
 		require(serviceBwId, notNullValue());
 		require(rollen, notNullValue());
 		require(!rollen.isEmpty(), "Einem Benutzer muss eine Rolle zugewiesen sein.");
+		require(letzteAktivitaet, notNullValue());
 
 		this.vorname = vorname;
 		this.nachname = nachname;
@@ -101,6 +112,7 @@ public class Benutzer extends VersionierteEntity {
 		this.mailadresse = mailadresse;
 		this.serviceBwId = serviceBwId;
 		this.rollen = rollen;
+		this.letzteAktivitaet = letzteAktivitaet;
 	}
 
 	public Set<Recht> getRechte() {
@@ -116,5 +128,9 @@ public class Benutzer extends VersionierteEntity {
 
 	public String getVollerName() {
 		return getVorname() + " " + getNachname();
+	}
+
+	public void aktualisiereLetzteAktivitaet() {
+		letzteAktivitaet = LocalDate.now();
 	}
 }

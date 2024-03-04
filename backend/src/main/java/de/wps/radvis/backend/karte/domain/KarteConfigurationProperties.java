@@ -32,7 +32,7 @@ public class KarteConfigurationProperties {
 	@ConstructorBinding
 	public KarteConfigurationProperties(Map<String, String> hintergrundKarten) {
 		require(hintergrundKarten, notNullValue());
-		require(hintergrundKarten.size()>0, "hintergrundKarten darf nicht lees sein");
+		require(hintergrundKarten.size() > 0, "hintergrundKarten darf nicht lees sein");
 
 		this.hintergrundKarten = hintergrundKarten;
 	}

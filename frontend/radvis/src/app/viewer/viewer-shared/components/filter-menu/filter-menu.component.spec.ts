@@ -13,7 +13,7 @@
  */
 
 import { fakeAsync, tick } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { DefaultRenderComponent, MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
@@ -44,7 +44,7 @@ describe(FilterMenuComponent.name, () => {
   beforeEach(() => {
     fixture = MockRender(FilterMenuComponent, {
       field: 'field',
-      filterControl: new FormControl(),
+      filterControl: new UntypedFormControl(),
     } as FilterMenuComponent);
     filterMenuComponent = fixture.point.componentInstance;
     fixture.detectChanges();

@@ -40,9 +40,9 @@ spring:
     # Der aus dem Backend-Container ansprechbare Hostname des Datei-Layer-Geoservers
     geoserverDateiLayerUrl: geoserver-datei-layer:8080
     # Die Domain auf der das Beschilderungskataster liegt
-    beschilderungsKatasterDomain: https://filedn.com
+    beschilderungsKatasterDomain: katasterDomain
     # Der Verzeichnispfad zum Beschilderungskataster
-    beschilderungsKatasterPath: /lSXztajxYX5m843NUKYXTVH/RadVIS_VPINFO/Kataster
+    beschilderungsKatasterPath: pfadZurKatasterDatei
     # Grafana-Url
     grafanaUrl: localhost:3000
   security:
@@ -122,9 +122,12 @@ radVis:
     umsetzungsstandabfragenCsvImportFilePath: radnetz_massnahmen_umsetzzungsstandsabfragen/out.csv
     tfisRadwegePath: shp/TFIS-Radwege/TFIS-Radwege-20221219.shp
     dRoutenPath: shp/D-Routen/D-Routen.shp
+    wahlkreisePath: shp/Wahlkreise/LTWahlkreise2021_2d/LTWahlkreise2021_2d.shp
     # Ende Datei- bzw. Verzeichnispfade zu externen Beistellungen
     # WFS-Url für den Import der Leihstationen aus MobiData-BW
-    leihstationImportUrl: "https://ip-api.mobidata-bw.de/v1/NVBW/geoserver/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=2.0.0&TYPENAMES=mobidata-bw:bikesharingStations&SRSNAME=urn:ogc:def:crs:EPSG::25832&PROPERTYNAME=the_geom,ID,COUNT"
+    leihstationImportUrl: "https://api.mobidata-bw.de/geoserver/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=2.0.0&TYPENAMES=MobiData-BW:sharing_stations_bicycle&SRSNAME=urn:ogc:def:crs:EPSG::25832&PROPERTYNAME=geometry,station_id,num_vehicles_available&outputFormat=json"
+    # Geojson-Url für den Import der Leihstationen aus MobiData-BW
+    servicestationImportUrl: "https://karte.radkultur-bw.de/radservice-punkte.json"
     # WFS-Url für den Import der Fahrradzählstellen aus MobiData-BW
     fahrradzaehlstellenMobiDataImportBaseUrl: "https://mobidata-bw.de/daten/eco-counter/"
     # Anfangsdatum für den Import der Fahrradzählstellen aus MobiData-BW. Format: YYYY.MM
@@ -193,6 +196,8 @@ radVis:
     signaturStylePath: /signaturen/
     # Verzeichnispfad mit Signaturen für Maßnahmen (Dateien im SLD-Format)
     massnahmenSignaturenStylePath: /signaturen/Massnahmen/
+  # Anzahl an Tagen (exklusive), bis Benutzer (außer Administratoren) inaktiv gesetzt werden
+  inaktivitaetsTimeoutInTagen: 365
   # Daten des beim ersten Systemstart angelegten Admin-Nutzers
   admin:
     name: name # Beispielwert
@@ -214,6 +219,10 @@ radVis:
     sender: nicht@@vorhanden # Beispielwert
     # E-Mail-Adresse des RadVIS-Supports
     radvisSupportMail: nicht@@vorhanden # Beispielwert
+    # Liste an E-Mail-Adressen von RadVIS-Benutzern für Testzwecke
+    wpsTestmails: nicht@@vorhanden, auchNicht@@vorhanden # Beispielwert
+    # E-Mail-Adresse, auf die alle E-Mails weitergeleitet werden, die an die RadVIS-Benutzer für Testzwecke gesendet werden
+    wpsTestmailsRedirectTarget: nicht@@vorhanden # Beispielwert
     # Protokol des E-Mailservers
     protocol: smtp
     # Aktiviert die Authentifizierung für die Verbindung mit dem Mailserver
@@ -221,8 +230,8 @@ radVis:
     # Aktiviert die Initialisierung eines TLS-Handshakes für die Verbindung mit dem Mailserver
     startTlsEnabled: true
   common:
-    # Die Url, unter der die Anwendung aus dem Internet angesprochen wird
-    basisUrl: http://localhost:4200/ # Beispielwert
+    # Die Url, unter der die Anwendung aus dem Internet angesprochen wird. Wichtig: Kein Slash am Ende.
+    basisUrl: http://beispielURL/wird/ersetzt/durch/Umgebungsvariable # Beispielwert
     # Basis-Pfad zu externen Ressourcen wie Shapefiles, SLD-Dateien, PBF-Dateien, Katastern u.a.
     # siehe dazu die konfigurierbaren Pfade für einzelne Jobs unter radVis.jobs
     externeResourcenBasisPfad: ${EXTERNE_RESOURCE} # Hier beispielhaft aus einer Umgebungsvariable gesetzt
@@ -278,6 +287,8 @@ radVis:
   organisation:
     # Anzahl an Metern, um die der Bereich einer Organisation bei der Zuständigkeitsprüfung erweitert wird
     zustaendigkeitBufferInMeter: 500 # in Meter
+    # Anzahl an Metern, die als Toleranz für die Vergröberung des Zuständigkeitsbereichs genutzt wird
+    zustaendigkeitSimplificationToleranceInMeter: 100 # in Meter
   weiterekartenebenen:
     # Host (mit Protokol) über den der Datei-Layer-Geoserver vom Backend angesprochen werden kann
     geoserverDateiLayerHost: http://geoserver-datei-layer:8080
@@ -288,6 +299,13 @@ radVis:
     geoserverDateiLayerWorkspace: datei-layer
     # maximale Größe der SLD-Dateien, die als Style für einen Datei-Layer hochgeladen werden können
     maxSldFileSize: 1MB
+  basicauth:
+    # Länge der generierterten BasicAuth Passwörter für den WMS/WFS Schnittstelle
+    passwordLength: 20
+    # Strength-Parameter für die Rundenanzahl das BCrypt Verfahrens. Die Rundenanzahl steigt exponentiell mit diesem Parameter. Verändert man diesen Wert, können alte Passwörter weiterhin genutzt werden, da dieser Wert mit in der Datenbank gespeichert wird.
+    passwordStrength: 10
+  massnahmenimport:
+    minimaleDistanzFuerAbweichungsWarnung: 10
 
 # Durch Spring bereitgestellt Konfigurationsmöglichkeiten für die Server-Umgebung,
 # https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.server
@@ -415,6 +433,15 @@ togglz:
     DATEILAYER_HOCHLADEN_ANZEIGEN:
       # Aktiviert die Anzeige der Datei-Layer-Verwaltung
       enabled: false
+    BASIC_AUTH_VERWALTEN_ANZEIGEN:
+      # Aktiviert den Button zum Anzeigen der Basic Auth Credentials Verwaltung
+      enabled: false
+    IMPORT_MASSNAHMEN:
+      # Aktiviert den manuellen Import von Massnahmen
+      enabled: false
+    IMPORT_DATEIANHAENGE_MASSNAHMEN:
+      # Aktiviert den manuellen Import von Dateianhängen für Massnahmen
+      enabled: false
 
 # Durch Spring bereitgestellt Konfigurationsmöglichkeiten für das Logging,
 # https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.core
@@ -440,4 +467,3 @@ management:
       enabled: true
     db:
       enabled: true
-

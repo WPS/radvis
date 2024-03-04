@@ -12,5 +12,11 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<a *ngIf="!expanded" href="" (click)="expandClicked($event)">Mehr anzeigen <mat-icon [inline]="true">expand_more</mat-icon></a>
-<a *ngIf="expanded" href="" (click)="expandClicked($event)">Weniger anzeigen <mat-icon [inline]="true">expand_less</mat-icon></a>
+<a *ngIf="!expanded" href="" (click)="expandClicked($event)"
+  >Mehr anzeigen
+  <mat-icon [inline]="true">expand_more</mat-icon>
+</a>
+<a *ngIf="expanded" href="" (click)="expandClicked($event)"
+  >Weniger anzeigen
+  <mat-icon [inline]="true">expand_less</mat-icon>
+</a>

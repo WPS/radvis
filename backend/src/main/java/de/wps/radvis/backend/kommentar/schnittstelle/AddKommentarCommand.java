@@ -14,12 +14,11 @@
 
 package de.wps.radvis.backend.kommentar.schnittstelle;
 
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 

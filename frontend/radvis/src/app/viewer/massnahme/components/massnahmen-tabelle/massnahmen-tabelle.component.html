@@ -28,8 +28,12 @@
 >
   <rad-massnahme-umsetzungsstand-button-menu
     class="action-buttons"
-    *ngIf="isBenutzerBerechtigtUmsetzungsstandsabfragenZuVerwalten"
+    *ngIf="
+      isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten || isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten
+    "
     [isMenuItem]="isSmallViewport"
+    [canStartAbfrage]="isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten"
+    [canEvaluateAbfragen]="isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten"
   >
   </rad-massnahme-umsetzungsstand-button-menu>
 
@@ -45,7 +49,7 @@
   <button
     [routerLink]="massnahmenCreatorRoute"
     class="create-button action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     queryParamsHandling="merge"
     *ngIf="isBenutzerBerechtigtMassnahmenZuErstellen"
   >
@@ -55,7 +59,7 @@
 
   <button
     class="action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     (click)="onFilterReset()"
   >
     <mat-icon>filter_alt_off</mat-icon>
@@ -145,12 +149,12 @@
     </th>
     <td *matCellDef="let element" mat-cell class="w-large">{{ getDisplayValue(element, 'baulastZustaendiger') }}</td>
   </ng-container>
-  <ng-container matColumnDef="markierungsZustaendiger">
+  <ng-container matColumnDef="zustaendiger">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Markierungszuständige/r</span>
+      <span rad-filter-header>Zuständige/r</span>
     </th>
     <td *matCellDef="let element" mat-cell class="w-large">
-      {{ getDisplayValue(element, 'markierungsZustaendiger') }}
+      {{ getDisplayValue(element, 'zustaendiger') }}
     </td>
   </ng-container>
   <ng-container matColumnDef="unterhaltsZustaendiger">

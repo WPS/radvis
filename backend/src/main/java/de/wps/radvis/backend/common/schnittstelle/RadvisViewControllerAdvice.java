@@ -18,11 +18,11 @@ import static org.valid4j.Assertive.require;
 
 import java.util.Arrays;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.locationtech.jts.geom.Envelope;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice(annotations = { RadvisViewController.class })
 public class RadvisViewControllerAdvice {

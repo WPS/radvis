@@ -29,12 +29,7 @@
     </mat-slide-toggle>
     <mat-spinner *ngIf="changeSeitenbezug" diameter="16"></mat-spinner>
     <div class="flex-grow"></div>
-    <button
-      [attr.aria-label]="'Schließen'"
-      matTooltip="Schließen"
-      (click)="onClose()"
-      mat-icon-button
-    >
+    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </div>
@@ -45,39 +40,30 @@
     (dismiss)="onClose()"
     (resetForm)="onReset()"
     (save)="onSave()"
+    (delete)="onDelete()"
     [disabled]="formGroup.disabled"
     [dirty]="formGroup.dirty"
     [fetching]="isFetching"
+    [canDelete]="canDelete"
     class="attribute-editor"
   >
-    <rad-enum-dropdown-control
-      [options]="wegeniveauOptions"
-      class="mat-form-field-full-width"
-      formControlName="wegeNiveau"
-    >
+    <rad-enum-dropdown-control formControlName="wegeNiveau" [options]="wegeniveauOptions">
       Wegeniveau
     </rad-enum-dropdown-control>
 
-    <rad-enum-dropdown-control
-      class="mat-form-field-full-width"
-      formControlName="beleuchtung"
-      [options]="beleuchtungsOptions"
-      [nullable]="false"
-    >
+    <rad-enum-dropdown-control formControlName="beleuchtung" [options]="beleuchtungsOptions" [nullable]="false">
       Beleuchtung
     </rad-enum-dropdown-control>
 
-    <rad-enum-dropdown-control
-      class="mat-form-field-full-width"
-      formControlName="umfeld"
-      [options]="umfeldOptions"
-      [nullable]="false"
-    >
+    <rad-enum-dropdown-control formControlName="umfeld" [options]="umfeldOptions" [nullable]="false">
       Umfeld
     </rad-enum-dropdown-control>
 
+    <rad-enum-dropdown-control formControlName="strassenkategorieRIN" [options]="strassenkategorieRINOptions">
+      Straßenkategorie nach RIN
+    </rad-enum-dropdown-control>
+
     <rad-enum-dropdown-control
-      class="mat-form-field-full-width"
       formControlName="strassenquerschnittRASt06"
       [options]="strassenquerschnittRASt06Options"
       [nullable]="false"
@@ -85,81 +71,67 @@
       Straßenquerschnitte nach RASt 06
     </rad-enum-dropdown-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="laengeBerechnet">
+    <rad-text-input-control formControlName="laengeBerechnet">
       <div class="label">Länge (berechnet)</div>
       <div class="suffix">m</div>
     </rad-text-input-control>
 
-    <rad-number-input-control
-      [isDisabled]="formGroup.get('laengeManuellErfasst')?.disabled || false"
-      [value]="formGroup.get('laengeManuellErfasst')?.value"
-      class="mat-form-field-full-width"
+    <rad-float-input-control
       formControlName="laengeManuellErfasst"
+      [value]="formGroup.get('laengeManuellErfasst')?.value"
+      [isDisabled]="formGroup.get('laengeManuellErfasst')?.disabled || false"
+      [errors]="formGroup.get('laengeManuellErfasst')?.errors"
     >
       <div class="label">Länge (manuell)</div>
       <div class="einheit">m</div>
-    </rad-number-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('laengeManuellErfasst')?.errors || null">
-    </rad-validation-error-anzeige>
+    </rad-float-input-control>
 
-    <rad-organisationen-dropdown-control
-      [options]="(gemeindeOptions | async) || []"
-      class="mat-form-field-full-width"
-      formControlName="gemeinde"
-    >
+    <rad-organisationen-dropdown-control formControlName="gemeinde" [options]="(gemeindeOptions | async) || []">
       Gemeinde
     </rad-organisationen-dropdown-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="landkreis">
+    <rad-text-input-control formControlName="landkreis">
       <div class="label">Landkreis</div>
     </rad-text-input-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="dtvFussverkehr">
+    <rad-text-input-control formControlName="dtvFussverkehr" [errors]="formGroup.get('dtvFussverkehr')?.errors">
       <div class="label">DTV (Fußverkehr)</div>
       <div class="suffix">Fz/Tag</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('dtvFussverkehr')?.errors || null">
-    </rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="dtvRadverkehr">
+    <rad-text-input-control formControlName="dtvRadverkehr" [errors]="formGroup.get('dtvRadverkehr')?.errors">
       <div class="label">DTV (Radverkehr)</div>
       <div class="suffix">Fz/Tag</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('dtvRadverkehr')?.errors || null">
-    </rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="dtvPkw">
+    <rad-text-input-control formControlName="dtvPkw" [errors]="formGroup.get('dtvPkw')?.errors">
       <div class="label">DTV (PkW)</div>
       <div class="suffix">Fz/Tag</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('dtvPkw')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="sv">
+    <rad-text-input-control formControlName="sv" [errors]="formGroup.get('sv')?.errors">
       <div class="label">Schwerverkehr</div>
       <div class="suffix">Fz/Tag</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('sv')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-text-input-control [asTextarea]="true" class="mat-form-field-full-width" formControlName="kommentar">
+    <rad-text-input-control
+      formControlName="kommentar"
+      [asTextarea]="true"
+      [maxLength]="kommentarMaxLength"
+      [errors]="formGroup.get('kommentar')?.errors"
+    >
       <div class="label">Kommentar</div>
-      <div class="hint">{{ formGroup.get('kommentar')?.value?.length || 0 }}/{{ kommentarMaxLength }}</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('kommentar')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="strassenName">
+    <rad-text-input-control formControlName="strassenName">
       <div class="label">Straßenname</div>
     </rad-text-input-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="strassenNummer">
+    <rad-text-input-control formControlName="strassenNummer">
       <div class="label">Straßennummer</div>
     </rad-text-input-control>
 
-    <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="statusOptions"
-      class="mat-form-field-full-width"
-      formControlName="status"
-    >
+    <rad-enum-dropdown-control formControlName="status" [options]="statusOptions" [nullable]="false">
       Status
     </rad-enum-dropdown-control>
 
@@ -168,33 +140,36 @@
       <div role="group" aria-labelledby="t1">
         <div id="t1">RadNETZ-Klassen:</div>
         <rad-undetermined-checkbox-control formControlName="radnetzAlltag">Alltag</rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radnetzFreizeit">Freizeit
+        <rad-undetermined-checkbox-control formControlName="radnetzFreizeit"
+          >Freizeit
         </rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radnetzZielnetz">Zielnetz
+        <rad-undetermined-checkbox-control formControlName="radnetzZielnetz"
+          >Zielnetz
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t2">
         <div id="t2">Kreisnetz-Klassen:</div>
         <rad-undetermined-checkbox-control formControlName="kreisnetzAlltag">Alltag</rad-undetermined-checkbox-control>
         <rad-undetermined-checkbox-control formControlName="kreisnetzFreizeit"
-        >Freizeit
+          >Freizeit
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t3">
         <div id="t3">Kommunalnetz-Klassen:</div>
-        <rad-undetermined-checkbox-control formControlName="kommunalnetzAlltag">Alltag
+        <rad-undetermined-checkbox-control formControlName="kommunalnetzAlltag"
+          >Alltag
         </rad-undetermined-checkbox-control>
         <rad-undetermined-checkbox-control formControlName="kommunalnetzFreizeit"
-        >Freizeit
+          >Freizeit
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t4">
         <div id="t4">Weitere:</div>
         <rad-undetermined-checkbox-control formControlName="radschnellverbindung"
-        >Radschnellverbindung
+          >Radschnellverbindung
         </rad-undetermined-checkbox-control>
         <rad-undetermined-checkbox-control formControlName="radvorrangrouten"
-        >Radvorrangrouten
+          >Radvorrangrouten
         </rad-undetermined-checkbox-control>
       </div>
     </div>
@@ -202,24 +177,24 @@
     <div class="group" formGroupName="istStandards">
       <div class="header">Ist-Standards</div>
       <rad-undetermined-checkbox-control formControlName="basisstandard"
-      >Basisstandard
+        >Basisstandard
       </rad-undetermined-checkbox-control>
       <div role="group" aria-labelledby="t5">
         <div id="t5">RadNETZ-Standards:</div>
         <rad-undetermined-checkbox-control formControlName="radnetzStartstandard"
-        >Startstandard
+          >Startstandard
         </rad-undetermined-checkbox-control>
         <rad-undetermined-checkbox-control formControlName="radnetzZielstandard"
-        >Zielstandard
+          >Zielstandard
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t6">
         <div id="t6">Weitere:</div>
         <rad-undetermined-checkbox-control formControlName="radschnellverbindung"
-        >Radschnellverbindung
+          >Radschnellverbindung
         </rad-undetermined-checkbox-control>
         <rad-undetermined-checkbox-control formControlName="radvorrangrouten"
-        >Radvorrangrouten
+          >Radvorrangrouten
         </rad-undetermined-checkbox-control>
       </div>
     </div>

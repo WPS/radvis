@@ -22,7 +22,8 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteProfilE
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierteProfilEigenschaften;
 
 public class LinearReferenzierteProfilEigenschaftenCommandConverter {
-	public static List<LinearReferenzierteProfilEigenschaften> convert(List<LinearReferenzierteProfilEigenschaftenCommand> profilEigenschaftenCommands) {
+	public static List<LinearReferenzierteProfilEigenschaften> convert(
+		List<LinearReferenzierteProfilEigenschaftenCommand> profilEigenschaftenCommands) {
 		return profilEigenschaftenCommands.stream()
 			.map(profilEigenschaftenCommand -> new LinearReferenzierteProfilEigenschaften(
 				FahrradrouteProfilEigenschaften.of(profilEigenschaftenCommand.getBelagArt(),

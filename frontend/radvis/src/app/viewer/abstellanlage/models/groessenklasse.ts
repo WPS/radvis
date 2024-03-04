@@ -37,7 +37,7 @@ export namespace Groessenklasse {
         case Groessenklasse.BASISANGEBOT_S:
           return { name: k, displayText: 'B+R Basisangebot (S)' };
         case Groessenklasse.STANDARDANGEBOT_M:
-          return { name: k, displayText: 'B+R Standardangebot ( M)' };
+          return { name: k, displayText: 'B+R Standardangebot (M)' };
         case Groessenklasse.SCHWERPUNKT_L:
           return { name: k, displayText: 'B+R Schwerpunkt (L)' };
         case Groessenklasse.HOTSPOT_XL:

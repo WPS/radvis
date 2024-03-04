@@ -29,6 +29,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.abfrage.auswertung.AuswertungConfiguration;
@@ -41,6 +43,7 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -49,30 +52,39 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
+import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.ZustaendigkeitAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
+import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group1")
-@ContextConfiguration(classes = { AuswertungConfiguration.class, NetzConfiguration.class,
-	OrganisationConfiguration.class, GeoConverterConfiguration.class, CommonConfiguration.class,
+@ContextConfiguration(classes = {
+	AuswertungConfiguration.class,
+	NetzConfiguration.class,
+	OrganisationConfiguration.class,
+	GeoConverterConfiguration.class,
+	CommonConfiguration.class,
 	BenutzerConfiguration.class
 })
 @EnableConfigurationProperties(value = {
@@ -81,6 +93,9 @@ import jakarta.persistence.PersistenceContext;
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	private static final GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
@@ -102,13 +117,13 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	void testGetKmAnzahl_addiertLaengenKorrekt() {
 		// Arrange
 		Kante kante1 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kante2 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kante3 = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		kantenRepository.save(kante1);
 		kantenRepository.save(kante2);
@@ -116,6 +131,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -134,7 +151,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteUnterVerkehr = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue().build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteImBau = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
@@ -142,7 +159,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 					.status(Status.IN_BAU)
 					.build())
 				.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteNichtMitDemRadBefahrbar = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
@@ -150,7 +167,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 					.status(Status.NICHT_MIT_RAD_BEFAHRBAR)
 					.build())
 				.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteFiktiv = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
@@ -158,7 +175,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 					.status(Status.FIKTIV)
 					.build())
 				.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteKonzeption = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
@@ -166,7 +183,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 					.status(Status.KONZEPTION)
 					.build())
 				.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteNichtFuerRadvehrkehrFreigegeben = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
@@ -174,7 +191,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 					.status(Status.NICHT_FUER_RADVERKEHR_FREIGEGEBEN)
 					.build())
 				.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteUnterVerkehr);
@@ -187,6 +204,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
 		BigInteger result = auswertungRepository
 			.getCmAnzahl(AuswertungsFilter.builder().build());
@@ -195,7 +214,6 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		assertThat(result).isNotZero();
 		BigInteger expected = convertToBigIntInCm(kanteUnterVerkehr.getGeometry().getLength());
 		assertThat(result).isEqualTo(expected);
-
 	}
 
 	@Test
@@ -203,12 +221,12 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kante1 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
 			.isZweiseitig(true)
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppe.builder().isZweiseitig(true).build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder().isZweiseitig(true).build())
 			.build();
 		Kante kante2 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kante1);
@@ -216,6 +234,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -233,10 +253,10 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	void testGetKmAnzahl_filterTrifftAufKeineKanteZu_liefert0() {
 		// Arrange
 		Kante kante1 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kante2 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kante1);
@@ -244,6 +264,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -270,18 +292,32 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
 			.build();
 
-		Long gemeindeId = gebietskoerperschaftRepository.save(gemeinde).getId();
-		Long baulastId = gebietskoerperschaftRepository.save(baulastTraeger).getId();
+		Verwaltungseinheit gemeindeSaved = gebietskoerperschaftRepository.save(gemeinde);
+		Verwaltungseinheit baulastSaved = gebietskoerperschaftRepository.save(baulastTraeger);
 
 		Kante kanteDLMOhneRadNETZKlasseInnerhalbGemeinde = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 20))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
-		Kante kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerAnteil0_6 = getKanteBuilder(
+		List<FuehrungsformAttribute> fuehrungsformAttribute = List.of(
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0., 0.2))
+				.build(),
+			FuehrungsformAttribute.builder()
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.2, 0.5))
+				.build(),
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
+				.build());
+		// Baulasttraeger: 0 - 0.4 & 0.8 - 1
+		// Radverkehrsfuehrung.BEGEGNUNBSZONE: 0 - 0.2 & 0.5 - 1
+		// => nur 0-0.2 & 0.8-1 ist beides korrekt, daher 0.4
+		Kante kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerPlusRadverkehrsfuehrungAnteil0_4 = getKanteBuilder(
 			new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT), Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
 			.zustaendigkeitAttributGruppe(
 				ZustaendigkeitAttributGruppeTestDataProvider
 					.withLeereGrundnetzAttribute()
@@ -299,37 +335,37 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
 								.build()))
 					.build())
-			.isGrundnetz(true)
+			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+				.fuehrungsformAttributeLinks(fuehrungsformAttribute)
+				.fuehrungsformAttributeRechts(fuehrungsformAttribute)
+				.build())
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteRadNETZMitBasisstandardInnerhalbGemeindeOhneBaulasttraeger = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 50), Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT),
 			Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kanteRadNETZMitBasisstandardAusserhalbGemeinde = getKanteBuilder(new Coordinate(31, 10),
 			new Coordinate(40, 20), Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT),
 			Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.isGrundnetz(true)
+			.quelle(QuellSystem.RadVis).dlmId(null)
 			.build();
 		Kante kanteRadvisOhneRadNETZKLasseInnerhalbGmeinde = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 40))
 			.quelle(QuellSystem.RadVis).dlmId(null)
-			.isGrundnetz(true)
 			.build();
 		Kante kanteRadvisMitRadNETZKLasseUndStandardInnerhalbGemeinde = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 40), Set.of(Netzklasse.RADNETZ_ALLTAG), Set.of(IstStandard.BASISSTANDARD))
 			.quelle(QuellSystem.RadVis).dlmId(null)
-			.isGrundnetz(true)
 			.build();
 
 		Kante kanteRadNETZAusserhalbGemeinde = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.isGrundnetz(true)
+			.quelle(QuellSystem.RadVis).dlmId(null)
 			.build();
 		kantenRepository.save(kanteDLMOhneRadNETZKlasseInnerhalbGemeinde);
-		kantenRepository.save(kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerAnteil0_6);
+		kantenRepository.save(
+			kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerPlusRadverkehrsfuehrungAnteil0_4);
 		kantenRepository.save(kanteRadNETZMitBasisstandardInnerhalbGemeindeOhneBaulasttraeger);
 		kantenRepository.save(kanteRadNETZMitBasisstandardAusserhalbGemeinde);
 		kantenRepository.save(kanteRadvisOhneRadNETZKLasseInnerhalbGmeinde);
@@ -339,19 +375,23 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
 		BigInteger result = auswertungRepository
 			.getCmAnzahl(AuswertungsFilter.builder()
 				.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG))
 				.istStandards(Set.of(IstStandard.BASISSTANDARD))
-				.gemeindeKreisBezirkId(gemeindeId)
-				.baulastId(baulastId)
+				.gemeindeKreisBezirkId(gemeindeSaved.getId())
+				.baulast(baulastSaved)
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
 				.build());
 
 		// Assert
 		assertThat(result).isNotZero();
 		BigInteger expected = convertToBigIntInCm(
-			kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerAnteil0_6.getGeometry().getLength() * 0.6);
+			kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerPlusRadverkehrsfuehrungAnteil0_4.getGeometry()
+				.getLength() * 0.4);
 		assertThat(result).isCloseTo(expected, TEST_OFFSET);
 
 	}
@@ -361,32 +401,33 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 
 		Kante kanteDLMOhneRadNETZKlasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
-		Kante kanteDLMMitRadNETZKlasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
+		Kante kanteRadNETZMitRadNETZKlasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT), Collections.emptySet())
+			.quelle(QuellSystem.RadNETZ).dlmId(null)
 			.build();
 		Kante kanteRadvisOhneRadNETZKLasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
 			.quelle(QuellSystem.RadVis).dlmId(null)
-			.isGrundnetz(true)
 			.build();
-		Kante kanteRadvisMitRadNETZKLasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
+		Kante kanteLGLMitRadNETZKLasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Set.of(Netzklasse.RADNETZ_ZIELNETZ), Collections.emptySet())
-			.quelle(QuellSystem.RadVis).dlmId(null)
+			.quelle(QuellSystem.LGL).dlmId(null)
 			.build();
 
-		Kante kanteRadNETZ = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.isGrundnetz(true)
+		Kante kanteRadVis = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
+			.quelle(QuellSystem.RadVis).dlmId(null)
 			.build();
 		kantenRepository.save(kanteDLMOhneRadNETZKlasse);
-		kantenRepository.save(kanteDLMMitRadNETZKlasse);
+		kantenRepository.save(kanteRadNETZMitRadNETZKlasse);
 		kantenRepository.save(kanteRadvisOhneRadNETZKLasse);
-		kantenRepository.save(kanteRadvisMitRadNETZKLasse);
-		kantenRepository.save(kanteRadNETZ);
+		kantenRepository.save(kanteLGLMitRadNETZKLasse);
+		kantenRepository.save(kanteRadVis);
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -397,7 +438,7 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		BigInteger expected = convertToBigIntInCm(
 			kanteDLMOhneRadNETZKlasse.getGeometry().getLength() + kanteRadvisOhneRadNETZKLasse.getGeometry()
 				.getLength()
-				+ kanteRadNETZ.getGeometry().getLength());
+				+ kanteRadVis.getGeometry().getLength());
 		assertThat(result).isCloseTo(expected, TEST_OFFSET);
 
 	}
@@ -423,13 +464,13 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		Long gemeinde2Id = gebietskoerperschaftRepository.save(gemeinde2).getId();
 
 		Kante kante1 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kante2 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(40, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 		Kante kante3 = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kante1);
@@ -438,6 +479,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger resultGemeinde1 = auswertungRepository
@@ -461,24 +504,22 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteQuelleRadNETZFreizeitUndAlltag = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT), Collections.emptySet())
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.isGrundnetz(true)
+			.quelle(QuellSystem.RadVis).dlmId(null)
 			.build();
 
 		Kante kanteQuelleRadNETZZielnetz = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ZIELNETZ), Collections.emptySet())
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.isGrundnetz(true)
+			.quelle(QuellSystem.RadVis).dlmId(null)
 			.build();
 
 		Kante kanteKreisNetzFreizeit = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Set.of(Netzklasse.KREISNETZ_FREIZEIT), Collections.emptySet())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteKreisNetzAlltag = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Set.of(Netzklasse.KREISNETZ_ALLTAG), Collections.emptySet())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteQuelleRadNETZFreizeitUndAlltag);
@@ -488,6 +529,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -510,11 +553,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteRadNETZ = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG), Collections.emptySet())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteNichtKlassifiziert = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteRadNETZ);
@@ -523,7 +566,10 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
+
 		BigInteger result = auswertungRepository
 			.getCmAnzahl(AuswertungsFilter.builder().beachteNichtKlassifizierteKanten(true).build());
 
@@ -539,21 +585,21 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteBasisstandardUndRadNETZStartstandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Collections.emptySet(), Set.of(IstStandard.BASISSTANDARD, IstStandard.STARTSTANDARD_RADNETZ))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteBasisStandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20), Collections.emptySet(),
 			Set.of(IstStandard.BASISSTANDARD))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteRadvorrangrouten = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Collections.emptySet(), Set.of(IstStandard.RADVORRANGROUTEN))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteKeinStandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteBasisstandardUndRadNETZStartstandard);
@@ -563,6 +609,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -585,11 +633,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteBasisstandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20), Collections.emptySet(),
 			Set.of(IstStandard.BASISSTANDARD))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteOhneStandards = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteBasisstandard);
@@ -597,6 +645,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Act
 		BigInteger result = auswertungRepository
@@ -611,14 +661,13 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	@Test
 	void testGetKmAnzahl_baulastTraegerIdGesetzt_betrachtetKorrektenAnteil() {
 		// Arrange
-		Gebietskoerperschaft baulastTraeger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.organisationsArt(OrganisationsArt.GEMEINDE)
-			.name("baulastTraeger")
-			.uebergeordneteOrganisation(null)
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
-			.build();
-
-		Long baulastTraegerId = gebietskoerperschaftRepository.save(baulastTraeger).getId();
+		Gebietskoerperschaft baulastTraeger = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.name("baulastTraeger")
+				.uebergeordneteOrganisation(null)
+				.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
+				.build());
 
 		Kante kanteBaulasttraegerMitAnteil0_6 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
 			.zustaendigkeitAttributGruppe(
@@ -638,11 +687,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
 								.build()))
 					.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteOhneBaulastTraeger = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteBaulasttraegerMitAnteil0_6);
@@ -651,9 +700,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
 		BigInteger result = auswertungRepository
-			.getCmAnzahl(AuswertungsFilter.builder().baulastId(baulastTraegerId).build());
+			.getCmAnzahl(AuswertungsFilter.builder().baulast(baulastTraeger).build());
 
 		// Assert
 		assertThat(result).isNotZero();
@@ -664,14 +715,13 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	@Test
 	void testGetKmAnzahl_unterhaltIdGesetzt_betrachtetKorrektenAnteil() {
 		// Arrange
-		Gebietskoerperschaft unterhaltZustaendiger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.organisationsArt(OrganisationsArt.GEMEINDE)
-			.name("unterhaltZustaendiger")
-			.uebergeordneteOrganisation(null)
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
-			.build();
-
-		Long unterhaltId = gebietskoerperschaftRepository.save(unterhaltZustaendiger).getId();
+		Gebietskoerperschaft unterhaltZustaendiger = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.name("unterhaltZustaendiger")
+				.uebergeordneteOrganisation(null)
+				.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
+				.build());
 
 		Kante kanteUnterhaltMitAnteil0_6 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
 			.zustaendigkeitAttributGruppe(
@@ -691,11 +741,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
 								.build()))
 					.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteOhneUnterhalt = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteUnterhaltMitAnteil0_6);
@@ -704,9 +754,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
 		BigInteger result = auswertungRepository
-			.getCmAnzahl(AuswertungsFilter.builder().unterhaltId(unterhaltId).build());
+			.getCmAnzahl(AuswertungsFilter.builder().unterhalt(unterhaltZustaendiger).build());
 
 		// Assert
 		assertThat(result).isNotZero();
@@ -717,14 +769,13 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	@Test
 	void testGetKmAnzahl_erhaltIdGesetzt_betrachtetKorrektenAnteil() {
 		// Arrange
-		Gebietskoerperschaft erhaltZustaendiger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.organisationsArt(OrganisationsArt.GEMEINDE)
-			.name("erhaltZustaendiger")
-			.uebergeordneteOrganisation(null)
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
-			.build();
-
-		Long erhaltId = gebietskoerperschaftRepository.save(erhaltZustaendiger).getId();
+		Gebietskoerperschaft erhaltZustaendiger = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.name("erhaltZustaendiger")
+				.uebergeordneteOrganisation(null)
+				.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
+				.build());
 
 		Kante kanteErhaltMitAnteil0_6 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
 			.zustaendigkeitAttributGruppe(
@@ -744,11 +795,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
 								.build()))
 					.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteOhneErhalt = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteErhaltMitAnteil0_6);
@@ -757,9 +808,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
 		BigInteger result = auswertungRepository
-			.getCmAnzahl(AuswertungsFilter.builder().erhaltId(erhaltId).build());
+			.getCmAnzahl(AuswertungsFilter.builder().erhalt(erhaltZustaendiger).build());
 
 		// Assert
 		assertThat(result).isNotZero();
@@ -770,30 +823,29 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	@Test
 	void testGetKmAnzahl_erhaltIdUnterhaltIdUndBaulastTraegerGesetzt_betrachtetKorrektenAnteil() {
 		// Arrange
-		Gebietskoerperschaft erhaltZustaendiger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.organisationsArt(OrganisationsArt.GEMEINDE)
-			.name("erhaltZustaendiger")
-			.uebergeordneteOrganisation(null)
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
-			.build();
+		Gebietskoerperschaft erhaltZustaendiger = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.name("erhaltZustaendiger")
+				.uebergeordneteOrganisation(null)
+				.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
+				.build());
 
-		Gebietskoerperschaft unterhaltZustaendiger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.organisationsArt(OrganisationsArt.GEMEINDE)
-			.name("unterhaltZustaendiger")
-			.uebergeordneteOrganisation(null)
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
-			.build();
+		Gebietskoerperschaft unterhaltZustaendiger = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.name("unterhaltZustaendiger")
+				.uebergeordneteOrganisation(null)
+				.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
+				.build());
 
-		Gebietskoerperschaft baulastTraeger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.organisationsArt(OrganisationsArt.GEMEINDE)
-			.name("baulastTraeger")
-			.uebergeordneteOrganisation(null)
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
-			.build();
-
-		Long erhaltId = gebietskoerperschaftRepository.save(erhaltZustaendiger).getId();
-		Long unterhaltId = gebietskoerperschaftRepository.save(unterhaltZustaendiger).getId();
-		Long baulastTraegerId = gebietskoerperschaftRepository.save(baulastTraeger).getId();
+		Gebietskoerperschaft baulastTraeger = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.name("baulastTraeger")
+				.uebergeordneteOrganisation(null)
+				.bereich(GeometryTestdataProvider.createQuadratischerBereich(1, 1, 20, 40))
+				.build());
 
 		Kante kanteErhaltUnterhaltBaulastMitAnteil0_4 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
 			.zustaendigkeitAttributGruppe(
@@ -826,11 +878,11 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
 								.build()))
 					.build())
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		Kante kanteOhneErhaltUnterhaltBaulast = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
-			.isGrundnetz(true)
+			.quelle(QuellSystem.DLM)
 			.build();
 
 		kantenRepository.save(kanteErhaltUnterhaltBaulastMitAnteil0_4);
@@ -839,10 +891,15 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
+		kantenRepository.refreshNetzMaterializedViews();
+
 		// Act
 		BigInteger result = auswertungRepository
 			.getCmAnzahl(
-				AuswertungsFilter.builder().baulastId(baulastTraegerId).erhaltId(erhaltId).unterhaltId(unterhaltId)
+				AuswertungsFilter.builder()
+					.baulast(baulastTraeger)
+					.erhalt(erhaltZustaendiger)
+					.unterhalt(unterhaltZustaendiger)
 					.build());
 
 		// Assert
@@ -850,6 +907,109 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		BigInteger expected = convertToBigIntInCm(
 			kanteErhaltUnterhaltBaulastMitAnteil0_4.getGeometry().getLength() * 0.4);
 		assertThat(result).isCloseTo(expected, TEST_OFFSET);
+	}
+
+	@Test
+	void testGetKmAnzahl_Fuehrungsform() {
+		Kante kanteOhneFuehrungsformAttribute = getKanteBuilder(new Coordinate(1, 10),
+			new Coordinate(2, 20))
+			.quelle(QuellSystem.DLM)
+			.build();
+
+		List<FuehrungsformAttribute> fuehrungsformAsphaltUndBegegnungszone0_2 = List.of(
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.belagArt(BelagArt.ASPHALT)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0., 0.2))
+				.build(),
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.belagArt(BelagArt.BETON)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.2, 0.5))
+				.build(),
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.SONSTIGE_STRASSE_WEG)
+				.belagArt(BelagArt.ASPHALT)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
+				.build());
+
+		Kante kanteAsphaltUndBegegnungszone0_2 = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
+			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+				.fuehrungsformAttributeLinks(fuehrungsformAsphaltUndBegegnungszone0_2)
+				.fuehrungsformAttributeRechts(fuehrungsformAsphaltUndBegegnungszone0_2)
+				.build())
+			.quelle(QuellSystem.DLM)
+			.build();
+
+		List<FuehrungsformAttribute> fuehrungsformAsphaltUndBegegenungszone = List.of(
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.belagArt(BelagArt.ASPHALT)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.build());
+
+		Kante kanteAsphaltUndBegegnungszone = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
+			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+				.fuehrungsformAttributeLinks(fuehrungsformAsphaltUndBegegenungszone)
+				.fuehrungsformAttributeRechts(fuehrungsformAsphaltUndBegegenungszone)
+				.build())
+			.quelle(QuellSystem.DLM)
+			.build();
+
+		List<FuehrungsformAttribute> fuehrungsformAsphaltUndSonstigerWeg = List.of(
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.SONSTIGER_BETRIEBSWEG)
+				.belagArt(BelagArt.ASPHALT)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.build());
+
+		Kante kanteAsphaltUndSonstigerWeg = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
+			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+				.fuehrungsformAttributeLinks(fuehrungsformAsphaltUndSonstigerWeg)
+				.fuehrungsformAttributeRechts(fuehrungsformAsphaltUndSonstigerWeg)
+				.build())
+			.quelle(QuellSystem.DLM)
+			.build();
+
+		List<FuehrungsformAttribute> fuehrungsformGebundenUndBegegnungszone = List.of(
+			FuehrungsformAttribute.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.belagArt(BelagArt.WASSERGEBUNDENE_DECKE)
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.build());
+
+		Kante kanteGebundenUndBegegnungszone = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20))
+			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+				.fuehrungsformAttributeLinks(fuehrungsformAsphaltUndSonstigerWeg)
+				.fuehrungsformAttributeRechts(fuehrungsformAsphaltUndSonstigerWeg)
+				.build())
+			.quelle(QuellSystem.DLM)
+			.build();
+
+		kantenRepository.save(kanteOhneFuehrungsformAttribute);
+		kantenRepository.save(
+			kanteAsphaltUndBegegnungszone0_2);
+		kantenRepository.save(kanteAsphaltUndBegegnungszone);
+		kantenRepository.save(kanteAsphaltUndSonstigerWeg);
+		kantenRepository.save(kanteGebundenUndBegegnungszone);
+
+		entityManager.flush();
+		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
+		// Act
+		BigInteger result = auswertungRepository
+			.getCmAnzahl(AuswertungsFilter.builder()
+				.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.belagArt(BelagArt.ASPHALT)
+				.build());
+
+		// Assert
+		assertThat(result).isNotZero();
+		BigInteger expected = convertToBigIntInCm(kanteAsphaltUndBegegnungszone0_2.getGeometry().getLength() * 0.2
+			+ kanteAsphaltUndBegegnungszone.getGeometry().getLength());
+		assertThat(result).isCloseTo(expected, TEST_OFFSET);
+
 	}
 
 	private Kante.KanteBuilder getKanteBuilder(Coordinate vonKoordinate, Coordinate nachKoordinate) {
@@ -877,6 +1037,6 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	}
 
 	private static BigInteger convertToBigIntInCm(double val) {
-		return BigInteger.valueOf((int) Math.round(val * 100));
+		return BigInteger.valueOf((int) Math.floor(val * 100));
 	}
 }

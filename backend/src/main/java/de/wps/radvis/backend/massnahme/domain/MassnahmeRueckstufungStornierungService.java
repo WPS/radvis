@@ -23,8 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -32,12 +30,14 @@ import org.thymeleaf.context.Context;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitEntferntEvent;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Transactional
@@ -129,7 +129,7 @@ public class MassnahmeRueckstufungStornierungService {
 
 	private String getRadvisLink(Long massnahmeId) {
 		return commonConfigurationProperties.getBasisUrl()
-			+ "app/viewer/massnahmen/" + massnahmeId
+			+ FrontendLinks.massnahmeDetailView(massnahmeId)
 			+ "?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
 	}
 }

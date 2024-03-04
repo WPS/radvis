@@ -23,8 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.validation.constraints.Pattern;
-
 import org.geojson.FeatureCollection;
 import org.locationtech.jts.geom.Envelope;
 import org.springframework.http.HttpStatus;
@@ -52,6 +50,7 @@ import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.AttributGruppe;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
+import jakarta.validation.constraints.Pattern;
 import lombok.NonNull;
 
 @RestController

@@ -39,7 +39,7 @@ public class SaveFahrradrouteCommandTestDataProvider {
 			.offizielleLaenge(Laenge.of(12345L))
 			.homepage("https://neue-homepage.de")
 			.verantwortlichId(1234L)
-			.emailAnsprechpartner("neue@email.de")
+			.emailAnsprechpartner("neue@testRadvis.de")
 			.lizenz("CC-BY-NEU 2.0")
 			.lizenzNamensnennung("Neue Namesnennung").kantenIDs(List.of(1l))
 			.routenVerlauf((LineString) GeoJsonConverter.createGeoJsonGeometry(

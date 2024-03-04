@@ -13,15 +13,15 @@
  */
 
 import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { UntypedFormGroup } from '@angular/forms';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 
 @Component({
   template: '',
 })
-export abstract class SimpleEditorCreatorComponent<T> implements DiscardGuard {
+export abstract class SimpleEditorCreatorComponent<T> implements DiscardableComponent {
   public isCreator = false;
   public isFetching = false;
 
@@ -32,7 +32,7 @@ export abstract class SimpleEditorCreatorComponent<T> implements DiscardGuard {
   }
 
   constructor(
-    public formGroup: FormGroup,
+    public formGroup: UntypedFormGroup,
     protected notifyUserService: NotifyUserService,
     protected changeDetector: ChangeDetectorRef,
     protected infrastrukturFilterService: AbstractInfrastrukturenFilterService<T>
@@ -77,9 +77,9 @@ export abstract class SimpleEditorCreatorComponent<T> implements DiscardGuard {
     });
   }
 
-  protected abstract doSave(formGroup: FormGroup): Promise<void>;
+  protected abstract doSave(formGroup: UntypedFormGroup): Promise<void>;
 
-  protected abstract doCreate(formGroup: FormGroup): Promise<void>;
+  protected abstract doCreate(formGroup: UntypedFormGroup): Promise<void>;
 
   protected abstract onClose(): void;
 }

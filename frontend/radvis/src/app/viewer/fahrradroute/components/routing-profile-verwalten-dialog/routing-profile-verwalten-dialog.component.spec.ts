@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 import { ChangeDetectorRef } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -41,7 +41,7 @@ describe(RoutingProfileVerwaltenDialogComponent.name, () => {
 
     return MockBuilder(RoutingProfileVerwaltenDialogComponent, ViewerModule)
       .provide({ provide: RoutingProfileService, useValue: instance(routingProfileService) })
-      .provide({ provide: FormBuilder, useValue: new FormBuilder() })
+      .provide({ provide: UntypedFormBuilder, useValue: new UntypedFormBuilder() })
       .provide({ provide: ChangeDetectorRef, useValue: instance(mock(ChangeDetectorRef)) })
       .provide({ provide: MatDialogRef, useValue: instance(mock(MatDialogRef)) })
       .provide({ provide: NotifyUserService, useValue: instance(mock(NotifyUserService)) });

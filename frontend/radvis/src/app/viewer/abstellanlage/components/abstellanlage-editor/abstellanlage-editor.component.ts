@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, Optional } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
@@ -25,6 +25,7 @@ import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage
 import { ABSTELLANLAGEN } from 'src/app/viewer/abstellanlage/models/abstellanlage.infrastruktur';
 import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
 import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstellanlagen-status';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Groessenklasse } from 'src/app/viewer/abstellanlage/models/groessenklasse';
 import { SaveAbstellanlageCommand } from 'src/app/viewer/abstellanlage/models/save-abstellanlage-command';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
@@ -60,6 +61,7 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
 
   abstellanlagenQuellSystemOptions = AbstellanlagenQuellSystem.options;
   ueberwachtOptions = Ueberwacht.options;
+  abstellanlagenOrtOptions = AbstellanlagenOrt.options;
   groessenklasseOptions = Groessenklasse.options;
   stellplatzartOptions = Stellplatzart.options;
   abstellanlagenStatusOptions = AbstellanlagenStatus.options;
@@ -82,45 +84,54 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
     benutzerDetailsService: BenutzerDetailsService
   ) {
     super(
-      new FormGroup({
-        geometrie: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        betreiber: new FormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-        externeId: new FormControl(null, RadvisValidators.maxLength(255)),
-        quellSystem: new FormControl({ value: null, disabled: true }),
-        zustaendig: new FormControl(null),
-        anzahlStellplaetze: new FormControl(null, [
+      new UntypedFormGroup({
+        geometrie: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        betreiber: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+        externeId: new UntypedFormControl(null, RadvisValidators.maxLength(255)),
+        quellSystem: new UntypedFormControl({ value: null, disabled: true }),
+        zustaendig: new UntypedFormControl(null),
+        anzahlStellplaetze: new UntypedFormControl(null, [
           RadvisValidators.isNotNullOrEmpty,
           RadvisValidators.isPositiveInteger,
           RadvisValidators.isSmallerThanIntegerMaxValue,
         ]),
-        anzahlSchliessfaecher: new FormControl(null, [
+        anzahlSchliessfaecher: new UntypedFormControl(null, [
           RadvisValidators.isNotNullOrEmpty,
           RadvisValidators.isPositiveInteger,
           RadvisValidators.isSmallerThanIntegerMaxValue,
         ]),
-        anzahlLademoeglichkeiten: new FormControl(null, [
+        anzahlLademoeglichkeiten: new UntypedFormControl(null, [
           RadvisValidators.isPositiveInteger,
           RadvisValidators.isSmallerThanIntegerMaxValue,
         ]),
-        ueberwacht: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        istBikeAndRide: new FormControl(null),
-        groessenklasse: new FormControl({ value: null, disabled: true }),
-        stellplatzart: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-        ueberdacht: new FormControl(null),
-        gebuehrenProTag: new FormControl(null),
-        gebuehrenProMonat: new FormControl(null),
-        gebuehrenProJahr: new FormControl(null),
-        beschreibung: new FormControl(null, [RadvisValidators.maxLength(2000)]),
-        weitereInformation: new FormControl(null, [RadvisValidators.maxLength(2000)]),
-        status: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+        ueberwacht: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        abstellanlagenOrt: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        groessenklasse: new UntypedFormControl({ value: null, disabled: true }),
+        stellplatzart: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        ueberdacht: new UntypedFormControl(null),
+        gebuehrenProTag: new FormControl<number | null>(null, [
+          RadvisValidators.maxDecimalPlaces(2),
+          RadvisValidators.max(20000000),
+        ]),
+        gebuehrenProMonat: new FormControl<number | null>(null, [
+          RadvisValidators.maxDecimalPlaces(2),
+          RadvisValidators.max(20000000),
+        ]),
+        gebuehrenProJahr: new FormControl<number | null>(null, [
+          RadvisValidators.maxDecimalPlaces(2),
+          RadvisValidators.max(20000000),
+        ]),
+        beschreibung: new UntypedFormControl(null, [RadvisValidators.maxLength(2000)]),
+        weitereInformation: new UntypedFormControl(null, [RadvisValidators.maxLength(2000)]),
+        status: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
       }),
       notifyUserService,
       changeDetector,
       filterService
     );
     this.subscriptions.push(
-      (this.formGroup.get('istBikeAndRide') as AbstractControl)?.valueChanges.subscribe(istBikeAndRide => {
-        this.setEnabledStateOfGroessenklasse(istBikeAndRide);
+      (this.formGroup.get('abstellanlagenOrt') as AbstractControl)?.valueChanges.subscribe(abstellanlagenOrt => {
+        this.setEnabledStateOfGroessenklasse(abstellanlagenOrt === AbstellanlagenOrt.BIKE_AND_RIDE);
       })
     );
 
@@ -151,7 +162,7 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
     this.resetForm(this.currentAbstellanlage);
   }
 
-  protected doSave(formGroup: FormGroup): Promise<void> {
+  protected doSave(formGroup: UntypedFormGroup): Promise<void> {
     const currentId = this.currentAbstellanlage?.id;
     invariant(currentId);
     return this.abstellanlageService
@@ -166,7 +177,7 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
       });
   }
 
-  protected doCreate(formGroup: FormGroup): Promise<void> {
+  protected doCreate(formGroup: UntypedFormGroup): Promise<void> {
     return this.abstellanlageService.create(this.readForm(formGroup)).then(newId => {
       this.formGroup.markAsPristine();
       this.abstellanlageRoutingService.toInfrastrukturEditor(newId);
@@ -190,7 +201,7 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
     }
   }
 
-  private readForm(formGroup: FormGroup): SaveAbstellanlageCommand {
+  private readForm(formGroup: UntypedFormGroup): SaveAbstellanlageCommand {
     const coordinate = formGroup.value.geometrie;
     return {
       betreiber: formGroup.value.betreiber,
@@ -204,13 +215,13 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
       anzahlSchliessfaecher: formGroup.value.anzahlSchliessfaecher ?? null,
       anzahlLademoeglichkeiten: formGroup.value.anzahlLademoeglichkeiten ?? null,
       ueberwacht: formGroup.value.ueberwacht,
-      istBikeAndRide: formGroup.value.istBikeAndRide ?? false,
+      abstellanlagenOrt: formGroup.value.abstellanlagenOrt,
       groessenklasse: formGroup.value.groessenklasse ?? null,
       stellplatzart: formGroup.value.stellplatzart,
       ueberdacht: formGroup.value.ueberdacht ?? false,
-      gebuehrenProTag: formGroup.value.gebuehrenProTag,
-      gebuehrenProMonat: formGroup.value.gebuehrenProMonat,
-      gebuehrenProJahr: formGroup.value.gebuehrenProJahr,
+      gebuehrenProTag: this.convertNumberToEuroCent(formGroup.value.gebuehrenProTag),
+      gebuehrenProMonat: this.convertNumberToEuroCent(formGroup.value.gebuehrenProMonat),
+      gebuehrenProJahr: this.convertNumberToEuroCent(formGroup.value.gebuehrenProJahr),
       beschreibung: formGroup.value.beschreibung ?? null,
       weitereInformation: formGroup.value.weitereInformation ?? null,
       status: formGroup.value.status,
@@ -222,6 +233,9 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
       this.formGroup.reset({
         ...abstellanlage,
         geometrie: abstellanlage?.geometrie.coordinates,
+        gebuehrenProTag: this.convertEuroCentToNumber(abstellanlage.gebuehrenProTag ?? null),
+        gebuehrenProMonat: this.convertEuroCentToNumber(abstellanlage.gebuehrenProMonat ?? null),
+        gebuehrenProJahr: this.convertEuroCentToNumber(abstellanlage.gebuehrenProJahr ?? null),
       });
     } else {
       this.formGroup.reset({
@@ -231,10 +245,22 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
     }
     if (this.canEdit) {
       this.formGroup.enable();
-      this.setEnabledStateOfGroessenklasse(this.formGroup.get('istBikeAndRide')?.value);
+      this.setEnabledStateOfGroessenklasse(
+        this.formGroup.get('abstellanlagenOrt')?.value === AbstellanlagenOrt.BIKE_AND_RIDE
+      );
     } else {
       this.formGroup.disable();
     }
     this.formGroup.get('quellSystem')?.disable();
+  }
+
+  private convertNumberToEuroCent(num: number | null): number | null {
+    if (num === null) return null;
+    return +num.toFixed(2).replace('.', '');
+  }
+
+  private convertEuroCentToNumber(num: number | null): number | null {
+    if (num === null) return null;
+    return num > 0 ? num / 100 : 0;
   }
 }

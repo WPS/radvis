@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -61,7 +62,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 		manuellerNetzklassenImportAbbildungsService = new ManuellerNetzklassenImportAbbildungsService(
 			simpleMatchingService,
@@ -108,10 +109,6 @@ class ManuellerNetzklassenImportAbbildungsServiceTest {
 				KanteTestDataProvider.withDefaultValues().id(2L).geometry(GeometryTestdataProvider.getAbschnitt(match2,
 					LinearReferenzierterAbschnitt.of(0.5, 1))).build()
 			));
-
-		System.out.println(GeometryTestdataProvider.getAbschnitt(
-			GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(10, 10)),
-			LinearReferenzierterAbschnitt.of(0, 0.5)));
 
 		// act
 		Set<Long> result = manuellerNetzklassenImportAbbildungsService.findKantenFromLineStrings(linestrings,

@@ -12,33 +12,33 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
+import { WMSGetFeatureInfo } from 'ol/format';
 import { Geometry, LineString, MultiLineString } from 'ol/geom';
+import ImageLayer from 'ol/layer/Image';
 import VectorLayer from 'ol/layer/Vector';
+import * as olProj from 'ol/proj';
+import { ImageWMS } from 'ol/source';
 import { Style } from 'ol/style';
+import { filter } from 'rxjs/operators';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { isLineString, isMultiLineString } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
+import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
 import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view';
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
 import {
-  AbstractInfrastrukturLayerComponent,
+    AbstractInfrastrukturLayerComponent,
 } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
-import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { ImageWMS } from 'ol/source';
-import * as olProj from 'ol/proj';
-import { WMSGetFeatureInfo } from 'ol/format';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { filter } from 'rxjs/operators';
-import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
 import { infrastrukturLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
-import ImageLayer from 'ol/layer/Image';
+import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 
 @Component({
   selector: 'rad-fahrradroute-layer',
@@ -237,7 +237,7 @@ export class FahrradrouteLayerComponent
           Promise.all(features.map(f => this.getFeatureWithGeometry(f.get('id'))))
           .then(fs => {
             this.vectorSource.clear(true);
-            // @ts-ignore filter undefined
+            // @ts-expect-error Migration von ts-ignore filter undefined
             this.vectorSource.addFeatures(fs.filter(f => !!f));
           });
           return features;

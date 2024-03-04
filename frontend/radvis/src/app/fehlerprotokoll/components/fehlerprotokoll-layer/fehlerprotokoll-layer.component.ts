@@ -14,8 +14,8 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Feature } from 'ol';
-import { Extent } from 'ol/extent';
 import { FeatureLike } from 'ol/Feature';
+import { Extent } from 'ol/extent';
 import { LineString, MultiLineString, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
@@ -27,19 +27,19 @@ import { FehlerprotokollView } from 'src/app/fehlerprotokoll/models/fehlerprotok
 import { FehlerprotokollSelectionService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll-selection.service';
 import {
   Geojson,
-  isLineString,
-  isMultiLineString,
-  isPoint,
   LineStringGeojson,
   MultiLineStringGeojson,
   PointGeojson,
+  isLineString,
+  isMultiLineString,
+  isPoint,
 } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import invariant from 'tiny-invariant';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
 
 @Component({
   selector: 'rad-fehlerprotokoll-layer',
@@ -91,7 +91,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
 
     this.iconLayer = new VectorLayer({
       source: this.iconVectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.iconStyleFct,
       minZoom: FehlerprotokollLayerComponent.MIN_ZOOM,
@@ -99,7 +99,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
 
     this.geometryLayer = new VectorLayer({
       source: this.geometryVectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: MapStyles.getDefaultNetzStyleFunction(MapStyles.FEHLERPROTOKOLL_COLOR),
     });

@@ -16,7 +16,6 @@ package de.wps.radvis.backend.common.domain.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

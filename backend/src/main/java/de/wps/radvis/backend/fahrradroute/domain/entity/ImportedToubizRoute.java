@@ -20,14 +20,13 @@ import static org.valid4j.Assertive.require;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.validation.constraints.NotNull;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Tourenkategorie;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -14,7 +14,7 @@
 
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Feature } from 'ol';
@@ -34,7 +34,7 @@ import { BelagArt } from 'src/app/shared/models/belag-art';
 import { isMultiLineString } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -58,11 +58,11 @@ import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
 import { DeleteMassnahmeCommand } from 'src/app/viewer/massnahme/models/delete-massnahme-command';
+import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
 import { FahrradrouteTyp } from 'src/app/viewer/viewer-shared/models/fahrradroute-typ';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import invariant from 'tiny-invariant';
-import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
 
 @Component({
   selector: 'rad-fahrradroute-attribute-editor',
@@ -70,7 +70,7 @@ import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/mo
   styleUrls: ['./fahrradroute-attribute-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardGuard {
+export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardableComponent {
   public static readonly MAX_LENGTH_BESCHREIBUNG = 5000;
   public static readonly MAX_LENGTH_TEXT = 255;
 
@@ -85,7 +85,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
   public tourenkategorieOptions = Tourenkategorie.options;
   public kategorieOptions = Kategorie.options;
 
-  public formGroup: FormGroup;
+  public formGroup: UntypedFormGroup;
   public currentFahrradroute: FahrradrouteDetailView | null = null;
   public featureTogglzFehlerAnzeigen: boolean;
   public alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
@@ -99,7 +99,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
   public radverkehrsfuehrungLegende = radverkehrsfuehrungLegende;
   public radverkehrsfuehrungOptions = flatRadverkehrsfuehrungOptions;
 
-  public selectedVarianteControl = new FormControl(this.HAUPTSTRECKE);
+  public selectedVarianteControl = new UntypedFormControl(this.HAUPTSTRECKE);
   public editStreckeEnabled = false;
 
   isRouting = false;
@@ -123,32 +123,32 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
     private dialog: MatDialog,
     private fahrradrouteProfilService: FahrradrouteProfilService
   ) {
-    this.formGroup = new FormGroup({
-      name: new FormControl(null, [
+    this.formGroup = new UntypedFormGroup({
+      name: new UntypedFormControl(null, [
         RadvisValidators.isNotNullOrEmpty,
         RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
       ]),
-      kurzbeschreibung: new FormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_KURZBESCHREIBUNG)]),
-      beschreibung: new FormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_BESCHREIBUNG)]),
-      kategorie: new FormControl(null),
-      tourenkategorie: new FormControl(null),
-      laengeHauptstrecke: new FormControl({ disabled: true }),
-      offizielleLaenge: new FormControl(null),
-      verantwortlich: new FormControl(null),
-      homepage: new FormControl(null, [RadvisValidators.url, RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
-      emailAnsprechpartner: new FormControl(null, [
+      kurzbeschreibung: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_KURZBESCHREIBUNG)]),
+      beschreibung: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_BESCHREIBUNG)]),
+      kategorie: new UntypedFormControl(null),
+      tourenkategorie: new UntypedFormControl(null),
+      laengeHauptstrecke: new UntypedFormControl({ disabled: true }),
+      offizielleLaenge: new UntypedFormControl(null),
+      verantwortlich: new UntypedFormControl(null),
+      homepage: new UntypedFormControl(null, [RadvisValidators.url, RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
+      emailAnsprechpartner: new UntypedFormControl(null, [
         RadvisValidators.email,
         RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
       ]),
-      lizenz: new FormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
-      lizenzNamensnennung: new FormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
-      anstieg: new FormControl({ value: null, disabled: true }),
-      abstieg: new FormControl({ value: null, disabled: true }),
-      toubizId: new FormControl({ value: null, disabled: true }),
-      info: new FormControl({ value: null, disabled: true }),
-      zuletztBearbeitet: new FormControl({ value: '', disabled: true }),
-      varianten: new FormArray([]),
-      netzbezug: new FormControl(null),
+      lizenz: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
+      lizenzNamensnennung: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
+      anstieg: new UntypedFormControl({ value: null, disabled: true }),
+      abstieg: new UntypedFormControl({ value: null, disabled: true }),
+      toubizId: new UntypedFormControl({ value: null, disabled: true }),
+      info: new UntypedFormControl({ value: null, disabled: true }),
+      zuletztBearbeitet: new UntypedFormControl({ value: '', disabled: true }),
+      varianten: new UntypedFormArray([]),
+      netzbezug: new UntypedFormControl(null),
     });
 
     this.alleOrganisationenOptions = organisationenService.getOrganisationen();
@@ -214,17 +214,18 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
     this.fahrradrouteProfilService.hideCurrentRouteProfile();
   }
 
-  get variantenFormArray(): FormArray {
-    return this.formGroup.get('varianten') as FormArray;
+  get variantenFormArray(): UntypedFormArray {
+    return this.formGroup.get('varianten') as UntypedFormArray;
   }
 
-  get selectedNetzbezugControl(): FormControl | null {
+  get selectedNetzbezugControl(): UntypedFormControl | null {
     if (this.isHauptstreckeSelected) {
-      return (this.formGroup.get('netzbezug') as FormControl) ?? null;
+      return (this.formGroup.get('netzbezug') as UntypedFormControl) ?? null;
     }
 
     return (
-      (this.variantenFormArray.controls[this.selectedVarianteControl.value]?.get('netzbezug') as FormControl) ?? null
+      (this.variantenFormArray.controls[this.selectedVarianteControl.value]?.get('netzbezug') as UntypedFormControl) ??
+      null
     );
   }
 
@@ -369,11 +370,11 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
       };
     }
     this.variantenFormArray.push(
-      new FormGroup({
-        id: new FormControl(null),
-        kategorie: new FormControl(kategorie),
-        netzbezug: new FormControl(initialNetzbezug, RadvisValidators.isNotNullOrEmpty),
-        kantenBezug: new FormControl(null),
+      new UntypedFormGroup({
+        id: new UntypedFormControl(null),
+        kategorie: new UntypedFormControl(kategorie),
+        netzbezug: new UntypedFormControl(initialNetzbezug, RadvisValidators.isNotNullOrEmpty),
+        kantenBezug: new UntypedFormControl(null),
       })
     );
     // passiert offenbar nicht automatisch beim push
@@ -663,9 +664,9 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
 
     this.currentFahrradroute?.varianten.forEach(v => {
       this.variantenFormArray.push(
-        new FormGroup({
-          id: new FormControl(v.id),
-          netzbezug: new FormControl(
+        new UntypedFormGroup({
+          id: new UntypedFormControl(v.id),
+          netzbezug: new UntypedFormControl(
             {
               kantenIDs: v.kantenIDs,
               stuetzpunkte: v.stuetzpunkte?.coordinates,
@@ -675,8 +676,8 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardG
             } as FahrradrouteNetzbezug,
             RadvisValidators.isNotNullOrEmpty
           ),
-          kantenBezug: new FormControl(v.kantenBezug),
-          kategorie: new FormControl(v.kategorie),
+          kantenBezug: new UntypedFormControl(v.kantenBezug),
+          kategorie: new UntypedFormControl(v.kategorie),
         })
       );
     });

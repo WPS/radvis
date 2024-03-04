@@ -27,6 +27,7 @@ import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationPro
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
+import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.MailConfiguration;
@@ -129,8 +130,10 @@ class WeitereKartenebenenRepositoryTestIT extends DBIntegrationTestIT {
 			.build();
 		gebietskoerperschaftRepository.save(gebietskoerperschaft);
 
-		Benutzer ich = BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build();
-		Benutzer personB = BenutzerTestDataProvider.defaultBenutzer().organisation(gebietskoerperschaft).build();
+		Benutzer ich = BenutzerTestDataProvider.defaultBenutzer().serviceBwId(ServiceBwId.of("sbwid1"))
+			.organisation(gebietskoerperschaft).build();
+		Benutzer personB = BenutzerTestDataProvider.defaultBenutzer().serviceBwId(ServiceBwId.of("sbwid2"))
+			.organisation(gebietskoerperschaft).build();
 		benutzerRepository.save(ich);
 		benutzerRepository.save(personB);
 

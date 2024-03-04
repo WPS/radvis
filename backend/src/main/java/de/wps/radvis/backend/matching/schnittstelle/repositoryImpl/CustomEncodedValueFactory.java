@@ -37,7 +37,7 @@ import de.wps.radvis.backend.matching.schnittstelle.encodedValues.Radvorrangrout
 /**
  * Wird vom Graphhopper benutzt, wenn dieser einen Cache lädt. Aus diesem Cache werden die encoded-value-strings
  * gelesen, welche hier ins "create()" gegeben werden.
- *
+ * <p>
  * Beim Bauen des Caches wird diese Factory *nicht* benötigt, da beim Bauen der CustomTagParser benutzt wird.
  */
 public class CustomEncodedValueFactory extends DefaultEncodedValueFactory {

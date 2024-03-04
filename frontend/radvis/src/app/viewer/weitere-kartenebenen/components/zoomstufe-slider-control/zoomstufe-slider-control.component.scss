@@ -16,19 +16,12 @@
   display: block;
 }
 
-.massstab {
-  min-width: 6rem;
-}
-
 .info-text {
   display: flex;
   flex-direction: column;
-}
+  min-width: 7rem;
 
-.massstab-info {
-  font-size: 0.75rem;
-  position: absolute;
-  margin-top: 1rem;
-  text-align: center;
-  margin-left: 9px;
+  .massstab-info {
+    font-size: 0.75rem;
+  }
 }

@@ -22,13 +22,13 @@
 		<createTable tableName="anpassungswunsch">
 			<column name="id" type="BIGINT">
 				<constraints nullable="false" primaryKey="true"
-					primaryKeyName="anpassungswunsch_pkey" />
+					primaryKeyName="anpassungswunsch_pkey"/>
 			</column>
-			<column name="erstellung" type="TIMESTAMP WITHOUT TIME ZONE" />
-			<column name="aenderung" type="TIMESTAMP WITHOUT TIME ZONE" />
-			<column name="geometrie" type="GEOMETRY" />
-			<column name="beschreibung" type="VARCHAR(255)" />
-			<column name="status" type="VARCHAR(255)" />
+			<column name="erstellung" type="TIMESTAMP WITHOUT TIME ZONE"/>
+			<column name="aenderung" type="TIMESTAMP WITHOUT TIME ZONE"/>
+			<column name="geometrie" type="GEOMETRY"/>
+			<column name="beschreibung" type="VARCHAR(255)"/>
+			<column name="status" type="VARCHAR(255)"/>
 		</createTable>
 	</changeSet>
 
@@ -37,181 +37,181 @@
 			Änderung die maximale Länge eines TableNames (63 Chars) in Postgres gesprängt -->
 		<renameTable
 			oldTableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_links"
-			newTableName="fuehrungsform_attribut_gruppe_attribute_links" />
+			newTableName="fuehrungsform_attribut_gruppe_attribute_links"/>
 		<renameTable
 			oldTableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_rechts"
-			newTableName="fuehrungsform_attribut_gruppe_attribute_rechts" />
+			newTableName="fuehrungsform_attribut_gruppe_attribute_rechts"/>
 		<createTable tableName="fahrtrichtung_attribut_gruppe_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="fahrtrichtung_links" type="VARCHAR(255)" />
-			<column name="fahrtrichtung_rechts" type="VARCHAR(255)" />
-			<column name="is_zweiseitig" type="boolean" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="fahrtrichtung_links" type="VARCHAR(255)"/>
+			<column name="fahrtrichtung_rechts" type="VARCHAR(255)"/>
+			<column name="is_zweiseitig" type="boolean"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable tableName="fuehrungsform_attribut_gruppe_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="is_zweiseitig" type="boolean" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="is_zweiseitig" type="boolean"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
-			<column name="id" type="BIGINT" />
-			<column name="fuehrungsform_attribut_gruppe_id" type="BIGINT" />
-			<column name="von" type="float8" />
-			<column name="bis" type="float8" />
-			<column name="radverkehrsfuehrung" type="VARCHAR(255)" />
-			<column name="breite" type="decimal" />
-			<column name="parken_typ" type="VARCHAR(255)" />
-			<column name="parken_form" type="VARCHAR(255)" />
-			<column name="bordstein" type="varchar(255)" />
-			<column name="belag_art" type="varchar(255)" />
-			<column name="oberflaechenbeschaffenheit" type="VARCHAR(255)" />
-			<column name="benutzungspflicht" type="VARCHAR(255)" />
-			<column name="setordinal" type="integer" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="fuehrungsform_attribut_gruppe_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+			<column name="radverkehrsfuehrung" type="VARCHAR(255)"/>
+			<column name="breite" type="decimal"/>
+			<column name="parken_typ" type="VARCHAR(255)"/>
+			<column name="parken_form" type="VARCHAR(255)"/>
+			<column name="bordstein" type="varchar(255)"/>
+			<column name="belag_art" type="varchar(255)"/>
+			<column name="oberflaechenbeschaffenheit" type="VARCHAR(255)"/>
+			<column name="benutzungspflicht" type="VARCHAR(255)"/>
+			<column name="setordinal" type="integer"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
-			<column name="id" type="BIGINT" />
-			<column name="fuehrungsform_attribut_gruppe_id" type="BIGINT" />
-			<column name="von" type="float8" />
-			<column name="bis" type="float8" />
-			<column name="radverkehrsfuehrung" type="VARCHAR(255)" />
-			<column name="breite" type="decimal" />
-			<column name="parken_typ" type="VARCHAR(255)" />
-			<column name="parken_form" type="VARCHAR(255)" />
-			<column name="bordstein" type="varchar(255)" />
-			<column name="belag_art" type="varchar(255)" />
-			<column name="oberflaechenbeschaffenheit" type="VARCHAR(255)" />
-			<column name="benutzungspflicht" type="VARCHAR(255)" />
-			<column name="setordinal" type="integer" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="fuehrungsform_attribut_gruppe_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+			<column name="radverkehrsfuehrung" type="VARCHAR(255)"/>
+			<column name="breite" type="decimal"/>
+			<column name="parken_typ" type="VARCHAR(255)"/>
+			<column name="parken_form" type="VARCHAR(255)"/>
+			<column name="bordstein" type="varchar(255)"/>
+			<column name="belag_art" type="varchar(255)"/>
+			<column name="oberflaechenbeschaffenheit" type="VARCHAR(255)"/>
+			<column name="benutzungspflicht" type="VARCHAR(255)"/>
+			<column name="setordinal" type="integer"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="geschwindigkeit_attribut_gruppe_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="hoechstgeschwindigkeit" type="varchar(255)" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="hoechstgeschwindigkeit" type="varchar(255)"/>
 			<column
 				name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
-				type="varchar(255)" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+				type="varchar(255)"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable tableName="kante_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="auf_osm_gematchte_geometry" type="geometry" />
-			<column name="geometry" type="geometry" />
-			<column name="quelle" type="varchar(255)" />
-			<column name="nach_knoten_id" type="BIGINT" />
-			<column name="von_knoten_id" type="BIGINT" />
-			<column name="geloescht" type="boolean" defaultValue="false" />
-			<column name="dlm_id" type="varchar(255)" />
-			<column name="verlauf_links" type="geometry" />
-			<column name="verlauf_rechts" type="geometry" />
-			<column name="zustaendigkeit_attributgruppe_id" type="BIGINT" />
-			<column name="geschwindigkeit_attributgruppe_id" type="BIGINT" />
-			<column name="fahrtrichtung_attributgruppe_id" type="BIGINT" />
-			<column name="fuehrungsform_attribut_gruppe_id" type="BIGINT" />
-			<column name="kanten_attributgruppe_id" type="BIGINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="auf_osm_gematchte_geometry" type="geometry"/>
+			<column name="geometry" type="geometry"/>
+			<column name="quelle" type="varchar(255)"/>
+			<column name="nach_knoten_id" type="BIGINT"/>
+			<column name="von_knoten_id" type="BIGINT"/>
+			<column name="geloescht" type="boolean" defaultValue="false"/>
+			<column name="dlm_id" type="varchar(255)"/>
+			<column name="verlauf_links" type="geometry"/>
+			<column name="verlauf_rechts" type="geometry"/>
+			<column name="zustaendigkeit_attributgruppe_id" type="BIGINT"/>
+			<column name="geschwindigkeit_attributgruppe_id" type="BIGINT"/>
+			<column name="fahrtrichtung_attributgruppe_id" type="BIGINT"/>
+			<column name="fuehrungsform_attribut_gruppe_id" type="BIGINT"/>
+			<column name="kanten_attributgruppe_id" type="BIGINT"/>
 			<column name="ursprungsfeature_technischeid"
-				type="varchar(255)" />
-			<column name="is_zweiseitig" type="boolean" />
-			<column name="kanten_laenge_in_cm" type="INTEGER" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+				type="varchar(255)"/>
+			<column name="is_zweiseitig" type="boolean"/>
+			<column name="kanten_laenge_in_cm" type="INTEGER"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable tableName="kante_osm_way_ids_aud">
-			<column name="kante_id" type="BIGINT" />
-			<column name="value" type="BIGINT" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="kante_id" type="BIGINT"/>
+			<column name="value" type="BIGINT"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable tableName="kanten_attribut_gruppe_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="dtv_fussverkehr" type="INTEGER" />
-			<column name="dtv_pkw" type="INTEGER" />
-			<column name="dtv_radverkehr" type="INTEGER" />
-			<column name="kommentar" type="varchar(2000)" />
-			<column name="laenge_manuell_erfasst" type="decimal" />
-			<column name="ortslage" type="varchar(255)" />
-			<column name="strassen_name" type="varchar(255)" />
-			<column name="strassen_nummer" type="varchar(255)" />
-			<column name="sv" type="INTEGER" />
-			<column name="vereinbarungs_kennung" type="varchar(255)" />
-			<column name="wege_niveau" type="varchar(255)" />
-			<column name="gemeinde_id" type="BIGINT" />
-			<column name="beleuchtung" type="varchar(255)" />
-			<column name="strassenquerschnittrast06" type="varchar(255)" />
-			<column name="umfeld" type="varchar(255)" />
-			<column name="status" type="varchar(255)" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="dtv_fussverkehr" type="INTEGER"/>
+			<column name="dtv_pkw" type="INTEGER"/>
+			<column name="dtv_radverkehr" type="INTEGER"/>
+			<column name="kommentar" type="varchar(2000)"/>
+			<column name="laenge_manuell_erfasst" type="decimal"/>
+			<column name="ortslage" type="varchar(255)"/>
+			<column name="strassen_name" type="varchar(255)"/>
+			<column name="strassen_nummer" type="varchar(255)"/>
+			<column name="sv" type="INTEGER"/>
+			<column name="vereinbarungs_kennung" type="varchar(255)"/>
+			<column name="wege_niveau" type="varchar(255)"/>
+			<column name="gemeinde_id" type="BIGINT"/>
+			<column name="beleuchtung" type="varchar(255)"/>
+			<column name="strassenquerschnittrast06" type="varchar(255)"/>
+			<column name="umfeld" type="varchar(255)"/>
+			<column name="status" type="varchar(255)"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="kanten_attribut_gruppe_ist_standards_aud">
-			<column name="kanten_attribut_gruppe_id" type="BIGINT" />
-			<column name="standard" type="varchar(255)" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="kanten_attribut_gruppe_id" type="BIGINT"/>
+			<column name="standard" type="varchar(255)"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="kanten_attribut_gruppe_netzklassen_aud">
-			<column name="kanten_attribut_gruppe_id" type="BIGINT" />
-			<column name="netzklasse" type="varchar(255)" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="kanten_attribut_gruppe_id" type="BIGINT"/>
+			<column name="netzklasse" type="varchar(255)"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable tableName="knoten_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="point" type="geometry" />
-			<column name="quelle" type="varchar(255)" />
-			<column name="kommentar" type="varchar(2000)" />
-			<column name="knoten_form" type="varchar(255)" />
-			<column name="zustandsbeschreibung" type="varchar(2000)" />
-			<column name="gemeinde_id" type="BIGINT" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="point" type="geometry"/>
+			<column name="quelle" type="varchar(255)"/>
+			<column name="kommentar" type="varchar(2000)"/>
+			<column name="knoten_form" type="varchar(255)"/>
+			<column name="zustandsbeschreibung" type="varchar(2000)"/>
+			<column name="gemeinde_id" type="BIGINT"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="zustaendigkeit_attribut_gruppe_aud">
-			<column name="id" type="BIGINT" />
-			<column name="version" type="BIGINT" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="version" type="BIGINT"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable
 			tableName="zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_aud">
-			<column name="id" type="BIGINT" />
-			<column name="zustaendigkeit_attribut_gruppe_id" type="BIGINT" />
-			<column name="von" type="float8" />
-			<column name="bis" type="float8" />
-			<column name="vereinbarungs_kennung" type="varchar(255)" />
-			<column name="baulast_traeger_id" type="BIGINT" />
-			<column name="unterhalts_zustaendiger_id" type="BIGINT" />
-			<column name="erhalts_zustaendiger_id" type="BIGINT" />
-			<column name="setordinal" type="integer" />
-			<column name="rev" type="BIGINT" />
-			<column name="revtype" type="TINYINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="zustaendigkeit_attribut_gruppe_id" type="BIGINT"/>
+			<column name="von" type="float8"/>
+			<column name="bis" type="float8"/>
+			<column name="vereinbarungs_kennung" type="varchar(255)"/>
+			<column name="baulast_traeger_id" type="BIGINT"/>
+			<column name="unterhalts_zustaendiger_id" type="BIGINT"/>
+			<column name="erhalts_zustaendiger_id" type="BIGINT"/>
+			<column name="setordinal" type="integer"/>
+			<column name="rev" type="BIGINT"/>
+			<column name="revtype" type="TINYINT"/>
 		</createTable>
 		<createTable tableName="rev_info">
-			<column name="id" type="BIGINT" />
-			<column name="timestamp" type="BIGINT" />
+			<column name="id" type="BIGINT"/>
+			<column name="timestamp" type="BIGINT"/>
 		</createTable>
 	</changeSet>
 	<changeSet id="RAD-1998" author="par">
 		<addColumn tableName="rev_info">
-			<column name="auditing_context" type="varchar(255)" />
-			<column name="benutzer_id" type="BIGINT" />
+			<column name="auditing_context" type="varchar(255)"/>
+			<column name="benutzer_id" type="BIGINT"/>
 		</addColumn>
 	</changeSet>
 	<changeSet id="RAD-2036" author="marie">

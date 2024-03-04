@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.Hoehenunterschied;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class HoehenunterschiedUserType implements AttributeConverter<Hoehenunterschied, Double> {
 
 	@Override

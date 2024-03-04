@@ -37,7 +37,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -92,7 +92,7 @@ import jakarta.persistence.PersistenceContext;
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
 	PostgisConfigurationProperties.class })
 public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
-	@EnableJpaRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
+	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
 		"de.wps.radvis.backend.organisation" })
 	@EntityScan(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.organisation",
 		"de.wps.radvis.backend.netz", "de.wps.radvis.backend.benutzer", "de.wps.radvis.backend.common" })
@@ -813,8 +813,7 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView(); // Notwendig da die AbschnitteView die Netzklassen aus einer der materialized "Subviews" dieser View zieht
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + FahrradrouteRepository.GEOSERVER_BALM_FAHRRADROUTEN_VIEW_NAME);

@@ -168,8 +168,7 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 
 		} catch (IOException e) {
 			log.error("Fehler beim Schreiben der .pbf-Datei. Konfigurierter Dateipfad: {}",
-				outputFile.getAbsolutePath());
-			log.error(e.getMessage(), e);
+				outputFile.getAbsolutePath(), e);
 		}
 	}
 

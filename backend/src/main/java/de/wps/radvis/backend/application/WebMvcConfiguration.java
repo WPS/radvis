@@ -24,14 +24,18 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import de.wps.radvis.backend.application.metrics.ExecutionTimeRequestInterceptor;
+import de.wps.radvis.backend.application.schnittstelle.RequestLoggingInterceptor;
 
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
 	private final ExecutionTimeRequestInterceptor executionTimeRequestInterceptor;
+	private final RequestLoggingInterceptor requestLoggingInterceptor;
 
-	public WebMvcConfiguration(ExecutionTimeRequestInterceptor executionTimeRequestInterceptor) {
+	public WebMvcConfiguration(ExecutionTimeRequestInterceptor executionTimeRequestInterceptor,
+		RequestLoggingInterceptor requestLoggingInterceptor) {
 		this.executionTimeRequestInterceptor = executionTimeRequestInterceptor;
+		this.requestLoggingInterceptor = requestLoggingInterceptor;
 	}
 
 	@Override
@@ -51,6 +55,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(executionTimeRequestInterceptor);
+		registry.addInterceptor(requestLoggingInterceptor);
 	}
 
 	@Override
@@ -60,5 +65,4 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 			.strategies(
 				List.of(webRequest -> List.of(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.ALL)));
 	}
-
 }

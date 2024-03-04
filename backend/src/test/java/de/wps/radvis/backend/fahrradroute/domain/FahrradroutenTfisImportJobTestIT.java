@@ -32,13 +32,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -52,13 +50,12 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
-import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -97,18 +94,20 @@ import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.NonNull;
 
 @Tag("group1")
 @ContextConfiguration(classes = { FahrradroutenTfisImportJobTestIT.TestConfiguration.class, CommonConfiguration.class,
-		GeoConverterConfiguration.class, })
+	GeoConverterConfiguration.class, })
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
-		PostgisConfigurationProperties.class })
+	PostgisConfigurationProperties.class })
 public class FahrradroutenTfisImportJobTestIT extends DBIntegrationTestIT {
-	@EnableJpaRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
-			"de.wps.radvis.backend.organisation" })
+	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
+		"de.wps.radvis.backend.organisation" })
 	@EntityScan(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.organisation",
-			"de.wps.radvis.backend.netz", "de.wps.radvis.backend.benutzer", "de.wps.radvis.backend.common" })
+		"de.wps.radvis.backend.netz", "de.wps.radvis.backend.benutzer", "de.wps.radvis.backend.common" })
 	public static class TestConfiguration {
 		@Autowired
 		private KantenRepository kantenRepository;

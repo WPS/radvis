@@ -69,7 +69,7 @@ describe(HoehenprofilComponent.name, () => {
         document.getElementById = jasmine.createSpy('HTML Element').and.returnValue(dummyElement);
         tooltipModel = { tooltip: { opacity: 0, dataPoints: [{ raw: {} }] } };
 
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         component.lineChartOptions.plugins.tooltip.external(tooltipModel);
         expect(component.currentPosition).toBeFalsy();
         expect(component.currentHoehenmeter).toBeFalsy();
@@ -88,7 +88,7 @@ describe(HoehenprofilComponent.name, () => {
           },
         };
         const hoverSpy = spyOn(component.hoverPositionChange, 'emit');
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         component.lineChartOptions.plugins.tooltip.external(tooltipModel);
 
         expect(component.currentPosition).toEqual('25 km');

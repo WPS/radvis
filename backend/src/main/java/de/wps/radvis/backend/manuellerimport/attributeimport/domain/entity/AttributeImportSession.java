@@ -19,9 +19,13 @@ import static org.valid4j.Assertive.require;
 
 import java.util.List;
 
+import org.locationtech.jts.geom.MultiPolygon;
+
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AttributeImportFormat;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionSchritt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +33,10 @@ import lombok.NonNull;
 import lombok.Setter;
 
 public class AttributeImportSession extends AbstractImportSession {
+
+	public static ImportSessionSchritt AUTOMATISCHE_ABBILDUNG = ImportSessionSchritt.of(3);
+	public static ImportSessionSchritt ABBILDUNG_BEARBEITEN = ImportSessionSchritt.of(4);
+	public static ImportSessionSchritt IMPORT_ABSCHLIESSEN = ImportSessionSchritt.of(5);
 
 	@Getter
 	@Setter
@@ -39,20 +47,25 @@ public class AttributeImportSession extends AbstractImportSession {
 	private List<FeatureMapping> featureMappings;
 
 	@Getter
+	private final Verwaltungseinheit organisation;
+
+	@Getter
 	@Setter
 	private AttributeImportKonfliktProtokoll attributeImportKonfliktProtokoll;
 
 	@Getter
-	private AttributeImportFormat attributeImportFormat;
+	private final AttributeImportFormat attributeImportFormat;
 
 	@Builder
 	public AttributeImportSession(@NonNull Benutzer benutzer, @NonNull Verwaltungseinheit organisation,
 		@NonNull List<String> attribute, @NonNull AttributeImportFormat attributeImportFormat) {
-		super(benutzer, organisation);
+		super(benutzer);
 		require(attribute, notNullValue());
 		require(attributeImportFormat, notNullValue());
+		this.schritt = AUTOMATISCHE_ABBILDUNG;
 		this.attribute = attribute;
 		this.attributeImportFormat = attributeImportFormat;
+		this.organisation = organisation;
 	}
 
 	public FeatureMapping deleteMappedGrundnetzkanteFromFeatureMapping(Long featureMappingId, Long kanteId) {
@@ -69,6 +82,17 @@ public class AttributeImportSession extends AbstractImportSession {
 		}
 		return featureMappings.stream()
 			.filter(featureMapping -> featureMapping.getKantenAufDieGemappedWurde().isEmpty()).count();
+	}
+
+	@Override
+	public MultiPolygon getBereich() {
+		return organisation.getBereich()
+			.orElse(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createMultiPolygon());
+	}
+
+	@Override
+	public String getBereichName() {
+		return organisation.getName();
 	}
 
 	public long getAnzahlKantenMitUneindeutigerAttributzuordnung() {

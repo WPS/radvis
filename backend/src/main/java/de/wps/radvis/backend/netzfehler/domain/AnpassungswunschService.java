@@ -20,9 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import jakarta.persistence.EntityNotFoundException;
-
-import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Point;
 import org.springframework.context.event.EventListener;
 
@@ -35,6 +32,7 @@ import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschKateg
 import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschStatus;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.KonsistenzregelVerletzungReferenz;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

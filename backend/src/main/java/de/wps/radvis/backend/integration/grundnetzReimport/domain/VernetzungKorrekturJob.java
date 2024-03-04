@@ -14,7 +14,6 @@
 
 package de.wps.radvis.backend.integration.grundnetzReimport.domain;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,10 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Tuple;
-import jakarta.transaction.Transactional;
 
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Point;
@@ -46,6 +41,9 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

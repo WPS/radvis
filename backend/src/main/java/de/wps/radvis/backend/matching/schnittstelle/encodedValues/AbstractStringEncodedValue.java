@@ -39,12 +39,12 @@ public abstract class AbstractStringEncodedValue {
 	public static void apply(EncodedValue encodedValue, ReaderWay way, String osmTagKey, IntsRef intsRef) {
 		boolean seitenbezogen = encodedValue.isStoreTwoDirections();
 
-		if(!seitenbezogen){
+		if (!seitenbezogen) {
 			if (way.hasTag(osmTagKey)) {
 				final String wayTag = find(way.getTag(osmTagKey));
 				((StringEncodedValue) encodedValue).setString(false, intsRef, wayTag);
 			}
-		}else {
+		} else {
 			if (way.hasTag(osmTagKey)) {
 				final String wayTag = find(way.getTag(osmTagKey));
 				((StringEncodedValue) encodedValue).setString(false, intsRef, wayTag);

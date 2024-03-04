@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
   <changeSet id="RAD-3595" author="hst">
     <createTable tableName="dokument_aud">
       <column name="id" type="bigint"/>
@@ -195,24 +195,24 @@
 
   <changeSet id="RAD-3752" author="par">
     <addForeignKeyConstraint baseTableName="massnahme_kantenpunkte" baseColumnNames="kante_id"
-      constraintName="fk_massnahme_kantenpunkte_kante_id"
-      referencedTableName="kante"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_kantenpunkte_kante_id"
+			referencedTableName="kante"
+			referencedColumnNames="id"/>
     <createIndex tableName="massnahme_kantenpunkte" indexName="fk_massnahme_kantenpunkte_kante_id_idx">
       <column name="kante_id"/>
     </createIndex>
     <addForeignKeyConstraint baseTableName="massnahme_kantenseitenabschnitte" baseColumnNames="kante_id"
-      constraintName="fk_massnahme_kantenseitenabschnitte_kante_id"
-      referencedTableName="kante"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_kantenseitenabschnitte_kante_id"
+			referencedTableName="kante"
+			referencedColumnNames="id"/>
     <createIndex tableName="massnahme_kantenseitenabschnitte"
-      indexName="fk_massnahme_kantenseitenabschnitte_kante_id_idx">
+			indexName="fk_massnahme_kantenseitenabschnitte_kante_id_idx">
       <column name="kante_id"/>
     </createIndex>
     <addForeignKeyConstraint baseTableName="massnahme_knoten" baseColumnNames="knoten_id"
-      constraintName="fk_massnahme_knoten_knoten_id"
-      referencedTableName="knoten"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_knoten_knoten_id"
+			referencedTableName="knoten"
+			referencedColumnNames="id"/>
     <createIndex tableName="massnahme_knoten" indexName="fk_massnahme_knoten_knoten_id_idx">
       <column name="knoten_id"/>
     </createIndex>
@@ -222,7 +222,7 @@
     <createTable tableName="massnahme_netz_bezug_aenderung">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="massnahme_netz_bezug_aenderung_pkey"/>
+					primaryKeyName="massnahme_netz_bezug_aenderung_pkey"/>
       </column>
       <column name="netz_bezug_aenderungs_art" type="VARCHAR(255)">
         <constraints nullable="false"/>
@@ -246,16 +246,16 @@
     </createTable>
 
     <addForeignKeyConstraint baseTableName="massnahme_netz_bezug_aenderung" baseColumnNames="massnahme_id"
-      constraintName="fk_massnahme_netz_bezug_aenderung_massnahme_id"
-      referencedTableName="massnahme"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_netz_bezug_aenderung_massnahme_id"
+			referencedTableName="massnahme"
+			referencedColumnNames="id"/>
     <createIndex tableName="massnahme_netz_bezug_aenderung" indexName="fk_massnahme_netz_bezug_aenderung_massnahme_idx">
       <column name="massnahme_id"/>
     </createIndex>
     <addForeignKeyConstraint baseTableName="massnahme_netz_bezug_aenderung" baseColumnNames="benutzer_id"
-      constraintName="fk_massnahme_netz_bezug_aenderung_benutzer_id"
-      referencedTableName="benutzer"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_netz_bezug_aenderung_benutzer_id"
+			referencedTableName="benutzer"
+			referencedColumnNames="id"/>
     <createIndex tableName="massnahme_netz_bezug_aenderung" indexName="fk_massnahme_netz_bezug_aenderung_benutzer_idx">
       <column name="benutzer_id"/>
     </createIndex>
@@ -328,25 +328,25 @@
 
   <changeSet id="RAD-2704" author="hst">
     <addColumn tableName="fahrradroute">
-      <column name="kurzbeschreibung" type="VARCHAR(500)" />
-      <column name="tourenkategorie" type="VARCHAR(255)" />
-      <column name="offizielle_laenge" type="BIGINT" />
-      <column name="website" type="VARCHAR(255)" />
-      <column name="verantwortlich_id" type="BIGINT" />
-      <column name="email_ansprechpartner" type="VARCHAR(255)" />
-      <column name="lizenz" type="VARCHAR(255)" />
-      <column name="lizenz_namensnennung" type="VARCHAR(255)" />
+      <column name="kurzbeschreibung" type="VARCHAR(500)"/>
+      <column name="tourenkategorie" type="VARCHAR(255)"/>
+      <column name="offizielle_laenge" type="BIGINT"/>
+      <column name="website" type="VARCHAR(255)"/>
+      <column name="verantwortlich_id" type="BIGINT"/>
+      <column name="email_ansprechpartner" type="VARCHAR(255)"/>
+      <column name="lizenz" type="VARCHAR(255)"/>
+      <column name="lizenz_namensnennung" type="VARCHAR(255)"/>
     </addColumn>
     <addForeignKeyConstraint
-      constraintName="fk_fahrradroute_verantwortlich_id"
-      referencedTableName="organisation"
-      referencedColumnNames="id"
-      baseColumnNames="verantwortlich_id" baseTableName="fahrradroute"/>
+			constraintName="fk_fahrradroute_verantwortlich_id"
+			referencedTableName="organisation"
+			referencedColumnNames="id"
+			baseColumnNames="verantwortlich_id" baseTableName="fahrradroute"/>
   </changeSet>
 
   <changeSet id="RAD-3798" author="hst">
     <addColumn tableName="fahrradroute">
-      <column name="fahrradroute_typ" type="VARCHAR(255)" defaultValue="TOUBIZ_ROUTE" />
+      <column name="fahrradroute_typ" type="VARCHAR(255)" defaultValue="TOUBIZ_ROUTE"/>
     </addColumn>
     <createTable tableName="fahrradroute_aud">
       <column name="id" type="BIGINT"/>
@@ -358,17 +358,17 @@
       <column name="beschreibung" type="text"/>
       <column name="original_geometrie" type="Geometry"/>
       <column name="icon_location" type="Geometry"/>
-      <column name="kurzbeschreibung" type="VARCHAR(500)" />
-      <column name="tourenkategorie" type="VARCHAR(255)" />
+      <column name="kurzbeschreibung" type="VARCHAR(500)"/>
+      <column name="tourenkategorie" type="VARCHAR(255)"/>
       <column name="kategorie" type="VARCHAR(255)"/>
-      <column name="offizielle_laenge" type="BIGINT" />
-      <column name="website" type="VARCHAR(255)" />
-      <column name="verantwortlich_id" type="BIGINT" />
-      <column name="email_ansprechpartner" type="VARCHAR(255)" />
-      <column name="lizenz" type="VARCHAR(255)" />
-      <column name="lizenz_namensnennung" type="VARCHAR(255)" />
-      <column name="fahrradroute_typ" type="VARCHAR(255)" />
-      <column name="abbildung_durch_routing" type="BOOLEAN" />
+      <column name="offizielle_laenge" type="BIGINT"/>
+      <column name="website" type="VARCHAR(255)"/>
+      <column name="verantwortlich_id" type="BIGINT"/>
+      <column name="email_ansprechpartner" type="VARCHAR(255)"/>
+      <column name="lizenz" type="VARCHAR(255)"/>
+      <column name="lizenz_namensnennung" type="VARCHAR(255)"/>
+      <column name="fahrradroute_typ" type="VARCHAR(255)"/>
+      <column name="abbildung_durch_routing" type="BOOLEAN"/>
       <column name="routed_or_matched_geometry" type="GEOMETRY"/>
       <column name="abweichende_segmente" type="GEOMETRY"/>
       <column name="kehrtwenden" type="GEOMETRY"/>

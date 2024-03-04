@@ -16,7 +16,7 @@ package de.wps.radvis.backend.servicestation.domain;
 
 import de.wps.radvis.backend.common.domain.exception.CsvAttributMappingException;
 
-public class ServicestationAttributMappingException	extends CsvAttributMappingException {
+public class ServicestationAttributMappingException extends CsvAttributMappingException {
 
 	public ServicestationAttributMappingException(String message) {
 		super(message);

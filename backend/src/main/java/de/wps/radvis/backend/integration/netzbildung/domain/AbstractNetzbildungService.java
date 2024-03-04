@@ -16,8 +16,6 @@ package de.wps.radvis.backend.integration.netzbildung.domain;
 
 import java.util.Optional;
 
-import jakarta.persistence.EntityManager;
-
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
@@ -33,6 +31,7 @@ import de.wps.radvis.backend.netz.domain.entity.KnotenIndex;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

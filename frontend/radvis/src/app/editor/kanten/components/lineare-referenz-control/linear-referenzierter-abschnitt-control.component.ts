@@ -24,7 +24,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormArray, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatCheckboxDefaultOptions, MAT_CHECKBOX_DEFAULT_OPTIONS } from '@angular/material/checkbox';
+import { MAT_CHECKBOX_DEFAULT_OPTIONS, MatCheckboxDefaultOptions } from '@angular/material/checkbox';
 import { LineString } from 'ol/geom';
 import { Layer } from 'ol/layer';
 import { Source } from 'ol/source';
@@ -75,7 +75,7 @@ export class LinearReferenzierterAbschnittControlComponent
 
   hoveredSegmentIndex: number | null = null;
   isDisabled = false;
-  lineareReferenzenForm: FormArray;
+  lineareReferenzenForm: FormArray<FormControl<number>>;
   valueChangeSubscription: Subscription;
   previousControlValues: number[] = [];
   relativeSegmentPoints!: number[];
@@ -89,7 +89,8 @@ export class LinearReferenzierterAbschnittControlComponent
 
   constructor(private changeDetector: ChangeDetectorRef, private notifyUserService: NotifyUserService) {
     super();
-    this.lineareReferenzenForm = new FormArray([]);
+    const initializerValue: FormControl<number>[] = [];
+    this.lineareReferenzenForm = new FormArray(initializerValue);
 
     this.valueChangeSubscription = this.subscribeToValueChanges();
   }
@@ -196,26 +197,21 @@ export class LinearReferenzierterAbschnittControlComponent
     this.previousControlValues = this.lineareReferenzenForm.getRawValue();
   }
 
-  public getVonControl(index: number): FormControl {
-    return this.lineareReferenzenForm.at(index) as FormControl;
+  public getVonControl(index: number): FormControl<number> {
+    return this.lineareReferenzenForm.at(index) as FormControl<number>;
   }
 
-  public getBisControl(index: number): FormControl {
-    return this.lineareReferenzenForm.at(index + 1) as FormControl;
+  public getBisControl(index: number): FormControl<number> {
+    return this.lineareReferenzenForm.at(index + 1) as FormControl<number>;
   }
 
   public setDisabledState(isDisabled: boolean): void {
-    if (isDisabled) {
-      this.lineareReferenzenForm.disable({ emitEvent: false });
-    } else {
-      this.lineareReferenzenForm.enable({ emitEvent: false });
-    }
     this.isDisabled = isDisabled;
     this.changeDetector.markForCheck();
   }
 
-  private createControl(withValue: number, disabled = false): FormControl {
-    return new FormControl({ value: withValue, disabled });
+  private createControl(withValue: number, disabled = false): FormControl<number> {
+    return new FormControl<number>({ value: withValue, disabled }, { nonNullable: true });
   }
 
   private subscribeToValueChanges(): Subscription {
@@ -225,7 +221,6 @@ export class LinearReferenzierterAbschnittControlComponent
       }
       const value = this.lineareReferenzenForm.getRawValue();
       const updatedLineareReferenzen: LinearReferenzierterAbschnitt[] = [];
-      // eslint-disable-next-line @typescript-eslint/prefer-for-of
       for (let i = 1; i < value.length; i++) {
         updatedLineareReferenzen.push(
           LinearReferenzierterAbschnittInMeter.ofMeter(
@@ -240,11 +235,11 @@ export class LinearReferenzierterAbschnittControlComponent
     });
   }
 
-  private nachMinUndMaxWertDerMetermarkenKorrigieren(control: FormArray): void {
-    const controls = (control as FormArray).controls;
-    const i = this.getIndexOfFirstChangedValue(this.previousControlValues, control.getRawValue());
+  private nachMinUndMaxWertDerMetermarkenKorrigieren(array: FormArray<FormControl<number>>): void {
+    const controls = (array as FormArray<FormControl<number>>).controls;
+    const i = this.getIndexOfFirstChangedValue(this.previousControlValues, array.getRawValue());
     if (i == null) {
-      // kein Aendeurngen -> keine korrketur nötig
+      // kein Aenderungen -> keine Korrektur notwendig
       return;
     }
     const lowerLimit = controls[i - 1].value;

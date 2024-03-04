@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.massnahme.domain.MassnahmenPaketIdExtractor;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;

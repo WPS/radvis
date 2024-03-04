@@ -18,7 +18,7 @@ import de.wps.radvis.backend.furtKreuzung.domain.valueObject.Umlaufzeit;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class UmlaufzeitUserType
 	implements AttributeConverter<Umlaufzeit, Integer> {
 

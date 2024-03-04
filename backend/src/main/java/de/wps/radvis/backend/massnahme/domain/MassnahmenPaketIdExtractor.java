@@ -14,7 +14,7 @@
 
 package de.wps.radvis.backend.massnahme.domain;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 public class MassnahmenPaketIdExtractor {
 	public static String getMassnahmenPaketId(SimpleFeature simpleFeature) {

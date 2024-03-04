@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
   <changeSet id="RAD-546" author="jg+bw">
     <addColumn tableName="kante">
       <column name="version" type="int" defaultValueNumeric="0"/>
@@ -27,23 +27,23 @@
   </changeSet>
   <changeSet id="RAD-546-2" author="jg+mw">
     <modifyDataType tableName="kante"
-      columnName="version" newDataType="bigint"/>
+			columnName="version" newDataType="bigint"/>
     <modifyDataType tableName="kanten_attribute"
-      columnName="version" newDataType="bigint"/>
+			columnName="version" newDataType="bigint"/>
   </changeSet>
   <changeSet id="RAD-737" author="andreas">
     <addColumn tableName="strassen_begleit_attribute">
-      <column name="bordstein" type="VARCHAR(255)" />
+      <column name="bordstein" type="VARCHAR(255)"/>
     </addColumn>
   </changeSet>
   <changeSet id="RAD-738" author="Kim und Andreas">
     <addColumn schemaName="public" tableName="kanten_attribute">
-      <column name="gemeinde_id" type="BIGINT" />
+      <column name="gemeinde_id" type="BIGINT"/>
     </addColumn>
   </changeSet>
   <changeSet author="Bastian" id="RAD-741">
     <addColumn schemaName="public" tableName="kanten_attribute">
-      <column name="unterhalts_zustaendiger_id" type="BIGINT" />
+      <column name="unterhalts_zustaendiger_id" type="BIGINT"/>
     </addColumn>
   </changeSet>
   <changeSet id="RAD-758" author="Pawel">
@@ -70,25 +70,25 @@
       <column name="wege_niveau" type="varchar(255)"/>
       <column name="baulast_traeger_id" type="BIGINT"/>
       <column name="gemeinde_id" type="BIGINT"/>
-      <column name="unterhalts_zustaendiger_id" type="BIGINT" />
+      <column name="unterhalts_zustaendiger_id" type="BIGINT"/>
     </addColumn>
   </changeSet>
 
   <changeSet id="RAD-776-2" author="paavo">
-    <dropForeignKeyConstraint baseTableName="knoten" constraintName="fk_knoten_knoten_attribute" />
-    <dropColumn tableName="knoten" columnName="knoten_attribute_id" />
-    <dropTable tableName="knoten_attribute" />
+    <dropForeignKeyConstraint baseTableName="knoten" constraintName="fk_knoten_knoten_attribute"/>
+    <dropColumn tableName="knoten" columnName="knoten_attribute_id"/>
+    <dropTable tableName="knoten_attribute"/>
     <addColumn schemaName="public" tableName="knoten">
-      <column name="kommentar" type="varchar(2000)" />
-      <column name="ortslage" type="varchar(255)" />
-      <column name="knoten_form" type="varchar(255)" />
-      <column name="knoten_art" type="varchar(255)" />
+      <column name="kommentar" type="varchar(2000)"/>
+      <column name="ortslage" type="varchar(255)"/>
+      <column name="knoten_form" type="varchar(255)"/>
+      <column name="knoten_art" type="varchar(255)"/>
     </addColumn>
   </changeSet>
 
   <changeSet id="RAD-745" author="bastianUndAndreas">
     <addColumn tableName="kante">
-      <column name="fuehrungsform" type="VARCHAR(255)" />
+      <column name="fuehrungsform" type="VARCHAR(255)"/>
     </addColumn>
   </changeSet>
 
@@ -99,9 +99,9 @@
   </changeSet>
 
   <changeSet id="RAD-775-2" author="kim und pawel">
-    <addDefaultValue tableName="knoten" columnName="version" defaultValueNumeric="0" />
+    <addDefaultValue tableName="knoten" columnName="version" defaultValueNumeric="0"/>
     <update tableName="knoten">
-      <column name="version" value="0" />
+      <column name="version" value="0"/>
     </update>
   </changeSet>
 
@@ -110,18 +110,18 @@
   </changeSet>
 
   <changeSet id="RAD-789" author="pawel und kim">
-    <dropColumn tableName="knoten" columnName="ortslage" />
+    <dropColumn tableName="knoten" columnName="ortslage"/>
   </changeSet>
 
   <changeSet id="RAD-792" author="pawel und kim">
     <addColumn schemaName="public" tableName="knoten">
-      <column name="gemeinde_id" type="BIGINT" />
+      <column name="gemeinde_id" type="BIGINT"/>
     </addColumn>
   </changeSet>
   
   <changeSet id="RAD-806" author="andreas">
     <modifyDataType tableName="strassen_begleit_attribute"
-      columnName="beleuchtung" newDataType="varchar(255)"/>
+			columnName="beleuchtung" newDataType="varchar(255)"/>
   </changeSet>
   
   <changeSet id="RAD-833" author="andreas">
@@ -132,7 +132,7 @@
 
   <changeSet id="RAD-806-2" author="andreas">
     <dropColumn tableName="strassen_begleit_attribute"
-      columnName="retroreflektierende_randbeleuchtung"/>
+			columnName="retroreflektierende_randbeleuchtung"/>
   </changeSet>
   
   <changeSet id="RAD-833-2" author="andreas">

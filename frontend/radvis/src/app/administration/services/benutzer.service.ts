@@ -16,7 +16,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Benutzer } from 'src/app/administration/models/benutzer';
 import { BenutzerListView } from 'src/app/administration/models/benutzer-list-view';
-import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 import { SaveBenutzerCommand } from 'src/app/administration/models/save-benutzer-command';
 
 @Injectable({
@@ -38,15 +37,9 @@ export class BenutzerService {
     return this.http.post<Benutzer>(`${this.benutzerApi}/save`, command).toPromise();
   }
 
-  public aendereBenutzerstatus(id: number, version: number, alterStatus: BenutzerStatus): Promise<Benutzer> {
-    if (alterStatus === BenutzerStatus.INAKTIV) {
-      return this.http
-        .post<Benutzer>(`${this.benutzerApi}/aktiviere-benutzer?id=${id}&version=${version}`, {})
-        .toPromise();
-    } else {
-      return this.http
-        .post<Benutzer>(`${this.benutzerApi}/deaktiviere-benutzer?id=${id}&version=${version}`, {})
-        .toPromise();
-    }
+  public aendereBenutzerstatus(id: number, version: number, status: string): Promise<Benutzer> {
+    return this.http
+      .post<Benutzer>(`${this.benutzerApi}/benutzer-status-aendern?id=${id}&version=${version}&status=${status}`, {})
+      .toPromise();
   }
 }

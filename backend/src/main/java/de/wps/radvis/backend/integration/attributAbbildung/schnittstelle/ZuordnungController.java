@@ -165,7 +165,7 @@ public class ZuordnungController {
 		});
 
 		return netzService.saveKanten(dlmKanten)
-			.stream().map(kante -> new KanteEditView(kante, false)).collect(Collectors.toList());
+			.stream().map(kante -> new KanteEditView(kante, false, false)).collect(Collectors.toList());
 	}
 
 	@GetMapping(path = "radnetz/{radNETZKanteId}")

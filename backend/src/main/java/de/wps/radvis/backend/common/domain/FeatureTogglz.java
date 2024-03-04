@@ -19,7 +19,8 @@ import org.togglz.core.annotation.InfoLink;
 import org.togglz.core.context.FeatureContext;
 
 public enum FeatureTogglz implements Feature {
-	// Die Togglz müssen in der internen application.yml mit Initialwert definert werden,
+	// Die Togglz müssen in der internen application.yml mit Initialwert definert
+	// werden,
 	// damit sie über Umgebungsvariablen überschrieben werden können.
 
 	// Die '_' im Enum-Werten müssen in den Umgebungsvariablen entfernt werden.
@@ -36,7 +37,8 @@ public enum FeatureTogglz implements Feature {
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-2717")
 	FAHRRADROUTE_IMPORTPROTOKOLLE,
 
-	// Dieses FeatureToggle steuert, ob der RadNETZ-Strecken-Cache gebaut und verwendet werden soll.
+	// Dieses FeatureToggle steuert, ob der RadNETZ-Strecken-Cache gebaut und
+	// verwendet werden soll.
 	// Ist es deaktiviert, ist das RadNETZ auf weiter Zoomstufe nicht nichtbar.
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-3530")
 	RADNETZ_STRECKEN,
@@ -47,7 +49,8 @@ public enum FeatureTogglz implements Feature {
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-4100")
 	USE_LGL_HOEHENDATEN,
 
-	// Hiermit kann naechtlich im Rahmen des ProfiInformationenUpdateJob bei Routen ohne
+	// Hiermit kann naechtlich im Rahmen des ProfiInformationenUpdateJob bei Routen
+	// ohne
 	// NetzbezugLineString versucht werden ebendiesen neu zu erstellen
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-4234")
 	NETZBEZUGLINESTRING_RETRY,
@@ -56,6 +59,11 @@ public enum FeatureTogglz implements Feature {
 
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-4183")
 	DLM_REIMPORT_FIX,
+
+	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-6118")
+	IMPORT_MASSNAHMEN,
+	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-6118")
+	IMPORT_DATEIANHAENGE_MASSNAHMEN,
 
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-4211")
 	ANPASSUNGEN,
@@ -133,7 +141,10 @@ public enum FeatureTogglz implements Feature {
 	SICHERHEITSTRENNSTREIFEN,
 
 	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-2659")
-	DATEILAYER_HOCHLADEN_ANZEIGEN;
+	DATEILAYER_HOCHLADEN_ANZEIGEN,
+
+	@InfoLink("https://bis2wps.atlassian.net/browse/RAD-5105")
+	BASIC_AUTH_VERWALTEN_ANZEIGEN;
 
 	public boolean isActive() {
 		return FeatureContext.getFeatureManager().isActive(this);

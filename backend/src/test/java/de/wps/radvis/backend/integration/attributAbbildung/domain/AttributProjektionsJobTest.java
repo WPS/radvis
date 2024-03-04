@@ -30,9 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +54,8 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 class AttributProjektionsJobTest {
 

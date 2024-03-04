@@ -12,6 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Location } from '@angular/common';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { MatTableModule } from '@angular/material/table';
@@ -51,6 +52,7 @@ describe(WeitereKartenebenenRoutingService.name, () => {
       .keep(DetailFeatureTableComponent)
       .keep(WeitereKartenebenenRoutingService)
       .keep(MatTableModule)
+      .keep(BreakpointObserver)
       .exclude(NG_MOCKS_GUARDS)
       .provide({
         provide: MapQueryParamsService,
@@ -64,7 +66,7 @@ describe(WeitereKartenebenenRoutingService.name, () => {
 
   // It is important to run routing tests in fakeAsync.
   it('should invoke detail view with data', fakeAsync(() => {
-    const fixture = MockRender(RouterOutlet);
+    const fixture = MockRender(RouterOutlet, {}, true);
     const routingService: WeitereKartenebenenRoutingService = fixture.point.injector.get(
       WeitereKartenebenenRoutingService
     );
@@ -122,7 +124,7 @@ describe(WeitereKartenebenenRoutingService.name, () => {
     tick();
 
     const el = ngMocks.find(WeitereKartenebenenDetailViewComponent);
-    const tableRows = ngMocks.findAll(el, 'tr.mat-row');
+    const tableRows = ngMocks.findAll(el, 'tr.mat-mdc-row');
     expect(tableRows.length).toBe(1);
     const tablecells = ngMocks.findAll(tableRows[0], 'td');
     expect(tablecells.length).toBe(2);

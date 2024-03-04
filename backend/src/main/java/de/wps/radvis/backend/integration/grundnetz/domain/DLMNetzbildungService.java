@@ -18,9 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 
@@ -40,6 +37,8 @@ import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.entity.DLMNetzbildungJobStatistik;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

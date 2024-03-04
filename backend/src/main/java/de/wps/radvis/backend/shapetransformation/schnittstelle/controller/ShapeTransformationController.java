@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;

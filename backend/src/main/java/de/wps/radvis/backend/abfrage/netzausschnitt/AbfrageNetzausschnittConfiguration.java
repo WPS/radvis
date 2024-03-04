@@ -16,9 +16,6 @@ package de.wps.radvis.backend.abfrage.netzausschnitt;
 
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +45,8 @@ import de.wps.radvis.backend.netz.domain.service.NetzklassenStreckenViewService;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.NonNull;
 
 @Configuration

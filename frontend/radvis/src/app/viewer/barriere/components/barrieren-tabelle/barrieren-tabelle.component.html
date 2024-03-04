@@ -29,7 +29,7 @@
   <button
     (click)="onCreate()"
     class="create-button action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     *ngIf="isBenutzerBerechtigtBarrierenZuErstellen"
   >
     <mat-icon>add</mat-icon>
@@ -37,7 +37,7 @@
   </button>
   <button
     class="action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     (click)="onFilterReset()"
   >
     <mat-icon>filter_alt_off</mat-icon>

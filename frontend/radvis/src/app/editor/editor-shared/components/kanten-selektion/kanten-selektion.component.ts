@@ -109,7 +109,7 @@ export class KantenSelektionComponent implements OnDestroy {
 
       const vectorLayer = new VectorLayer({
         source: kantenVectorSource,
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         renderOrder: null,
         style: this.getStyleFunctionForKantenLayer(MapStyles.FEATURE_COLOR),
         minZoom: nk.minZoom,

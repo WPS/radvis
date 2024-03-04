@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.junit.jupiter.api.Test;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
 

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CreateOrganisationCommand } from 'src/app/administration/models/create-organisation-command';
 import { SaveOrganisationCommand } from 'src/app/administration/models/save-organisation-command';
@@ -24,7 +24,7 @@ import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators
 import { Organisation } from 'src/app/shared/models/organisation-edit-view';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import invariant from 'tiny-invariant';
 
@@ -34,12 +34,12 @@ import invariant from 'tiny-invariant';
   styleUrls: ['./organisation-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrganisationEditorComponent implements DiscardGuard {
-  form: FormGroup = new FormGroup({
-    name: new FormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-    uebergeordneteOrganisation: new FormControl(null),
-    organisationsArt: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-    zustaendigFuerBereichOf: new FormControl([]),
+export class OrganisationEditorComponent implements DiscardableComponent {
+  form: UntypedFormGroup = new UntypedFormGroup({
+    name: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+    uebergeordneteOrganisation: new UntypedFormControl(null),
+    organisationsArt: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+    zustaendigFuerBereichOf: new UntypedFormControl([]),
   });
 
   fetchingNachSpeicherung = false;

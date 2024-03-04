@@ -14,6 +14,8 @@
 
 package de.wps.radvis.backend.massnahme.domain.valueObject;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
@@ -35,5 +37,13 @@ public enum Umsetzungsstatus {
 	@Override
 	public String toString() {
 		return displayText;
+	}
+
+	public static final List<Umsetzungsstatus> STATUS_AB_PLANUNG = List.of(Umsetzungsstatus.PLANUNG,
+		Umsetzungsstatus.UMGESETZT,
+		Umsetzungsstatus.UMSETZUNG);
+
+	public static boolean isAbPlanung(Umsetzungsstatus umsetzungsstatus) {
+		return STATUS_AB_PLANUNG.contains(umsetzungsstatus);
 	}
 }

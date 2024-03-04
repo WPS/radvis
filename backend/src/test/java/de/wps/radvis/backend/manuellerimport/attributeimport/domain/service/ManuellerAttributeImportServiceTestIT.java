@@ -29,6 +29,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -43,6 +45,7 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
@@ -71,7 +74,6 @@ import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.quellimport.common.ImportsCommonConfiguration;
@@ -104,6 +106,9 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	OsmPbfConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 @ActiveProfiles("test")
 class ManuellerAttributeImportServiceTestIT extends DBIntegrationTestIT {

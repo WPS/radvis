@@ -14,14 +14,13 @@
 
 package de.wps.radvis.backend.fahrradroute.domain.valueObject;
 
+import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
-import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
-import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

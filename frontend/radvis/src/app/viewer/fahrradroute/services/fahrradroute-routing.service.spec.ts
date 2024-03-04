@@ -23,10 +23,11 @@ import { FahrradrouteRoutingService } from './fahrradroute-routing.service';
 describe(FahrradrouteRoutingService.name, () => {
   let service: FahrradrouteRoutingService;
   let router: Router;
-  const routerEvents: Subject<NavigationEnd> = new Subject();
+  let routerEvents: Subject<NavigationEnd>;
 
   beforeEach(() => {
     router = mock(Router);
+    routerEvents = new Subject();
     when(router.events).thenReturn(routerEvents.asObservable());
     service = new FahrradrouteRoutingService(instance(router));
   });

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class CsvImportException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -7967258830577893797L;
 

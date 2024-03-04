@@ -20,3 +20,10 @@
   height: 100%;
   width: $viewer-side-bar-width;
 }
+
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+}

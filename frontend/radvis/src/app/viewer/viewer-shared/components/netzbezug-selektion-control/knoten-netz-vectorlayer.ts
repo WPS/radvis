@@ -38,7 +38,7 @@ export class KnotenNetzVectorLayer extends VectorLayer {
   ) {
     super({
       source: undefined,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: getRadvisNetzStyleFunction(undefined, KnotenNetzVectorLayer.highlightStyle),
       minZoom,

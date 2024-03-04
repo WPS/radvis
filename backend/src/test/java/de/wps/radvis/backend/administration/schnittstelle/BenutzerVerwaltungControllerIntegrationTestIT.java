@@ -168,7 +168,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		Benutzer benutzer = BenutzerTestDataProvider.admin(testOrganisation)
 			.vorname(Name.of("Testus"))
 			.nachname(Name.of("Testperson"))
-			.mailadresse(Mailadresse.of("meinemail@mail.de"))
+			.mailadresse(Mailadresse.of("meinemail@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"))
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR, Rolle.RADVERKEHRSBEAUFTRAGTER))
 			.build();
@@ -185,7 +185,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			+ "	\"version\":" + gespeicherterBenutzer.getVersion() + ","
 			+ "	\"vorname\":\"Testus\","
 			+ "	\"nachname\":\"Realeperson\"," // <-- geändert
-			+ "	\"email\":\"meinemail@mail.de\","
+			+ "	\"email\":\"meinemail@testRadvis.de\","
 			+ "	\"organisation\":" + testOrganisation.getId() + ","
 			+ " \"rollen\" : [ \"RADVIS_ADMINISTRATOR\" ]" // <-- geändert
 			+ "}";
@@ -202,7 +202,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			.extracting("vorname", "nachname", "status", "organisation", "mailadresse", "serviceBwId")
 			.containsExactly(
 				Name.of("Testus"), Name.of("Realeperson"), BenutzerStatus.AKTIV, testOrganisation,
-				Mailadresse.of("meinemail@mail.de"),
+				Mailadresse.of("meinemail@testRadvis.de"),
 				ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"));
 
 		assertThat(result.getRollen()).containsExactly(Rolle.RADVIS_ADMINISTRATOR);
@@ -230,7 +230,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			BenutzerTestDataProvider.radnetzErfasserinRegierungsbezirk(andereOrganisation)
 				.vorname(Name.of("aktiver"))
 				.nachname(Name.of("Benutzer"))
-				.mailadresse(Mailadresse.of("asdf@mail.de"))
+				.mailadresse(Mailadresse.of("asdf@testRadvis.de"))
 				.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130004"))
 				.build());
 
@@ -238,7 +238,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			BenutzerTestDataProvider.radnetzErfasserinRegierungsbezirk(andereOrganisation)
 				.vorname(Name.of("Testus"))
 				.nachname(Name.of("Testperson"))
-				.mailadresse(Mailadresse.of("meinemail@mail.de"))
+				.mailadresse(Mailadresse.of("meinemail@testRadvis.de"))
 				.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"))
 				.build());
 
@@ -325,7 +325,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 
 		Benutzer benutzer1 = BenutzerTestDataProvider.externerDienstleister(laEntenhausen)
 			.vorname(Name.of("Mickey"))
-			.mailadresse(Mailadresse.of("mm@ducktown.duck"))
+			.mailadresse(Mailadresse.of("mm@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-1"))
 			.build();
 
@@ -365,7 +365,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			.extracting("vorname", "nachname", "status", "organisation", "mailadresse", "serviceBwId")
 			.containsExactly(
 				Name.of("Mickey"), Name.of("Realeperson"), BenutzerStatus.AKTIV, laEntenhausen,
-				Mailadresse.of("mm@ducktown.duck"),
+				Mailadresse.of("mm@testRadvis.duck"),
 				ServiceBwId.of("irgendsoeineid-1"));
 
 		assertThat(result.getRollen()).containsExactly(Rolle.EXTERNER_DIENSTLEISTER);
@@ -385,7 +385,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 
 		Benutzer benutzer1 = BenutzerTestDataProvider.externerDienstleister(laEntenhausen)
 			.vorname(Name.of("Mickey"))
-			.mailadresse(Mailadresse.of("mm@ducktown-alt.duck"))
+			.mailadresse(Mailadresse.of("mm@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-1"))
 			.build();
 
@@ -402,7 +402,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			+ "	\"version\":" + benutzer1.getVersion() + ","
 			+ "	\"vorname\":\"Mickey\","
 			+ "	\"nachname\":\"Realeperson\"," // <-- geändert
-			+ "	\"email\":\"mm@ducktown.duck\"," // <-- geändert
+			+ "	\"email\":\"mm@testRadvis.duck\"," // <-- geändert
 			+ "	\"organisation\":" + laEntenhausen.getId() + ","
 			+ " \"rollen\" : [ \"EXTERNER_DIENSTLEISTER\" , \"RADVERKEHRSBEAUFTRAGTER\" ]" // <-- geändert
 			+ "}";
@@ -421,7 +421,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			.extracting("vorname", "nachname", "status", "organisation", "mailadresse", "serviceBwId")
 			.containsExactly(
 				Name.of("Mickey"), Name.of("Realeperson"), BenutzerStatus.AKTIV, laEntenhausen,
-				Mailadresse.of("mm@ducktown.duck"),
+				Mailadresse.of("mm@testRadvis.duck"),
 				ServiceBwId.of("irgendsoeineid-1"));
 
 		assertThat(result.getRollen())
@@ -441,7 +441,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		Benutzer benutzer = BenutzerTestDataProvider.admin(gespiecherteOrganisation)
 			.vorname(Name.of("Testus"))
 			.nachname(Name.of("Testperson"))
-			.mailadresse(Mailadresse.of("meinemail@mail.de"))
+			.mailadresse(Mailadresse.of("meinemail@testRadvis.de"))
 			.serviceBwId(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"))
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR, Rolle.RADVERKEHRSBEAUFTRAGTER))
 			.build();
@@ -471,20 +471,20 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			.vorname(Name.of("Mickey"))
 			.nachname(Name.of("Maus"))
 			.status(BenutzerStatus.AKTIV)
-			.mailadresse(Mailadresse.of("mm@ducktown.duck"))
+			.mailadresse(Mailadresse.of("mm@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-1"))
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR, Rolle.RADVERKEHRSBEAUFTRAGTER))
 			.build();
 		Benutzer benutzer2 = BenutzerTestDataProvider.adminInaktiv(laEntenhausen)
 			.vorname(Name.of("Donald"))
 			.nachname(Name.of("Duck"))
-			.mailadresse(Mailadresse.of("dd@ducktown.duck"))
+			.mailadresse(Mailadresse.of("dd@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-2"))
 			.build();
 		Benutzer benutzer3 = BenutzerTestDataProvider.adminInaktiv(laEntenhausen)
 			.vorname(Name.of("Goofy"))
 			.nachname(Name.of("Wieheistdereigentlichmitnachname?"))
-			.mailadresse(Mailadresse.of("gg@ducktown.duck"))
+			.mailadresse(Mailadresse.of("gg@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-3"))
 			.build();
 
@@ -506,12 +506,12 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		assertThat(result)
 			.flatExtracting("vorname", "nachname", "status", "organisation", "email")
 			.containsExactlyInAnyOrder(
-				Name.of("Mickey"), Name.of("Maus"), BenutzerStatus.AKTIV, Mailadresse.of("mm@ducktown.duck"),
+				Name.of("Mickey"), Name.of("Maus"), BenutzerStatus.AKTIV, Mailadresse.of("mm@testRadvis.duck"),
 				"Landesamt Entenhausen (Bundesland)",
-				Name.of("Donald"), Name.of("Duck"), BenutzerStatus.INAKTIV, Mailadresse.of("dd@ducktown.duck"),
+				Name.of("Donald"), Name.of("Duck"), BenutzerStatus.INAKTIV, Mailadresse.of("dd@testRadvis.duck"),
 				"Landesamt Entenhausen (Bundesland)",
 				Name.of("Goofy"), Name.of("Wieheistdereigentlichmitnachname?"), BenutzerStatus.INAKTIV,
-				Mailadresse.of("gg@ducktown.duck"),
+				Mailadresse.of("gg@testRadvis.duck"),
 				"Landesamt Entenhausen (Bundesland)");
 	}
 
@@ -532,19 +532,19 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		Benutzer benutzer1 = BenutzerTestDataProvider.kreiskoordinator(laEntenhausen)
 			.vorname(Name.of("Mickey"))
 			.nachname(Name.of("Maus"))
-			.mailadresse(Mailadresse.of("mm@ducktown.duck"))
+			.mailadresse(Mailadresse.of("mm@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-1"))
 			.build();
 		Benutzer benutzer2 = BenutzerTestDataProvider.adminInaktiv(laEntenhausen)
 			.vorname(Name.of("Donald"))
 			.nachname(Name.of("Duck"))
-			.mailadresse(Mailadresse.of("dd@ducktown.duck"))
+			.mailadresse(Mailadresse.of("dd@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-2"))
 			.build();
 		Benutzer benutzer3 = BenutzerTestDataProvider.adminInaktiv(laGaensehausen)
 			.vorname(Name.of("Goofy"))
 			.nachname(Name.of("Wieheistdereigentlichmitnachname?"))
-			.mailadresse(Mailadresse.of("gg@ducktown.duck"))
+			.mailadresse(Mailadresse.of("gg@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-3"))
 			.build();
 
@@ -567,7 +567,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		assertThat(result)
 			.flatExtracting("vorname", "nachname", "status", "organisation", "email")
 			.containsExactlyInAnyOrder(
-				Name.of("Mickey"), Name.of("Maus"), BenutzerStatus.AKTIV, Mailadresse.of("mm@ducktown.duck"),
+				Name.of("Mickey"), Name.of("Maus"), BenutzerStatus.AKTIV, Mailadresse.of("mm@testRadvis.duck"),
 				"Landesamt Entenhausen (Bundesland)");
 	}
 
@@ -585,7 +585,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		Benutzer benutzer1 = BenutzerTestDataProvider.adminInaktiv(laEntenhausen)
 			.vorname(Name.of("Mickey"))
 			.nachname(Name.of("Maus"))
-			.mailadresse(Mailadresse.of("mm@ducktown.duck"))
+			.mailadresse(Mailadresse.of("mm@testRadvis.duck"))
 			.serviceBwId(ServiceBwId.of("irgendsoeineid-1"))
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR, Rolle.RADVERKEHRSBEAUFTRAGTER))
 			.build();
@@ -602,8 +602,8 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(admin);
 
 		// act
-		BenutzerEditView result = benutzerController.aktiviereBenutzer(authentication, benutzer1.getId(),
-			benutzer1.getVersion());
+		BenutzerEditView result = benutzerController.benutzerStatusAendern(authentication, benutzer1.getId(),
+			benutzer1.getVersion(), "AKTIV");
 
 		// assert
 		assertThat(result.getStatus()).hasToString("Aktiv");
@@ -611,15 +611,16 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			Rolle.RADVERKEHRSBEAUFTRAGTER);
 		assertThat(benutzerRepository.findByServiceBwId(ServiceBwId.of("irgendsoeineid-1")).get().getStatus())
 			.isEqualTo(BenutzerStatus.AKTIV);
-		String mailText = "Hallo Mickey Maus,\nIhr RadVIS-Account für mm@ducktown.duck wurde aktiviert und kann nach einem erneuten Einloggen verwendet werden.\nSie können RadVIS unter https://radvis-dev.landbw.de/ erreichen.";
-		verify(mailService).sendMail(List.of("mm@ducktown.duck"), "Sie wurden für RadVIS freigeschaltet", mailText);
+		String mailText = "Hallo Mickey Maus,\nIhr RadVIS-Account für mm@testRadvis.duck wurde aktiviert und kann nach einem erneuten Einloggen verwendet werden.\nSie können RadVIS unter https://radvis-dev.landbw.de/ erreichen.";
+		verify(mailService).sendMail(List.of("mm@testRadvis.duck"), "Sie wurden für RadVIS aktiviert", mailText);
 
 		/*
 		 * Und Wieder Deaktivieren:
 		 */
 
 		// act
-		result = benutzerController.deaktiviereBenutzer(authentication, benutzer1.getId(), benutzer1.getVersion() + 1L);
+		result = benutzerController.benutzerStatusAendern(authentication, benutzer1.getId(),
+			benutzer1.getVersion() + 1L, "INAKTIV");
 
 		// assert
 		assertThat(result.getStatus().toString()).isEqualTo("Inaktiv");
@@ -635,8 +636,9 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			.organisationsArt(OrganisationsArt.BUNDESLAND)
 			.build();
 
-		Benutzer admin = BenutzerTestDataProvider.admin(laEntenhausen).build();
-		Benutzer benutzer1 = BenutzerTestDataProvider.adminInaktiv(laEntenhausen).version(10L).build();
+		Benutzer admin = BenutzerTestDataProvider.admin(laEntenhausen).serviceBwId(ServiceBwId.of("sbwid1")).build();
+		Benutzer benutzer1 = BenutzerTestDataProvider.adminInaktiv(laEntenhausen).serviceBwId(ServiceBwId.of("sbwid2"))
+			.version(10L).build();
 
 		gebietskoerperschaftRepository.save(laEntenhausen);
 		assertThat(benutzer1.getStatus()).isEqualTo(BenutzerStatus.INAKTIV);
@@ -651,7 +653,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(admin);
 
 		// act +assert
-		assertThatThrownBy(() -> benutzerController.aktiviereBenutzer(authentication, id, 9L))
+		assertThatThrownBy(() -> benutzerController.benutzerStatusAendern(authentication, id, 9L, "AKTIV"))
 			.isInstanceOf(OptimisticLockException.class);
 	}
 
@@ -669,7 +671,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(admin);
 
 		// act + assert
-		assertThatThrownBy(() -> benutzerController.aktiviereBenutzer(authentication, 12L, 5L))
+		assertThatThrownBy(() -> benutzerController.benutzerStatusAendern(authentication, 12L, 5L, "AKTIV"))
 			.isInstanceOf(BenutzerIstNichtRegistriertException.class);
 	}
 
@@ -704,8 +706,8 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(admin);
 
 		// act
-		BenutzerEditView result = benutzerController.aktiviereBenutzer(authentication, benutzer1.getId(),
-			benutzer1.getVersion());
+		BenutzerEditView result = benutzerController.benutzerStatusAendern(authentication, benutzer1.getId(),
+			benutzer1.getVersion(), "AKTIV");
 
 		// assert
 		assertThat(result.getStatus().toString()).isEqualTo("Aktiv");
@@ -720,7 +722,8 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 
 		// act + assert
 		final long benutzerId = benutzer1.getId();
-		assertThatThrownBy(() -> benutzerController.deaktiviereBenutzer(authentication, benutzerId, alteVersion))
+		assertThatThrownBy(
+			() -> benutzerController.benutzerStatusAendern(authentication, benutzerId, alteVersion, "INAKTIV"))
 			.isInstanceOf(OptimisticLockException.class);
 	}
 
@@ -750,10 +753,10 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(regierunngserfasser);
 
 		// act +assert
-		assertThatThrownBy(() -> benutzerController.aktiviereBenutzer(authentication, id, 11L))
+		assertThatThrownBy(() -> benutzerController.benutzerStatusAendern(authentication, id, 11L, "AKTIV"))
 			.isInstanceOf(AccessDeniedException.class)
 			.hasMessage(
-				"Sie haben nicht die Berechtigung Benutzer mit folgende Rollen zu aktivieren: 'BearbeiterIn (VM)/RadNETZ-AdministratorIn'");
+				"Sie haben nicht die Berechtigung Benutzer mit folgenden Rollen zu ändern: 'BearbeiterIn (VM)/RadNETZ-AdministratorIn'");
 	}
 
 }

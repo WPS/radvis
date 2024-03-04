@@ -12,7 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
+import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 
 @Component({
   selector: 'rad-freischaltung',
@@ -20,4 +23,27 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   styleUrls: ['./freischaltung.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FreischaltungComponent {}
+export class FreischaltungComponent {
+  status: BenutzerStatus;
+  public waiting = false;
+
+  constructor(
+    private benutzerDetailsService: BenutzerDetailsService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private errorHandlingService: ErrorHandlingService
+  ) {
+    this.status = benutzerDetailsService.aktuellerBenutzerStatus();
+  }
+
+  public beantrageReaktivierung(): void {
+    this.waiting = true;
+    this.benutzerDetailsService.beantrageReaktivierung().subscribe({
+      next: benutzerDetails => {
+        this.status = benutzerDetails.status;
+        this.changeDetectorRef.detectChanges();
+      },
+      error: err => this.errorHandlingService.handleHttpError(err),
+      complete: () => (this.waiting = false),
+    });
+  }
+}

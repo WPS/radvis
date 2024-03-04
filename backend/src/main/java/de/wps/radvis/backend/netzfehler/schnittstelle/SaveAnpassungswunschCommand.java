@@ -14,14 +14,13 @@
 
 package de.wps.radvis.backend.netzfehler.schnittstelle;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.Length;
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschKategorie;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschStatus;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

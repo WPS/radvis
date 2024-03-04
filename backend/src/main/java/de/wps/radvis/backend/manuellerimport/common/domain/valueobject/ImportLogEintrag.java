@@ -19,8 +19,10 @@ import static org.valid4j.Assertive.require;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @EqualsAndHashCode
+@ToString
 public class ImportLogEintrag {
 	@Getter
 	private final String fehlerBeschreibung;

@@ -18,7 +18,7 @@ import de.wps.radvis.backend.wegweisendeBeschilderung.domain.valueObject.Defizit
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class DefizitUserType implements AttributeConverter<Defizit, String> {
 
 	@Override

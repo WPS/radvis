@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
-import { FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import { DateRange } from '@angular/material/datepicker';
 
@@ -30,9 +30,9 @@ export class JahreszeitraumControlComponent extends AbstractFormControl<DateRang
   @Input()
   anzahlJahre = 10;
 
-  public formGroup = new FormGroup({
-    start: new FormControl(null),
-    end: new FormControl(null),
+  public formGroup = new UntypedFormGroup({
+    start: new UntypedFormControl(null),
+    end: new UntypedFormControl(null),
   });
 
   constructor(private changeDetector: ChangeDetectorRef) {

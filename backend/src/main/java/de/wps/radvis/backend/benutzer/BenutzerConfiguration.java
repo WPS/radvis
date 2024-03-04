@@ -20,11 +20,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import de.wps.radvis.backend.benutzer.domain.BenutzerAktivitaetsService;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
+import de.wps.radvis.backend.benutzer.schnittstelle.BenutzerReaktivierungGuard;
 import de.wps.radvis.backend.benutzer.schnittstelle.BenutzerResolverImpl;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import lombok.NonNull;
 
@@ -38,6 +42,9 @@ public class BenutzerConfiguration {
 	private final VerwaltungseinheitService verwaltungseinheitService;
 
 	@Autowired
+	private CommonConfigurationProperties commonConfigurationProperties;
+
+	@Autowired
 	private TechnischerBenutzerConfigurationProperties technischerBenutzerConfigurationProperties;
 
 	public BenutzerConfiguration(@NonNull VerwaltungseinheitService verwaltungseinheitService) {
@@ -45,13 +52,27 @@ public class BenutzerConfiguration {
 	}
 
 	@Bean
-	public BenutzerService benutzerService() {
-		return new BenutzerService(benutzerRepository, verwaltungseinheitService,
-			technischerBenutzerConfigurationProperties.getServiceBwId());
+	public BenutzerService benutzerService(MailService mailService) {
+		return new BenutzerService(
+			benutzerRepository,
+			verwaltungseinheitService,
+			technischerBenutzerConfigurationProperties.getServiceBwId(),
+			commonConfigurationProperties.getBasisUrl(),
+			mailService);
 	}
 
 	@Bean
 	public BenutzerResolver benutzerResolver() {
 		return new BenutzerResolverImpl();
+	}
+
+	@Bean
+	public BenutzerReaktivierungGuard benutzerReaktivierungGuard() {
+		return new BenutzerReaktivierungGuard();
+	}
+
+	@Bean
+	public BenutzerAktivitaetsService benutzerAktivitaetsService() {
+		return new BenutzerAktivitaetsService(benutzerRepository);
 	}
 }

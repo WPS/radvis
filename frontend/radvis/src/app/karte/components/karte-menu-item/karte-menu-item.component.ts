@@ -23,10 +23,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { MenuEventService } from 'src/app/shared/services/menu-event.service';
 import { Observable, Subject } from 'rxjs';
-import { MenuCloseReason } from '@angular/material/menu/menu';
 import { KarteButtonComponent } from 'src/app/karte/components/karte-button/karte-button.component';
+import { MenuCloseReason } from 'src/app/shared/models/menu-close-reason';
+import { MenuEventService } from 'src/app/shared/services/menu-event.service';
 
 @Component({
   selector: 'rad-karte-menu-item',

@@ -24,10 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-
 import org.hamcrest.Matchers;
 import org.hibernate.envers.Audited;
 
@@ -36,6 +32,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -19,8 +19,6 @@ import static org.valid4j.Assertive.require;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
 import org.hamcrest.Matchers;
 import org.locationtech.jts.geom.Geometry;
 
@@ -31,6 +29,7 @@ import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerBeschreibung;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerTyp;
+import jakarta.transaction.Transactional;
 
 public class RadNETZSackgassenJob extends AbstractJob {
 

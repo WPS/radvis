@@ -16,7 +16,7 @@
   <div class="flex-grow" style="font-size: medium">Weitere Kartenebenen</div>
   <button
     (click)="onOpenEditDialog()"
-    [attr.aria-label]=" (hasLayers$ | async) ? 'Weitere Kartenebenen verwalten' : 'Weitere Kartenebenen hinzufügen' "
+    [attr.aria-label]="(hasLayers$ | async) ? 'Weitere Kartenebenen verwalten' : 'Weitere Kartenebenen hinzufügen'"
     [matTooltip]="(hasLayers$ | async) ? 'Weitere Kartenebenen verwalten' : 'Weitere Kartenebenen hinzufügen'"
     class="mr-5"
     mat-icon-button

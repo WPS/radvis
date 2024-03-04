@@ -25,19 +25,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
-import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-
 import org.hamcrest.Matchers;
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
+import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

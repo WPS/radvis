@@ -12,15 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { FormControl, UntypedFormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Rolle } from 'src/app/administration/models/rolle';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
+import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { RegistriereBenutzerCommand } from 'src/app/registrierung/registriere-benutzer-command';
 import { RegistrierungService } from 'src/app/registrierung/registrierung.service';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { createBenutzerForm } from 'src/app/shared/services/benutzer-form.factory';
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
 
 @Component({
@@ -30,20 +30,32 @@ import { ManualRoutingService } from 'src/app/shared/services/manual-routing.ser
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegistrierungComponent {
-  registrierungForm: FormGroup;
+  registrierungForm: UntypedFormGroup;
 
   public alleBenutzerOrganisationen: Verwaltungseinheit[] = [];
 
   public agreedTerms = false;
+  public waiting = false;
+
+  get rollen(): EnumOption[] {
+    const nichtAngezeigteRollen = [Rolle.RADVIS_ADMINISTRATOR, Rolle.RADNETZ_QUALITAETSSICHERIN];
+    return Rolle.options.filter(rolle => !nichtAngezeigteRollen.includes(rolle.name as Rolle));
+  }
 
   constructor(
     private benutzerService: RegistrierungService,
     private manualRoutingService: ManualRoutingService,
-    private router: Router,
-    activatedRoute: ActivatedRoute
+    activatedRoute: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.alleBenutzerOrganisationen = activatedRoute.snapshot.data.organisationen;
-    this.registrierungForm = createBenutzerForm();
+    this.registrierungForm = new UntypedFormGroup({
+      vorname: new FormControl<string>('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      nachname: new FormControl<string>('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      email: new FormControl<string>('', [RadvisValidators.email, RadvisValidators.isNotNullOrEmpty]),
+      organisation: new FormControl<Verwaltungseinheit | null>(null, [RadvisValidators.isNotNullOrEmpty]),
+      rollen: new FormControl<Rolle[]>([], [RadvisValidators.isNotEmpty]),
+    });
   }
 
   toggleAgreedTerms(checked: boolean): void {
@@ -65,18 +77,21 @@ export class RegistrierungComponent {
       rollen: this.registrierungForm.value.rollen,
     } as RegistriereBenutzerCommand;
 
-    this.benutzerService.register(command).then(() => {
-      this.reloadApplication();
-    });
+    this.waiting = true;
+
+    this.benutzerService
+      .register(command)
+      .then(() => {
+        this.reloadApplication();
+      })
+      .finally(() => {
+        this.waiting = false;
+        this.changeDetectorRef.detectChanges();
+      });
   }
 
   openManualRollenRechte(): void {
     this.manualRoutingService.openManualRollenRechte();
-  }
-
-  get rollen(): EnumOption[] {
-    const nichtAngezeigteRollen = [Rolle.RADVIS_ADMINISTRATOR, Rolle.RADNETZ_QUALITAETSSICHERIN];
-    return Rolle.options.filter(rolle => !nichtAngezeigteRollen.includes(rolle.name as Rolle));
   }
 
   private reloadApplication(): void {

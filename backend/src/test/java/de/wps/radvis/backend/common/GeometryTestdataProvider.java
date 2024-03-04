@@ -23,6 +23,8 @@ import java.util.Comparator;
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
@@ -120,5 +122,13 @@ public class GeometryTestdataProvider {
 		LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(lineString);
 		return (LineString) lengthIndexedLine.extractLine(of.getVonValue() * lineString.getLength(),
 			of.getBisValue() * lineString.getLength());
+	}
+
+	public static Geometry creatGeometryCollection() {
+		return GEO_FACTORY.createGeometryCollection();
+	}
+
+	public static GeometryCollection creatGeometryCollection(Geometry... geometry) {
+		return GEO_FACTORY.createGeometryCollection(geometry);
 	}
 }

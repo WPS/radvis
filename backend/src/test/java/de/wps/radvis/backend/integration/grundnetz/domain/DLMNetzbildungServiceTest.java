@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -48,6 +46,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataProvider;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
+import jakarta.persistence.EntityManager;
 
 public class DLMNetzbildungServiceTest {
 

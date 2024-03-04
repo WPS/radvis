@@ -22,6 +22,7 @@ import org.thymeleaf.context.Context;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
@@ -84,6 +85,7 @@ public class MassnahmenBenachrichtigungsService {
 
 	protected String getRadvisLink(Long massnahmeId) {
 		return commonConfigurationProperties.getBasisUrl()
-			+ "app/viewer/massnahmen/" + massnahmeId + "?infrastrukturen=massnahmen&tabellenVisible=true";
+			+ FrontendLinks.massnahmeDetailView(massnahmeId)
+			+ "?infrastrukturen=massnahmen&tabellenVisible=true";
 	}
 }

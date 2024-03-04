@@ -14,7 +14,10 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, NgZone, OnDestroy, Output } from '@angular/core';
 import { Feature } from 'ol';
+import { Coordinate } from 'ol/coordinate';
 import GeoJSON from 'ol/format/GeoJSON';
+import { Point } from 'ol/geom';
+import Geometry from 'ol/geom/Geometry';
 import Select, { SelectEvent } from 'ol/interaction/Select';
 import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
@@ -30,9 +33,6 @@ import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import { Point } from 'ol/geom';
-import Geometry from 'ol/geom/Geometry';
-import { Coordinate } from 'ol/coordinate';
 
 @Component({
   selector: 'rad-kanten-creator-knoten-selektion',
@@ -82,7 +82,7 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
 
     this.olLayer = new VectorLayer({
       source: vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: new Style({
         image: MapStyles.circleWithFill(5),

@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.data.util.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -79,7 +79,7 @@ import jakarta.persistence.PersistenceContext;
 	PostgisConfigurationProperties.class,
 })
 class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
-	@EnableJpaRepositories(basePackages = { "de.wps.radvis.backend.matching", "de.wps.radvis.backend.netz" })
+	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.matching", "de.wps.radvis.backend.netz" })
 	@EntityScan(basePackages = { "de.wps.radvis.backend.matching", "de.wps.radvis.backend.netz" })
 	public static class TestConfiguration {
 		@Bean

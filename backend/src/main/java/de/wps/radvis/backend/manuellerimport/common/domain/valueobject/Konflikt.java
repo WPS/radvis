@@ -19,12 +19,11 @@ import static org.valid4j.Assertive.require;
 
 import java.util.Set;
 
+import de.wps.radvis.backend.common.domain.SetToStringAttributeConverter;
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-
-import de.wps.radvis.backend.common.domain.SetToStringAttributeConverter;
-import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

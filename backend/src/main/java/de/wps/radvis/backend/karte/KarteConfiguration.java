@@ -48,6 +48,7 @@ public class KarteConfiguration {
 
 	@Bean
 	public HintergrundKartenService hintergrundKartenService() {
-		return new HintergrundKartenService(hintergrundKartenRepository(), commonConfigurationProperties, webClientBuilder);
+		return new HintergrundKartenService(hintergrundKartenRepository(), commonConfigurationProperties,
+			webClientBuilder);
 	}
 }

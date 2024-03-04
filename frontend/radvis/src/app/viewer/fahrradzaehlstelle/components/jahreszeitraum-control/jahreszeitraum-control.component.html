@@ -13,16 +13,11 @@
   -->
 
 <div [formGroup]="formGroup" class="display-flex flex-row justify-content-space-between">
-  <rad-jahr-dropdown-control [anzahlJahre]="anzahlJahre"
-                             [nullable]="false"
-                             formControlName="start">
+  <rad-jahr-dropdown-control [anzahlJahre]="anzahlJahre" [nullable]="false" formControlName="start">
     Anfang
   </rad-jahr-dropdown-control>
   bis
-  <rad-jahr-dropdown-control [anzahlJahre]="anzahlJahre"
-                             [jahresEnde]="true"
-                             [nullable]="false"
-                             formControlName="end">
+  <rad-jahr-dropdown-control [anzahlJahre]="anzahlJahre" [jahresEnde]="true" [nullable]="false" formControlName="end">
     Ende
   </rad-jahr-dropdown-control>
 </div>

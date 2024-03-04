@@ -45,7 +45,8 @@ public class DLMConfigurationProperties {
 	private final int pbfpartitionen;
 
 	@ConstructorBinding
-	public DLMConfigurationProperties(String basisUrl, String username, String password, ExtentProperty extent, int partitionenX,
+	public DLMConfigurationProperties(String basisUrl, String username, String password, ExtentProperty extent,
+		int partitionenX,
 		int partitionenY, int pbfpartitionen) {
 		require(basisUrl, notNullValue());
 		require(username, notNullValue());

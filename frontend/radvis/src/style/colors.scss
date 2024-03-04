@@ -13,28 +13,28 @@
  */
 
 $radvis-accent-palette: (
-  50: #FEF2F8,
-  100: #F8BFDF,
-  200: #F599CB,
-  300: #EF66B1,
-  400: #EA3397,
-  500: #E5007D,
-  600: #CE0071,
-  700: #AC005E,
-  800: #7E0045,
-  900: #50002C,
+  50: #fef2f8,
+  100: #f8bfdf,
+  200: #f599cb,
+  300: #ef66b1,
+  400: #ea3397,
+  500: #e5007d,
+  600: #ce0071,
+  700: #ac005e,
+  800: #7e0045,
+  900: #50002c,
   contrast: (
     50: #000000,
     100: #000000,
     200: #000000,
     300: #000000,
     400: #000000,
-    500: #FFFFFF,
-    600: #FFFFFF,
-    700: #FFFFFF,
-    800: #FFFFFF,
-    900: #FFFFFF,
-  )
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+  ),
 );
 
 $radvis-accent-contrast-palette: (
@@ -59,18 +59,18 @@ $radvis-accent-contrast-palette: (
     700: map-get($radvis-accent-palette, 700),
     800: map-get($radvis-accent-palette, 800),
     900: map-get($radvis-accent-palette, 900),
-  )
+  ),
 );
 
 $radvis-primary-palette: (
-  50: #DAE8F3,
-  100: #9DC1DF,
-  200: #80AED5,
-  300: #609ACA,
-  400: #2F7BBA,
-  500: #0A64AE,
-  600: #095A9D,
-  700: #063C68,
+  50: #dae8f3,
+  100: #9dc1df,
+  200: #80aed5,
+  300: #609aca,
+  400: #2f7bba,
+  500: #0a64ae,
+  600: #095a9d,
+  700: #063c68,
   800: #042846,
   900: #021423,
   contrast: (
@@ -79,12 +79,12 @@ $radvis-primary-palette: (
     200: #000000,
     300: #000000,
     400: #000000,
-    500: #FFFFFF,
-    600: #FFFFFF,
-    700: #FFFFFF,
-    800: #FFFFFF,
-    900: #FFFFFF,
-  )
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+  ),
 );
 
 $radvis-primary-contrast-palette: (
@@ -109,24 +109,24 @@ $radvis-primary-contrast-palette: (
     700: map-get($radvis-primary-palette, 700),
     800: map-get($radvis-primary-palette, 800),
     900: map-get($radvis-primary-palette, 900),
-  )
+  ),
 );
 
 $grayscale: (
-  50: #FAFAFA,
-  100: #F2F2F2,
-  200: #E6E6E6,
-  250: #DADAD9,
-  300: #CCCCCC,
-  400: #B3B3B3,
+  50: #fafafa,
+  100: #f2f2f2,
+  200: #e6e6e6,
+  250: #dadad9,
+  300: #cccccc,
+  400: #b3b3b3,
   500: #999999,
   600: #808080,
   700: #666666,
-  800: #4D4D4D,
-  900: #333333
+  800: #4d4d4d,
+  900: #333333,
 );
 
-$white: #FFFFFF;
+$white: #ffffff;
 $black: #000000;
 
 :root {
@@ -192,16 +192,25 @@ $black: #000000;
 $valid-input-color: rgb(0, 128, 0, 1);
 
 $radvis-app-red-palette: (
-  200: #e10000, // Kontrast zu Weiß: 5:1
-  400: #b00020, // Kontrast zu Weiß: 7,3:1
+  100: #e10000,
+  200: #e10000,
+  // Kontrast zu Weiß: 5:1
+  400: #b00020,
+  // Kontrast zu Weiß: 7,3:1
+  700: #b00020,
   contrast: (
+    100: white,
     200: white,
     400: white,
-  )
+    700: white,
+  ),
 );
 
 // Constants
-$dark-gray: map-get($grayscale, 800); // Kontrast auf Weiß: 8,5:1 (bei $grayscale(300) 5,3:1, bei #bcbcbc gerade noch 4,5:1)
+$dark-gray: map-get(
+  $grayscale,
+  800
+); // Kontrast auf Weiß: 8,5:1 (bei $grayscale(300) 5,3:1, bei #bcbcbc gerade noch 4,5:1)
 
 $color-primary-default: map-get($radvis-primary-palette, 500);
 $color-accent-default: map-get($radvis-accent-palette, 500);

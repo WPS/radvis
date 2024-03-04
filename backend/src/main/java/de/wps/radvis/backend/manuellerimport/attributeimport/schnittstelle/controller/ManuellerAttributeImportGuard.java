@@ -87,4 +87,8 @@ public class ManuellerAttributeImportGuard {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung Streckendaten zu importieren");
 		}
 	}
+
+	public void bearbeitungAbschliessen(Authentication authentication) {
+		authorizeManuellerAttributeImport(authentication);
+	}
 }

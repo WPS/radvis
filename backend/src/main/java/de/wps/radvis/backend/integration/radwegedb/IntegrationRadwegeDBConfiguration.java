@@ -14,9 +14,6 @@
 
 package de.wps.radvis.backend.integration.radwegedb;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +23,8 @@ import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungPr
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungService;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.NonNull;
 
 @Configuration

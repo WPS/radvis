@@ -46,7 +46,6 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.ImportSess
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerImportFehlerRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklasseImportSession;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklassenImportSessionTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
@@ -141,8 +140,6 @@ class ManuellerNetzklassenImportServiceIntegrationTest {
 		assertThat(netzklasseImportSession.hatFehler()).isFalse();
 		assertThat(netzklasseImportSession.getAktuellerImportSchritt()).isEqualTo(
 			AutomatischerImportSchritt.AUTOMATISCHE_ABBILDUNG_ABGESCHLOSSEN);
-		assertThat(netzklasseImportSession.getStatus()).isEqualTo(
-			ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 		assertThat(output).containsPattern("ZipFile nach (.*) entpackt");
 		assertThat(output).contains(
 			"8621 LineStrings aus der Shapefile befinden sich im Bereich der gewählten Organisation (DefaultOrganisation)");
@@ -175,8 +172,6 @@ class ManuellerNetzklassenImportServiceIntegrationTest {
 		assertThat(netzklasseImportSession.hatFehler()).isFalse();
 		assertThat(netzklasseImportSession.getAktuellerImportSchritt()).isEqualTo(
 			AutomatischerImportSchritt.AUTOMATISCHE_ABBILDUNG_ABGESCHLOSSEN);
-		assertThat(netzklasseImportSession.getStatus()).isEqualTo(
-			ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 		assertThat(output).containsPattern("ZipFile nach (.*) entpackt");
 		assertThat(output).contains(
 			"3 LineStrings aus der Shapefile befinden sich im Bereich der gewählten Organisation (DefaultOrganisation)");

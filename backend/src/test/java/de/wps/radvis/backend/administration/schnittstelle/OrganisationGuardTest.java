@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,6 +37,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
@@ -49,6 +48,7 @@ import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.persistence.EntityNotFoundException;
 
 class OrganisationGuardTest {
 
@@ -70,6 +70,8 @@ class OrganisationGuardTest {
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
 	@Mock
 	private OrganisationRepository organisationRepository;
+	@Mock
+	private MailService mailService;
 
 	@BeforeEach
 	void setUp() {
@@ -77,7 +79,7 @@ class OrganisationGuardTest {
 		organisationGuard = new OrganisationGuard(benutzerResolver,
 			new BenutzerService(benutzerRepository, new VerwaltungseinheitService(verwaltungseinheitRepository,
 				gebietskoerperschaftRepository, organisationRepository),
-				"technischerBenutzerServiceBwId"),
+				"technischerBenutzerServiceBwId", "basisUrl", mailService),
 			administrationService, organisationRepository);
 	}
 

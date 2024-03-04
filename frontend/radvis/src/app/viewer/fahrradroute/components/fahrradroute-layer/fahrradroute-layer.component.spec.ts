@@ -14,7 +14,9 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ImageTile } from 'ol';
 import { Point } from 'ol/geom';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
@@ -29,8 +31,6 @@ import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { HttpClient, HttpEvent } from '@angular/common/http';
-import { ImageTile } from 'ol';
 import stringMatching = jasmine.stringMatching;
 
 describe(FahrradrouteLayerComponent.name, () => {
@@ -89,7 +89,7 @@ describe(FahrradrouteLayerComponent.name, () => {
     component = fixture.componentInstance;
     const mockedImageElement = mock(ImageTile);
     when(mockedImageElement.getImage()).thenReturn(mock(instance(HTMLImageElement)));
-    // @ts-ignore
+    // @ts-expect-error Migration von ts-ignore
     component['source'].getImageLoadFunction()(instance(mockedImageElement), '/testUrl/wms');
 
     selectedFahrradrouteIdTestSubject.next(null);

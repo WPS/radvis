@@ -142,7 +142,7 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
       .subscribe(event => {
         if (event) {
           this.notifyUserService.warn(
-            `Beim laden weiterern WMS-Kartenebene "${this.name}" ist ein Fehler aufgetreten. Bitte prüfen Sie die angegebene URL.`
+            `Beim Laden von weiteren WMS-Kartenebenen "${this.name}" ist ein Fehler aufgetreten. Bitte prüfen Sie die angegebene URL.`
           );
         }
       });

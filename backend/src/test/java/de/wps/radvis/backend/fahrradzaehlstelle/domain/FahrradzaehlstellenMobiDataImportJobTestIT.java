@@ -26,17 +26,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -67,6 +64,8 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlinterval
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstand;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstatus;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zeitstempel;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group4")
 @ContextConfiguration(classes = { FahrradzaehlstellenMobiDataImportJobTestIT.TestConfiguration.class,

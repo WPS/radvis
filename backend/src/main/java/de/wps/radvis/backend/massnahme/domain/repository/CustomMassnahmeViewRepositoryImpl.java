@@ -17,12 +17,11 @@ package de.wps.radvis.backend.massnahme.domain.repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 public class CustomMassnahmeViewRepositoryImpl implements CustomMassnahmeViewRepository {
 

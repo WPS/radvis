@@ -74,9 +74,9 @@ public class SaveMassnahmeCommandConverter {
 		if (command.getUnterhaltsZustaendigerId() != null) {
 			unterhaltsZustaendiger = verwaltungseinheitResolver.resolve(command.getUnterhaltsZustaendigerId());
 		}
-		Verwaltungseinheit markierungsZustaendiger = null;
-		if (command.getMarkierungsZustaendigerId() != null) {
-			markierungsZustaendiger = verwaltungseinheitResolver.resolve(command.getMarkierungsZustaendigerId());
+		Verwaltungseinheit zustaendiger = null;
+		if (command.getZustaendigerId() != null) {
+			zustaendiger = verwaltungseinheitResolver.resolve(command.getZustaendigerId());
 		}
 		NetzbezugCommand netzbezugCommand = command.getNetzbezug();
 		MassnahmeNetzBezug netzbezug = createNetzbezug(netzbezugCommand);
@@ -101,7 +101,7 @@ public class SaveMassnahmeCommandConverter {
 			LocalDateTime.now(),
 			baulastZustaendiger,
 			unterhaltsZustaendiger,
-			markierungsZustaendiger,
+			zustaendiger,
 			command.getMassnahmeKonzeptID(),
 			command.getSollStandard(),
 			command.getHandlungsverantwortlicher(),

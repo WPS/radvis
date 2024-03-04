@@ -20,6 +20,9 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,22 +46,72 @@ public class JobController {
 
 	@RequestMapping(path = "/control", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
 	@ResponseBody
-	public String getWelcomePage() throws IOException {
+	public String getControlPage() throws IOException {
 		Resource resource = new ClassPathResource("job-control.html");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 		String htmlString = reader.lines().reduce(String::concat).orElse("");
 
-		Stream<String> allLinks = jobs.stream()
-			.sorted((j1, j2) -> j1.getName().compareTo(j2.getName()))
-			.map(j -> {
-				try {
-					return String.format("<li><a href=\"/jobs/run/%s\">%s</a></li>",
-						new URI(null, null, j.getName(), null).toASCIIString(), j.getName());
-				} catch (URISyntaxException e) {
+		/*
+		Gruppe vom Regex enthält folgende Werte:
+
+		Name   -> Prefix
+		abcDef -> abc
+		abc    -> abc
+		AbcDef -> Abc
+		Abc    -> Abc
+		ABCdef -> ABC
+		ABC    -> ABC
+		 */
+		Pattern jobPrefixPattern = Pattern.compile("^([a-z]+|[A-Z][a-z]+|[A-Z]+).*");
+
+		List<String> jobPrefixe = jobs.stream()
+			.map(job -> {
+				String name = job.getName();
+				Matcher m = jobPrefixPattern.matcher(name);
+
+				if (!m.matches()) {
 					return "";
 				}
+
+				String originalPrefix = m.group(1);
+				String prefix = originalPrefix.toLowerCase();
+
+				// Sonderbehandlung einiger schwieriger und nicht eindeutiger prefixe
+				if (prefix.startsWith("massnahme")) {
+					return "massnahme";
+				} else if (prefix.startsWith("landesradfernweg")) {
+					return "landesradfernweg";
+				}
+
+				return prefix;
+			})
+			.distinct()
+			.sorted()
+			.collect(Collectors.toList());
+
+		Stream<String> groupedJobLists = jobPrefixe
+			.stream()
+			.filter(prefix -> {
+				// Entfernt längere Prefixe mit gleichwertigen kürzeren. Beispielsweise wird "dlmr" (von "DLMReimport...")
+				// entfernt, da es bereits einen anderen kürzeren "dlm" Prefix gibt (von "DlmPbfErstellung...").
+				return !jobPrefixe.stream()
+					.anyMatch(otherPrefix -> !prefix.equals(otherPrefix) && prefix.startsWith(otherPrefix));
+			})
+			.map(prefix -> {
+				String jobListItems = jobs.stream()
+					.filter(job -> job.getName().toLowerCase().startsWith(prefix))
+					.map(j -> {
+						try {
+							return String.format("<li><a href=\"/jobs/run/%s\">%s</a></li>",
+								new URI(null, null, j.getName(), null).toASCIIString(), j.getName());
+						} catch (URISyntaxException e) {
+							return "";
+						}
+					})
+					.collect(Collectors.joining("\n"));
+				return "<ul>" + jobListItems + "\n</ul>\n";
 			});
 
-		return htmlString.replace("$jobs$", allLinks.reduce(String::concat).orElse(""));
+		return htmlString.replace("$jobs$", groupedJobLists.reduce(String::concat).orElse(""));
 	}
 }

@@ -20,21 +20,21 @@
 
 	<changeSet id="RAD-2769-1" author="par">
 		<preConditions onFail="MARK_RAN">
-			<tableExists tableName="new_links" />
+			<tableExists tableName="new_links"/>
 		</preConditions>
-		<dropTable tableName="new_links" />  
+		<dropTable tableName="new_links"/>
 	</changeSet>
 	<changeSet id="RAD-2769-2" author="par">
 		<preConditions onFail="MARK_RAN">
-			<tableExists tableName="new_rechts" />
+			<tableExists tableName="new_rechts"/>
 		</preConditions>
-		<dropTable tableName="new_rechts" />
+		<dropTable tableName="new_rechts"/>
 	</changeSet>
 	<changeSet id="RAD-2769-3" author="par">
 		<preConditions onFail="MARK_RAN">
-			<tableExists tableName="fag_ids" />
+			<tableExists tableName="fag_ids"/>
 		</preConditions>
-		<dropTable tableName="fag_ids" />
+		<dropTable tableName="fag_ids"/>
 	</changeSet>
 
 	<changeSet id="RAD-2853" author="mw">

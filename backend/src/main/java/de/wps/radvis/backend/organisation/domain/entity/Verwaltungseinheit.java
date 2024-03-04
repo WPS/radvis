@@ -21,6 +21,15 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
+import org.springframework.data.util.Pair;
+
+import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
+import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,14 +38,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.prep.PreparedGeometry;
-import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
-import org.springframework.data.util.Pair;
-
-import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -83,6 +84,12 @@ public abstract class Verwaltungseinheit extends VersionierteEntity {
 			bereichBuffer = PreparedGeometryFactory.prepare(getBereich().get().buffer(bufferInMeter));
 		}
 		return bereichBuffer;
+	}
+
+	public Geometry getBereichBufferSimplified(int bufferInMeter, int toleranceInMeter) {
+		Geometry simplifiedGeometry = TopologyPreservingSimplifier
+			.simplify(getBereichBuffer(bufferInMeter).getGeometry(), toleranceInMeter);
+		return simplifiedGeometry;
 	}
 
 	public abstract Optional<MultiPolygon> getBereich();

@@ -17,7 +17,6 @@ package de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.cont
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
@@ -46,6 +45,7 @@ import de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.comma
 import de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.command.StartAttributeImportSessionCommand;
 import de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.command.UpdateFeatureMappingCommand;
 import de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.command.ValidateAttributeCommand;
+import de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.view.AttributeImportSessionView;
 import de.wps.radvis.backend.manuellerimport.common.domain.exception.ManuellerImportNichtMoeglichException;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
@@ -84,6 +84,15 @@ public class ManuellerAttributeImportController {
 		this.manuellerAttributeImportGuard = manuellerAttributeImportGuard;
 	}
 
+	@GetMapping(path = "session")
+	public AttributeImportSessionView getImportSession(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+
+		return manuellerAttributeImportService.getAttributeImportSession(benutzer)
+			.map(AttributeImportSessionView::new)
+			.orElse(null);
+	}
+
 	@PostMapping(path = "start-import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public void startAttributeImportSession(Authentication authentication,
 		@RequestPart StartAttributeImportSessionCommand command, @RequestPart MultipartFile file)
@@ -94,9 +103,9 @@ public class ManuellerAttributeImportController {
 
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 
-		manuellerImportService.findImportSessionFromBenutzer(benutzer).ifPresent((session) -> {
+		if (manuellerImportService.importSessionExists(benutzer)) {
 			throw new RuntimeException("Es existiert bereits eine Session");
-		});
+		}
 
 		Verwaltungseinheit organisation = verwaltungseinheitResolver.resolve(command.getOrganisation());
 
@@ -149,7 +158,7 @@ public class ManuellerAttributeImportController {
 				file.getBytes(),
 				command.getAttributeImportFormat());
 		} catch (IOException e) {
-			log.info("I/O-Exception beim Validieren der Attribute", e);
+			log.error("I/O-Exception beim Validieren der Attribute", e);
 			throw new ManuellerImportNichtMoeglichException("Die hochgeladene Zip-Datei ist fehlerhaft.", e);
 		} catch (ZipFileRequiredFilesMissingException e) {
 			throw new ManuellerImportNichtMoeglichException(e);
@@ -160,9 +169,17 @@ public class ManuellerAttributeImportController {
 	public void executeAttributeUebernehmen(Authentication authentication) {
 		manuellerAttributeImportGuard.executeAttributeUebernehmen(authentication);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer);
+		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer).get();
 		// async verarbeitung anstoßen
 		this.manuellerAttributeImportService.runUpdate(session);
+	}
+
+	@PostMapping(path = "bearbeitung-abschliessen")
+	public void bearbeitungAbschliessen(Authentication authentication) {
+		manuellerAttributeImportGuard.bearbeitungAbschliessen(authentication);
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer).get();
+		this.manuellerAttributeImportService.bearbeitungAbschliessen(session);
 	}
 
 	@GetMapping(path = "feature-mappings")
@@ -170,7 +187,7 @@ public class ManuellerAttributeImportController {
 		manuellerAttributeImportGuard.getFeatureMappings(authentication);
 		return featureMappingToGeoJsonConverter.convert(
 			this.manuellerAttributeImportService.getAttributeImportSession(
-				benutzerResolver.fromAuthentication(authentication)).getFeatureMappings());
+				benutzerResolver.fromAuthentication(authentication)).get().getFeatureMappings());
 	}
 
 	@GetMapping(path = "konflikt-protokolle")
@@ -178,7 +195,7 @@ public class ManuellerAttributeImportController {
 		manuellerAttributeImportGuard.getKonfliktprotokolle(authentication);
 		return this.konfliktToGeoJsonConverter.convert(
 			this.manuellerAttributeImportService.getAttributeImportSession(
-					benutzerResolver.fromAuthentication(authentication)).getAttributeImportKonfliktProtokoll()
+					benutzerResolver.fromAuthentication(authentication)).get().getAttributeImportKonfliktProtokoll()
 				.getKantenKonfliktProtokolle());
 	}
 
@@ -187,11 +204,12 @@ public class ManuellerAttributeImportController {
 		@RequestBody List<@Valid DeleteMappedGrundnetzkanteCommand> commands) {
 		manuellerAttributeImportGuard.deleteMappedGrundnetzkante(authentication, commands);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer);
+		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer).get();
 		List<FeatureMapping> modifiedFeatureMappings = commands
 			.stream().map((command) -> session
-				.deleteMappedGrundnetzkanteFromFeatureMapping(command.getFeatureMappingId(), command.getKanteId()))
-			.collect(Collectors.toUnmodifiableList());
+				.deleteMappedGrundnetzkanteFromFeatureMapping(command.getFeatureMappingId(),
+					command.getKanteId()))
+			.toList();
 		return featureMappingToGeoJsonConverter.convert(modifiedFeatureMappings);
 	}
 
@@ -200,7 +218,7 @@ public class ManuellerAttributeImportController {
 		@RequestBody @Valid UpdateFeatureMappingCommand command) {
 		manuellerAttributeImportGuard.updateFeatureMapping(authentication, command);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer);
+		AttributeImportSession session = this.manuellerAttributeImportService.getAttributeImportSession(benutzer).get();
 
 		FeatureMapping updatedFeaturemapping = this.manuellerAttributeImportService.updateFeatureMapping(session,
 			command.getFeaturemappingID(),

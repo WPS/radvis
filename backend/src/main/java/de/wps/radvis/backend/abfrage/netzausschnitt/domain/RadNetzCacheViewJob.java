@@ -14,17 +14,12 @@
 
 package de.wps.radvis.backend.abfrage.netzausschnitt.domain;
 
-import static org.valid4j.Assertive.ensure;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 
 import org.locationtech.jts.geom.Envelope;
 import org.springframework.context.event.EventListener;
@@ -42,6 +37,8 @@ import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewAbstractService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -121,15 +118,16 @@ public abstract class RadNetzCacheViewJob<CacheTyp, StreckenTyp extends StreckeV
 
 			streckenDieserPartition.vollstaendig.addAll(nochNichtBearbeiteteStreckenAllerPartitionen.vollstaendig);
 
-
-			streckenVonKanten.addAll(streckenDieserPartition.vollstaendig.stream().filter(StreckenTyp::abgeschlossen).collect(
-				Collectors.toList()));
+			streckenVonKanten.addAll(
+				streckenDieserPartition.vollstaendig.stream().filter(StreckenTyp::abgeschlossen).collect(
+					Collectors.toList()));
 
 			entityManager.flush();
 			entityManager.clear();
 			log.info("Partition {}/{} beendet.", partitions.indexOf(partition) + 1, partitions.size());
 		}
-		log.info("Es blieben {} Strecken unvollständig und werden unverändert ausgeleitet", unvollstaendigeStreckenUeberPartitionenHinweg.size());
+		log.info("Es blieben {} Strecken unvollständig und werden unverändert ausgeleitet",
+			unvollstaendigeStreckenUeberPartitionenHinweg.size());
 		streckenVonKanten.addAll(unvollstaendigeStreckenUeberPartitionenHinweg);
 		return streckenVonKanten;
 	}

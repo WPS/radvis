@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +33,7 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.ArtDerAuswert
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.FahrradzaehlstelleAuswertung;
 import de.wps.radvis.backend.fahrradzaehlstelle.schnittstelle.view.FahrradzaehlstelleDetailView;
 import de.wps.radvis.backend.fahrradzaehlstelle.schnittstelle.view.FahrradzaehlstelleListView;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/fahrradzaehlstelle")

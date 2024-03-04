@@ -38,14 +38,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
@@ -74,6 +72,7 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlinterval
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstand;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstatus;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zeitstempel;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -125,13 +124,12 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 		YearMonth ersterMonat = fahrradzaehlstelleRepository.findeLetztesImportDatum()
 			.map(Zeitstempel::toYearMonth)
 			.orElseGet(() -> {
-					log.info("Es wurden in der Datenbank keine bereits importierten Fahrradzaehldaten gefunden, "
-						+ "daher wird das in der application.yml konfigurierte Startdatum verwendet.");
-					return YearMonth.parse(
-						jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportStartDate(),
-						datumsFormatInApplicationProperties);
-				}
-			);
+				log.info("Es wurden in der Datenbank keine bereits importierten Fahrradzaehldaten gefunden, "
+					+ "daher wird das in der application.yml konfigurierte Startdatum verwendet.");
+				return YearMonth.parse(
+					jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportStartDate(),
+					datumsFormatInApplicationProperties);
+			});
 		YearMonth letzerMonat = YearMonth.from(LocalDate.now());
 		log.info("Es wird versucht die Monate von {} bis {} zu importieren", ersterMonat, letzerMonat);
 
@@ -156,13 +154,12 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 				InputStream gis = url.toString().endsWith(".gz") ? new GzipCompressorInputStream(is) : is) {
 
 				byte[] bytes = IOUtils.toByteArray(gis);
-				csvData = csvRepository.read(bytes, CsvHeader.ALL, ',');
+				csvData = csvRepository.read(bytes, CsvHeader.ALL, ',', false);
 
 				log.info("Fertig mit einlesen der Csv. Jetzt werden die einzelnen Zeilen in Java Objekte gemapped.");
 
 			} catch (IOException | CsvReadException e) {
-				log.error(
-					"Die Datei mit der Url: " + url + " konnte aus folgendem Grund nicht eingelesen werden: " + e);
+				log.error("Die Datei mit der Url: " + url + " konnte aus folgendem Grund nicht eingelesen werden: ", e);
 				statistik.anzahlUrlsOderDateiFehlerhaft++;
 				continue;
 			}
@@ -176,14 +173,14 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 
 			betreiberEigeneIdListMap.forEach(
 				(key, eintraege) -> result.put(key, eintraege.stream()
-					.collect(Collectors.groupingBy(MessDatenEintrag::getChannelId)))
-			);
+					.collect(Collectors.groupingBy(MessDatenEintrag::getChannelId))));
 
 			List<Fahrradzaehlstelle> neueFahrradzaehlstellen = result.values().stream()
 				.map(this::mapMessDatenEintragToFahrradzaehlstelle).collect(Collectors.toList());
 
 			log.info(
-				"Importierte Fahrradzählstellen werden gemerged und gespeichert: " + neueFahrradzaehlstellen.size());
+				"Importierte Fahrradzählstellen werden gemerged und gespeichert: "
+					+ neueFahrradzaehlstellen.size());
 			List<Fahrradzaehlstelle> alleFahrradzaehlstellen = mergeMitBekanntenFahrradzaehlstellen(
 				neueFahrradzaehlstellen, statistik);
 			fahrradzaehlstelleRepository.saveAll(alleFahrradzaehlstellen);
@@ -198,8 +195,8 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 	private List<URL> getUrlsToImport(YearMonth start,
 		YearMonth letzterMonat, FahrradzaehlstellenMobiDataImportStatistik statistik) {
 
-		String baseUrl =
-			jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportBaseUrl() + "eco_counter_fahrradzaehler_";
+		String baseUrl = jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportBaseUrl()
+			+ "eco_counter_fahrradzaehler_";
 		DateTimeFormatter datumsFormatVonImportDatei = DateTimeFormatter.ofPattern("yyyyMM");
 
 		return start.atDay(1)
@@ -226,12 +223,13 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 			"Aufgrund von Postgres wird in der findAllBy... Methode nur eine maximale Anzahl von " + Short.MAX_VALUE
 				+ " unterstützt.");
 
-		Map<BetreiberEigeneId, Fahrradzaehlstelle> neuImportierteFahrradzaehlstellenMap =
-			neuImportierteFahrradzaehlstellen.stream()
-				.collect(Collectors.toMap(Fahrradzaehlstelle::getBetreiberEigeneId, Function.identity()));
+		Map<BetreiberEigeneId, Fahrradzaehlstelle> neuImportierteFahrradzaehlstellenMap = neuImportierteFahrradzaehlstellen
+			.stream()
+			.collect(Collectors.toMap(Fahrradzaehlstelle::getBetreiberEigeneId, Function.identity()));
 
-		List<Fahrradzaehlstelle> bekannteFahrradzaehlstellen = fahrradzaehlstelleRepository.findAllByBetreiberEigeneIdIn(
-			neuImportierteFahrradzaehlstellenMap.keySet());
+		List<Fahrradzaehlstelle> bekannteFahrradzaehlstellen = fahrradzaehlstelleRepository
+			.findAllByBetreiberEigeneIdIn(
+				neuImportierteFahrradzaehlstellenMap.keySet());
 
 		bekannteFahrradzaehlstellen.forEach(bekannteFahrradzaehlstelle -> {
 			bekannteFahrradzaehlstelle.merge(
@@ -250,8 +248,10 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 
 		MessDatenEintragBuilder messDatenEintragBuilder = MessDatenEintrag.builder();
 
-		// Wenn entweder BetreiberEigeneId, ChannelId, Zaehlstand oder Zeitstempel nicht importiert werden kann,
-		// koennen wir den Zaehldateneintrag nicht zuordnen und somit nicht abspeichern/importieren
+		// Wenn entweder BetreiberEigeneId, ChannelId, Zaehlstand oder Zeitstempel nicht
+		// importiert werden kann,
+		// koennen wir den Zaehldateneintrag nicht zuordnen und somit nicht
+		// abspeichern/importieren
 		try {
 			messDatenEintragBuilder.betreiberEigeneId(BetreiberEigeneId.of(csvDataRow.get(CsvHeader.COUNTER_SITE_ID)));
 		} catch (NumberFormatException e) {
@@ -298,7 +298,8 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 			return Optional.empty();
 		}
 
-		// Diese Attribute sind nullable -> wenn eins nicht Importiert werden kann, wird es null gesetzt und
+		// Diese Attribute sind nullable -> wenn eins nicht Importiert werden kann, wird
+		// es null gesetzt und
 		// bei den anderen weiterversucht
 		String logMeldungFormatString = "Das Attribut {} konnte nicht importiert werden. Nicht importierbarer Wert: \"{}\"";
 		try {
@@ -362,16 +363,14 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 			.betreiberEigeneId(messDatenEintrag.getBetreiberEigeneId())
 			.neusterZeitstempel(neusterZeitstempel)
 			.fahrradzaehlstelleGebietskoerperschaft(
-				messDatenEintrag.getFahrradzaehlstelleGebietskoerperschaft().orElse(null)
-			)
+				messDatenEintrag.getFahrradzaehlstelleGebietskoerperschaft().orElse(null))
 			.fahrradzaehlstelleBezeichnung(messDatenEintrag.getFahrradzaehlstelleBezeichnung().orElse(null))
 			.seriennummer(messDatenEintrag.getSeriennummer().orElse(null))
 			.zaehlintervall(messDatenEintrag.getZaehlintervall().orElse(null))
 			.channels(
 				messDatenEintraege.values().stream()
 					.map(this::mapMessDatenEintragToChannel)
-					.collect(Collectors.toList())
-			)
+					.collect(Collectors.toList()))
 			.build();
 	}
 
@@ -388,7 +387,8 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 					MessDatenEintrag::getZeitstempel,
 					this::mapMessDatenEintragToFahrradzaehlDatenEintrag,
 					// Definieren was passieren soll, wenn ein Key doppelt vorhanden ist
-					// Dies tritt bei Zeitumstellungen (meist im maerz) auf, wo es zwei Messdaten zu demselben
+					// Dies tritt bei Zeitumstellungen (meist im maerz) auf, wo es zwei Messdaten zu
+					// demselben
 					// Zeitpunkt in EpochSecs gibt
 					(schonVorhandenerWert, neuerWert) -> {
 						if (neuerWert.getZaehlstand().equals(Zaehlstand.of(0L))) {
@@ -396,9 +396,8 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 						} else {
 							return neuerWert;
 						}
-					}
-				))
-			).build();
+					})))
+			.build();
 	}
 
 	private FahrradzaehlDatenEintrag mapMessDatenEintragToFahrradzaehlDatenEintrag(MessDatenEintrag messDatenEintrag) {

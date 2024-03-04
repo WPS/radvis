@@ -15,12 +15,7 @@
 <div mat-dialog-title>
   <div class="display-flex justify-content-space-between">
     <div>RadVIS</div>
-    <button
-      [attr.aria-label]="'Schließen'"
-      matTooltip="Schließen"
-      mat-dialog-close
-      mat-icon-button
-    >
+    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" mat-dialog-close mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </div>
@@ -28,9 +23,9 @@
 <div mat-dialog-content class="content">
   <div class="mt-10 mx-5">
     RadVIS wird im Auftrag des <i>Ministeriums für Verkehr Baden-Württemberg</i> von der
-    <i>WPS - Workplace Solutions GmbH</i> umgesetzt. <br/>
+    <i>WPS - Workplace Solutions GmbH</i> umgesetzt. <br />
     Weitere Informationen zu Radverkehrsförderung finden Sie hier:
-    <a target="_blank" href="https://www.aktivmobil-bw.de/">www.aktivmobil-bw.de/</a> <br/>
+    <a target="_blank" href="https://www.aktivmobil-bw.de/">www.aktivmobil-bw.de/</a> <br />
     Die aktuellen RadNETZ-Daten können
     <a target="_blank" href="https://www.svz-bw.de/die-strassenverkehrszentrale/veroeffentlichungen">hier</a>
     heruntergeladen werden.
@@ -40,29 +35,57 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip selected>Zukünftige Versionen</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option selected>Zukünftige Versionen</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"></mat-panel-description>
       </mat-expansion-panel-header>
       <ul>
-        <li>Anzeige von Layern aus Quelldateien</li>
-        <li>Import der Sicherheitstrennstreifeninformationen aus den RadNETZ-Daten</li>
-        <li>Maßgeschneiderte Routing-Profile für die Fahrradroutenerstellung</li>
         <li>Import von Radservice-Punkte von MobiData als Servicestationen</li>
-        <li>Token-basierte Anmeldung an der WFS-/WMS Schnittstelle</li>
         <li>Manueller Import von Maßnahmen</li>
-        <li>Erweiterung der Auswertungsfunktion</li>
+        <li>Automatische Aktualisierung von Abstellanlagen</li>
       </ul>
     </mat-expansion-panel>
 
     <mat-expansion-panel expanded>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip color="accent" selected>Version 6.0</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option color="accent" selected>Version 7.0</mat-chip-option>
+          </mat-chip-listbox>
+        </mat-panel-title>
+        <mat-panel-description class="description"> 05.12.2023</mat-panel-description>
+      </mat-expansion-panel-header>
+      <ul>
+        <li>Basic-Auth Anmeldung an WMS/WFS-Schnittstellen zur Nutzung in externen GIS-Tools (z.B. QGIS)</li>
+        <li>Import weiterer Kartenebenen aus Dateien (GeoJSON, Shapefile, GeoPackage)</li>
+        <li>Verwaltung und Anwendung manueller Routing-Profile bei Bearbeitung von Fahrradrouten</li>
+        <li>Sicherheitstrennstreifen über manuellen Import hinzufügen</li>
+        <li>Erweiterung der Auswertungsfunktion: Filterung nach Wahlkreisen und weiteren Attributen</li>
+        <li>Weitere Attribute bei “Haltestellen des ÖPNVs”</li>
+        <li>Neues Feld “Ort” ersetzt B+R-Angabe an den Fahrradabstellanlagen</li>
+        <li>Ergebnisse der Umsetzungsstandsabfrage einsehbar für Kreiskoordinatorinnen und Radverkehrsbeauftragte</li>
+        <li>"Markierungszuständigkeit" an Maßnahmen ist nun "Zuständigkeit"</li>
+        <li>"Zuständigkeit" bestimmt Empfängerkreis für Umsetzungsstandsabfrage anstatt Baulastträger</li>
+        <li>
+          Symbole der Maßnahmen bei Signaturen werden nun entsprechend der Farbe des zugehörigen Netzbezugs visualisiert
+        </li>
+        <li>Kanten von WMS-Layer sind nun klickbar, um deren Attribute anzuzeigen</li>
+        <li>Erweiterung der WFS/WMS-Dienste um weitere Daten</li>
+        <li>Weitere Fehlerprotokolle für OSM-Ausleitungen</li>
+        <li>Performanceverbesserungen bei Fahrradrouten und Benutzerverwaltung</li>
+        <li>Zahlreiche Detail-Verbesserungen und Fehlerbehebungen</li>
+        <li>Erweiterung der Dokumentation an zahlreichen Stellen</li>
+      </ul>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-chip-listbox>
+            <mat-chip-option color="accent">Version 6.0</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 24.07.2023</mat-panel-description>
       </mat-expansion-panel-header>
@@ -83,9 +106,9 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip color="accent">Version 5.0</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option color="accent">Version 5.0</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 08.12.2022</mat-panel-description>
       </mat-expansion-panel-header>
@@ -104,9 +127,9 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip color="accent">Version 4.0</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option color="accent">Version 4.0</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 01.11.2022</mat-panel-description>
       </mat-expansion-panel-header>
@@ -121,9 +144,9 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip color="accent">Version 3.0</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option color="accent">Version 3.0</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 22.08.2022</mat-panel-description>
       </mat-expansion-panel-header>
@@ -137,9 +160,9 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip>Version 2.0</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option>Version 2.0</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 08.04.2022</mat-panel-description>
       </mat-expansion-panel-header>
@@ -153,9 +176,9 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip>Version 1.1</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option>Version 1.1</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 01.11.2021</mat-panel-description>
       </mat-expansion-panel-header>
@@ -173,9 +196,9 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <mat-chip-list>
-            <mat-chip>Version 1.0</mat-chip>
-          </mat-chip-list>
+          <mat-chip-listbox>
+            <mat-chip-option>Version 1.0</mat-chip-option>
+          </mat-chip-listbox>
         </mat-panel-title>
         <mat-panel-description class="description"> 01.10.2021</mat-panel-description>
       </mat-expansion-panel-header>
@@ -189,12 +212,14 @@
   <div class="ansprechpartner-dokumente mt-5 display-flex justify-content-space-between">
     <div>
       <h2>Ansprechpartner:</h2>
-      <p>Ministerium für Verkehr Baden-Württemberg <br/>
-        Dorotheenstraße 8<br/>
-        70173 Stuttgart<br/>
-        E-Mail: <a href="mailto:RadVIS-support@vm.bwl.de">RadVIS-support@vm.bwl.de</a>
+      <p>
+        Ministerium für Verkehr Baden-Württemberg <br />
+        Dorotheenstraße 8<br />
+        70173 Stuttgart<br />
+        E-Mail: <a href="mailto:RadVIS-support@vm.bwl.de">RadVIS-Support&#64;vm.bwl.de</a>
       </p>
-      <span>Weitere Informationen zu Kontaktanfragen finden Sie im
+      <span>
+        Weitere Informationen zu Kontaktanfragen finden Sie im
         <a href="javascript:void(0);" (click)="openManualWeitereHilfe()">Handbuch</a>
       </span>
     </div>
@@ -202,7 +227,7 @@
       <h2>Dokumente:</h2>
       <p>
         <a target="_blank" href="assets/RadVIS Datenschutzerklaerung.pdf">Datenschutzerklärung</a>
-        <br/>
+        <br />
         <a target="_blank" href="assets/RadVIS Datennutzungsbestimmungen.pdf">Datennutzungsbestimmungen</a>
       </p>
     </div>

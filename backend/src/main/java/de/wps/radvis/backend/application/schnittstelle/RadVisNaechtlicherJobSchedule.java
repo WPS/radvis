@@ -19,6 +19,7 @@ import java.util.List;
 
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.GeoserverFehlerprotokolleUpdateJob;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageBRImportJob;
+import de.wps.radvis.backend.benutzer.domain.SetzeBenutzerInaktivJob;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.fahrradroute.domain.DRouteMatchingJob;
@@ -35,6 +36,7 @@ import de.wps.radvis.backend.matching.domain.DlmPbfErstellungsJob;
 import de.wps.radvis.backend.matching.domain.MatchNetzAufOSMJob;
 import de.wps.radvis.backend.matching.domain.OsmAuszeichnungsJob;
 import de.wps.radvis.backend.matching.domain.OsmPbfDownloadJob;
+import de.wps.radvis.backend.servicestation.domain.ServicestationMobiDataImportJob;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.WegweisendeBeschilderungImportJob;
 
 public class RadVisNaechtlicherJobSchedule implements RadVisJobSchedule {
@@ -67,6 +69,7 @@ public class RadVisNaechtlicherJobSchedule implements RadVisJobSchedule {
 		naechtlicheJobs.add(WegweisendeBeschilderungImportJob.class);
 		naechtlicheJobs.add(AbstellanlageBRImportJob.class);
 		naechtlicheJobs.add(LeihstationMobiDataImportJob.class);
+		naechtlicheJobs.add(ServicestationMobiDataImportJob.class);
 
 		naechtlicheJobs.add(GeoserverFehlerprotokolleUpdateJob.class);
 
@@ -76,10 +79,20 @@ public class RadVisNaechtlicherJobSchedule implements RadVisJobSchedule {
 
 		naechtlicheJobs.add(FahrradzaehlstellenMobiDataImportJob.class);
 
+		naechtlicheJobs.add(SetzeBenutzerInaktivJob.class);
+
 		return naechtlicheJobs;
 	}
 
+	@Override
 	public boolean forceRun() {
 		return true;
+	}
+
+	@Override
+	public boolean verhindereWeitereJobAusfuehrungBeiFehler() {
+		// Bei den nächtlichen Jobs haben die einzelnen Jobs auch unabhängig von
+		// einander einen Mehrwert für die laufende Anwendung
+		return false;
 	}
 }

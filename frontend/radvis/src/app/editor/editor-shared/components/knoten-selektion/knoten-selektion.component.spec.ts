@@ -211,12 +211,12 @@ describe('KnotenSelektionComponent', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummySnapshotRoute(): ActivatedRouteSnapshot {
   return ({ firstChild: { params: { id: 2 } } } as unknown) as ActivatedRouteSnapshot;
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatureCollection(): GeoJSONFeatureCollection {
   return {
     type: 'FeatureCollection',

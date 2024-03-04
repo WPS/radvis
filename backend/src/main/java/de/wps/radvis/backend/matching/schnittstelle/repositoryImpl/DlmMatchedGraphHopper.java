@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.ev.StringEncodedValue;
 
 import de.wps.radvis.backend.matching.domain.DlmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;

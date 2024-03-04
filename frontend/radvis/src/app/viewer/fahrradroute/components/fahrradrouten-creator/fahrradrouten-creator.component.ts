@@ -13,11 +13,11 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { FahrradrouteAttributeEditorComponent } from 'src/app/viewer/fahrradroute/components/fahrradroute-attribute-editor/fahrradroute-attribute-editor.component';
 import { CreateFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/create-fahrradroute-command';
@@ -34,8 +34,8 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   styleUrls: ['./fahrradrouten-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FahrradroutenCreatorComponent implements OnDestroy, DiscardGuard {
-  public formGroup: FormGroup;
+export class FahrradroutenCreatorComponent implements OnDestroy, DiscardableComponent {
+  public formGroup: UntypedFormGroup;
   public readonly MAX_LENGTH_BESCHREIBUNG = FahrradrouteAttributeEditorComponent.MAX_LENGTH_BESCHREIBUNG;
   public readonly MAX_LENGTH_TEXT = FahrradrouteAttributeEditorComponent.MAX_LENGTH_TEXT;
   public isFetching = false;
@@ -56,17 +56,17 @@ export class FahrradroutenCreatorComponent implements OnDestroy, DiscardGuard {
     private fahrradrouteFilterService: FahrradrouteFilterService,
     private fahrradrouteProfilService: FahrradrouteProfilService
   ) {
-    this.formGroup = new FormGroup({
-      netzbezug: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-      name: new FormControl(null, [
+    this.formGroup = new UntypedFormGroup({
+      netzbezug: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+      name: new UntypedFormControl(null, [
         RadvisValidators.isNotNullOrEmpty,
         RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
       ]),
-      beschreibung: new FormControl(null, [
+      beschreibung: new UntypedFormControl(null, [
         RadvisValidators.isNotNullOrEmpty,
         RadvisValidators.maxLength(this.MAX_LENGTH_BESCHREIBUNG),
       ]),
-      kategorie: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+      kategorie: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
     });
 
     this.subscriptions.push(

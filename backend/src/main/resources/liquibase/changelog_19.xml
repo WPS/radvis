@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-1204" author="kho">
     <addColumn tableName="knoten">
@@ -35,8 +35,8 @@
     </createTable>
     <addPrimaryKey tableName="kanten_mapping" columnNames="id"/>
     <addForeignKeyConstraint baseTableName="kanten_mapping" baseColumnNames="grundnetz_kanten_id"
-      constraintName="fk_mapping_grundnetz_id" referencedTableName="kante"
-      referencedColumnNames="id"/>
+			constraintName="fk_mapping_grundnetz_id" referencedTableName="kante"
+			referencedColumnNames="id"/>
     <createTable tableName="mapped_kante">
       <column name="von_grundnetz" type="float8"/>
       <column name="bis_grundnetz" type="float8"/>
@@ -47,11 +47,11 @@
       <column name="richtungen_vertauscht" type="boolean"/>
     </createTable>
     <addForeignKeyConstraint baseTableName="mapped_kante" baseColumnNames="kanten_mapping_id"
-      constraintName="fk_mapped_kante_mapping" referencedTableName="kanten_mapping"
-      referencedColumnNames="id"/>
+			constraintName="fk_mapped_kante_mapping" referencedTableName="kanten_mapping"
+			referencedColumnNames="id"/>
     <addForeignKeyConstraint baseTableName="mapped_kante" baseColumnNames="kanten_id"
-      constraintName="fk_mapped_kante_kante" referencedTableName="kante"
-      referencedColumnNames="id"/>
+			constraintName="fk_mapped_kante_kante" referencedTableName="kante"
+			referencedColumnNames="id"/>
     <createIndex tableName="mapped_kante" indexName="idx_mapped_kante_mapping">
       <column name="kanten_mapping_id"/>
     </createIndex>

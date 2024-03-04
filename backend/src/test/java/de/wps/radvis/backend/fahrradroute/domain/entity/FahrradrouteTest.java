@@ -117,7 +117,7 @@ public class FahrradrouteTest {
 			Kategorie.LANDESRADFERNWEG,
 			"https://tolle-homepage.de/diese-domain-ist-tatsächlich-noch-zu-haben",
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(),
-			"mail@tolle-radroute.de",
+			"mail@testRadvis.de",
 			"TOL-LE License 2.0",
 			LocalDateTime.now(),
 			List.of(),

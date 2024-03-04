@@ -13,7 +13,14 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Feature } from 'ol';
+import { LineString } from 'ol/geom';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import { StyleFunction } from 'ol/style/Style';
+import { Observable, of } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import {
   AbstractLinearReferenzierteAttributGruppeEditor,
@@ -27,35 +34,29 @@ import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { KfzParkenForm } from 'src/app/editor/kanten/models/kfz-parken-form';
 import { KfzParkenTyp } from 'src/app/editor/kanten/models/kfz-parken-typ';
 import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberflaechenbeschaffenheit';
+import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import {
   SaveFuehrungsformAttributGruppeCommand,
 } from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
 import { SaveFuehrungsformAttributeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribute-command';
-import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
-import { BelagArt } from 'src/app/shared/models/belag-art';
-import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
-import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
-import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard, DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
-import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
-import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import { Feature } from 'ol';
-import { LineString } from 'ol/geom';
-import { StyleFunction } from 'ol/style/Style';
-import { MapStyles } from 'src/app/shared/models/layers/map-styles';
-import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { TrennstreifenForm } from 'src/app/editor/kanten/models/trennstreifen-form';
 import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
-import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
 import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
+import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
-import { Observable, of } from 'rxjs';
+import { BelagArt } from 'src/app/shared/models/belag-art';
+import { MapStyles } from 'src/app/shared/models/layers/map-styles';
+import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
+import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
+import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { DiscardableComponent, discardGuard } from 'src/app/shared/services/discard.guard';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
+import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
+import { OlMapService } from 'src/app/shared/services/ol-map.service';
 
 @Component({
   selector: 'rad-kanten-fuehrungsform-editor',
@@ -70,7 +71,7 @@ import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.ser
 })
 export class KantenFuehrungsformEditorComponent
   extends AbstractLinearReferenzierteAttributGruppeEditor<FuehrungsformAttribute, FuehrungsformAttributGruppe>
-  implements DiscardGuard, OnDestroy, OnInit {
+  implements DiscardableComponent, OnDestroy, OnInit {
 
   public LINKS = Seitenbezug.LINKS;
   public RECHTS = Seitenbezug.RECHTS;
@@ -86,12 +87,12 @@ export class KantenFuehrungsformEditorComponent
   public parkenFormOptions = KfzParkenForm.options;
 
   // Hält die linearen Referenzen. Verbunden mit den LineareReferenzControls
-  public lineareReferenzenLinksFormArray: FormArray = new FormArray([]);
-  public lineareReferenzenRechtsFormArray: FormArray = new FormArray([]);
+  public lineareReferenzenLinksFormArray: UntypedFormArray = new UntypedFormArray([]);
+  public lineareReferenzenRechtsFormArray: UntypedFormArray = new UntypedFormArray([]);
 
   // Sicherheitstrennstreifen
-  public trennstreifenFormGroupLinks: FormGroup;
-  public trennstreifenFormGroupRechts: FormGroup;
+  public trennstreifenFormGroupLinks: UntypedFormGroup;
+  public trennstreifenFormGroupRechts: UntypedFormGroup;
 
   public trennstreifenSeiteOptions: EnumOption[] = [];
   public trennstreifenFormOptions = TrennstreifenForm.options;
@@ -132,9 +133,10 @@ export class KantenFuehrungsformEditorComponent
   ];
 
   constructor(
+    private route: ActivatedRoute,
+    private router: Router,
     private netzService: NetzService,
     private olMapService: OlMapService,
-    private discardGuardService: DiscardGuardService,
     private featureTogglzService: FeatureTogglzService,
     changeDetectorRef: ChangeDetectorRef,
     notifyUserService: NotifyUserService,
@@ -143,16 +145,16 @@ export class KantenFuehrungsformEditorComponent
   ) {
     super(changeDetectorRef, notifyUserService, kantenSelektionService, benutzerDetailsService);
 
-    this.trennstreifenFormGroupLinks = new FormGroup({
-      trennstreifenFormLinks: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-      trennstreifenTrennungZuLinks: new FormControl(null),
-      trennstreifenBreiteLinks: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+    this.trennstreifenFormGroupLinks = new UntypedFormGroup({
+      trennstreifenFormLinks: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+      trennstreifenTrennungZuLinks: new UntypedFormControl(null),
+      trennstreifenBreiteLinks: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.isPositiveFloatNumber, RadvisValidators.maxDecimalPlaces(2)]),
     });
 
-    this.trennstreifenFormGroupRechts = new FormGroup({
-      trennstreifenFormRechts: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-      trennstreifenTrennungZuRechts: new FormControl(null),
-      trennstreifenBreiteRechts: new FormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+    this.trennstreifenFormGroupRechts = new UntypedFormGroup({
+      trennstreifenFormRechts: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
+      trennstreifenTrennungZuRechts: new UntypedFormControl(null),
+      trennstreifenBreiteRechts: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.isPositiveFloatNumber, RadvisValidators.maxDecimalPlaces(2)]),
     });
 
     this.stationierungsrichtungSource = new VectorSource();
@@ -250,12 +252,12 @@ export class KantenFuehrungsformEditorComponent
       (this.trennstreifenSeiteSelected === TrennstreifenSeite.B || this.trennstreifenSeiteSelected === TrennstreifenSeite.D);
   }
 
-  public getLineareReferenzenLinksFormControlAt(index: number): FormControl {
-    return this.lineareReferenzenLinksFormArray.at(index) as FormControl;
+  public getLineareReferenzenLinksFormControlAt(index: number): UntypedFormControl {
+    return this.lineareReferenzenLinksFormArray.at(index) as UntypedFormControl;
   }
 
-  public getLineareReferenzenRechtsFormControlAt(index: number): FormControl {
-    return this.lineareReferenzenRechtsFormArray.at(index) as FormControl;
+  public getLineareReferenzenRechtsFormControlAt(index: number): UntypedFormControl {
+    return this.lineareReferenzenRechtsFormArray.at(index) as UntypedFormControl;
   }
 
   public onInsertAtIndex(kantenIndex: number, segmentIndex: number, seitenbezug?: Seitenbezug): void {
@@ -309,7 +311,7 @@ export class KantenFuehrungsformEditorComponent
     // angefassten Forms immer den Discard-Guard um sicher zu gehen, dass keine Änderungen verloren gehen.
     let canDiscardObservable: Observable<boolean>;
     if (this.currentSelektion && seitenbezugChanged && (seite != null) && (this.trennstreifenSeiteSelected != null)) {
-      canDiscardObservable = this.discardGuardService.canDeactivate(this);
+      canDiscardObservable = discardGuard(this, this.route.snapshot, this.router.routerState.snapshot, this.router.routerState.snapshot) as Observable<boolean>;
     } else {
       canDiscardObservable = of(true);
     }
@@ -384,16 +386,16 @@ export class KantenFuehrungsformEditorComponent
     return this.netzService.saveKanteFuehrungsform(commands);
   }
 
-  protected createDisplayedAttributeFormGroup(): FormGroup {
-    return new FormGroup({
-      belagArt: new FormControl(null),
-      oberflaechenbeschaffenheit: new FormControl(null),
-      bordstein: new FormControl(null),
-      radverkehrsfuehrung: new FormControl(null),
-      benutzungspflicht: new FormControl(null),
-      parkenTyp: new FormControl(null),
-      parkenForm: new FormControl(null),
-      breite: new FormControl(null, [RadvisValidators.max(100)]),
+  protected createDisplayedAttributeFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      belagArt: new UntypedFormControl(null),
+      oberflaechenbeschaffenheit: new UntypedFormControl(null),
+      bordstein: new UntypedFormControl(null),
+      radverkehrsfuehrung: new UntypedFormControl(null),
+      benutzungspflicht: new UntypedFormControl(null),
+      parkenTyp: new UntypedFormControl(null),
+      parkenForm: new UntypedFormControl(null),
+      breite: new UntypedFormControl(null, [RadvisValidators.isPositiveFloatNumber, RadvisValidators.maxDecimalPlaces(2), RadvisValidators.max(100)]),
     });
   }
 
@@ -586,7 +588,7 @@ export class KantenFuehrungsformEditorComponent
     return fuehrungsformAttributeArray.map(fuehrungsformAttribute => fuehrungsformAttribute.linearReferenzierterAbschnitt);
   }
 
-  private onTrennstreifenFormValueChanged(form: FormGroup): void {
+  private onTrennstreifenFormValueChanged(form: UntypedFormGroup): void {
     if (!this.currentSelektion || !this.trennstreifenSeiteSelected) {
       return;
     }
@@ -649,7 +651,7 @@ export class KantenFuehrungsformEditorComponent
   }
 
   // Überträgt Werte aus der Trennstreifen-Form für die gegebene Seite in die FührungsformAttribute
-  private applyFormValuesToAttribute(attribute: FuehrungsformAttribute, form: FormGroup, seite: TrennstreifenSeite | undefined): void {
+  private applyFormValuesToAttribute(attribute: FuehrungsformAttribute, form: UntypedFormGroup, seite: TrennstreifenSeite | undefined): void {
     // Erst Form-Felder aktualisieren, bevor deren Werte in die FührungsformAttribute übertragen werden.
     this.updateTrennstreifenControlActivation(seite);
     this.resetTrennungZuOptions(this.currentSelektion ?? []);
@@ -658,7 +660,7 @@ export class KantenFuehrungsformEditorComponent
     .forEach(formKey => {
       const field = form.get(formKey);
       if (!(field?.value instanceof UndeterminedValue)) {
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         attribute[formKey] = field?.value;
       }
     });

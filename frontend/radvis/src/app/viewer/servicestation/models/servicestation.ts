@@ -16,12 +16,14 @@ import { PointGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 export interface Servicestation {
   geometrie: PointGeojson;
   name: string;
   id: number;
   version: number;
+  quellSystem: ServicestationQuellSystem;
   darfBenutzerBearbeiten: boolean;
 
   gebuehren: boolean;

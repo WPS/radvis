@@ -12,8 +12,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { FormControl, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
 import {
   AbstractUndeterminedFormControl,
   UNDETERMINED_LABEL,
@@ -33,23 +41,44 @@ import {
     },
   ],
 })
-export class TextInputControlComponent extends AbstractUndeterminedFormControl<string> {
+export class TextInputControlComponent extends AbstractUndeterminedFormControl<string> implements OnChanges {
   @Input()
   asTextarea = false;
 
   @Input()
   rows = 2;
 
-  formControl: FormControl;
+  @Input()
+  inputType: 'text' | 'password' | 'email' | 'url' | 'search' = 'text';
 
+  @Input()
+  maxLength?: number;
+
+  @Input()
+  touchOnWrite = true;
+
+  @Input()
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
+
+  formControl: FormControl<string>;
+
+  readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
   isUndetermined = false;
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
-    this.formControl = new FormControl('');
+    this.formControl = new FormControl('', { nonNullable: true });
     this.formControl.valueChanges.subscribe(value => {
-      this.onChange(value.trim());
+      this.onChange((value as string).trim());
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
+    }
   }
 
   public setDisabledState(disabled: boolean): void {
@@ -61,14 +90,19 @@ export class TextInputControlComponent extends AbstractUndeterminedFormControl<s
   }
 
   public writeValue(value: string | UndeterminedValue | null): void {
-    this.isUndetermined = false;
     if (value instanceof UndeterminedValue) {
-      this.formControl.reset(UNDETERMINED_LABEL, { emitEvent: false });
       this.isUndetermined = true;
+      this.formControl.reset('', { emitEvent: false });
     } else if (value !== null) {
+      this.isUndetermined = false;
       this.formControl.reset('' + value, { emitEvent: false });
     } else {
+      this.isUndetermined = false;
       this.formControl.reset('', { emitEvent: false });
+    }
+
+    if (this.touchOnWrite) {
+      this.formControl.markAsTouched();
     }
     this.changeDetector.markForCheck();
   }

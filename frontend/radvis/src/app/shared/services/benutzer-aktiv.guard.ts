@@ -12,22 +12,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class BenutzerAktivGuard implements CanActivate {
-  constructor(private benutzerService: BenutzerDetailsService, private router: Router) {}
+export const benutzerAktivGuard: CanActivateFn = (): boolean => {
+  const benutzerService: BenutzerDetailsService = inject(BenutzerDetailsService);
+  const router: Router = inject(Router);
 
-  canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (this.benutzerService.istAktuellerBenutzerRegistriert() && !this.benutzerService.istAktuellerBenutzerAktiv()) {
-      this.router.navigate(['/freischaltung']);
-      return false;
-    }
-    return true;
+  if (benutzerService.istAktuellerBenutzerRegistriert() && !benutzerService.istAktuellerBenutzerAktiv()) {
+    router.navigate(['/freischaltung']);
+    return false;
   }
-}
+  return true;
+};

@@ -71,7 +71,7 @@ class MassnahmenZustaendigkeitsServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
 		// act
@@ -79,7 +79,8 @@ class MassnahmenZustaendigkeitsServiceTest {
 			betroffeneMassnahme1);
 
 		// assert
-		assertThat(zustaendigeBearbeiter).containsExactlyInAnyOrder(radwegeErfasserIn, kreiskoordinator, radverkehrsBeauftrager);
+		assertThat(zustaendigeBearbeiter).containsExactlyInAnyOrder(radwegeErfasserIn, kreiskoordinator,
+			radverkehrsBeauftrager);
 	}
 
 	@Test
@@ -93,7 +94,7 @@ class MassnahmenZustaendigkeitsServiceTest {
 
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.id(1L)
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
 		// act
@@ -113,18 +114,18 @@ class MassnahmenZustaendigkeitsServiceTest {
 		Benutzer benutzer1 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(1L)
 			.vorname(Name.of("BenutzerA")).mailadresse(
-				Mailadresse.of("benutzerA@mail.com")).build();
+				Mailadresse.of("benutzerA@testRadvis.com")).build();
 		Benutzer benutzer2 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(2L)
 			.vorname(Name.of("BenutzerB")).mailadresse(
-				Mailadresse.of("benutzerB@mail.com")).build();
+				Mailadresse.of("benutzerB@testRadvis.com")).build();
 
 		when(benutzerRepository.findByOrganisationAndStatus(organisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(benutzer1, benutzer2));
 
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.id(1L)
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
 		// act

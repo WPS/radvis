@@ -15,8 +15,8 @@
 import { Injectable } from '@angular/core';
 import { Route } from '@angular/router';
 import { KnotenAttributeEditorComponent } from 'src/app/editor/knoten/components/knoten-attribute-editor/knoten-attribute-editor.component';
-import { KnotenResolverService } from 'src/app/editor/knoten/services/knoten-resolver.service';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { knotenResolver } from 'src/app/editor/knoten/services/knoten.resolver';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 
 @Injectable({
   providedIn: 'root',
@@ -27,8 +27,8 @@ export class KnotenToolRoutingService {
       {
         path: ':id',
         component: KnotenAttributeEditorComponent,
-        resolve: { knoten: KnotenResolverService },
-        canDeactivate: [DiscardGuardService],
+        resolve: { knoten: knotenResolver },
+        canDeactivate: [discardGuard],
       },
     ];
   }

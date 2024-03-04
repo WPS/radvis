@@ -50,3 +50,10 @@
   background: map-get($grayscale, 100);
   width: $editor-side-bar-width;
 }
+
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+}

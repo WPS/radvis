@@ -14,7 +14,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup, ValidatorFn } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
@@ -49,7 +49,7 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
 
   public disableAnimation = true;
   public saving = false;
-  public weitereKartenebenenFormArray: FormArray;
+  public weitereKartenebenenFormArray: UntypedFormArray;
   public parsingQuellangabeForLayerIndex: number | null = null;
   public dateiLayerKartenebenen: SaveWeitereKartenebeneCommand[] = [];
 
@@ -69,7 +69,7 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
       FeatureTogglzService.TOGGLZ_DATEILAYER_HOCHLADEN_ANZEIGEN
     );
 
-    this.weitereKartenebenenFormArray = new FormArray([]);
+    this.weitereKartenebenenFormArray = new UntypedFormArray([]);
     this.subscriptions.push(
       this.weitereKartenebenenService.weitereKartenebenen$.subscribe(layers => {
         this.resetForm(layers);
@@ -97,8 +97,8 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
     );
   }
 
-  public get formArrayAsFormGroupArray(): FormGroup[] {
-    return this.weitereKartenebenenFormArray.controls as FormGroup[];
+  public get formArrayAsFormGroupArray(): UntypedFormGroup[] {
+    return this.weitereKartenebenenFormArray.controls as UntypedFormGroup[];
   }
 
   ngAfterViewInit(): void {
@@ -144,7 +144,7 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
     this.weitereKartenebenenFormArray.markAsDirty();
   }
 
-  public onGenerateQuellangabe(layerFormGroup: FormGroup, index: number): void {
+  public onGenerateQuellangabe(layerFormGroup: UntypedFormGroup, index: number): void {
     const url = new URL(layerFormGroup.value.url);
 
     url.searchParams.set('request', 'GetCapabilities');
@@ -224,25 +224,25 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
     });
   }
 
-  private createLayerFormGroup(): FormGroup {
-    return new FormGroup(
+  private createLayerFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup(
       {
-        id: new FormControl(null),
-        name: new FormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-        url: new FormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.url]),
-        farbe: new FormControl('#55dd66'),
-        deckkraft: new FormControl(1.0),
-        zoomstufe: new FormControl(8.7),
-        zindex: new FormControl(neueWeitereKartenebenenDefaultZIndex, [
+        id: new UntypedFormControl(null),
+        name: new UntypedFormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+        url: new UntypedFormControl('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.url]),
+        farbe: new UntypedFormControl('#55dd66'),
+        deckkraft: new UntypedFormControl(1.0),
+        zoomstufe: new UntypedFormControl(8.7),
+        zindex: new UntypedFormControl(neueWeitereKartenebenenDefaultZIndex, [
           RadvisValidators.isNotNullOrEmpty,
           RadvisValidators.isPositiveInteger,
         ]),
-        weitereKartenebeneTyp: new FormControl(WeitereKartenebeneTyp.WFS),
-        quellangabe: new FormControl(null, [
+        weitereKartenebeneTyp: new UntypedFormControl(WeitereKartenebeneTyp.WFS),
+        quellangabe: new UntypedFormControl(null, [
           RadvisValidators.isNotNullOrEmpty,
           RadvisValidators.maxLength(this.QUELLANGABE_MAX_LENGTH),
         ]),
-        dateiLayerId: new FormControl(null),
+        dateiLayerId: new UntypedFormControl(null),
       },
       { validators: this.layerFarbeValidator }
     );

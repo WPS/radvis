@@ -21,7 +21,7 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
@@ -42,11 +42,11 @@ export class JahrDropdownControlComponent extends AbstractFormControl<Date> impl
 
   jahresOptions = this.getJahresOptions();
 
-  public formControl: FormControl;
+  public formControl: UntypedFormControl;
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
-    this.formControl = new FormControl(null);
+    this.formControl = new UntypedFormControl(null);
     this.formControl.valueChanges.subscribe(value => {
       this.onChange(value ? new Date(value) : value);
       this.changeDetector.detectChanges();

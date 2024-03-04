@@ -15,12 +15,10 @@
 package de.wps.radvis.backend.abfrage.export.schnittstelle;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,14 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.abfrage.export.domain.InfrastrukturTyp;
 import de.wps.radvis.backend.abfrage.export.domain.InfrastrukturenExporterFactory;
-import de.wps.radvis.backend.abfrage.export.domain.service.ExportFromViewService;
 import de.wps.radvis.backend.common.domain.service.ExporterService;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.schnittstelle.ExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.ExportConverterFactory;
 import de.wps.radvis.backend.common.schnittstelle.ExportFormat;
-import de.wps.radvis.backend.common.schnittstelle.GeoPackageExportConverter;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -46,13 +41,11 @@ public class ExportInfrastrukturenController {
 
 	private final InfrastrukturenExporterFactory infrastrukturenExporterFactory;
 	private final ExportConverterFactory converterFactory;
-	private final ExportFromViewService exportFromViewService;
 
 	public ExportInfrastrukturenController(InfrastrukturenExporterFactory infrastrukturenExporterFactory,
-		ExportConverterFactory converterFactory, ExportFromViewService exportFromViewService) {
+		ExportConverterFactory converterFactory) {
 		this.infrastrukturenExporterFactory = infrastrukturenExporterFactory;
 		this.converterFactory = converterFactory;
-		this.exportFromViewService = exportFromViewService;
 	}
 
 	@PostMapping("{format}/infrastruktur/{typ}")
@@ -70,33 +63,6 @@ public class ExportInfrastrukturenController {
 		headers.add("Expires", "0");
 
 		byte[] datei = converter.convert(exportData);
-
-		return ResponseEntity.ok()
-			.contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
-			.contentLength(datei.length)
-			.headers(headers)
-			.body(datei);
-	}
-
-	@GetMapping("balm")
-	@Transactional
-	public ResponseEntity<byte[]> exportBalm() {
-		log.info("Starte Balm-Export als Geopackage");
-		Map<String, List<ExportData>> exportData = exportFromViewService.exportBalm();
-
-		log.debug("Schreibe GeoPackage Datei");
-		GeoPackageExportConverter geoPackageExportConverter = new GeoPackageExportConverter();
-		byte[] datei = geoPackageExportConverter.convertMulti(exportData);
-
-		log.info("Balm-Export als Geopackage beendet.");
-
-		String dateiname = "balm.gpkg";
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + dateiname);
-		headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-		headers.add("Pragma", "no-cache");
-		headers.add("Expires", "0");
 
 		return ResponseEntity.ok()
 			.contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))

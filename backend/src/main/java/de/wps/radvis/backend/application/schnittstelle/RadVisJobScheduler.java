@@ -14,13 +14,16 @@
 
 package de.wps.radvis.backend.application.schnittstelle;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StopWatch;
+import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.domain.RadVisStopWatchPrinter;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
@@ -46,21 +49,34 @@ public class RadVisJobScheduler {
 
 	private void runSchedule(RadVisJobSchedule schedule) {
 		StopWatch stopWatch = new StopWatch();
-		log.info("Starting Schedule " + schedule.getClass().getSimpleName() + "...");
+		log.info("Starte Schedule " + schedule.getClass().getSimpleName() + "...");
+		Map<String, String> failedJobs = new HashMap<>();
 		for (Class<? extends AbstractJob> clazz : schedule.jobsToRun()) {
 			Optional<AbstractJob> jobToRun = allJobs.stream().filter(job -> clazz.isInstance(job)).findAny();
 			if (jobToRun.isEmpty()) {
-				log.warn("Job for class " + clazz + " not found.");
+				log.warn("Job der Klasse " + clazz + " nicht gefunden.");
 			} else {
 				stopWatch.start(clazz.getSimpleName());
-				log.info("RadVisJobScheduler: Start run von Job " + clazz.getSimpleName());
-				jobToRun.get().run(schedule.forceRun());
+				log.info("RadVisJobScheduler: Starte run-Methode von Job " + clazz.getSimpleName());
+				try {
+					jobToRun.get().run(schedule.forceRun());
+				} catch (Exception | RequireViolation e) {
+					if (schedule.verhindereWeitereJobAusfuehrungBeiFehler()) {
+						throw e;
+					}
+
+					String failureType = e.getClass().getName();
+					log.info("Job " + clazz.getSimpleName() + " fehlgeschlagen durch " + failureType);
+					failedJobs.put(clazz.getSimpleName(), failureType);
+				}
+
 				stopWatch.stop();
-				log.info("RadVisJobScheduler: Stop run von Job " + clazz.getSimpleName());
-				log.info("RadVisJobScheduler: Laufzeit der run-Methode: " + stopWatch.getLastTaskTimeMillis() / 1000);
+				log.info("RadVisJobScheduler: Stoppe run-Methode von Job " + clazz.getSimpleName());
+				log.info("RadVisJobScheduler: Laufzeit der run-Methode: " +
+					stopWatch.lastTaskInfo().getTimeMillis() / 1000 + " seconds");
 			}
 		}
-		log.info(RadVisStopWatchPrinter.stringify(stopWatch));
-		log.info("Finished Schedule " + schedule.getClass().getSimpleName() + ".");
+		log.info(RadVisStopWatchPrinter.stringify(stopWatch, failedJobs));
+		log.info("Beende Schedule " + schedule.getClass().getSimpleName() + ".");
 	}
 }

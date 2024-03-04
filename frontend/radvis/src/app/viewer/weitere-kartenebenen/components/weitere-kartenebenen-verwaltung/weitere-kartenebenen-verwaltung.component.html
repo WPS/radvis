@@ -12,7 +12,7 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<div class="display-flex flex-column align-items-center" mat-dialog-content>
+<div mat-dialog-content>
   <div class="accordion-container">
     <mat-accordion
       *ngFor="let formGroup of formArrayAsFormGroupArray; let index = index"
@@ -37,15 +37,13 @@
         </mat-expansion-panel-header>
 
         <form [formGroup]="formGroup">
-          <rad-text-input-control formControlName="name">
+          <rad-text-input-control formControlName="name" [errors]="formGroup.get('name')?.errors">
             <div class="label">Layername</div>
           </rad-text-input-control>
-          <rad-validation-error-anzeige [errors]="formGroup.get('name')?.errors || null"></rad-validation-error-anzeige>
 
-          <rad-text-input-control [asTextarea]="true" formControlName="url">
+          <rad-text-input-control [asTextarea]="true" formControlName="url" [errors]="formGroup.get('url')?.errors">
             <div class="label">URL</div>
           </rad-text-input-control>
-          <rad-validation-error-anzeige [errors]="formGroup.get('url')?.errors || null"></rad-validation-error-anzeige>
 
           <rad-enum-dropdown-control
             [nullable]="false"
@@ -55,7 +53,12 @@
             Layertyp
           </rad-enum-dropdown-control>
 
-          <rad-text-input-control [asTextarea]="true" formControlName="quellangabe">
+          <rad-text-input-control
+            formControlName="quellangabe"
+            [asTextarea]="true"
+            [maxLength]="QUELLANGABE_MAX_LENGTH"
+            [errors]="formGroup.get('quellangabe')?.errors"
+          >
             <div class="label">Quelle/Lizenzbedingungen</div>
             <div class="suffix">
               <button
@@ -69,12 +72,7 @@
                 <mat-spinner *ngIf="index === parsingQuellangabeForLayerIndex" diameter="16"></mat-spinner>
               </button>
             </div>
-            <div class="hint">
-              ({{ formGroup.get('quellangabe')?.value?.length || 0 }}/{{ QUELLANGABE_MAX_LENGTH }})
-            </div>
           </rad-text-input-control>
-          <rad-validation-error-anzeige [errors]="formGroup.get('quellangabe')?.errors || null">
-          </rad-validation-error-anzeige>
 
           <div *ngIf="isWFS(formGroup.get('weitereKartenebeneTyp')?.value)" class="display-flex color-picker">
             <label>Farbe: </label>
@@ -85,14 +83,14 @@
             <rad-zoomstufe-slider-control formControlName="zoomstufe"></rad-zoomstufe-slider-control>
           </div>
           <div class="input-with-icon">
-            <rad-number-input-control
+            <rad-float-input-control
               class="zindex-eingabe-feld"
               [value]="formGroup.get('zindex')?.value"
               [anzahlNachkommastellen]="0"
               formControlName="zindex"
             >
               <div class="label">Anzeigeordnung</div>
-            </rad-number-input-control>
+            </rad-float-input-control>
             <mat-icon
               class="ml-2"
               color="accent"
@@ -112,17 +110,23 @@
       </mat-expansion-panel>
     </mat-accordion>
   </div>
-</div>
-<div class="buttons display-flex justify-content-flex-end" mat-dialog-actions>
-  <button [matMenuTriggerFor]="menu" color="primary" mat-stroked-button>
-    <mat-icon>add</mat-icon>
-    Hinzufügen
-  </button>
-  <div class="flex-grow"></div>
-  <button [disabled]="saving" mat-dialog-close="false" mat-stroked-button type="button">Abbrechen</button>
-  <rad-action-button (action)="onSave()" [dirty]="weitereKartenebenenFormArray.dirty" [waiting]="saving">
-    Speichern
-  </rad-action-button>
+  <div class="tab-actions">
+    <button [matMenuTriggerFor]="menu" color="primary" mat-stroked-button>
+      <mat-icon>add</mat-icon>
+      Hinzufügen
+    </button>
+    <div class="display-flex tab-buttons">
+      <button [disabled]="saving" mat-dialog-close="false" mat-stroked-button>Abbrechen</button>
+      <rad-action-button
+        class="save-button"
+        (action)="onSave()"
+        [dirty]="weitereKartenebenenFormArray.dirty"
+        [waiting]="saving"
+      >
+        Speichern
+      </rad-action-button>
+    </div>
+  </div>
 </div>
 
 <mat-menu #menu="matMenu" yPosition="above">

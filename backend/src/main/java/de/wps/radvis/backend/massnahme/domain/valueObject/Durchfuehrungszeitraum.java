@@ -19,11 +19,10 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Embeddable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -57,7 +56,19 @@ public class Durchfuehrungszeitraum {
 		return new Durchfuehrungszeitraum(geplanterUmsetzungsstartJahr);
 	}
 
-	private boolean isJahrValid(Integer jahr) {
+	public static Durchfuehrungszeitraum of(String geplanterUmsetzungsstartJahr) {
+		return new Durchfuehrungszeitraum(Integer.parseInt(geplanterUmsetzungsstartJahr));
+	}
+
+	public static boolean isValid(String value) {
+		try {
+			return Durchfuehrungszeitraum.isJahrValid(Integer.parseInt(value));
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
+	public static boolean isJahrValid(Integer jahr) {
 		return jahr >= 2000 && jahr <= 3000;
 	}
 

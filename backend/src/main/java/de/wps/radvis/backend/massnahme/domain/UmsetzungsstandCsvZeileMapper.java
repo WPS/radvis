@@ -179,16 +179,16 @@ public class UmsetzungsstandCsvZeileMapper {
 			if (
 				// 234 Treffer
 				(zustaendigString.equalsIgnoreCase("Gemeinde")
-				||
-				// 4 weitere Treffer
-				(
-					zustaendigString.toLowerCase().startsWith("gemeinde")
-						&& zustaendigString.toLowerCase().endsWith("herabstufung")))
-				&& organisationsArt.equals(OrganisationsArt.GEMEINDE)
-				&& organisationName.equalsIgnoreCase(
-				gemeindeAusCSV
-					// 40 weitere Treffer
-					.replace(", Stadt", ""))) {
+					||
+					// 4 weitere Treffer
+					(
+						zustaendigString.toLowerCase().startsWith("gemeinde")
+							&& zustaendigString.toLowerCase().endsWith("herabstufung")))
+					&& organisationsArt.equals(OrganisationsArt.GEMEINDE)
+					&& organisationName.equalsIgnoreCase(
+					gemeindeAusCSV
+						// 40 weitere Treffer
+						.replace(", Stadt", ""))) {
 				return Optional.of(organisation);
 			}
 
@@ -237,11 +237,11 @@ public class UmsetzungsstandCsvZeileMapper {
 			if (
 				// 2 Treffer
 				(zustaendigString.equalsIgnoreCase("Deutsche Bahn")
-				// 1 Treffer
-				|| zustaendigString.equalsIgnoreCase("Untereisesheim")
-				// 1 Treffer
-				|| zustaendigString.equalsIgnoreCase("Linkenheim-Hochstetten"))
-				&& organisationName.equalsIgnoreCase(zustaendigString)) {
+					// 1 Treffer
+					|| zustaendigString.equalsIgnoreCase("Untereisesheim")
+					// 1 Treffer
+					|| zustaendigString.equalsIgnoreCase("Linkenheim-Hochstetten"))
+					&& organisationName.equalsIgnoreCase(zustaendigString)) {
 				return Optional.of(organisation);
 			}
 

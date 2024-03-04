@@ -14,7 +14,9 @@
 
 package de.wps.radvis.backend.benutzer.domain.entity;
 
+import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,10 +47,11 @@ public class BenutzerTestDataProvider {
 	public static BenutzerBuilder radnetzErfasserinRegierungsbezirk(
 		Verwaltungseinheit organisation) {
 		return Benutzer.builder()
+			.letzteAktivitaet(LocalDate.now())
 			.vorname(Name.of("defaultVorname"))
 			.nachname(Name.of("defaultNachname"))
 			.status(BenutzerStatus.AKTIV)
-			.mailadresse(Mailadresse.of("default@mail.com"))
+			.mailadresse(Mailadresse.of("default@testRadvis.com"))
 			.organisation(organisation)
 			.rollen(Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER))
 			.serviceBwId(ServiceBwId.of("default"));
@@ -61,10 +64,11 @@ public class BenutzerTestDataProvider {
 
 	public static BenutzerBuilder admin(Verwaltungseinheit organisation) {
 		return Benutzer.builder()
+			.letzteAktivitaet(LocalDate.now())
 			.vorname(Name.of("adminVorname"))
 			.nachname(Name.of("adminNachname"))
 			.status(BenutzerStatus.AKTIV)
-			.mailadresse(Mailadresse.of("admin@mail.com"))
+			.mailadresse(Mailadresse.of("admin@testRadvis.com"))
 			.organisation(organisation)
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR))
 			.serviceBwId(ServiceBwId.of("admin"));
@@ -76,10 +80,11 @@ public class BenutzerTestDataProvider {
 
 	public static BenutzerBuilder kreiskoordinator(Verwaltungseinheit organisation) {
 		return Benutzer.builder()
+			.letzteAktivitaet(LocalDate.now())
 			.vorname(Name.of("kreisKoordinatorVorname"))
 			.nachname(Name.of("kreisKoordinatorNachname"))
 			.status(BenutzerStatus.AKTIV)
-			.mailadresse(Mailadresse.of("kreisKoordinator@mail.com"))
+			.mailadresse(Mailadresse.of("kreisKoordinator@testRadvis.com"))
 			.organisation(organisation)
 			.rollen(Set.of(Rolle.KREISKOORDINATOREN))
 			.serviceBwId(ServiceBwId.of("kreisKoordinator"));
@@ -88,10 +93,11 @@ public class BenutzerTestDataProvider {
 	public static BenutzerBuilder bearbeiterinVmRadnetzAdminInaktiv(
 		Verwaltungseinheit organisation) {
 		return Benutzer.builder()
+			.letzteAktivitaet(LocalDate.now())
 			.vorname(Name.of("bearbeiterinVmRadnetzAdminInaktiv"))
 			.nachname(Name.of("bearbeiterinVmRadnetzAdminInaktiv"))
 			.status(BenutzerStatus.INAKTIV)
-			.mailadresse(Mailadresse.of("bearbeiterinVmRadnetzAdminInaktiv@mail.com"))
+			.mailadresse(Mailadresse.of("bearbeiterinVmRadnetzAdminInaktiv@testRadvis.com"))
 			.organisation(organisation)
 			.rollen(Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN))
 			.serviceBwId(ServiceBwId.of("bearbeiterinVmRadnetzAdminInaktiv"));
@@ -99,9 +105,10 @@ public class BenutzerTestDataProvider {
 
 	public static BenutzerBuilder externerDienstleister(Verwaltungseinheit organisation) {
 		return Benutzer.builder().vorname(Name.of("externerDienstleisterAktiv"))
+			.letzteAktivitaet(LocalDate.now())
 			.nachname(Name.of("externerDienstleisterAktiv"))
 			.status(BenutzerStatus.AKTIV)
-			.mailadresse(Mailadresse.of("externerDienstleisterAktiv@mail.com"))
+			.mailadresse(Mailadresse.of("externerDienstleisterAktiv@testRadvis.com"))
 			.organisation(organisation)
 			.serviceBwId(ServiceBwId.of("externerDienstleisterAktiv"))
 			.rollen(Set.of(Rolle.EXTERNER_DIENSTLEISTER));
@@ -109,12 +116,13 @@ public class BenutzerTestDataProvider {
 
 	public static BenutzerBuilder radwegeErfasserinKommuneKreis(Verwaltungseinheit organisation) {
 		return Benutzer.builder()
+			.letzteAktivitaet(LocalDate.now())
 			.vorname(Name.of("radwegeErfasserinKommuneKreis"))
 			.nachname(Name.of("radwegeErfasserinKommuneKreis"))
 			.status(BenutzerStatus.AKTIV)
-			.mailadresse(Mailadresse.of("radwegeErfasserinKommuneKreis@mail.com"))
+			.mailadresse(Mailadresse.of("radwegeErfasserinKommuneKreis@testRadvis.com"))
 			.organisation(organisation)
-			.rollen(Set.of(Rolle.RADWEGE_ERFASSERIN))
+			.rollen(new HashSet<>(Set.of(Rolle.RADWEGE_ERFASSERIN)))
 			.serviceBwId(ServiceBwId.of("radwegeErfasserinKommuneKreis"));
 	}
 
@@ -125,6 +133,7 @@ public class BenutzerTestDataProvider {
 
 	public static BenutzerBuilder technischerBenutzer() {
 		return Benutzer.builder()
+			.letzteAktivitaet(LocalDate.now())
 			.rollen(Set.of(Rolle.RADVIS_BETRACHTER))
 			.vorname(Name.of("RadVIS"))
 			.nachname(Name.of("System"))

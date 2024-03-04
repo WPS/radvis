@@ -14,15 +14,8 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">{{ layerName$ | async }}</h2>
-  <button
-    [attr.aria-label]="'Schließen'"
-    matTooltip="Schließen"
-    (click)="onClose()"
-    mat-icon-button
-  >
+  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
-<rad-detail-feature-table *ngIf="attributes$ | async as attributes"
-                          [attribute]="attributes"
-></rad-detail-feature-table>
+<rad-detail-feature-table *ngIf="attributes$ | async as attributes" [attribute]="attributes"></rad-detail-feature-table>

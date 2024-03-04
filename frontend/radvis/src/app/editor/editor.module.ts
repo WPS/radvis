@@ -22,7 +22,6 @@ import { EditorRoutingModule } from 'src/app/editor/editor-routing.module';
 import { EditorSharedModule } from 'src/app/editor/editor-shared/editor-shared.module';
 import { KantenModule } from 'src/app/editor/kanten/kanten.module';
 import { KnotenModule } from 'src/app/editor/knoten/knoten.module';
-import { ManuellerImportModule } from 'src/app/editor/manueller-import/manueller-import.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
@@ -33,7 +32,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     EditorRoutingModule,
     ReactiveFormsModule,
     SharedModule,
-    ManuellerImportModule,
     EditorSharedModule,
     KnotenModule,
     KantenModule,

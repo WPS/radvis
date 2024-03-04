@@ -14,7 +14,6 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatSliderChange } from '@angular/material/slider';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import invariant from 'tiny-invariant';
 
@@ -50,8 +49,8 @@ export class DeckkraftSliderControlComponent extends AbstractFormControl<number>
     this.changeDetector.markForCheck();
   }
 
-  onSliderMove(event: MatSliderChange): void {
-    this.value = event.value as number;
-    this.onChange(event.value);
+  onSliderMove(value: number): void {
+    this.value = value;
+    this.onChange(value);
   }
 }

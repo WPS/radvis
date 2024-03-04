@@ -12,22 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { FurtKreuzung } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung';
 import { FurtenKreuzungenService } from 'src/app/viewer/furten-kreuzungen/services/furten-kreuzungen.service';
 import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class FurtKreuzungResolver implements Resolve<FurtKreuzung> {
-  constructor(private furtKreuzungService: FurtenKreuzungenService) {}
-
-  // eslint-disable-next-line no-unused-vars
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<FurtKreuzung> {
-    const idFromRoute = route.paramMap.get('id');
-    invariant(idFromRoute);
-    return this.furtKreuzungService.getFurtKreuzung(+idFromRoute);
-  }
-}
+export const furtKreuzungResolver: ResolveFn<FurtKreuzung> = (route, state) => {
+  const furtKreuzungService: FurtenKreuzungenService = inject(FurtenKreuzungenService);
+  const id = route.paramMap.get('id');
+  invariant(id);
+  return furtKreuzungService.getFurtKreuzung(+id);
+};

@@ -24,7 +24,7 @@ import de.wps.radvis.backend.common.domain.valueObject.Attribute;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class AttributeUserType implements AttributeConverter<Attribute, String> {
 
 	@Override

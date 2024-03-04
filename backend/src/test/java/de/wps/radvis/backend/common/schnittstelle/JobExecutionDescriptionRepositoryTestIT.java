@@ -20,11 +20,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group6")
 @ContextConfiguration(classes = JobExecutionDescriptionRepositoryTestIT.TestConfiguration.class)

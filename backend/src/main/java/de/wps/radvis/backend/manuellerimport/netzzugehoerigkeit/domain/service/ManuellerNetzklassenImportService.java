@@ -26,12 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.persistence.OptimisticLockException;
-import jakarta.transaction.Transactional;
-
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.scheduling.annotation.Async;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
@@ -48,11 +45,12 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerI
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklasseImportSession;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -80,23 +78,18 @@ public class ManuellerNetzklassenImportService {
 		this.shapeZipService = shapeZipService;
 	}
 
-	public NetzklasseImportSession getNetzklassenImportSession(Benutzer benutzer) {
-		Optional<AbstractImportSession> importSession = manuellerImportService.findImportSessionFromBenutzer(benutzer);
-
-		if (importSession.isEmpty() || !(importSession.get() instanceof NetzklasseImportSession)) {
-			throw new RuntimeException("Keine NetzklassenImportSession für den Benutzer verfügbar");
-		}
-
-		return (NetzklasseImportSession) importSession.get();
+	public Optional<NetzklasseImportSession> getNetzklassenImportSession(Benutzer benutzer) {
+		return manuellerImportService.findImportSessionFromBenutzer(benutzer, NetzklasseImportSession.class);
 	}
 
 	@Async
 	@WithAuditing(context = AuditingContext.MANUELLER_NETZKLASSEN_IMPORT)
 	@Transactional
 	public void runUpdate(NetzklasseImportSession netzklasseImportSession) {
-		require(netzklasseImportSession.getStatus() == ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE,
-			"Eine Session darf nur nach der automatischen Abbildung und nur einmal ausgeführt werden");
-		netzklasseImportSession.setStatus(ImportSessionStatus.UPDATE_EXECUTING);
+		require(netzklasseImportSession.getSchritt().equals(NetzklasseImportSession.IMPORT_ABSCHLIESSEN),
+			"Eine Session darf nur nach der Bearbeitung der Abbildung und nur einmal ausgeführt werden");
+		require(!netzklasseImportSession.isExecuting(), "Die Session wird bereits ausgeführt!");
+		netzklasseImportSession.setExecuting(true);
 		LocalDateTime importZeitpunkt = LocalDateTime.now();
 		try {
 			log.info("Starting uebernehmeNetzzugehoerigkeit");
@@ -112,30 +105,33 @@ public class ManuellerNetzklassenImportService {
 				.collect(Collectors.toList());
 
 			manuellerImportFehlerRepository.saveAll(collect);
-			netzklasseImportSession.setStatus(ImportSessionStatus.UPDATE_DONE);
+			netzklasseImportSession.setSchritt(AbstractImportSession.CLOSED);
 		} catch (OptimisticLockException e) {
-			netzklasseImportSession.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+			netzklasseImportSession.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 			throw new OptimisticLockException(
 				"Kanten in der Organisation wurden während des Speicherns aus einer anderen Quelle verändert."
 					+ " Bitte versuchen Sie es erneut.");
 		} catch (Throwable e) {
 			netzklasseImportSession.addLogEintrag(
 				ImportLogEintrag.ofError("Es ist ein Unbekannter Fehler aufgetreten"));
-			netzklasseImportSession.setStatus(ImportSessionStatus.UPDATE_DONE);
+			netzklasseImportSession.setSchritt(AbstractImportSession.CLOSED);
 			throw e;
 		} finally {
 			log.info("runUpdate done");
+			netzklasseImportSession.setExecuting(false);
 		}
 	}
 
 	@Async
 	public void runAutomatischeAbbildung(NetzklasseImportSession session, File shpDirectory) {
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_RUNNING);
+		session.setSchritt(NetzklasseImportSession.AUTOMATISCHE_ABBILDUNG);
+		session.setExecuting(true);
 
 		try (Stream<SimpleFeature> features = shapeFileRepository
 			.readShape(shapeZipService.getShapeFileFromDirectory(shpDirectory)
 				.orElseThrow(
-					() -> new RuntimeException("Directory " + shpDirectory.getName() + " enthält keine .shp Datei")))) {
+					() -> new RuntimeException(
+						"Directory " + shpDirectory.getName() + " enthält keine .shp Datei")))) {
 
 			Set<LineString> abzubildendeLineStrings = new HashSet<>();
 
@@ -153,8 +149,7 @@ public class ManuellerNetzklassenImportService {
 					.map(geo -> geo.intersects(CoordinateReferenceSystemConverterUtility.transformGeometry(
 						(Geometry) feature.getDefaultGeometry(),
 						KoordinatenReferenzSystem.ETRS89_UTM32_N)))
-					.orElse(false)
-				)
+					.orElse(false))
 				.collect(Collectors.toSet());
 
 			if (numberOfNullGeometries.get() > 0) {
@@ -167,19 +162,23 @@ public class ManuellerNetzklassenImportService {
 			if (featuresInBereich.isEmpty()) {
 				session.addLogEintrag(
 					ImportLogEintrag.ofWarnung(
-						"Shapefile enthält keine Features im Bereich der Organisation " + session.getOrganisation()
-							.getName() + ". Bei Fortführung des Imports wird die Netzklasse \""
+						"Shapefile enthält keine Features im Bereich der Organisation "
+							+ session.getOrganisation()
+							.getName()
+							+ ". Bei Fortführung des Imports wird die Netzklasse \""
 							+ session.getNetzklasse() + "\" in diesem Bereich gelöscht!"));
 			}
 
 			featuresInBereich
 				.forEach(f -> {
 					try {
-						abzubildendeLineStrings.add(manuellerNetzklassenImportAbbildungsService.extractLinestring(f));
+						abzubildendeLineStrings
+							.add(manuellerNetzklassenImportAbbildungsService.extractLinestring(f));
 					} catch (GeometryTypeMismatchException e) {
 						session.addLogEintrag(
 							ImportLogEintrag
-								.ofWarnung("Feature " + f.getID() + " wird nicht importiert: " + e.getMessage()));
+								.ofWarnung("Feature " + f.getID() + " wird nicht importiert: "
+									+ e.getMessage()));
 					}
 				});
 
@@ -194,7 +193,13 @@ public class ManuellerNetzklassenImportService {
 			if (shpDirectory != null) {
 				shapeZipService.deleteUploadedFiles(shpDirectory);
 			}
-			session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+			if (session.hatFehler()) {
+				session.setSchritt(NetzklasseImportSession.AUTOMATISCHE_ABBILDUNG);
+			} else {
+				session.setSchritt(NetzklasseImportSession.ABBILDUNG_BEARBEITEN);
+			}
+
+			session.setExecuting(false);
 		}
 	}
 
@@ -220,6 +225,12 @@ public class ManuellerNetzklassenImportService {
 
 		netzklasseImportSession.setAktuellerImportSchritt(
 			AutomatischerImportSchritt.AUTOMATISCHE_ABBILDUNG_ABGESCHLOSSEN);
+	}
+
+	public void bearbeitungAbschliessen(NetzklasseImportSession session) {
+		require(session.getSchritt().equals(NetzklasseImportSession.ABBILDUNG_BEARBEITEN),
+			"Die Bearbeitung darf nur nach der Automatischen Abbildung erfolgen");
+		session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 	}
 
 }

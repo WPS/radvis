@@ -16,9 +16,6 @@ package de.wps.radvis.backend.integration.radnetz.schnittstelle;
 
 import java.util.List;
 
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +30,8 @@ import de.wps.radvis.backend.integration.radnetz.domain.repository.QualitaetsSic
 import de.wps.radvis.backend.integration.radnetz.schnittstelle.command.MarkOrganisationAsQualitaetsgesichertCommand;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 
 @RestController

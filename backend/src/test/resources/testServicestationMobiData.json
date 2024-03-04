@@ -1,0 +1,217 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Bad Säckingen",
+        "name": "Funpark/Feuerwehr",
+        "year": "2017",
+        "size": "Große Station",
+        "rakuDesign": true,
+        "sponsorship": "",
+        "address": {
+          "street": "Murger Weg 8",
+          "plz": "79713",
+          "place": "Bad Säckingen"
+        },
+        "supplier": null,
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9666078,
+          47.5584657
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Bad Säckingen",
+        "name": "Funpark/Feuerwehr",
+        "year": "2017",
+        "size": "Große Station",
+        "rakuDesign": true,
+        "sponsorship": "",
+        "address": {
+          "street": "Rathausplatz 9",
+          "plz": "79713",
+          "place": "Bad Säckingen"
+        },
+        "supplier": null,
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9500806,
+          47.5529956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Rhein-Neckar-Kreis",
+        "name": "Wallbach",
+        "year": "2017",
+        "size": "Große Station",
+        "rakuDesign": true,
+        "sponsorship": "",
+        "address": {
+          "street": "Hauptstraße 60",
+          "plz": "79713",
+          "place": "Bad Säckingen-Wallbach"
+        },
+        "supplier": null,
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9146569,
+          47.5666143
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Reuslingen-Gibtsnicht",
+        "name": "Lochmühle",
+        "year": "2018",
+        "size": "Kleine Station",
+        "rakuDesign": true,
+        "sponsorship": "",
+        "address": {
+          "street": "Lochmühleweg 40",
+          "plz": "79713",
+          "place": "Bad Säckingen-Harpolingen"
+        },
+        "supplier": null,
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.00138315,
+          47.5827458
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Herrenberg",
+        "name": "Marktplatz",
+        "year": "2020",
+        "size": "Große Station",
+        "rakuDesign": false,
+        "sponsorship": "",
+        "address": {
+          "street": "Marktplatz 5",
+          "plz": "71083",
+          "place": "Herrenberg"
+        },
+        "supplier": {
+          "name": "Stadt Herrenberg",
+          "img": "Stadt-Herrenberg.svg"
+        },
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.8704902046814,
+          48.59652965
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "LK Herrenberg",
+        "name": "Hallenbad",
+        "year": "2020",
+        "size": "Große Station",
+        "rakuDesign": false,
+        "sponsorship": "",
+        "address": {
+          "street": "Marienstraße 25/1",
+          "plz": "71083",
+          "place": "Herrenberg"
+        },
+        "supplier": {
+          "name": "Stadt Herrenberg",
+          "img": "Stadt-Herrenberg.svg"
+        },
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.8754962487166,
+          48.59104305
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Kreis Herrenberg",
+        "name": "Mönchberg",
+        "year": "2020",
+        "size": "Große Station",
+        "rakuDesign": false,
+        "sponsorship": "",
+        "address": {
+          "street": "Greutäckerstraße 29",
+          "plz": "71083",
+          "place": "Herrenberg-Mönchberg"
+        },
+        "supplier": {
+          "name": "Stadt Herrenberg",
+          "img": "Stadt-Herrenberg.svg"
+        },
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.90817244152688,
+          48.58096285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "operator": "Herrenberg (Kreis)",
+        "name": "Kayh",
+        "year": "2020",
+        "size": "Große Station",
+        "rakuDesign": false,
+        "sponsorship": "",
+        "address": {
+          "street": "Hauptstraße 27",
+          "plz": "71083",
+          "place": "Herrenberg-Kayh"
+        },
+        "supplier": {
+          "name": "Stadt Herrenberg",
+          "img": "Stadt-Herrenberg.svg"
+        },
+        "type": "radservice-punkt"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.922645,
+          48.576814
+        ]
+      }
+    }
+  ]
+}

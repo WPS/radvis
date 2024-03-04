@@ -14,11 +14,11 @@
 
 import { Injectable } from '@angular/core';
 import { Data, Route, Router } from '@angular/router';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 import { AnpassungenEditorComponent } from 'src/app/viewer/anpassungswunsch/components/anpassungen-editor/anpassungen-editor.component';
 import { ANPASSUNGSWUNSCH } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch.infrastruktur';
-import { AnpassungswunschResolver } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch.resolver';
-import { AnpassungwunschKommentarListeResolver } from 'src/app/viewer/anpassungswunsch/services/anpassungwunsch-kommentar-liste.resolver';
+import { anpassungswunschResolver } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch.resolver';
+import { anpassungwunschKommentarListeResolver } from 'src/app/viewer/anpassungswunsch/services/anpassungwunsch-kommentar-liste.resolver';
 import { KommentarListeComponent } from 'src/app/viewer/kommentare/components/kommentar-liste/kommentar-liste.component';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
 import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
@@ -37,7 +37,7 @@ export class AnpassungenRoutingService extends AbstractInfrastrukturenRoutingSer
 
   public static getChildRoutes(): Route[] {
     const kommentareData: Data = {};
-    kommentareData[KommentarListeComponent.KOMMENTARLISTE_DATA_KEY] = AnpassungwunschKommentarListeResolver;
+    kommentareData[KommentarListeComponent.KOMMENTARLISTE_DATA_KEY] = anpassungwunschKommentarListeResolver;
 
     return [
       { path: '', redirectTo: this.EIGENSCHAFTEN, pathMatch: 'full' },
@@ -45,7 +45,7 @@ export class AnpassungenRoutingService extends AbstractInfrastrukturenRoutingSer
         path: this.KOMMENTARE,
         component: KommentarListeComponent,
         resolve: kommentareData,
-        canDeactivate: [DiscardGuardService],
+        canDeactivate: [discardGuard],
       },
       {
         path: this.EIGENSCHAFTEN,
@@ -54,9 +54,9 @@ export class AnpassungenRoutingService extends AbstractInfrastrukturenRoutingSer
           isCreator: false,
         },
         resolve: {
-          anpassungswunsch: AnpassungswunschResolver,
+          anpassungswunsch: anpassungswunschResolver,
         },
-        canDeactivate: [DiscardGuardService],
+        canDeactivate: [discardGuard],
       },
     ];
   }

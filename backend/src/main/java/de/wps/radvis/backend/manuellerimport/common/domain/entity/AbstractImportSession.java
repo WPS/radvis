@@ -20,36 +20,39 @@ import static org.valid4j.Assertive.require;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.locationtech.jts.geom.MultiPolygon;
+
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
-import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionSchritt;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 public abstract class AbstractImportSession {
 
-	protected Benutzer benutzer;
+	public static ImportSessionSchritt CLOSED = ImportSessionSchritt.of(0);
 
-	protected Verwaltungseinheit organisation;
+	protected Benutzer benutzer;
 
 	@Setter
 	protected AutomatischerImportSchritt aktuellerImportSchritt;
 
 	@Setter
-	protected ImportSessionStatus status;
+	protected ImportSessionSchritt schritt;
+
+	@Setter
+	protected boolean executing;
 
 	protected List<ImportLogEintrag> log;
 
-	public AbstractImportSession(Benutzer benutzer, Verwaltungseinheit organisation) {
+	public AbstractImportSession(Benutzer benutzer) {
 		super();
+		require(benutzer, notNullValue());
 		this.benutzer = benutzer;
-		this.organisation = organisation;
 		this.aktuellerImportSchritt = AutomatischerImportSchritt.IMPORT_DER_DATEN;
-		this.status = ImportSessionStatus.SESSION_CREATED;
 		log = new ArrayList<>();
 	}
 
@@ -64,4 +67,9 @@ public abstract class AbstractImportSession {
 	}
 
 	public abstract long getAnzahlFeaturesOhneMatch();
+
+	public abstract MultiPolygon getBereich();
+
+	public abstract String getBereichName();
+
 }

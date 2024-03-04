@@ -24,6 +24,8 @@ export class ManualRoutingService {
   static readonly MANUAL_VIEWER_URL: string = '/manual/docs/viewer';
   static readonly MANUAL_BENUTZERVERWALTUNG_URL: string = '/manual/docs/benutzerverwaltung';
   static readonly MANUAL_INTRO_URL: string = '/manual/docs/intro';
+  static readonly MANUAL_DATENSCHNITTSTELLEN_URL: string = '/manual/docs/datenschnittstellen';
+  static readonly MANUAL_UMSETZUNGSSTANDSABFRAGEN_URL: string = '/manual/docs/viewer';
 
   constructor(private router: Router) {}
 
@@ -89,6 +91,22 @@ export class ManualRoutingService {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_VIEWER_URL], {
         fragment: 'verwalten-von-routing-profilen',
+      })
+    );
+    window.open(url, '_blank');
+  }
+
+  openWmsWfsSchnittstelle(): void {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree([ManualRoutingService.MANUAL_DATENSCHNITTSTELLEN_URL])
+    );
+    window.open(url, '_blank');
+  }
+
+  openUmsetzungsstandsabfragen(): void {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree([ManualRoutingService.MANUAL_UMSETZUNGSSTANDSABFRAGEN_URL], {
+        fragment: 'umsetzungsstandsabfragen',
       })
     );
     window.open(url, '_blank');

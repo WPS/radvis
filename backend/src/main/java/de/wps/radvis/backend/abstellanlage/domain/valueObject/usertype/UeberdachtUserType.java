@@ -18,7 +18,7 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class UeberdachtUserType implements AttributeConverter<Ueberdacht, Boolean> {
 
 	@Override

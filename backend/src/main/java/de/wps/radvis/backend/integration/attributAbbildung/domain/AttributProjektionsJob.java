@@ -26,9 +26,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-
 import org.hamcrest.Matchers;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
@@ -51,6 +48,8 @@ import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

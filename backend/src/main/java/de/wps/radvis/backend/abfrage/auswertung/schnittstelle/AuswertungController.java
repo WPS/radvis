@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.abfrage.auswertung.schnittstelle;
 
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.abfrage.auswertung.domain.entity.AuswertungsFilter;
 import de.wps.radvis.backend.abfrage.auswertung.domain.repository.AuswertungRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
+import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 
 @RestController
@@ -34,24 +40,50 @@ public class AuswertungController {
 
 	private final AuswertungRepository auswertungRepository;
 
-	public AuswertungController(@NonNull AuswertungRepository auswertungRepository) {
+	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
+
+	public AuswertungController(@NonNull AuswertungRepository auswertungRepository,
+		VerwaltungseinheitRepository verwaltungseinheitRepository) {
 		this.auswertungRepository = auswertungRepository;
+		this.verwaltungseinheitRepository = verwaltungseinheitRepository;
 	}
 
 	@GetMapping
 	public BigInteger getCmAnzahl(
 		@RequestParam(required = false) Long gemeindeKreisBezirkId,
+		@RequestParam(required = false) Long wahlkreisId,
 		@RequestParam(required = false) Set<Netzklasse> netzklassen,
 		@RequestParam(required = false) boolean beachteNichtKlassifizierteKanten,
 		@RequestParam(required = false) Set<IstStandard> istStandards,
 		@RequestParam(required = false) boolean beachteKantenOhneStandards,
 		@RequestParam(required = false) Long baulastId,
 		@RequestParam(required = false) Long unterhaltId,
-		@RequestParam(required = false) Long erhaltId
+		@RequestParam(required = false) Long erhaltId,
+		@RequestParam(required = false) BelagArt belagart,
+		@RequestParam(required = false) Radverkehrsfuehrung fuehrung
+
 	) {
-		AuswertungsFilter auswertungsFilter = new AuswertungsFilter(gemeindeKreisBezirkId, netzklassen,
-			beachteNichtKlassifizierteKanten, istStandards, beachteKantenOhneStandards, baulastId, unterhaltId,
-			erhaltId);
+		Verwaltungseinheit baulast = null;
+		if (Objects.nonNull(baulastId)) {
+			baulast = verwaltungseinheitRepository.findById(baulastId).orElseThrow(
+				EntityNotFoundException::new);
+		}
+
+		Verwaltungseinheit unterhalt = null;
+		if (Objects.nonNull(unterhaltId)) {
+			unterhalt = verwaltungseinheitRepository.findById(unterhaltId).orElseThrow(
+				EntityNotFoundException::new);
+		}
+
+		Verwaltungseinheit erhalt = null;
+		if (Objects.nonNull(erhaltId)) {
+			erhalt = verwaltungseinheitRepository.findById(erhaltId).orElseThrow(
+				EntityNotFoundException::new);
+		}
+
+		AuswertungsFilter auswertungsFilter = new AuswertungsFilter(gemeindeKreisBezirkId, wahlkreisId, netzklassen,
+			beachteNichtKlassifizierteKanten, istStandards, beachteKantenOhneStandards, baulast, unterhalt, erhalt,
+			belagart, fuehrung);
 		return auswertungRepository.getCmAnzahl(auswertungsFilter);
 	}
 }

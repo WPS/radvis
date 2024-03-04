@@ -181,7 +181,9 @@ $z-index-side-bars: 25;
   max-height: 30vh;
   overflow: auto;
   font-size: smaller;
-  padding-left: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
 }
 
 .print-only .quellen {

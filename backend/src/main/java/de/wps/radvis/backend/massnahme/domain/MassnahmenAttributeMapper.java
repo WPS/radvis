@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.opengis.feature.Property;
-import org.opengis.feature.type.Name;
+import org.geotools.api.feature.Property;
+import org.geotools.api.feature.type.Name;
 
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;

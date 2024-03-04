@@ -80,6 +80,13 @@
       <nillable>true</nillable>
       <binding>org.locationtech.jts.geom.Geometry</binding>
     </attribute>
+    <attribute>
+      <name>attribute</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>
   <skipNumberMatched>false</skipNumberMatched>

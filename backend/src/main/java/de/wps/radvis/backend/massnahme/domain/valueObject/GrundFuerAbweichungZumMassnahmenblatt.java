@@ -21,7 +21,8 @@ import lombok.Getter;
 public enum GrundFuerAbweichungZumMassnahmenblatt {
 
 	RADNETZ_WURDE_VERLEGT("RadNetz wurde verlegt, alternative Maßnahme umgesetzt"),
-	UMSETZUNG_ALTERNATIVER_MASSNAHME_ERFORDERLICH("Örtliche Verkehrsschau ergab, dass Umsetzung alternativer Maßnahme erforderlich ist"),
+	UMSETZUNG_ALTERNATIVER_MASSNAHME_ERFORDERLICH(
+		"Örtliche Verkehrsschau ergab, dass Umsetzung alternativer Maßnahme erforderlich ist"),
 	SONSTIGER_GRUND("Sonstiger Grund (Erläuterung erfolgt im Anmerkungsfeld)");
 
 	@Getter

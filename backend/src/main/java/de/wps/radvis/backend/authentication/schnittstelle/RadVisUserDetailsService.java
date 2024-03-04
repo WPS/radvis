@@ -18,17 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.transaction.Transactional;
-
-import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
-import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 
 public class RadVisUserDetailsService implements UserDetailsService {
 
@@ -39,16 +36,11 @@ public class RadVisUserDetailsService implements UserDetailsService {
 	}
 
 	@Override
-	@Transactional
 	public UserDetails loadUserByUsername(String serviceBwId) {
 		ServiceBwId id = ServiceBwId.of(serviceBwId);
-		Optional<Benutzer> benutzer = benutzerService.findBenutzerByServiceBwId(id);
+		Optional<Benutzer> potentialBenutzer = benutzerService.findBenutzerByServiceBwIdAndInitialize(id);
 
-		if (benutzer.isPresent() && !benutzer.get().getOrganisation().getOrganisationsArt().istGebietskoerperschaft()) {
-			Hibernate.initialize(benutzer.get().getOrganisation());
-			Hibernate.initialize(((Organisation) benutzer.get().getOrganisation()).getZustaendigFuerBereichOf());
-		}
-		return benutzer.isPresent() ? fromUser(benutzer.get()) : new RadVisUserDetails(id);
+		return potentialBenutzer.map(RadVisUserDetailsService::fromUser).orElse(new RadVisUserDetails(id));
 	}
 
 	public static UserDetails fromUser(Benutzer benutzer) {

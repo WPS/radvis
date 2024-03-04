@@ -15,13 +15,10 @@
 package de.wps.radvis.backend.benutzer.domain.valueObject.usertype;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
-
-
 import jakarta.persistence.AttributeConverter;
-
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class ServiceBwIdUserType implements AttributeConverter<ServiceBwId, String> {
 
 	@Override

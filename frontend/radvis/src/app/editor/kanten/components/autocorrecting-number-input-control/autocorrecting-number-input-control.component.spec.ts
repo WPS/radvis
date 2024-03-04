@@ -17,7 +17,7 @@ import { MockBuilder, MockRender } from 'ng-mocks';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { AutocorrectingNumberInputControlComponent } from 'src/app/editor/kanten/components/autocorrecting-number-input-control/autocorrecting-number-input-control.component';
 
-describe('NumberInputControlComponent', () => {
+describe(AutocorrectingNumberInputControlComponent.name, () => {
   let component: AutocorrectingNumberInputControlComponent;
   let fixture: ComponentFixture<AutocorrectingNumberInputControlComponent>;
 
@@ -31,7 +31,7 @@ describe('NumberInputControlComponent', () => {
     fixture.detectChanges();
   });
 
-  describe('write Value', () => {
+  describe('writeValue', () => {
     it('should not trigger valueChanges', () => {
       const spy = spyOn(component, 'onChange');
       component.writeValue(1);
@@ -41,23 +41,17 @@ describe('NumberInputControlComponent', () => {
 
     it('should display 2 digits', () => {
       component.writeValue(10.0457);
-      expect(component.formControl.value).toEqual('10,05');
+      expect(component.formControl.value).toEqual(10.05);
     });
   });
 
-  describe('on Change', () => {
+  describe('onChange', () => {
     it('should return 2 digits', () => {
       const spy = spyOn(component, 'onChange');
-      component.formControl.setValue('10,756');
+      component.formControl.setValue(10.756);
+
       expect(spy).toHaveBeenCalled();
       expect(spy.calls.mostRecent().args[0]).toEqual(10.76);
-    });
-
-    it('should filter non-digits and non-comma characters', () => {
-      const spy = spyOn(component, 'onChange');
-      component.formControl.setValue('103kk,75#6');
-      expect(spy).toHaveBeenCalled();
-      expect(spy.calls.mostRecent().args[0]).toEqual(103.76);
     });
   });
 });

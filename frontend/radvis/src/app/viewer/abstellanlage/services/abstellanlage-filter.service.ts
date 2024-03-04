@@ -22,6 +22,7 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstellanlagen-status';
 import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Groessenklasse } from 'src/app/viewer/abstellanlage/models/groessenklasse';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
 
@@ -47,12 +48,12 @@ export class AbstellanlageFilterService extends AbstractInfrastrukturenFilterSer
         return Verwaltungseinheit.getDisplayName(item.zustaendig);
       case 'quellSystem':
         return AbstellanlagenQuellSystem.getDisplayText(item.quellSystem);
+      case 'abstellanlagenOrt':
+        return AbstellanlagenOrt.getDisplayText(item.abstellanlagenOrt);
       case 'groessenklasse':
         return item.groessenklasse ? Groessenklasse.getDisplayText(item.groessenklasse) : '';
       case 'stellplatzart':
         return Stellplatzart.getDisplayText(item.stellplatzart);
-      case 'istBikeAndRide':
-        return item[key] ? 'ja' : 'nein';
       default:
         return (Object.entries(item).find(entry => entry[0] === key)?.[1] ?? '').toString();
     }

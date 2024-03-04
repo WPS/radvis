@@ -31,11 +31,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.geopkg.FeatureEntry;
 import org.geotools.geopkg.GeoPackage;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -110,6 +110,14 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 				datastoreName,
 				response.statusCode());
 			log.error("{}: {}", message, response.body());
+
+			try {
+				removeDatastoreAndLayer(datastoreName);
+			} catch (Exception e) {
+				log.error("Error deleting datastore {} after uploading data failed: {}", datastoreName.toString(),
+					message);
+			}
+
 			throw new RuntimeException(message);
 		}
 

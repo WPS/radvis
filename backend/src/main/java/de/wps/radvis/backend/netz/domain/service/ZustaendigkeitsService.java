@@ -20,9 +20,9 @@ import org.locationtech.jts.geom.Geometry;
 import org.springframework.security.access.AccessDeniedException;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -57,7 +57,8 @@ public class ZustaendigkeitsService {
 	}
 
 	public boolean istImZustaendigkeitsbereich(Geometry geometry, Benutzer benutzer) {
-		return benutzer.getOrganisation().getBereichBuffer(organisationConfigurationProperties.getZustaendigkeitBufferInMeter())
+		return benutzer.getOrganisation()
+			.getBereichBuffer(organisationConfigurationProperties.getZustaendigkeitBufferInMeter())
 			.intersects(geometry);
 	}
 }

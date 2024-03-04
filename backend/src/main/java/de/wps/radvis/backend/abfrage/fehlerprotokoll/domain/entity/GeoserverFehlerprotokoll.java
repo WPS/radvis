@@ -16,12 +16,11 @@ package de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
+import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

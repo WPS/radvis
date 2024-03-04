@@ -26,7 +26,8 @@ public enum Sicherung {
 	TAKTILE_BODENMARKIERUNG("Taktile Bodenmarkierung vorhanden"),
 	BAULICHE_SICHERUNG("Bauliche Sicherung (z.B. durch Aufpflasterung vorhanden)"),
 	BELEUCHTUNG("Beleuchtung vorhanden"),
-	BELEUCHTUNG_UND_RETROREFLEKTIERENDE_BODENMARKIERUNG("Beleuchtung und retroreflektierende Bodenmarkierung vorhanden");
+	BELEUCHTUNG_UND_RETROREFLEKTIERENDE_BODENMARKIERUNG(
+		"Beleuchtung und retroreflektierende Bodenmarkierung vorhanden");
 
 	@NonNull
 	private final String displayText;

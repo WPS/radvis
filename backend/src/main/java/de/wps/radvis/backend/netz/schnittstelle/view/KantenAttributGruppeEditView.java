@@ -25,6 +25,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
@@ -45,8 +46,9 @@ public class KantenAttributGruppeEditView {
 
 	private WegeNiveau wegeNiveau;
 	private Beleuchtung beleuchtung;
-	private StrassenquerschnittRASt06 strassenquerschnittRASt06;
 	private Umfeld umfeld;
+	private StrassenkategorieRIN strassenkategorieRIN;
+	private StrassenquerschnittRASt06 strassenquerschnittRASt06;
 	private Laenge laengeManuellErfasst;
 	private VerkehrStaerke dtvFussverkehr;
 	private VerkehrStaerke dtvRadverkehr;
@@ -67,6 +69,7 @@ public class KantenAttributGruppeEditView {
 		this.wegeNiveau = kantenAttributGruppe.getKantenAttribute().getWegeNiveau().orElse(null);
 		this.beleuchtung = kantenAttributGruppe.getKantenAttribute().getBeleuchtung();
 		this.umfeld = kantenAttributGruppe.getKantenAttribute().getUmfeld();
+		this.strassenkategorieRIN = kantenAttributGruppe.getKantenAttribute().getStrassenkategorieRIN().orElse(null);
 		this.strassenquerschnittRASt06 = kantenAttributGruppe.getKantenAttribute().getStrassenquerschnittRASt06();
 		this.laengeManuellErfasst = kantenAttributGruppe.getKantenAttribute().getLaengeManuellErfasst().orElse(null);
 		this.dtvFussverkehr = kantenAttributGruppe.getKantenAttribute().getDtvFussverkehr().orElse(null);

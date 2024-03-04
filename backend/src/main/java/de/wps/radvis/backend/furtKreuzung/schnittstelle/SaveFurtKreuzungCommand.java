@@ -16,9 +16,6 @@ package de.wps.radvis.backend.furtKreuzung.schnittstelle;
 
 import java.util.Optional;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,6 +26,8 @@ import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenKom
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenTyp;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.LichtsignalAnlageEigenschaften;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

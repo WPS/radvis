@@ -41,16 +41,19 @@ import de.wps.radvis.backend.common.domain.CSVEncodingUtility;
 import de.wps.radvis.backend.common.domain.exception.CsvReadException;
 import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CsvRepositoryImpl implements CsvRepository {
 
 	@Override
 	public CsvData read(byte[] csvFile, List<String> requiredHeaders) throws CsvReadException {
-		return this.read(csvFile, requiredHeaders, ';');
+		return this.read(csvFile, requiredHeaders, ';', false);
 	}
 
 	@Override
-	public CsvData read(byte[] csvFile, List<String> requiredHeaders, char delimiter) throws CsvReadException {
+	public CsvData read(byte[] csvFile, List<String> requiredHeaders, char delimiter, boolean ignoreQuotations)
+		throws CsvReadException {
 		List<String[]> lines;
 
 		Charset charset = findCharset(csvFile);
@@ -61,29 +64,37 @@ public class CsvRepositoryImpl implements CsvRepository {
 				.withCSVParser(
 					new CSVParserBuilder()
 						.withSeparator(delimiter)
+						.withIgnoreQuotations(ignoreQuotations)
 						.build())
 				.build()) {
 			lines = csvReader.readAll();
 		} catch (IOException | UnsupportedOperationException | CsvException e) {
-			throw new CsvReadException("Die CSV-Datei kann nicht eingelesen werden");
+			String message = "Die CSV-Datei kann nicht eingelesen werden";
+			log.error(message, e);
+			throw new CsvReadException(message, e);
 		}
 
 		List<String> headersFromFile = Arrays.asList(lines.get(0));
 		if (!headersFromFile.containsAll(requiredHeaders)) {
 			throw new CsvReadException(
-				"Die Csv-Datei muss als erste Zeile die Überschrift enthalten: "
-					+ String.join(delimiter + " ", requiredHeaders)
-					+ ". Die Spalten müssen durch ein Semikolon getrennt sein. Gefunden: " + headersFromFile);
+				"Die Csv-Datei muss als erste Zeile die Überschrift enthalten. Die Spalten müssen durch " + delimiter
+					+ " getrennt sein.\n"
+					+ "Expected: " + String.join(delimiter + " ", requiredHeaders) + "\n"
+					+ "Found:    " + headersFromFile.stream().collect(Collectors.joining(delimiter + " ")));
 		}
 
 		List<Map<String, String>> rows = new ArrayList<>();
-
+		int anzahlUebersprungenerZeilen = 0;
 		for (int i = 1; i < lines.size(); i++) {
 			String[] row = lines.get(i);
 
 			// Wir ueberspringen Zeilen, die nicht zum Header in der Datei passen
 			// (z.B. zusaetzliche oder fehlende Semikolons)
 			if (row.length != headersFromFile.size()) {
+				log.warn("Zeile " + i
+					+ " hat nicht die gleiche Anzahl Spalten wie die Headerzeile. Zeile wird uebersprungen.");
+				log.warn("CsvZeile: " + row);
+				anzahlUebersprungenerZeilen++;
 				continue;
 			}
 
@@ -97,8 +108,7 @@ public class CsvRepositoryImpl implements CsvRepository {
 			}
 			rows.add(properties);
 		}
-
-		return CsvData.of(rows, requiredHeaders);
+		return CsvData.of(rows, requiredHeaders, anzahlUebersprungenerZeilen);
 	}
 
 	@Override
@@ -130,23 +140,27 @@ public class CsvRepositoryImpl implements CsvRepository {
 	}
 
 	private Charset findCharset(byte[] data) throws CsvReadException {
-
 		try (BufferedReader reader = createBufferedReader(data, StandardCharsets.UTF_8)) {
 			String content = reader.lines().collect(Collectors.joining(""));
 			if (content.contains("�")) {
-				throw new IOException();
+				throw new IOException("Data contains invalid characters according to UTF-8 encoding");
 			}
 			return StandardCharsets.UTF_8;
 		} catch (IOException e) {
+			log.warn("Lesen von CSV-Daten mit {} Encoding fehlgeschlagen. Versuche {}",
+				StandardCharsets.UTF_8.displayName(), StandardCharsets.ISO_8859_1.displayName(), e);
 			try (BufferedReader reader = createBufferedReader(data, StandardCharsets.ISO_8859_1)) {
 				reader.lines().collect(Collectors.toList());
 				return StandardCharsets.ISO_8859_1;
 			} catch (IOException ioException) {
+				log.error("CSV-Daten sind nicht nach {} und nicht nach {} kodiert. Breche ab.",
+					StandardCharsets.UTF_8.displayName(), StandardCharsets.ISO_8859_1.displayName(), ioException);
 				throw new CsvReadException(
 					"Ungültiges Encoding der CSV-Datei. Erlaubte Encodings: "
-						+ StandardCharsets.ISO_8859_1.displayName() + ", " + StandardCharsets.UTF_8.displayName());
+						+ StandardCharsets.ISO_8859_1.displayName() + ", "
+						+ StandardCharsets.UTF_8.displayName(),
+					ioException);
 			}
 		}
-
 	}
 }

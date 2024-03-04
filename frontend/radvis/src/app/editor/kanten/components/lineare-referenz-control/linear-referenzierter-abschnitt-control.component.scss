@@ -20,26 +20,25 @@
   display: block;
 }
 
-rad-autocorrecting-number-input-control {
-  width: 5rem;
+.lineare-referenz-input {
+  width: 8rem;
 }
 
 .context {
-
-  mat-list {
+  .mat-mdc-list {
     padding: 0;
   }
 
-  mat-list-item {
+  .mat-mdc-list-item {
+    height: auto;
     padding-top: 0.8rem;
   }
 
-  mat-list-item.hovered {
+  .mat-mdc-list-item.hovered {
     background-color: $font-background-peripheral;
   }
 
-  mat-list-item:focus {
+  .mat-mdc-list-item:focus-within {
     background-color: $feature-highlight-color;
   }
 }
-

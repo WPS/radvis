@@ -27,48 +27,45 @@
   >
     <div [formGroup]="displayedAttributeformGroup" class="attribute group">
       <rad-organisationen-dropdown-control
-        [options]="(alleOrganisationenOptions | async) || []"
-        class="mat-form-field-full-width"
         formControlName="baulastTraeger"
+        [options]="(alleOrganisationenOptions | async) || []"
       >
         Baulastträger
       </rad-organisationen-dropdown-control>
 
       <rad-organisationen-dropdown-control
-        [options]="(alleOrganisationenOptions | async) || []"
-        class="mat-form-field-full-width"
         formControlName="unterhaltsZustaendiger"
+        [options]="(alleOrganisationenOptions | async) || []"
       >
         Zuständig für Unterhalt
       </rad-organisationen-dropdown-control>
 
       <rad-organisationen-dropdown-control
-        [options]="(alleOrganisationenOptions | async) || []"
-        class="mat-form-field-full-width"
         formControlName="erhaltsZustaendiger"
+        [options]="(alleOrganisationenOptions | async) || []"
       >
         Zuständig für Erhalt
       </rad-organisationen-dropdown-control>
 
-      <rad-text-input-control class="mat-form-field-full-width" formControlName="vereinbarungsKennung">
+      <rad-text-input-control formControlName="vereinbarungsKennung">
         <div class="label">Vereinbarungskennung</div>
       </rad-text-input-control>
     </div>
     <table class="auswahl">
       <tbody>
-      <tr *ngFor="let kantenSelektion of currentSelektion; let i = index">
-        <td>
-          <rad-linear-referenzierter-abschnitt-control
-            (deleteAtIndex)="onDeleteAtIndex(i, $event)"
-            (deselectElement)="onDeselectLinearesSegment($event, kantenSelektion.kante.id)"
-            (insertAtIndex)="onInsertAtIndex(i, $event)"
-            (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id)"
-            [formControl]="getLineareReferenzenFormControlAt(i)"
-            [geometrie]="kantenSelektion.kante.geometry"
-            [selectedIndices]="kantenSelektion.getSelectedSegmentIndices()"
-          ></rad-linear-referenzierter-abschnitt-control>
-        </td>
-      </tr>
+        <tr *ngFor="let kantenSelektion of currentSelektion; let i = index">
+          <td>
+            <rad-linear-referenzierter-abschnitt-control
+              (deleteAtIndex)="onDeleteAtIndex(i, $event)"
+              (deselectElement)="onDeselectLinearesSegment($event, kantenSelektion.kante.id)"
+              (insertAtIndex)="onInsertAtIndex(i, $event)"
+              (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id)"
+              [formControl]="getLineareReferenzenFormControlAt(i)"
+              [geometrie]="kantenSelektion.kante.geometry"
+              [selectedIndices]="kantenSelektion.getSelectedSegmentIndices()"
+            ></rad-linear-referenzierter-abschnitt-control>
+          </td>
+        </tr>
       </tbody>
     </table>
   </rad-kanten-attribute-editor-mit-subauswahl>

@@ -89,7 +89,7 @@ export const defaultMassnahme: Massnahme = {
     vorname: 'Olaf',
     nachname: 'Müller',
   },
-  markierungsZustaendiger: eineTestOrga,
+  zustaendiger: eineTestOrga,
   unterhaltsZustaendiger: eineTestOrga,
   maViSID: 'eineMaViSID',
   verbaID: 'eineVerbaID',

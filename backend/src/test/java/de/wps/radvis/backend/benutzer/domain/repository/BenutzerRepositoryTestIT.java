@@ -5,6 +5,7 @@ import static de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvi
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,19 @@ import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationPro
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerDBListView;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
+import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
 @Tag("group4")
@@ -34,7 +42,9 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 })
 @MockBeans({
 	@MockBean(GeoConverterConfiguration.class),
-	@MockBean(VerwaltungseinheitImportRepository.class)
+	@MockBean(VerwaltungseinheitImportRepository.class),
+	@MockBean(MailService.class),
+	@MockBean(CommonConfigurationProperties.class)
 })
 @EnableConfigurationProperties(value = {
 	TechnischerBenutzerConfigurationProperties.class
@@ -46,6 +56,9 @@ class BenutzerRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
+
+	@Autowired
+	OrganisationRepository organisationenRepository;
 
 	@Test
 	public void testFindAllDBListViews() {
@@ -97,10 +110,158 @@ class BenutzerRepositoryTestIT extends DBIntegrationTestIT {
 			.containsExactlyInAnyOrder(getDbListView(adminAufObersterStufe),
 				getDbListView(benutzerAuObersterStufe));
 
-		// assert
 		assertThat(dbListViewsMittlereGK)
 			.usingElementComparator(benutzerDBListViewComparator)
 			.containsExactlyInAnyOrder(getDbListView(kreiskoordinatorAufMittlererStufe));
 	}
 
+	@Test
+	public void testFindByStatusAndRollenIsNotContaining() {
+		// arrange
+		Gebietskoerperschaft gebietskoerperschaft = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
+
+		Benutzer aktiverBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid0"))
+			.build()
+		);
+
+		Benutzer inaktiverBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid1"))
+			.status(BenutzerStatus.INAKTIV)
+			.build()
+		);
+
+		Benutzer wartenderBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid2"))
+			.status(BenutzerStatus.WARTE_AUF_FREISCHALTUNG)
+			.build()
+		);
+
+		Benutzer admin = benutzerRepository.save(BenutzerTestDataProvider
+			.admin(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid3"))
+			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR))
+			.build()
+		);
+
+		Benutzer adminMitMehrfachrolle = benutzerRepository.save(BenutzerTestDataProvider
+			.admin(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid4"))
+			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR, Rolle.RADWEGE_ERFASSERIN))
+			.build()
+		);
+
+		// act
+		List<Benutzer> result = benutzerRepository.findByStatusAndRollenIsNotContaining(BenutzerStatus.AKTIV,
+			Rolle.RADVIS_ADMINISTRATOR);
+
+		// assert
+		assertThat(result).contains(aktiverBenutzer);
+		assertThat(result).doesNotContain(inaktiverBenutzer);
+		assertThat(result).doesNotContain(wartenderBenutzer);
+		assertThat(result).doesNotContain(admin);
+		assertThat(result).doesNotContain(adminMitMehrfachrolle);
+	}
+
+	@Test
+	public void testFindByRollenAndStatus() {
+		// arrange
+		Gebietskoerperschaft gebietskoerperschaft = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
+
+		Benutzer aktiverBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid1"))
+			.build()
+		);
+
+		Benutzer inaktiverBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid2"))
+			.status(BenutzerStatus.INAKTIV)
+			.build()
+		);
+
+		Benutzer wartenderBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid3"))
+			.status(BenutzerStatus.WARTE_AUF_FREISCHALTUNG)
+			.build()
+		);
+
+		Benutzer benutzerMitFalscherRolle = benutzerRepository.save(BenutzerTestDataProvider
+			.admin(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid4"))
+			.rollen(Set.of(Rolle.KREISKOORDINATOREN))
+			.build()
+		);
+
+		Benutzer benutzerMitMehrfachrolle = benutzerRepository.save(BenutzerTestDataProvider
+			.admin(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid5"))
+			.rollen(Set.of(Rolle.KREISKOORDINATOREN, Rolle.RADWEGE_ERFASSERIN))
+			.build()
+		);
+
+		// act
+		List<Benutzer> result = benutzerRepository.findByRollenAndStatus(Rolle.RADWEGE_ERFASSERIN,
+			BenutzerStatus.AKTIV);
+
+		// assert
+		assertThat(result).contains(aktiverBenutzer);
+		assertThat(result).doesNotContain(inaktiverBenutzer);
+		assertThat(result).doesNotContain(wartenderBenutzer);
+		assertThat(result).doesNotContain(benutzerMitFalscherRolle);
+		assertThat(result).contains(benutzerMitMehrfachrolle);
+	}
+
+	@Test
+	public void testFindByOrganisationAndRollen() {
+		// arrange
+		Gebietskoerperschaft gebietskoerperschaft = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
+
+		Organisation organisation = organisationenRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultOrganisation().build());
+
+		Benutzer benutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid1"))
+			.build()
+		);
+
+		Benutzer benutzerFalscheVerwaltungseinheit = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(organisation)
+			.serviceBwId(ServiceBwId.of("sbwid2"))
+			.build()
+		);
+
+		Benutzer benutzerMitFalscherRolle = benutzerRepository.save(BenutzerTestDataProvider
+			.admin(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid3"))
+			.rollen(Set.of(Rolle.KREISKOORDINATOREN))
+			.build()
+		);
+
+		Benutzer BenutzerMitMehrfachrolle = benutzerRepository.save(BenutzerTestDataProvider
+			.admin(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid4"))
+			.rollen(Set.of(Rolle.KREISKOORDINATOREN, Rolle.RADWEGE_ERFASSERIN))
+			.build()
+		);
+
+		// act
+		List<Benutzer> result = benutzerRepository.findByOrganisationAndRollen(gebietskoerperschaft,
+			Rolle.RADWEGE_ERFASSERIN);
+
+		// assert
+		assertThat(result).contains(benutzer);
+		assertThat(result).doesNotContain(benutzerFalscheVerwaltungseinheit);
+		assertThat(result).doesNotContain(benutzerMitFalscherRolle);
+		assertThat(result).contains(BenutzerMitMehrfachrolle);
+	}
 }

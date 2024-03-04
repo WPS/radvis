@@ -28,6 +28,8 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportReposit
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import de.wps.radvis.backend.organisation.domain.WahlkreisRepository;
+import de.wps.radvis.backend.organisation.domain.WahlkreisService;
 import de.wps.radvis.backend.organisation.schnittstelle.repositoryImpl.OrganisationenImportRepositoryImpl;
 import lombok.NonNull;
 
@@ -46,6 +48,9 @@ public class OrganisationConfiguration {
 
 	@Autowired
 	private OrganisationRepository organisationRepository;
+
+	@Autowired
+	private WahlkreisRepository wahlkreisRepository;
 
 	public OrganisationConfiguration(@NonNull GeoConverterConfiguration geoConverterConfiguration) {
 		this.geoConverterConfiguration = geoConverterConfiguration;
@@ -66,5 +71,10 @@ public class OrganisationConfiguration {
 	@Bean
 	public VerwaltungseinheitResolver verwaltungseinheitResolver() {
 		return verwaltungseinheitService();
+	}
+
+	@Bean
+	public WahlkreisService wahlkreisService() {
+		return new WahlkreisService(wahlkreisRepository);
 	}
 }

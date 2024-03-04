@@ -19,9 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jakarta.transaction.Transactional;
-
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
@@ -39,6 +37,7 @@ import de.wps.radvis.backend.fahrradroute.domain.entity.LandesradfernwegeTFISImp
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

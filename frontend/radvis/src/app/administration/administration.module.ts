@@ -16,7 +16,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdministrationRoutingModule } from 'src/app/administration/administration-routing.module';
-import { MultiOrganisationenDropdownControlComponent } from 'src/app/administration/components/multi-organisationen-dropdown-control/multi-organisationen-dropdown-control.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { BenutzerEditorComponent } from './components/benutzer-editor/benutzer-editor.component';
 import { BenutzerListComponent } from './components/benutzer-list/benutzer-list.component';
@@ -30,7 +29,6 @@ import { OrganisationListComponent } from './components/organisation-list/organi
     BenutzerEditorComponent,
     OrganisationListComponent,
     OrganisationEditorComponent,
-    MultiOrganisationenDropdownControlComponent,
   ],
 })
 export class AdministrationModule {}

@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-846:1" author="ap">
     <addColumn tableName="fuehrungsform_attribute">
@@ -27,27 +27,27 @@
       <column name="version" type="BIGINT" defaultValueNumeric="0"/>
     </createTable>
     <addPrimaryKey columnNames="id"
-      tableName="fuehrungsform_attribut_gruppe"/>
+			tableName="fuehrungsform_attribut_gruppe"/>
     <addForeignKeyConstraint
-      constraintName="fk_fuehrungsform_attribute_attribut_gruppe"
-      referencedTableName="fuehrungsform_attribut_gruppe"
-      baseColumnNames="fuehrungsform_gruppe_id"
-      baseTableName="fuehrungsform_attribute" referencedColumnNames="id"/>
+			constraintName="fk_fuehrungsform_attribute_attribut_gruppe"
+			referencedTableName="fuehrungsform_attribut_gruppe"
+			baseColumnNames="fuehrungsform_gruppe_id"
+			baseTableName="fuehrungsform_attribute" referencedColumnNames="id"/>
     <addColumn tableName="kante">
       <column name="fuehrungsform_attribut_gruppe_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint
-      constraintName="fk_fuehrungsform_attribut_gruppe_kante"
-      referencedTableName="fuehrungsform_attribut_gruppe"
-      baseColumnNames="fuehrungsform_attribut_gruppe_id"
-      baseTableName="kante" referencedColumnNames="id"/>
+			constraintName="fk_fuehrungsform_attribut_gruppe_kante"
+			referencedTableName="fuehrungsform_attribut_gruppe"
+			baseColumnNames="fuehrungsform_attribut_gruppe_id"
+			baseTableName="kante" referencedColumnNames="id"/>
     <dropIndex tableName="fuehrungsform_attribute" indexName="fuehrungsform_attribute_kante_idx"/>
     <createIndex tableName="fuehrungsform_attribute" indexName="fuehrungsform_attribute_kante_idx">
       <column name="fuehrungsform_gruppe_id"/>
     </createIndex>
     <createView
-      viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
-      replaceIfExists="true">SELECT id, geometry,
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry,
       geloescht, quelle, fuehrungsform_attribut_gruppe_id FROM kante
     </createView>
   </changeSet>
@@ -101,19 +101,19 @@
       <column name="umfeld"/>
     </dropColumn>
     <addForeignKeyConstraint
-      constraintName="fk_kante_kanten_attribut_gruppe"
-      referencedTableName="kanten_attribut_gruppe"
-      baseColumnNames="kanten_attributgruppe_id"
-      baseTableName="kante" referencedColumnNames="id"/>
+			constraintName="fk_kante_kanten_attribut_gruppe"
+			referencedTableName="kanten_attribut_gruppe"
+			baseColumnNames="kanten_attributgruppe_id"
+			baseTableName="kante" referencedColumnNames="id"/>
     <createView
-      viewName="kante_kanten_attribute_view"
-      replaceIfExists="true">SELECT k.id, k.geometry,
+			viewName="kante_kanten_attribute_view"
+			replaceIfExists="true">SELECT k.id, k.geometry,
       k.geloescht, k.quelle, k.kanten_attributgruppe_id FROM kante k
     </createView>
   </changeSet>
   <changeSet id="RAD-1431" author="bw_und_kho">
     <dropColumn tableName="fahrtrichtung_attribut_gruppe"
-      columnName="fahrtrichtung"/>
+			columnName="fahrtrichtung"/>
     <addColumn tableName="fahrtrichtung_attribut_gruppe">
       <column name="fahrtrichtung_links" type="VARCHAR(255)"/>
     </addColumn>
@@ -123,58 +123,58 @@
   </changeSet>
   <changeSet id="RAD-1239" author="par">
     <!--  Kante: netzklassen  -->
-    <createTable tableName="kanten_attribut_gruppe_netzklassen">
+		<createTable tableName="kanten_attribut_gruppe_netzklassen">
       <column name="kanten_attribut_gruppe_id" type="BIGINT"/>
       <column name="netzklasse" type="varchar(255)"/>
     </createTable>
     <addForeignKeyConstraint
-      baseTableName="kanten_attribut_gruppe_netzklassen" baseColumnNames="kanten_attribut_gruppe_id"
-      constraintName="fk_kanten_attribut_gruppe_netzklassen_kanten_attribut_gruppe"
-      referencedTableName="kanten_attribut_gruppe"
-      referencedColumnNames="id"/>
+			baseTableName="kanten_attribut_gruppe_netzklassen" baseColumnNames="kanten_attribut_gruppe_id"
+			constraintName="fk_kanten_attribut_gruppe_netzklassen_kanten_attribut_gruppe"
+			referencedTableName="kanten_attribut_gruppe"
+			referencedColumnNames="id"/>
     <createIndex tableName="kanten_attribut_gruppe_netzklassen"
-      indexName="kanten_attribut_gruppe_netzklassen_kanten_attribut_gruppe_idx">
+			indexName="kanten_attribut_gruppe_netzklassen_kanten_attribut_gruppe_idx">
       <column name="kanten_attribut_gruppe_id"/>
     </createIndex>
 
-    <!--  Kante: istStandards  -->
-    <createTable tableName="kanten_attribut_gruppe_ist_standards">
+		<!--  Kante: istStandards  -->
+		<createTable tableName="kanten_attribut_gruppe_ist_standards">
       <column name="kanten_attribut_gruppe_id" type="BIGINT"/>
       <column name="standard" type="varchar(255)"/>
     </createTable>
     <addForeignKeyConstraint
-      baseTableName="kanten_attribut_gruppe_ist_standards" baseColumnNames="kanten_attribut_gruppe_id"
-      constraintName="fk_kanten_attribut_gruppe_ist_standards_kanten_attribut_gruppe"
-      referencedTableName="kanten_attribut_gruppe"
-      referencedColumnNames="id"/>
+			baseTableName="kanten_attribut_gruppe_ist_standards" baseColumnNames="kanten_attribut_gruppe_id"
+			constraintName="fk_kanten_attribut_gruppe_ist_standards_kanten_attribut_gruppe"
+			referencedTableName="kanten_attribut_gruppe"
+			referencedColumnNames="id"/>
     <createIndex tableName="kanten_attribut_gruppe_ist_standards"
-      indexName="kanten_attribut_gruppe_ist_standards_kanten_attribut_gruppe_idx">
+			indexName="kanten_attribut_gruppe_ist_standards_kanten_attribut_gruppe_idx">
       <column name="kanten_attribut_gruppe_id"/>
     </createIndex>
 
-    <!--  Views  -->
-    <dropView viewName="kante_linearreferenzierteattribute_view"/>
+		<!--  Views  -->
+		<dropView viewName="kante_linearreferenzierteattribute_view"/>
     <createView
-      viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
-      replaceIfExists="true">SELECT id, geometry,
+			viewName="kante_fuehrungsform_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry,
       geloescht, quelle, fuehrungsform_attribut_gruppe_id, kanten_attributgruppe_id FROM kante
     </createView>
     <createView
-      viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"
-      replaceIfExists="true">SELECT id, geometry,
+			viewName="kante_zustaendigkeit_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry,
       geloescht, quelle, zustaendigkeit_attributgruppe_id, kanten_attributgruppe_id FROM kante
     </createView>
     <dropView viewName="kante_geschwindigkeits_attribute_view"/>
     <createView
-      viewName="kante_geschwindigkeits_attribute_view"
-      replaceIfExists="true">SELECT k.id, k.geometry,
+			viewName="kante_geschwindigkeits_attribute_view"
+			replaceIfExists="true">SELECT k.id, k.geometry,
       k.geloescht, k.quelle, g.hoechstgeschwindigkeit,
       g.abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung, k.kanten_attributgruppe_id FROM kante k,
       geschwindigkeit_attribut_gruppe g
     </createView>
 
-    <!--  Cleanup  -->
-    <dropTable tableName="netzklasse"/>
+		<!--  Cleanup  -->
+		<dropTable tableName="netzklasse"/>
   </changeSet>
 
   <changeSet id="RAD-1432" author="bw_und_kho_und_par">
@@ -192,21 +192,21 @@
       <column name="parken_typ" type="VARCHAR(255)"/>
       <column name="parken_form" type="VARCHAR(255)"/>
       <column name="bordstein" type="varchar(255)"
-        defaultValue="UNBEKANNT">
+				defaultValue="UNBEKANNT">
         <constraints nullable="false"/>
       </column>
       <column name="belag_art" type="varchar(255)"
-        defaultValue="ASPHALT">
+				defaultValue="ASPHALT">
         <constraints nullable="false"/>
       </column>
     </createTable>
 
     <addForeignKeyConstraint
-      constraintName="fk_fuehrungsform_attribut_gruppe"
-      referencedTableName="fuehrungsform_attribut_gruppe"
-      baseColumnNames="fuehrungsform_attribut_gruppe_id"
-      baseTableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_links"
-      referencedColumnNames="id"/>
+			constraintName="fk_fuehrungsform_attribut_gruppe"
+			referencedTableName="fuehrungsform_attribut_gruppe"
+			baseColumnNames="fuehrungsform_attribut_gruppe_id"
+			baseTableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_links"
+			referencedColumnNames="id"/>
 
     <createTable tableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_rechts">
       <column name="id" type="bigint"/>
@@ -220,21 +220,21 @@
       <column name="parken_typ" type="VARCHAR(255)"/>
       <column name="parken_form" type="VARCHAR(255)"/>
       <column name="bordstein" type="varchar(255)"
-        defaultValue="UNBEKANNT">
+				defaultValue="UNBEKANNT">
         <constraints nullable="false"/>
       </column>
       <column name="belag_art" type="varchar(255)"
-        defaultValue="ASPHALT">
+				defaultValue="ASPHALT">
         <constraints nullable="false"/>
       </column>
     </createTable>
 
     <addForeignKeyConstraint
-      constraintName="fk_fuehrungsform_attribut_gruppe"
-      referencedTableName="fuehrungsform_attribut_gruppe"
-      baseColumnNames="fuehrungsform_attribut_gruppe_id"
-      baseTableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_rechts"
-      referencedColumnNames="id"/>
+			constraintName="fk_fuehrungsform_attribut_gruppe"
+			referencedTableName="fuehrungsform_attribut_gruppe"
+			baseColumnNames="fuehrungsform_attribut_gruppe_id"
+			baseTableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_rechts"
+			referencedColumnNames="id"/>
 
     <dropTable tableName="zustaendigkeit_attribute"/>
 
@@ -249,11 +249,11 @@
     </createTable>
 
     <addForeignKeyConstraint
-      constraintName="fk_zustaendigkeit_attribut_gruppe"
-      referencedTableName="zustaendigkeit_attribut_gruppe"
-      baseColumnNames="zustaendigkeit_attribut_gruppe_id"
-      baseTableName="zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute"
-      referencedColumnNames="id"/>
+			constraintName="fk_zustaendigkeit_attribut_gruppe"
+			referencedTableName="zustaendigkeit_attribut_gruppe"
+			baseColumnNames="zustaendigkeit_attribut_gruppe_id"
+			baseTableName="zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute"
+			referencedColumnNames="id"/>
   </changeSet>
 
   <changeSet id="RAD-1391" author="mw_und_kho">
@@ -261,11 +261,11 @@
       <column name="erhalts_zustaendiger_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint
-      baseTableName="zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute"
-      baseColumnNames="erhalts_zustaendiger_id"
-      constraintName="fk_zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_organisation"
-      referencedTableName="organisation"
-      referencedColumnNames="id"/>
+			baseTableName="zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute"
+			baseColumnNames="erhalts_zustaendiger_id"
+			constraintName="fk_zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_organisation"
+			referencedTableName="organisation"
+			referencedColumnNames="id"/>
   </changeSet>
 
   <changeSet id="RAD-1392" author="mw_und_kho">
@@ -297,18 +297,18 @@
 
   <changeSet id="RAD-1490" author="tr">
     <addForeignKeyConstraint baseTableName="kante" baseColumnNames="fahrtrichtung_attributgruppe_id"
-      constraintName="fk_kante_fahrtrichtung_attributgruppe" referencedTableName="fahrtrichtung_attribut_gruppe"
-      referencedColumnNames="id"/>
+			constraintName="fk_kante_fahrtrichtung_attributgruppe" referencedTableName="fahrtrichtung_attribut_gruppe"
+			referencedColumnNames="id"/>
     <createIndex tableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_links"
-      indexName="fuehrungsform_attribut_gruppe_links_idx">
+			indexName="fuehrungsform_attribut_gruppe_links_idx">
       <column name="fuehrungsform_attribut_gruppe_id"/>
     </createIndex>
     <createIndex tableName="fuehrungsform_attribut_gruppe_fuehrungsform_attribute_rechts"
-      indexName="fuehrungsform_attribut_gruppe_rechts_idx">
+			indexName="fuehrungsform_attribut_gruppe_rechts_idx">
       <column name="fuehrungsform_attribut_gruppe_id"/>
     </createIndex>
     <createIndex tableName="zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute"
-      indexName="zustaendigkeit_attribut_gruppe_idx">
+			indexName="zustaendigkeit_attribut_gruppe_idx">
       <column name="zustaendigkeit_attribut_gruppe_id"/>
     </createIndex>
   </changeSet>

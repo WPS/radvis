@@ -28,6 +28,7 @@ export interface CreateMassnahmeCommand {
   planungErforderlich: boolean;
   durchfuehrungszeitraum: Durchfuehrungszeitraum | null;
   baulastZustaendigerId: number | null;
+  zustaendigerId: number;
   sollStandard: SollStandard;
   handlungsverantwortlicher: Handlungsverantwortlicher;
   konzeptionsquelle: Konzeptionsquelle;

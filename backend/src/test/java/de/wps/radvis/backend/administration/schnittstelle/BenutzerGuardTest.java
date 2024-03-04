@@ -120,19 +120,19 @@ class BenutzerGuardTest {
 			.defaultBenutzer()
 			.rollen(Set.of(Rolle.RADNETZ_QUALITAETSSICHERIN))
 			.build());
-		assertThrows(AccessDeniedException.class, () -> benutzerGuard.deaktiviereBenutzer(null, 1L, 1L));
+		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider
 			.defaultBenutzer()
 			.rollen(Set.of(Rolle.LGL_MITARBEITERIN))
 			.build());
-		assertThrows(AccessDeniedException.class, () -> benutzerGuard.deaktiviereBenutzer(null, 1L, 1L));
+		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider
 			.defaultBenutzer()
 			.rollen(Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN))
 			.build());
-		assertThrows(AccessDeniedException.class, () -> benutzerGuard.deaktiviereBenutzer(null, 1L, 1L));
+		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
 	}
 
 	@Test
@@ -149,10 +149,10 @@ class BenutzerGuardTest {
 		when(benutzerService.findAdminaufSelberEbene(any())).thenReturn(List.of(admin));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(admin);
-		assertDoesNotThrow(() -> benutzerGuard.deaktiviereBenutzer(null, 1L, 1L));
+		assertDoesNotThrow(() -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(bearbeiterinAdmin);
-		assertDoesNotThrow(() -> benutzerGuard.deaktiviereBenutzer(null, 1L, 1L));
+		assertDoesNotThrow(() -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
 	}
 
 	@Test

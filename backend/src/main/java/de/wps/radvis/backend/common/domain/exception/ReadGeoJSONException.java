@@ -19,16 +19,17 @@ public class ReadGeoJSONException extends Exception {
 	 *
 	 */
 	private static final long serialVersionUID = -6877207013815706155L;
+	private static final String FEHLGESCHLAGEN = "Das Einlesen der GeoJSON-Daten ist fehlgeschlagen";
 
 	public ReadGeoJSONException(String message) {
-		super("Das Einlesen des GeoJSON-Strings ist fehlgeschlagen: " + message);
+		super(FEHLGESCHLAGEN + ": " + message);
 	}
 
 	public ReadGeoJSONException(String message, Throwable e) {
-		super("Das Einlesen des GeoJSON-Strings ist fehlgeschlagen: " + message, e);
+		super(FEHLGESCHLAGEN + ": " + message, e);
 	}
 
 	public ReadGeoJSONException(Throwable e) {
-		super("Das Einlesen des GeoJSON-Strings ist fehlgeschlagen.", e);
+		super(FEHLGESCHLAGEN + ".", e);
 	}
 }

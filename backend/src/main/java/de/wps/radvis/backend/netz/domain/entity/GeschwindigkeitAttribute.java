@@ -20,13 +20,12 @@ import static org.valid4j.Assertive.require;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

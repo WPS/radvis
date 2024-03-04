@@ -14,15 +14,15 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-3172" author="par">
     <createTable tableName="umsetzungsstand">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="umsetzungsstand_pkey"/>
+					primaryKeyName="umsetzungsstand_pkey"/>
       </column>
       <column name="version" type="bigint" defaultValueNumeric="0"/>
       <column name="umsetzungsstand_status" type="varchar(255)"/>
@@ -56,9 +56,9 @@
       <column name="umsetzungsstand_id" type="bigint"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="umsetzungsstand_id"
-      constraintName="fk_massnahme_umsetzungsstand"
-      referencedTableName="umsetzungsstand"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_umsetzungsstand"
+			referencedTableName="umsetzungsstand"
+			referencedColumnNames="id"/>
     <addColumn tableName="massnahme_aud">
       <column name="umsetzungsstand_id" type="bigint"/>
     </addColumn>
@@ -75,14 +75,14 @@
       <column name="benutzer_letzte_aenderung_id" type="bigint"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="umsetzungsstand" baseColumnNames="benutzer_letzte_aenderung_id"
-      constraintName="fk_umsetzungsstand_benutzer_letzte_aenderung"
-      referencedTableName="benutzer"
-      referencedColumnNames="id"/>
+			constraintName="fk_umsetzungsstand_benutzer_letzte_aenderung"
+			referencedTableName="benutzer"
+			referencedColumnNames="id"/>
   </changeSet>
   <changeSet id="RAD-3136" author="kho">
     <renameColumn tableName="mapped_kante" oldColumnName="kanten_id" newColumnName="kante_id"/>
-    <!-- rename kanten_idx to kante_idx, used in CustomKantenRepositoryImpl.buildIndex()-->
-    <sql>
+		<!-- rename kanten_idx to kante_idx, used in CustomKantenRepositoryImpl.buildIndex()-->
+		<sql>
       CREATE INDEX kante_idx ON kante USING GIST (geometry, quelle);
       DROP INDEX IF EXISTS kanten_idx;
     </sql>

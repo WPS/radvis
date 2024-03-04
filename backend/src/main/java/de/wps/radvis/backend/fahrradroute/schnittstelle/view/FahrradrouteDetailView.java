@@ -111,7 +111,8 @@ public class FahrradrouteDetailView {
 		this.originalGeometrie = fahrradroute.getOriginalGeometrie().orElse(null);
 		this.stuetzpunkte = fahrradroute.getStuetzpunkte().orElse(null);
 		this.geometrie = fahrradroute.getNetzbezugLineString().orElse(null);
-		this.customProfileId = fahrradroute.getCustomProfileId().orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
+		this.customProfileId = fahrradroute.getCustomProfileId()
+			.orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
 
 		if (fahrradroute.getFahrradroutenMatchingAndRoutingInformation().isPresent()) {
 			FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation =

@@ -20,7 +20,7 @@ import lombok.NonNull;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum DateiLayerFormat {
-	
+
 	//@formatter:off
 	GEOJSON("GeoJSON"),
 	GEOPACKAGE("GeoPackage"),

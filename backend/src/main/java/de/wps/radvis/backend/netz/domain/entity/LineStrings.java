@@ -50,7 +50,7 @@ public class LineStrings {
 
 	/**
 	 * @param vonLS
-	 *            simple LS
+	 * 	simple LS
 	 */
 	public static Optional<LineString> calculateUeberschneidungslinestring(LineString aufLS, LineString vonLS) {
 		if (!vonLS.isSimple()) {
@@ -206,10 +206,10 @@ public class LineStrings {
 	 * (Entfernung < 2m) in der originalGeometrie gibt
 	 *
 	 * @param lineStringAusMatchingOderRouting
-	 *            Der durch Routing oder Matching ermittelte LineString, aus dem die Kehrtwenden entfernt werden sollen
+	 * 	Der durch Routing oder Matching ermittelte LineString, aus dem die Kehrtwenden entfernt werden sollen
 	 * @param originalGeometrie
-	 *            Die ReferenzGeometrie, die Grundlage für das Routing/Matching war. Dient zur Überprüfung, ob eine
-	 *            Kehrtwende artifiziell ist.
+	 * 	Die ReferenzGeometrie, die Grundlage für das Routing/Matching war. Dient zur Überprüfung, ob eine
+	 * 	Kehrtwende artifiziell ist.
 	 * @return Der durch Routing oder Matching ermittelte LineString ohne Kehrtwenden
 	 */
 	public static LineString entferneArtifizielleKehrtwenden(LineString lineStringAusMatchingOderRouting,

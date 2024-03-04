@@ -12,52 +12,51 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckbox, MatCheckboxModule } from '@angular/material/checkbox';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { By } from '@angular/platform-browser';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuswertungService } from 'src/app/auswertung/services/auswertung.service';
-import { MaterialDesignModule } from 'src/app/material-design.module';
-import { KommazahlPipe } from 'src/app/shared/components/kommazahl.pipe';
-import { OrganisationenDropdownControlComponent } from 'src/app/shared/components/organisationen-dropdown-control/organisationen-dropdown-control.component';
 import { IstStandard } from 'src/app/shared/models/ist-standard';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { AuswertungComponent } from './auswertung.component';
+import { AuswertungGebietsauswahl } from 'src/app/auswertung/models/auswertung-gebietsauswahl';
+import { BelagArt } from 'src/app/shared/models/belag-art';
+import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { AuswertungModule } from 'src/app/auswertung/auswertung.module';
+import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 
-describe('AuswertungComponent', () => {
+describe(AuswertungComponent.name, () => {
   let component: AuswertungComponent;
-  let fixture: ComponentFixture<AuswertungComponent>;
+  let fixture: MockedComponentFixture<AuswertungComponent>;
 
   let auswertungService: AuswertungService;
+  let organisationenService: OrganisationenService;
 
   let checkboxUseNetzklassen: MatCheckbox;
   let checkboxUseIstStandards: MatCheckbox;
 
   beforeEach(async () => {
     auswertungService = mock(AuswertungService);
+    organisationenService = mock(OrganisationenService);
 
-    await TestBed.configureTestingModule({
-      declarations: [AuswertungComponent, KommazahlPipe, OrganisationenDropdownControlComponent],
-      imports: [
-        HttpClientTestingModule,
-        ReactiveFormsModule,
-        MatCheckboxModule,
-        NoopAnimationsModule,
-        MaterialDesignModule,
-        MatCardModule,
-      ],
-      providers: [{ provide: AuswertungService, useValue: instance(auswertungService) }],
-    }).compileComponents();
+    when(organisationenService.getOrganisationen()).thenResolve([defaultOrganisation]);
+
+    return MockBuilder(AuswertungComponent, AuswertungModule)
+      .provide({
+        provide: AuswertungService,
+        useValue: instance(auswertungService),
+      })
+      .provide({
+        provide: OrganisationenService,
+        useValue: instance(organisationenService),
+      });
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AuswertungComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(AuswertungComponent);
+    component = fixture.point.componentInstance;
     fixture.detectChanges();
     checkboxUseNetzklassen = fixture.debugElement.query(By.css('[formControlName="useNetzklassen"]')).componentInstance;
     checkboxUseIstStandards = fixture.debugElement.query(By.css('[formControlName="useIstStandards"]'))
@@ -68,6 +67,7 @@ describe('AuswertungComponent', () => {
     it('should read correct values from Form', fakeAsync(() => {
       component.form.patchValue({
         gemeindeKreisBezirk: defaultOrganisation,
+        wahlkreis: defaultOrganisation,
         useNetzklassen: true,
         netzklassen: [null, null, null, true, null, null, null, null, null, null],
         useIstStandards: true,
@@ -75,6 +75,8 @@ describe('AuswertungComponent', () => {
         baulast: defaultOrganisation,
         unterhalt: null,
         erhalt: null,
+        belagart: null,
+        fuehrung: null,
       });
 
       when(auswertungService.getAuswertung(anything())).thenReturn(Promise.resolve(0.0));
@@ -84,6 +86,7 @@ describe('AuswertungComponent', () => {
       verify(auswertungService.getAuswertung(anything())).once();
       expect(capture(auswertungService.getAuswertung).last()[0]).toEqual({
         gemeindeKreisBezirkId: defaultOrganisation.id,
+        wahlkreisId: '',
         netzklassen: [Netzklasse.KREISNETZ_ALLTAG],
         beachteNichtKlassifizierteKanten: false,
         istStandards: [IstStandard.BASISSTANDARD],
@@ -91,6 +94,8 @@ describe('AuswertungComponent', () => {
         baulastId: defaultOrganisation.id,
         unterhaltId: '',
         erhaltId: '',
+        fuehrung: '',
+        belagart: '',
       });
 
       component.form.patchValue({
@@ -102,6 +107,7 @@ describe('AuswertungComponent', () => {
         baulast: null,
         unterhalt: { ...defaultOrganisation, id: 2 },
         erhalt: { ...defaultOrganisation, id: 3 },
+        belagart: BelagArt.ASPHALT,
       });
 
       when(auswertungService.getAuswertung(anything())).thenReturn(Promise.resolve(0.0));
@@ -111,6 +117,7 @@ describe('AuswertungComponent', () => {
       verify(auswertungService.getAuswertung(anything())).twice();
       expect(capture(auswertungService.getAuswertung).last()[0]).toEqual({
         gemeindeKreisBezirkId: '',
+        wahlkreisId: '',
         netzklassen: [Netzklasse.RADNETZ_ALLTAG],
         beachteNichtKlassifizierteKanten: true,
         istStandards: [IstStandard.RADVORRANGROUTEN],
@@ -118,6 +125,86 @@ describe('AuswertungComponent', () => {
         baulastId: '',
         unterhaltId: 2,
         erhaltId: 3,
+        fuehrung: '',
+        belagart: BelagArt.ASPHALT,
+      });
+    }));
+  });
+
+  describe('gebietskoerperschaftWahlkreisToggle', () => {
+    it('should select gebietskoerperschaft initially', () => {
+      expect(component.gebietskoerperschaftOderWahlkreisControl.value).toEqual(
+        AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT
+      );
+    });
+
+    it('should send correct BereichId', fakeAsync(() => {
+      component.form.patchValue({
+        gemeindeKreisBezirk: defaultOrganisation,
+        wahlkreis: null,
+        useNetzklassen: true,
+        netzklassen: [null, null, null, true, null, null, null, null, null, null],
+        useIstStandards: true,
+        istStandards: [true, null, null, null, null, null],
+        baulast: defaultOrganisation,
+        unterhalt: null,
+        erhalt: null,
+      });
+
+      component.gebietskoerperschaftOderWahlkreisControl.patchValue(AuswertungGebietsauswahl.WAHLKREIS);
+
+      when(auswertungService.getAuswertung(anything())).thenReturn(Promise.resolve(0.0));
+      component.getAuswertung();
+      tick();
+
+      verify(auswertungService.getAuswertung(anything())).once();
+      expect(capture(auswertungService.getAuswertung).last()[0]).toEqual({
+        gemeindeKreisBezirkId: '',
+        wahlkreisId: '',
+        netzklassen: [Netzklasse.KREISNETZ_ALLTAG],
+        beachteNichtKlassifizierteKanten: false,
+        istStandards: [IstStandard.BASISSTANDARD],
+        beachteKantenOhneStandards: false,
+        baulastId: 1,
+        unterhaltId: '',
+        erhaltId: '',
+        fuehrung: '',
+        belagart: '',
+      });
+    }));
+
+    it('should only send one BereichId', fakeAsync(() => {
+      component.form.patchValue({
+        gemeindeKreisBezirk: defaultOrganisation,
+        wahlkreis: defaultOrganisation,
+        useNetzklassen: true,
+        netzklassen: [null, null, null, true, null, null, null, null, null, null],
+        useIstStandards: true,
+        istStandards: [true, null, null, null, null, null],
+        baulast: defaultOrganisation,
+        unterhalt: null,
+        erhalt: null,
+      });
+
+      component.gebietskoerperschaftOderWahlkreisControl.patchValue(AuswertungGebietsauswahl.WAHLKREIS);
+
+      when(auswertungService.getAuswertung(anything())).thenReturn(Promise.resolve(0.0));
+      component.getAuswertung();
+      tick();
+
+      verify(auswertungService.getAuswertung(anything())).once();
+      expect(capture(auswertungService.getAuswertung).last()[0]).toEqual({
+        gemeindeKreisBezirkId: '',
+        wahlkreisId: 1,
+        netzklassen: [Netzklasse.KREISNETZ_ALLTAG],
+        beachteNichtKlassifizierteKanten: false,
+        istStandards: [IstStandard.BASISSTANDARD],
+        beachteKantenOhneStandards: false,
+        baulastId: 1,
+        unterhaltId: '',
+        erhaltId: '',
+        fuehrung: '',
+        belagart: '',
       });
     }));
   });

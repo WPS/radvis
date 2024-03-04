@@ -4,8 +4,8 @@
   <inMemoryCached>true</inMemoryCached>
   <name>radvis:radvisnetz</name>
   <mimeFormats>
-    <string>image/png</string>
     <string>image/jpeg</string>
+    <string>image/png</string>
   </mimeFormats>
   <gridSubsets>
     <gridSubset>

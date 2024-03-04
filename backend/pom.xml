@@ -14,13 +14,13 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.5</version>
+    <version>3.2.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>de.wps.radvis</groupId>
@@ -30,7 +30,7 @@
   <description>RadVIS Backend Project</description>
   <properties>
     <java.version>17</java.version>
-    <geotools.version>29.2</geotools.version>
+    <geotools.version>30.0</geotools.version>
     <graphhopper-version>4.0</graphhopper-version>
     <archunit-junit5.version>1.0.1</archunit-junit5.version>
     <hibernate.version>6.2.7.Final</hibernate.version>
@@ -123,6 +123,16 @@
       <artifactId>gt-geopkg</artifactId>
       <version>${geotools.version}</version>
     </dependency>
+		<!--
+		RAD-6235 hst: Mit Spring 6.2 und Geotools brauchen wir hier zwingend 3.41.2.2 (bzw. irgendwas <3.43.0.0), weil sonst
+		beim Schreiben eines GeoPackages eine "java.sql.SQLFeatureNotSupportedException: not implemented by SQLite JDBC driver"
+		Exception kommt, da "getGeneratedKeys()"-support aus JDBC entfernt wurde, was aber von gt-geopkg noch benutzt wird.
+		-->
+		<dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.42.0.1</version>
+    </dependency>
 
     <dependency>
       <groupId>org.valid4j</groupId>
@@ -162,11 +172,11 @@
       <artifactId>graphhopper-map-matching</artifactId>
       <version>${graphhopper-version}</version>
     </dependency>
-    <!--
-    RAD-5658 hst: Wir MÜSSEN Janino 3.1.2 nehmen, weil ein workaround in Graphhopper eines Janino bugs nicht mit
-    Janino > 3.1.2 funktioniert.
-    -->
-    <dependency>
+		<!--
+		RAD-5658 hst: Wir MÜSSEN Janino 3.1.2 nehmen, weil ein workaround in Graphhopper eines Janino bugs nicht mit
+		Janino > 3.1.2 funktioniert.
+		-->
+		<dependency>
       <groupId>org.codehaus.janino</groupId>
       <artifactId>janino</artifactId>
       <version>3.1.2</version>
@@ -200,14 +210,14 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.19.1</version>
+      <version>1.19.5</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>1.19.1</version>
+      <version>1.19.5</version>
       <scope>test</scope>
     </dependency>
 
@@ -265,7 +275,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
-      <version>1.24.0</version>
+      <version>1.25.0</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -292,7 +302,7 @@
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
-      <version>5.8</version>
+      <version>5.9</version>
     </dependency>
     <dependency>
       <groupId>io.micrometer</groupId>
@@ -302,7 +312,7 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.12.5</version>
+      <version>2.12.7</version>
     </dependency>
   </dependencies>
 
@@ -322,7 +332,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <!--suppress UnresolvedMavenProperty -->
-          <groups>${test.group}</groups>
+					<groups>${test.group}</groups>
         </configuration>
         <executions>
           <execution>
@@ -416,7 +426,7 @@
         </configuration>
         <dependencies>
           <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
-          <dependency>
+					<dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
             <version>4.7.3</version>

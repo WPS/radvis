@@ -13,16 +13,18 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Benutzer } from 'src/app/administration/models/benutzer';
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 import { Rolle } from 'src/app/administration/models/rolle';
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 import { BenutzerService } from 'src/app/administration/services/benutzer.service';
+import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
+import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { createBenutzerForm } from 'src/app/shared/services/benutzer-form.factory';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
 @Component({
@@ -31,11 +33,11 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
   styleUrls: ['./benutzer-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BenutzerEditorComponent implements DiscardGuard {
-  form: FormGroup;
+export class BenutzerEditorComponent implements DiscardableComponent {
+  form: UntypedFormGroup;
   benutzerStatus: BenutzerStatus;
   version: number;
-  organisationen: Verwaltungseinheit[] = [];
+  organisationOptions: AutoCompleteOption[] = [];
   benutzerRollen: Rolle[] = [];
 
   fetchingNachSpeicherung = false;
@@ -45,6 +47,10 @@ export class BenutzerEditorComponent implements DiscardGuard {
     return this.benutzerStatus === BenutzerStatus.AKTIV;
   }
 
+  get rollen(): EnumOption[] {
+    return Rolle.options;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private benutzerService: BenutzerService,
@@ -52,12 +58,22 @@ export class BenutzerEditorComponent implements DiscardGuard {
     private changeDetector: ChangeDetectorRef,
     private administrationRoutingService: AdministrationRoutingService
   ) {
-    this.form = createBenutzerForm();
-    this.form.reset(route.snapshot.data.benutzer);
-    this.organisationen = route.snapshot.data.organisationen;
+    this.form = new UntypedFormGroup({
+      status: new FormControl<string>(''),
+      vorname: new FormControl<string>('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      nachname: new FormControl<string>('', [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      email: new FormControl<string>('', [RadvisValidators.email, RadvisValidators.isNotNullOrEmpty]),
+      organisation: new FormControl<AutoCompleteOption | null>(null, [RadvisValidators.isNotNullOrEmpty]),
+      rollen: new FormControl<Rolle[]>([], [RadvisValidators.isNotEmpty]),
+    });
+    this.resetForm(route.snapshot.data.benutzer);
     this.benutzerStatus = route.snapshot.data.benutzer.status;
     this.benutzerRollen = route.snapshot.data.benutzer.rollen;
     this.version = route.snapshot.data.benutzer.version;
+    const organisationen: Verwaltungseinheit[] = route.snapshot.data.organisationen;
+    this.organisationOptions = organisationen.map<AutoCompleteOption>(value => {
+      return { name: value.name, id: value.id, displayText: Verwaltungseinheit.getDisplayName(value) };
+    });
   }
 
   canDiscard = (): boolean => !this.form.dirty;
@@ -80,7 +96,7 @@ export class BenutzerEditorComponent implements DiscardGuard {
         rollen: this.form.value.rollen,
       })
       .then(benutzer => {
-        this.form.reset(benutzer);
+        this.resetForm(benutzer);
         this.version = benutzer.version;
         this.notifyUserService.inform('Benutzer wurde erfolgreich gespeichert.');
       })
@@ -90,14 +106,32 @@ export class BenutzerEditorComponent implements DiscardGuard {
       });
   }
 
-  onStatusAendern(): void {
+  onZurueck(): void {
+    this.administrationRoutingService.toAdministration();
+  }
+
+  private resetForm(benutzer: Benutzer): void {
+    this.form.reset({
+      ...benutzer,
+      status: BenutzerStatus.getDisplayName(benutzer.status),
+      organisation: {
+        name: benutzer.organisation.name,
+        id: benutzer.organisation.id,
+        displayText: Verwaltungseinheit.getDisplayName(benutzer.organisation),
+      },
+    });
+    this.form.get('status')?.disable();
+  }
+
+  onAblehnen(): void {
     this.fetchingNachAktivAenderung = true;
     this.benutzerService
-      .aendereBenutzerstatus(this.route.snapshot.params.id, this.version, this.benutzerStatus)
+      .aendereBenutzerstatus(this.route.snapshot.params.id, this.version, 'ABGELEHNT')
       .then(benutzer => {
+        this.resetForm(benutzer);
         this.benutzerStatus = benutzer.status;
         this.version = benutzer.version;
-        const msg = benutzer.status === 'AKTIV' ? 'Benutzer wurde Aktiviert.' : 'Benutzer wurde Deaktiviert.';
+        const msg = 'Benutzer wurde abgelehnt.';
         this.notifyUserService.inform(msg);
       })
       .catch(() => {
@@ -109,11 +143,23 @@ export class BenutzerEditorComponent implements DiscardGuard {
       });
   }
 
-  onZurueck(): void {
-    this.administrationRoutingService.toAdministration();
-  }
-
-  get rollen(): EnumOption[] {
-    return Rolle.options;
+  onAktivieren(): void {
+    this.fetchingNachAktivAenderung = true;
+    this.benutzerService
+      .aendereBenutzerstatus(this.route.snapshot.params.id, this.version, 'AKTIV')
+      .then(benutzer => {
+        this.resetForm(benutzer);
+        this.benutzerStatus = benutzer.status;
+        this.version = benutzer.version;
+        const msg = 'Benutzer wurde aktiviert.';
+        this.notifyUserService.inform(msg);
+      })
+      .catch(() => {
+        this.notifyUserService.warn('Der Status des Benutzers konnte nicht geändert werden. Bitte neu laden.');
+      })
+      .finally(() => {
+        this.fetchingNachAktivAenderung = false;
+        this.changeDetector.markForCheck();
+      });
   }
 }

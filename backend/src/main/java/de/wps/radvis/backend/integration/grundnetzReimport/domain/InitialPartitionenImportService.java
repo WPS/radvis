@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Envelope;
 
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -29,6 +27,7 @@ import de.wps.radvis.backend.netz.domain.entity.KnotenIndex;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMWFSImportRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 // Wir brauchen hier eine separate Klasse wegen @Transactional (Proxying der Bean)

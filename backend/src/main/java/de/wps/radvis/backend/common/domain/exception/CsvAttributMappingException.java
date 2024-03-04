@@ -17,7 +17,7 @@ package de.wps.radvis.backend.common.domain.exception;
 public class CsvAttributMappingException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2210699650264393677L;
 

@@ -14,12 +14,11 @@
 
 package de.wps.radvis.backend.quellimport.ttsib.domain.entity;
 
+import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibEinordnung;
+import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibQuerschnittArt;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
-import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibEinordnung;
-import de.wps.radvis.backend.quellimport.ttsib.domain.valueObject.TtSibQuerschnittArt;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

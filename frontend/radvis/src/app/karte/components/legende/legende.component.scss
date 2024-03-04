@@ -29,13 +29,10 @@
 
 .legende-button {
   display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
   background-color: white;
   width: 100% !important;
-}
-
-::ng-deep .legende-button > .mat-button-wrapper {
-  width: 100%;
-  display: flex;
 }
 
 .legende-button-icon {
@@ -43,7 +40,7 @@
   margin-left: auto;
 }
 
-::ng-deep.legende-panel .mat-expansion-panel-body {
+.legende-panel ::ng-deep .mat-expansion-panel-body {
   padding: 0 0 0 15px;
 }
 

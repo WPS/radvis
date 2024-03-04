@@ -15,7 +15,7 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { ChangeDetectorRef } from '@angular/core';
 import { fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -59,7 +59,7 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
     return MockBuilder(WeitereKartenebenenVerwaltungComponent, ViewerModule)
       .provide({ provide: WeitereKartenebenenService, useValue: instance(weitereKartenebenenService) })
       .provide({ provide: DateiLayerService, useValue: instance(dateiLayerService) })
-      .provide({ provide: FormBuilder, useValue: new FormBuilder() })
+      .provide({ provide: UntypedFormBuilder, useValue: new UntypedFormBuilder() })
       .provide({ provide: ChangeDetectorRef, useValue: instance(mock(ChangeDetectorRef)) })
       .provide({ provide: MatDialogRef, useValue: instance(mock(MatDialogRef)) })
       .provide({ provide: NotifyUserService, useValue: instance(mock(NotifyUserService)) });

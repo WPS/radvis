@@ -38,6 +38,7 @@ import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.Ne
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.service.ManuellerNetzklassenImportService;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.KnotenToGeoJsonConverter;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.command.StartNetzklassenImportSessionCommand;
+import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.view.NetzklassenImportSessionView;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
@@ -74,6 +75,15 @@ public class ManuellerNetzklassenImportController {
 		this.manuellerNetzklassenImportGuard = manuellerNetzklassenImportGuard;
 	}
 
+	@GetMapping(path = "session")
+	public NetzklassenImportSessionView getImportSession(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+
+		return manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer)
+			.map(NetzklassenImportSessionView::new)
+			.orElse(null);
+	}
+
 	@PostMapping(path = "start-import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public void startNetzklassenImportSession(Authentication authentication,
 		@RequestPart StartNetzklassenImportSessionCommand command, @RequestPart MultipartFile file)
@@ -81,10 +91,9 @@ public class ManuellerNetzklassenImportController {
 		manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, file);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 
-		manuellerImportService.findImportSessionFromBenutzer(benutzer).ifPresent((session) -> {
+		if (manuellerImportService.importSessionExists(benutzer)) {
 			throw new RuntimeException("Es existiert bereits eine Session");
-		});
-
+		}
 		Verwaltungseinheit organisation = verwaltungseinheitResolver.resolve(command.getOrganisation());
 
 		File shpDirectory = manuellerImportService
@@ -100,12 +109,20 @@ public class ManuellerNetzklassenImportController {
 		this.manuellerNetzklassenImportService.runAutomatischeAbbildung(importSession, shpDirectory);
 	}
 
+	@PostMapping(path = "bearbeitung-abschliessen")
+	public void bearbeitungAbschliessen(Authentication authentication) {
+		manuellerNetzklassenImportGuard.bearbeitungAbschliessen(authentication);
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		NetzklasseImportSession session = this.manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer)
+			.get();
+		this.manuellerNetzklassenImportService.bearbeitungAbschliessen(session);
+	}
+
 	@GetMapping(path = "execute-zuweisen")
 	public void executeNetzklassenZuweisen(Authentication authentication) {
 		manuellerNetzklassenImportGuard.executeNetzklassenZuweisen(authentication);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		NetzklasseImportSession session = manuellerNetzklassenImportService
-			.getNetzklassenImportSession(benutzer);
+		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer).get();
 		manuellerNetzklassenImportService.runUpdate(session);
 	}
 
@@ -114,7 +131,7 @@ public class ManuellerNetzklassenImportController {
 		manuellerNetzklassenImportGuard.getSackgassen(authentication);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 
-		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer);
+		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer).get();
 
 		Set<Knoten> knoten = netzklassenSackgassenService.bestimmeSackgassenknotenVonKanteIdsInOrganisation(
 			session.getKanteIds(),
@@ -129,7 +146,7 @@ public class ManuellerNetzklassenImportController {
 		manuellerNetzklassenImportGuard.toggleNetzklassenzugehoerigkeit(authentication, kanteId);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 
-		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer);
+		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer).get();
 		session.toggleNetzklassenzugehoerigkeit(kanteId);
 
 		return session.getKanteIds();
@@ -140,7 +157,7 @@ public class ManuellerNetzklassenImportController {
 		manuellerNetzklassenImportGuard.getKanteIdsMitNetzklasse(authentication);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 
-		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer);
+		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer).get();
 
 		return session.getKanteIds();
 	}

@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -29,6 +27,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

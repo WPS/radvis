@@ -12,15 +12,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input, OnChanges } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
+import { FormControl, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import {
   AbstractUndeterminedFormControl,
-  UndeterminedValue,
   UNDETERMINED_LABEL,
+  UndeterminedValue,
 } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 
@@ -35,22 +44,31 @@ import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 })
 export class OrganisationenDropdownControlComponent
   extends AbstractUndeterminedFormControl<Verwaltungseinheit>
-  implements OnChanges {
+  implements OnChanges, OnInit {
   @Input()
   options: Verwaltungseinheit[] = [];
 
   @Input()
   nullable = true;
 
+  @Input()
+  touchOnWrite = true;
+
+  @Input()
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
+
   selectedOrganisation: Verwaltungseinheit | null = null;
 
   filteredOptions$: Observable<Verwaltungseinheit[]> = of([]);
-  formControl: FormControl;
+  formControl: FormControl<Verwaltungseinheit | string | null>;
 
   public readonly NULL_LABEL = 'Keine Angabe';
 
   public readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
   public readonly UNDETERMINED = 'UNDETERMINED';
+
+  isUndetermined = false;
   showUndeterminedOption = false;
 
   constructor(private changeDetector: ChangeDetectorRef) {
@@ -58,7 +76,7 @@ export class OrganisationenDropdownControlComponent
     this.formControl = new FormControl(null);
   }
 
-  ngOnChanges(): void {
+  ngOnInit(): void {
     this.filteredOptions$ = this.formControl.valueChanges.pipe(
       startWith(this.formControl.value),
       map(value => {
@@ -69,17 +87,30 @@ export class OrganisationenDropdownControlComponent
     );
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
+    }
+  }
+
   public writeValue(value: Verwaltungseinheit | null | UndeterminedValue): void {
-    let formValue = value;
+    let formValue: Verwaltungseinheit | string | null;
     if (value instanceof UndeterminedValue) {
+      this.isUndetermined = true;
       this.showUndeterminedOption = true;
       formValue = this.UNDETERMINED;
       this.changeDetector.detectChanges();
     } else {
+      formValue = value;
       this.selectedOrganisation = value;
+      this.isUndetermined = false;
       this.showUndeterminedOption = false;
     }
     this.formControl.reset(formValue, { emitEvent: false });
+    if (this.touchOnWrite) {
+      this.formControl.markAsTouched();
+    }
     this.changeDetector.markForCheck();
   }
 
@@ -91,8 +122,9 @@ export class OrganisationenDropdownControlComponent
 
   // Verlässt man das Formularfeld, ohne einen Wert auszuwählen, so wird die zuletzt ausgewählte Option wieder gesetzt
   onBlur(): void {
-    this.onTouched();
-    this.formControl.reset(this.selectedOrganisation, { emitEvent: false });
+    if (this.selectedOrganisation) {
+      this.writeValue(this.selectedOrganisation);
+    }
   }
 
   // Das Standardverhalten von Autocomplete bei Klick wird hier überschrieben, weil sonst bei Auswahl eines Wertes und
@@ -105,7 +137,7 @@ export class OrganisationenDropdownControlComponent
 
   displayFn = (item: Verwaltungseinheit | null | 'UNDETERMINED'): string => {
     if (item === this.UNDETERMINED) {
-      return UNDETERMINED_LABEL;
+      return '';
     }
 
     return Verwaltungseinheit.getDisplayName(item);

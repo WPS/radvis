@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
-import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { Coordinate } from 'ol/coordinate';
 import { LineString, MultiLineString, Point } from 'ol/geom';
 import VectorSource from 'ol/source/Vector';
@@ -103,7 +103,7 @@ describe(MassnahmenLayerComponent.name, () => {
   beforeEach(() => {
     fixture = MockRender(MassnahmenLayerComponent);
     component = fixture.point.componentInstance;
-    // @ts-ignore
+    // @ts-expect-error Migration von ts-ignore
     component['vectorSource']['loader_']();
     selectedMassnahmenIdTestSubject.next(null);
   });
@@ -259,6 +259,7 @@ describe(MassnahmenLayerComponent.name, () => {
         } as MassnahmeListenView,
         {
           ...defaultMassnahmeListView,
+          id: 2,
           geometry: {
             coordinates: [
               [

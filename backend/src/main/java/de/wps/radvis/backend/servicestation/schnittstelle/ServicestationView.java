@@ -29,6 +29,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBes
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
 import lombok.Getter;
 
@@ -52,6 +53,7 @@ public class ServicestationView {
 	private final VerwaltungseinheitView organisation;
 	private final ServicestationTyp typ;
 	private final ServicestationStatus status;
+	private final ServicestationenQuellSystem quellSystem;
 
 	public ServicestationView(Servicestation servicestation, boolean darfBenutzerBearbeiten) {
 		geometrie = servicestation.getGeometrie();
@@ -59,6 +61,7 @@ public class ServicestationView {
 		id = servicestation.getId();
 		version = servicestation.getVersion();
 		this.darfBenutzerBearbeiten = darfBenutzerBearbeiten;
+		quellSystem = servicestation.getQuellSystem();
 
 		gebuehren = servicestation.getGebuehren();
 		oeffnungszeiten = servicestation.getOeffnungszeiten().orElse(null);

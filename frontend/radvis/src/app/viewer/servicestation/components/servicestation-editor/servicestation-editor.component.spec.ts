@@ -32,12 +32,14 @@ import { defaultGemeinden, defaultOrganisation } from 'src/app/shared/models/org
 import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
 import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/services/servicestation-updated.service';
+import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 class TestServicestationUpdateService extends ServicestationUpdatedService {
   updateServicestation(): void {}
 }
 
-describe('ServicestationEditorComponent', () => {
+describe(ServicestationEditorComponent.name, () => {
   let component: ServicestationEditorComponent;
   let fixture: MockedComponentFixture<ServicestationEditorComponent>;
   let data$: Subject<{ isCreator: boolean; servicestation?: Servicestation }>;
@@ -110,11 +112,19 @@ describe('ServicestationEditorComponent', () => {
       data$.next({ isCreator: true });
     });
 
+    it('should disable quellSystem control', () => {
+      expect(component.formGroup.get('quellSystem')?.disabled).toBeTrue();
+    });
+
     it('should reset form', fakeAsync(() => {
-      data$.next({ isCreator: false, servicestation: defaultServicestation });
+      data$.next({
+        isCreator: false,
+        servicestation: { ...defaultServicestation, quellSystem: ServicestationQuellSystem.MOBIDATABW },
+      });
       tick();
       component.formGroup.markAsDirty();
       expect(component.formGroup.value.name).toBe(defaultServicestation.name);
+      expect(component.formGroup.get('quellSystem')?.value).toEqual(AbstellanlagenQuellSystem.MOBIDATABW);
 
       data$.next({ isCreator: true });
       tick();
@@ -135,6 +145,7 @@ describe('ServicestationEditorComponent', () => {
         typ: null,
         status: null,
       });
+      expect(component.formGroup.get('quellSystem')?.value).toEqual(AbstellanlagenQuellSystem.RADVIS);
     }));
 
     it('should doCreate correctly', fakeAsync(() => {
@@ -192,6 +203,10 @@ describe('ServicestationEditorComponent', () => {
       data$.next({ isCreator: false, servicestation: defaultServicestation });
     });
 
+    it('should disable quellSystem control', () => {
+      expect(component.formGroup.get('quellSystem')?.disabled).toBeTrue();
+    });
+
     it('should reset form', fakeAsync(() => {
       tick();
       component.formGroup.patchValue({
@@ -199,7 +214,10 @@ describe('ServicestationEditorComponent', () => {
       });
       component.formGroup.markAsDirty();
 
-      data$.next({ isCreator: false, servicestation: defaultServicestation });
+      data$.next({
+        isCreator: false,
+        servicestation: { ...defaultServicestation, quellSystem: ServicestationQuellSystem.MOBIDATABW },
+      });
       tick();
 
       expect(component.formGroup.dirty).toBeFalse();
@@ -219,7 +237,11 @@ describe('ServicestationEditorComponent', () => {
         typ: defaultServicestation.typ,
         status: defaultServicestation.status,
       });
-      expect(component.currentServicestation).toEqual(defaultServicestation);
+      expect(component.formGroup.get('quellSystem')?.value).toEqual(AbstellanlagenQuellSystem.MOBIDATABW);
+      expect(component.currentServicestation).toEqual({
+        ...defaultServicestation,
+        quellSystem: ServicestationQuellSystem.MOBIDATABW,
+      });
     }));
 
     it('should doSave correctly', fakeAsync(() => {

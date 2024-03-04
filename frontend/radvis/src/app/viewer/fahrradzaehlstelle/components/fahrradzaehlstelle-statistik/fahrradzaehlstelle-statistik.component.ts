@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { FahrradzaehlstelleDetailView } from 'src/app/viewer/fahrradzaehlstelle/models/fahrradzaehlstelle-detail-view';
 import { FahrradzaehlstelleService } from 'src/app/viewer/fahrradzaehlstelle/services/fahrradzaehlstelle.service';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { ArtDerAuswertung } from 'src/app/viewer/fahrradzaehlstelle/models/art-der-auswertung';
 import { ChannelDetailView } from 'src/app/viewer/fahrradzaehlstelle/models/channel-detail-view';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
@@ -41,9 +41,9 @@ export class FahrradzaehlstelleStatistikComponent implements OnInit {
   artDerAuswertungOptions = ArtDerAuswertung.options;
   richtung: ChannelDetailView | undefined;
   channelOptions: EnumOption[] = [];
-  artDerAuswertungFormControl: FormControl;
-  channelFormControl: FormControl;
-  rangeFormControl: FormControl;
+  artDerAuswertungFormControl: UntypedFormControl;
+  channelFormControl: UntypedFormControl;
+  rangeFormControl: UntypedFormControl;
   jahresAuswahlModus = false;
   chart: Chart | null = null;
   datenVorhanden = false;
@@ -103,9 +103,9 @@ export class FahrradzaehlstelleStatistikComponent implements OnInit {
     private fahrradzaehlstelleService: FahrradzaehlstelleService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-    this.channelFormControl = new FormControl();
-    this.artDerAuswertungFormControl = new FormControl();
-    this.rangeFormControl = new FormControl();
+    this.channelFormControl = new UntypedFormControl();
+    this.artDerAuswertungFormControl = new UntypedFormControl();
+    this.rangeFormControl = new UntypedFormControl();
 
     this.artDerAuswertungFormControl.valueChanges.subscribe(value => {
       this.rangeFormControl.reset();

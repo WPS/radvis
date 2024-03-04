@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
@@ -43,7 +43,6 @@ import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 
-import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
@@ -57,6 +56,7 @@ import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 import de.wps.radvis.backend.leihstation.LeihstationConfiguration;
@@ -152,7 +152,7 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Hinzugefügt");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.leihstationDetails(savedLeihstation.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.leihstationDetails(savedLeihstation.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 	}
 
@@ -164,7 +164,8 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 			.save(Leihstation.builder().anzahlAbstellmoeglichkeiten(Anzahl.of(1))
 				.betreiber("Mein Betreiber").geometrie(
 					KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 200)))
-				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true).quellSystem(LeihstationQuellSystem.RADVIS)
+				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true)
+				.quellSystem(LeihstationQuellSystem.RADVIS)
 				.build());
 
 		Leihstation updatedLeihstation = existingLeihstation.toBuilder().status(LeihstationStatus.AKTIV)
@@ -200,7 +201,7 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Hinzugefügt");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.leihstationDetails(newLeihstation.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.leihstationDetails(newLeihstation.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 	}
 
@@ -247,7 +248,8 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 			.save(Leihstation.builder().anzahlAbstellmoeglichkeiten(Anzahl.of(1))
 				.betreiber("Mein Betreiber").geometrie(
 					KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 200)))
-				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true).quellSystem(LeihstationQuellSystem.RADVIS)
+				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true)
+				.quellSystem(LeihstationQuellSystem.RADVIS)
 				.build());
 
 		Leihstation updatedLeihstation = existingLeihstation.toBuilder().status(LeihstationStatus.AKTIV)
@@ -272,7 +274,7 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Aktualisiert");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.leihstationDetails(savedLeihstation.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.leihstationDetails(savedLeihstation.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 		assertThat(savedLeihstation).isEqualTo(existingLeihstation);
 	}
@@ -285,7 +287,8 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 			.save(Leihstation.builder().anzahlAbstellmoeglichkeiten(Anzahl.of(1))
 				.betreiber("Mein Betreiber").geometrie(
 					KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 200)))
-				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true).quellSystem(LeihstationQuellSystem.RADVIS)
+				.status(LeihstationStatus.AUSSER_BETRIEB).freiesAbstellen(true)
+				.quellSystem(LeihstationQuellSystem.RADVIS)
 				.build());
 
 		Leihstation updatedLeihstation = existingLeihstation.toBuilder().status(LeihstationStatus.AKTIV)
@@ -314,7 +317,7 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 		assertThat(protokoll.getRows()).hasSize(1);
 		assertThat(protokoll.getRows().get(0).get("Aktion")).isEqualTo("Aktualisiert");
 		assertThat(protokoll.getRows().get(0).get("URL"))
-			.isEqualTo(BASE_URL + "app" + FrontendLinks.leihstationDetails(savedLeihstation.getId()));
+			.isEqualTo(BASE_URL + FrontendLinks.leihstationDetails(savedLeihstation.getId()));
 		assertThat(protokoll.getRows().get(0).get("Fehler")).isEmpty();
 		assertThat(savedLeihstation).isEqualTo(existingLeihstation);
 	}
@@ -325,7 +328,8 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 		Leihstation existingLeihstation = leihstationRepository.save(Leihstation.builder()
 			.anzahlAbstellmoeglichkeiten(Anzahl.of(1))
 			.betreiber("Mein Betreiber")
-			.geometrie(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 200)))
+			.geometrie(
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 200)))
 			.status(LeihstationStatus.AUSSER_BETRIEB)
 			.freiesAbstellen(true)
 			.quellSystem(LeihstationQuellSystem.RADVIS)

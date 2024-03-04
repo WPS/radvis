@@ -39,23 +39,22 @@ export class FahrradzaehlstelleDetailViewComponent {
     activatedRoute.parent?.data
       .pipe(map(data => data.fahrradzaehlstelleDetailView))
       .subscribe((fahrradzaehlstelleDetail: FahrradzaehlstelleDetailView) => {
-      /* eslint-disable */
-      this.attribute = new Map();
-      this.attribute.set('', {
-        'Betreiber eigene ID': fahrradzaehlstelleDetail.betreiberEigeneId,
-        'Bezeichnung': fahrradzaehlstelleDetail.fahrradzaehlstelleBezeichnung,
-        'Seriennummer': fahrradzaehlstelleDetail.seriennummer,
-        'Gebietskörperschaft': fahrradzaehlstelleDetail.fahrradzaehlstelleGebietskoerperschaft,
-        'Zählintervall': fahrradzaehlstelleDetail.zaehlintervall + ' Minuten',
-        'Letzte Aktualisierung': fahrradzaehlstelleDetail.neusterZeitstempel,
-      });
-      fahrradzaehlstelleDetail.channels.forEach((channelDetailView, index) => {
-        this.attribute.set('Channel ' + (+index + +1), {
-          'ID': channelDetailView.channelId.toString(),
-          'Bezeichnung': channelDetailView.channelBezeichnung,
+        this.attribute = new Map();
+        this.attribute.set('', {
+          'Betreiber eigene ID': fahrradzaehlstelleDetail.betreiberEigeneId,
+          Bezeichnung: fahrradzaehlstelleDetail.fahrradzaehlstelleBezeichnung,
+          Seriennummer: fahrradzaehlstelleDetail.seriennummer,
+          Gebietskörperschaft: fahrradzaehlstelleDetail.fahrradzaehlstelleGebietskoerperschaft,
+          Zählintervall: fahrradzaehlstelleDetail.zaehlintervall + ' Minuten',
+          'Letzte Aktualisierung': fahrradzaehlstelleDetail.neusterZeitstempel,
         });
-      });
-      /* eslint-enable */
+        fahrradzaehlstelleDetail.channels.forEach((channelDetailView, index) => {
+          this.attribute.set('Channel ' + (+index + +1), {
+            ID: channelDetailView.channelId.toString(),
+            Bezeichnung: channelDetailView.channelBezeichnung,
+          });
+        });
+        /* eslint-enable */
         olMapService.scrollIntoViewByCoordinate(fahrradzaehlstelleDetail.geometrie.coordinates);
         changeDetector.markForCheck();
       });

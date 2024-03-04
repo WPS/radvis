@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.matching.domain.service;
 
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.matching.domain.exception.KanteNichtGematchedException;
 import de.wps.radvis.backend.matching.domain.exception.MatchingFehlerException;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
@@ -23,6 +21,7 @@ import de.wps.radvis.backend.netzfehler.domain.ProtokollService;
 import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerBeschreibung;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerTyp;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 
 @Transactional

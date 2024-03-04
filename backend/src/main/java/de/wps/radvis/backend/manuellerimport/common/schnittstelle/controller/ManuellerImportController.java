@@ -17,6 +17,7 @@ package de.wps.radvis.backend.manuellerimport.common.schnittstelle.controller;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,6 +39,12 @@ public class ManuellerImportController {
 		@NonNull BenutzerResolver benutzerResolver) {
 		this.manuellerImportService = manuellerImportService;
 		this.benutzerResolver = benutzerResolver;
+	}
+
+	@GetMapping(path = "exists-session")
+	public boolean existsSession(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		return manuellerImportService.importSessionExists(benutzer);
 	}
 
 	@DeleteMapping(path = "delete-session")

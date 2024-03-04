@@ -14,12 +14,11 @@
 
 package de.wps.radvis.backend.quellimport.ttsib.domain.entity;
 
-import jakarta.persistence.Entity;
-
 import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.valueObject.Attribute;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

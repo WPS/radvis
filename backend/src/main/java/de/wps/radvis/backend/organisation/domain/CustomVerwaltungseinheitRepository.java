@@ -17,6 +17,7 @@ package de.wps.radvis.backend.organisation.domain;
 import java.util.List;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
@@ -28,4 +29,7 @@ public interface CustomVerwaltungseinheitRepository {
 	List<Verwaltungseinheit> findAllUntergeordnet(Verwaltungseinheit verwaltungseinheit);
 
 	List<Long> findAllUntergeordnetIds(Long verwaltungseinheitId);
+
+	MultiPolygon getVereintenBereich(List<Long> verwaltungseinheitIds);
+
 }

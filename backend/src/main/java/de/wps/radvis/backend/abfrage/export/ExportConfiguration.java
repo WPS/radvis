@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import de.wps.radvis.backend.abfrage.export.domain.InfrastrukturenExporterFactory;
-import de.wps.radvis.backend.abfrage.export.domain.service.ExportFromViewService;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageExporterService;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenExporterService;
 import de.wps.radvis.backend.leihstation.domain.LeihstationExporterService;
@@ -52,10 +51,5 @@ public class ExportConfiguration {
 	public InfrastrukturenExporterFactory infrastrukturenExporterFactory() {
 		return new InfrastrukturenExporterFactory(massnahmenExporterService, fahrradroutenExporterService,
 			leihstationExporterService, servicestationExporterService, abstellanlageExporterService);
-	}
-
-	@Bean
-	public ExportFromViewService exportFromViewService() {
-		return new ExportFromViewService(entityManager);
 	}
 }

@@ -27,7 +27,7 @@
 	</changeSet>
 	<changeSet author="Tim und Andreas" id="RAD-529">
 		<addColumn schemaName="public" tableName="kante">
-			<column name="id_ursprungskante" type="BIGINT" />
+			<column name="id_ursprungskante" type="BIGINT"/>
 			<column name="geloescht" type="BOOLEAN" defaultValue="false">
 				<constraints nullable="false"/>
 			</column>

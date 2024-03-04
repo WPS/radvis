@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 
@@ -43,6 +41,7 @@ import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
+import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 
 public class RadwegeDBNetzbildungService extends AbstractNetzbildungService {
@@ -96,8 +95,9 @@ public class RadwegeDBNetzbildungService extends AbstractNetzbildungService {
 					radwegeDBNetzbildungProtokollService.handle(e, RadwegeDBNetzbildungJob.class.getSimpleName());
 				}
 			} else {
-				radwegeDBNetzbildungProtokollService.handle(new GeometrieTypNichtUnterstuetztException(feature.getTechnischeId(),
-					feature.getGeometrie()), RadwegeDBNetzbildungJob.class.getSimpleName());
+				radwegeDBNetzbildungProtokollService.handle(
+					new GeometrieTypNichtUnterstuetztException(feature.getTechnischeId(),
+						feature.getGeometrie()), RadwegeDBNetzbildungJob.class.getSimpleName());
 				statistik.geometrieTypNichtUnterstuetzt++;
 			}
 		} else {

@@ -22,15 +22,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -63,9 +60,11 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group5")
-@EnableJpaRepositories(basePackageClasses = { FahrradrouteConfiguration.class,
+@EnableEnversRepositories(basePackageClasses = { FahrradrouteConfiguration.class,
 	NetzConfiguration.class,
 	OrganisationConfiguration.class })
 @EntityScan(basePackageClasses = { FahrradrouteConfiguration.class,
@@ -92,33 +91,35 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 
 	@Test
 	public void RadvisNetzAusleitungGeoserverView_Fields_Exist_Test() {
-		Kante kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
-		Kante kante2 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
 
 		entityManager.flush();
 		entityManager.clear();
 
-		List<String> kantenAttribute = getFieldsOfColumnExcept("kanten_attribut_gruppe",
+		List<String> kantenAttribute = getFieldsOfTableExcept("kanten_attribut_gruppe",
 			Set.of("id", "version", "vereinbarungs_kennung", "gemeinde_id"));
 		kantenAttribute.add("netzklassen");
 		kantenAttribute.add("standards");
 		kantenAttribute.add("gemeinde_name");
 		kantenAttribute.add("landkreis_name");
-		List<String> geschwindigkeitsAttribute = getFieldsOfColumnExcept(
+		kantenAttribute.add("hoechstenk");
+		List<String> geschwindigkeitsAttribute = getFieldsOfTableExcept(
 			"geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute",
 			Set.of("id", "geschwindigkeit_attribut_gruppe_id", "von", "bis"));
-		List<String> fuehrungsformAttribute = getFieldsOfColumnExcept("fuehrungsform_attribut_gruppe_attribute_links",
+		List<String> fuehrungsformAttribute = getFieldsOfTableExcept("fuehrungsform_attribut_gruppe_attribute_links",
 			Set.of("id", "fuehrungsform_attribut_gruppe_id", "von", "bis", "trennstreifen_breite_rechts",
 				"trennstreifen_breite_links", "trennstreifen_trennung_zu_rechts", "trennstreifen_trennung_zu_links",
 				"trennstreifen_form_rechts", "trennstreifen_form_links"));
-		List<String> zustaendigkeitsAttribute = getFieldsOfColumnExcept(
+		List<String> zustaendigkeitsAttribute = getFieldsOfTableExcept(
 			"zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute",
 			Set.of("id", "zustaendigkeit_attribut_gruppe_id", "von", "bis"))
 			.stream().map(name -> name.replace("_id", "")).collect(Collectors.toList());
-		List<String> fahrtrichtungsAttribute = getFieldsOfColumnExcept("fahrtrichtung_attribut_gruppe",
+		int anzahlAttributeFuerZustaendigenOrganisationsArt = 3;
+		List<String> fahrtrichtungsAttribute = getFieldsOfTableExcept("fahrtrichtung_attribut_gruppe",
 			Set.of("id", "version"));
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
@@ -139,7 +140,8 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		assertThat(allViewEntries)
 			.allSatisfy(entry -> assertThat(entry.keySet()).hasSize(
 				2 + kantenAttribute.size() + geschwindigkeitsAttribute.size() + fuehrungsformAttribute.size()
-					+ zustaendigkeitsAttribute.size() + fahrtrichtungsAttribute.size()));
+					+ zustaendigkeitsAttribute.size() + anzahlAttributeFuerZustaendigenOrganisationsArt
+					+ fahrtrichtungsAttribute.size()));
 	}
 
 	@Test
@@ -162,7 +164,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
@@ -170,8 +172,13 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		assertThat(allViewEntries).hasSize(1);
 		Map<String, Object> entry = allViewEntries.get(0);
 		assertThat(entry.get("baulast_traeger")).isEqualTo(gebietskoerperschaft1.getName());
+		assertThat(entry.get("baulast_traeger_orga_typ")).isEqualTo(gebietskoerperschaft1.getOrganisationsArt().name());
 		assertThat(entry.get("unterhalts_zustaendiger")).isEqualTo(gebietskoerperschaft2.getName());
+		assertThat(entry.get("unterhalts_zustaendiger_orga_typ")).isEqualTo(
+			gebietskoerperschaft2.getOrganisationsArt().name());
 		assertThat(entry.get("erhalts_zustaendiger")).isEqualTo(gebietskoerperschaft1.getName());
+		assertThat(entry.get("erhalts_zustaendiger_orga_typ")).isEqualTo(
+			gebietskoerperschaft1.getOrganisationsArt().name());
 		assertThat(entry.get("vereinbarungs_kennung")).isEqualTo("狂言 Ado");
 	}
 
@@ -194,7 +201,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
@@ -235,7 +242,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> allViewEntriesBeforeRefresh = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
@@ -276,7 +283,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> allViewEntriesBeforeRefresh = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
@@ -313,7 +320,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// Assert
 		List<Map<String, Object>> allViewEntriesAfterRefresh = jdbcTemplate
@@ -402,7 +409,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
@@ -412,17 +419,16 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		Map<String, Object> entry2 = allViewEntries.get(1);
 		assertThat(((String) entry1.get("vereinbarungs_kennung"))).isEqualTo("Largest segment!");
 		assertThat(((BigDecimal) entry1.get("breite")).doubleValue()).isEqualTo(10.0);
-		System.out.println(entry2.get("vereinbarungs_kennung"));
 		assertThat(((String) entry2.get("vereinbarungs_kennung")))
 			.isEqualTo("First largest segment!", "Second largest segment!", "Third largest segment!");
 		assertThat(((BigDecimal) entry2.get("breite")).doubleValue()).isEqualTo(3.0);
 	}
 
-	private List<String> getFieldsOfColumnExcept(String column_name, Set<String> except) {
+	private List<String> getFieldsOfTableExcept(String tableName, Set<String> except) {
 		return jdbcTemplate.queryForList(
 				"select column_name "
 					+ "from INFORMATION_SCHEMA.COLUMNS "
-					+ "where TABLE_NAME='" + column_name + "'")
+					+ "where TABLE_NAME='" + tableName + "'")
 			.stream()
 			.map(map -> (String) map.get("column_name"))
 			.filter(columnName -> !except.contains(columnName))

@@ -12,14 +12,15 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<rad-editor-menu></rad-editor-menu>
-<div class="editor-tools-wrapper">
-  <div class="flex-grow position-relative">
+<rad-editor-menu [tabPanel]="tabPanel"></rad-editor-menu>
+<mat-tab-nav-panel class="h-100" #tabPanel>
+  <div class="editor-tools-wrapper">
+    <div class="flex-grow position-relative">
+      <router-outlet></router-outlet>
 
-    <router-outlet></router-outlet>
-
-    <div class="loading-panel" *ngIf="ladend$ | async">
-      <mat-spinner mode="indeterminate"></mat-spinner>
+      <div class="loading-panel" *ngIf="ladend$ | async">
+        <mat-spinner mode="indeterminate"></mat-spinner>
+      </div>
     </div>
   </div>
-</div>
+</mat-tab-nav-panel>

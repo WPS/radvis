@@ -63,6 +63,7 @@ class KantenAttributeTest {
 
 		// act + assert
 		assertThat(attribute.getWegeNiveau()).isEmpty();
+		assertThat(attribute.getStrassenkategorieRIN()).isEmpty();
 	}
 
 	@Test
@@ -80,6 +81,7 @@ class KantenAttributeTest {
 			.strassenNummer(StrassenNummer.of("B273"))
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.IN_BAU)
 			.build();
@@ -96,6 +98,7 @@ class KantenAttributeTest {
 			.strassenNummer(StrassenNummer.of("B273"))
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.IN_BAU)
 			.build();
@@ -119,7 +122,6 @@ class KantenAttributeTest {
 	@Test
 	void hasSameValue_mancheGleich_mancheVerschieden() {
 		// arrange
-
 		KantenAttribute attribute = KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 			.wegeNiveau(WegeNiveau.FAHRBAHN) // <- unterschiedlich
 			.build();

@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Envelope;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
@@ -30,6 +28,7 @@ import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.entity.DLMBasisQuellImportJobStatistik;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

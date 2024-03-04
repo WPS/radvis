@@ -67,7 +67,7 @@ public class CustomRoutingProfileController {
 	public Iterable<CustomRoutingProfile> save(Authentication authentication,
 		@RequestBody List<SaveCustomRoutingProfileCommand> commands) {
 		guard.save(authentication, commands);
-		
+
 		List<CustomRoutingProfile> profiles = commands.stream().map(command ->
 				CustomRoutingProfile.builder()
 					.id(command.getId())

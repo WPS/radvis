@@ -40,8 +40,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import de.wps.radvis.backend.application.JacksonConfiguration;
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.authentication.schnittstelle.BenutzerRegistrierungsController;
-import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetails;
 import de.wps.radvis.backend.authentication.schnittstelle.RegistriereBenutzerCommand;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
@@ -61,7 +61,6 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
@@ -83,6 +82,8 @@ import jakarta.persistence.PersistenceContext;
 class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 	public static class TestConfiguration {
 		@Autowired
+		private CommonConfigurationProperties commonConfigurationProperties;
+		@Autowired
 		private BenutzerService benutzerService;
 		@MockBean
 		private MailService mailservice;
@@ -90,7 +91,7 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		@Bean
 		public BenutzerRegistrierungsController benutzerRegistrierungsController() {
 			MockitoAnnotations.openMocks(this);
-			return new BenutzerRegistrierungsController(benutzerService, mailservice);
+			return new BenutzerRegistrierungsController(commonConfigurationProperties, benutzerService, mailservice);
 		}
 	}
 
@@ -99,8 +100,6 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	private BenutzerRepository benutzerRepository;
-	@Autowired
-	private VerwaltungseinheitRepository verwaltungseinheitRepository;
 
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
@@ -135,7 +134,7 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 				OrganisationsArt.BUNDESLAND)
 			.build();
 		Benutzer testBenutzer = new Benutzer(Name.of("AlterTestus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			testGebietskoerperschaft, Mailadresse.of("gueltige@emailadresse.de"), ServiceBwId.of("Some ID"),
+			testGebietskoerperschaft, Mailadresse.of("gueltigeEmailAdresse@testRadvis.de"), ServiceBwId.of("Some ID"),
 			Set.of(Rolle.RADVIS_ADMINISTRATOR));
 
 		testGebietskoerperschaft = gebietskoerperschaftRepository.save(testGebietskoerperschaft);
@@ -192,19 +191,19 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		// benutzer - Nur der Kreiskoordinator soll eine Mail erhalten
 		// zuständige Admins
 		Benutzer kreiskoodinator = new Benutzer(Name.of("Kreis"), Name.of("Koordinator"), BenutzerStatus.AKTIV,
-			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@radvis.de"),
+			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"), Set.of(Rolle.KREISKOORDINATOREN));
 		// andere Admins
 		Benutzer radvisAdmin = new Benutzer(Name.of("Radvis"), Name.of("Admin"), BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("admin@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("admin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		Benutzer nichtZustaendigKreiskoodinator = new Benutzer(Name.of("anderer"), Name.of("kreiskoodrinator"),
 			BenutzerStatus.AKTIV,
-			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@radvis.de"),
+			andereKreisOrganisation, Mailadresse.of("anderer.kreiskoodinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130005"), Set.of(Rolle.KREISKOORDINATOREN));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		benutzerRepository.saveAll(List.of(
@@ -216,7 +215,7 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		String json = "{"
 			+ "	\"vorname\":\"Testus\","
 			+ "	\"nachname\":\"Testperson\","
-			+ "	\"email\":\"testus.testperson@test.de\","
+			+ "	\"email\":\"testus.testperson@testRadvis.de\","
 			+ "	\"organisation\":" + zustaendigeGemeindeOrganisation.getId() + ","
 			+ " \"rollen\" : [ \"RADWEGE_ERFASSERIN\" ]"
 			+ "}";
@@ -232,12 +231,18 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		assertThat(result)
 			.extracting("vorname", "nachname", "status", "organisation", "mailadresse", "serviceBwId")
 			.containsExactly(
-				Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV, zustaendigeGemeindeOrganisation,
-				Mailadresse.of("testus.testperson@test.de"),
+				Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.WARTE_AUF_FREISCHALTUNG,
+				zustaendigeGemeindeOrganisation,
+				Mailadresse.of("testus.testperson@testRadvis.de"),
 				ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"));
 
-		verify(mailService).sendMail(List.of("kreiskoordinator@radvis.de"), "Neuer Benutzer wurde angelegt",
-			"Der Benutzer 'Testus Testperson' wurde angelegt und wartet auf Freischaltung.");
+		String mailText = String.format(
+			"Der Benutzer 'Testus Testperson' wurde angelegt und wartet auf Freischaltung.\n" +
+				"Die Bearbeitung des Benutzers kann erfolgen unter " +
+				"http://localhost:8080/administration/benutzer/%s .", result.getId());
+
+		verify(mailService).sendMail(List.of("kreiskoordinator@testRadvis.de"), "Neuer Benutzer wurde angelegt",
+			mailText);
 
 		assertThat(result.getRollen()).containsExactly(Rolle.RADWEGE_ERFASSERIN);
 	}
@@ -265,15 +270,15 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 
 		// zuständige Admins
 		Benutzer kreiskoodinator = new Benutzer(Name.of("Kreis"), Name.of("Koordinator"), BenutzerStatus.AKTIV,
-			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@radvis.de"),
+			zustaendigeKreisOrganisation, Mailadresse.of("kreiskoordinator@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130002"), Set.of(Rolle.KREISKOORDINATOREN));
 		// andere Admins
 		Benutzer radvisAdmin = new Benutzer(Name.of("Radvis"), Name.of("Admin"), BenutzerStatus.AKTIV,
-			zustaendigeLandesOrganisation, Mailadresse.of("admin@radvis.de"),
+			zustaendigeLandesOrganisation, Mailadresse.of("admin@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130001"), Set.of(Rolle.RADVIS_ADMINISTRATOR));
 		// nicht zuständig sosntiges
 		Benutzer poweruser = new Benutzer(Name.of("Max"), Name.of("Power"), BenutzerStatus.AKTIV,
-			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@radvis.de"),
+			zustaendigeGemeindeOrganisation, Mailadresse.of("poweruser@testRadvis.de"),
 			ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130010"), Set.of(Rolle.EXTERNER_DIENSTLEISTER));
 
 		benutzerRepository.saveAll(List.of(
@@ -284,7 +289,7 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		String json = "{"
 			+ "	\"vorname\":\"Testus\","
 			+ "	\"nachname\":\"Testperson\","
-			+ "	\"email\":\"testus.testperson@test.de\","
+			+ "	\"email\":\"testus.testperson@testRadvis.de\","
 			+ "	\"organisation\":" + zustaendigeGemeindeOrganisation.getId() + ","
 			+ " \"rollen\" : [ \"RADVERKEHRSBEAUFTRAGTER\" ]"
 			+ "}";
@@ -300,12 +305,18 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		assertThat(result)
 			.extracting("vorname", "nachname", "status", "organisation", "mailadresse", "serviceBwId")
 			.containsExactly(
-				Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.INAKTIV, zustaendigeGemeindeOrganisation,
-				Mailadresse.of("testus.testperson@test.de"),
+				Name.of("Testus"), Name.of("Testperson"), BenutzerStatus.WARTE_AUF_FREISCHALTUNG,
+				zustaendigeGemeindeOrganisation,
+				Mailadresse.of("testus.testperson@testRadvis.de"),
 				ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"));
 
-		verify(mailService).sendMail(List.of("admin@radvis.de"), "Neuer Benutzer wurde angelegt",
-			"Der Benutzer 'Testus Testperson' wurde angelegt und wartet auf Freischaltung.");
+		String mailText = String.format(
+			"Der Benutzer 'Testus Testperson' wurde angelegt und wartet auf Freischaltung.\n" +
+				"Die Bearbeitung des Benutzers kann erfolgen unter " +
+				"http://localhost:8080/administration/benutzer/%s .", result.getId());
+
+		verify(mailService).sendMail(List.of("admin@testRadvis.de"), "Neuer Benutzer wurde angelegt",
+			mailText);
 
 		assertThat(result.getRollen()).containsExactly(Rolle.RADVERKEHRSBEAUFTRAGTER);
 	}

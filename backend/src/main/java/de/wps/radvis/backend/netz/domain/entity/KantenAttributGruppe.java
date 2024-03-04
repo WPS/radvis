@@ -19,13 +19,6 @@ import static org.valid4j.Assertive.require;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
@@ -33,6 +26,12 @@ import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -1,0 +1,85 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+<rad-import-step-layout>
+  <form [formGroup]="formGroup" class="form-group import-step-content">
+    <rad-enum-dropdown-control
+      formControlName="attributeImportFormat"
+      class="mt-10"
+      [options]="attributeImportFormatOptions"
+      [nullable]="false"
+      [errors]="formGroup.get('attributeImportFormat')?.errors"
+    >
+      Dateiformat
+    </rad-enum-dropdown-control>
+
+    <div class="mt-10 align-selft-start">
+      <rad-organisationen-dropdown-control
+        *ngIf="organisationen$ | async as organisationen; else smallSpinner"
+        formControlName="organisation"
+        [options]="organisationen"
+        [errors]="formGroup.get('organisation')?.errors"
+      >
+        Bereich auswählen
+      </rad-organisationen-dropdown-control>
+      <ng-template #smallSpinner>
+        <div class="display-flex">
+          <mat-spinner color="accent" diameter="28"></mat-spinner>
+          <div class="hinweis ml-5">Organisationen werden geladen...</div>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="display-flex flex-column align-items-center mt-10">
+      <div class="hinweis">Bitte laden Sie eine Shape mit allen Dateien als Zip-Archiv hoch</div>
+      <rad-file-upload-control
+        formControlName="file"
+        class="w-100"
+        dateiEndung="zip"
+        [maxFileSizeInMB]="300"
+        [errors]="formGroup.get('file')?.errors"
+      >
+        Shape auswählen
+      </rad-file-upload-control>
+    </div>
+    <div class="shape-transform-container mt-10">
+      <div class="hinweis">Hier können Sie eine Shape ins LUBW-Format überführen</div>
+      <button mat-stroked-button color="primary" (click)="onOpenShpTransformDialog()">Shape transformieren</button>
+    </div>
+  </form>
+  <div *ngIf="sessionExists" class="import-step-footer-message hinweis red flex-grow mt-10">
+    Es existiert bereits eine Import-Session<span *ngIf="!attributeSessionExists"> eines anderen Typs</span>. Brechen
+    Sie diese ab, um eine neue zu starten.
+  </div>
+  <div class="import-step-footer-buttons">
+    <button
+      [disabled]="!attributeSessionExists && formGroup.pristine && !uploadDatenVorhanden()"
+      mat-flat-button
+      color="primary"
+      class="abbrechen-button"
+      (click)="onAbort()"
+    >
+      Abbrechen
+    </button>
+    <button [disabled]="true" mat-flat-button color="primary">Zurück</button>
+    <button
+      [disabled]="!formGroup.valid && !attributeSessionExists"
+      mat-flat-button
+      color="primary"
+      (click)="onNext()"
+      class="weiter-button"
+    >
+      <span>Weiter</span>
+    </button>
+  </div>
+</rad-import-step-layout>

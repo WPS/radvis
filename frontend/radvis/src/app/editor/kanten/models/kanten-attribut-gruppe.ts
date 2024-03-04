@@ -21,11 +21,13 @@ import { IstStandard } from 'src/app/shared/models/ist-standard';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { VersionierteEntitaet } from 'src/app/shared/models/versionierte-entitaet';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 
 export interface KantenAttributGruppe extends VersionierteEntitaet {
   wegeNiveau: WegeNiveau | null;
   beleuchtung: Beleuchtung | null;
   umfeld: Umfeld;
+  strassenkategorieRIN: StrassenkategorieRIN | null;
   strassenquerschnittRASt06: StrassenquerschnittRASt06;
   laengeBerechnet: number;
   laengeManuellErfasst: number | null;

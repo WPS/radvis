@@ -130,12 +130,16 @@ public class MassnahmeGuard {
 	}
 
 	public void starteUmsetzungsstandsabfrage(Authentication authentication) {
-		assertUmsetzungsstandabfrageVerwalten(benutzerResolver.fromAuthentication(authentication));
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		if (!(benutzer.hatRecht(Recht.UMSETZUNGSSTANDSABFRAGEN_STARTEN))) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt Umsetzungsstandsabfragen zu starten.");
+		}
 	}
 
-	private void assertUmsetzungsstandabfrageVerwalten(Benutzer aktiverBenutzer) {
-		if (!(aktiverBenutzer.hatRecht(Recht.UMSETZUNGSSTANDSABFRAGEN_VERWALTEN))) {
-			throw new AccessDeniedException("Sie sind nicht berechtigt Umsetzungsstandsabfragen zu verwalten.");
+	public void getUmsetzungsstandAuswertung(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		if (!(benutzer.hatRecht(Recht.UMSETZUNGSSTANDSABFRAGEN_AUSWERTEN))) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt Umsetzungsstandsabfragen auszuwerten.");
 		}
 	}
 

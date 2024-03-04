@@ -25,8 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,6 +47,7 @@ import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
+import jakarta.persistence.EntityManager;
 
 class BuildRadNETZNetzViewCacheJobTest {
 

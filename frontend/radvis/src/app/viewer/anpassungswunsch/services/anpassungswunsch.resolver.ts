@@ -12,22 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { Anpassungswunsch } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch';
 import { AnpassungswunschService } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch.service';
 import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AnpassungswunschResolver implements Resolve<Anpassungswunsch> {
-  constructor(private anpassungswunscheService: AnpassungswunschService) {}
-
-  // eslint-disable-next-line no-unused-vars
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<Anpassungswunsch> {
-    const idFromRoute = route.parent?.paramMap.get('id');
-    invariant(idFromRoute);
-    return this.anpassungswunscheService.getAnpassungswunsch(+idFromRoute);
-  }
-}
+export const anpassungswunschResolver: ResolveFn<Anpassungswunsch> = (route, state) => {
+  const anpassungswunschService: AnpassungswunschService = inject(AnpassungswunschService);
+  const id = route.parent?.paramMap.get('id');
+  invariant(id, 'Anpassungswunsch-ID muss als Parameter id an der Route gesetzt sein.');
+  return anpassungswunschService.getAnpassungswunsch(+id);
+};

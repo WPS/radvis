@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Coordinate } from 'ol/coordinate';
 import { Extent } from 'ol/extent';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -28,9 +28,9 @@ export class KoordinatenSucheComponent {
   @Output()
   public koordinateSuche = new EventEmitter<{ coordinate: Coordinate; extent?: Extent }>();
 
-  public coordinateInputFormGroup = new FormGroup({
-    ost: new FormControl(''),
-    nord: new FormControl(''),
+  public coordinateInputFormGroup = new UntypedFormGroup({
+    ost: new UntypedFormControl(''),
+    nord: new UntypedFormControl(''),
   });
 
   constructor(private notifyUserService: NotifyUserService) {}

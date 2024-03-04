@@ -11,26 +11,23 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { CanDeactivate } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import {
   ConfirmationDialogComponent,
   QuestionYesNo,
 } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 
-export interface DiscardGuard {
-  canDiscard: () => boolean;
-}
-
-@Injectable({ providedIn: 'root' })
-export class DiscardGuardService implements CanDeactivate<DiscardGuard> {
+@Injectable({
+  providedIn: 'root',
+})
+export class DiscardGuardService {
   constructor(private dialog: MatDialog) {}
 
-  canDeactivate(guard: DiscardGuard): Observable<boolean> {
-    const canDiscard = guard.canDiscard.bind(guard);
+  public canDeactivate(component: DiscardableComponent): Observable<boolean> {
+    const canDiscard = component.canDiscard.bind(component);
     if (canDiscard()) {
       return of(true);
     }

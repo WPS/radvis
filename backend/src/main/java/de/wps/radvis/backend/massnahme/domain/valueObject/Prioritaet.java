@@ -33,8 +33,7 @@ public class Prioritaet {
 	private final int value;
 
 	private Prioritaet(int value) {
-		require(value > 0, "Vorbedingung nicht erfüllt: value > 0, value: " + value);
-		require(value <= 10, "Vorbedingung nicht erfüllt: value <= 10, value: " + value);
+		require(isValid(value), "Vorbedingung nicht erfüllt: value > 0 && value <= 10, value: " + value);
 		this.value = value;
 	}
 
@@ -52,4 +51,17 @@ public class Prioritaet {
 		return new Prioritaet(Integer.parseInt(value));
 	}
 
+	public static boolean isValid(String value) {
+		int i;
+		try {
+			i = Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return isValid(i);
+	}
+
+	public static boolean isValid(int value) {
+		return value > 0 && value <= 10;
+	}
 }

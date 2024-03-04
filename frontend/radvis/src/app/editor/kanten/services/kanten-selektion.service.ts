@@ -21,18 +21,18 @@ import { Kante } from 'src/app/editor/kanten/models/kante';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
 import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
-import { DiscardGuard, DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service';
 import invariant from 'tiny-invariant';
 
-// provided in component
 @Injectable({ providedIn: 'root' })
 export class KantenSelektionService {
   selektierteKanten$: Observable<Kante[]>;
   selektion$: Observable<KantenSelektion[]>;
 
   private selektionSubject = new BehaviorSubject<KantenSelektion[]>([]);
-  private discardGuard: DiscardGuard | null = null;
+  private discardableComponent: DiscardableComponent | null = null;
   private activeAttributGruppe: AttributGruppe | null = null;
 
   constructor(
@@ -57,8 +57,8 @@ export class KantenSelektionService {
     return this.selektionSubject.value;
   }
 
-  public registerForDiscardGuard(guard: DiscardGuard): void {
-    this.discardGuard = guard;
+  public registerForDiscardGuard(discardableComponent: DiscardableComponent): void {
+    this.discardableComponent = discardableComponent;
   }
 
   public select(kanteId: number, additiv: boolean, seitenbezug?: Seitenbezug, segmentIndex?: number): void {
@@ -159,12 +159,12 @@ export class KantenSelektionService {
   }
 
   public canDiscard(): boolean {
-    return this.discardGuard ? this.discardGuard.canDiscard() : true;
+    return this.discardableComponent ? this.discardableComponent.canDiscard() : true;
   }
 
   private canDeactivate(): Promise<boolean> {
-    if (this.discardGuard) {
-      return this.discardGuardService.canDeactivate(this.discardGuard).toPromise();
+    if (this.discardableComponent) {
+      return (this.discardGuardService.canDeactivate(this.discardableComponent) as Observable<boolean>).toPromise();
     }
     return Promise.resolve(true);
   }

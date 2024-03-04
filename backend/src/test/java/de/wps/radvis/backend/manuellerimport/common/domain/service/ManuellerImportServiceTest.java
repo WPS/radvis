@@ -14,19 +14,15 @@
 
 package de.wps.radvis.backend.manuellerimport.common.domain.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
@@ -82,21 +78,4 @@ class ManuellerImportServiceTest {
 		// Assert
 		verify(importSessionRepository).save(importSession);
 	}
-
-	@Test
-	public void findImportSessionFromBenutzer() {
-		// Arrange
-		final var benutzer = mock(Benutzer.class);
-		final var importSession = mock(AbstractImportSession.class);
-
-		final var expectedResult = Optional.of(importSession);
-		when(importSessionRepository.find(benutzer)).thenReturn(expectedResult);
-
-		// Act
-		final var result = manuellerImportService.findImportSessionFromBenutzer(benutzer);
-
-		// Assert
-		assertThat(result).isEqualTo(expectedResult);
-	}
-
 }

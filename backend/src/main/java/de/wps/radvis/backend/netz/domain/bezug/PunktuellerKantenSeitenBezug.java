@@ -17,11 +17,6 @@ package de.wps.radvis.backend.netz.domain.bezug;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -31,6 +26,10 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

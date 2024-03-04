@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
 import jakarta.validation.constraints.NotNull;
-
 import lombok.Builder;
 
 @Builder

@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstatus;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class ZaehlstatusUserType implements AttributeConverter<Zaehlstatus, Integer> {
 
 	@Override

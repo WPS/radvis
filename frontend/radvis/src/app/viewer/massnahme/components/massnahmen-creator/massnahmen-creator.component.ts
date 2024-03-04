@@ -13,20 +13,23 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { AbstractControl, FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { Durchfuehrungszeitraum } from 'src/app/shared/models/durchfuehrungszeitraum';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
+import { convertVerwaltungseinheitToAutocompleteOption } from 'src/app/shared/services/option-converter';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { CreateMassnahmeCommand } from 'src/app/viewer/massnahme/models/create-massnahme-command';
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
-import { Massnahmenkategorien, MASSNAHMENKATEGORIEN } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
+import { MASSNAHMENKATEGORIEN, Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
@@ -39,11 +42,11 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   styleUrls: ['./massnahmen-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MassnahmenCreatorComponent implements OnDestroy, DiscardGuard {
-  public formGroup: FormGroup;
+export class MassnahmenCreatorComponent implements OnDestroy, DiscardableComponent {
+  public formGroup: UntypedFormGroup;
   public umsetzungsstatusOptions = Umsetzungsstatus.options;
   public massnahmenkategorieOptions = MASSNAHMENKATEGORIEN;
-  public alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
+  public alleOrganisationenOptions: Observable<AutoCompleteOption[]>;
   public sollStandardOptions = SollStandard.options;
   public handlungsverantwortlicherOptions = Handlungsverantwortlicher.options;
   public konzeptionsquelleOptions = Konzeptionsquelle.options;
@@ -62,29 +65,40 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardGuard {
     private massnahmeService: MassnahmeService,
     private changeDetectorRef: ChangeDetectorRef,
     private notifyUserService: NotifyUserService,
-    private massnahmeFilterService: MassnahmeFilterService
+    private massnahmeFilterService: MassnahmeFilterService,
+    private benutzerDetailsService: BenutzerDetailsService
   ) {
-    this.formGroup = new FormGroup({
-      netzbezug: new FormControl(null),
-      umsetzungsstatus: new FormControl(Umsetzungsstatus.IDEE),
-      massnahmenkategorien: new FormControl(
+    this.formGroup = new UntypedFormGroup({
+      netzbezug: new UntypedFormControl(null),
+      umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE),
+      massnahmenkategorien: new UntypedFormControl(
         [],
         [Massnahmenkategorien.isValidMassnahmenKategorienCombination, RadvisValidators.isNotEmpty]
       ),
-      bezeichnung: new FormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
-      veroeffentlicht: new FormControl(false),
-      planungErforderlich: new FormControl(false),
-      durchfuehrungszeitraum: new FormControl(null, [
+      bezeichnung: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
+      veroeffentlicht: new UntypedFormControl(false),
+      planungErforderlich: new UntypedFormControl(false),
+      durchfuehrungszeitraum: new UntypedFormControl(null, [
         RadvisValidators.isPositiveInteger,
         RadvisValidators.between(2000, 3000),
       ]),
-      baulastZustaendiger: new FormControl(null),
-      sollStandard: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-      handlungsverantwortlicher: new FormControl(null),
-      konzeptionsquelle: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
-      sonstigeKonzeptionsquelle: new FormControl(null),
+      baulastZustaendiger: new UntypedFormControl(null),
+      zustaendiger: new FormControl<AutoCompleteOption | null>(
+        this.getAktuellerBenutzerOrganisationAutoCompleteOption(),
+        RadvisValidators.isNotNullOrEmpty
+      ),
+      sollStandard: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      handlungsverantwortlicher: new UntypedFormControl(null),
+      konzeptionsquelle: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      sonstigeKonzeptionsquelle: new UntypedFormControl(null),
     });
-    this.alleOrganisationenOptions = organisationenService.getOrganisationen();
+    this.alleOrganisationenOptions = organisationenService
+      .getAlleOrganisationen()
+      .pipe(
+        map(verwaltungseinheiten =>
+          verwaltungseinheiten.map(value => convertVerwaltungseinheitToAutocompleteOption(value))
+        )
+      );
 
     this.subscriptions.push(
       (this.formGroup.get('umsetzungsstatus') as AbstractControl).valueChanges.subscribe(
@@ -110,6 +124,7 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardGuard {
     this.formGroup.get('veroeffentlicht')?.setValue(false);
     this.formGroup.get('planungErforderlich')?.setValue(false);
     this.formGroup.get('massnahmenkategorien')?.setValue([]);
+    this.formGroup.get('zustaendiger')?.setValue(this.getAktuellerBenutzerOrganisationAutoCompleteOption());
   }
 
   onSave(): void {
@@ -138,6 +153,7 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardGuard {
       planungErforderlich: this.formGroup.get('planungErforderlich')?.value || false,
       durchfuehrungszeitraum,
       baulastZustaendigerId: this.formGroup.get('baulastZustaendiger')?.value?.id || null,
+      zustaendigerId: this.formGroup.get('zustaendiger')?.value.id,
       sollStandard: this.formGroup.get('sollStandard')?.value,
       handlungsverantwortlicher: this.formGroup.get('handlungsverantwortlicher')?.value,
       konzeptionsquelle: this.formGroup.get('konzeptionsquelle')?.value,
@@ -170,6 +186,13 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardGuard {
 
   sonstigeKonzeptionsquelle(): boolean {
     return this.formGroup.get('konzeptionsquelle')?.value === Konzeptionsquelle.SONSTIGE;
+  }
+
+  private getAktuellerBenutzerOrganisationAutoCompleteOption(): AutoCompleteOption | null {
+    const aktuellerBenutzerOrganisation = this.benutzerDetailsService.aktuellerBenutzerOrganisation();
+    return aktuellerBenutzerOrganisation
+      ? convertVerwaltungseinheitToAutocompleteOption(aktuellerBenutzerOrganisation)
+      : null;
   }
 
   private onUmsetzungsstatusChanged = (newValue: Umsetzungsstatus): void => {

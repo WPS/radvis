@@ -16,6 +16,7 @@ import { Servicestation } from 'src/app/viewer/servicestation/models/servicestat
 import { defaultGemeinden } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 export const defaultServicestation: Servicestation = {
   name: 'Meine Servicestation',
@@ -38,4 +39,5 @@ export const defaultServicestation: Servicestation = {
   id: 1,
   version: 1,
   darfBenutzerBearbeiten: true,
+  quellSystem: ServicestationQuellSystem.RADVIS,
 };

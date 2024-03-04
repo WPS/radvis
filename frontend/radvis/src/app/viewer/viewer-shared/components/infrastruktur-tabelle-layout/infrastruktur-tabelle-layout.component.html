@@ -26,7 +26,9 @@
   <ng-content select=".action-search"></ng-content>
 </div>
 
-<ng-template #contentTpl><ng-content select=".action-buttons"></ng-content></ng-template>
+<ng-template #contentTpl>
+  <ng-content select=".action-buttons"></ng-content>
+</ng-template>
 
 <div class="table-wrapper">
   <table mat-table [dataSource]="dataSource" class="infrastruktur-tabelle-layout">
@@ -64,12 +66,12 @@
     ></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" [attr.colspan]="displayedColumnsWithEdit.length">
-        <div *ngIf="fetching" class="display-flex align-items-center mt-10 mb-10">
+        <div *ngIf="fetching" class="display-flex align-items-center p-10">
           <mat-spinner color="primary" class="mr-10" diameter="24"></mat-spinner>
           Daten werden geladen...
         </div>
 
-        <div *ngIf="!fetching" class="mt-10 mb-10">Keine Daten gefunden.</div>
+        <div *ngIf="!fetching" class="mt-10 mb-10 ml-10"><i>Keine Daten gefunden.</i></div>
       </td>
     </tr>
   </table>

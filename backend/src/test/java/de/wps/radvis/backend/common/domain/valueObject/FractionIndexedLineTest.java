@@ -43,9 +43,12 @@ class FractionIndexedLineTest {
 		FractionIndexedLine fractionIndexedLine = new FractionIndexedLine(lineStringWGS84);
 
 		assertThat(fractionIndexedLine.getFractionAtIndex(0)).isEqualTo(0, Offset.offset(0.0000001));
-		assertThat(fractionIndexedLine.getFractionAtIndex(1)).isEqualTo(141.421356 / lineStringUtm32.getLength(), Offset.offset(0.0000001));
-		assertThat(fractionIndexedLine.getFractionAtIndex(2)).isEqualTo(241.421356 / lineStringUtm32.getLength(), Offset.offset(0.0000001));
-		assertThat(fractionIndexedLine.getFractionAtIndex(3)).isEqualTo(341.421356 / lineStringUtm32.getLength(), Offset.offset(0.0000001));
+		assertThat(fractionIndexedLine.getFractionAtIndex(1)).isEqualTo(141.421356 / lineStringUtm32.getLength(),
+			Offset.offset(0.0000001));
+		assertThat(fractionIndexedLine.getFractionAtIndex(2)).isEqualTo(241.421356 / lineStringUtm32.getLength(),
+			Offset.offset(0.0000001));
+		assertThat(fractionIndexedLine.getFractionAtIndex(3)).isEqualTo(341.421356 / lineStringUtm32.getLength(),
+			Offset.offset(0.0000001));
 
 	}
 
@@ -63,9 +66,12 @@ class FractionIndexedLineTest {
 		FractionIndexedLine fractionIndexedLine = new FractionIndexedLine(lineStringUtm32);
 
 		assertThat(fractionIndexedLine.getFractionAtIndex(0)).isEqualTo(0, Offset.offset(0.0000001));
-		assertThat(fractionIndexedLine.getFractionAtIndex(1)).isEqualTo(141.421356 / lineStringUtm32.getLength(), Offset.offset(0.0000001));
-		assertThat(fractionIndexedLine.getFractionAtIndex(2)).isEqualTo(241.421356 / lineStringUtm32.getLength(), Offset.offset(0.0000001));
-		assertThat(fractionIndexedLine.getFractionAtIndex(3)).isEqualTo(341.421356 / lineStringUtm32.getLength(), Offset.offset(0.0000001));
+		assertThat(fractionIndexedLine.getFractionAtIndex(1)).isEqualTo(141.421356 / lineStringUtm32.getLength(),
+			Offset.offset(0.0000001));
+		assertThat(fractionIndexedLine.getFractionAtIndex(2)).isEqualTo(241.421356 / lineStringUtm32.getLength(),
+			Offset.offset(0.0000001));
+		assertThat(fractionIndexedLine.getFractionAtIndex(3)).isEqualTo(341.421356 / lineStringUtm32.getLength(),
+			Offset.offset(0.0000001));
 
 	}
 

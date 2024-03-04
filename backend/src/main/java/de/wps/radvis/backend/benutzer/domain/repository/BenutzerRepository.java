@@ -33,7 +33,9 @@ public interface BenutzerRepository extends CrudRepository<Benutzer, Long>, Cust
 	List<Benutzer> findByOrganisationAndStatus(Verwaltungseinheit verwaltungseinheit,
 		BenutzerStatus benutzerStatus);
 
-	List<Benutzer> findByRollenAndStatus(Rolle radvisAdministrator, BenutzerStatus benutzerStatus);
+	List<Benutzer> findByStatusAndRollenIsNotContaining(BenutzerStatus benutzerStatus, Rolle rolle);
+
+	List<Benutzer> findByRollenAndStatus(Rolle rolle, BenutzerStatus benutzerStatus);
 
 	List<Benutzer> findByOrganisationAndRollen(Verwaltungseinheit verwaltungseinheit, Rolle rolle);
 }

@@ -1,0 +1,73 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div mat-dialog-title>
+  <div class="display-flex justify-content-space-between">
+    <div>Verwaltung Zugangsdaten</div>
+    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" mat-dialog-close="true" mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div mat-dialog-content class="content">
+  <div class="beschreibung">
+    Sie können Zugangsdaten für die Anbindung Ihrer GIS-Anwendung an die WFS-/WMS-Schnittstelle generieren, um dort
+    Daten aus RadVIS anzuzeigen.
+  </div>
+  <div class="beschreibung">
+    <div>Bitte geben Sie diese Zugangsdaten nicht an Dritte weiter.</div>
+  </div>
+
+  <table class="credentials-table">
+    <tr>
+      <td class="label-cell">Benutzername:</td>
+      <td class="value-cell">{{ benutzername }}</td>
+    </tr>
+    <tr *ngIf="passwort">
+      <td class="label-cell">Passwort:</td>
+      <td class="value-cell">
+        {{ passwort }}
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="In die Zwischenablage kopieren"
+          [cdkCopyToClipboard]="passwort"
+          (click)="onCopyButtonClicked()"
+        >
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </td>
+    </tr>
+    <tr *ngIf="!passwort && !isGeneratingPasswort">
+      <td colspan="2" class="label-cell">Das Passwort kann nach dem Generieren nicht wieder eingesehen werden.</td>
+    </tr>
+  </table>
+
+  <mat-spinner *ngIf="isGeneratingPasswort" diameter="45" class="generating-passwort-spinner"></mat-spinner>
+
+  <div *ngIf="passwort" class="hinweis">
+    Notieren Sie sich Ihr generiertes Passwort sorgfältig. Es kann später nicht wieder eingesehen oder wiederhergestellt
+    werden.
+  </div>
+
+  <div class="handbuch-verweis">
+    Weitere Informationen zur Schnittstelle finden Sie im
+    <a href="javascript:void(0);" (click)="openHandbuchSchnittstelleWmsWfs()">Handbuch</a>.
+  </div>
+
+  <div class="button-section">
+    <button mat-raised-button color="primary" (click)="onGenerateZugangsdaten()">Zugangsdaten generieren</button>
+  </div>
+</div>

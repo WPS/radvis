@@ -22,6 +22,7 @@ import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstel
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
 import { BehaviorSubject } from 'rxjs';
 import { Infrastruktur } from 'src/app/viewer/viewer-shared/models/infrastruktur';
@@ -66,9 +67,9 @@ describe(AbstellanlageFilterService.name, () => {
           organisationsArt: OrganisationsArt.GEMEINDE,
         } as Verwaltungseinheit,
         quellSystem: AbstellanlagenQuellSystem.MOBIDATABW,
-        stellplatzart: Stellplatzart.DOPPELSTOECKIG,
-        istBikeAndRide: true,
         anzahlStellplaetze: 123,
+        abstellanlagenOrt: AbstellanlagenOrt.BIKE_AND_RIDE,
+        stellplatzart: Stellplatzart.DOPPELSTOECKIG,
       } as Abstellanlage;
     });
 
@@ -90,6 +91,12 @@ describe(AbstellanlageFilterService.name, () => {
       );
     });
 
+    it('should get abstellanlagenOrt via key correctly', () => {
+      expect(service.getInfrastrukturValueForKey(abstellanlage, 'abstellanlagenOrt')).toEqual(
+        AbstellanlagenOrt.getDisplayText(abstellanlage.abstellanlagenOrt)
+      );
+    });
+
     it('should get groessenklasse via key correctly', () => {
       expect(service.getInfrastrukturValueForKey(abstellanlage, 'groessenklasse')).toEqual('');
     });
@@ -98,10 +105,6 @@ describe(AbstellanlageFilterService.name, () => {
       expect(service.getInfrastrukturValueForKey(abstellanlage, 'stellplatzart')).toEqual(
         Stellplatzart.getDisplayText(abstellanlage.stellplatzart)
       );
-    });
-
-    it('should get istBikeAndRide via key correctly', () => {
-      expect(service.getInfrastrukturValueForKey(abstellanlage, 'istBikeAndRide')).toEqual('ja');
     });
 
     it('should get anzahlStellplaetze via key correctly', () => {

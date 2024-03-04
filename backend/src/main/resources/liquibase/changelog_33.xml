@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
   <changeSet id="RAD-3407" author="par">
     <createTable tableName="fahrradroute_profil_eigenschaften">
       <column name="fahrradroute_id" type="BIGINT"/>
@@ -27,11 +27,11 @@
       <column name="bis" type="FLOAT8"/>
     </createTable>
     <addForeignKeyConstraint
-      baseTableName="fahrradroute_profil_eigenschaften"
-      baseColumnNames="fahrradroute_id"
-      constraintName="fk_fahrradroute_profil_eigenschaften"
-      referencedTableName="fahrradroute"
-      referencedColumnNames="id"/>
+			baseTableName="fahrradroute_profil_eigenschaften"
+			baseColumnNames="fahrradroute_id"
+			constraintName="fk_fahrradroute_profil_eigenschaften"
+			referencedTableName="fahrradroute"
+			referencedColumnNames="id"/>
   </changeSet>
   <changeSet id="RAD-4122" author="par">
     <createTable tableName="fahrradroute_variante_profil_eigenschaften">
@@ -43,19 +43,19 @@
       <column name="bis" type="FLOAT8"/>
     </createTable>
     <addForeignKeyConstraint
-      baseTableName="fahrradroute_variante_profil_eigenschaften"
-      baseColumnNames="fahrradroute_variante_id"
-      constraintName="fk_fahrradroute_variante_profil_eigenschaften"
-      referencedTableName="fahrradroute_variante"
-      referencedColumnNames="id"/>
+			baseTableName="fahrradroute_variante_profil_eigenschaften"
+			baseColumnNames="fahrradroute_variante_id"
+			constraintName="fk_fahrradroute_variante_profil_eigenschaften"
+			referencedTableName="fahrradroute_variante"
+			referencedColumnNames="id"/>
     <createIndex
-      tableName="fahrradroute_variante_profil_eigenschaften"
-      indexName="idx_fahrradroute_variante_profil_eigenschaften_fahrradroute_variante_id">
+			tableName="fahrradroute_variante_profil_eigenschaften"
+			indexName="idx_fahrradroute_variante_profil_eigenschaften_fahrradroute_variante_id">
       <column name="fahrradroute_variante_id"/>
     </createIndex>
     <createIndex
-      tableName="fahrradroute_profil_eigenschaften"
-      indexName="idx_fahrradroute_profil_eigenschaften_fahrradroute_id">
+			tableName="fahrradroute_profil_eigenschaften"
+			indexName="idx_fahrradroute_profil_eigenschaften_fahrradroute_id">
       <column name="fahrradroute_id"/>
     </createIndex>
   </changeSet>
@@ -82,7 +82,7 @@
     <createTable tableName="fahrradroute_netz_bezug_aenderung">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="fahrradroute_netz_bezug_aenderung_pkey"/>
+					primaryKeyName="fahrradroute_netz_bezug_aenderung_pkey"/>
       </column>
       <column name="netz_bezug_aenderungs_art" type="VARCHAR(255)">
         <constraints nullable="false"/>
@@ -106,43 +106,45 @@
     </createTable>
 
     <addForeignKeyConstraint baseTableName="fahrradroute_netz_bezug_aenderung" baseColumnNames="fahrradroute_id"
-      constraintName="fk_fahrradroute_netz_bezug_aenderung_massnahme_id"
-      referencedTableName="fahrradroute"
-      referencedColumnNames="id"/>
-    <createIndex tableName="fahrradroute_netz_bezug_aenderung" indexName="fk_fahrradroute_netz_bezug_aenderung_massnahme_idx">
+			constraintName="fk_fahrradroute_netz_bezug_aenderung_massnahme_id"
+			referencedTableName="fahrradroute"
+			referencedColumnNames="id"/>
+    <createIndex tableName="fahrradroute_netz_bezug_aenderung"
+			indexName="fk_fahrradroute_netz_bezug_aenderung_massnahme_idx">
       <column name="fahrradroute_id"/>
     </createIndex>
     <addForeignKeyConstraint baseTableName="fahrradroute_netz_bezug_aenderung" baseColumnNames="benutzer_id"
-      constraintName="fk_fahrradroute_netz_bezug_aenderung_benutzer_id"
-      referencedTableName="benutzer"
-      referencedColumnNames="id"/>
-    <createIndex tableName="fahrradroute_netz_bezug_aenderung" indexName="fk_fahrradroute_netz_bezug_aenderung_benutzer_idx">
+			constraintName="fk_fahrradroute_netz_bezug_aenderung_benutzer_id"
+			referencedTableName="benutzer"
+			referencedColumnNames="id"/>
+    <createIndex tableName="fahrradroute_netz_bezug_aenderung"
+			indexName="fk_fahrradroute_netz_bezug_aenderung_benutzer_idx">
       <column name="benutzer_id"/>
     </createIndex>
   </changeSet>
   <changeSet id="RAD-755" author="kho, tr, mw">
     <createTable tableName="manueller_import_fehler">
-      <column name="id" type="BIGINT" />
-      <column name="kante_id" type="BIGINT" />
-      <column name="original_geometrie" type="GEOMETRY" />
-      <column name="import_typ" type="VARCHAR(255)" />
-      <column name="import_zeitpunkt" type="timestamp" />
-      <column name="benutzer_id" type="BIGINT" />
-      <column name="organisation_id" type="BIGINT" />
-      <column name="fehlerursache" type="VARCHAR(255)" />
+      <column name="id" type="BIGINT"/>
+      <column name="kante_id" type="BIGINT"/>
+      <column name="original_geometrie" type="GEOMETRY"/>
+      <column name="import_typ" type="VARCHAR(255)"/>
+      <column name="import_zeitpunkt" type="timestamp"/>
+      <column name="benutzer_id" type="BIGINT"/>
+      <column name="organisation_id" type="BIGINT"/>
+      <column name="fehlerursache" type="VARCHAR(255)"/>
     </createTable>
     <createTable tableName="manueller_import_fehler_konflikt">
-      <column name="von" type="FLOAT8" />
-      <column name="bis" type="FLOAT8" />
-      <column name="attribut_name" type="VARCHAR(255)" />
-      <column name="uebernommener_wert" type="VARCHAR(255)" />
-      <column name="nicht_uebernommene_werte" type="text" />
-      <column name="manueller_import_fehler_id" type="BIGINT" />
+      <column name="von" type="FLOAT8"/>
+      <column name="bis" type="FLOAT8"/>
+      <column name="attribut_name" type="VARCHAR(255)"/>
+      <column name="uebernommener_wert" type="VARCHAR(255)"/>
+      <column name="nicht_uebernommene_werte" type="text"/>
+      <column name="manueller_import_fehler_id" type="BIGINT"/>
     </createTable>
   </changeSet>
   <changeSet id="RAD-4096" author="par+mr">
 	  <addColumn tableName="rev_info">
-			<column name="job_execution_description_id" type="BIGINT" />
+			<column name="job_execution_description_id" type="BIGINT"/>
 		</addColumn>
   </changeSet>
   <changeSet id="RAD-4269" author="mr">
@@ -151,15 +153,15 @@
 	<addForeignKeyConstraint
 		constraintName="fk_manueller_import_fehler_kante"
 		referencedTableName="kante" baseColumnNames="kante_id"
-		baseTableName="manueller_import_fehler" referencedColumnNames="id" />
+		baseTableName="manueller_import_fehler" referencedColumnNames="id"/>
 	<addForeignKeyConstraint
 		constraintName="fk_manueller_import_fehler_benutzer"
 		referencedTableName="benutzer" baseColumnNames="benutzer_id"
-		baseTableName="manueller_import_fehler" referencedColumnNames="id" />		
+		baseTableName="manueller_import_fehler" referencedColumnNames="id"/>
 	<addForeignKeyConstraint
 		constraintName="fk_manueller_import_fehler_organisation"
 		referencedTableName="organisation" baseColumnNames="organisation_id"
-		baseTableName="manueller_import_fehler" referencedColumnNames="id" />
+		baseTableName="manueller_import_fehler" referencedColumnNames="id"/>
 	<createIndex tableName="manueller_import_fehler"
 		indexName="organisation_typ_zeitpunkt_idx">
 		<column name="organisation_id"></column>
@@ -196,79 +198,79 @@ WHERE knt.quelle = 'DLM'
 
   <changeSet id="RAD-2718" author="mr und kho">
     <createIndex tableName="rev_info" indexName="id_idx">
-      <column name="id" />
+      <column name="id"/>
     </createIndex>
     <createIndex tableName="rev_info" indexName="job_execution_description_id_idx">
-      <column name="job_execution_description_id" />
+      <column name="job_execution_description_id"/>
     </createIndex>
 
     <createIndex tableName="fahrradroute_aud" indexName="id_rev_idx">
-      <column name="id" />
-      <column name="rev" />
+      <column name="id"/>
+      <column name="rev"/>
     </createIndex>
     <createIndex tableName="fahrradroute_aud" indexName="netzbezug_revtype_idx">
-      <column name="revtype" />
+      <column name="revtype"/>
     </createIndex>
   </changeSet>
 
-  <!-- Diese Tabelle benoetigt der Geoserver, um Feature-IDs aus den Primary Keys der DB zu holen -->
-  <!-- Siehe auch https://docs.geoserver.org/latest/en/user/data/database/primarykey.html -->
-  <changeSet id="RAD-4428" author="bw">
+	<!-- Diese Tabelle benoetigt der Geoserver, um Feature-IDs aus den Primary Keys der DB zu holen -->
+	<!-- Siehe auch https://docs.geoserver.org/latest/en/user/data/database/primarykey.html -->
+	<changeSet id="RAD-4428" author="bw">
     <createTable tableName="gt_pk_metadata">
       <column name="table_schema" type="VARCHAR(32)">
-        <constraints nullable="false" />
+        <constraints nullable="false"/>
       </column>
       <column name="table_name" type="VARCHAR(32)">
-        <constraints nullable="false" />
+        <constraints nullable="false"/>
       </column>
       <column name="pk_column" type="VARCHAR(32)">
-        <constraints nullable="false" />
+        <constraints nullable="false"/>
       </column>
       <column name="pk_column_idx" type="INTEGER">
-        <constraints nullable="true" />
+        <constraints nullable="true"/>
       </column>
       <column name="pk_policy" type="VARCHAR(32)">
-        <constraints nullable="true" />
+        <constraints nullable="true"/>
       </column>
       <column name="pk_sequence" type="VARCHAR(64)">
-        <constraints nullable="true" />
+        <constraints nullable="true"/>
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="gt_pk_metadata"
-      columnNames="table_schema, table_name, pk_column" />
+			tableName="gt_pk_metadata"
+			columnNames="table_schema, table_name, pk_column"/>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_fahrradroute_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_fahrradroute_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
 
   <changeSet id="RAD-4428-weitere-metadaten" author="bw">
     <modifyDataType
-      columnName="table_name"
-      newDataType="varchar(256)"
-      schemaName="public"
-      tableName="gt_pk_metadata" />
+			columnName="table_name"
+			newDataType="varchar(256)"
+			schemaName="public"
+			tableName="gt_pk_metadata"/>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_fahrradroute_import_diff_materialized_view" />
-      <column name="pk_column" value="job_id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_fahrradroute_import_diff_materialized_view"/>
+      <column name="pk_column" value="job_id"/>
     </insert>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_massnahme_lines_view" />
-      <column name="pk_column" value="radvis_id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_massnahme_lines_view"/>
+      <column name="pk_column" value="radvis_id"/>
     </insert>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_massnahme_points_view" />
-      <column name="pk_column" value="radvis_id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_massnahme_points_view"/>
+      <column name="pk_column" value="radvis_id"/>
     </insert>
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_radnetz_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_radnetz_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
 
@@ -282,12 +284,12 @@ WHERE knt.quelle = 'DLM'
 			constraintName="fk_benutzer_letzte_aenderung_id"
 			referencedTableName="benutzer"
 			baseColumnNames="benutzer_letzte_aenderung_id"
-			baseTableName="anpassungswunsch" referencedColumnNames="id" />
+			baseTableName="anpassungswunsch" referencedColumnNames="id"/>
 		<addForeignKeyConstraint
 			constraintName="fk_verantwortliche_organisation_id"
 			referencedTableName="organisation"
 			baseColumnNames="verantwortliche_organisation_id"
-			baseTableName="anpassungswunsch" referencedColumnNames="id" />
+			baseTableName="anpassungswunsch" referencedColumnNames="id"/>
 	</changeSet>
 	<changeSet id="RAD-4220-2" author="mr">
 	<sql>
@@ -310,20 +312,20 @@ WHERE knt.quelle = 'DLM'
 			constraintName="fk_anpassungswunsch_kommentarliste"
 			referencedTableName="kommentar_liste"
 			baseColumnNames="kommentar_liste_id" baseTableName="anpassungswunsch"
-			referencedColumnNames="id" />
+			referencedColumnNames="id"/>
 	</changeSet>
   <changeSet id="RAD-4209" author="par">
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_radvisnetz_kante_materialized_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_radvisnetz_kante_materialized_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
   <changeSet id="RAD-4215_2" author="par">
     <insert tableName="gt_pk_metadata">
-      <column name="table_schema" value="public" />
-      <column name="table_name" value="geoserver_anpassungswunsch_view" />
-      <column name="pk_column" value="id" />
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_anpassungswunsch_view"/>
+      <column name="pk_column" value="id"/>
     </insert>
   </changeSet>
   <changeSet id="RAD-4490" author="mr">
@@ -352,7 +354,8 @@ WHERE knt.quelle = 'DLM'
     </sql>
   </changeSet>
   <changeSet id="RAD-4214_3" author="par">
-    <createIndex tableName="manueller_import_fehler_konflikt" indexName="manueller_import_fehler_konflikt_fehler_id_idx">
+    <createIndex tableName="manueller_import_fehler_konflikt"
+			indexName="manueller_import_fehler_konflikt_fehler_id_idx">
       <column name="manueller_import_fehler_id"/>
     </createIndex>
     <addColumn tableName="manueller_import_fehler">
@@ -365,9 +368,9 @@ WHERE knt.quelle = 'DLM'
   </changeSet>
   <changeSet id="RAD-4214_5" author="par">
      <insert tableName="gt_pk_metadata">
-       <column name="table_schema" value="public" />
-       <column name="table_name" value="geoserver_manueller_import_fehler_view" />
-       <column name="pk_column" value="id" />
+       <column name="table_schema" value="public"/>
+       <column name="table_name" value="geoserver_manueller_import_fehler_view"/>
+       <column name="pk_column" value="id"/>
      </insert>
   </changeSet>
 </databaseChangeLog>

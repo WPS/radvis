@@ -20,7 +20,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Collection, Feature, MapBrowserEvent } from 'ol';
 import { Geometry, LineString, Point } from 'ol/geom';
 import { ModifyEvent, ModifyEventType } from 'ol/interaction/Modify';
-import { of, Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { LineareReferenzierungLayerComponent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
@@ -622,7 +622,7 @@ describe('LineareReferenzierungLayerComponent - embedded', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatures(): Feature<Geometry>[] {
   const firstFeature = new Feature(
     new LineString([

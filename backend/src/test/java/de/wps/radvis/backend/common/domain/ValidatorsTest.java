@@ -24,7 +24,7 @@ class ValidatorsTest {
 		assertThat(Validators.isValidURL("http://foo.com")).isTrue();
 		assertThat(Validators.isValidURL("https://foo.com")).isTrue();
 		assertThat(Validators.isValidURL("https://foo.com/coole/datei.pdf")).isTrue();
-		assertThat(Validators.isValidURL("https://foo.com?cool=yes&file=datei.pdf&mail=foo@bar.com")).isTrue();
+		assertThat(Validators.isValidURL("https://foo.com?cool=yes&file=datei.pdf&mail=foo@testRadvis.com")).isTrue();
 		assertThat(Validators.isValidURL("http://foo.com:8080")).isTrue();
 		assertThat(Validators.isValidURL("https://f00.com")).isTrue();
 		assertThat(Validators.isValidURL("https://f#00_what-ever.com")).isTrue();
@@ -44,9 +44,9 @@ class ValidatorsTest {
 
 	@Test
 	public void isValidEmail() {
-		assertThat(Validators.isValidEmail("foo@bar.com")).isTrue();
-		assertThat(Validators.isValidEmail("f00-bar@bar-foo.de")).isTrue();
-		assertThat(Validators.isValidEmail("#foo.bar_whatever@blubb.pl4tsch")).isTrue();
+		assertThat(Validators.isValidEmail("foo@testRadvis.com")).isTrue();
+		assertThat(Validators.isValidEmail("f00-bar@testRadvis.de")).isTrue();
+		assertThat(Validators.isValidEmail("#foo.bar_whatever@testRadvis.pl4tsch")).isTrue();
 		assertThat(Validators.isValidEmail("foo@bar")).isTrue();
 
 		assertThat(Validators.isValidEmail(null)).isFalse();

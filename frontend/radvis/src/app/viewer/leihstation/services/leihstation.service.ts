@@ -14,15 +14,15 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { Observable } from 'rxjs';
+import { DeleteLeihstationCommand } from 'src/app/viewer/leihstation/models/delete-leihstation-command';
 import { Leihstation } from 'src/app/viewer/leihstation/models/leihstation';
 import { SaveLeihstationCommand } from 'src/app/viewer/leihstation/models/save-leihstation-command';
-import { DeleteLeihstationCommand } from 'src/app/viewer/leihstation/models/delete-leihstation-command';
 
 @Injectable({
   providedIn: 'root',
 })
-export class LeihstationService implements Resolve<Leihstation> {
+export class LeihstationService {
   private readonly API = '/api/leihstation';
 
   constructor(private httpClient: HttpClient) {}
@@ -41,14 +41,12 @@ export class LeihstationService implements Resolve<Leihstation> {
       .toPromise();
   }
 
-  public getAll(): Promise<Leihstation[]> {
-    return this.httpClient.get<Leihstation[]>(`${this.API}`).toPromise();
+  public get(id: number): Observable<Leihstation> {
+    return this.httpClient.get<Leihstation>(`${this.API}/${id}`);
   }
 
-  // eslint-disable-next-line no-unused-vars
-  public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<Leihstation> {
-    const id = route.paramMap.get('id');
-    return this.httpClient.get<Leihstation>(`${this.API}/${id}`).toPromise();
+  public getAll(): Promise<Leihstation[]> {
+    return this.httpClient.get<Leihstation[]>(`${this.API}`).toPromise();
   }
 
   public uploadCsv(file: File): Promise<Blob> {

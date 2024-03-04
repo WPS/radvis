@@ -123,7 +123,7 @@ public class WegweisendeBeschilderung extends VersionierteEntity {
 	 * Überprüft, ob die übergebene wegweisende Beschilderung sich von dieser unterscheidet und zwar in einer Art und
 	 * Weise, dass diese Beschilderung durch die übergebene aktualisiert werden sollte (s. {@link
 	 * #update(WegweisendeBeschilderung)}).
-	 *
+	 * <p>
 	 * Es wird also <b>nicht</b> verglichen: Id, Version, Verwaltungseinheit und Pfosten-Nr.
 	 */
 	public boolean isDifferentTo(WegweisendeBeschilderung other) {

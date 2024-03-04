@@ -41,8 +41,13 @@
       <rad-location-selection-layer [location]="selectedLocation"></rad-location-selection-layer>
       <rad-measure-distance-layer *ngIf="measureModeEnabled"></rad-measure-distance-layer>
 
-      <rad-karte-menu-item (menuOpen)="signaturAuswahl.setFocus()" icon="route" aria-label="Signatur"
-                           headline="Signatur" class="karte-button mb-10">
+      <rad-karte-menu-item
+        (menuOpen)="signaturAuswahl.setFocus()"
+        icon="route"
+        aria-label="Signatur"
+        headline="Signatur"
+        class="karte-button mb-10"
+      >
         <rad-radvis-signatur-auswahl
           #signaturAuswahl
           (selectRadVisSignatur)="onSelectRadVisSignatur($event)"

@@ -197,9 +197,11 @@ export class MapStyles {
     });
   }
 
-  public static getInfrastrukturIconStyle(iconFileName: string, highlighted: boolean): Style[] {
+  public static getInfrastrukturIconStyle(iconFileName: string, highlighted: boolean, color?: Color): Style[] {
     const opacity = highlighted ? 1 : 0.8;
-    const color = highlighted ? MapStyles.INFRASTRUKTUR_ICON_HIGHLIGHT_COLOR : MapStyles.INFRASTRUKTUR_ICON_COLOR;
+    if (!color || highlighted) {
+      color = highlighted ? MapStyles.INFRASTRUKTUR_ICON_HIGHLIGHT_COLOR : MapStyles.INFRASTRUKTUR_ICON_COLOR;
+    }
 
     return [
       new Style({

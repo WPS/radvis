@@ -39,6 +39,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerIstNichtRegistriertException;
+import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
@@ -121,51 +122,61 @@ public class BenutzerVerwaltungController {
 		return new BenutzerEditView(zuAendernderBenutzer);
 	}
 
-	@PostMapping(path = "aktiviere-benutzer")
-	public BenutzerEditView aktiviereBenutzer(Authentication authentication, @RequestParam long id,
-		@RequestParam long version) throws Exception {
-		this.benutzerGuard.aktiviereBenutzer(authentication, id, version);
+	@PostMapping(path = "benutzer-status-aendern")
+	public BenutzerEditView benutzerStatusAendern(Authentication authentication, @RequestParam long id,
+		@RequestParam long version, String status) throws Exception {
+		this.benutzerGuard.benutzerStatusAendern(authentication, id, version);
+		BenutzerStatus benutzerStatus = BenutzerStatus.valueOf(status);
+		Benutzer benutzer = benutzerService.aendereBenutzerstatus(id, version, benutzerStatus);
 
-		Benutzer benutzer = benutzerService.aendereBenutzerstatus(id, version, true);
+		String mailText;
 
-		String mailText = String.format(
-			"Hallo %s %s,\nIhr RadVIS-Account für %s wurde aktiviert und kann nach einem erneuten Einloggen verwendet werden.",
-			benutzer.getVorname(),
-			benutzer.getNachname(),
-			benutzer.getMailadresse())
-			+ "\nSie können RadVIS unter " + commonConfigurationProperties.getBasisUrl() + " erreichen.";
-
-		mailService.sendMail(List.of(benutzer.getMailadresse().toString()), "Sie wurden für RadVIS freigeschaltet",
-			mailText);
-
+		switch (benutzerStatus) {
+		case AKTIV -> {
+			mailText = String.format(
+				"Hallo %s %s,\nIhr RadVIS-Account für %s wurde aktiviert und kann nach einem erneuten Einloggen verwendet werden.",
+				benutzer.getVorname(),
+				benutzer.getNachname(),
+				benutzer.getMailadresse())
+				+ "\nSie können RadVIS unter " + commonConfigurationProperties.getBasisUrl() + " erreichen.";
+			mailService.sendMail(List.of(benutzer.getMailadresse().toString()), "Sie wurden für RadVIS aktiviert",
+				mailText);
+			log.info("Benutzer mit ID '{}' wurde aktiviert.", benutzer.getId());
+		}
+		case WARTE_AUF_FREISCHALTUNG -> {
+			mailText = String.format(
+				"Hallo %s %s,\nIhr RadVIS-Account für %s wurde freigeschaltet und kann nach einem erneuten Einloggen verwendet werden.",
+				benutzer.getVorname(),
+				benutzer.getNachname(),
+				benutzer.getMailadresse())
+				+ "\nSie können RadVIS unter " + commonConfigurationProperties.getBasisUrl() + " erreichen.";
+			mailService.sendMail(List.of(benutzer.getMailadresse().toString()),
+				"Sie wurden für RadVIS freigeschaltet",
+				mailText);
+			log.info("Benutzer mit ID '{}' wurde freigeschaltet.", benutzer.getId());
+		}
+		case ABGELEHNT -> {
+			mailText = String.format(
+				"Hallo %s %s,\nIhr RadVIS-Account für %s wurde abgelehnt.",
+				benutzer.getVorname(),
+				benutzer.getNachname(),
+				benutzer.getMailadresse());
+			mailService.sendMail(List.of(benutzer.getMailadresse().toString()), "Sie wurden für RadVIS abgelehnt",
+				mailText);
+			log.info("Benutzer mit ID '{}' wurde abgelehnt.", benutzer.getId());
+		}
+		}
 		expireUserSessions(benutzer);
-		log.info("Benutzer [{} {}, '{}' von {}] wurde Freigeschaltet.", benutzer.getVorname(),
-			benutzer.getNachname(), benutzer.getMailadresse(), benutzer.getOrganisation().getName());
-
-		return new BenutzerEditView(benutzer);
-	}
-
-	@PostMapping(path = "deaktiviere-benutzer")
-	public BenutzerEditView deaktiviereBenutzer(Authentication authentication, @RequestParam long id,
-		@RequestParam long version)
-		throws Exception {
-		this.benutzerGuard.deaktiviereBenutzer(authentication, id, version);
-
-		Benutzer benutzer = benutzerService.aendereBenutzerstatus(id, version, false);
-
-		expireUserSessions(benutzer);
-		log.info("Benutzer [{} {}, '{}' von {}] wurde gesperrt.", benutzer.getVorname(), benutzer.getNachname(),
-			benutzer.getMailadresse(), benutzer.getOrganisation().getName());
 
 		return new BenutzerEditView(benutzer);
 	}
 
 	private void expireUserSessions(Benutzer benutzer) {
 		sessionRegistry.getAllPrincipals().stream()
-			// passenden benutzer aus den session suchen
+			// passenden Benutzer aus den Sessions suchen
 			.map(user -> (UserDetails) user)
 			.filter(user -> user.getUsername().equals(benutzer.getServiceBwId().toString()))
-			// alle session für den user holen und beenden
+			// alle Sessions für den User holen und beenden
 			.flatMap(user -> sessionRegistry.getAllSessions(user, false).stream())
 			.forEach(SessionInformation::expireNow);
 	}

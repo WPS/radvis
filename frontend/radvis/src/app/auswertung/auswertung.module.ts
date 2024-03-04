@@ -21,6 +21,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuswertungRoutingModule } from 'src/app/auswertung/auswertung-routing.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AuswertungComponent } from './components/auswertung/auswertung.component';
+import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @NgModule({
   imports: [
@@ -31,6 +33,8 @@ import { AuswertungComponent } from './components/auswertung/auswertung.componen
     ReactiveFormsModule,
     MatCheckboxModule,
     MatCardModule,
+    ViewerSharedModule,
+    MatButtonToggleModule,
   ],
   declarations: [AuswertungComponent],
 })

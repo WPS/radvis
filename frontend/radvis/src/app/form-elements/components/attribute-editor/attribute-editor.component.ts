@@ -39,6 +39,9 @@ export class AttributeEditorComponent {
   @Input()
   canEdit = true;
 
+  @Input()
+  canDelete = false;
+
   @Output()
   dismiss = new EventEmitter<void>();
 
@@ -47,6 +50,9 @@ export class AttributeEditorComponent {
 
   @Output()
   save = new EventEmitter<void>();
+
+  @Output()
+  delete = new EventEmitter<void>();
 
   onClose(): void {
     this.dismiss.next();
@@ -58,5 +64,9 @@ export class AttributeEditorComponent {
 
   onSave(): void {
     this.save.next();
+  }
+
+  onDelete(): void {
+    this.delete.next();
   }
 }

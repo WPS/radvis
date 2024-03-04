@@ -1,5 +1,5 @@
 <logging>
-  <level>GEOSERVER_DEVELOPER_LOGGING</level>
+  <level>DEFAULT_LOGGING</level>
   <location>logs/geoserver.log</location>
   <stdOutLogging>true</stdOutLogging>
 </logging>

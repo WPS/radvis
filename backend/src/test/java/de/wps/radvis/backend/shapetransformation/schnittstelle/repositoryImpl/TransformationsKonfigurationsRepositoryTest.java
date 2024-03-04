@@ -143,7 +143,8 @@ class TransformationsKonfigurationsRepositoryTest {
 		assertThatThrownBy(() -> {
 			transformationsKonfigurationsRepositoryImpl.readKonfigurationFromCsv(csv.getBytes());
 		}).isInstanceOf(ShapeTransformationException.class)
-			.hasMessage("Die Konfigurationsdatei muss als erste Zeile die Überschrift enthalten: Quell-Attribut-Name, Ziel-Attribut-Name, Quell-Attribut-Wert, Ziel-Attribut-Wert");
+			.hasMessage(
+				"Die Konfigurationsdatei muss als erste Zeile die Überschrift enthalten: Quell-Attribut-Name, Ziel-Attribut-Name, Quell-Attribut-Wert, Ziel-Attribut-Wert");
 	}
 
 	@Test

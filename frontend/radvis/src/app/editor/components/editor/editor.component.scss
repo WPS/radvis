@@ -43,12 +43,12 @@
   margin-bottom: 1rem;
   background-color: rgba(255, 255, 255, 0.95);
 
-  mat-toolbar {
+  .mat-mdc-toolbar {
     background: map-get($radvis-accent-palette, 600);
     color: #fff;
   }
 
-  mat-list-item {
+  .mat-mdc-list-item {
     cursor: pointer;
 
     &:focus,
@@ -104,7 +104,7 @@
   background-color: rgba(0, 0, 0, 0.1);
   display: flex;
 
-  mat-spinner {
+  .mat-mdc-progress-spinner {
     margin: auto;
     align-items: center;
     justify-content: center;

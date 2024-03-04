@@ -30,6 +30,7 @@ import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
@@ -46,6 +47,7 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -98,6 +100,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
@@ -136,6 +139,9 @@ import jakarta.persistence.PersistenceContext;
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 @ActiveProfiles(profiles = "test")
 class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
@@ -192,7 +198,6 @@ class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
 	void testChangeZuordnung_AttributeWerdenUebertragen()
 		throws Exception {
 		// Arrange
-
 		Verwaltungseinheit eineOrganisation = gebietskoerperschaftRepository.save(
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("dolle Organisation")
 				.organisationsArt(OrganisationsArt.BUNDESLAND)
@@ -221,6 +226,7 @@ class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -292,14 +298,11 @@ class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// assert
-
 		Kante kanteDlmGespeichert = kantenRepository.findById(savedKanteDlmId).get();
 
 		assertThat(kanteDlmGespeichert.isZweiseitig()).isTrue();
 		KantenAttribute gemappteKantenAttribute = kanteDlmGespeichert.getKantenAttributGruppe().getKantenAttribute();
-		assertThat(gemappteKantenAttribute.getWegeNiveau())
-			.isEqualTo(
-				kantenAttribute.getWegeNiveau());
+		assertThat(gemappteKantenAttribute.getWegeNiveau()).isEqualTo(kantenAttribute.getWegeNiveau());
 		assertThat(gemappteKantenAttribute).isEqualTo(kantenAttribute);
 		assertThat(kanteDlmGespeichert.getKantenAttributGruppe().getNetzklassen()).containsExactlyInAnyOrderElementsOf(
 			netzklassen);
@@ -532,6 +535,7 @@ class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();

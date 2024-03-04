@@ -25,5 +25,6 @@ public interface CsvRepository {
 
 	CsvData read(byte[] csvFile, List<String> requiredHeader) throws CsvReadException;
 
-	CsvData read(byte[] csvFile, List<String> requiredHeader, char delimiter) throws CsvReadException;
+	CsvData read(byte[] csvFile, List<String> requiredHeader, char delimiter, boolean ignoreQuotations)
+		throws CsvReadException;
 }

@@ -17,13 +17,12 @@ package de.wps.radvis.backend.netz.schnittstelle.command;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 

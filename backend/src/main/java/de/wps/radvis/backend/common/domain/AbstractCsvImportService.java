@@ -39,7 +39,8 @@ public abstract class AbstractCsvImportService<ENTITY, BUILDER> {
 		this.idHeader = idHeader;
 	}
 
-	public CsvData importCsv(CsvData csvData, AbstractCsvAttributeMapper<ENTITY, BUILDER> attributeMapper) throws CsvImportException {
+	public CsvData importCsv(CsvData csvData, AbstractCsvAttributeMapper<ENTITY, BUILDER> attributeMapper)
+		throws CsvImportException {
 		if (csvData.getHeader().size() != requiredHeaders.size()
 			|| !csvData.getHeader().containsAll(requiredHeaders)) {
 			throw new CsvImportException(

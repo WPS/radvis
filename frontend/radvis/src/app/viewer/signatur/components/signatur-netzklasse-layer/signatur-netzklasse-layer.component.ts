@@ -130,7 +130,7 @@ export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnCh
 
     const olLayer = new VectorLayer({
       source: vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.styleFunction,
       minZoom,

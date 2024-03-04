@@ -35,9 +35,12 @@ import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
 import { SignaturStyleProviderService } from 'src/app/viewer/signatur/services/signatur-style-provider.service';
-import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
+import {
+  AbstractInfrastrukturLayerComponent,
+} from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
 import { infrastrukturSignaturLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
+import { Style } from 'ol/style';
 
 @Component({
   selector: 'rad-massnahmen-layer',
@@ -71,7 +74,7 @@ export class MassnahmenLayerComponent
     this.signaturVectorSource = new VectorSource();
     this.signaturLayer = new VectorLayer({
       source: this.signaturVectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       zIndex: infrastrukturSignaturLayerZIndex,
     });
@@ -153,6 +156,44 @@ export class MassnahmenLayerComponent
     return [feature];
   }
 
+  // eslint-disable-next-line prettier/prettier
+  protected override addIconColorAttribute(infrastrukturen: MassnahmeListenView[]): void {
+    const styleFunction = this.signaturLayer.getStyleFunction();
+
+    for (const infrastruktur of infrastrukturen) {
+      const massnahmeFeature = this.signaturVectorSource.getFeatureById(infrastruktur.id);
+      const iconFeature = this.vectorSource.getFeatureById(infrastruktur.id);
+
+      // Es gibt viele Fälle in denen der Style zurückgesetzt werden sollte (um sicherheitshalber die neutrale Icon-
+      // Farbe statt einer falschen Färbung anzuzeigen). Daher wird hier gemerkt ob das Setzen der Farbe erfolgreich
+      // war oder nicht.
+      let shouldResetStyle = true;
+
+      // Dummy feature benötigt um aus diesem den Style samt Einfärbung zu ermitteln. Das Feature für das Icon hat nömlich
+      // nur eine Punktgeometrie und bekäme daher keinen Stroke-Style.
+      if (massnahmeFeature && iconFeature && styleFunction && infrastruktur.geometry) {
+        const styleFunctionResult = styleFunction(massnahmeFeature, 0);
+
+        if (styleFunctionResult) {
+          const styleForFeature = styleFunctionResult instanceof Style ? [styleFunctionResult] : styleFunctionResult as Style[];
+
+          if (styleForFeature.length > 0) {
+            const strokeColor = styleForFeature
+            .find(style => !!style.getStroke())
+            ?.getStroke()
+            .getColor();
+            iconFeature.set(this.ICON_COLOR_PROPERTY_NAME, strokeColor);
+            shouldResetStyle = false;
+          }
+        }
+      }
+
+      if (shouldResetStyle && iconFeature) {
+        iconFeature.set(this.ICON_COLOR_PROPERTY_NAME, null);
+      }
+    }
+  }
+
   protected extractIdFromFeature(hf: RadVisFeature): number {
     return Number(hf.id);
   }
@@ -167,6 +208,8 @@ export class MassnahmenLayerComponent
   private hideSignatur(): void {
     this.signaturVectorSource.clear();
     this.signaturVectorSource.changed();
+    this.signaturLayer.setStyle(null);
+    this.addIconColorAttribute(this.filterService.currentFilteredList);
   }
 
   private showSignatur(signatur: Signatur): void {
@@ -192,6 +235,8 @@ export class MassnahmenLayerComponent
           'Maßnahmenkategorie',
           Massnahmenkategorien.getOberkategorieGewichtet(massnahme.massnahmenkategorien).displayText
         );
+        // Feature-ID für die Ermittlung der Icon-Farbe anhand der gewählten Signatur benötigt.
+        feature.setId(massnahme.id);
         this.signaturVectorSource.addFeature(feature);
       });
     this.signaturVectorSource.changed();
@@ -199,6 +244,7 @@ export class MassnahmenLayerComponent
     this.signaturStyleProvider.getStyleInformation(signatur).then(styleInfo => {
       this.signaturLayer.setStyle(styleInfo.styleFunction);
       this.signaturLayer.changed();
+      this.addIconColorAttribute(this.filterService.currentFilteredList);
     });
   }
 }

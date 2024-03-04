@@ -47,13 +47,13 @@ public class BenutzerGuard {
 		this.benutzerResolver = benutzerResolver;
 	}
 
-	public void aktiviereBenutzer(Authentication authentication, long id, long version)
+	public void benutzerStatusAendern(Authentication authentication, long id, long version)
 		throws BenutzerIstNichtRegistriertException {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 		Benutzer zuBearbeitenderBenutzer = benutzerService.getBenutzer(id);
 
 		if (BenutzerService.benutzerverwaltungsRechte.stream().noneMatch(aktiverBenutzer::hatRecht)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Benutzer zu aktivieren.");
+			throw new AccessDeniedException("Sie haben nicht die Berechtigung Benutzer zu ändern.");
 		}
 
 		List<Rolle> rollenDieDerAktiveBenutzerNichtAendernDarf = rollenDieDerBenutzerNichtAendernDarf(aktiverBenutzer,
@@ -61,28 +61,14 @@ public class BenutzerGuard {
 
 		if (!rollenDieDerAktiveBenutzerNichtAendernDarf.isEmpty()) {
 			throw new AccessDeniedException(
-				"Sie haben nicht die Berechtigung Benutzer mit folgende Rollen zu aktivieren:"
+				"Sie haben nicht die Berechtigung Benutzer mit folgenden Rollen zu ändern:"
 					+ rollenDieDerAktiveBenutzerNichtAendernDarf.stream()
 					.map(Rolle::toString)
 					.collect(Collectors.joining("', '", " '", "'")));
 		}
 
 		if (!pruefeBearbeiterIstAutorisiertFuerBenutzer(aktiverBenutzer, zuBearbeitenderBenutzer)) {
-			throw new AccessDeniedException("Sie sind nicht dazu autorisiert diesen Benutzer zu aktivieren.");
-		}
-	}
-
-	public void deaktiviereBenutzer(Authentication authentication, long id, long version)
-		throws BenutzerIstNichtRegistriertException {
-		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
-		Benutzer zuBearbeitenderBenutzer = benutzerService.getBenutzer(id);
-
-		if (BenutzerService.benutzerverwaltungsRechte.stream().noneMatch(aktiverBenutzer::hatRecht)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Benutzer zu deaktivieren.");
-		}
-
-		if (!pruefeBearbeiterIstAutorisiertFuerBenutzer(aktiverBenutzer, zuBearbeitenderBenutzer)) {
-			throw new AccessDeniedException("Sie sind nicht dazu autorisiert diesen Benutzer zu deaktivieren.");
+			throw new AccessDeniedException("Sie sind nicht dazu autorisiert diesen Benutzer zu ändern.");
 		}
 	}
 
@@ -146,8 +132,8 @@ public class BenutzerGuard {
 	List<Rolle> rollenDieDerBenutzerNichtAendernDarf(Benutzer aktiverBenutzer, Set<Rolle> neueRollen) {
 		return neueRollen
 			.stream()
-			.filter(rolle ->
-				benutzerService.ermittleVergaberechteFuerRolle(rolle).stream().noneMatch(aktiverBenutzer::hatRecht))
+			.filter(rolle -> benutzerService.ermittleVergaberechteFuerRolle(rolle).stream()
+				.noneMatch(aktiverBenutzer::hatRecht))
 			.collect(Collectors.toList());
 	}
 

@@ -25,9 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -53,6 +50,8 @@ import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 
 public class RadNetzNetzbildungService extends AbstractNetzbildungService {
@@ -156,7 +155,8 @@ public class RadNetzNetzbildungService extends AbstractNetzbildungService {
 			addKante(lineString, new KantenAttributGruppe(kantenAttribute, netzKlassen, istStandards),
 				fahrtrichtungAttributGruppe,
 				new ZustaendigkeitAttributGruppe(new ArrayList<>(List.of(zustaendigkeitAttribute))),
-				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(List.of(geschwindigkeitAttribute)).build(),
+				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(List.of(geschwindigkeitAttribute))
+					.build(),
 				new FuehrungsformAttributGruppe(new ArrayList<>(List.of(fuehrungsformAttribute)), false), null,
 				importedFeature.getTechnischeId());
 			addToIndex(lineString, kantenAttribute);

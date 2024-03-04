@@ -75,6 +75,22 @@ $sides: (top, bottom, left, right); // all positions
   }
 }
 
+.mat-mdc-menu-panel.karte-menu > .mat-mdc-menu-content {
+  padding: 0;
+}
+
+.mdc-text-field,
+.mat-mdc-form-field-error-wrapper,
+.mat-mdc-form-field-hint-wrapper {
+  padding: 0 0.5rem !important;
+}
+
+.mdc-button,
+.mat-mdc-tab-link,
+.mat-mdc-tab {
+  letter-spacing: normal !important;
+}
+
 .position-relative {
   position: relative;
 }
@@ -87,12 +103,12 @@ $sides: (top, bottom, left, right); // all positions
   width: 80%;
 }
 
-.h-100 {
-  height: 100%;
+.w-50 {
+  width: 50%;
 }
 
-.mat-form-field-full-width .mat-form-field {
-  width: 100%;
+.h-100 {
+  height: 100%;
 }
 
 .display-flex {
@@ -182,64 +198,65 @@ $sides: (top, bottom, left, right); // all positions
   font-style: italic;
 }
 
-.highlight-undetermined .mat-form-field-flex {
-  background: map-get($grayscale, 200);
+.highlight-undetermined .mdc-text-field {
+  background: map-get($grayscale, 200) !important;
 }
 
-.highlight-undetermined .mat-form-field-underline {
-  background: rgb(239, 159, 40);
+.highlight-undetermined .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before {
+  border-bottom-color: rgb(239, 159, 40) !important;
+}
+
+.highlight-undetermined .mat-mdc-form-field-hint {
+  color: rgb(239, 159, 40);
 }
 
 .hinweis {
   font-style: italic;
   color: $dark-gray;
+
+  mat-icon {
+    flex-shrink: 0;
+  }
 }
 
-.indeterminate.mat-slide-toggle .mat-slide-toggle-thumb-container {
-  transform: translate3d(8px, 0, 0);
+.indeterminate.mat-mdc-slide-toggle .mdc-switch__handle {
+  transform: translate3d(8px, -10px, 0);
 }
 
 rad-root .second-nav-bar {
   display: flex;
   justify-content: space-between;
 
-  nav[mat-tab-nav-bar].mat-tab-nav-bar,
-  mat-tab-header.mat-tab-header {
+  nav[mat-tab-nav-bar].mat-mdc-tab-nav-bar,
+  mat-tab-header.mat-mdc-tab-header {
     border: 0;
   }
 
-  .mat-tab-links,
-  .mat-tab-labels {
-    margin-left: 0.5rem;
-  }
-
-  .mat-tab-label,
-  .mat-tab-link {
-    min-width: auto;
-    color: rgba(0, 0, 0, 1);
-    opacity: 1;
+  .mat-mdc-tab-link {
     font-weight: 400;
     font-size: 1rem;
     padding: 0 0.5rem;
-  }
 
-  .mat-tab-body-wrapper {
-    display: none;
-  }
+    &:not(.mdc-tab--active) .mdc-tab__text-label {
+      color: rgba(0, 0, 0, 1);
+    }
 
-  .mat-ink-bar {
-    height: 3px;
+    .mdc-tab-indicator__content--underline {
+      border-top-width: 3px;
+    }
   }
 }
 
-.mat-tab-link, .mat-tab-label, .mat-chip-remove {
+.mat-mdc-tab-link,
+.mat-mdc-chip-remove {
   opacity: 1 !important;
 }
 
-.mat-header-cell, td.group-header, .mat-sort-header-arrow {
+.mat-mdc-header-cell,
+td.group-header,
+.mat-sort-header-arrow {
   color: $black !important;
 }
-
 
 .no-overflow {
   overflow: hidden;
@@ -257,7 +274,7 @@ rad-root .second-nav-bar {
   color: $warning-color;
 }
 
-.mat-menu-panel {
+.mat-mdc-menu-panel {
   max-width: unset !important;
 }
 
@@ -266,17 +283,14 @@ rad-root .second-nav-bar {
   right: 0.5em;
 }
 
-.mat-autocomplete-panel .mat-option {
-  height: auto !important;
-  line-height: normal !important;
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-
-  .mat-option-text {
-    white-space: normal;
-  }
+.mat-mdc-autocomplete-panel .mat-mdc-option {
+  line-height: normal;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
+/* TODO(mdc-migration, jg): invalides CSS durch +. Entfällt sobald rad-validation-error-anzeige in die jeweiligen input controls integriert wird.
+*/
 :is(mat-form-field, rad-organisationen-dropdown-control, rad-number-input-control, rad-text-input-control, rad-massnahmenkategorien-dropdown-control, rad-enum-dropdown-control),
 + rad-validation-error-anzeige {
   position: relative;
@@ -285,70 +299,71 @@ rad-root .second-nav-bar {
 
 // Zeilenumbrueche in dem Tooltip beim umsetzungsstand ermoeglichen.
 // Css-Klasse ist nur im Tooltip wirksam, wenn sie global gueltig ist
-.umsetzungsstand-multiline-tooltip.mat-tooltip {
+.umsetzungsstand-multiline-tooltip.mat-mdc-tooltip {
   white-space: pre-line;
 }
 
 // Entsprechend unserer Styling-Richtlinien soll die Textfarbe der Form Fields beim Disablen trotzdem
 // kräftig dargestellt werden
-.mat-select-disabled .mat-select-value {
-  color: rgba($black, 0.8);
-}
-
-.mat-input-element:disabled {
+.mat-mdc-input-element:disabled {
   color: rgba($black, 0.8) !important;
 }
 
-rad-massnahmen-tool .mat-tab-link {
-  min-width: 0 !important;
-}
-
-mat-toolbar {
+.mat-toolbar {
   flex-shrink: 0;
 }
 
-.mat-checkbox.cdk-keyboard-focused .mat-checkbox-persistent-ripple, .mat-icon-button.cdk-keyboard-focused .mat-button-focus-overlay {
+:root {
+  --mdc-checkbox-selected-focus-state-layer-opacity: 0.6;
+  --mdc-checkbox-unselected-focus-state-layer-opacity: 0.6;
+  --mdc-switch-unselected-focus-state-layer-opacity: 0.4; // Not yet used by material
+  --mdc-switch-selected-focus-state-layer-opacity: 0.4; // Not yet used by material
+  --mat-icon-button-focus-state-layer-opacity: 0.6; // Not yet used by material
+  --mat-outlined-button-focus-state-layer-opacity: 0.6; // Not yet used by material
+  --mat-unelevated-button-focus-state-layer-opacity: 0.6; // Not yet used by material
+}
+
+// Redundant, wenn material anfängt ihre variablen zu nutzen in einer zukünfigten version
+.mat-mdc-unelevated-button.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before,
+.mat-mdc-outlined-button.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before,
+.mat-mdc-icon-button.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before {
   opacity: 0.6 !important;
 }
 
-
-.icon-toolbar.mat-icon-button.cdk-keyboard-focused .mat-button-focus-overlay {
+.mat-mdc-unelevated-button.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before,
+.icon-toolbar.mat-mdc-icon-button.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before {
   background-color: white;
-  opacity: 0.69 !important;
 }
 
-.mat-checkbox-checked.cdk-keyboard-focused .mat-checkbox-persistent-ripple {
-  opacity: 0.6 !important;
+.mat-mdc-tab-nav-bar.mat-accent .mat-mdc-tab-link.cdk-keyboard-focused:not(.mat-mdc-tab-disabled) {
+  background-color: map-get($radvis-accent-palette, 300);
+  opacity: 1 !important;
 }
 
-.mat-tab-group.mat-accent .mat-tab-label.cdk-keyboard-focused:not(.mat-tab-disabled) {
-  background-color: #EA3397;
-
+.mat-mdc-tab-group.mat-accent .mat-mdc-tab.cdk-keyboard-focused:not(.mat-mdc-tab-disabled) {
+  background-color: #ea3397;
 }
 
-button.mat-stroked-button:focus-visible {
-  background-color: #808080;
-}
-
-.mat-slide-toggle:not(.mat-disabled).cdk-keyboard-focused .mat-slide-toggle-persistent-ripple {
+// Redundant, wenn material anfängt ihre variablen zu nutzen in einer zukünfigten version
+.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mdc-switch .mdc-switch__ripple::after {
   opacity: 0.4 !important;
 }
 
-.mat-mini-fab.cdk-keyboard-focused .mat-button-focus-overlay {
+.mdc-text-field--filled,
+.mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+.mat-mdc-mini-fab.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before {
   background-color: white !important;
   opacity: 0.6 !important;
 }
 
-.mat-raised-button.cdk-keyboard-focused .mat-button-focus-overlay {
+.mat-mdc-raised-button.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before {
   background-color: white !important;
   opacity: 0.6 !important;
 }
 
-.mat-flat-button.cdk-keyboard-focused .mat-button-focus-overlay {
-  background-color: white !important;
-  opacity: 0.6 !important;
-}
-
-.mat-form-field.mat-focused .mat-form-field-ripple {
-  background-color: #042846 !important;
+.mdc-form-field {
+  -webkit-font-smoothing: unset !important;
 }

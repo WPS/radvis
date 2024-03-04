@@ -35,6 +35,8 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,6 +48,7 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.PostGisHelper;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -84,13 +87,22 @@ import jakarta.validation.constraints.NotNull;
 @Tag("group1")
 @EnableJpaRepositories(basePackageClasses = { FahrradrouteConfiguration.class })
 @EntityScan(basePackageClasses = { FahrradrouteConfiguration.class })
-@ContextConfiguration(classes = { NetzConfiguration.class, OrganisationConfiguration.class,
-	CommonConfiguration.class, BenutzerConfiguration.class, GeoConverterConfiguration.class })
-@EnableConfigurationProperties(value = { CommonConfigurationProperties.class,
+@ContextConfiguration(classes = {
+	NetzConfiguration.class,
+	OrganisationConfiguration.class,
+	CommonConfiguration.class,
+	BenutzerConfiguration.class,
+	GeoConverterConfiguration.class
+})
+@EnableConfigurationProperties(value = {
+	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -488,8 +500,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 				.build());
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView(); // knoten-view setzt auf mat. View der Kanten auf
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KnotenRepository.GEOSERVER_BALM_KNOTEN_VIEW_NAME);
@@ -633,8 +644,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 				.build());
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView(); // knoten-view setzt auf mat. View der Kanten auf
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KnotenRepository.GEOSERVER_BALM_KNOTEN_VIEW_NAME);
@@ -717,8 +727,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 				.build());
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView(); // knoten-view setzt auf mat. View der Kanten auf
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KnotenRepository.GEOSERVER_BALM_KNOTEN_VIEW_NAME);
@@ -823,8 +832,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 		fahrradrouteRepository.save(radrouteZielnetz);
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView(); // knoten-view setzt auf mat. View der Kanten auf
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KnotenRepository.GEOSERVER_BALM_KNOTEN_VIEW_NAME);

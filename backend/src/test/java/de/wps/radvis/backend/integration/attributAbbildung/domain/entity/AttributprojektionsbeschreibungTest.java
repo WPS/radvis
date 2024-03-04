@@ -252,7 +252,8 @@ class AttributprojektionsbeschreibungTest {
 			.containsEntry(istStandards2, .5);
 
 		Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>> potentiellInkonsistenteProjizierteNetzklassen =
-			(Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>>) ReflectionTestUtils.getField(attributprojektionsbeschreibung,
+			(Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>>) ReflectionTestUtils.getField(
+				attributprojektionsbeschreibung,
 				"potentiellInkonsistenteProjizierteNetzklassen");
 		assertThat(potentiellInkonsistenteProjizierteNetzklassen)
 			.containsOnlyKeys(netzklassen1, netzklassen2);

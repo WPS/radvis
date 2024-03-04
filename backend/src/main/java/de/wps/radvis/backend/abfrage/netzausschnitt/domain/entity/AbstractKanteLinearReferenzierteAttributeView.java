@@ -17,14 +17,6 @@ package de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity;
 import java.io.Serializable;
 import java.util.Set;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MappedSuperclass;
-
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.linearref.LengthIndexedLine;
 
@@ -32,6 +24,13 @@ import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 
 @MappedSuperclass

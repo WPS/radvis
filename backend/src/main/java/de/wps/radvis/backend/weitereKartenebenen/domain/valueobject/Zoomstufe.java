@@ -16,11 +16,10 @@ package de.wps.radvis.backend.weitereKartenebenen.domain.valueobject;
 
 import static org.valid4j.Assertive.require;
 
-import jakarta.persistence.Embeddable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

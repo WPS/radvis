@@ -1,0 +1,83 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/colors';
+@import 'src/style/spacing';
+@import 'src/style/font-style';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: 1.5rem auto;
+  grid-template-rows: repeat(4, 2rem);
+  grid-gap: 0.5rem;
+  align-items: center;
+  font-weight: bold;
+  font-size: small;
+
+  .kreuz-icon {
+    color: darkorange;
+  }
+}
+
+.legend-item {
+  mat-icon {
+    margin-right: 0.5em;
+  }
+
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.konflikt {
+  color: #c63461;
+}
+
+.conflict-detail-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  margin-left: -$manueller-import-sub-tool-padding;
+  margin-right: -$manueller-import-sub-tool-padding;
+
+  .konflikt-container {
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+
+  .konflikt-detail-header {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 24px;
+    font-weight: 500;
+    background: map-get($grayscale, 100);
+  }
+
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  td {
+    word-wrap: break-word;
+    padding: 8px;
+  }
+}

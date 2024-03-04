@@ -53,6 +53,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 
+@SuppressWarnings("deprecation")
 class MassnahmenImportJobTest {
 
 	MassnahmenImportJob massnahmenImportJob;

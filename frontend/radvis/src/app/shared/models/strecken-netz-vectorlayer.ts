@@ -36,7 +36,7 @@ export class StreckenNetzVectorlayer extends VectorLayer {
     });
     super({
       source: vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: getRadvisNetzStyleFunction(),
       zIndex,

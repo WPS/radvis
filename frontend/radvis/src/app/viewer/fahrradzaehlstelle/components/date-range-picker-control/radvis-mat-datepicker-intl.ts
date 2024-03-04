@@ -16,6 +16,8 @@ import { MatDatepickerIntl } from '@angular/material/datepicker';
 import { Subject } from 'rxjs';
 
 export class RadvisMatDatepickerIntl implements MatDatepickerIntl {
+  startDateLabel = 'Startdatum';
+  endDateLabel = 'Enddatum';
   calendarLabel = 'calendarLabel';
   closeCalendarLabel = 'Kalender schließen';
   nextMonthLabel = 'Nächster Monat';
@@ -29,6 +31,9 @@ export class RadvisMatDatepickerIntl implements MatDatepickerIntl {
   switchToMultiYearViewLabel = 'Zu mehrjähriger Ansicht wechseln';
   readonly changes: Subject<void> = new Subject();
 
+  formatYearRangeLabel(start: string, end: string): string {
+    return `${start} - ${end}`;
+  }
   formatYearRange(start: string, end: string): string {
     return `${start} - ${end}`;
   }

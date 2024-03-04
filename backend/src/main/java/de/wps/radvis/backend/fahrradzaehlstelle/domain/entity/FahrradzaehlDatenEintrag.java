@@ -17,12 +17,9 @@ package de.wps.radvis.backend.fahrradzaehlstelle.domain.entity;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
-import java.util.Optional;
-
-import jakarta.persistence.Embeddable;
-
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstand;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.Zaehlstatus;
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -42,7 +39,7 @@ public class FahrradzaehlDatenEintrag {
 
 	@Builder
 	public FahrradzaehlDatenEintrag(Zaehlstand zaehlstand, Zaehlstatus zaehlstatus) {
-		
+
 		require(zaehlstand, notNullValue());
 		this.zaehlstand = zaehlstand;
 

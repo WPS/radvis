@@ -15,13 +15,13 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
 import { ValidationErrors } from '@angular/forms';
-import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { Collection, Feature, MapBrowserEvent } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { LineString, Point } from 'ol/geom';
 import { DrawEvent } from 'ol/interaction/Draw';
 import { ModifyEvent } from 'ol/interaction/Modify';
-import { of, Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
@@ -33,9 +33,9 @@ import { FahrradrouteModule } from 'src/app/viewer/fahrradroute/fahrradroute.mod
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
 import { RoutingResult } from 'src/app/viewer/fahrradroute/models/routing-result';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
+import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
 import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
 import { anything, capture, instance, mock, reset, verify, when } from 'ts-mockito';
-import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
 
 describe(FahrradrouteNetzbezugControlComponent.name, () => {
   let fixture: MockedComponentFixture<FahrradrouteNetzbezugControlComponent>;
@@ -114,13 +114,13 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
 
       // irgendwie kompiliert das nicht, wenn man DrawEventType verwendet, um das DrawEvent zu erstellen
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(startCoordinate)))
       );
       tick();
 
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(endCoordinate)))
       );
       tick();
@@ -235,7 +235,7 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
         const movedCoordinate = [50, 50];
         stuetzpunktFeature.setGeometry(new Point(movedCoordinate));
         component['modifyStuetzpunktInteraction'].dispatchEvent(
-          //@ts-ignore
+          // @ts-expect-error Migration von ts-ignore
           new ModifyEvent('modifyend', new Collection([stuetzpunktFeature]))
         );
         tick();
@@ -471,14 +471,14 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
 
       // irgendwie kompiliert das nicht, wenn man DrawEventType verwendet, um das DrawEvent zu erstellen
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(startCoordinate)))
       );
       tick();
       verify(bedienhinweisService.showBedienhinweis(component['BEDIENHINWEIS_END'])).once();
 
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-ignore
+        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(endCoordinate)))
       );
       tick();

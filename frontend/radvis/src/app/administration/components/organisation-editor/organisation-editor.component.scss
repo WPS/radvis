@@ -30,11 +30,12 @@ form {
   flex-direction: column;
 }
 
-button {
-  flex-shrink: 0;
-}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
 
-mat-error.organisation-error {
-  font-size: 75%;
-  margin-top: -1.25em;
+  .save-button {
+    width: unset;
+  }
 }

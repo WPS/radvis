@@ -30,7 +30,7 @@ public class UmsetzungsstandsabfrageConfigurationProperties {
 
 	@ConstructorBinding
 	UmsetzungsstandsabfrageConfigurationProperties(int frist) {
-		require(frist,notNullValue());
+		require(frist, notNullValue());
 		this.frist = frist;
 	}
 }

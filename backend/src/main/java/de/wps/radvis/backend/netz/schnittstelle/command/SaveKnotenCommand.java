@@ -14,13 +14,12 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

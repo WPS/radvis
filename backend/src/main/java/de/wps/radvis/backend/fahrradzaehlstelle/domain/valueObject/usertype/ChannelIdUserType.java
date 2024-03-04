@@ -18,7 +18,7 @@ import de.wps.radvis.backend.fahrradzaehlstelle.domain.valueObject.ChannelId;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class ChannelIdUserType implements AttributeConverter<ChannelId, Long> {
 
 	@Override

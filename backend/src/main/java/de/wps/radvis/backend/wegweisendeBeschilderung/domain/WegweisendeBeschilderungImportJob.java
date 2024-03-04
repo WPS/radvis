@@ -26,10 +26,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.type.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.type.AttributeType;
 import org.springframework.data.util.Lazy;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
@@ -124,8 +124,7 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 		try {
 			features = geoJsonImportRepository.getSimpleFeatures(geoJsonString);
 		} catch (ReadGeoJSONException e) {
-			log.error("Die GeoJSON Datei konnte nicht eingelesen werden: URL ({}) ", url);
-			log.error("Fehler: " + e.getMessage());
+			log.error("Die GeoJSON Datei von URL " + url + " konnte nicht eingelesen werden:", e);
 			return Optional.empty();
 		}
 

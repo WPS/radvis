@@ -29,7 +29,7 @@ public class RadVISInfoController {
 	@Autowired
 	private CommonConfigurationProperties commonConfigurationProperties;
 
-	@GetMapping(value = "version", produces = MediaType.TEXT_PLAIN_VALUE )
+	@GetMapping(value = "version", produces = MediaType.TEXT_PLAIN_VALUE)
 	public String getVersion() {
 		return commonConfigurationProperties.getVersion();
 	}

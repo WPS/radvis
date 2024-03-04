@@ -20,6 +20,7 @@ import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-moc
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { SharedModule } from 'src/app/shared/shared.module';
 
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { AutocompleteEnumDropdownControlComponent } from './autocomplete-enum-dropdown-control.component';
 
 describe('AutocompleteEnumDropdownControlComponent', () => {
@@ -31,7 +32,8 @@ describe('AutocompleteEnumDropdownControlComponent', () => {
       .keep(ReactiveFormsModule)
       .keep(MatFormFieldModule)
       .keep(MatAutocompleteModule)
-      .keep(MatInputModule);
+      .keep(MatInputModule)
+      .keep(BreakpointObserver);
   });
 
   beforeEach(() => {

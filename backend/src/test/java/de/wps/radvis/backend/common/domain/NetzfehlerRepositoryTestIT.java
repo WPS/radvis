@@ -16,11 +16,8 @@ package de.wps.radvis.backend.common.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -38,6 +35,8 @@ import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerBeschreibung;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerTyp;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group5")
 @ContextConfiguration(classes = NetzfehlerRepositoryTestIT.TestConfiguration.class)

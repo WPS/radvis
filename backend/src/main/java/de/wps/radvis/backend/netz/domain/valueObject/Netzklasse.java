@@ -73,7 +73,8 @@ public enum Netzklasse {
 		}
 	}
 
-	public static final Set<Netzklasse> RADNETZ_NETZKLASSEN = Set.of(RADNETZ_FREIZEIT, RADNETZ_ALLTAG, RADNETZ_ZIELNETZ);
+	public static final Set<Netzklasse> RADNETZ_NETZKLASSEN = Set.of(RADNETZ_FREIZEIT, RADNETZ_ALLTAG,
+		RADNETZ_ZIELNETZ);
 
 	public static boolean isRadNETZ(Set<Netzklasse> netzklassen) {
 		return RADNETZ_NETZKLASSEN.stream().anyMatch(netzklassen::contains);

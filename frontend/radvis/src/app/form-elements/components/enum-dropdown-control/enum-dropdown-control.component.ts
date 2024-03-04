@@ -12,12 +12,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { FormControl, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
 import {
   AbstractUndeterminedFormControl,
-  UndeterminedValue,
   UNDETERMINED_LABEL,
+  UndeterminedValue,
 } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
@@ -28,19 +36,29 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => EnumDropdownControlComponent), multi: true }],
 })
-export class EnumDropdownControlComponent extends AbstractUndeterminedFormControl<string> {
+export class EnumDropdownControlComponent extends AbstractUndeterminedFormControl<string> implements OnChanges {
   @Input()
   options: EnumOption[] = [];
   @Input()
   nullable = true;
   @Input()
   showTooltip = false;
+  @Input()
+  multiple = false;
 
-  public formControl: FormControl;
+  @Input()
+  touchOnWrite = true;
+
+  @Input()
+  errors?: ValidationErrors | null = null;
+  errorMessages: string[] = [];
+
+  public formControl: FormControl<string | null>;
 
   public readonly UNDETERMINED = 'UNDETERMINED';
   public readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
 
+  isUndetermined = false;
   showUndeterminedOption = false;
 
   constructor(private changeDetector: ChangeDetectorRef) {
@@ -53,16 +71,29 @@ export class EnumDropdownControlComponent extends AbstractUndeterminedFormContro
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.errors !== undefined) {
+      this.formControl.setErrors(this.errors || null);
+      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
+    }
+  }
+
   public writeValue(value: string | UndeterminedValue | null): void {
-    let formValue = value;
+    let formValue: string | null;
     if (value instanceof UndeterminedValue) {
       formValue = this.UNDETERMINED;
+      this.isUndetermined = true;
       this.showUndeterminedOption = true;
       this.changeDetector.detectChanges();
     } else {
+      formValue = value;
+      this.isUndetermined = false;
       this.showUndeterminedOption = false;
     }
     this.formControl.reset(formValue, { emitEvent: false });
+    if (this.touchOnWrite) {
+      this.formControl.markAsTouched();
+    }
     this.changeDetector.markForCheck();
   }
 

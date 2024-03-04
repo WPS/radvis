@@ -13,7 +13,7 @@
  */
 
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,11 +30,11 @@ import { KanteGrundgeometrieLayerComponent } from 'src/app/editor/editor-shared/
 import { AutocorrectingNumberInputControlComponent } from 'src/app/editor/kanten/components/autocorrecting-number-input-control/autocorrecting-number-input-control.component';
 import { LinearReferenzierterAbschnittControlComponent } from 'src/app/editor/kanten/components/lineare-referenz-control/linear-referenzierter-abschnitt-control.component';
 import { LineareReferenzierungLayerComponent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
+import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { instance, mock } from 'ts-mockito';
-import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 
-describe('LineareReferenzControlComponent', () => {
+describe(LinearReferenzierterAbschnittControlComponent.name, () => {
   let component: LinearReferenzierterAbschnittControlComponent;
   let fixture: ComponentFixture<LinearReferenzierterAbschnittControlComponent>;
   const eventMock = mock(Event);
@@ -236,7 +236,7 @@ describe('LineareReferenzControlComponent', () => {
   });
 });
 
-describe('LineareReferenzControlComponent - integration', () => {
+describe(LinearReferenzierterAbschnittControlComponent.name + ' - integration', () => {
   let component: LinearReferenzierterAbschnittControlComponent;
   let fixture: ComponentFixture<LinearReferenzierterAbschnittControlComponent>;
   const eventMock = mock(Event);
@@ -284,7 +284,7 @@ describe('LineareReferenzControlComponent - integration', () => {
 
       fixture.detectChanges();
 
-      const allInputs = fixture.debugElement.queryAll(By.css('input:not(.mat-checkbox-input)'));
+      const allInputs = fixture.debugElement.queryAll(By.css('input:not([type="checkbox"])'));
       expect(allInputs[0].properties.disabled).toBeFalse();
       expect(allInputs[1].properties.disabled).toBeTrue();
     });
@@ -301,7 +301,7 @@ describe('LineareReferenzControlComponent - integration', () => {
       ]);
       fixture.detectChanges();
 
-      const allInputs = fixture.debugElement.queryAll(By.css('input:not(.mat-checkbox-input)'));
+      const allInputs = fixture.debugElement.queryAll(By.css('input:not([type="checkbox"])'));
       (allInputs[1].nativeElement as any).value = '1.23';
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('input'));
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('blur'));
@@ -315,10 +315,10 @@ describe('LineareReferenzControlComponent - integration', () => {
       ]);
       fixture.detectChanges();
 
-      expect(allInputs[0].nativeElement.value).toBe('2,50');
-      expect(allInputs[1].nativeElement.value).toBe('2,51');
-      expect(allInputs[2].nativeElement.value).toBe('7,50');
-      expect(allInputs[3].nativeElement.value).toBe('10,00');
+      expect(allInputs[0].nativeElement.value).toBe('2.5');
+      expect(allInputs[1].nativeElement.value).toBe('2.51');
+      expect(allInputs[2].nativeElement.value).toBe('7.5');
+      expect(allInputs[3].nativeElement.value).toBe('10');
     });
 
     it('should correct values larger than local upper bound', () => {
@@ -331,7 +331,7 @@ describe('LineareReferenzControlComponent - integration', () => {
       ]);
       fixture.detectChanges();
 
-      const allInputs = fixture.debugElement.queryAll(By.css('input:not(.mat-checkbox-input)'));
+      const allInputs = fixture.debugElement.queryAll(By.css('input:not([type="checkbox"])'));
       (allInputs[1].nativeElement as any).value = '9.3';
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('input'));
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('blur'));
@@ -345,10 +345,10 @@ describe('LineareReferenzControlComponent - integration', () => {
       ]);
       fixture.detectChanges();
 
-      expect(allInputs[0].nativeElement.value).toBe('2,50');
-      expect(allInputs[1].nativeElement.value).toBe('7,49');
-      expect(allInputs[2].nativeElement.value).toBe('7,50');
-      expect(allInputs[3].nativeElement.value).toBe('10,00');
+      expect(allInputs[0].nativeElement.value).toBe('2.5');
+      expect(allInputs[1].nativeElement.value).toBe('7.49');
+      expect(allInputs[2].nativeElement.value).toBe('7.5');
+      expect(allInputs[3].nativeElement.value).toBe('10');
     });
   });
 });
@@ -364,7 +364,7 @@ export class LineareReferenzControlTestWrapperComponent {
   geometrie: LineStringGeojson = { coordinates: [], type: 'LineString' };
 }
 
-describe('LineareReferenzControlComponent - embedded', () => {
+describe(LinearReferenzierterAbschnittControlComponent.name + ' - embedded', () => {
   let component: LinearReferenzierterAbschnittControlComponent;
   let wrapper: LineareReferenzControlTestWrapperComponent;
   let fixture: ComponentFixture<LineareReferenzControlTestWrapperComponent>;

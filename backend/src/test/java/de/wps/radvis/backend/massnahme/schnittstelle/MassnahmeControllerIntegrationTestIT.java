@@ -417,7 +417,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 				Set.of(), Set.of(knoten)))
 			.dokumentListe(dokumentListe)
 			.baulastZustaendiger(organisation)
-			.markierungsZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.unterhaltsZustaendiger(organisation)
 			.benutzerLetzteAenderung(benutzer)
 			.build();

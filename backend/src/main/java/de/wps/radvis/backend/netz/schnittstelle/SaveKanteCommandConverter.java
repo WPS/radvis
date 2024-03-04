@@ -17,8 +17,6 @@ package de.wps.radvis.backend.netz.schnittstelle;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
-
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
@@ -30,6 +28,7 @@ import de.wps.radvis.backend.netz.schnittstelle.command.SaveKanteAttributeComman
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveZustaendigkeitAttributeCommand;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.validation.Valid;
 
 public class SaveKanteCommandConverter {
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
@@ -106,6 +105,7 @@ public class SaveKanteCommandConverter {
 			.strassenquerschnittRASt06(command.getStrassenquerschnittRASt06())
 			.sv(command.getSv())
 			.umfeld(command.getUmfeld())
+			.strassenkategorieRIN(command.getStrassenkategorieRIN())
 			.wegeNiveau(command.getWegeNiveau())
 			.status(command.getStatus());
 		Verwaltungseinheit gemeindeLoaded = null;

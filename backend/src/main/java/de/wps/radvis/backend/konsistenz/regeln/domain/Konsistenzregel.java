@@ -21,28 +21,28 @@ import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.Konsistenzrege
 public interface Konsistenzregel {
 	/**
 	 * Gibt alle Verletzungen im aktuellen Datenbestand für diese Regel zurück
-	 * 
+	 *
 	 * @return
 	 */
 	List<KonsistenzregelVerletzungsDetails> pruefen();
 
 	/**
 	 * Dieser String wird als Layer-Bezeichner verwendet und sollte keine Sonder- oder Leerzeichen enthalten
-	 * 
+	 *
 	 * @return
 	 */
 	String getVerletzungsTyp();
 
 	/**
 	 * Dieser String wird in der Web-Oberfläche neben der Checkbox angezeigt
-	 * 
+	 *
 	 * @return
 	 */
 	String getTitel();
 
 	/**
 	 * Wird zur Gruppierung der Checkboxen in der Web-Oberfläche verwendet
-	 * 
+	 *
 	 * @return
 	 */
 	RegelGruppe getGruppe();

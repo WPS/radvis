@@ -33,6 +33,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
@@ -63,6 +64,7 @@ import jakarta.persistence.PersistenceContext;
 	@MockBean(GeoConverterConfiguration.class),
 	@MockBean(VerwaltungseinheitImportRepository.class),
 	@MockBean(ZustaendigkeitsService.class),
+	@MockBean(MailService.class)
 })
 class ServicestationRepositoryTestIT extends DBIntegrationTestIT {
 

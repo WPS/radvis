@@ -123,7 +123,7 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme1, benutzer);
 
@@ -133,6 +133,7 @@ class UmsetzungsstandabfrageServiceTest {
 			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
 			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme2, benutzer);
 
@@ -140,7 +141,7 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(3L)
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(nichtBetroffeneMassnahme1, benutzer);
 
@@ -150,6 +151,7 @@ class UmsetzungsstandabfrageServiceTest {
 			.umsetzungsstatus(Umsetzungsstatus.UMGESETZT)
 			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(nichtBetroffeneMassnahme2, benutzer);
 
@@ -158,7 +160,7 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.STORNIERT)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(nichtBetroffeneMassnahme3, benutzer);
 
@@ -171,7 +173,7 @@ class UmsetzungsstandabfrageServiceTest {
 				nichtBetroffeneMassnahme2, nichtBetroffeneMassnahme3));
 
 		// Act
-		List<Massnahme> massnahmen =umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(massnahmeIds);
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(massnahmeIds);
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// Assert
@@ -199,10 +201,11 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(benutzer));
 
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme1, benutzer);
@@ -212,13 +215,14 @@ class UmsetzungsstandabfrageServiceTest {
 			Stream.of(betroffeneMassnahme1));
 
 		// act
-		List<Massnahme> massnahmen =umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(betroffeneMassnahme1.getId()));
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
+			List.of(betroffeneMassnahme1.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
 		verify(mailService, times(1)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<String> empfaenger = emailEmpfaengerCaptor.getValue();
-		assertThat(empfaenger).containsExactly("radwegeErfasserinKommuneKreis@mail.com");
+		assertThat(empfaenger).containsExactly("radwegeErfasserinKommuneKreis@testRadvis.com");
 	}
 
 	@Test
@@ -236,10 +240,11 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(verwaltungseinheit)
+			.zustaendiger(verwaltungseinheit)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(radwegeErfasserin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(verwaltungseinheit)))
 			.thenReturn(List.of(kreiskoordinatorin));
@@ -251,13 +256,14 @@ class UmsetzungsstandabfrageServiceTest {
 			Stream.of(betroffeneMassnahme1));
 
 		// act
-		List<Massnahme> massnahmen =umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(betroffeneMassnahme1.getId()));
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
+			List.of(betroffeneMassnahme1.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
 		verify(mailService, times(2)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<String> benachrichtigteKreiskoordinatinnen = emailEmpfaengerCaptor.getAllValues().get(1);
-		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@mail.com");
+		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@testRadvis.com");
 
 		verify(templateEngine, times(2)).process(any(String.class), templateContextCaptor.capture());
 		Context context = templateContextCaptor.getAllValues().get(1);
@@ -290,10 +296,11 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(gemeinde)
+			.zustaendiger(gemeinde)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(radwegeErfasserin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde)))
 			.thenReturn(List.of());
@@ -307,13 +314,14 @@ class UmsetzungsstandabfrageServiceTest {
 		when(verwaltungseinheitService.istUebergeordnet(any(), any())).thenReturn(true);
 
 		// act
-		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(betroffeneMassnahme1.getId()));
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
+			List.of(betroffeneMassnahme1.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
 		verify(mailService, times(2)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<String> benachrichtigteKreiskoordinatinnen = emailEmpfaengerCaptor.getAllValues().get(1);
-		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@mail.com");
+		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@testRadvis.com");
 
 		verify(templateEngine, times(2)).process(any(String.class), templateContextCaptor.capture());
 		Context context = templateContextCaptor.getAllValues().get(1);
@@ -352,19 +360,21 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(mitRadwegeErfasserin)
+			.zustaendiger(mitRadwegeErfasserin)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(ohneRadwegeerfasserin)
+			.zustaendiger(ohneRadwegeerfasserin)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(radwegeErfasserin));
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme2)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme2)))
 			.thenReturn(List.of());
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(mitRadwegeErfasserin)))
 			.thenReturn(List.of(kreiskoordinatorin));
@@ -376,14 +386,14 @@ class UmsetzungsstandabfrageServiceTest {
 			Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
-		List<Massnahme> massnahmen =umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
 			List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
 		verify(mailService, times(2)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<String> benachrichtigteKreiskoordinatinnen = emailEmpfaengerCaptor.getAllValues().get(1);
-		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@mail.com");
+		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@testRadvis.com");
 
 		verify(templateEngine, times(2)).process(any(String.class), templateContextCaptor.capture());
 		Context context = templateContextCaptor.getAllValues().get(1);
@@ -419,23 +429,23 @@ class UmsetzungsstandabfrageServiceTest {
 
 		Benutzer kreiskoordinatorinGemeinde1 = BenutzerTestDataProvider.kreiskoordinator(gemeinde1).id(1L)
 			.vorname(Name.of("kreiskoordinatorin")).nachname(Name.of("gemeinde1"))
-			.mailadresse(Mailadresse.of("kreiskoordinatorinGemeinde1@mail.de"))
+			.mailadresse(Mailadresse.of("kreiskoordinatorinGemeinde1@testRadvis.de"))
 			.build();
 		Benutzer kreiskoordinatorinGemeinde2 = BenutzerTestDataProvider.kreiskoordinator(gemeinde2).id(2L)
 			.vorname(Name.of("kreiskoordinatorin")).nachname(Name.of("gemeinde2"))
-			.mailadresse(Mailadresse.of("kreiskoordinatorinGemeinde2@mail.de"))
+			.mailadresse(Mailadresse.of("kreiskoordinatorinGemeinde2@testRadvis.de"))
 			.build();
 		Benutzer kreiskoordinatorinKreis = BenutzerTestDataProvider.kreiskoordinator(kreis).id(3L)
 			.vorname(Name.of("kreiskoordinatorin")).nachname(Name.of("kreis"))
-			.mailadresse(Mailadresse.of("kreiskoordinatorinKreis@mail.de"))
+			.mailadresse(Mailadresse.of("kreiskoordinatorinKreis@testRadvis.de"))
 			.build();
 		Benutzer radwegeErfasserin1 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(gemeinde1).id(11L)
 			.vorname(Name.of("radwegeerfasserin")).nachname(Name.of("1"))
-			.mailadresse(Mailadresse.of("radwegeErfasserin1@mail.de"))
+			.mailadresse(Mailadresse.of("radwegeErfasserin1@testRadvis.de"))
 			.build();
 		Benutzer radwegeErfasserin2 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(gemeinde2).id(12L)
 			.vorname(Name.of("radwegeerfasserin")).nachname(Name.of("2"))
-			.mailadresse(Mailadresse.of("radwegeErfasserin2@mail.de"))
+			.mailadresse(Mailadresse.of("radwegeErfasserin2@testRadvis.de"))
 			.build();
 
 		Massnahme betroffeneMassnahme1 = MassnahmeTestDataProvider.withDefaultValues()
@@ -443,19 +453,21 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(gemeinde1)
+			.zustaendiger(gemeinde1)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(1002L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(gemeinde2)
+			.zustaendiger(gemeinde2)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(radwegeErfasserin1));
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme2)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme2)))
 			.thenReturn(List.of(radwegeErfasserin2));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde1)))
 			.thenReturn(List.of(kreiskoordinatorinGemeinde1));
@@ -479,11 +491,11 @@ class UmsetzungsstandabfrageServiceTest {
 		List<String> benachrichtigteKreiskoordinatinnen = emailEmpfaengerCaptor.getAllValues().stream()
 			.flatMap(List::stream).collect(Collectors.toList());
 		assertThat(benachrichtigteKreiskoordinatinnen).containsExactlyInAnyOrder(
-			"radwegeErfasserin1@mail.de",
-			"radwegeErfasserin2@mail.de",
-			"kreiskoordinatorinGemeinde1@mail.de",
-			"kreiskoordinatorinGemeinde2@mail.de",
-			"kreiskoordinatorinKreis@mail.de");
+			"radwegeErfasserin1@testRadvis.de",
+			"radwegeErfasserin2@testRadvis.de",
+			"kreiskoordinatorinGemeinde1@testRadvis.de",
+			"kreiskoordinatorinGemeinde2@testRadvis.de",
+			"kreiskoordinatorinKreis@testRadvis.de");
 
 		verify(templateEngine, times(5)).process(any(String.class), templateContextCaptor.capture());
 
@@ -547,7 +559,7 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(verwaltungseinheit)
+			.zustaendiger(verwaltungseinheit)
 			.build();
 
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
@@ -555,10 +567,11 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(verwaltungseinheitOhneBenutzerMitMassnahme)
+			.zustaendiger(verwaltungseinheitOhneBenutzerMitMassnahme)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(radwegeErfasserin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(verwaltungseinheit)))
 			.thenReturn(List.of(kreiskoordinatorin));
@@ -580,7 +593,7 @@ class UmsetzungsstandabfrageServiceTest {
 		// assert
 		verify(mailService, times(2)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<String> benachrichtigteKreiskoordinatinnen = emailEmpfaengerCaptor.getAllValues().get(1);
-		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@mail.com");
+		assertThat(benachrichtigteKreiskoordinatinnen).containsExactly("kreisKoordinator@testRadvis.com");
 
 		verify(templateEngine, times(2)).process(any(String.class), templateContextCaptor.capture());
 		Context context = templateContextCaptor.getAllValues().get(1);
@@ -617,19 +630,19 @@ class UmsetzungsstandabfrageServiceTest {
 
 		Benutzer kreiskoordinatorinBundesland = BenutzerTestDataProvider.kreiskoordinator(bundesland).id(1L)
 			.vorname(Name.of("kreiskoordinatorin")).nachname(Name.of("bundesland"))
-			.mailadresse(Mailadresse.of("kreiskoordinatorinBundesland@mail.de"))
+			.mailadresse(Mailadresse.of("kreiskoordinatorinBundesland@testRadvis.de"))
 			.build();
 		Benutzer kreiskoordinatorinKreis = BenutzerTestDataProvider.kreiskoordinator(kreis).id(2L)
 			.vorname(Name.of("kreiskoordinatorin")).nachname(Name.of("kreis"))
-			.mailadresse(Mailadresse.of("kreiskoordinatorinKreis@mail.de"))
+			.mailadresse(Mailadresse.of("kreiskoordinatorinKreis@testRadvis.de"))
 			.build();
 		Benutzer kreiskoordinatorinGemeinde = BenutzerTestDataProvider.kreiskoordinator(gemeinde).id(3L)
 			.vorname(Name.of("kreiskoordinatorin")).nachname(Name.of("gemeinde"))
-			.mailadresse(Mailadresse.of("kreiskoordinatorinGemeinde@mail.de"))
+			.mailadresse(Mailadresse.of("kreiskoordinatorinGemeinde@testRadvis.de"))
 			.build();
 		Benutzer radwegeErfasserin1 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(gemeinde).id(11L)
 			.vorname(Name.of("radwegeerfasserin")).nachname(Name.of("1"))
-			.mailadresse(Mailadresse.of("radwegeErfasserin1@mail.de"))
+			.mailadresse(Mailadresse.of("radwegeErfasserin1@testRadvis.de"))
 			.build();
 
 		Massnahme betroffeneMassnahme1 = MassnahmeTestDataProvider.withDefaultValues()
@@ -637,10 +650,11 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(gemeinde)
+			.zustaendiger(gemeinde)
 			.build();
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(radwegeErfasserin1));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde)))
 			.thenReturn(List.of(kreiskoordinatorinGemeinde));
@@ -663,8 +677,8 @@ class UmsetzungsstandabfrageServiceTest {
 		List<String> benachrichtigteKreiskoordinatinnen = emailEmpfaengerCaptor.getAllValues().stream()
 			.flatMap(List::stream).collect(Collectors.toList());
 		assertThat(benachrichtigteKreiskoordinatinnen).containsExactlyInAnyOrder(
-			"radwegeErfasserin1@mail.de",
-			"kreiskoordinatorinGemeinde@mail.de");
+			"radwegeErfasserin1@testRadvis.de",
+			"kreiskoordinatorinGemeinde@testRadvis.de");
 	}
 
 	@Test
@@ -679,14 +693,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
 		when(
@@ -699,14 +713,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.thenReturn(Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
-		List<Massnahme> massnahmen =umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
 			List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
 		verify(mailService, times(1)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<String> empfaenger = emailEmpfaengerCaptor.getValue();
-		assertThat(empfaenger).containsExactly("radwegeErfasserinKommuneKreis@mail.com");
+		assertThat(empfaenger).containsExactly("radwegeErfasserinKommuneKreis@testRadvis.com");
 	}
 
 	@Test
@@ -718,25 +732,25 @@ class UmsetzungsstandabfrageServiceTest {
 		Benutzer benutzer1 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(1L)
 			.vorname(Name.of("BenutzerA")).mailadresse(
-				Mailadresse.of("benutzerA@mail.com")).build();
+				Mailadresse.of("benutzerA@testRadvis.com")).build();
 		Benutzer benutzer2 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(2L)
 			.vorname(Name.of("BenutzerB")).mailadresse(
-				Mailadresse.of("benutzerB@mail.com")).build();
+				Mailadresse.of("benutzerB@testRadvis.com")).build();
 
 		Massnahme betroffeneMassnahme1 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
 		when(
@@ -748,14 +762,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.thenReturn(Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
-		List<Massnahme> massnahmen =umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(1L, 2L));
+		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(1L, 2L));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
 		verify(mailService, times(2)).sendHtmlMail(emailEmpfaengerCaptor.capture(), any(), any());
 		List<List<String>> empfaenger = emailEmpfaengerCaptor.getAllValues();
-		assertThat(empfaenger.get(0)).containsExactly("benutzerA@mail.com");
-		assertThat(empfaenger.get(1)).containsExactly("benutzerB@mail.com");
+		assertThat(empfaenger.get(0)).containsExactly("benutzerA@testRadvis.com");
+		assertThat(empfaenger.get(1)).containsExactly("benutzerB@testRadvis.com");
 	}
 
 	@Test
@@ -769,14 +783,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(List.of(1L, 2L))))
@@ -806,11 +820,12 @@ class UmsetzungsstandabfrageServiceTest {
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.umsetzungsstand(new Umsetzungsstand())
-			.baulastZustaendiger(organisation)
+			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme1, nichtRadwegeErfasserin);
 
-		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
+		when(
+			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
 			.thenReturn(List.of(nichtRadwegeErfasserin));
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
@@ -828,7 +843,7 @@ class UmsetzungsstandabfrageServiceTest {
 	@Test
 	void radvisLinkFuerOrganisation() {
 		// arrange
-		when(commonConfigurationProperties.getBasisUrl()).thenReturn("https://abc.de/");
+		when(commonConfigurationProperties.getBasisUrl()).thenReturn("https://abc.de");
 		Verwaltungseinheit organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Name mit Leerzeichen")
 			.build();
@@ -837,8 +852,8 @@ class UmsetzungsstandabfrageServiceTest {
 		String radvisLink = umsetzungsstandabfrageService.getRadvisLink(organisation);
 
 		// assert
-		assertThat(radvisLink).isEqualTo("https://abc.de/app/viewer?infrastrukturen=massnahmen&tabellenVisible=true"
-			+ "&filter_massnahmen=umsetzungsstandStatus:Aktualisierung%2520angefordert,baulastZustaendiger:Name%2520mit%2520Leerzeichen");
+		assertThat(radvisLink).isEqualTo("https://abc.de/viewer?infrastrukturen=massnahmen&tabellenVisible=true"
+			+ "&filter_massnahmen=umsetzungsstandStatus:Aktualisierung%2520angefordert,zustaendiger:Name%2520mit%2520Leerzeichen");
 	}
 
 	@Test

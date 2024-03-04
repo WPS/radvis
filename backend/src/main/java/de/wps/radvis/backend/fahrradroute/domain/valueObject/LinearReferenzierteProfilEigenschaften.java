@@ -14,10 +14,9 @@
 
 package de.wps.radvis.backend.fahrradroute.domain.valueObject;
 
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-
-import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

@@ -14,12 +14,7 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">Maßnahme erstellen</h2>
-  <button
-    [attr.aria-label]="'Schließen'"
-    matTooltip="Schließen"
-    (click)="onClose()"
-    mat-icon-button
-  >
+  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -37,21 +32,18 @@
       class="mt-10 mb-10"
       [layerId]="MASSNAHMEN.name"
     ></rad-netzbezug-selektion-control>
+
     <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="umsetzungsstatusOptions"
-      class="mat-form-field-full-width"
       formControlName="umsetzungsstatus"
+      [options]="umsetzungsstatusOptions"
+      [nullable]="false"
     >
       Umsetzungsstatus
     </rad-enum-dropdown-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="bezeichnung">
+    <rad-text-input-control formControlName="bezeichnung" [errors]="formGroup.get('bezeichnung')?.errors">
       <div class="label">Bezeichnung</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('bezeichnung')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-massnahmenkategorien-dropdown-control formControlName="massnahmenkategorien" class="mat-form-field-full-width">
       Kategorien
@@ -71,69 +63,63 @@
 
     <mat-checkbox formControlName="planungErforderlich" class="mb-2"> Planung erforderlich</mat-checkbox>
 
-    <rad-organisationen-dropdown-control
-      [options]="(alleOrganisationenOptions | async) || []"
-      class="mat-form-field-full-width"
+    <rad-autocomplete-dropdown
       formControlName="baulastZustaendiger"
+      [options]="(alleOrganisationenOptions | async) || []"
+      [errors]="formGroup.get('baulastZustaendiger')?.errors"
     >
       Baulastträger
-    </rad-organisationen-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('baulastZustaendiger')?.errors || null"
-    ></rad-validation-error-anzeige>
+    </rad-autocomplete-dropdown>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="durchfuehrungszeitraum">
+    <rad-autocomplete-dropdown
+      formControlName="zustaendiger"
+      [nullable]="false"
+      [options]="(alleOrganisationenOptions | async) || []"
+      [errors]="formGroup.get('zustaendiger')?.errors"
+    >
+      Zuständige/r
+    </rad-autocomplete-dropdown>
+
+    <rad-text-input-control
+      formControlName="durchfuehrungszeitraum"
+      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors"
+    >
       <div class="label">Durchführungszeitraum</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="sollStandardOptions"
-      class="mat-form-field-full-width"
       formControlName="sollStandard"
+      [options]="sollStandardOptions"
+      [nullable]="false"
+      [errors]="formGroup.get('sollStandard')?.errors"
     >
       Soll-Standard
     </rad-enum-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('sollStandard')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
-      [nullable]="umsetzungsstatusAbPlanung()"
-      [options]="handlungsverantwortlicherOptions"
-      class="mat-form-field-full-width"
       formControlName="handlungsverantwortlicher"
+      [options]="handlungsverantwortlicherOptions"
+      [nullable]="umsetzungsstatusAbPlanung()"
+      [errors]="formGroup.get('handlungsverantwortlicher')?.errors"
     >
       Wer soll tätig werden?
     </rad-enum-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('handlungsverantwortlicher')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="konzeptionsquelleOptions"
-      class="mat-form-field-full-width"
       formControlName="konzeptionsquelle"
+      [options]="konzeptionsquelleOptions"
+      [nullable]="false"
+      [errors]="formGroup.get('konzeptionsquelle')?.errors"
     >
       Quelle
     </rad-enum-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('konzeptionsquelle')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-text-input-control
       *ngIf="sonstigeKonzeptionsquelle()"
-      class="mat-form-field-full-width"
       formControlName="sonstigeKonzeptionsquelle"
+      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors"
     >
       <div class="label">Sonstige Quelle</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors || null"
-    ></rad-validation-error-anzeige>
   </rad-attribute-editor>
 </form>

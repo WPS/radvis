@@ -26,9 +26,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Transient;
-
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.locationtech.jts.linearref.LocationIndexedLine;
@@ -37,6 +34,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -211,9 +210,9 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 	 * stattfindet, ist, ob eine valide Lineare Referenz rauskommt, also ob keine Punktprojektion rauskommt.
 	 *
 	 * @param auf
-	 *            der LineString auf den sich die Lineare Referenz bezieht
+	 * 	der LineString auf den sich die Lineare Referenz bezieht
 	 * @param von
-	 *            der LineString von dem aus auf den anderen LineString projiziert wird
+	 * 	der LineString von dem aus auf den anderen LineString projiziert wird
 	 * @return die LineareReferenz die von projiziert auf auf ergibt
 	 */
 	public static LinearReferenzierterAbschnitt of(LineString auf, LineString von) {

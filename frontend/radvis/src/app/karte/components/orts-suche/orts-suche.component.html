@@ -12,13 +12,13 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<div class="ml-10 mr-10 w-100" radAccessabilityTabCircleGroup>
+<div class="ortssuche" radAccessabilityTabCircleGroup>
   <mat-form-field aria-label="Ortssuche">
     <input
       radAccessabilityTabCircleElement
       #input
       type="text"
-      placeholder="Ortssuche"
+      placeholder="Suche..."
       matInput
       aria-label="Ortssuche"
       [formControl]="ortsSucheControl"
@@ -36,6 +36,7 @@
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
+
   <button
     radAccessabilityTabCircleElement
     [attr.aria-label]="'Eingabe zurücksetzen'"

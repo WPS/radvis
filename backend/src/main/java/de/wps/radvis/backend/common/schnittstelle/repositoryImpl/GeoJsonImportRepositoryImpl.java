@@ -20,18 +20,20 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.geojson.Crs;
 import org.geojson.GeoJsonObject;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.data.geojson.GeoJSONReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.SchemaException;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JacksonException;
@@ -41,7 +43,6 @@ import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.weitereKartenebenen.domain.DateiLayerImportException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -55,17 +56,20 @@ public class GeoJsonImportRepositoryImpl implements GeoJsonImportRepository {
 
 	@Override
 	public Stream<SimpleFeature> readFeaturesFromGeojsonFile(MultipartFile file) throws ReadGeoJSONException {
-		String jsonString;
 		try {
-			jsonString = new String(file.getBytes());
+			return readFeaturesFromByteArray(file.getBytes());
 		} catch (IOException e) {
-			throw new RuntimeException("Die hochgeladene Datei kann nicht ausgelesen werden.", e);
+			throw new ReadGeoJSONException("Die hochgeladene Datei kann nicht ausgelesen werden.", e);
 		}
+	}
 
+	@Override
+	public Stream<SimpleFeature> readFeaturesFromByteArray(byte[] bytes) throws ReadGeoJSONException {
+		String jsonString = new String(bytes);
 		// An dieser Stelle erstmal "nur" nach json validieren.
 		// Wenn es nicht dem GeoJSON Standart entspricht fliegen wir spaeter beim konvertieren raus
 		if (!validateJSON(jsonString)) {
-			throw new RuntimeException("Die hochgeladene Datei enthält kein gültiges JSON.");
+			throw new ReadGeoJSONException("Die hochgeladene Datei enthält kein gültiges JSON.");
 		}
 
 		return getSimpleFeatures(jsonString).stream();
@@ -98,12 +102,21 @@ public class GeoJsonImportRepositoryImpl implements GeoJsonImportRepository {
 
 	@Override
 	public List<SimpleFeature> getSimpleFeatures(String geoJsonString) throws ReadGeoJSONException {
+		return getSimpleFeatures(geoJsonString, null);
+	}
+
+	@Override
+	public List<SimpleFeature> getSimpleFeatures(String geoJsonString, SimpleFeatureType type)
+		throws ReadGeoJSONException {
 		SimpleFeatureCollection simpleFeatureCollection;
 
 		// Die Methode parseFeatureCollection wirft leider keine guten Fachlichen Exceptions, sondern irgendwelchen
 		// runtime Kram, wenn etwas nicht einlesbar ist. Deshalb sollte hier alles was auftreten kann abgefangen werden.
-		try {
-			simpleFeatureCollection = GeoJSONReader.parseFeatureCollection(geoJsonString);
+		try (GeoJSONReader geoJSONReader = new GeoJSONReader(geoJsonString)) {
+			if (!Objects.isNull(type)) {
+				geoJSONReader.setSchema(type);
+			}
+			simpleFeatureCollection = geoJSONReader.getFeatures();
 			// Wir müssen hier einen AssertionError in GeoTools catchen können, daher kann hier Throwable vorerst nicht
 			// nicht durch Exception ersetzt werden.
 		} catch (Throwable e) {

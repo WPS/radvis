@@ -40,7 +40,7 @@ export interface Massnahme extends VersionierteEntitaet {
   netzklassen: Netzklasse[];
   letzteAenderung: Date;
   benutzerLetzteAenderung: BenutzerName;
-  markierungsZustaendiger: Verwaltungseinheit | null;
+  zustaendiger: Verwaltungseinheit;
   unterhaltsZustaendiger: Verwaltungseinheit | null;
 
   maViSID: string | null;

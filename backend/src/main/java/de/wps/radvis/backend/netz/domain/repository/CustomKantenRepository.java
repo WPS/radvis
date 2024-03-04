@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.springframework.data.domain.Slice;
 
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -57,7 +58,7 @@ public interface CustomKantenRepository {
 
 	Set<Kante> getAlleKantenEinesKnotens(Knoten knoten);
 
-	Set<Kante> getKantenInOrganisationsbereich(Verwaltungseinheit organisation);
+	Set<Kante> getKantenInBereich(MultiPolygon bereich);
 
 	Set<Kante> getKantenInOrganisationsbereichEagerFetchNetzklassen(Verwaltungseinheit organisation);
 
@@ -76,9 +77,7 @@ public interface CustomKantenRepository {
 
 	Stream<Kante> getEinseitigBefahrbareKanten();
 
-	void refreshRadVisNetzMaterializedView();
-
-	void refreshRadVisNetzAbschnitteMaterializedView();
+	void refreshNetzMaterializedViews();
 
 	void updateKanteElevation(Slice<KanteElevationUpdate> kanteElevationInserts);
 }

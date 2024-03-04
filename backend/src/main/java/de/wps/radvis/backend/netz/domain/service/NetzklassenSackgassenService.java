@@ -23,13 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.transaction.Transactional;
 
 public class NetzklassenSackgassenService {
 

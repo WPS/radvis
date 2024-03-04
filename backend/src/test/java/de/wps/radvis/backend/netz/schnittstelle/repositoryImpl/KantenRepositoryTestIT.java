@@ -44,6 +44,8 @@ import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -58,6 +60,7 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.PostGisHelper;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -67,6 +70,7 @@ import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.provider.FahrradrouteTestDataProvider;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
+import de.wps.radvis.backend.fahrradroute.domain.valueObject.DrouteId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.netz.NetzConfiguration;
@@ -90,6 +94,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.FahrtrichtungAttributGr
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.entity.provider.KantenAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
@@ -114,6 +119,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
@@ -129,18 +135,29 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 
 @Tag("group3")
+@Slf4j
 @EnableJpaRepositories(basePackageClasses = { FahrradrouteConfiguration.class })
 @EntityScan(basePackageClasses = { FahrradrouteConfiguration.class })
-@ContextConfiguration(classes = { NetzConfiguration.class, CommonConfiguration.class, OrganisationConfiguration.class,
-	BenutzerConfiguration.class, GeoConverterConfiguration.class, JacksonConfiguration.class })
+@ContextConfiguration(classes = {
+	NetzConfiguration.class,
+	CommonConfiguration.class,
+	OrganisationConfiguration.class,
+	BenutzerConfiguration.class,
+	GeoConverterConfiguration.class,
+	JacksonConfiguration.class
+})
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -185,6 +202,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -787,10 +805,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void testGetKantenInOrganisationsbereich() {
-		gebietskoerperschaftRepository.save(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.bereich(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100)).build());
-
+	void testGetKantenBereich() {
 		Kante kanteInBereich = kantenRepository
 			.save(KanteTestDataProvider.withCoordinatesAndQuelle(0, 10, 1, 20, QuellSystem.DLM)
 				.build());
@@ -801,11 +816,26 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		// act
 		Set<Kante> kanten = kantenRepository
-			.getKantenInOrganisationsbereich(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-				.bereich(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100)).build());
+			.getKantenInBereich(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100));
 
 		// assert
 		assertThat(kanten).containsExactlyInAnyOrder(kanteInBereich);
+	}
+
+	@Test
+	void testGetKantenBereich_BereichEmpty_keineKanten() {
+		kantenRepository
+			.save(KanteTestDataProvider.withCoordinatesAndQuelle(0, 10, 1, 20, QuellSystem.DLM)
+				.build());
+		kantenRepository
+			.save(KanteTestDataProvider.withCoordinatesAndQuelle(101, 101, 120, 120, QuellSystem.DLM)
+				.build());
+
+		// act
+		Set<Kante> kanten = kantenRepository.getKantenInBereich(GEO_FACTORY.createMultiPolygon());
+
+		// assert
+		assertThat(kanten).isEmpty();
 	}
 
 	@Test
@@ -957,6 +987,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -1020,7 +1051,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KantenRepository.GEOSERVER_RADVISNETZ_MAT_VIEW_NAME);
@@ -1048,8 +1079,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				put("gemeinde_name", null);
 				put("landkreis_name", null);
 				put("beleuchtung", kantenAttribute.getBeleuchtung().name());
-				put("strassenquerschnittrast06", kantenAttribute.getStrassenquerschnittRASt06().name());
 				put("umfeld", kantenAttribute.getUmfeld().name());
+				put("strassenkategorierin", kantenAttribute.getStrassenkategorieRIN().map(Enum::name).orElse(""));
+				put("strassenquerschnittrast06", kantenAttribute.getStrassenquerschnittRASt06().name());
 				put("status", kantenAttribute.getStatus().name());
 
 				Set<Netzklasse> netzklassen = kante.getKantenAttributGruppe().getNetzklassen();
@@ -1081,20 +1113,109 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				// -- zustaendigkeitattribute
 
 				put("baulast_traeger", gebietskoerperschaft.getName());
+				put("baulast_traeger_orga_typ", gebietskoerperschaft.getOrganisationsArt().name());
 				put("unterhalts_zustaendiger", gebietskoerperschaft.getName());
+				put("unterhalts_zustaendiger_orga_typ", gebietskoerperschaft.getOrganisationsArt().name());
 				put("erhalts_zustaendiger", gebietskoerperschaft.getName());
+				put("erhalts_zustaendiger_orga_typ", gebietskoerperschaft.getOrganisationsArt().name());
 				put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
 
 				// -- fahrtrichtungattribute
 				put("fahrtrichtung_links", Richtung.BEIDE_RICHTUNGEN.name());
 				put("fahrtrichtung_rechts", Richtung.BEIDE_RICHTUNGEN.name());
 				put("is_zweiseitig", Boolean.TRUE);
+				put("hoechstenk", null);
 			}
 		};
 
 		assertThat(resultList).hasSize(1);
-		assertThat(resultList.get(0)).containsExactlyInAnyOrderEntriesOf(expected);
+		assertThat(resultList).contains(expected);
+	}
 
+	@Test
+	public void testCreateOrRefreshRadVisNetzMaterializedView_hoechsteNK_AlltagFreizeitRadNETZ() {
+		// Arrange
+		Set<Netzklasse> netzklassen = Set.of(
+			Netzklasse.RADNETZ_ALLTAG,
+			Netzklasse.RADNETZ_FREIZEIT,
+			Netzklasse.KOMMUNALNETZ_ALLTAG,
+			Netzklasse.KREISNETZ_FREIZEIT,
+			Netzklasse.RADSCHNELLVERBINDUNG);
+
+		Kante kante = KanteTestDataProvider.withCoordinates(
+				new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
+			.quelle(QuellSystem.DLM)
+			.dlmId(DlmId.of("dlmId"))
+			.kantenAttributGruppe(
+				new KantenAttributGruppe(
+					KantenAttributeTestDataProvider.withLeereGrundnetzAttribute().build(),
+					netzklassen,
+					new HashSet<>()))
+			.build();
+
+		kantenRepository.save(kante).getId();
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// Act
+		kantenRepository.refreshNetzMaterializedViews();
+
+		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
+			"SELECT * FROM " + KantenRepository.GEOSERVER_RADVISNETZ_MAT_VIEW_NAME);
+
+		// Assert
+		Map<String, Object> expected = new HashMap<>() {
+			{
+				put("id", kante.getId());
+				put("hoechstenk", "Alltag und Freizeit (RadNETZ)");
+			}
+		};
+
+		assertThat(resultList).hasSize(1);
+		assertThat(resultList.get(0)).containsAllEntriesOf(expected);
+	}
+
+	@Test
+	public void testCreateOrRefreshRadVisNetzMaterializedView_hoechsteNK_KreisNetz() {
+		// Arrange
+		Set<Netzklasse> netzklassen = Set.of(
+			Netzklasse.KREISNETZ_FREIZEIT,
+			Netzklasse.KOMMUNALNETZ_ALLTAG
+		);
+
+		Kante kante = KanteTestDataProvider.withCoordinates(
+				new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
+			.quelle(QuellSystem.DLM)
+			.dlmId(DlmId.of("dlmId"))
+			.kantenAttributGruppe(
+				new KantenAttributGruppe(
+					KantenAttributeTestDataProvider.withLeereGrundnetzAttribute().build(),
+					netzklassen,
+					new HashSet<>()))
+			.build();
+
+		kantenRepository.save(kante).getId();
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// Act
+		kantenRepository.refreshNetzMaterializedViews();
+
+		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
+			"SELECT * FROM " + KantenRepository.GEOSERVER_RADVISNETZ_MAT_VIEW_NAME);
+
+		// Assert
+		Map<String, Object> expected = new HashMap<>() {
+			{
+				put("id", kante.getId());
+				put("hoechstenk", "Freizeit (Kreisnetz)");
+			}
+		};
+
+		assertThat(resultList).hasSize(1);
+		assertThat(resultList.get(0)).containsAllEntriesOf(expected);
 	}
 
 	@Test
@@ -1122,6 +1243,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -1263,7 +1385,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KantenRepository.GEOSERVER_RADVISNETZ_ABSCHNITTE_MAT_VIEW_NAME);
@@ -1288,8 +1410,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				put("gemeinde_name", null);
 				put("landkreis_name", null);
 				put("beleuchtung", kantenAttribute.getBeleuchtung().name());
-				put("strassenquerschnittrast06", kantenAttribute.getStrassenquerschnittRASt06().name());
 				put("umfeld", kantenAttribute.getUmfeld().name());
+				put("strassenkategorierin", kantenAttribute.getStrassenkategorieRIN().map(Enum::name).orElse(""));
+				put("strassenquerschnittrast06", kantenAttribute.getStrassenquerschnittRASt06().name());
 				put("status", kantenAttribute.getStatus().name());
 
 				Set<Netzklasse> netzklassen = kante.getKantenAttributGruppe().getNetzklassen();
@@ -1586,6 +1709,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -1685,7 +1809,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KantenRepository.GEOSERVER_RADVISNETZ_ABSCHNITTE_MAT_VIEW_NAME);
@@ -1710,8 +1834,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				put("gemeinde_name", null);
 				put("landkreis_name", null);
 				put("beleuchtung", kantenAttribute.getBeleuchtung().name());
-				put("strassenquerschnittrast06", kantenAttribute.getStrassenquerschnittRASt06().name());
 				put("umfeld", kantenAttribute.getUmfeld().name());
+				put("strassenkategorierin", kantenAttribute.getStrassenkategorieRIN().map(Enum::name).orElse(""));
+				put("strassenquerschnittrast06", kantenAttribute.getStrassenquerschnittRASt06().name());
 				put("status", kantenAttribute.getStatus().name());
 
 				Set<Netzklasse> netzklassen = kante.getKantenAttributGruppe().getNetzklassen();
@@ -1895,6 +2020,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -2046,8 +2172,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		kantenRepository.refreshRadVisNetzMaterializedView(); // Notwendig da die AbschnitteView die Netzklassen aus einer der materialized "Subviews" dieser View zieht
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KantenRepository.GEOSERVER_BALM_KANTEN_VIEW_NAME);
@@ -2070,7 +2195,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 3);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2088,7 +2213,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 0);
@@ -2107,7 +2232,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 2);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2125,7 +2250,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 0);
@@ -2144,7 +2269,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 2);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2162,7 +2287,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 0);
@@ -2181,7 +2306,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "120");
 			put("Laenge", 3);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2199,7 +2324,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 0);
@@ -2276,6 +2401,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -2440,8 +2566,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		// Act
 
-		kantenRepository.refreshRadVisNetzMaterializedView(); // Notwendig da die AbschnitteView die Netzklassen aus einer der materialized "Subviews" dieser View zieht
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KantenRepository.GEOSERVER_BALM_KANTEN_VIEW_NAME);
@@ -2464,7 +2589,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 3);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2502,7 +2627,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 2);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2540,7 +2665,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 2);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2578,7 +2703,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "120");
 			put("Laenge", 3);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2615,7 +2740,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "132");
 			put("Laenge", 3);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2652,7 +2777,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "132");
 			put("Laenge", 2);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2689,7 +2814,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "132");
 			put("Laenge", 3);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2726,7 +2851,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "200");
 			put("Laenge", 2);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -2787,6 +2912,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.wegeNiveau(WegeNiveau.FAHRBAHN)
 			.beleuchtung(Beleuchtung.VORHANDEN)
 			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE)
 			.status(Status.defaultWert())
 			.build();
@@ -2959,8 +3085,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		// Act
 
-		kantenRepository.refreshRadVisNetzMaterializedView(); // Notwendig da die AbschnitteView die Netzklassen aus einer der materialized "Subviews" dieser View zieht
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		List<Map<String, Object>> resultList = jdbcTemplate.queryForList(
 			"SELECT * FROM " + KantenRepository.GEOSERVER_BALM_KANTEN_VIEW_NAME);
@@ -2983,7 +3108,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 30);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3001,7 +3126,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3021,7 +3146,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 20);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3039,7 +3164,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3059,7 +3184,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "110");
 			put("Laenge", 20);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3077,7 +3202,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3097,7 +3222,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "120");
 			put("Laenge", 30);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3115,7 +3240,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3134,7 +3259,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "132");
 			put("Laenge", 30);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3152,7 +3277,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3171,7 +3296,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "132");
 			put("Laenge", 20);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "1");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3189,7 +3314,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3208,7 +3333,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "132");
 			put("Laenge", 30);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3226,7 +3351,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3245,7 +3370,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Belag", "200");
 			put("Laenge", 20);
 			put("Licht", "1");
-			put("Breite", 1);
+			put("Breite", 100);
 			put("Lage", "2");
 			put("B-Pflicht", 1);
 			put("Bewertung", "4");
@@ -3263,7 +3388,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			put("Routen_ID", null);
 			put("Routenname", null);
 			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", null);
+			put("ext_bw_RadNETZ_D", 0);
 			put("ext_bw_Landesnetz", 1);
 			put("ext_bw_Kreisnetz", 0);
 			put("ext_bw_KommuNetz", 1);
@@ -3374,7 +3499,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3396,7 +3521,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3431,7 +3556,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3458,8 +3583,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3469,16 +3593,41 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.containsExactlyInAnyOrder(notDefaultKante.getId());
 	}
 
-	// Dieser Test dauert etwas zu lange, um in der Pipeline ausgeführt zu werden
+	@Test
+	void getFuerOsmAbbildungRelevanteKanten_defaultKante_droute() {
+		// arrange
+		Kante defaultKante = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.geometry(GeometryTestdataProvider.createLineString(new Coordinate(1, 1), new Coordinate(5, 5)))
+			.build());
+		fahrradrouteRepository.save(
+			FahrradrouteTestDataProvider.onKante(defaultKante)
+				.drouteId(DrouteId.of("8"))
+				.verantwortlich(null)
+				.build());
+
+		Envelope bereich = new Envelope(0, 30, 0, 30);
+
+		entityManager.flush();
+		entityManager.clear();
+		kantenRepository.refreshNetzMaterializedViews();
+
+		// act
+		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
+
+		// assert
+		assertThat(kantenInBereich).extracting(KanteGeometryView::getId)
+			.containsExactlyInAnyOrder(defaultKante.getId());
+	}
+
+	// Dieser Test dauert etwas zu lange, um in der Pipeline ausgeführt zu werden.
 	// Hintergrund ist ein Bug bei dem die max. Anzahl gebundener Parametervalues
-	// überschritten wurde  (Postgres limit = 2 Bytes ~ 32000).
+	// überschritten wurde (Postgres limit = 2 Bytes ~ 32000).
 	@Test
 	@Disabled
 	void getFuerOsmAbbildungRelevanteKanten_largeResult() {
 		// arrange
 		List<Kante> kanten = new ArrayList<>();
 		for (int i = 0; i < 40000; i++) {
-			System.out.println(i);
 			kanten.add(KanteTestDataProvider.withDefaultValues()
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(1, 1), new Coordinate(5, 5)))
 				.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
@@ -3488,26 +3637,25 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				.build());
 		}
 
-		System.out.println("SAving ...");
+		log.debug("Saving ...");
 		kantenRepository.saveAll(kanten);
-		System.out.println("...done");
+		log.debug("...done");
 
 		Envelope bereich = new Envelope(0, 30, 0, 30);
 
-		System.out.println("Flush/Clear...");
+		log.debug("Flush/Clear...");
 		entityManager.flush();
 		entityManager.clear();
-		System.out.println("...done");
+		log.debug("...done");
 
-		System.out.println("Refreshing views...");
-		kantenRepository.refreshRadVisNetzMaterializedView();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
-		System.out.println("... done");
+		log.debug("Refreshing views...");
+		kantenRepository.refreshNetzMaterializedViews();
+		log.debug("... done");
 
 		// act
-		System.out.println("Querying...");
+		log.debug("Querying...");
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
-		System.out.println("... done");
+		log.debug("... done");
 
 		// assert
 		assertThat(kantenInBereich).hasSize(40000);
@@ -3538,7 +3686,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3580,7 +3728,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3620,7 +3768,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteGeometryView> kantenInBereich = kantenRepository.getFuerOsmAbbildungRelevanteKanten(bereich);
@@ -3678,7 +3826,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteOsmMatchWithAttribute> flacheKanten = kantenRepository.getKanteOsmMatchesWithOsmAttributes(0.8)
@@ -3695,7 +3843,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.isEqualTo(new KanteOsmMatchWithAttribute(attributierteKante.getId(), osmWayId1, status.name(),
 				null, // Netzklassen werden extra getestet
 				radverkehrsfuehrung.name(), breite.getValue(), belagArt.name(),
-				oberflaeche.name()));
+				oberflaeche.name(), false));
 
 		// Netzklassen werden als Set an der Kante gespeichert und sind hier als String zusammen gejoint.
 		// Muessen also in allen permutationen getestet werden (hier einfach (a,b oder b,a).
@@ -3713,7 +3861,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(attrDefaultKante.get()).usingRecursiveComparison().usingOverriddenEquals()
 			.isEqualTo(new KanteOsmMatchWithAttribute(defaultKante.getId(), osmWayId2, Status.UNTER_VERKEHR.name(),
 				null, Radverkehrsfuehrung.UNBEKANNT.name(), null, BelagArt.UNBEKANNT.name(),
-				Oberflaechenbeschaffenheit.UNBEKANNT.name()));
+				Oberflaechenbeschaffenheit.UNBEKANNT.name(), false));
 	}
 
 	@Test
@@ -3729,7 +3877,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteOsmMatchWithAttribute> flacheKanten = kantenRepository.getKanteOsmMatchesWithOsmAttributes(0.8)
@@ -3786,7 +3934,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteOsmMatchWithAttribute> flacheKanten = kantenRepository.getKanteOsmMatchesWithOsmAttributes(0.8)
@@ -3802,7 +3950,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.isEqualTo(new KanteOsmMatchWithAttribute(attributierteKante.getId(), osmWayId, status.name(),
 				netzklassen.stream().map(Enum::name).collect(Collectors.joining(";")),
 				radverkehrsfuehrung.name(), breite.getValue(), belagArt.name(),
-				oberflaeche.name()));
+				oberflaeche.name(), false));
 
 		Optional<KanteOsmMatchWithAttribute> defaultFlacheKante = flacheKanten.stream()
 			.filter(k -> k.getKanteId().equals(defaultKante.getId())).findFirst();
@@ -3830,7 +3978,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act
 		List<KanteOsmMatchWithAttribute> flacheKanten = kantenRepository.getKanteOsmMatchesWithOsmAttributes(0.8)
@@ -3856,7 +4004,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act + assert
 		Optional<String> netzklassenVonKante = kantenRepository.getNetzklassenVonKante(
@@ -3884,7 +4032,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		entityManager.flush();
 		entityManager.clear();
-		kantenRepository.refreshRadVisNetzMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 
 		// act + assert
 		Optional<String> netzklassenVonKante = kantenRepository.getNetzklassenVonKante(kante_ohneNetzklasse.getId());

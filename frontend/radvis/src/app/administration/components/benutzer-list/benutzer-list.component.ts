@@ -13,7 +13,7 @@
  */
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -40,20 +40,29 @@ export class BenutzerListComponent implements AfterViewInit, OnDestroy {
   benutzerDataSource: MatTableDataSource<BenutzerListView>;
   // muss den keys am BenutzerListView entsprechen, damit sorting funktioniert
   headerColumns = ['nachname', 'vorname', 'status', 'organisation', 'email'];
-  formControl: FormControl;
+  formControl: UntypedFormControl;
   BenutzerStatus = BenutzerStatus;
 
   private subscriptions: Subscription[] = [];
 
   private readonly defaultPageSize = 10;
 
+  private data: BenutzerListView[] = [];
+  private filteredData: BenutzerListView[] = [];
+
+  showInaktiveBenutzer = false;
+  showAbgelehnteBenutzer = false;
+
   constructor(
     public activatedRoute: ActivatedRoute,
     private router: Router,
     private administrationRoutingService: AdministrationRoutingService
   ) {
-    this.benutzerDataSource = new MatTableDataSource<BenutzerListView>(activatedRoute.snapshot.data.benutzer);
-    this.formControl = new FormControl('');
+    this.data = activatedRoute.snapshot.data.benutzer;
+    this.data.sort((b, a) => a.status.localeCompare(b.status));
+    this.benutzerDataSource = new MatTableDataSource<BenutzerListView>([]);
+    this.applyFilter();
+    this.formControl = new UntypedFormControl('');
     this.formControl.valueChanges.pipe(debounceTime(100)).subscribe(() => this.updateQueryParams());
     this.subscriptions.push(
       this.activatedRoute.queryParamMap.subscribe((route: ParamMap) => {
@@ -87,6 +96,7 @@ export class BenutzerListComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.benutzerDataSource.paginator = this.paginator;
     this.benutzerDataSource.sort = this.sort;
+    this.applyFilter;
   }
 
   ngOnDestroy(): void {
@@ -113,5 +123,24 @@ export class BenutzerListComponent implements AfterViewInit, OnDestroy {
     urlTree.queryParams[AdministrationRoutingService.BENUTZER_SUCHE_PAGE_SIZE_QUERY_PARAM] =
       this.paginator?.pageSize || this.defaultPageSize;
     this.router.navigateByUrl(urlTree, { replaceUrl: true });
+  }
+
+  onToggleInaktiveBenutzerAktiv(): void {
+    this.showInaktiveBenutzer = !this.showInaktiveBenutzer;
+    this.applyFilter();
+  }
+
+  onToggleAbgelehnteBenutzerAktiv(): void {
+    this.showAbgelehnteBenutzer = !this.showAbgelehnteBenutzer;
+    this.applyFilter();
+  }
+
+  private applyFilter(): void {
+    this.filteredData = this.data.filter(
+      data =>
+        (this.showInaktiveBenutzer || data.status !== BenutzerStatus.INAKTIV) &&
+        (this.showAbgelehnteBenutzer || data.status !== BenutzerStatus.ABGELEHNT)
+    );
+    this.benutzerDataSource.data = this.filteredData;
   }
 }

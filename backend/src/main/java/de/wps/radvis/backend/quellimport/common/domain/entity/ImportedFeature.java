@@ -22,10 +22,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
@@ -33,6 +29,9 @@ import de.wps.radvis.backend.common.domain.valueObject.Attribute;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

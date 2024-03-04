@@ -12,86 +12,91 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<form [formGroup]="registrierungForm" class="form-group" (ngSubmit)="register()">
-  <h2>RadVIS-Benutzerregistrierung</h2>
+<form [formGroup]="registrierungForm" class="registrierung-form" (ngSubmit)="register()">
+  <mat-card appearance="outlined">
+    <mat-card-header class="registrierung-card-header">
+      <mat-card-title><h3 style="margin-top: 0">RadVIS-Benutzerregistrierung</h3></mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="registrierung-card-content">
+      <mat-card appearance="outlined" class="registrierung-hinweis">
+        <mat-card-header>
+          <mat-card-subtitle><strong>Achtung</strong></mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>
+            Der Zugang zum RadVIS ist nur für zuständige Behörden im Bereich Radverkehr zugelassen. Für die
+            interessierte Öffentlichkeit existiert ein Web-Viewer (ohne Zugangsbeschränkung), in welchem die Daten
+            eingesehen werden können.
+          </p>
+        </mat-card-content>
+      </mat-card>
 
-  <mat-card class="registrierung-hinweis">
-    <mat-card-subtitle><strong>Achtung</strong></mat-card-subtitle>
-    <mat-card-content>
       <p>
-        Der Zugang zum RadVIS ist nur für zuständige Behörden im Bereich Radverkehr zugelassen. Für die interessierte
-        Öffentlichkeit wird ein Web-Viewer (ohne Zugangsbeschränkung) entwickelt, wo die Daten eingesehen werden können.
+        Sie sind mit Ihrem Service BW Account angemeldet. <br />
+        Für die Verwendung von RadVIS sind folgende Zusatzangaben notwendig:
       </p>
+
+      <rad-text-input-control
+        formControlName="vorname"
+        [touchOnWrite]="false"
+        [errors]="registrierungForm.get('vorname')?.errors"
+      >
+        <div class="label">Vorname</div>
+      </rad-text-input-control>
+
+      <rad-text-input-control
+        formControlName="nachname"
+        [touchOnWrite]="false"
+        [errors]="registrierungForm.get('nachname')?.errors"
+      >
+        <div class="label">Nachname</div>
+      </rad-text-input-control>
+
+      <rad-text-input-control
+        formControlName="email"
+        [touchOnWrite]="false"
+        [errors]="registrierungForm.get('email')?.errors"
+      >
+        <div class="label">E-Mail-Adresse</div>
+      </rad-text-input-control>
+
+      <rad-organisationen-dropdown-control
+        formControlName="organisation"
+        [options]="alleBenutzerOrganisationen"
+        [touchOnWrite]="false"
+        [errors]="registrierungForm.get('organisation')?.errors"
+      >
+        Organisation
+      </rad-organisationen-dropdown-control>
+
+      <rad-enum-dropdown-control
+        formControlName="rollen"
+        [options]="rollen"
+        [nullable]="false"
+        [multiple]="true"
+        [touchOnWrite]="false"
+        [errors]="registrierungForm.get('rollen')?.errors"
+      >
+        Rollen
+      </rad-enum-dropdown-control>
+
+      <a href="javascript:void(0);" class="mb-10" (click)="openManualRollenRechte()"
+        >Weitere Informationen zu den Rollen im Handbuch</a
+      >
+
+      <mat-checkbox [checked]="agreedTerms" (change)="toggleAgreedTerms($event.checked)">
+        <div style="white-space: break-spaces">
+          Ich stimme den
+          <a target="_blank" href="assets/RadVIS Datennutzungsbestimmungen.pdf">Datennutzungsbestimmungen</a>
+          und der
+          <a target="_blank" href="assets/RadVIS Datenschutzerklaerung.pdf">Datenschutzerklärung</a>
+          zu.
+        </div>
+      </mat-checkbox>
+
+      <mat-card-actions align="end">
+        <button mat-flat-button color="primary" [disabled]="!agreedTerms || waiting">Jetzt registrieren</button>
+      </mat-card-actions>
     </mat-card-content>
   </mat-card>
-
-  <p>
-    Sie sind mit Ihrem Service BW Account angemeldet. <br />
-    Für die Verwendung von RadVIS sind folgende Zusatzangaben notwendig:
-  </p>
-
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>Vorname</mat-label>
-    <input formControlName="vorname" matInput />
-  </mat-form-field>
-  <rad-validation-error-anzeige
-    *ngIf="registrierungForm.get('vorname')?.touched"
-    [errors]="registrierungForm.get('vorname')?.errors || null"
-  ></rad-validation-error-anzeige>
-
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>Nachname</mat-label>
-    <input formControlName="nachname" matInput />
-  </mat-form-field>
-  <rad-validation-error-anzeige
-    *ngIf="registrierungForm.get('nachname')?.touched"
-    [errors]="registrierungForm.get('nachname')?.errors || null"
-  ></rad-validation-error-anzeige>
-
-  <mat-form-field class="mat-form-field-full-width">
-    <mat-label>E-Mail-Adresse</mat-label>
-    <input formControlName="email" matInput />
-  </mat-form-field>
-  <rad-validation-error-anzeige
-    *ngIf="registrierungForm.get('email')?.touched"
-    [errors]="registrierungForm.get('email')?.errors || null"
-  ></rad-validation-error-anzeige>
-
-  <rad-organisationen-dropdown-control
-    [options]="alleBenutzerOrganisationen"
-    class="mat-form-field-full-width mt-8"
-    formControlName="organisation"
-  >
-    Organisation
-  </rad-organisationen-dropdown-control>
-  <rad-validation-error-anzeige
-    *ngIf="registrierungForm.get('organisation')?.touched"
-    [errors]="registrierungForm.get('organisation')?.errors || null"
-  ></rad-validation-error-anzeige>
-
-  <mat-form-field>
-    <mat-label> Rollen </mat-label>
-    <mat-select formControlName="rollen" multiple>
-      <mat-option *ngFor="let rolle of rollen" [value]="rolle.name">{{ rolle.displayText }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <rad-validation-error-anzeige
-    *ngIf="registrierungForm.get('rollen')?.touched"
-    [errors]="registrierungForm.get('rollen')?.errors || null"
-  ></rad-validation-error-anzeige>
-
-  <a href="javascript:void(0);" class="mb-10" (click)="openManualRollenRechte()">Weitere Informationen zu den Rollen im
-    Handbuch</a>
-
-  <mat-checkbox [checked]="agreedTerms" (change)="toggleAgreedTerms($event.checked)">
-    <div style="white-space: break-spaces">
-      Ich stimme den
-      <a target="_blank" href="assets/RadVIS Datennutzungsbestimmungen.pdf">Datennutzungsbestimmungen</a>
-      und der
-      <a target="_blank" href="assets/RadVIS Datenschutzerklaerung.pdf">Datenschutzerklärung</a>
-      zu.
-    </div>
-  </mat-checkbox>
-
-  <button mat-flat-button color="primary" [disabled]="!agreedTerms">Jetzt registrieren</button>
 </form>

@@ -28,50 +28,40 @@
     [fetching]="isFetching"
     titel="Knoten-Attribute bearbeiten"
   >
-    <mat-form-field class="mat-form-field-full-width">
-      <mat-label>Ortslage (aus Kanten abgeleitet)</mat-label>
-      <input formControlName="ortslage" matInput />
-    </mat-form-field>
+    <rad-text-input-control formControlName="ortslage">
+      <div class="label">Ortslage (aus Kanten abgeleitet)</div>
+    </rad-text-input-control>
 
-    <rad-grouped-enum-dropdown-control
-      class="mat-form-field-full-width"
-      formControlName="knotenForm"
-      [groupedOptions]="knotenFormOptions"
-    >
+    <rad-grouped-enum-dropdown-control formControlName="knotenForm" [groupedOptions]="knotenFormOptions">
       Knotenform
     </rad-grouped-enum-dropdown-control>
 
-    <rad-organisationen-dropdown-control
-      [options]="(gemeindeOptions | async) || []"
-      class="mat-form-field-full-width"
-      formControlName="gemeinde"
-    >
+    <rad-organisationen-dropdown-control formControlName="gemeinde" [options]="(gemeindeOptions | async) || []">
       Gemeinde
     </rad-organisationen-dropdown-control>
 
-    <mat-form-field class="mat-form-field-full-width">
-      <mat-label>Landkreis</mat-label>
-      <input formControlName="landkreis" matInput readonly />
-    </mat-form-field>
+    <rad-text-input-control formControlName="landkreis">
+      <div class="label">Landkreis</div>
+    </rad-text-input-control>
 
-    <mat-form-field class="mat-form-field-full-width">
-      <mat-label>Kommentar</mat-label>
-      <textarea class="text-area" formControlName="kommentar" matInput></textarea>
-      <mat-hint align="end"
-        >{{ knotenFormGroup.get('kommentar')?.value?.length || 0 }}/{{ kommentarMaxLength }}</mat-hint
-      >
-    </mat-form-field>
-    <rad-validation-error-anzeige [errors]="knotenFormGroup.get('kommentar')?.errors || null">
-    </rad-validation-error-anzeige>
+    <rad-text-input-control
+      formControlName="kommentar"
+      [asTextarea]="true"
+      [rows]="1"
+      [maxLength]="kommentarMaxLength"
+      [errors]="knotenFormGroup.get('kommentar')?.errors"
+    >
+      <div class="label">Kommentar</div>
+    </rad-text-input-control>
 
-    <mat-form-field class="mat-form-field-full-width">
-      <mat-label>Zustandsbeschreibung</mat-label>
-      <textarea class="text-area" formControlName="zustandsbeschreibung" matInput></textarea>
-      <mat-hint align="end"
-        >{{ knotenFormGroup.get('zustandsbeschreibung')?.value?.length || 0 }}/{{ zustandMaxLength }}</mat-hint
-      >
-    </mat-form-field>
-    <rad-validation-error-anzeige [errors]="knotenFormGroup.get('zustandsbeschreibung')?.errors || null">
-    </rad-validation-error-anzeige>
+    <rad-text-input-control
+      formControlName="zustandsbeschreibung"
+      [asTextarea]="true"
+      [rows]="1"
+      [maxLength]="zustandMaxLength"
+      [errors]="knotenFormGroup.get('zustandsbeschreibung')?.errors"
+    >
+      <div class="label">Zustandsbeschreibung</div>
+    </rad-text-input-control>
   </rad-attribute-editor>
 </form>

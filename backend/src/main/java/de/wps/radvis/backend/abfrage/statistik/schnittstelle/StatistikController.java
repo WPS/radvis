@@ -16,8 +16,6 @@ package de.wps.radvis.backend.abfrage.statistik.schnittstelle;
 
 import java.util.Set;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +28,7 @@ import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 
 @RestController

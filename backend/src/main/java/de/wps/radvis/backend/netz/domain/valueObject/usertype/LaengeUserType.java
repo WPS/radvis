@@ -20,12 +20,13 @@ import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class LaengeUserType implements AttributeConverter<Laenge, BigDecimal> {
 
 	@Override
 	public BigDecimal convertToDatabaseColumn(Laenge laenge) {
-		return laenge == null ? null : BigDecimal.valueOf(laenge.getValue());	}
+		return laenge == null ? null : BigDecimal.valueOf(laenge.getValue());
+	}
 
 	@Override
 	public Laenge convertToEntityAttribute(BigDecimal databaseValue) {

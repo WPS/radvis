@@ -14,25 +14,25 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet author="Bastian" id="RAD-952">
     <dropColumn columnName="belag_art" schemaName="public"
-      tableName="infrastrukturmerkmale">
+			tableName="infrastrukturmerkmale">
     </dropColumn>
     <dropColumn columnName="bordstein" schemaName="public"
-      tableName="infrastrukturmerkmale">
+			tableName="infrastrukturmerkmale">
     </dropColumn>
     <addColumn schemaName="public"
-      tableName="fuehrungsform_attribute">
+			tableName="fuehrungsform_attribute">
       <column name="belag_art" type="varchar(255)"
-        defaultValue="ASPHALT">
+				defaultValue="ASPHALT">
         <constraints nullable="false"/>
       </column>
       <column name="bordstein" type="varchar(255)"
-        defaultValue="UNBEKANNT">
+				defaultValue="UNBEKANNT">
         <constraints nullable="false"/>
       </column>
     </addColumn>
@@ -43,33 +43,33 @@
       <column name="beleuchtung" type="VARCHAR(255)"/>
     </addColumn>
     <dropForeignKeyConstraint
-      baseTableName="infrastrukturmerkmale"
-      constraintName="fk_strassen_begleit_attribute_kante"/>
+			baseTableName="infrastrukturmerkmale"
+			constraintName="fk_strassen_begleit_attribute_kante"/>
     <dropTable tableName="infrastrukturmerkmale"/>
   </changeSet>
 
   <changeSet id="RAD-1234/RAD-1235/RAD-1236" author="tir">
     <addColumn schemaName="public"
-      tableName="fuehrungsform_attribute">
+			tableName="fuehrungsform_attribute">
       <column name="parken_form" type="VARCHAR(255)"/>
     </addColumn>
     <addColumn schemaName="public"
-      tableName="fuehrungsform_attribute">
+			tableName="fuehrungsform_attribute">
       <column name="parken_typ" type="VARCHAR(255)"/>
     </addColumn>
     <dropForeignKeyConstraint
-      baseTableName="parken_attribute"
-      constraintName="fk_parken_attribute_kante"/>
+			baseTableName="parken_attribute"
+			constraintName="fk_parken_attribute_kante"/>
     <dropTable tableName="parken_attribute"/>
   </changeSet>
 
   <changeSet id="RAD-1237/RAD-1238" author="tir">
     <dropColumn schemaName="public"
-      tableName="fuehrungsform_attribute">
+			tableName="fuehrungsform_attribute">
       <column name="umfeld"/>
     </dropColumn>
     <dropColumn schemaName="public"
-      tableName="fuehrungsform_attribute">
+			tableName="fuehrungsform_attribute">
       <column name="strassenquerschnittrast06"/>
     </dropColumn>
     <addColumn schemaName="public" tableName="kante">
@@ -84,7 +84,7 @@
     <createTable tableName="benutzer">
       <column name="id" type="BIGINT">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="benutzer_pkey"/>
+					primaryKeyName="benutzer_pkey"/>
       </column>
       <column name="vorname" type="VARCHAR(255)"/>
       <column name="nachname" type="VARCHAR(255)"/>
@@ -92,11 +92,11 @@
       <column name="mailadresse" type="VARCHAR(255)"/>
     </createTable>
     <addForeignKeyConstraint
-      baseColumnNames="organisation_id" baseTableName="benutzer"
-      constraintName="fk_benutzer_organisation" deferrable="false"
-      initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
-      referencedColumnNames="id" referencedTableName="organisation"
-      validate="true"/>
+			baseColumnNames="organisation_id" baseTableName="benutzer"
+			constraintName="fk_benutzer_organisation" deferrable="false"
+			initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+			referencedColumnNames="id" referencedTableName="organisation"
+			validate="true"/>
   </changeSet>
 
   <changeSet id="RAD-1230:1" author="tr">
@@ -110,10 +110,10 @@
       <column name="zustaendigkeit_gruppe_id" type="BIGINT"/>
     </createTable>
     <addPrimaryKey columnNames="id"
-      tableName="zustaendigkeit_attribute"/>
+			tableName="zustaendigkeit_attribute"/>
     <addUniqueConstraint
-      tableName="zustaendigkeit_attribute"
-      columnNames="zustaendigkeit_gruppe_id"/>
+			tableName="zustaendigkeit_attribute"
+			columnNames="zustaendigkeit_gruppe_id"/>
   </changeSet>
 
   <changeSet id="RAD-1230:2" author="tr">
@@ -123,20 +123,20 @@
       <column name="kante_id" type="BIGINT"/>
     </createTable>
     <addPrimaryKey columnNames="id"
-      tableName="zustaendigkeit_attributgruppe"/>
+			tableName="zustaendigkeit_attributgruppe"/>
     <addForeignKeyConstraint
-      constraintName="fk_zustaendigkeit_attribute_attributgruppe"
-      referencedTableName="zustaendigkeit_attributgruppe"
-      baseColumnNames="zustaendigkeit_gruppe_id"
-      baseTableName="zustaendigkeit_attribute" referencedColumnNames="id"/>
+			constraintName="fk_zustaendigkeit_attribute_attributgruppe"
+			referencedTableName="zustaendigkeit_attributgruppe"
+			baseColumnNames="zustaendigkeit_gruppe_id"
+			baseTableName="zustaendigkeit_attribute" referencedColumnNames="id"/>
     <addColumn tableName="kante">
       <column name="zustaendigkeit_attributgruppe_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint
-      constraintName="fk_zustaendigkeit_attributgruppe_kante"
-      referencedTableName="zustaendigkeit_attributgruppe"
-      baseColumnNames="zustaendigkeit_attributgruppe_id"
-      baseTableName="kante" referencedColumnNames="id"/>
+			constraintName="fk_zustaendigkeit_attributgruppe_kante"
+			referencedTableName="zustaendigkeit_attributgruppe"
+			baseColumnNames="zustaendigkeit_attributgruppe_id"
+			baseTableName="kante" referencedColumnNames="id"/>
   </changeSet>
 
   <changeSet id="RAD-1296" author="par">
@@ -147,18 +147,18 @@
   </changeSet>
   <changeSet id="RAD-1230:3" author="tr">
     <dropUniqueConstraint
-      tableName="zustaendigkeit_attribute"
-      constraintName="zustaendigkeit_attribute_zustaendigkeit_gruppe_id_key"/>
+			tableName="zustaendigkeit_attribute"
+			constraintName="zustaendigkeit_attribute_zustaendigkeit_gruppe_id_key"/>
   </changeSet>
 
   <changeSet id="RAD-1230:4" author="tr">
     <createView
-      viewName="kante_linearreferenzierteattribute_view"
-      replaceIfExists="true">SELECT id, geometry,
+			viewName="kante_linearreferenzierteattribute_view"
+			replaceIfExists="true">SELECT id, geometry,
       geloescht, quelle, zustaendigkeit_attributgruppe_id FROM kante
     </createView>
     <dropColumn tableName="zustaendigkeit_attributgruppe"
-      columnName="kante_id"/>
+			columnName="kante_id"/>
   </changeSet>
 
   <changeSet id="RAD-1301" author="ls">
@@ -175,20 +175,20 @@
       <column name="version" type="BIGINT" defaultValueNumeric="0"/>
       <column name="hoechstgeschwindigkeit" type="VARCHAR(255)"/>
       <column
-        name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
-        type="VARCHAR(255)"/>
+				name="abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung"
+				type="VARCHAR(255)"/>
     </createTable>
     <addColumn tableName="kante">
       <column name="geschwindigkeit_attributgruppe_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint
-      constraintName="fk_kante_geschwindigkeit_attribut_gruppe"
-      referencedTableName="geschwindigkeit_attribut_gruppe"
-      baseColumnNames="geschwindigkeit_attributgruppe_id"
-      baseTableName="kante" referencedColumnNames="id"/>
+			constraintName="fk_kante_geschwindigkeit_attribut_gruppe"
+			referencedTableName="geschwindigkeit_attribut_gruppe"
+			baseColumnNames="geschwindigkeit_attributgruppe_id"
+			baseTableName="kante" referencedColumnNames="id"/>
     <createView
-      viewName="kante_geschwindigkeits_attribute_view"
-      replaceIfExists="true">SELECT k.id, k.geometry,
+			viewName="kante_geschwindigkeits_attribute_view"
+			replaceIfExists="true">SELECT k.id, k.geometry,
       k.geloescht, k.quelle, g.hoechstgeschwindigkeit, g.abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung FROM kante k, geschwindigkeit_attribut_gruppe g
     </createView>
   </changeSet>
@@ -204,7 +204,7 @@
 
   <changeSet id="RAD-1225:2" author="ls_und_kho">
     <dropColumn tableName="fahrtrichtung_attributgruppe"
-      columnName="kante_id"/>
+			columnName="kante_id"/>
     <addColumn tableName="kante">
       <column name="fahrtrichtung_attributgruppe_id" type="BIGINT"/>
     </addColumn>
@@ -222,9 +222,9 @@
     runOnChange=true umgeht die checksum-Prüfung, was nötig ist, da sich ja die checksum dieses changesets geändert hat.
     Siehe: https://github.com/liquibase/liquibase/pull/2943#issuecomment-1625310660
     -->
-    <preConditions onFail="MARK_RAN">
+		<preConditions onFail="MARK_RAN">
       <not>
-        <columnExists tableName="kante" columnName="ursprungsfeature_technischeid" />
+        <columnExists tableName="kante" columnName="ursprungsfeature_technischeid"/>
       </not>
     </preConditions>
     <addColumn tableName="kante">
@@ -238,15 +238,15 @@
   <changeSet id="RAD-1283" author="marie">
     <dropSequence sequenceName="hibernate_sequence"></dropSequence>
     <createSequence cacheSize="1" cycle="false"
-      dataType="bigint" incrementBy="100" maxValue="9223372036854775807"
-      minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
+			dataType="bigint" incrementBy="100" maxValue="9223372036854775807"
+			minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
   </changeSet>
 
   <changeSet id="RAD-1327" author="tr,par">
     <addForeignKeyConstraint
-      baseTableName="kante_osm_way_ids" baseColumnNames="kante_id"
-      constraintName="fk_kante_osm_way_ids_kante" referencedTableName="kante"
-      referencedColumnNames="id"/>
+			baseTableName="kante_osm_way_ids" baseColumnNames="kante_id"
+			constraintName="fk_kante_osm_way_ids_kante" referencedTableName="kante"
+			referencedColumnNames="id"/>
   </changeSet>
 
   <changeSet id="RAD-1327/2" author="tr,par">
@@ -271,7 +271,7 @@
   <changeSet id="RAD-1284:2" author="mr_und_kho">
     <renameTable oldTableName="fahrtrichtung_attributgruppe" newTableName="fahrtrichtung_attribut_gruppe"/>
     <renameTable oldTableName="zustaendigkeit_attributgruppe" newTableName="zustaendigkeit_attribut_gruppe"/>
-    <dropTable tableName="geschwindigkeit_attribute" />
+    <dropTable tableName="geschwindigkeit_attribute"/>
   </changeSet>
 
 </databaseChangeLog>

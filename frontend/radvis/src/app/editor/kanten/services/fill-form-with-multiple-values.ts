@@ -12,11 +12,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import invariant from 'tiny-invariant';
 
-export const fillFormWithMultipleValues = (form: FormGroup, values: any[], emitEvent = true): void => {
+export const fillFormWithMultipleValues = (form: UntypedFormGroup, values: any[], emitEvent = true): void => {
   invariant(values.length > 0);
   const formKeys = Object.keys(form.getRawValue());
   const modelKeys = Object.keys(values[0]);

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Coordinate } from 'ol/coordinate';
 import { Extent } from 'ol/extent';
@@ -34,7 +34,7 @@ export class OrtsSucheComponent {
 
   @ViewChild('input') inputElement: ElementRef | null = null;
 
-  public ortsSucheControl = new FormControl();
+  public ortsSucheControl = new UntypedFormControl();
 
   suggestions$: Observable<OrtsSucheResult[]>;
 

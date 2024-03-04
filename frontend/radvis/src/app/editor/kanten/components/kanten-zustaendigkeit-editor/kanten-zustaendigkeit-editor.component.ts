@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import {
   AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor
@@ -32,7 +32,7 @@ import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import invariant from 'tiny-invariant';
@@ -51,7 +51,7 @@ import invariant from 'tiny-invariant';
 export class KantenZustaendigkeitEditorComponent
   extends AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor<ZustaendigkeitAttribute,
     ZustaendigkeitAttributGruppe>
-  implements DiscardGuard, OnDestroy, OnInit {
+  implements DiscardableComponent, OnDestroy, OnInit {
   alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
 
   private readonly vereinbarungsKennungMaxLength = 255;
@@ -85,12 +85,12 @@ export class KantenZustaendigkeitEditorComponent
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  protected createDisplayedAttributeFormGroup(): FormGroup {
-    return new FormGroup({
-      baulastTraeger: new FormControl(null),
-      unterhaltsZustaendiger: new FormControl(null),
-      erhaltsZustaendiger: new FormControl(null),
-      vereinbarungsKennung: new FormControl(null, {
+  protected createDisplayedAttributeFormGroup(): UntypedFormGroup {
+    return new UntypedFormGroup({
+      baulastTraeger: new UntypedFormControl(null),
+      unterhaltsZustaendiger: new UntypedFormControl(null),
+      erhaltsZustaendiger: new UntypedFormControl(null),
+      vereinbarungsKennung: new UntypedFormControl(null, {
         validators: [RadvisValidators.maxLength(this.vereinbarungsKennungMaxLength)],
       }),
     });

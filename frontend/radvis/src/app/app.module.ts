@@ -20,18 +20,19 @@ import { AuswertungModule } from 'src/app/auswertung/auswertung.module';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { FreischaltungModule } from 'src/app/freischaltung/freischaltung.module';
 import { GlobalErrorHandler } from 'src/app/global-error-handler';
+import { ImportModule } from 'src/app/import/import.module';
 import { RadnetzMatchingModule } from 'src/app/radnetzmatching/radnetz-matching.module';
 import { RadvisHttpInterceptor } from 'src/app/radvis-http-interceptor';
 import { RegistrierungModule } from 'src/app/registrierung/registrierung.module';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
+import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
+import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { InfoModule } from './info/info.module';
-import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
 
 const initBenutzerDetails = (benutzerDetailsService: BenutzerDetailsService) => (): Promise<any> =>
   benutzerDetailsService.fetchBenutzerDetails();
@@ -54,6 +55,7 @@ const initCustomRoutingProfiles = (routingProfileService: RoutingProfileService)
     ViewerModule,
     RadnetzMatchingModule,
     EditorModule,
+    ImportModule,
     SharedModule,
     AdministrationModule,
     AuswertungModule,

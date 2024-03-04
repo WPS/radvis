@@ -19,15 +19,16 @@ import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -51,7 +52,6 @@ import org.springframework.security.saml2.provider.service.web.RelyingPartyRegis
 import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -64,13 +64,14 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.authentication.schnittstelle.RadVisAuthenticationProvider;
 import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetailsService;
+import de.wps.radvis.backend.basicAuthentication.domain.BasicAuthBenutzerRepository;
+import de.wps.radvis.backend.basicAuthentication.domain.BasicAuthPasswortService;
+import de.wps.radvis.backend.basicAuthentication.schnittstelle.BasicAuthenticationProvider;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.common.domain.SecurityConfigurationProperties;
 import de.wps.radvis.backend.reverseproxy.ReverseproxyConfiguarationProperties;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,10 +84,13 @@ public class SecurityConfiguration {
 	static RequestMatcher API_MATCHER = new AntPathRequestMatcher("/api/**");
 	static RequestMatcher API_EXTERN_MATCHER = new AntPathRequestMatcher("/api/extern/**");
 	static RequestMatcher REVERSEPROXY_GEOSERVER_MATCHER = new AntPathRequestMatcher("/api/geoserver/basic/**");
+	static RequestMatcher BASIC_AUTH_GEOSERVER_MATCHER = new AntPathRequestMatcher("/api/geoserver/basicauth/**");
 	static RequestMatcher NOT_API_MATCHER = new NegatedRequestMatcher(API_MATCHER);
 	static RequestMatcher NOT_API_EXTERN_MATCHER = new NegatedRequestMatcher(API_EXTERN_MATCHER);
 	static RequestMatcher NOT_REVERSEPROXY_GEOSERVER_MATCHER = new NegatedRequestMatcher(
 		REVERSEPROXY_GEOSERVER_MATCHER);
+	static RequestMatcher NOT_BASIC_AUTH_GEOSERVER_MATCHER = new NegatedRequestMatcher(
+		BASIC_AUTH_GEOSERVER_MATCHER);
 
 	@Configuration
 	@ConditionalOnProperty(name = "spring.security.disableSAML", havingValue = "true")
@@ -99,7 +103,8 @@ public class SecurityConfiguration {
 		@Autowired
 		private BenutzerService benutzerService;
 
-		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den statischen Nutzern der externen
+		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den
+		// statischen Nutzern der externen
 		// APIs interferiert.
 		public RadVisUserDetailsService userDetailsService() {
 			return new RadVisUserDetailsService(benutzerService);
@@ -118,24 +123,19 @@ public class SecurityConfiguration {
 				.authorizeHttpRequests(authorizer -> authorizer
 					.requestMatchers("/actuator/health").permitAll()
 					.requestMatchers("/actuator/prometheus")
-					.access((authentication, c) ->
-						new AuthorizationDecision(
-							new IpAddressMatcher(securityConfigurationProperties.getPrometheusWhitelistIP())
-								.matches(c.getRequest())
-						)
-					)
+					.access((authentication, c) -> new AuthorizationDecision(
+						new IpAddressMatcher(securityConfigurationProperties.getPrometheusWhitelistIP())
+							.matches(c.getRequest())))
 					.requestMatchers("/manual/**").permitAll()
 					.requestMatchers("/").authenticated()
 					.requestMatchers("/control.html").hasAuthority(Recht.JOBS_AUSFUEHREN.name())
 					.requestMatchers("/logs/**").hasAuthority(Recht.LOGS_EINSEHEN.name())
-					.requestMatchers("/**").hasAuthority(BenutzerStatus.AKTIV.name())
-				)
+					.requestMatchers("/**").hasAuthority(BenutzerStatus.AKTIV.name()))
 				.httpBasic(Customizer.withDefaults())
 				.csrf(configurer -> configurer
 					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 					.csrfTokenRequestHandler(delegate)
-					.ignoringRequestMatchers("/logs/**")
-				)
+					.ignoringRequestMatchers("/logs/**"))
 				.logout(Customizer.withDefaults());
 
 			return http.build();
@@ -160,7 +160,11 @@ public class SecurityConfiguration {
 		@Autowired
 		private BenutzerService benutzerService;
 
-		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den statischen Nutzern der externen
+		@Autowired
+		private ApplicationEventPublisher applicationEventPublisher;
+
+		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den
+		// statischen Nutzern der externen
 		// APIs interferiert.
 		public RadVisUserDetailsService userDetailsService() {
 			return new RadVisUserDetailsService(benutzerService);
@@ -189,12 +193,9 @@ public class SecurityConfiguration {
 				.authorizeHttpRequests(authorizer -> authorizer
 					.requestMatchers("/actuator/health").permitAll()
 					.requestMatchers("/actuator/prometheus")
-					.access((authentication, c) ->
-						new AuthorizationDecision(
-							new IpAddressMatcher(securityConfigurationProperties.getPrometheusWhitelistIP())
-								.matches(c.getRequest())
-						)
-					)
+					.access((authentication, c) -> new AuthorizationDecision(
+						new IpAddressMatcher(securityConfigurationProperties.getPrometheusWhitelistIP())
+							.matches(c.getRequest())))
 					.requestMatchers("/manual/**").permitAll()
 					.requestMatchers("/").authenticated()
 					.requestMatchers("/app/**").authenticated()
@@ -204,19 +205,22 @@ public class SecurityConfiguration {
 				.csrf(configurer -> configurer
 					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 					.csrfTokenRequestHandler(delegate)
-					.ignoringRequestMatchers("/logs/**")
-				)
+					.ignoringRequestMatchers("/logs/**"))
 				// Muss NACH csrf-Config erfolgen
 				.requestCache(configurer -> configurer.requestCache(new HttpSessionRequestCache()))
 				.saml2Login(saml2 -> {
-					saml2.authenticationManager(new ProviderManager(authenticationProvider));
+					ProviderManager providerManager = new ProviderManager(authenticationProvider);
+					providerManager.setAuthenticationEventPublisher(
+						new DefaultAuthenticationEventPublisher(applicationEventPublisher));
+					saml2.authenticationManager(providerManager);
 					saml2.loginProcessingUrl(securityConfigurationProperties.getACS());
 				})
 				.addFilterBefore(createSaml2MetadataFilter(), Saml2WebSsoAuthenticationFilter.class)
 				.logout(logout -> logout
 					.permitAll()
 					.logoutSuccessHandler(
-						(request, response, authentication) -> response.setStatus(HttpServletResponse.SC_OK)));
+						(request, response, authentication) -> response
+							.setStatus(HttpServletResponse.SC_OK)));
 
 			return http.build();
 		}
@@ -264,7 +268,8 @@ public class SecurityConfiguration {
 		@Autowired
 		private BenutzerService benutzerService;
 
-		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den statischen Nutzern der externen
+		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den
+		// statischen Nutzern der externen
 		// APIs interferiert.
 		public RadVisUserDetailsService userDetailsService() {
 			return new RadVisUserDetailsService(benutzerService);
@@ -278,51 +283,37 @@ public class SecurityConfiguration {
 			RadVisUserDetailsService userDetailsService = userDetailsService();
 
 			http.securityMatcher(
-					new AndRequestMatcher(API_MATCHER, NOT_API_EXTERN_MATCHER, NOT_REVERSEPROXY_GEOSERVER_MATCHER))
+					new AndRequestMatcher(API_MATCHER, NOT_API_EXTERN_MATCHER, NOT_REVERSEPROXY_GEOSERVER_MATCHER,
+						NOT_BASIC_AUTH_GEOSERVER_MATCHER))
 				.authorizeHttpRequests(authorizer -> authorizer
 					.requestMatchers("/api/organisationen/all").authenticated()
 					.requestMatchers("/api/benutzer/registriere-benutzer").authenticated()
 					.requestMatchers("/api/benutzerdetails").authenticated()
+					.requestMatchers("/api/benutzer/reaktivierung/beantrage-reaktivierung").authenticated()
 					.requestMatchers("/api/togglz").authenticated()
 					.requestMatchers("/api/weitere-kartenebenen/list").authenticated()
 					.requestMatchers("/api/custom-routing-profile/list").authenticated()
-					.requestMatchers("/api/**").hasAuthority(BenutzerStatus.AKTIV.name())
-				)
+					.requestMatchers("/api/**").hasAuthority(BenutzerStatus.AKTIV.name()))
 				.authenticationProvider(new RadVisAuthenticationProvider(userDetailsService));
 
 			if (securityConfigurationProperties.isDisableSAML()) {
 				http.httpBasic(Customizer.withDefaults());
 			} else {
-				http.exceptionHandling(configurer -> configurer.authenticationEntryPoint(
-					(req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)));
+				http
+					// Anonymous-Authentifizierung ausschalten, da sonst nicht der EntryPoint (s.u.) aufgerufen wird.
+					// Stattdessen würde eine AccessDeniedException fliegen, da der Anonymous-Nutzer natürlich nichts
+					// darf. So wird aber der EntryPoint (s.u.) aufgerufen, der dann einen 401er ans Frontend gibt,
+					// wodurch auf z.B. eine abgelaufene Session korrekt reagiert werden kann.
+					.anonymous(configurer -> configurer.disable())
+					.exceptionHandling(configurer -> configurer.authenticationEntryPoint((req, res, ex) -> {
+						res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					}));
 			}
 
 			http.csrf(configurer -> configurer
 				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				.csrfTokenRequestHandler(delegate)
-				.ignoringRequestMatchers("/logs/**")
-			);
-
-			// Die Spring-Security entfernt bei einigen (FormData?) POST-Requests den Body. Die dort
-			// kodierten KeyValue-Paare landen in der ParameterMap.
-			// Unklar, ob hier ein Fehlverhalten seitens Spring oder ein Fehlconfiguration
-			// auf seiten on Charon ursächlich ist.
-			http.addFilterAfter((servletRequest, servletResponse, filterChain) -> {
-				if (
-					!Objects.isNull(servletRequest.getContentType())
-						&& servletRequest.getContentType().contains("application/x-www-form-urlencoded")
-						&& servletRequest.getParameterMap().containsKey(CQL_FILTER_KEY)
-						&& servletRequest.getParameterMap().get(CQL_FILTER_KEY).length > 0) {
-
-					String newBody = CQL_FILTER_KEY + "=" + servletRequest.getParameterMap().get(CQL_FILTER_KEY)[0];
-
-					ServletRequest requestWithBodyReplaced = new BodyReplacingRequestWrapper(
-						(HttpServletRequest) servletRequest, newBody);
-					filterChain.doFilter(requestWithBodyReplaced, servletResponse);
-				} else {
-					filterChain.doFilter(servletRequest, servletResponse);
-				}
-			}, AuthorizationFilter.class);
+				.ignoringRequestMatchers("/logs/**"));
 
 			return http.build();
 		}
@@ -346,12 +337,9 @@ public class SecurityConfiguration {
 				.authenticationProvider(externAuthenticationProviderExternalApi())
 				.authorizeHttpRequests(authorizer -> authorizer
 					.requestMatchers(API_EXTERN_MATCHER)
-					.access((authentication, c) ->
-						new AuthorizationDecision(
-							new IpAddressMatcher(securityConfigurationProperties.getRadRoutenplanerIP())
-								.matches(c.getRequest())
-						)
-					))
+					.access((authentication, c) -> new AuthorizationDecision(
+						new IpAddressMatcher(securityConfigurationProperties.getRadRoutenplanerIP())
+							.matches(c.getRequest()))))
 				.httpBasic(configurer -> {
 					// hier wird der status auf 401 gesetzt, statt sendError aufzurufen, da
 					// sendError mit BasicAuth zu einem Redirect zum Saml-Login führt.
@@ -373,7 +361,7 @@ public class SecurityConfiguration {
 
 	// Api - Geoserver abgesichert durch basic auth für einen technischen Benutzer
 	@Configuration
-	@Order(1)
+	@Order(2)
 	public static class GeoserverBasicAuthSecurityConfiguration {
 		@Autowired
 		private ReverseproxyConfiguarationProperties reverseproxyConfiguarationProperties;
@@ -396,8 +384,7 @@ public class SecurityConfiguration {
 			http.securityMatcher(REVERSEPROXY_GEOSERVER_MATCHER)
 				.authenticationProvider(externAuthenticationProviderGeoServer())
 				.authorizeHttpRequests(authorizer -> authorizer
-					.requestMatchers(REVERSEPROXY_GEOSERVER_MATCHER).authenticated()
-				)
+					.requestMatchers(REVERSEPROXY_GEOSERVER_MATCHER).authenticated())
 				.httpBasic(configurer -> {
 					// hier wird der status auf 401 gesetzt, statt sendError aufzurufen, da
 					// sendError mit BasicAuth zu einem Redirect zum Saml-Login führt.
@@ -444,6 +431,40 @@ public class SecurityConfiguration {
 		@Override
 		public boolean supports(Class<?> authentication) {
 			return authentication.equals(UsernamePasswordAuthenticationToken.class);
+		}
+	}
+
+	// Api - Geoserver abgesichert durch basic auth für RadVIS Benutzer mit
+	// pro Benutzer generierten BasicAuth Zugangsdaten
+	@Configuration
+	@Order(1)
+	public static class GeoserverBasicAuthSecurityConfiguration2 {
+		@Autowired
+		private BasicAuthBenutzerRepository basicAuthBenutzerRepository;
+
+		@Autowired
+		private BasicAuthPasswortService basicAuthPasswortService;
+
+		@Bean
+		public SecurityFilterChain basicAuthFilterChain(HttpSecurity http) throws Exception {
+			// Dies ist notwendig, damit die Authentifizierung bei jedem Aufruf eines
+			// externen Api-Endpunkts neu überprüft wird
+			http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+			http.securityMatcher(BASIC_AUTH_GEOSERVER_MATCHER)
+				.authenticationProvider(
+					new BasicAuthenticationProvider(basicAuthBenutzerRepository, basicAuthPasswortService))
+				.authorizeHttpRequests(authorizer -> authorizer
+					.requestMatchers(BASIC_AUTH_GEOSERVER_MATCHER).authenticated())
+				.httpBasic(configurer -> {
+					// hier wird der status auf 401 gesetzt, statt sendError aufzurufen, da
+					// sendError mit BasicAuth zu einem Redirect zum Saml-Login führt.
+					configurer.authenticationEntryPoint((req, res, ex) -> {
+						res.addHeader("WWW-Authenticate", "Basic");
+						res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					});
+				});
+
+			return http.build();
 		}
 	}
 }

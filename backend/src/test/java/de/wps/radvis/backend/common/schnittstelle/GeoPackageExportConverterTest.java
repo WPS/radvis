@@ -25,10 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.DataStoreFinder;
+import org.geotools.api.data.SimpleFeatureSource;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geopkg.GeoPkgDataStoreFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +38,9 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
-import de.wps.radvis.backend.common.schnittstelle.GeoPackageExportConverter;
 
 class GeoPackageExportConverterTest {
 	private GeoPackageExportConverter geoPackageExportConverter;
@@ -52,7 +51,6 @@ class GeoPackageExportConverterTest {
 	void setUp() {
 		geoPackageExportConverter = new GeoPackageExportConverter();
 	}
-
 
 	@Test
 	void convert() throws IOException {

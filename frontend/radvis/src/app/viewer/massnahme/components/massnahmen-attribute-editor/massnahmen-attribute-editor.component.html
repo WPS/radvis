@@ -30,30 +30,23 @@
       class="mt-10 mb-10"
     ></rad-netzbezug-selektion-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="massnahmeKonzeptID">
+    <rad-text-input-control formControlName="massnahmeKonzeptID" [errors]="formGroup.get('massnahmeKonzeptID')?.errors">
       <div class="label">Maßnahmen-ID aus Konzept</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('massnahmeKonzeptID')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="umsetzungsstatusOptions"
-      class="mat-form-field-full-width"
       formControlName="umsetzungsstatus"
+      [options]="umsetzungsstatusOptions"
+      [nullable]="false"
     >
       Umsetzungsstatus
     </rad-enum-dropdown-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="bezeichnung">
+    <rad-text-input-control formControlName="bezeichnung" [errors]="formGroup.get('bezeichnung')?.errors">
       <div class="label">Bezeichnung</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('bezeichnung')?.errors || null"
-    ></rad-validation-error-anzeige>
 
-    <rad-massnahmenkategorien-dropdown-control formControlName="massnahmenkategorien" class="mat-form-field-full-width">
+    <rad-massnahmenkategorien-dropdown-control formControlName="massnahmenkategorien">
       Kategorien
     </rad-massnahmenkategorien-dropdown-control>
     <rad-validation-error-anzeige
@@ -65,134 +58,107 @@
       matTooltip="Veröffentlichung im Web-Viewer der Öffentlichkeit."
       matTooltipPosition="left"
       class="mb-2"
-    >Veröffentlicht
+      >Veröffentlicht
     </mat-checkbox>
 
     <mat-checkbox formControlName="planungErforderlich" class="mb-2">Planung erforderlich</mat-checkbox>
 
-    <rad-organisationen-dropdown-control
-      [options]="(alleOrganisationenOptions | async) || []"
-      class="mat-form-field-full-width"
+    <rad-autocomplete-dropdown
       formControlName="baulastZustaendiger"
+      [options]="(alleOrganisationenOptions | async) || []"
+      [errors]="formGroup.get('baulastZustaendiger')?.errors"
     >
       Baulastträger
-    </rad-organisationen-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('baulastZustaendiger')?.errors || null"
-    ></rad-validation-error-anzeige>
+    </rad-autocomplete-dropdown>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="durchfuehrungszeitraum">
+    <rad-text-input-control
+      formControlName="durchfuehrungszeitraum"
+      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors"
+    >
       <div class="label">Durchführungszeitraum</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors || null"
-    ></rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="prioritaet">
+    <rad-text-input-control formControlName="prioritaet" [errors]="formGroup.get('prioritaet')?.errors">
       <div class="label">Priorität</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('prioritaet')?.errors || null">
-    </rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="kostenannahme">
+    <rad-text-input-control formControlName="kostenannahme" [errors]="formGroup.get('kostenannahme')?.errors">
       <div class="label">Kostenannahme</div>
       <div class="suffix">€</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('kostenannahme')?.errors || null">
-    </rad-validation-error-anzeige>
 
-    <rad-organisationen-dropdown-control
+    <rad-autocomplete-dropdown
+      formControlName="zustaendiger"
+      [nullable]="false"
       [options]="(alleOrganisationenOptions | async) || []"
-      class="mat-form-field-full-width"
-      formControlName="markierungsZustaendiger"
+      [errors]="formGroup.get('zustaendiger')?.errors"
     >
-      Markierungszuständige/r
-    </rad-organisationen-dropdown-control>
+      Zuständige/r
+    </rad-autocomplete-dropdown>
 
-    <rad-organisationen-dropdown-control
-      [options]="(alleOrganisationenOptions | async) || []"
-      class="mat-form-field-full-width"
+    <rad-autocomplete-dropdown
       formControlName="unterhaltsZustaendiger"
+      [options]="(alleOrganisationenOptions | async) || []"
     >
       Unterhaltszuständige/r
-    </rad-organisationen-dropdown-control>
+    </rad-autocomplete-dropdown>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="letzteAenderung">
+    <rad-text-input-control formControlName="letzteAenderung">
       <div class="label">Zeitpunkt der letzten Änderung</div>
     </rad-text-input-control>
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="benutzerLetzteAenderung">
+
+    <rad-text-input-control formControlName="benutzerLetzteAenderung">
       <div class="label">Ausführende/r der letzten Änderung</div>
     </rad-text-input-control>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="maViSID">
+    <rad-text-input-control formControlName="maViSID" [errors]="formGroup.get('maViSID')?.errors">
       <div class="label">MaViS-ID</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('maViSID')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="verbaID">
+    <rad-text-input-control formControlName="verbaID" [errors]="formGroup.get('verbaID')?.errors">
       <div class="label">Verba-ID (ID der Vereinbarungsdatenbank)</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('verbaID')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-text-input-control class="mat-form-field-full-width" formControlName="lgvfgid">
+    <rad-text-input-control formControlName="lgvfgid" [errors]="formGroup.get('lgvfgid')?.errors">
       <div class="label">LGVFG-ID</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('lgvfgid')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-autocomplete-enum-dropdown-control
-      [options]="realisierungshilfeOptions"
-      class="mat-form-field-full-width"
-      formControlName="realisierungshilfe"
-    >
+    <rad-autocomplete-dropdown formControlName="realisierungshilfe" [options]="realisierungshilfeOptions">
       Realisierungshilfe
-    </rad-autocomplete-enum-dropdown-control>
+    </rad-autocomplete-dropdown>
 
-    <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="sollStandardOptions"
-      class="mat-form-field-full-width"
-      formControlName="sollStandard"
-    >
+    <rad-enum-dropdown-control formControlName="sollStandard" [options]="sollStandardOptions" [nullable]="false">
       Soll-Standard
     </rad-enum-dropdown-control>
 
     <rad-enum-dropdown-control
-      [nullable]="umsetzungsstatusAbPlanung()"
-      [options]="handlungsverantwortlicherOptions"
-      class="mat-form-field-full-width"
       formControlName="handlungsverantwortlicher"
+      [options]="handlungsverantwortlicherOptions"
+      [nullable]="umsetzungsstatusAbPlanung()"
+      [errors]="formGroup.get('handlungsverantwortlicher')?.errors"
     >
       Wer soll tätig werden?
     </rad-enum-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('handlungsverantwortlicher')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="konzeptionsquelleOptions"
-      class="mat-form-field-full-width"
       formControlName="konzeptionsquelle"
+      [options]="konzeptionsquelleOptions"
+      [nullable]="false"
       matTooltip="Die Konzeptionsquelle von RadNETZ-Maßnahmen kann nicht geändert werden."
       [matTooltipDisabled]="!isRadNETZMassnahme"
       matTooltipPosition="left"
+      [errors]="formGroup.get('konzeptionsquelle')?.errors"
     >
       Quelle
     </rad-enum-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('konzeptionsquelle')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <rad-text-input-control
       *ngIf="sonstigeKonzeptionsquelle()"
-      class="mat-form-field-full-width"
       formControlName="sonstigeKonzeptionsquelle"
+      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors"
     >
       <div class="label">Sonstige Quelle</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors || null"
-    ></rad-validation-error-anzeige>
 
     <div class="group" formGroupName="netzklassen">
       <div class="header">Netzklassen</div>

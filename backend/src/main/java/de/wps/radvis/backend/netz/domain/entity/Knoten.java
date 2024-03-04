@@ -18,11 +18,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 import static org.valid4j.Assertive.require;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-
 import org.hibernate.envers.Audited;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
@@ -34,6 +29,10 @@ import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

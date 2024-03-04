@@ -34,13 +34,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.common.collect.ImmutableList;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.util.BikeFlagEncoder;
-import com.graphhopper.routing.util.EncodingManager;
 
 import de.topobyte.osm4j.core.model.iface.EntityContainer;
 import de.topobyte.osm4j.core.model.iface.EntityType;
@@ -86,7 +84,7 @@ import jakarta.validation.constraints.NotNull;
 	PostgisConfigurationProperties.class,
 })
 class OsmAuszeichnungsServiceTestIT extends DBIntegrationTestIT {
-	@EnableJpaRepositories(basePackages = { "de.wps.radvis.backend.matching", "de.wps.radvis.backend.netz" })
+	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.matching", "de.wps.radvis.backend.netz" })
 	@EntityScan(basePackages = { "de.wps.radvis.backend.matching", "de.wps.radvis.backend.netz" })
 	public static class TestConfiguration {
 	}
@@ -544,7 +542,6 @@ class OsmAuszeichnungsServiceTestIT extends DBIntegrationTestIT {
 	}
 
 	private void refreshRadVisNetzMaterializedViews() {
-		kantenRepository.refreshRadVisNetzMaterializedView();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+		kantenRepository.refreshNetzMaterializedViews();
 	}
 }

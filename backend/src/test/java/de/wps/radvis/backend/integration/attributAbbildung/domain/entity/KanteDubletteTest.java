@@ -42,16 +42,16 @@ public class KanteDubletteTest {
 	 * Hinter den Coordinaten ist der Index, sowie die Distanz zur nachfolgenden Coordinate angegeben
 	 */
 	private static Coordinate[] C = new Coordinate[] {
-			new Coordinate(414468.2158720656, 5316872.694639614), // 0; 55
-			new Coordinate(414485.2725343314, 5316925.912835875), // 1; 114
-			new Coordinate(414519.5058246597, 5317035.460292882), // 2; 67
-			new Coordinate(414537.4892169263, 5317100.893350286), // 3; 72
-			new Coordinate(414555.1039603605, 5317171.668008491), // 4; 99
-			new Coordinate(414573.6400449512, 5317269.331718679), // 5; 52
-			new Coordinate(414583.7414200881, 5317321.541844417), // 6; 106
-			new Coordinate(414596.7964775269, 5317426.957659791), // 7; 57
-			new Coordinate(414605.6225423241, 5317483.744662981), // 8; 35
-			new Coordinate(414610.9923038645, 5317518.794050723) // 9; -
+		new Coordinate(414468.2158720656, 5316872.694639614), // 0; 55
+		new Coordinate(414485.2725343314, 5316925.912835875), // 1; 114
+		new Coordinate(414519.5058246597, 5317035.460292882), // 2; 67
+		new Coordinate(414537.4892169263, 5317100.893350286), // 3; 72
+		new Coordinate(414555.1039603605, 5317171.668008491), // 4; 99
+		new Coordinate(414573.6400449512, 5317269.331718679), // 5; 52
+		new Coordinate(414583.7414200881, 5317321.541844417), // 6; 106
+		new Coordinate(414596.7964775269, 5317426.957659791), // 7; 57
+		new Coordinate(414605.6225423241, 5317483.744662981), // 8; 35
+		new Coordinate(414610.9923038645, 5317518.794050723) // 9; -
 	};
 	private static LineString LS = GEO_FACTORY.createLineString(C);
 	private static LocationIndexedLine LIL = new LocationIndexedLine(LS);
@@ -130,23 +130,23 @@ public class KanteDubletteTest {
 
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(414000, 5316000),
-				new Coordinate(414200, 5316000),
-				new Coordinate(414400, 5316000)
+			new Coordinate(414000, 5316000),
+			new Coordinate(414200, 5316000),
+			new Coordinate(414400, 5316000)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(414105, 5316000),
-				new Coordinate(414305, 5316000),
-				new Coordinate(414505, 5316000)
+			new Coordinate(414105, 5316000),
+			new Coordinate(414305, 5316000),
+			new Coordinate(414505, 5316000)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
 		Coordinate[] coordinatesUeberschneidung = new Coordinate[] {
-				new Coordinate(414105, 5316000),
-				new Coordinate(414305, 5316000),
-				new Coordinate(414400, 5316000)
+			new Coordinate(414105, 5316000),
+			new Coordinate(414305, 5316000),
+			new Coordinate(414400, 5316000)
 		};
 		LineString ueberschneidung = GEO_FACTORY.createLineString(coordinatesUeberschneidung);
 
@@ -163,25 +163,25 @@ public class KanteDubletteTest {
 
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(916287.5989122939, 6235697.245613056),
-				new Coordinate(916406.7747932096, 6235576.850948493),
-				new Coordinate(916415.5249089473, 6235566.343690654),
-				new Coordinate(916408.9934244511, 6235559.171079013)
+			new Coordinate(916287.5989122939, 6235697.245613056),
+			new Coordinate(916406.7747932096, 6235576.850948493),
+			new Coordinate(916415.5249089473, 6235566.343690654),
+			new Coordinate(916408.9934244511, 6235559.171079013)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(916231.0753935167, 6235754.347782079),
-				new Coordinate(916406.7747932096, 6235576.850948493),
-				new Coordinate(916415.5249089473, 6235566.343690654),
-				new Coordinate(916415.7030376607, 6235566.150177472)
+			new Coordinate(916231.0753935167, 6235754.347782079),
+			new Coordinate(916406.7747932096, 6235576.850948493),
+			new Coordinate(916415.5249089473, 6235566.343690654),
+			new Coordinate(916415.7030376607, 6235566.150177472)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
 		Coordinate[] coordinatesUeberschneidung = new Coordinate[] {
-				new Coordinate(916287.5989122939, 6235697.245613056),
-				new Coordinate(916406.7747932096, 6235576.850948493),
-				new Coordinate(916415.5249089473, 6235566.343690654)
+			new Coordinate(916287.5989122939, 6235697.245613056),
+			new Coordinate(916406.7747932096, 6235576.850948493),
+			new Coordinate(916415.5249089473, 6235566.343690654)
 		};
 		LineString ueberschneidung = GEO_FACTORY.createLineString(coordinatesUeberschneidung);
 
@@ -198,19 +198,19 @@ public class KanteDubletteTest {
 		throws KeineUeberschneidungException {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(10.0, 20.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(30.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(50.0, 20.0)
+			new Coordinate(10.0, 20.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(30.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(50.0, 20.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(10.0, 20.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(50.0, 20.0)
+			new Coordinate(10.0, 20.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(50.0, 20.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -220,11 +220,11 @@ public class KanteDubletteTest {
 
 		// Richtiger LineString?
 		LineString expectedLineString = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(10.0, 20.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(30.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(50.0, 20.0)
+			new Coordinate(10.0, 20.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(30.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(50.0, 20.0)
 		});
 		assertThat(ueberschneidungLineString).isEqualTo(expectedLineString);
 	}
@@ -234,16 +234,16 @@ public class KanteDubletteTest {
 	public void testKanteDublette_V2Beinhaltung_korrekteUeberschneidung() throws KeineUeberschneidungException {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(10.0, 20.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(50.0, 20.0)
+			new Coordinate(10.0, 20.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(50.0, 20.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(30.0, 10.0)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(30.0, 10.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -253,8 +253,8 @@ public class KanteDubletteTest {
 
 		// Richtiger LineString?
 		LineString expectedLineString = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(30.0, 10.0) });
+			new Coordinate(20.0, 10.0),
+			new Coordinate(30.0, 10.0) });
 		assertThat(ueberschneidungLineString).isEqualTo(expectedLineString);
 	}
 
@@ -263,17 +263,17 @@ public class KanteDubletteTest {
 	public void testKanteDublette_V3Reinlaufen_korrekteUeberschneidung() throws KeineUeberschneidungException {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(60.0, 10.0)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(60.0, 10.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(30.0, 10.0),
-				new Coordinate(50.0, 10.0),
-				new Coordinate(70.0, 10.0),
-				new Coordinate(90.0, 10.0)
+			new Coordinate(30.0, 10.0),
+			new Coordinate(50.0, 10.0),
+			new Coordinate(70.0, 10.0),
+			new Coordinate(90.0, 10.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -282,9 +282,9 @@ public class KanteDubletteTest {
 		LineString ueberschneidungLineString = kanteDublette.getZielnetzUeberschneidung();
 
 		LineString expectedLineString = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(30.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(60.0, 10.0) });
+			new Coordinate(30.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(60.0, 10.0) });
 		assertThat(ueberschneidungLineString).isEqualTo(expectedLineString);
 	}
 
@@ -294,15 +294,15 @@ public class KanteDubletteTest {
 		throws KeineUeberschneidungException {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(60.0, 20.0)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(60.0, 20.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(60.0, 10.0)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(60.0, 10.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -311,9 +311,9 @@ public class KanteDubletteTest {
 		LineString ueberschneidungLineString = kanteDublette.getZielnetzUeberschneidung();
 
 		LineString expectedLineString = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(40.53665631459995, 10.268328157299976)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(40.53665631459995, 10.268328157299976)
 		});
 		assertThat(ueberschneidungLineString).isEqualTo(expectedLineString);
 	}
@@ -324,15 +324,15 @@ public class KanteDubletteTest {
 		throws KeineUeberschneidungException {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(60.0, 20.0)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(60.0, 20.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(0.0, 10.0),
-				new Coordinate(80.0, 10.0)
+			new Coordinate(0.0, 10.0),
+			new Coordinate(80.0, 10.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -342,9 +342,9 @@ public class KanteDubletteTest {
 
 		// Richtiger LineString?
 		LineString expectedLineString = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(40.53665631459995, 10.268328157299976)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(40.53665631459995, 10.268328157299976)
 		});
 		assertThat(ueberschneidungLineString).isEqualTo(expectedLineString);
 	}
@@ -355,18 +355,18 @@ public class KanteDubletteTest {
 
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(10.0, 20.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(50.0, 20.0)
+			new Coordinate(10.0, 20.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(50.0, 20.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(10.0, 0.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(50.0, 0.0)
+			new Coordinate(10.0, 0.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(50.0, 0.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -376,9 +376,9 @@ public class KanteDubletteTest {
 
 		// Richtiger LineString?
 		LineString expectedLineString = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(20.0, 10.0),
-				new Coordinate(40.0, 10.0),
-				new Coordinate(40.0, 10.0)
+			new Coordinate(20.0, 10.0),
+			new Coordinate(40.0, 10.0),
+			new Coordinate(40.0, 10.0)
 		});
 		assertThat(ueberschneidungLineString).isEqualTo(expectedLineString);
 	}
@@ -387,17 +387,17 @@ public class KanteDubletteTest {
 	public void testKanteDublette_V8KeineUeberschneidung_wirftKeineUeberschneidungsException() {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(10.0, 20.0),
-				new Coordinate(20.0, 20.0),
-				new Coordinate(30.0, 0.31),
-				new Coordinate(40.0, 0.31)
+			new Coordinate(10.0, 20.0),
+			new Coordinate(20.0, 20.0),
+			new Coordinate(30.0, 0.31),
+			new Coordinate(40.0, 0.31)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(0.0, 0.0),
-				new Coordinate(20.0, 0.0),
-				new Coordinate(30.0, 0.0),
-				new Coordinate(50.0, 0.0)
+			new Coordinate(0.0, 0.0),
+			new Coordinate(20.0, 0.0),
+			new Coordinate(30.0, 0.0),
+			new Coordinate(50.0, 0.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -411,16 +411,16 @@ public class KanteDubletteTest {
 	public void testKanteDublette_V9UeberschneidungInZweiPunkten_wirftKeineUeberschneidungsException() {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(0.0, 10.0),
-				new Coordinate(20.0, 10.0),
-				new Coordinate(50.0, 10.0)
+			new Coordinate(0.0, 10.0),
+			new Coordinate(20.0, 10.0),
+			new Coordinate(50.0, 10.0)
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(10.0, 30.0),
-				new Coordinate(10.0, 0.0),
-				new Coordinate(30.0, 0.0),
-				new Coordinate(30.0, 30.0)
+			new Coordinate(10.0, 30.0),
+			new Coordinate(10.0, 0.0),
+			new Coordinate(30.0, 0.0),
+			new Coordinate(30.0, 30.0)
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -434,13 +434,13 @@ public class KanteDubletteTest {
 	public void testKanteDublette_PunktUeberschneidung_wirftKeineUeberschneidungsException() {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(10.0, 0.0),
-				new Coordinate(20.0, 0.0),
+			new Coordinate(10.0, 0.0),
+			new Coordinate(20.0, 0.0),
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(20.0, 0.0),
-				new Coordinate(30.0, 0.0),
+			new Coordinate(20.0, 0.0),
+			new Coordinate(30.0, 0.0),
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -454,14 +454,14 @@ public class KanteDubletteTest {
 	public void testKanteDublette_UeberschneidungDurchUngenauigkeitBeimOSMMatching_wirftKeineUeberschneidungsException() {
 		// Arrange
 		Coordinate[] coordinatesA = new Coordinate[] {
-				new Coordinate(10.0, 0.0),
-				new Coordinate(20.0, 0.0),
+			new Coordinate(10.0, 0.0),
+			new Coordinate(20.0, 0.0),
 		};
 		LineString A = GEO_FACTORY.createLineString(coordinatesA);
 		Coordinate[] coordinatesB = new Coordinate[] {
-				new Coordinate(19.6, 0.0),
-				new Coordinate(20.0, 0.0),
-				new Coordinate(30.0, 0.0),
+			new Coordinate(19.6, 0.0),
+			new Coordinate(20.0, 0.0),
+			new Coordinate(30.0, 0.0),
 		};
 		LineString B = GEO_FACTORY.createLineString(coordinatesB);
 
@@ -474,14 +474,14 @@ public class KanteDubletteTest {
 	@Test
 	public void testKanteDublette_UeberschneidungDerGeometrienNurAnZweiPunkten_wirftKeineUeberschneidungsException() {
 		LineString baseGeometry = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(10., 10.),
-				new Coordinate(14., 10.),
-				new Coordinate(20., 10.)
+			new Coordinate(10., 10.),
+			new Coordinate(14., 10.),
+			new Coordinate(20., 10.)
 		});
 		LineString nurAnZweiPunktenIntersection = GEO_FACTORY.createLineString(new Coordinate[] {
-				new Coordinate(10., 10.),
-				new Coordinate(14., 20),
-				new Coordinate(20., 10.)
+			new Coordinate(10., 10.),
+			new Coordinate(14., 20),
+			new Coordinate(20., 10.)
 		});
 
 		assertThatThrownBy(() -> {

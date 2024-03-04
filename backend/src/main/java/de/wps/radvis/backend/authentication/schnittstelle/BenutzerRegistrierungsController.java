@@ -17,8 +17,6 @@ package de.wps.radvis.backend.authentication.schnittstelle;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,10 +27,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerExistiertBereitsException;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.MailService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -40,15 +42,17 @@ import lombok.extern.slf4j.Slf4j;
 @Validated
 @Slf4j
 public class BenutzerRegistrierungsController {
-
+	private final CommonConfigurationProperties commonConfigurationProperties;
 	private final BenutzerService benutzerService;
 	private final MailService mailService;
 
 	public BenutzerRegistrierungsController(
+		CommonConfigurationProperties commonConfigurationProperties,
 		BenutzerService benutzerService,
 		MailService mailService) {
 		this.benutzerService = benutzerService;
 		this.mailService = mailService;
+		this.commonConfigurationProperties = commonConfigurationProperties;
 	}
 
 	@PostMapping(path = "/registriere-benutzer")
@@ -70,15 +74,16 @@ public class BenutzerRegistrierungsController {
 		UserDetails neueUserDetails = RadVisUserDetailsService.fromUser(neuerBenutzer);
 		SecurityContextHolder.getContext().setAuthentication(new RadVisAuthentication(neueUserDetails));
 
-		String mailText = String.format("Der Benutzer '%s %s' wurde angelegt und wartet auf Freischaltung.",
-			neuerBenutzer.getVorname(), neuerBenutzer.getNachname());
+		String linkAufBenutzer =
+			commonConfigurationProperties.getBasisUrl() + FrontendLinks.benutzerAdministration(neuerBenutzer.getId());
+		String mailText = String.format("Der Benutzer '%s %s' wurde angelegt und wartet auf Freischaltung.\n" +
+				"Die Bearbeitung des Benutzers kann erfolgen unter %s .",
+			neuerBenutzer.getVorname(), neuerBenutzer.getNachname(), linkAufBenutzer);
 		List<Benutzer> zustaendigeBenutzer = benutzerService.getAlleZustaendigenBenutzer(neuerBenutzer);
 		List<String> zustaendigeMailadressen = zustaendigeBenutzer.stream()
 			.map(benutzer -> benutzer.getMailadresse().toString()).collect(Collectors.toList());
 		mailService.sendMail(zustaendigeMailadressen, "Neuer Benutzer wurde angelegt", mailText);
 
-		log.info("Benutzer [{} {}, '{}' von {}] wurde angelegt.", neuerBenutzer.getVorname(),
-			neuerBenutzer.getNachname(), neuerBenutzer.getMailadresse(),
-			neuerBenutzer.getOrganisation().getName());
+		log.info("Benutzer mit ID '{}' wurde angelegt.", neuerBenutzer.getId());
 	}
 }

@@ -14,13 +14,12 @@
 
 package de.wps.radvis.backend.integration.attributAbbildung.domain.entity;
 
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-
-import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,7 +51,7 @@ public class MappedKante {
 		this.linearReferenzierterAbschnittAufQuellnetzKante = lineareReferenzFuerLinearReferenzierteAttribute.getErgebnisProjektion();
 		this.richtungenVertauscht = lineareReferenzFuerKantenSegment
 			.isWurdenVonUndBisBeiProjektionVertauscht() != lineareReferenzFuerLinearReferenzierteAttribute
-				.isWurdenVonUndBisBeiProjektionVertauscht();
+			.isWurdenVonUndBisBeiProjektionVertauscht();
 		this.kanteId = kanteId;
 	}
 }

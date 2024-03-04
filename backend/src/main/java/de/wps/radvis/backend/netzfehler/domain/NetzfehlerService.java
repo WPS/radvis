@@ -14,10 +14,9 @@
 
 package de.wps.radvis.backend.netzfehler.domain;
 
+import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-
-import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 
 @Transactional
 public class NetzfehlerService {

@@ -16,9 +16,6 @@ package de.wps.radvis.backend.massnahme.domain.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -27,6 +24,8 @@ import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import de.wps.radvis.backend.netz.domain.entity.NetzBezugAenderung;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

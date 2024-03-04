@@ -31,6 +31,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBes
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
 
 public class ServicestationTestDataProvider {
@@ -51,6 +52,25 @@ public class ServicestationTestDataProvider {
 			.organisation(VerwaltungseinheitTestDataProvider.defaultOrganisation().build())
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_GROSS)
 			.status(ServicestationStatus.AKTIV)
-			.dokumentListe(new DokumentListe());
+			.dokumentListe(new DokumentListe())
+			.quellSystem(ServicestationenQuellSystem.RADVIS);
+	}
+
+	public static Servicestation.ServicestationBuilder withDefaultMobiDataValues() {
+		return Servicestation.builder()
+			.geometrie(
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 100)))
+			.status(ServicestationStatus.AKTIV)
+			.oeffnungszeiten(null)
+			.marke(null)
+			.beschreibung(null)
+			.luftpumpe(Luftpumpe.of(false))
+			.gebuehren(Gebuehren.of(false))
+			.werkzeug(Werkzeug.of(false))
+			.kettenwerkzeug(Kettenwerkzeug.of(false))
+			.fahrradhalterung(Fahrradhalterung.of(false))
+			.betreiber(Betreiber.of(""))
+			.dokumentListe(new DokumentListe())
+			.quellSystem(ServicestationenQuellSystem.MOBIDATABW);
 	}
 }

@@ -14,17 +14,16 @@
 
 package de.wps.radvis.backend.fahrradroute.schnittstelle;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

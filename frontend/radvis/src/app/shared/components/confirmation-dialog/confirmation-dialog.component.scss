@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import "src/theme";
+@import 'src/theme';
 
 :host {
   display: block;
@@ -20,4 +20,8 @@
 
 .dialog-title {
   color: $secondary-color;
+}
+
+.dialog-options {
+  gap: 1rem;
 }

@@ -34,6 +34,7 @@ public class KanteEditView {
 	private final boolean isZweiseitig;
 	private final boolean isGeometrieAenderungErlaubt;
 	private final boolean liegtInZustaendigkeitsbereich;
+	private final boolean isLoeschenErlaubt;
 	private final QuellSystem quelle;
 
 	private final ZustaendigkeitAttributGruppeEditView zustaendigkeitAttributGruppe;
@@ -42,7 +43,7 @@ public class KanteEditView {
 	private final FahrtrichtungAttributGruppeEditView fahrtrichtungAttributGruppe;
 	private final KantenAttributGruppeEditView kantenAttributGruppe;
 
-	public KanteEditView(Kante kante, boolean liegtInZustaendigkeitsbereich) {
+	public KanteEditView(Kante kante, boolean liegtInZustaendigkeitsbereich, boolean isLoeschenErlaubt) {
 		id = kante.getId();
 		kantenVersion = kante.getVersion();
 		geometry = kante.getGeometry();
@@ -53,6 +54,7 @@ public class KanteEditView {
 		isZweiseitig = kante.isZweiseitig();
 		isGeometrieAenderungErlaubt = kante.isManuelleGeometrieAenderungErlaubt();
 		this.liegtInZustaendigkeitsbereich = liegtInZustaendigkeitsbereich;
+		this.isLoeschenErlaubt = isLoeschenErlaubt;
 
 		quelle = kante.getQuelle();
 

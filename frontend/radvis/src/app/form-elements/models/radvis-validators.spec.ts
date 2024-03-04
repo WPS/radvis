@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { AbstractControl, FormControl } from '@angular/forms';
+import { AbstractControl, UntypedFormControl } from '@angular/forms';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 
 describe('RadvisValidators', () => {
@@ -114,11 +114,11 @@ describe('RadvisValidators', () => {
 
   describe(RadvisValidators.isNotNullOrEmpty.name, () => {
     it('should work', () => {
-      expect(RadvisValidators.isNotNullOrEmpty(new FormControl(''))).not.toBeNull();
-      expect(RadvisValidators.isNotNullOrEmpty(new FormControl(null))).not.toBeNull();
-      expect(RadvisValidators.isNotNullOrEmpty(new FormControl(undefined))).not.toBeNull();
-      expect(RadvisValidators.isNotNullOrEmpty(new FormControl('Test'))).toBeNull();
-      expect(RadvisValidators.isNotNullOrEmpty(new FormControl({ blah: 1 }))).toBeNull();
+      expect(RadvisValidators.isNotNullOrEmpty(new UntypedFormControl(''))).not.toBeNull();
+      expect(RadvisValidators.isNotNullOrEmpty(new UntypedFormControl(null))).not.toBeNull();
+      expect(RadvisValidators.isNotNullOrEmpty(new UntypedFormControl(undefined))).not.toBeNull();
+      expect(RadvisValidators.isNotNullOrEmpty(new UntypedFormControl('Test'))).toBeNull();
+      expect(RadvisValidators.isNotNullOrEmpty(new UntypedFormControl({ blah: 1 }))).toBeNull();
     });
   });
 });

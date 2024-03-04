@@ -12,22 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import invariant from 'tiny-invariant';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { WegweisendeBeschilderungListenView } from 'src/app/viewer/wegweisende-beschilderung/models/wegweisende-beschilderung-listen-view';
 import { WegweisendeBeschilderungService } from 'src/app/viewer/wegweisende-beschilderung/services/wegweisende-beschilderung.service';
+import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class WegweisendeBeschilderungResolver implements Resolve<WegweisendeBeschilderungListenView> {
-  constructor(private wegweisendeBeschilderungService: WegweisendeBeschilderungService) {}
-
-  // eslint-disable-next-line no-unused-vars
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<WegweisendeBeschilderungListenView> {
-    const idFromRoute = route.paramMap.get('id');
-    invariant(idFromRoute);
-    return this.wegweisendeBeschilderungService.getWegweisendeBeschilderung(+idFromRoute);
-  }
-}
+export const wegweisendeBeschilderungResolver: ResolveFn<WegweisendeBeschilderungListenView> = (route, state) => {
+  const wegweisendeBeschilderungService: WegweisendeBeschilderungService = inject(WegweisendeBeschilderungService);
+  const id = route.paramMap.get('id');
+  invariant(id);
+  return wegweisendeBeschilderungService.getWegweisendeBeschilderung(+id);
+};

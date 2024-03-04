@@ -13,13 +13,37 @@
   -->
 
 <div class="container justify-content-center">
-  <mat-card class="mt-20">
-    <mat-card-content>
+  <mat-card appearance="outlined" class="mt-20" [ngSwitch]="status">
+    <mat-card-content *ngSwitchCase="'WARTE_AUF_FREISCHALTUNG'">
       <h2>Ihr Account ist nicht aktiv</h2>
       <p>
         Sie sind momentan nicht für die Verwendung von RadVIS freigeschaltet.<br />
-        Ein Administrator wurde über Ihre Registrierung informiert.
+        Ein Administrator wurde über Ihre Anfrage informiert.
       </p>
+    </mat-card-content>
+    <mat-card-content *ngSwitchCase="'ABGELEHNT'">
+      <h2>Ihr Account ist nicht aktiv</h2>
+      <p>
+        Ihr Account wurde gesperrt.<br />
+        Bitte wenden Sie sich bei Bedarf an den
+        <a href="mailto:RadVIS-support@vm.bwl.de">RadVIS-Support&#64;vm.bwl.de</a>.
+      </p>
+    </mat-card-content>
+    <mat-card-content *ngSwitchCase="'INAKTIV'">
+      <h2>Ihr Account ist nicht aktiv</h2>
+      <p>
+        Willkommen zurück! Sie haben sich lange nicht angemeldet und wurden als inaktiv markiert.<br />
+        Bitte beantragen Sie eine Reaktivierung, wenn Sie RadVIS weiter benutzen möchten.<br />
+      </p>
+      <button
+        mat-raised-button
+        style="float: right"
+        [disabled]="waiting"
+        (click)="beantrageReaktivierung()"
+        color="primary"
+      >
+        Reaktivierung beantragen
+      </button>
     </mat-card-content>
   </mat-card>
 </div>

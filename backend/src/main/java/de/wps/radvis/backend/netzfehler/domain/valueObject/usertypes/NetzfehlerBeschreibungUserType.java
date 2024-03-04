@@ -18,7 +18,7 @@ import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerBeschreibun
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class NetzfehlerBeschreibungUserType implements AttributeConverter<NetzfehlerBeschreibung, String> {
 
 	@Override

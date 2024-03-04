@@ -21,14 +21,6 @@ import static org.valid4j.Assertive.require;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Point;
@@ -48,15 +40,25 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBes
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Audited
+@ToString(callSuper = true)
 public class Servicestation extends VersionierteEntity {
 	public static class CsvHeader {
 		public static final String RAD_VIS_ID = "RadVIS-ID";
@@ -76,6 +78,8 @@ public class Servicestation extends VersionierteEntity {
 		public static final String TYP = "Typ";
 		public static final String STATUS = "Status";
 
+		public static final String QUELL_SYSTEM = "Quellsystem";
+
 		public static final List<String> ALL = List.of(RAD_VIS_ID,
 			POSITION_X_UTM32_N,
 			POSITION_Y_UTM32_N,
@@ -91,7 +95,8 @@ public class Servicestation extends VersionierteEntity {
 			BESCHREIBUNG,
 			ZUSTAENDIG_IN_RAD_VIS,
 			TYP,
-			STATUS);
+			STATUS,
+			QUELL_SYSTEM);
 	}
 
 	@Getter
@@ -99,6 +104,10 @@ public class Servicestation extends VersionierteEntity {
 
 	@Getter
 	private ServicestationName name;
+
+	@Getter
+	@Enumerated(EnumType.STRING)
+	private ServicestationenQuellSystem quellSystem;
 
 	@Getter
 	private Gebuehren gebuehren;
@@ -163,8 +172,10 @@ public class Servicestation extends VersionierteEntity {
 		ServicestationTyp typ,
 		ServicestationStatus status,
 		Verwaltungseinheit organisation,
-		DokumentListe dokumentListe) {
+		DokumentListe dokumentListe,
+		ServicestationenQuellSystem quellSystem) {
 		super(id, version);
+		require(quellSystem, notNullValue());
 		require(geometrie, notNullValue());
 		require(name, notNullValue());
 		require(gebuehren, notNullValue());
@@ -192,8 +203,12 @@ public class Servicestation extends VersionierteEntity {
 		this.status = status;
 		this.organisation = organisation;
 		this.dokumentListe = dokumentListe;
+		this.quellSystem = quellSystem;
 	}
 
+	/**
+	 * Create aus dem FE
+	 */
 	public Servicestation(
 		Point geometrie,
 		ServicestationName name,
@@ -228,10 +243,14 @@ public class Servicestation extends VersionierteEntity {
 			typ,
 			status,
 			organisation,
-			dokumentListe
+			dokumentListe,
+			ServicestationenQuellSystem.RADVIS
 		);
 	}
 
+	/**
+	 * update aus dem FE
+	 */
 	public void updateAttribute(
 		Point geometrie,
 		ServicestationName name,
@@ -259,6 +278,8 @@ public class Servicestation extends VersionierteEntity {
 		require(organisation, notNullValue());
 		require(typ, notNullValue());
 		require(status, notNullValue());
+		require(this.quellSystem.equals(ServicestationenQuellSystem.RADVIS),
+			"Nur Servicestationen mit Quellsystem RadVIS können geupdated werden");
 
 		this.gebuehren = gebuehren;
 		this.oeffnungszeiten = oeffnungszeiten;

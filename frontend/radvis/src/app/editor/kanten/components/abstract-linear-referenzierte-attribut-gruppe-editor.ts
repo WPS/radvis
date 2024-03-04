@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectorRef } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AbstractAttributGruppeEditor } from 'src/app/editor/kanten/components/abstract-attribut-gruppe-editor';
@@ -29,13 +29,13 @@ import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
 import { VersionierteEntitaet } from 'src/app/shared/models/versionierte-entitaet';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
 export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
   A extends LinearReferenzierteAttribute,
   AG extends VersionierteEntitaet
-> implements DiscardGuard {
+> implements DiscardableComponent {
   public NICHT_BEARBEITBAR_HINWEIS = AbstractAttributGruppeEditor.NICHT_BEARBEITBAR_HINWEIS;
 
   public showRadNetzHinweis = false;
@@ -46,9 +46,9 @@ export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
   public hasKanten$: Observable<boolean>;
 
   // Hält nur die gerade im Editor angezeigten Attribute
-  public displayedAttributeformGroup: FormGroup;
+  public displayedAttributeformGroup: UntypedFormGroup;
   // Hält die linearen Referenzen. Verbunden mit den LineareReferenzControls
-  public lineareReferenzenFormArray: FormArray = new FormArray([]);
+  public lineareReferenzenFormArray: UntypedFormArray = new UntypedFormArray([]);
 
   protected subscriptions: Subscription[] = [];
 
@@ -84,8 +84,8 @@ export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
     return this.areAttributesPristine && this.lineareReferenzenFormArray.pristine;
   }
 
-  public getLineareReferenzenFormControlAt(index: number): FormControl {
-    return this.lineareReferenzenFormArray.at(index) as FormControl;
+  public getLineareReferenzenFormControlAt(index: number): UntypedFormControl {
+    return this.lineareReferenzenFormArray.at(index) as UntypedFormControl;
   }
 
   public onSelectLinearesSegment(event: SelectElementEvent, kanteId: number, seitenbezug?: Seitenbezug): void {
@@ -173,10 +173,10 @@ export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
     );
   }
 
-  protected resetFormArray<T>(array: FormArray, values: T[]): void {
+  protected resetFormArray<T>(array: UntypedFormArray, values: T[]): void {
     array.clear();
     values.forEach(v => {
-      array.push(new FormControl(v), {
+      array.push(new UntypedFormControl(v), {
         emitEvent: false,
       });
     });
@@ -235,7 +235,7 @@ export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
 
   protected abstract saveAttributgruppe(attributgruppen: AG[]): Promise<Kante[]>;
 
-  protected abstract createDisplayedAttributeFormGroup(): FormGroup;
+  protected abstract createDisplayedAttributeFormGroup(): UntypedFormGroup;
 
   protected abstract getAttributGruppeFrom(kante: Kante): AG;
 

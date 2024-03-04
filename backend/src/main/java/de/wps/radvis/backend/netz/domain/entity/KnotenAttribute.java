@@ -18,16 +18,15 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 
 import java.util.Optional;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 

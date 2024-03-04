@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
@@ -30,6 +32,7 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
@@ -48,14 +51,22 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group2")
-@ContextConfiguration(classes = { NetzConfiguration.class, CommonConfiguration.class, OrganisationConfiguration.class,
-	BenutzerConfiguration.class, GeoConverterConfiguration.class })
+@ContextConfiguration(classes = {
+	NetzConfiguration.class,
+	CommonConfiguration.class,
+	OrganisationConfiguration.class,
+	BenutzerConfiguration.class,
+	GeoConverterConfiguration.class
+})
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 class AttributeUserTypesTestIT extends DBIntegrationTestIT {
 

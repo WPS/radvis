@@ -32,6 +32,7 @@ export interface Kante {
   zweiseitig: boolean;
   geometrieAenderungErlaubt: boolean;
   liegtInZustaendigkeitsbereich: boolean;
+  loeschenErlaubt: boolean;
 
   quelle: QuellSystem;
 

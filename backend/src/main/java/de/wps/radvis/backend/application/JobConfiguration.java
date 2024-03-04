@@ -31,8 +31,10 @@ import org.springframework.context.annotation.Scope;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageBRImportJob;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageRepository;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
+import de.wps.radvis.backend.benutzer.domain.InaktivitaetConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.InitialAdminImportConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.InitialBenutzerImportJob;
+import de.wps.radvis.backend.benutzer.domain.SetzeBenutzerInaktivJob;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
@@ -40,6 +42,7 @@ import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
+import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjektionsJob;
@@ -54,7 +57,6 @@ import de.wps.radvis.backend.integration.radnetz.domain.RadNetzNetzbildungServic
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungJob;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungService;
 import de.wps.radvis.backend.leihstation.domain.LeihstationMobiDataImportJob;
-import de.wps.radvis.backend.leihstation.domain.LeihstationMobiDataWFSRepository;
 import de.wps.radvis.backend.leihstation.domain.LeihstationRepository;
 import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.DlmPbfErstellungsJob;
@@ -78,7 +80,10 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportJob;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportRepository;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import de.wps.radvis.backend.organisation.domain.WahlkreisImportJob;
+import de.wps.radvis.backend.organisation.domain.WahlkreisRepository;
 import de.wps.radvis.backend.quellimport.common.domain.FeatureImportRepository;
 import de.wps.radvis.backend.quellimport.common.domain.GenericQuellImportJob;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
@@ -89,6 +94,8 @@ import de.wps.radvis.backend.quellimport.radnetz.domain.RadNETZQuellImportJob;
 import de.wps.radvis.backend.quellimport.ttsib.domain.TTSibImportJob;
 import de.wps.radvis.backend.quellimport.ttsib.domain.TtSibFahrradwegRepository;
 import de.wps.radvis.backend.quellimport.ttsib.domain.TtSibRepository;
+import de.wps.radvis.backend.servicestation.domain.ServicestationMobiDataImportJob;
+import de.wps.radvis.backend.servicestation.domain.ServicestationRepository;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.WegweisendeBeschilderungConfigurationProperties;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.WegweisendeBeschilderungImportJob;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.repository.WegweisendeBeschilderungRepository;
@@ -220,6 +227,9 @@ public class JobConfiguration {
 	private LeihstationRepository leihstationRepository;
 
 	@Autowired
+	ServicestationRepository servicestationRepository;
+
+	@Autowired
 	private VerwaltungseinheitService verwaltungseinheitService;
 
 	@Autowired
@@ -227,6 +237,21 @@ public class JobConfiguration {
 
 	@Autowired
 	private KanteUpdateElevationService kanteUpdateElevationService;
+
+	@Autowired
+	private VerwaltungseinheitRepository verwaltungseinheitRepository;
+
+	@Autowired
+	private WahlkreisRepository wahlkreisRepository;
+
+	@Autowired
+	private ShapeFileRepository shapeFileRepository;
+
+	@Autowired
+	InaktivitaetConfigurationProperties inaktivitaetConfigurationProperties;
+
+	@Autowired
+	BenutzerService benutzerService;
 
 	@Bean
 	public RadNETZQuellImportJob radNetzQuellImportJob() {
@@ -414,12 +439,39 @@ public class JobConfiguration {
 			jobExecutionDescriptionRepository,
 			verwaltungseinheitService,
 			leihstationRepository,
-			new LeihstationMobiDataWFSRepository(commonConfigurationProperties,
-				jobConfigurationProperties.getLeihstationImportUrl()));
+			geoJsonImportRepository,
+			jobConfigurationProperties.getLeihstationImportUrl());
+	}
+
+	@Bean
+	public ServicestationMobiDataImportJob servicestationMobiDataImportJob() {
+		return new ServicestationMobiDataImportJob(
+			jobExecutionDescriptionRepository,
+			geoJsonImportRepository,
+			servicestationRepository,
+			verwaltungseinheitService,
+			verwaltungseinheitRepository,
+			jobConfigurationProperties.getServicestationImportUrl());
 	}
 
 	@Bean
 	public KanteUpdateElevationJob kanteUpdateElevationJob() {
 		return new KanteUpdateElevationJob(jobExecutionDescriptionRepository, kanteUpdateElevationService);
+	}
+
+	@Bean
+	public WahlkreisImportJob wahlkreisImportJob() {
+		return new WahlkreisImportJob(jobExecutionDescriptionRepository, wahlkreisRepository, shapeFileRepository,
+			new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+				jobConfigurationProperties.getWahlkreisePath()));
+	}
+
+	@Bean
+	public SetzeBenutzerInaktivJob setzeBenutzerInaktivJob() {
+		return new SetzeBenutzerInaktivJob(
+			jobExecutionDescriptionRepository,
+			benutzerService,
+			inaktivitaetConfigurationProperties.inaktivitaetsTimeoutInTagen()
+		);
 	}
 }

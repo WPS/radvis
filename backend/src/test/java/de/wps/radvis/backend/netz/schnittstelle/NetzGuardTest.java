@@ -14,12 +14,13 @@
 
 package de.wps.radvis.backend.netz.schnittstelle;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,22 +30,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
-import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
-import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
-import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
-import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
-import de.wps.radvis.backend.netz.schnittstelle.command.SaveFuehrungsformAttributGruppeCommand;
-import de.wps.radvis.backend.netz.schnittstelle.command.SaveFuehrungsformAttributeCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveKanteAttributeCommand;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
@@ -83,7 +79,7 @@ class NetzGuardTest {
 			Netzklasse.RADNETZ_ZIELNETZ);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1l)
+			.netzklassen(neueNetzklassen).kanteId(1L)
 			.build();
 
 		when(netzService.getKante(Mockito.any()))
@@ -103,7 +99,7 @@ class NetzGuardTest {
 		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KREISNETZ_FREIZEIT, Netzklasse.KOMMUNALNETZ_ALLTAG);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1l)
+			.netzklassen(neueNetzklassen).kanteId(1L)
 			.build();
 
 		when(netzService.getKante(Mockito.any()))
@@ -125,7 +121,7 @@ class NetzGuardTest {
 			Netzklasse.KOMMUNALNETZ_ALLTAG);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1l)
+			.netzklassen(neueNetzklassen).kanteId(1L)
 			.build();
 
 		when(netzService.getKante(Mockito.any()))
@@ -145,7 +141,7 @@ class NetzGuardTest {
 		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1l)
+			.netzklassen(neueNetzklassen).kanteId(1L)
 			.build();
 
 		when(netzService.getKante(Mockito.any()))
@@ -166,7 +162,7 @@ class NetzGuardTest {
 		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1l)
+			.netzklassen(neueNetzklassen).kanteId(1L)
 			.build();
 
 		when(netzService.getKante(Mockito.any()))
@@ -187,7 +183,7 @@ class NetzGuardTest {
 		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1l)
+			.netzklassen(neueNetzklassen).kanteId(1L)
 			.build();
 
 		when(netzService.getKante(Mockito.any()))
@@ -199,5 +195,98 @@ class NetzGuardTest {
 		assertThrows(AccessDeniedException.class,
 			() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
 				command.getNetzklassen(), benutzer));
+	}
+
+	@Test
+	void testDeleteRadVisKante_adminFremdeRadVisKante_true() {
+		// arrange
+		Benutzer admin = BenutzerTestDataProvider.admin(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			.id(8L)
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(admin);
+
+		Kante kanteRadVis = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(2L).build();
+		when(netzService.getKante(2L)).thenReturn(kanteRadVis);
+		when(netzService.wurdeAngelegtVon(eq(kanteRadVis), eq(admin))).thenReturn(false);
+
+		// act & assert
+		assertDoesNotThrow(() -> netzGuard.deleteRadVISKanteById(2L, authentication));
+		assertThat(netzGuard.isLoeschenErlaubt(kanteRadVis, admin)).isTrue();
+	}
+
+	@Test
+	void testDeleteRadVisKante_adminDlmKante_false() {
+		// arrange
+		Benutzer admin = BenutzerTestDataProvider.admin(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			.id(8L)
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(admin);
+
+		Kante kanteDLM = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).id(2L).build();
+		when(netzService.getKante(2L)).thenReturn(kanteDLM);
+		when(netzService.wurdeAngelegtVon(eq(kanteDLM), eq(admin))).thenReturn(false);
+
+		// act & assert
+		assertThatThrownBy(() -> netzGuard.deleteRadVISKanteById(2L, authentication)).isInstanceOf(
+			AccessDeniedException.class);
+		assertThat(netzGuard.isLoeschenErlaubt(kanteDLM, admin)).isFalse();
+	}
+
+	@Test
+	void testDeleteRadVisKante_nonAdminDlmKante_false() {
+		// arrange
+		Benutzer admin = BenutzerTestDataProvider.kreiskoordinator(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			.id(8L)
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(admin);
+
+		Kante kanteDLM = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).id(2L).build();
+		when(netzService.getKante(2L)).thenReturn(kanteDLM);
+		when(netzService.wurdeAngelegtVon(eq(kanteDLM), eq(admin))).thenReturn(false);
+
+		// act & assert
+		assertThatThrownBy(() -> netzGuard.deleteRadVISKanteById(2L, authentication)).isInstanceOf(
+			AccessDeniedException.class);
+		assertThat(netzGuard.isLoeschenErlaubt(kanteDLM, admin)).isFalse();
+	}
+
+	@Test
+	void testDeleteRadVisKante_nonAdminFremdeRadVisKante_false() {
+		// arrange
+		Benutzer kreiskoordinator = BenutzerTestDataProvider.kreiskoordinator(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			.id(8L)
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(kreiskoordinator);
+
+		Kante kanteRadVis = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(2L).build();
+		when(netzService.getKante(2L)).thenReturn(kanteRadVis);
+		when(netzService.wurdeAngelegtVon(eq(kanteRadVis), eq(kreiskoordinator))).thenReturn(false);
+
+		// act & assert
+		assertThatThrownBy(() -> netzGuard.deleteRadVISKanteById(2L, authentication)).isInstanceOf(
+			AccessDeniedException.class);
+		assertThat(netzGuard.isLoeschenErlaubt(kanteRadVis, kreiskoordinator)).isFalse();
+	}
+
+	@Test
+	void testDeleteRadVisKante_nonAdminEigeneRadVisKante_true() {
+		// arrange
+		Benutzer kreiskoordinator = BenutzerTestDataProvider.kreiskoordinator(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			.id(8L)
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(kreiskoordinator);
+
+		Kante kanteRadVis = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(2L).build();
+		when(netzService.getKante(2L)).thenReturn(kanteRadVis);
+		when(netzService.wurdeAngelegtVon(eq(kanteRadVis), eq(kreiskoordinator))).thenReturn(true);
+
+		// act & assert
+		assertDoesNotThrow(() -> netzGuard.deleteRadVISKanteById(2L, authentication));
+		assertThat(netzGuard.isLoeschenErlaubt(kanteRadVis, kreiskoordinator)).isTrue();
 	}
 }

@@ -123,7 +123,7 @@ export class FeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
 
     this.olLayer = new VectorLayer({
       source: vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.layer.style,
       minZoom: this.layer.minZoom,

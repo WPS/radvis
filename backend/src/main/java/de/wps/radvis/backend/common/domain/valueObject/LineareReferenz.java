@@ -30,7 +30,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 
 /**
  * Modelliert eine lineare Referenzierung mittels des dezimalen Anteils (Fraction), von 0.0 bis 1.0,

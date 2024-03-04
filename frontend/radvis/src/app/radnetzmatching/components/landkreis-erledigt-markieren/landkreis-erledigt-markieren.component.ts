@@ -134,7 +134,7 @@ export class LandkreisErledigtMarkierenComponent implements OnChanges, OnDestroy
   private createLayer(): VectorLayer {
     return new VectorLayer({
       source: this.vectorSource,
-      // @ts-ignore
+      // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: (feature: FeatureLike): Style => {
         const greenTransparent = [0, 255, 0, 0.1];

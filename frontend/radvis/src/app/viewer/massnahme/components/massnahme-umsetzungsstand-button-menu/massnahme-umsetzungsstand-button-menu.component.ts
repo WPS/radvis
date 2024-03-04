@@ -32,6 +32,12 @@ export class MassnahmeUmsetzungsstandButtonMenuComponent {
   @Input()
   isMenuItem = false;
 
+  @Input()
+  canStartAbfrage = false;
+
+  @Input()
+  canEvaluateAbfragen = false;
+
   loading = false;
 
   constructor(

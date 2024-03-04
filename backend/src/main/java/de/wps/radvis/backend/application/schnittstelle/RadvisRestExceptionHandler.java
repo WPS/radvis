@@ -17,10 +17,6 @@ package de.wps.radvis.backend.application.schnittstelle;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.OptimisticLockException;
-import jakarta.validation.ConstraintViolationException;
-
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +32,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import de.wps.radvis.backend.common.schnittstelle.ErrorDetails;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 
 @ControllerAdvice

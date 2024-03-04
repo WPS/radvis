@@ -17,11 +17,11 @@
 }
 
 @media (forced-colors: active) {
-  ::ng-deep .mat-radio-button.mat-accent:active {
+  ::ng-deep .mat-mdc-radio-button.mat-accent:active {
     border: 2px solid !important;
   }
-  ::ng-deep .mat-radio-checked {
+
+  ::ng-deep .mat-mdc-radio-checked {
     border: 2px solid !important;
   }
 }
-

@@ -14,14 +14,13 @@
 
 package de.wps.radvis.backend.quellimport.ttsib.domain.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,10 +33,10 @@ public class TtSibAbstractEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence-generator")
 	@GenericGenerator(name = "sequence-generator", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
-			@Parameter(name = "sequence_name", value = "hibernate_sequence"),
-			@Parameter(name = "optimizer", value = "pooled"),
-			@Parameter(name = "initial_value", value = "1"),
-			@Parameter(name = "increment_size", value = "100")
+		@Parameter(name = "sequence_name", value = "hibernate_sequence"),
+		@Parameter(name = "optimizer", value = "pooled"),
+		@Parameter(name = "initial_value", value = "1"),
+		@Parameter(name = "increment_size", value = "100")
 	})
 	@Getter
 	protected Long id;

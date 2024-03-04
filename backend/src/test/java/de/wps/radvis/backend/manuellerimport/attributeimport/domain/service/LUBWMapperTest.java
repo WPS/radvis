@@ -218,6 +218,41 @@ public class LUBWMapperTest {
 	}
 
 	@Test
+	void testApply_Sicherheitstrennstreifen_RadverkehrsfuehrungUnbekannt_STSwriteNull()
+		throws AttributUebernahmeException {
+		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig().fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.isZweiseitig(true)
+					.fuehrungsformAttributeRechts(
+						List.of(
+							FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+								.radverkehrsfuehrung(Radverkehrsfuehrung.UNBEKANNT)
+								.build()))
+					.build())
+			.build();
+		kante.changeSeitenbezug(true);
+		mapper.applyLinearReferenzierterAbschnittSeitenbezogen("ST",
+			MappedAttributesProperties.of(
+				Map.of("ST", "Kein Sicherheitstrennstreifen vorhanden", "BREITST", "", "BREITST2",
+					"",
+					"ORTSLAGE", "Innerorts")),
+			LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.RECHTS, kante);
+
+		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts()).containsExactly(
+			FuehrungsformAttribute.builder()
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.radverkehrsfuehrung(Radverkehrsfuehrung.UNBEKANNT)
+				.trennstreifenBreiteRechts(null)
+				.trennstreifenBreiteLinks(null)
+				.trennstreifenTrennungZuRechts(null)
+				.trennstreifenTrennungZuLinks(null)
+				.trennstreifenFormRechts(null)
+				.trennstreifenFormLinks(null)
+				.build());
+	}
+
+	@Test
 	void isAttributWertValid() {
 		assertThat(mapper.isAttributWertValid("belag", "10")).isTrue();
 		assertThat(mapper.isAttributWertValid("Belag", "10")).isTrue();

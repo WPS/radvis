@@ -12,12 +12,16 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<mat-form-field class="display-flex ml-10 mr-10 mt-3"
-                (keydown.tab)="$event.preventDefault();"
-                (keydown.shift.tab)="$event.preventDefault();">
+<mat-form-field
+  class="display-flex ml-10 mr-10 mt-3"
+  (keydown.tab)="$event.preventDefault()"
+  (keydown.shift.tab)="$event.preventDefault()"
+>
   <mat-label>RadVIS-Signatur</mat-label>
   <mat-select [compareWith]="compareSignatur" [formControl]="formControl" #matSelect>
     <mat-option [value]="''">Keine</mat-option>
-    <mat-option *ngFor="let signatur of signaturen$ | async" [value]="signatur">{{ getDisplayText(signatur) }}</mat-option>
+    <mat-option *ngFor="let signatur of signaturen$ | async" [value]="signatur"
+      >{{ getDisplayText(signatur) }}
+    </mat-option>
   </mat-select>
 </mat-form-field>

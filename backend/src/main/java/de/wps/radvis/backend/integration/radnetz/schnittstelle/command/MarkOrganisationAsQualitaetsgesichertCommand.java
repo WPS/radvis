@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.integration.radnetz.schnittstelle.command;
 
 import jakarta.validation.constraints.NotNull;
-
 import lombok.Getter;
 
 @Getter

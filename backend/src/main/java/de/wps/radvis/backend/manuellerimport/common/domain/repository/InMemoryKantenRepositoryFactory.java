@@ -18,10 +18,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,19 +30,17 @@ import lombok.extern.slf4j.Slf4j;
 public class InMemoryKantenRepositoryFactory {
 	private final KantenRepository kantenRepository;
 
-	public InMemoryKantenRepository create(Verwaltungseinheit organisation) {
-		log.info("Hole Kanten der Organisation aus der DB");
-		Set<Kante> kanten = kantenRepository.getKantenInOrganisationsbereich(organisation);
+	public InMemoryKantenRepository create(MultiPolygon bereich) {
+		log.info("Hole Kanten des Bereichs aus der DB");
+		Set<Kante> kanten = kantenRepository.getKantenInBereich(bereich);
 		log.info("... {} DLM-Kanten aus der DB geholt", kanten.size());
 		return new InMemoryKantenRepository(kanten);
 	}
 
-	public InMemoryKantenRepository create(Envelope envelope, Verwaltungseinheit organisation) {
+	public InMemoryKantenRepository create(Envelope envelope, MultiPolygon bereich) {
 		Set<Kante> kanten = kantenRepository.getKantenimBereich(envelope);
 		return new InMemoryKantenRepository(kanten.stream()
-			.filter(kante -> organisation.getBereich()
-				.map(geo -> geo.intersects(kante.getGeometry()))
-				.orElse(false)
-			).collect(Collectors.toSet()));
+			.filter(kante -> bereich.intersects(kante.getGeometry()))
+			.collect(Collectors.toSet()));
 	}
 }

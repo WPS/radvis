@@ -187,7 +187,7 @@ public class NetzToFeatureDetailsConverterTest {
 			.containsEntry("Kommentar", "Anmerkungen")
 			.containsEntry("Umfeld", "Unbekannt")
 			.containsEntry("DTV PKW", "42 Fz/Tag")
-			.containsEntry("Strassenquerschnitt nach RASt 06", "Unbekannt")
+			.containsEntry("Straßenquerschnitte nach RASt 06", "Unbekannt")
 			.containsEntry("Gemeinde", "Tuttlingen")
 			.containsEntry("Beleuchtung", "Vorhanden")
 			.containsEntry("Status", "unter Verkehr")
@@ -200,6 +200,7 @@ public class NetzToFeatureDetailsConverterTest {
 
 			// Attribute, die nicht gemappt werden, sind NULL
 			.containsEntry("Wegeniveau", null)
+			.containsEntry("Straßenkategorie nach RIN", null)
 			.containsEntry("Länge (manuell)", null)
 			.containsEntry("DTV Fußverkehr", null)
 			.containsEntry("DTV Radverkehr", null)
@@ -207,7 +208,7 @@ public class NetzToFeatureDetailsConverterTest {
 			.containsEntry("Straßenname", null)
 			.containsEntry("Straßennummer", null)
 			.containsEntry("Landkreis", null)
-			.hasSize(21);
+			.hasSize(22);
 	}
 
 	@Test
@@ -325,7 +326,7 @@ public class NetzToFeatureDetailsConverterTest {
 				.containsEntry("Kommentar", "Anmerkungen")
 				.containsEntry("Umfeld", "Unbekannt")
 				.containsEntry("DTV PKW", "42 Fz/Tag")
-				.containsEntry("Strassenquerschnitt nach RASt 06", "Unbekannt")
+				.containsEntry("Straßenquerschnitte nach RASt 06", "Unbekannt")
 				.containsEntry("Gemeinde", "Tuttlingen")
 				.containsEntry("Beleuchtung", "Vorhanden")
 				.containsEntry("Status", "unter Verkehr")
@@ -337,6 +338,7 @@ public class NetzToFeatureDetailsConverterTest {
 
 				// Attribute, die nicht gemappt werden, sind NULL
 				.containsEntry("Wegeniveau", null)
+				.containsEntry("Straßenkategorie nach RIN", null)
 				.containsEntry("Länge (manuell)", null)
 				.containsEntry("DTV Fußverkehr", null)
 				.containsEntry("DTV Radverkehr", null)
@@ -344,7 +346,7 @@ public class NetzToFeatureDetailsConverterTest {
 				.containsEntry("Straßenname", null)
 				.containsEntry("Straßennummer", null)
 				.containsEntry("Landkreis", null)
-				.hasSize(21);
+				.hasSize(22);
 		}
 		assertThat(kanteDetailViewLinks.getAttributeAufGanzerLaenge())
 			.containsEntry("Richtung", "Gegen Stationierungsrichtung");
@@ -457,6 +459,7 @@ public class NetzToFeatureDetailsConverterTest {
 
 			// Attribute, die nicht gemappt werden, sind NULL
 			.containsEntry("Wegeniveau", null)
+			.containsEntry("Straßenkategorie nach RIN", null)
 			.containsEntry("Länge (manuell)", null)
 			.containsEntry("DTV Fußverkehr", null)
 			.containsEntry("DTV Radverkehr", null)
@@ -477,7 +480,7 @@ public class NetzToFeatureDetailsConverterTest {
 			.containsEntry("Bordstein", "Keine Absenkung")
 			.containsEntry("Radverkehrsführung", "Geh-/Radweg gemeinsam (straßenbegleitend)")
 			.containsEntry("Umfeld", "Unbekannt")
-			.containsEntry("Strassenquerschnitt nach RASt 06", "Unbekannt")
+			.containsEntry("Straßenquerschnitte nach RASt 06", "Unbekannt")
 			.containsEntry("Kfz-Parken-Form", "Fahrbahnparken (markiert)")
 			.containsEntry("Kfz-Parken-Typ", "Parken in Längsaufstellung")
 			.containsEntry("Breite", null)
@@ -492,7 +495,7 @@ public class NetzToFeatureDetailsConverterTest {
 			// Netzklassen
 			.containsEntry("Netzklassen", Netzklasse.RADNETZ_ALLTAG.toString())
 
-			.hasSize(36);
+			.hasSize(37);
 	}
 
 	private String extractRichtung(List<AttributeView> propertiesSeiteLinks) {

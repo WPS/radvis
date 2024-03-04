@@ -68,9 +68,13 @@ public class JobConfigurationProperties {
 
 	private final String dRoutenPath;
 
+	private final String wahlkreisePath;
+
 	private final List<String> abstellanlageBRImportUrlList;
 
 	private final String leihstationImportUrl;
+
+	private final String servicestationImportUrl;
 
 	private final String fahrradzaehlstellenMobiDataImportBaseUrl;
 
@@ -95,10 +99,12 @@ public class JobConfigurationProperties {
 		String massnahmenBlaetterImportPath,
 		String tfisRadwegePath,
 		String dRoutenPath,
+		String wahlkreisePath,
 		List<String> abstellanlageBRImportUrlList,
 		String leihstationImportUrl,
 		String fahrradzaehlstellenMobiDataImportBaseUrl,
-		String fahrradzaehlstellenMobiDataImportStartDate) {
+		String fahrradzaehlstellenMobiDataImportStartDate,
+		String servicestationImportUrl) {
 
 		require(isValidDateipfad(radwegeLglTuttlingenShpFilePath),
 			"radwegeLglTuttlingenShpFilePath muss Dateipfadstruktur haben");
@@ -129,12 +135,15 @@ public class JobConfigurationProperties {
 			"tfisRadwegePath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(dRoutenPath),
 			"dRoutenPath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(wahlkreisePath),
+			"dRoutenPath muss Dateipfadstruktur haben");
 		require(abstellanlageBRImportUrlList, notNullValue());
 		require(abstellanlageBRImportUrlList, not(empty()));
 		abstellanlageBRImportUrlList.forEach(abstellanlageBRImportUrl -> {
 			require(isValidURL(abstellanlageBRImportUrl), "Die abstellanlageBRImportUrl muss URL-Struktur haben");
 		});
-		require(isValidURL(leihstationImportUrl), "Die LeistationImportURL muss URL-Struktur haben");
+		require(isValidURL(leihstationImportUrl), "Die LeihstationImportURL muss URL-Struktur haben");
+		require(isValidURL(servicestationImportUrl), "Die ServicestationImportURL muss URL-Struktur haben");
 		require(isValidURL(fahrradzaehlstellenMobiDataImportBaseUrl),
 			"Die FahrradzaehlstellenMobiDataImportURL muss URL-Struktur haben");
 		require(fahrradzaehlstellenMobiDataImportStartDate, hasLength(6));
@@ -157,7 +166,9 @@ public class JobConfigurationProperties {
 		this.tfisRadwegePath = tfisRadwegePath;
 		this.abstellanlageBRImportUrlList = abstellanlageBRImportUrlList;
 		this.leihstationImportUrl = leihstationImportUrl;
+		this.servicestationImportUrl = servicestationImportUrl;
 		this.dRoutenPath = dRoutenPath;
+		this.wahlkreisePath = wahlkreisePath;
 		this.fahrradzaehlstellenMobiDataImportBaseUrl = fahrradzaehlstellenMobiDataImportBaseUrl;
 		this.fahrradzaehlstellenMobiDataImportStartDate = fahrradzaehlstellenMobiDataImportStartDate;
 	}

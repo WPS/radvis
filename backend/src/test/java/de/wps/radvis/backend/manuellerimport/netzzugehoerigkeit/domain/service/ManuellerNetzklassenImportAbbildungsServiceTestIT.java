@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.geotools.api.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geojson.feature.FeatureJSON;
@@ -42,9 +43,10 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.WKTWriter;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opengis.feature.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -59,6 +61,7 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.ExtentProperty;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -125,6 +128,9 @@ import lombok.extern.slf4j.Slf4j;
 	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
 })
+@MockBeans({
+	@MockBean(MailService.class),
+})
 @ActiveProfiles("test")
 @SuppressWarnings({ "rawtypes", "unchecked" })
 class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTestIT {
@@ -176,7 +182,8 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 		CoordinateReferenceSystemConverter coordinateReferenceSystemConverter = new CoordinateReferenceSystemConverter(
 			commonConfigurationProperties.getBadenWuerttembergEnvelope());
 
-		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager, barriereRepository, kantenRepository);
+		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager,
+			barriereRepository, kantenRepository);
 	}
 
 	@Test
@@ -298,7 +305,6 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory());
 
 		Envelope envelope = collection.getEnvelopeInternal();
-		System.out.println(envelope);
 		// fuelle Kantenrepository und setzte dabei die ursprungstechnische id auf die ID aus der json
 		ladeDLMDatenAusJSONDatei("src/test/resources/alleDLMKantenBodensee_Ausschnitt.json");
 
@@ -316,7 +322,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 		WKTWriter wktWriter = new WKTWriter();
 
 		kantenRepository.findAllById(zugehoerigeKanteIds).forEach(kante -> {
-			System.out.println(wktWriter.write(kante.getGeometry()));
+			log.debug(wktWriter.write(kante.getGeometry()));
 		});
 
 	}

@@ -23,8 +23,10 @@
     <mat-spinner class="ml-5" color="accent" diameter="24"></mat-spinner>
   </ng-container>
   <ng-template #exportText>
-    Exportieren
-    <mat-icon class="ml-5">arrow_drop_down</mat-icon>
+    <span class="button-label">
+      Exportieren
+      <mat-icon>arrow_drop_down</mat-icon>
+    </span>
   </ng-template>
 </button>
 <button mat-menu-item *ngIf="isMenuItem" [matMenuTriggerFor]="exportierenMenu" [disabled]="exporting">

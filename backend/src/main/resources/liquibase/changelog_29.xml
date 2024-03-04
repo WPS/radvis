@@ -14,9 +14,9 @@
   -->
 
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet id="RAD-3270" author="par">
     <addColumn tableName="massnahme">
@@ -31,9 +31,9 @@
       <column name="rohdaten_id" type="BIGINT"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="rohdaten_id"
-      constraintName="fk_massnahme_rohdaten_id"
-      referencedTableName="imported_feature"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_rohdaten_id"
+			referencedTableName="imported_feature"
+			referencedColumnNames="id"/>
     <addColumn tableName="massnahme_aud">
       <column name="rohdaten_id" type="BIGINT"/>
     </addColumn>
@@ -57,13 +57,13 @@
     <createTable tableName="kommentar_liste">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="kommentar_liste_pkey"/>
+					primaryKeyName="kommentar_liste_pkey"/>
       </column>
     </createTable>
     <createTable tableName="kommentar">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="kommentar_pkey"/>
+					primaryKeyName="kommentar_pkey"/>
       </column>
       <column name="benutzer_id" type="bigint"/>
       <column name="datum" type="timestamp"/>
@@ -71,22 +71,22 @@
       <column name="kommentar_liste_id" type="bigint"/>
     </createTable>
     <addForeignKeyConstraint baseTableName="kommentar" baseColumnNames="benutzer_id"
-      constraintName="fk_kommentar_benutzer_id"
-      referencedTableName="benutzer"
-      referencedColumnNames="id"/>
+			constraintName="fk_kommentar_benutzer_id"
+			referencedTableName="benutzer"
+			referencedColumnNames="id"/>
     <createIndex tableName="kommentar" indexName="kommentar_kommentar_liste_idx">
       <column name="kommentar_liste_id"/>
     </createIndex>
     <addForeignKeyConstraint baseTableName="kommentar" baseColumnNames="kommentar_liste_id"
-      constraintName="fk_kommentar_kommentar_liste_id"
-      referencedTableName="kommentar_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_kommentar_kommentar_liste_id"
+			referencedTableName="kommentar_liste"
+			referencedColumnNames="id"/>
     <addColumn tableName="massnahme">
       <column name="kommentar_liste_id" type="bigint"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="kommentar_liste_id"
-      constraintName="fk_massnahme_kommentar_liste_id" referencedTableName="kommentar_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_kommentar_liste_id" referencedTableName="kommentar_liste"
+			referencedColumnNames="id"/>
   </changeSet>
   <changeSet id="RAD-3362" author="par">
     <modifyDataType tableName="kommentar" columnName="kommentar" newDataType="VARCHAR(1024)"/>
@@ -160,7 +160,7 @@
     <createTable tableName="fahrradroute">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="fahrradroute_pkey"/>
+					primaryKeyName="fahrradroute_pkey"/>
       </column>
       <column name="version" type="bigint" defaultValueNumeric="0"/>
       <column name="toubiz_id" type="varchar(255)"/>
@@ -179,12 +179,12 @@
       <column name="bis" type="float8"/>
     </createTable>
     <addForeignKeyConstraint
-      constraintName="fk_fahrradroute_kantenabschnitte_fahrradroute_id"
-      referencedTableName="fahrradroute" referencedColumnNames="id"
-      baseColumnNames="fahrradroute_id"
-      baseTableName="fahrradroute_kantenabschnitte"/>
+			constraintName="fk_fahrradroute_kantenabschnitte_fahrradroute_id"
+			referencedTableName="fahrradroute" referencedColumnNames="id"
+			baseColumnNames="fahrradroute_id"
+			baseTableName="fahrradroute_kantenabschnitte"/>
     <createIndex tableName="fahrradroute_kantenabschnitte"
-      indexName="fk_fahrradroute_kantenabschnitte_idx">
+			indexName="fk_fahrradroute_kantenabschnitte_idx">
       <column name="fahrradroute_id"/>
     </createIndex>
   </changeSet>
@@ -196,13 +196,13 @@
     <createTable tableName="dokument_liste">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="dokument_liste_pkey"/>
+					primaryKeyName="dokument_liste_pkey"/>
       </column>
     </createTable>
     <createTable tableName="dokument">
       <column name="id" type="bigint">
         <constraints nullable="false" primaryKey="true"
-          primaryKeyName="dokument_pkey"/>
+					primaryKeyName="dokument_pkey"/>
       </column>
       <column name="dateiname" type="varchar(255)"/>
       <column name="datei" type="blob"/>
@@ -211,24 +211,24 @@
       <column name="dokument_liste_id" type="bigint"/>
     </createTable>
     <addForeignKeyConstraint baseTableName="dokument" baseColumnNames="dokument_liste_id"
-      constraintName="fk_dokument_dokument_liste_id"
-      referencedTableName="dokument_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_dokument_dokument_liste_id"
+			referencedTableName="dokument_liste"
+			referencedColumnNames="id"/>
     <createIndex tableName="dokument" indexName="dokument_dokument_liste_idx">
       <column name="dokument_liste_id"/>
     </createIndex>
     <addForeignKeyConstraint baseTableName="dokument" baseColumnNames="benutzer_id"
-      constraintName="fk_dokument_benutzer_id"
-      referencedTableName="benutzer"
-      referencedColumnNames="id"/>
+			constraintName="fk_dokument_benutzer_id"
+			referencedTableName="benutzer"
+			referencedColumnNames="id"/>
 
     <addColumn tableName="massnahme">
       <column name="dokument_liste_id" type="bigint"/>
     </addColumn>
     <addForeignKeyConstraint baseTableName="massnahme" baseColumnNames="dokument_liste_id"
-      constraintName="fk_massnahme_dokument_liste_id"
-      referencedTableName="dokument_liste"
-      referencedColumnNames="id"/>
+			constraintName="fk_massnahme_dokument_liste_id"
+			referencedTableName="dokument_liste"
+			referencedColumnNames="id"/>
     <createIndex tableName="massnahme" indexName="massnahme_dokument_liste_idx">
       <column name="dokument_liste_id"/>
     </createIndex>
@@ -242,8 +242,8 @@
 
   <changeSet id="RAD-3422" author="kho">
     <delete tableName="dokument"/>
-    <!-- direkt von iod (int) nach bytea geht nicht, darum den Umweg via text-->
-    <modifyDataType tableName="dokument" columnName="datei" newDataType="text"/>
+		<!-- direkt von iod (int) nach bytea geht nicht, darum den Umweg via text-->
+		<modifyDataType tableName="dokument" columnName="datei" newDataType="text"/>
     <modifyDataType tableName="dokument" columnName="datei" newDataType="bytea"/>
   </changeSet>
 

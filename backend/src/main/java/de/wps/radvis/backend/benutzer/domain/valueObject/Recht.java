@@ -39,7 +39,8 @@ public enum Recht {
 
 	MASSNAHME_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN_VEROEFFENTLICHEN("Maßnahme im Zuständigkeitsbereich erfassen/bearbeiten/veröffentlichen"),
 	ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN("Alle Maßnahmen erfassen/bearbeiten"),
-	UMSETZUNGSSTANDSABFRAGEN_VERWALTEN("Umsetzungsstandsabfragen starten und auswerten"),
+	UMSETZUNGSSTANDSABFRAGEN_STARTEN("Umsetzungsstandsabfragen starten"),
+	UMSETZUNGSSTANDSABFRAGEN_AUSWERTEN("Umsetzungsstandsabfragen auswerten"),
 
 	RADROUTEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN("Radrouten im eigenen Zuständigkeitsbereich erfassen/bearbeiten"),
 	ALLE_RADROUTEN_ERFASSEN_BEARBEITEN("Alle Radrouten erfassen/bearbeiten"),

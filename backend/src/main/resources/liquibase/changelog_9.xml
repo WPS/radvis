@@ -32,11 +32,13 @@
 			<column name="uebergeordnete_organisation_id" type="BIGINT"/>
 			<column name="bereich" type="GEOMETRY"/>
 		</createTable>
-		<addForeignKeyConstraint baseColumnNames="uebergeordnete_organisation_id" baseTableName="organisation" constraintName="fk_organisation_organisation" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="organisation" validate="true"/>
+		<addForeignKeyConstraint baseColumnNames="uebergeordnete_organisation_id" baseTableName="organisation"
+			constraintName="fk_organisation_organisation" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+			onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="organisation" validate="true"/>
 	</changeSet>
 	<changeSet author="Malte und Pawel" id="RAD-325">
 		<addColumn schemaName="public" tableName="kanten_attribute">
-			<column name="baulast_traeger_id" type="BIGINT" />
+			<column name="baulast_traeger_id" type="BIGINT"/>
 		</addColumn>
 	</changeSet>
 	<changeSet author="Julian und Kim" id="RAD-22">

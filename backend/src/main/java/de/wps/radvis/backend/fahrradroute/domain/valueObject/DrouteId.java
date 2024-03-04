@@ -14,10 +14,9 @@
 
 package de.wps.radvis.backend.fahrradroute.domain.valueObject;
 
-import jakarta.persistence.Embeddable;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

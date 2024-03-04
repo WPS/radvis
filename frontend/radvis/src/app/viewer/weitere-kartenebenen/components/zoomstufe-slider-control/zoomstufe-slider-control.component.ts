@@ -14,7 +14,6 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatSliderChange } from '@angular/material/slider';
 import { View } from 'ol';
 import { get } from 'ol/proj';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
@@ -55,9 +54,9 @@ export class ZoomstufeSliderControlComponent extends AbstractFormControl<number>
     this.cd.markForCheck();
   }
 
-  onSliderMove(event: MatSliderChange): void {
-    this.value = event.value as number;
-    this.onChange(event.value);
+  onSliderMove(value: number): void {
+    this.value = value;
+    this.onChange(value);
   }
 
   getMassStab(): number {

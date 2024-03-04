@@ -16,8 +16,6 @@ package de.wps.radvis.backend.fahrradroute.domain;
 
 import java.util.Optional;
 
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
@@ -27,6 +25,7 @@ import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.entity.UpdateAbgeleiteteRoutenInfoStatistik;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

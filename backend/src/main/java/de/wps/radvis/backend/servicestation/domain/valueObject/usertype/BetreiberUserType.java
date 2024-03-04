@@ -18,7 +18,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class BetreiberUserType implements AttributeConverter<Betreiber, String> {
 
 	@Override

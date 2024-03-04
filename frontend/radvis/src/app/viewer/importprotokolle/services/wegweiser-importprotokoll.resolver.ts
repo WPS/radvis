@@ -12,22 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { inject } from '@angular/core';
+import { ResolveFn } from '@angular/router';
 import { WegweiserImportprotokoll } from 'src/app/viewer/importprotokolle/models/wegweiser-importprotokoll';
 import { ImportprotokollService } from 'src/app/viewer/importprotokolle/services/importprotokoll.service';
 import invariant from 'tiny-invariant';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class WegweiserImportprotokollResolver implements Resolve<WegweiserImportprotokoll> {
-  constructor(private importprotokollService: ImportprotokollService) {}
-
-  // eslint-disable-next-line no-unused-vars
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<WegweiserImportprotokoll> {
-    const idFromRoute = route.paramMap.get('id');
-    invariant(idFromRoute);
-    return this.importprotokollService.getWegweiserImportprotokoll(+idFromRoute);
-  }
-}
+export const wegweiserImportprotokollResolver: ResolveFn<WegweiserImportprotokoll> = (route, state) => {
+  const importprotokollService: ImportprotokollService = inject(ImportprotokollService);
+  const id = route.paramMap.get('id');
+  invariant(id);
+  return importprotokollService.getWegweiserImportprotokoll(+id);
+};

@@ -61,8 +61,8 @@ public class DlmPbfErstellungService {
 		try {
 			Files.createDirectories(outputFile.getParentFile().toPath());
 		} catch (IOException e) {
-			log.info("Ordner-Struktur konnte nicht erstellt werden: {}", outputFile.getParentFile().getAbsolutePath());
-			log.info(e.getMessage(), e);
+			log.error("Ordner-Struktur konnte nicht erstellt werden: {}", outputFile.getParentFile().getAbsolutePath(),
+				e);
 		}
 
 		List<Envelope> partitionen = AbstractJob.getPartitionen(config.getExtentProperty(), config.getPbfpartitionen());

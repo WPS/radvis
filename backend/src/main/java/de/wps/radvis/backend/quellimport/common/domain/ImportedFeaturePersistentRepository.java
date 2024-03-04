@@ -14,10 +14,7 @@
 
 package de.wps.radvis.backend.quellimport.common.domain;
 
-import java.util.Optional;
 import java.util.stream.Stream;
-
-import jakarta.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -25,6 +22,7 @@ import org.springframework.data.repository.CrudRepository;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
+import jakarta.transaction.Transactional;
 
 @Transactional
 public interface ImportedFeaturePersistentRepository

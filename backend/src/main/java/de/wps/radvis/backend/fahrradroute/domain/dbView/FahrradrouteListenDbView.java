@@ -16,19 +16,18 @@ package de.wps.radvis.backend.fahrradroute.domain.dbView;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteTyp;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 @Entity

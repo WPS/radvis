@@ -15,10 +15,10 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ActivatedRoute, Data } from '@angular/router';
 import { MockBuilder } from 'ng-mocks';
-import { Subject } from 'rxjs';
-import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
+import { of, Subject } from 'rxjs';
+import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
+import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { MassnahmenAttributeEditorComponent } from 'src/app/viewer/massnahme/components/massnahmen-attribute-editor/massnahmen-attribute-editor.component';
@@ -70,6 +70,7 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
     };
 
     when(activatedRoute.data).thenReturn(dataSubject.asObservable());
+    when(organisationenService.getAlleOrganisationen()).thenReturn(of([defaultOrganisation]));
 
     return MockBuilder(MassnahmenAttributeEditorComponent, ViewerModule)
       .provide({
@@ -122,12 +123,11 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
     it('should fill form with massnahme correct', fakeAsync(() => {
       expect(massnahmenAttributeEditorComponent.currentMassnahme).toEqual(massnahme);
 
-      const eineTestOrga = {
+      const eineTestOrga: AutoCompleteOption = {
         id: 5,
         name: 'Orgablaaaa',
-        organisationsArt: OrganisationsArt.GEMEINDE,
-        idUebergeordneteOrganisation: null,
-      } as Verwaltungseinheit;
+        displayText: 'Orgablaaaa (Gemeinde, inaktiv)',
+      };
 
       expect(massnahmenAttributeEditorComponent.formGroup.getRawValue()).toEqual({
         bezeichnung: 'Bezeichnung',
@@ -167,7 +167,7 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
           radschnellverbindung: false,
           radvorrangrouten: false,
         },
-        markierungsZustaendiger: eineTestOrga,
+        zustaendiger: eineTestOrga,
         unterhaltsZustaendiger: eineTestOrga,
         letzteAenderung: '01.02.22 00:00',
         benutzerLetzteAenderung: 'Olaf Müller',
@@ -179,7 +179,10 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
         sonstigeKonzeptionsquelle: 'konzeptionsQuelle',
-        realisierungshilfe: Realisierungshilfe.NR_2_2_1,
+        realisierungshilfe: {
+          name: Realisierungshilfe.NR_2_2_1,
+          displayText: '2.2-1 Sichtfelder an Knotenpunkten und Querungsstellen',
+        },
       });
     }));
 
@@ -206,7 +209,7 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
         prioritaet: massnahme.prioritaet,
         kostenannahme: massnahme.kostenannahme,
         netzklassen: massnahme.netzklassen,
-        markierungsZustaendigerId: massnahme.markierungsZustaendiger?.id,
+        zustaendigerId: massnahme.zustaendiger?.id,
         unterhaltsZustaendigerId: massnahme.unterhaltsZustaendiger?.id,
         maViSID: massnahme.maViSID,
         verbaID: massnahme.verbaID,

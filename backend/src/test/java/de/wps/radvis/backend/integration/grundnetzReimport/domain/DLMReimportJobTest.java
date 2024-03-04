@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -245,6 +244,8 @@ class DLMReimportJobTest {
 			.getKantenInBereichNachQuelleEagerFetchKantenAttribute(groessererBereichFuerDLM2, QuellSystem.DLM))
 			.thenReturn(
 				Stream.empty());
+		doNothing().when(netzService).deleteAll(any());
+		when(entityManager.merge(any())).then(invocationOnMock -> invocationOnMock.getArgument(0));
 
 		Stream<ImportedFeature> importedFeatureStreamBereich1 = Stream.of(
 			ImportedFeatureTestDataProvider.defaultWFSObject()
@@ -268,7 +269,10 @@ class DLMReimportJobTest {
 		dlmReimportJob.doRun();
 
 		// assert
-		verify(netzService, never()).deleteKante(any());
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<Collection<Kante>> kantenCaptor = ArgumentCaptor.forClass(Collection.class);
+		verify(netzService, times(1)).deleteAll(kantenCaptor.capture());
+		assertThat(kantenCaptor.getValue()).isEmpty();
 
 		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(any()), times(0));
 	}

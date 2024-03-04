@@ -19,7 +19,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.opengis.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.springframework.web.multipart.MultipartFile;
 
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
@@ -29,8 +30,11 @@ public interface GeoJsonImportRepository {
 
 	Stream<SimpleFeature> readFeaturesFromGeojsonFile(MultipartFile file) throws ReadGeoJSONException;
 
+	Stream<SimpleFeature> readFeaturesFromByteArray(byte[] bytes) throws ReadGeoJSONException;
+
 	String getFileContentAsString(URL url) throws IOException;
 
 	List<SimpleFeature> getSimpleFeatures(String geoJsonString) throws ReadGeoJSONException;
 
+	List<SimpleFeature> getSimpleFeatures(String geoJsonString, SimpleFeatureType type) throws ReadGeoJSONException;
 }

@@ -15,16 +15,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RadnetzMatchingComponent } from 'src/app/radnetzmatching/components/radnetz-matching/radnetz-matching.component';
-import { MatchingAuthorizationGuard } from 'src/app/radnetzmatching/services/matching-authorization.guard';
+import { matchingAuthorizationGuard } from 'src/app/radnetzmatching/services/matching-authorization.guard';
 import { RadnetzMatchingRoutingService } from 'src/app/radnetzmatching/services/radnetz-matching-routing.service';
-import { BenutzerAktivGuard } from 'src/app/shared/services/benutzer-aktiv.guard';
-import { BenutzerRegistriertGuard } from 'src/app/shared/services/benutzer-registriert.guard';
+import { benutzerAktivGuard } from 'src/app/shared/services/benutzer-aktiv.guard';
+import { benutzerRegistriertGuard } from 'src/app/shared/services/benutzer-registriert.guard';
 
 const routes: Routes = [
   {
     path: RadnetzMatchingRoutingService.RADNETZ_MATCHING_ROUTE,
     component: RadnetzMatchingComponent,
-    canActivate: [BenutzerRegistriertGuard, BenutzerAktivGuard, MatchingAuthorizationGuard],
+    canActivate: [benutzerRegistriertGuard, benutzerAktivGuard, matchingAuthorizationGuard],
   },
 ];
 

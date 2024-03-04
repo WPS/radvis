@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.EntityManager;
-
 import org.locationtech.jts.geom.Envelope;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
@@ -30,6 +28,7 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzklassenStreckenViewService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
+import jakarta.persistence.EntityManager;
 
 public class BuildNetzklassenStreckenSignaturViewJob
 	extends RadNetzCacheViewJob<List<NetzklassenStreckenSignaturView>, NetzklassenStreckeVonKanten> {

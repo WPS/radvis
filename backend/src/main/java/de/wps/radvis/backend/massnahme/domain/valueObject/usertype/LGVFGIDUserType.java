@@ -18,7 +18,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply=true)
+@Converter(autoApply = true)
 public class LGVFGIDUserType implements AttributeConverter<LGVFGID, String> {
 
 	@Override

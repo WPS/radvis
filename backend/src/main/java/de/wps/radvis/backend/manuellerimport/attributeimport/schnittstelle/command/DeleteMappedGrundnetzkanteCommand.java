@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.command;
 
 import jakarta.validation.constraints.NotNull;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

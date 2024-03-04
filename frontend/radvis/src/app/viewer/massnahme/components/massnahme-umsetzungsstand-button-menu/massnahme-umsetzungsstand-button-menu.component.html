@@ -20,8 +20,10 @@
   class="menu-open-button"
 >
   <ng-container *ngIf="!loading; else spinner">
-    Umsetzungsstandsabfrage
-    <mat-icon class="menu-icon">arrow_drop_down</mat-icon>
+    <span class="button-label">
+      Umsetzungsstandsabfrage
+      <mat-icon>arrow_drop_down</mat-icon>
+    </span>
   </ng-container>
   <ng-template #spinner>
     <mat-spinner diameter="24" class="inline-loading-spinner"></mat-spinner>
@@ -42,6 +44,10 @@
 
 <mat-menu #umsetzungsstandMenu="matMenu">
   <button class="menu-button" mat-menu-item (click)="filterForAbfrageStatus()">Nach Abfragestatus filtern</button>
-  <button class="menu-button" mat-menu-item (click)="showConfirmationDialog()">Neue Abfrage starten</button>
-  <button class="menu-button" mat-menu-item (click)="downloadAuswertung()">Auswertung herunterladen</button>
+  <button class="menu-button" mat-menu-item (click)="showConfirmationDialog()" *ngIf="canStartAbfrage">
+    Neue Abfrage starten
+  </button>
+  <button class="menu-button" mat-menu-item (click)="downloadAuswertung()" *ngIf="canEvaluateAbfragen">
+    Auswertung herunterladen
+  </button>
 </mat-menu>

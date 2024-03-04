@@ -31,6 +31,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,7 +44,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.wps.radvis.backend.administration.AdministrationConfiguration;
 import de.wps.radvis.backend.application.JacksonConfiguration;
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
-import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetails;
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -53,6 +54,7 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -94,6 +96,9 @@ import jakarta.persistence.PersistenceContext;
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
+})
+@MockBeans({
+	@MockBean(MailService.class),
 })
 class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
 	public static class TestConfiguration {

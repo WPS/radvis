@@ -30,6 +30,7 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
@@ -248,5 +249,26 @@ public class NetzGuard {
 		alteNetzklassen.addAll(neueNetzklassen);
 
 		return alteNetzklassen.stream().anyMatch(Netzklasse.RADNETZ_NETZKLASSEN::contains);
+	}
+
+	public void deleteRadVISKanteById(Long id, Authentication authentication) {
+		Kante kante = netzService.getKante(id);
+		if (!kante.getQuelle().equals(QuellSystem.RadVis)) {
+			throw new AccessDeniedException("Nur RadVIS-Kanten können gelöscht werden.");
+		}
+
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		if (!kannLoeschen(kante, benutzer)) {
+			throw new AccessDeniedException("Sie haben nicht die Berechtigung diese Kante zu löschen.");
+		}
+	}
+
+	public boolean isLoeschenErlaubt(Kante kante, Benutzer benutzer) {
+		return kante.getQuelle().equals(QuellSystem.RadVis) && kannLoeschen(kante, benutzer);
+	}
+
+	private boolean kannLoeschen(Kante kante, Benutzer benutzer) {
+		return benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR) || netzService.wurdeAngelegtVon(kante,
+			benutzer);
 	}
 }

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
@@ -25,7 +25,7 @@ import { KNOTENFORMEN } from 'src/app/shared/models/knotenformen';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardGuard } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
@@ -37,7 +37,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./knoten-attribute-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KnotenAttributeEditorComponent implements DiscardGuard, OnInit, OnDestroy {
+export class KnotenAttributeEditorComponent implements DiscardableComponent, OnInit, OnDestroy {
   public knotenFormOptions = KNOTENFORMEN;
   public gemeindeOptions: Promise<Verwaltungseinheit[]> = Promise.resolve([]);
 
@@ -45,7 +45,7 @@ export class KnotenAttributeEditorComponent implements DiscardGuard, OnInit, OnD
 
   public editingAllowed = true;
 
-  public knotenFormGroup: FormGroup;
+  public knotenFormGroup: UntypedFormGroup;
 
   public kommentarMaxLength = 2000;
   public zustandMaxLength = 2000;
@@ -65,13 +65,13 @@ export class KnotenAttributeEditorComponent implements DiscardGuard, OnInit, OnD
     private benutzerDetailsService: BenutzerDetailsService
   ) {
     this.currentKnoten = this.route.snapshot.data.knoten;
-    this.knotenFormGroup = new FormGroup({
-      ortslage: new FormControl({ value: '', disabled: true }),
-      gemeinde: new FormControl(null),
-      landkreis: new FormControl({ value: 0, disabled: true }),
-      kommentar: new FormControl('', RadvisValidators.maxLength(this.kommentarMaxLength)),
-      zustandsbeschreibung: new FormControl('', RadvisValidators.maxLength(this.zustandMaxLength)),
-      knotenForm: new FormControl({ value: null }),
+    this.knotenFormGroup = new UntypedFormGroup({
+      ortslage: new UntypedFormControl({ value: '', disabled: true }),
+      gemeinde: new UntypedFormControl(null),
+      landkreis: new UntypedFormControl({ value: 0, disabled: true }),
+      kommentar: new UntypedFormControl('', RadvisValidators.maxLength(this.kommentarMaxLength)),
+      zustandsbeschreibung: new UntypedFormControl('', RadvisValidators.maxLength(this.zustandMaxLength)),
+      knotenForm: new UntypedFormControl({ value: null }),
     });
   }
 
@@ -166,7 +166,7 @@ export class KnotenAttributeEditorComponent implements DiscardGuard, OnInit, OnD
 
   private addGemeindeValueChangeSubscriptionForLandkreis(): void {
     this.subscriptions.push(
-      (this.knotenFormGroup.get('gemeinde') as FormControl).valueChanges.subscribe(value => {
+      (this.knotenFormGroup.get('gemeinde') as UntypedFormControl).valueChanges.subscribe(value => {
         const gemeinde = value as Verwaltungseinheit;
         if (gemeinde && gemeinde.idUebergeordneteOrganisation) {
           this.organisationenService

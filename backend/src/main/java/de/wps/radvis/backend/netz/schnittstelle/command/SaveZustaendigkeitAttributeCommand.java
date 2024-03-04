@@ -14,10 +14,9 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
-import jakarta.validation.constraints.NotNull;
-
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

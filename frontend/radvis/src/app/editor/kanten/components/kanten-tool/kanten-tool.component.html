@@ -15,7 +15,6 @@
 <div class="map-wrapper">
   <div class="flex-grow position-relative">
     <rad-ol-map class="h-100 w-100">
-
       <rad-kanten-selektion></rad-kanten-selektion>
       <rad-knoten-selektion [knotenSelectable]="false"></rad-knoten-selektion>
 
@@ -38,20 +37,22 @@
           Neue Kante
         </button>
       </div>
-      <div role="region"
-           aria-label="Kanten-Details"
-           aria-keyshortcuts="Control+Alt+Shift+D"
-           class="tool"
-           #toolContainer
-           [class.h-100]="kanteSelektiert || (isKantenCreatorAktiv | async)">
-        <div *ngIf="(isKantenCreatorAktiv | async ) === false && kanteSelektiert" class="second-nav-bar">
-          <nav mat-tab-nav-bar color="accent" [disableRipple]="true">
+      <div
+        role="region"
+        aria-label="Kanten-Details"
+        aria-keyshortcuts="Control+Alt+Shift+D"
+        class="tool"
+        #toolContainer
+        [class.h-100]="kanteSelektiert || (isKantenCreatorAktiv | async)"
+      >
+        <div *ngIf="(isKantenCreatorAktiv | async) === false && kanteSelektiert" class="second-nav-bar">
+          <nav mat-tab-nav-bar color="accent" [disableRipple]="true" [tabPanel]="tabPanel">
             <a
               mat-tab-link
               queryParamsHandling="merge"
               [routerLink]="getRouteForSubmenu(AttributGruppe.ALLGEMEIN)"
               [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.ALLGEMEIN"
-            >Allgemein</a
+              >Allgemein</a
             >
 
             <a
@@ -59,7 +60,7 @@
               queryParamsHandling="merge"
               [routerLink]="getRouteForSubmenu(AttributGruppe.VERLAUF)"
               [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.VERLAUF"
-            >Verlauf</a
+              >Verlauf</a
             >
 
             <a
@@ -67,7 +68,7 @@
               queryParamsHandling="merge"
               [routerLink]="getRouteForSubmenu(AttributGruppe.GESCHWINDIGKEIT)"
               [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.GESCHWINDIGKEIT"
-            >Geschwindigkeit</a
+              >Geschwindigkeit</a
             >
 
             <a
@@ -75,7 +76,7 @@
               queryParamsHandling="merge"
               [routerLink]="getRouteForSubmenu(AttributGruppe.FUEHRUNGSFORM)"
               [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.FUEHRUNGSFORM"
-            >Führungsform</a
+              >Führungsform</a
             >
 
             <a
@@ -83,7 +84,7 @@
               queryParamsHandling="merge"
               [routerLink]="getRouteForSubmenu(AttributGruppe.ZUSTAENDIGKEIT)"
               [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.ZUSTAENDIGKEIT"
-            >Zuständigkeit</a
+              >Zuständigkeit</a
             >
 
             <a
@@ -91,11 +92,13 @@
               queryParamsHandling="merge"
               [routerLink]="getRouteForSubmenu(AttributGruppe.FAHRTRICHTUNG)"
               [active]="(aktiveKantenGruppe$ | async) === AttributGruppe.FAHRTRICHTUNG"
-            >Fahrtrichtung</a
+              >Fahrtrichtung</a
             >
           </nav>
         </div>
-        <router-outlet></router-outlet>
+        <mat-tab-nav-panel class="tab-panel" #tabPanel>
+          <router-outlet></router-outlet>
+        </mat-tab-nav-panel>
       </div>
     </rad-ol-map>
   </div>

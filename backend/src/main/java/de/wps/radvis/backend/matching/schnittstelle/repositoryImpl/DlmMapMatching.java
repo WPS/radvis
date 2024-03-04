@@ -37,7 +37,6 @@ import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.matching.EdgeMatch;
 import com.graphhopper.matching.HmmProbabilities;
-import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
 import com.graphhopper.matching.Observation;
 import com.graphhopper.matching.ObservationWithCandidateStates;
@@ -85,24 +84,25 @@ public class DlmMapMatching {
 	private final PrepareLandmarks landmarks;
 	private final LocationIndexTree locationIndex;
 	private double measurementErrorSigma = 50.0;
-	private double transitionProbabilityBeta = 0.01;
+	private final double transitionProbabilityBeta = 0.01;
 	private final int maxVisitedNodes;
 	private final DistanceCalc distanceCalc = new DistancePlaneProjection();
 	private final Weighting unwrappedWeighting;
-	private Weighting weighting;
 	private final BooleanEncodedValue inSubnetworkEnc;
-	private QueryGraph queryGraph;
 
 	public DlmMapMatching(GraphHopper graphHopper, PMap hints) {
 		this.locationIndex = (LocationIndexTree) graphHopper.getLocationIndex();
 
 		if (hints.has("vehicle"))
-			throw new IllegalArgumentException("MapMatching hints may no longer contain a vehicle, use the profile parameter instead, see core/#1958");
+			throw new IllegalArgumentException(
+				"MapMatching hints may no longer contain a vehicle, use the profile parameter instead, see core/#1958");
 		if (hints.has("weighting"))
-			throw new IllegalArgumentException("MapMatching hints may no longer contain a weighting, use the profile parameter instead, see core/#1958");
+			throw new IllegalArgumentException(
+				"MapMatching hints may no longer contain a weighting, use the profile parameter instead, see core/#1958");
 
 		if (graphHopper.getProfiles().isEmpty()) {
-			throw new IllegalArgumentException("No profiles found, you need to configure at least one profile to use map matching");
+			throw new IllegalArgumentException(
+				"No profiles found, you need to configure at least one profile to use map matching");
 		}
 		if (!hints.has("profile")) {
 			throw new IllegalArgumentException("You need to specify a profile to perform map matching");
@@ -115,7 +115,8 @@ public class DlmMapMatching {
 			for (Profile p : profiles) {
 				profileNames.add(p.getName());
 			}
-			throw new IllegalArgumentException("Could not find profile '" + profileStr + "', choose one of: " + profileNames);
+			throw new IllegalArgumentException(
+				"Could not find profile '" + profileStr + "', choose one of: " + profileNames);
 		}
 
 		boolean disableLM = hints.getBool(Parameters.Landmark.DISABLE, false);
@@ -138,9 +139,10 @@ public class DlmMapMatching {
 				}
 			}
 			if (lmPreparation == null) {
-				throw new IllegalArgumentException("Cannot find LM preparation for the requested profile: '" + profile.getName() + "'" +
-					"\nYou can try disabling LM using " + Parameters.Landmark.DISABLE + "=true" +
-					"\navailable LM profiles: " + lmProfileNames);
+				throw new IllegalArgumentException(
+					"Cannot find LM preparation for the requested profile: '" + profile.getName() + "'" +
+						"\nYou can try disabling LM using " + Parameters.Landmark.DISABLE + "=true" +
+						"\navailable LM profiles: " + lmProfileNames);
 			}
 			landmarks = lmPreparation;
 		} else {
@@ -170,22 +172,28 @@ public class DlmMapMatching {
 
 		// Create the query graph, containing split edges so that all the places where an observation might have happened
 		// are a node. This modifies the Snap objects and puts the new node numbers into them.
-		queryGraph = QueryGraph.create(graph, snapsPerObservation.stream().flatMap(Collection::stream).collect(Collectors.toList()));
-		weighting = queryGraph.wrapWeighting(unwrappedWeighting);
+		QueryGraph queryGraph = QueryGraph.create(graph,
+			snapsPerObservation.stream().flatMap(Collection::stream).collect(Collectors.toList()));
+		Weighting weighting = queryGraph.wrapWeighting(unwrappedWeighting);
 
 		// Creates candidates from the Snaps of all observations (a candidate is basically a
 		// Snap + direction).
-		List<ObservationWithCandidateStates> timeSteps = createTimeSteps(filteredObservations, snapsPerObservation);
+		List<ObservationWithCandidateStates> timeSteps = createTimeSteps(filteredObservations, snapsPerObservation,
+			queryGraph);
 
 		// Compute the most likely sequence of map matching candidates:
-		List<SequenceState<State, Observation, Path>> seq = computeViterbiSequence(timeSteps);
+		List<SequenceState<State, Observation, Path>> seq = computeViterbiSequence(timeSteps, queryGraph, weighting);
 
-		List<EdgeIteratorState> path = seq.stream().filter(s1 -> s1.transitionDescriptor != null).flatMap(s1 -> s1.transitionDescriptor.calcEdges().stream()).collect(Collectors.toList());
+		List<EdgeIteratorState> path = seq.stream().filter(s1 -> s1.transitionDescriptor != null)
+			.flatMap(s1 -> s1.transitionDescriptor.calcEdges().stream()).collect(Collectors.toList());
 
-		MatchResult result = new MatchResult(prepareEdgeMatches(seq));
+		MatchResult result = new MatchResult(prepareEdgeMatches(seq, queryGraph));
 		result.setMergedPath(new DlmMapMatching.MapMatchedPath(queryGraph, weighting, path));
-		result.setMatchMillis(seq.stream().filter(s -> s.transitionDescriptor != null).mapToLong(s -> s.transitionDescriptor.getTime()).sum());
-		result.setMatchLength(seq.stream().filter(s -> s.transitionDescriptor != null).mapToDouble(s -> s.transitionDescriptor.getDistance()).sum());
+		result.setMatchMillis(
+			seq.stream().filter(s -> s.transitionDescriptor != null).mapToLong(s -> s.transitionDescriptor.getTime())
+				.sum());
+		result.setMatchLength(seq.stream().filter(s -> s.transitionDescriptor != null)
+			.mapToDouble(s -> s.transitionDescriptor.getDistance()).sum());
 		// result.setGPXEntriesLength(gpxLength(observations));
 		result.setGraph(queryGraph);
 		result.setWeighting(weighting);
@@ -272,7 +280,7 @@ public class DlmMapMatching {
 	 * candidates for real nodes.
 	 */
 	private List<ObservationWithCandidateStates> createTimeSteps(List<Observation> filteredObservations,
-		List<Collection<Snap>> splitsPerObservation) {
+		List<Collection<Snap>> splitsPerObservation, QueryGraph queryGraph) {
 		if (splitsPerObservation.size() != filteredObservations.size()) {
 			throw new IllegalArgumentException(
 				"filteredGPXEntries and queriesPerEntry must have same size.");
@@ -322,7 +330,7 @@ public class DlmMapMatching {
 	 * Computes the most likely state sequence for the observations.
 	 */
 	private List<SequenceState<State, Observation, Path>> computeViterbiSequence(
-		List<ObservationWithCandidateStates> timeSteps) {
+		List<ObservationWithCandidateStates> timeSteps, QueryGraph queryGraph, Weighting weighting) {
 		final HmmProbabilities probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
 		final ViterbiAlgorithm<State, Observation, Path> viterbi = new ViterbiAlgorithm<>();
 
@@ -348,7 +356,7 @@ public class DlmMapMatching {
 
 				for (State from : prevTimeStep.candidates) {
 					for (State to : timeStep.candidates) {
-						final Path path = createRouter().calcPath(from.getSnap().getClosestNode(),
+						final Path path = createRouter(queryGraph, weighting).calcPath(from.getSnap().getClosestNode(),
 							to.getSnap().getClosestNode(),
 							from.isOnDirectedEdge() ? from.getOutgoingVirtualEdge().getEdge() : EdgeIterator.ANY_EDGE,
 							to.isOnDirectedEdge() ? to.getIncomingVirtualEdge().getEdge() : EdgeIterator.ANY_EDGE);
@@ -397,7 +405,7 @@ public class DlmMapMatching {
 			+ ". If a match is expected consider increasing max_visited_nodes.");
 	}
 
-	private BidirRoutingAlgorithm createRouter() {
+	private BidirRoutingAlgorithm createRouter(QueryGraph queryGraph, Weighting weighting) {
 		BidirRoutingAlgorithm router;
 		if (landmarks != null) {
 			AStarBidirection algo = new AStarBidirection(queryGraph, weighting, TraversalMode.EDGE_BASED) {
@@ -423,7 +431,8 @@ public class DlmMapMatching {
 		return router;
 	}
 
-	private List<EdgeMatch> prepareEdgeMatches(List<SequenceState<State, Observation, Path>> seq) {
+	private List<EdgeMatch> prepareEdgeMatches(List<SequenceState<State, Observation, Path>> seq,
+		QueryGraph queryGraph) {
 		// This creates a list of directed edges (EdgeIteratorState instances turned the right way),
 		// each associated with 0 or more of the observations.
 		// These directed edges are edges of the real street graph, where nodes are intersections.
@@ -448,7 +457,7 @@ public class DlmMapMatching {
 			// transition (except before the first state)
 			if (transitionAndState.transitionDescriptor != null) {
 				for (EdgeIteratorState edge : transitionAndState.transitionDescriptor.calcEdges()) {
-					EdgeIteratorState newDirectedRealEdge = resolveToRealEdge(edge);
+					EdgeIteratorState newDirectedRealEdge = resolveToRealEdge(edge, queryGraph);
 					if (currentDirectedRealEdge != null) {
 						if (!equalEdges(currentDirectedRealEdge, newDirectedRealEdge)) {
 							EdgeMatch edgeMatch = new EdgeMatch(currentDirectedRealEdge, states);
@@ -462,7 +471,7 @@ public class DlmMapMatching {
 			// state
 			if (transitionAndState.state.isOnDirectedEdge()) { // as opposed to on a node
 				EdgeIteratorState newDirectedRealEdge = resolveToRealEdge(
-					transitionAndState.state.getOutgoingVirtualEdge());
+					transitionAndState.state.getOutgoingVirtualEdge(), queryGraph);
 				if (currentDirectedRealEdge != null) {
 					if (!equalEdges(currentDirectedRealEdge, newDirectedRealEdge)) {
 						EdgeMatch edgeMatch = new EdgeMatch(currentDirectedRealEdge, states);
@@ -487,7 +496,7 @@ public class DlmMapMatching {
 			&& edge1.getAdjNode() == edge2.getAdjNode();
 	}
 
-	private EdgeIteratorState resolveToRealEdge(EdgeIteratorState edgeIteratorState) {
+	private EdgeIteratorState resolveToRealEdge(EdgeIteratorState edgeIteratorState, QueryGraph queryGraph) {
 		if (queryGraph.isVirtualNode(edgeIteratorState.getBaseNode()) || queryGraph.isVirtualNode(
 			edgeIteratorState.getAdjNode())) {
 			return graph.getEdgeIteratorStateForKey(

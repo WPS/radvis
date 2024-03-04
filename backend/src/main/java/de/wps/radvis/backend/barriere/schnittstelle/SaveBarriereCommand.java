@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.barriere.schnittstelle;
 
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,6 +23,7 @@ import de.wps.radvis.backend.barriere.domain.valueObject.BarrierenForm;
 import de.wps.radvis.backend.barriere.domain.valueObject.Markierung;
 import de.wps.radvis.backend.barriere.domain.valueObject.Sicherung;
 import de.wps.radvis.backend.barriere.domain.valueObject.VerbleibendeDurchfahrtsbreite;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

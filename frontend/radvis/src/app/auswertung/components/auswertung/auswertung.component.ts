@@ -13,13 +13,20 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { AuswertungService } from 'src/app/auswertung/services/auswertung.service';
 import { IstStandard } from 'src/app/shared/models/ist-standard';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import { Wahlkreis } from 'src/app/shared/models/wahlkreis';
+import { WahlkreiseService } from 'src/app/shared/services/wahlkreise.service';
+import { AuswertungGebietsauswahl } from 'src/app/auswertung/models/auswertung-gebietsauswahl';
+import { BelagArt } from 'src/app/shared/models/belag-art';
+import { EnumOption } from 'src/app/form-elements/models/enum-option';
+import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
+import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-options';
 
 @Component({
   selector: 'rad-auswertung',
@@ -32,15 +39,23 @@ export class AuswertungComponent {
 
   public fetching = false;
 
-  public form: FormGroup;
+  public form: UntypedFormGroup;
 
-  public netzklassenFormArray: FormArray;
+  public netzklassenFormArray: UntypedFormArray;
 
-  public istStandardsFormArray: FormArray;
+  public istStandardsFormArray: UntypedFormArray;
 
   public gemeindeKreisBezirkOptions: Promise<Verwaltungseinheit[]> = Promise.resolve([]);
+  public wahlkreisOptions: Promise<Wahlkreis[]> = Promise.resolve([]);
   public organisationsOptions: Promise<Verwaltungseinheit[]> = Promise.resolve([]);
+  public readonly AuswertungGebietsauswahl = AuswertungGebietsauswahl;
 
+  public gebietskoerperschaftOderWahlkreisControl = new UntypedFormControl(
+    this.AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT
+  );
+
+  public belagartOptions: EnumOption[];
+  public radverkehrsfuehrungOptions: GroupedEnumOptions;
   private keineNetzklasse = 'NICHT_KLASSIFIZIERT';
 
   private netzklassenArray = [
@@ -70,6 +85,7 @@ export class AuswertungComponent {
   constructor(
     private auswertungService: AuswertungService,
     private organisationenService: OrganisationenService,
+    private wahlkreiseService: WahlkreiseService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     this.gemeindeKreisBezirkOptions = this.organisationenService.getOrganisationen().then(orgs => {
@@ -81,44 +97,52 @@ export class AuswertungComponent {
       );
     });
 
+    this.wahlkreisOptions = this.wahlkreiseService.getWahlkreise();
+
     this.organisationsOptions = this.organisationenService.getOrganisationen();
 
-    this.form = new FormGroup({
-      gemeindeKreisBezirk: new FormControl(),
-      useNetzklassen: new FormControl(),
-      netzklassen: new FormArray([
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
+    this.belagartOptions = BelagArt.options;
+    this.radverkehrsfuehrungOptions = Radverkehrsfuehrung.options;
+
+    this.form = new UntypedFormGroup({
+      gemeindeKreisBezirk: new UntypedFormControl(),
+      wahlkreis: new UntypedFormControl(),
+      useNetzklassen: new UntypedFormControl(),
+      netzklassen: new UntypedFormArray([
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
       ]),
-      useIstStandards: new FormControl(),
-      istStandards: new FormArray([
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
-        new FormControl(null),
+      useIstStandards: new UntypedFormControl(),
+      istStandards: new UntypedFormArray([
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
+        new UntypedFormControl(null),
       ]),
-      baulast: new FormControl(),
-      unterhalt: new FormControl(),
-      erhalt: new FormControl(),
+      baulast: new UntypedFormControl(),
+      unterhalt: new UntypedFormControl(),
+      erhalt: new UntypedFormControl(),
+      belagart: new UntypedFormControl(),
+      fuehrung: new UntypedFormControl(),
     });
 
-    this.netzklassenFormArray = this.form.get('netzklassen') as FormArray;
+    this.netzklassenFormArray = this.form.get('netzklassen') as UntypedFormArray;
     this.netzklassenFormArray.valueChanges.subscribe(value => {
       const anyBoxChecked = value.some((val: boolean) => val);
       this.form.get('useNetzklassen')?.patchValue(anyBoxChecked, { emitEvent: false });
     });
 
-    this.istStandardsFormArray = this.form.get('istStandards') as FormArray;
+    this.istStandardsFormArray = this.form.get('istStandards') as UntypedFormArray;
     this.istStandardsFormArray.valueChanges.subscribe(value => {
       const anyBoxChecked = value.some((val: boolean) => val);
       this.form.get('useIstStandards')?.patchValue(anyBoxChecked, { emitEvent: false });
@@ -143,10 +167,13 @@ export class AuswertungComponent {
     });
 
     this.fetching = true;
-
+    const isWahlkreis: boolean =
+      this.gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.WAHLKREIS;
     this.auswertungService
       .getAuswertung({
-        gemeindeKreisBezirkId: this.form.value.gemeindeKreisBezirk ? this.form.value.gemeindeKreisBezirk.id : '',
+        gemeindeKreisBezirkId:
+          this.form.value.gemeindeKreisBezirk && !isWahlkreis ? this.form.value.gemeindeKreisBezirk.id : '',
+        wahlkreisId: this.form.value.wahlkreis && isWahlkreis ? this.form.value.wahlkreis.id : '',
         netzklassen: this.form.value.useNetzklassen
           ? netzklassenParam.filter(value => value !== this.keineNetzklasse)
           : [],
@@ -162,6 +189,8 @@ export class AuswertungComponent {
         baulastId: this.form.value.baulast ? this.form.value.baulast.id : '',
         unterhaltId: this.form.value.unterhalt ? this.form.value.unterhalt.id : '',
         erhaltId: this.form.value.erhalt ? this.form.value.erhalt.id : '',
+        fuehrung: this.form.value.fuehrung ?? '',
+        belagart: this.form.value.belagart ?? '',
       })
       .then(ergebnis => {
         this.ergebnis = ergebnis;
@@ -173,7 +202,7 @@ export class AuswertungComponent {
   }
 
   toggleFormArray(formArrayName: string, checked: boolean): void {
-    const formArray = this.form.get(formArrayName) as FormArray;
+    const formArray = this.form.get(formArrayName) as UntypedFormArray;
     formArray.controls.forEach(element => {
       element.patchValue(checked, { emitEvent: false });
     });

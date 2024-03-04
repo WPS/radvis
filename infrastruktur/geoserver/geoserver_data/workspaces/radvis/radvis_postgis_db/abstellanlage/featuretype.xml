@@ -62,9 +62,9 @@
   <attributes>
     <attribute>
       <name>id</name>
-      <minOccurs>1</minOccurs>
+      <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
-      <nillable>false</nillable>
+      <nillable>true</nillable>
       <binding>java.lang.Long</binding>
     </attribute>
     <attribute>
@@ -103,6 +103,13 @@
       <binding>java.lang.String</binding>
     </attribute>
     <attribute>
+      <name>zustaendig_orga_typ</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
       <name>anzahl_stellplaetze</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
@@ -131,11 +138,11 @@
       <binding>java.lang.String</binding>
     </attribute>
     <attribute>
-      <name>ist_bike_and_ride</name>
+      <name>abstellanlagen_ort</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
-      <binding>java.lang.Boolean</binding>
+      <binding>java.lang.String</binding>
     </attribute>
     <attribute>
       <name>groessenklasse</name>
@@ -159,28 +166,25 @@
       <binding>java.lang.Boolean</binding>
     </attribute>
     <attribute>
-      <name>gebuehr_tag</name>
+      <name>gebuehren_pro_tag</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
       <binding>java.lang.Integer</binding>
-      <source>gebuehren_pro_tag</source>
     </attribute>
     <attribute>
-      <name>gebuehr_monat</name>
+      <name>gebuehren_pro_monat</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
       <binding>java.lang.Integer</binding>
-      <source>gebuehren_pro_monat</source>
     </attribute>
     <attribute>
-      <name>gebuehr_jahr</name>
+      <name>gebuehren_pro_jahr</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
       <binding>java.lang.Integer</binding>
-      <source>gebuehren_pro_jahr</source>
     </attribute>
     <attribute>
       <name>beschreibung</name>

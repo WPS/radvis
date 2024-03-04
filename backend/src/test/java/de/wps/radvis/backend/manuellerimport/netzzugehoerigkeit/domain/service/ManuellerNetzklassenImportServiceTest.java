@@ -36,9 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.OptimisticLockException;
-
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -54,7 +52,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.valid4j.errors.RequireViolation;
 
@@ -67,6 +64,7 @@ import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissing
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.ManuellerImportFehler;
 import de.wps.radvis.backend.manuellerimport.common.domain.exception.GeometryTypeMismatchException;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerImportFehlerRepository;
@@ -74,7 +72,6 @@ import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImpo
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ManuellerImportFehlerursache;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklasseImportSession;
@@ -87,6 +84,8 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 
 @ExtendWith(OutputCaptureExtension.class)
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -281,8 +280,10 @@ class ManuellerNetzklassenImportServiceTest {
 		manuellerNetzklassenImportService.runAutomatischeAbbildung(sessionMock, new File(""));
 
 		// assert
-		verify(sessionMock, times(1)).setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_RUNNING);
-		verify(sessionMock, times(1)).setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		verify(sessionMock, times(1)).setSchritt(NetzklasseImportSession.AUTOMATISCHE_ABBILDUNG);
+		verify(sessionMock, times(1)).setExecuting(true);
+		verify(sessionMock, times(1)).setSchritt(NetzklasseImportSession.ABBILDUNG_BEARBEITEN);
+		verify(sessionMock, times(1)).setExecuting(false);
 	}
 
 	@Test
@@ -306,8 +307,8 @@ class ManuellerNetzklassenImportServiceTest {
 		manuellerNetzklassenImportService.runAutomatischeAbbildung(netzklasseImportSession, new File(""));
 
 		// assert
-		assertThat(netzklasseImportSession.getStatus())
-			.isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		assertThat(netzklasseImportSession.getSchritt()).isEqualTo(NetzklasseImportSession.AUTOMATISCHE_ABBILDUNG);
+		assertThat(netzklasseImportSession.isExecuting()).isFalse();
 		assertThat(netzklasseImportSession.getLog()).hasSize(1);
 		assertThat(netzklasseImportSession.getLog().get(0).getFehlerBeschreibung())
 			.isEqualTo("Es ist ein unerwarteter Fehler aufgetreten.");
@@ -345,7 +346,9 @@ class ManuellerNetzklassenImportServiceTest {
 		// assert
 		assertThat(netzklasseImportSession.getLog()).contains(
 			ImportLogEintrag.ofError("Es ist ein unerwarteter Fehler aufgetreten."));
-		assertThat(netzklasseImportSession.getStatus()).isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		assertThat(netzklasseImportSession.getSchritt()).isEqualTo(NetzklasseImportSession.AUTOMATISCHE_ABBILDUNG);
+		assertThat(netzklasseImportSession.isExecuting()).isFalse();
+
 	}
 
 	@Test
@@ -356,12 +359,12 @@ class ManuellerNetzklassenImportServiceTest {
 				.build())
 			.netzklasse(Netzklasse.RADVORRANGROUTEN).build();
 
-		session.setStatus(ImportSessionStatus.UPDATE_DONE);
+		session.setSchritt(AbstractImportSession.CLOSED);
 
 		// act + assert
 		assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
 				RequireViolation.class)
-			.hasMessage("Eine Session darf nur nach der automatischen Abbildung und nur einmal ausgeführt werden");
+			.hasMessage("Eine Session darf nur nach der Bearbeitung der Abbildung und nur einmal ausgeführt werden");
 	}
 
 	@Test
@@ -372,12 +375,13 @@ class ManuellerNetzklassenImportServiceTest {
 				.build())
 			.netzklasse(Netzklasse.RADVORRANGROUTEN).build();
 
-		session.setStatus(ImportSessionStatus.UPDATE_EXECUTING);
+		session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
+		session.setExecuting(true);
 
 		// act + assert
 		assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
 				RequireViolation.class)
-			.hasMessage("Eine Session darf nur nach der automatischen Abbildung und nur einmal ausgeführt werden");
+			.hasMessage("Die Session wird bereits ausgeführt!");
 	}
 
 	@Test
@@ -388,12 +392,13 @@ class ManuellerNetzklassenImportServiceTest {
 				.build())
 			.netzklasse(Netzklasse.RADVORRANGROUTEN).build();
 
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_RUNNING);
+		session.setSchritt(NetzklasseImportSession.AUTOMATISCHE_ABBILDUNG);
+		session.setExecuting(true);
 
 		// act + assert
 		assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
 				RequireViolation.class)
-			.hasMessage("Eine Session darf nur nach der automatischen Abbildung und nur einmal ausgeführt werden");
+			.hasMessage("Eine Session darf nur nach der Bearbeitung der Abbildung und nur einmal ausgeführt werden");
 	}
 
 	@Test
@@ -443,7 +448,7 @@ class ManuellerNetzklassenImportServiceTest {
 		session.getKanteIds().add(10L);
 		session.getKanteIds().add(15L);
 
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 
 		// act
 		manuellerNetzklassenImportService.runUpdate(session);
@@ -491,7 +496,7 @@ class ManuellerNetzklassenImportServiceTest {
 			.build();
 
 		session.getKanteIds().add(5L);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 
 		// act + assert
 		manuellerNetzklassenImportService.runUpdate(session);
@@ -503,7 +508,7 @@ class ManuellerNetzklassenImportServiceTest {
 			.isEmpty();
 
 		// projectionstest:
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 		when(netzService.getKantenInOrganisationsbereichEagerFetchNetzklassen(zustaendigeOrganisation))
 			.thenReturn(Set.of(radNETZKante, hatNetzklasseUndSollEntferntWerden));
 		manuellerNetzklassenImportService.runUpdate(session);
@@ -548,7 +553,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 		session.getKanteIds().add(5L);
 		session.getKanteIds().add(10L);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 
 		// act
 		manuellerNetzklassenImportService.runUpdate(session);
@@ -587,7 +592,7 @@ class ManuellerNetzklassenImportServiceTest {
 					.build())
 				.netzklasse(Netzklasse.KOMMUNALNETZ_ALLTAG)
 				.build();
-			session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+			session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 
 			// act
 			assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
@@ -597,7 +602,8 @@ class ManuellerNetzklassenImportServiceTest {
 						+ " Bitte versuchen Sie es erneut.");
 
 			// assert
-			assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+			assertThat(session.getSchritt()).isEqualTo(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
+			assertThat(session.isExecuting()).isFalse();
 			assertThat(session.getLog()).isEmpty();
 		}
 
@@ -612,14 +618,14 @@ class ManuellerNetzklassenImportServiceTest {
 					.build())
 				.netzklasse(Netzklasse.KOMMUNALNETZ_ALLTAG)
 				.build();
-			session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
-
+			session.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 			// act
 			assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
 				RequireViolation.class);
 
 			// assert
-			assertThat(session.getStatus()).isEqualTo(ImportSessionStatus.UPDATE_DONE);
+			assertThat(session.getSchritt()).isEqualTo(AbstractImportSession.CLOSED);
+			assertThat(session.isExecuting()).isFalse();
 			assertThat(session.getLog()).containsExactly(
 				ImportLogEintrag.ofError("Es ist ein Unbekannter Fehler aufgetreten"));
 		}
@@ -817,7 +823,7 @@ class ManuellerNetzklassenImportServiceTest {
 			.organisation(organisation)
 			.netzklasse(Netzklasse.RADVORRANGROUTEN)
 			.build();
-		netzklasseImportSession.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
+		netzklasseImportSession.setSchritt(NetzklasseImportSession.IMPORT_ABSCHLIESSEN);
 		netzklasseImportSession.addNichtGematchteFeatureLineStrings(
 			Set.of(GeometryTestdataProvider.createLineString(new Coordinate(99, 99), new Coordinate(110, 110))));
 

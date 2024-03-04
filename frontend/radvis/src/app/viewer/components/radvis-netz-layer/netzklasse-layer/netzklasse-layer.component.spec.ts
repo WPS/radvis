@@ -160,7 +160,7 @@ describe(NetzklasseLayerComponent.name, () => {
 
     component = fixture.point.componentInstance;
 
-    // @ts-ignore
+    // @ts-expect-error Migration von ts-ignore
     component['olLayer'].getSource()['loader_']();
 
     fixture.detectChanges();

@@ -17,9 +17,6 @@ package de.wps.radvis.backend.authentication.schnittstelle;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 

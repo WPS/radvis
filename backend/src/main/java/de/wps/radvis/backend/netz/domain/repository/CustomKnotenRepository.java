@@ -35,7 +35,7 @@ public interface CustomKnotenRepository {
 
 	/**
 	 * Stattdessen unbedingt NetzService nutzen!!!
-	 * 
+	 *
 	 * @return
 	 */
 	int deleteVerwaisteDLMKnoten();

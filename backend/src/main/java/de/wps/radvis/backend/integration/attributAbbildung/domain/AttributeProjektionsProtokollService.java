@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.integration.attributAbbildung.domain;
 
-import jakarta.transaction.Transactional;
-
 import de.wps.radvis.backend.integration.attributAbbildung.domain.exception.MehrdeutigeProjektionException;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.exception.ProjektionsLaengeZuKurzException;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.exception.ProjektionsLaengenVerhaeltnisException;
@@ -25,6 +23,7 @@ import de.wps.radvis.backend.netzfehler.domain.ProtokollService;
 import de.wps.radvis.backend.netzfehler.domain.entity.Netzfehler;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerBeschreibung;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.NetzfehlerTyp;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 
 @Transactional

@@ -18,10 +18,10 @@ import org.locationtech.jts.geom.Coordinate;
 
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlStellplaetze;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -38,7 +38,7 @@ public class AbstellanlageTestDataProvider {
 			.betreiber(AbstellanlagenBetreiber.of("Default Betreiber"))
 			.quellSystem(AbstellanlagenQuellSystem.RADVIS)
 			.ueberwacht(Ueberwacht.VIDEO)
-			.istBikeAndRide(IstBikeAndRide.of(false))
+			.abstellanlagenOrt(AbstellanlagenOrt.BIKE_AND_RIDE)
 			.stellplatzart(Stellplatzart.SONSTIGE)
 			.ueberdacht(Ueberdacht.of(false))
 			.status(AbstellanlagenStatus.AKTIV)

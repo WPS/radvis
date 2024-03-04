@@ -28,7 +28,6 @@ export class EditorRoutingService {
   public static EDITOR_ROUTE = 'editor';
   public static EDITOR_KANTEN_ROUTE = 'kanten';
   public static EDITOR_KNOTEN_ROUTE = 'knoten';
-  public static EDITOR_IMPORT_ROUTE = 'import';
 
   public static EDITOR_CREATE_SUBROUTE = 'new';
 
@@ -86,10 +85,6 @@ export class EditorRoutingService {
 
   getKnotenRoute(): string {
     return `/${EditorRoutingService.EDITOR_ROUTE}/${EditorRoutingService.EDITOR_KNOTEN_ROUTE}`;
-  }
-
-  getImportRoute(): string {
-    return `/${EditorRoutingService.EDITOR_ROUTE}/${EditorRoutingService.EDITOR_IMPORT_ROUTE}`;
   }
 
   getEditorRoute(): string {

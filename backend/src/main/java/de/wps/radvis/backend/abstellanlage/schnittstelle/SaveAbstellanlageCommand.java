@@ -14,13 +14,11 @@
 
 package de.wps.radvis.backend.abstellanlage.schnittstelle;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
-
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlLademoeglichkeiten;
@@ -31,10 +29,11 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProJahr;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProTag;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Groessenklasse;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
@@ -51,7 +50,7 @@ public class SaveAbstellanlageCommand {
 	@NotNull
 	private Ueberwacht ueberwacht;
 	@NotNull
-	private IstBikeAndRide istBikeAndRide;
+	private AbstellanlagenOrt abstellanlagenOrt;
 	private Groessenklasse groessenklasse;
 	@NotNull
 	private Stellplatzart stellplatzart;
@@ -74,6 +73,6 @@ public class SaveAbstellanlageCommand {
 
 	@AssertTrue
 	public boolean isGroessenklasseNurBeiBikeAndRide() {
-		return istBikeAndRide.getValue() || groessenklasse == null;
+		return abstellanlagenOrt == AbstellanlagenOrt.BIKE_AND_RIDE || groessenklasse == null;
 	}
 }

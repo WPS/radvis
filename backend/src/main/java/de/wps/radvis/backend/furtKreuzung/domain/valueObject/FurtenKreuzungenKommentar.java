@@ -16,11 +16,10 @@ package de.wps.radvis.backend.furtKreuzung.domain.valueObject;
 
 import static org.valid4j.Assertive.require;
 
-import jakarta.persistence.Embeddable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

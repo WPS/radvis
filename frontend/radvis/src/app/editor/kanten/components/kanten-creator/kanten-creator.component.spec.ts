@@ -135,17 +135,17 @@ describe(KantenCreatorComponent.name, () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function getVonKnotenText(fixture: ComponentFixture<KantenCreatorComponent>): string {
   return fixture.debugElement.queryAll(By.css('.knoten-info > span.italic'))[0].nativeElement.textContent;
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function getBisKnotenText(fixture: ComponentFixture<KantenCreatorComponent>): string {
   return fixture.debugElement.queryAll(By.css('.knoten-info > span.italic'))[1].nativeElement.textContent;
 }
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function getValidationMessage(fixture: ComponentFixture<KantenCreatorComponent>): string | undefined {
   return fixture.debugElement.queryAll(By.css('.fehlertext'))[0]?.nativeElement.textContent;
 }

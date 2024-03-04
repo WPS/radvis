@@ -51,6 +51,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
@@ -109,11 +110,14 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 		case "beleuchtun":
 			super.applyBeleuchtung(kante, mapStringToEnum(attributwert, Beleuchtung.class));
 			break;
-		case "strassenqu":
-			super.applyStrassenquerschnitt(kante, mapStringToEnum(attributwert, StrassenquerschnittRASt06.class));
-			break;
 		case "umfeld":
 			super.applyUmfeld(kante, mapStringToEnum(attributwert, Umfeld.class));
+			break;
+		case "strassenka":
+			super.applyStrassenkategorieRIN(kante, mapStringToEnum(attributwert, StrassenkategorieRIN.class));
+			break;
+		case "strassenqu":
+			super.applyStrassenquerschnittRASt06(kante, mapStringToEnum(attributwert, StrassenquerschnittRASt06.class));
 			break;
 		case "status":
 			super.applyStatus(kante, mapStringToEnum(attributwert, Status.class));
@@ -448,8 +452,9 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			"gemeinde_n", // Hier ist klar, dass es von der OrganisationsArt eine Gemeinde ist
 			// "landkreis_", Kann nicht importiert werden, wird automatisch aus gemeinde_n errechnet
 			"beleuchtun",
-			"strassenqu",
 			"umfeld",
+			"strassenka",
+			"strassenqu",
 			"status",
 			"standards",
 
@@ -520,10 +525,12 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 				attributWert, OrganisationsArt.GEMEINDE).isPresent();
 		case "beleuchtun":
 			return isValidValueForEnum(attributWert, Beleuchtung.class);
-		case "strassenqu":
-			return isValidValueForEnum(attributWert, StrassenquerschnittRASt06.class);
 		case "umfeld":
 			return isValidValueForEnum(attributWert, Umfeld.class);
+		case "strassenka":
+			return isValidValueForEnum(attributWert, StrassenkategorieRIN.class);
+		case "strassenqu":
+			return isValidValueForEnum(attributWert, StrassenquerschnittRASt06.class);
 		case "status":
 			return isValidValueForEnum(attributWert, Status.class);
 		case "standards":
@@ -604,10 +611,12 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			return "Gemeinde";
 		case "beleuchtun":
 			return "Beleuchtung";
-		case "strassenqu":
-			return "Straßenquerschnitte";
 		case "umfeld":
 			return "Umfeld";
+		case "strassenka":
+			return "Straßenkategorie nach RIN";
+		case "strassenqu":
+			return "Straßenquerschnitte nach RASt 06";
 		case "status":
 			return "Status";
 		case "standards":

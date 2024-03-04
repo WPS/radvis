@@ -1,0 +1,39 @@
+:host {
+  display: block;
+  max-width: 40rem;
+  padding: 1rem;
+}
+
+.beschreibung {
+  margin-bottom: 1rem;
+}
+
+.button-section {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.credentials-table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.label-cell {
+  text-align: left;
+  padding: 0 0 0 1rem;
+  font-weight: bold;
+}
+
+.value-cell {
+  text-align: left;
+}
+
+.handbuch-verweis {
+  margin-top: 1rem;
+}
+
+.generating-passwort-spinner {
+  margin: 0 auto;
+}

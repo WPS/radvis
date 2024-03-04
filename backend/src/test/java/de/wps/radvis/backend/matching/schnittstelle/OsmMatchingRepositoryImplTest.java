@@ -149,7 +149,7 @@ class OsmMatchingRepositoryImplTest {
 			.hasMessageStartingWith(
 				"Der LineString konnte nicht gematched werden. Dies liegt beispielsweise daran, dass die Geometrie oder"
 					+ " Teile nicht Teil der importierten OsmBasiskarte sind oder dass die Geometrie keine passendes"
-					+ " Pendant in den OSM-Daten hat: Sequence is broken for submitted track at time step");
+					+ " Pendant in den OSM-Daten hat");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -249,9 +249,6 @@ class OsmMatchingRepositoryImplTest {
 		// Act
 		List<LinearReferenzierteOsmWayId> result = match.getLinearReferenzierteOsmWayIds();
 		List<LinearReferenzierteOsmWayId> resultReversed = matchReversed.getLinearReferenzierteOsmWayIds();
-
-		System.out.println(result);
-		System.out.println(lineString);
 
 		// Assert
 		assertThat(result).usingComparatorForType(

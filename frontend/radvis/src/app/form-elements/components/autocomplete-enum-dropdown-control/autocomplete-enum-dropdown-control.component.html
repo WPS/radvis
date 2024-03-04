@@ -13,7 +13,9 @@
   -->
 
 <mat-form-field>
-  <mat-label><ng-content></ng-content></mat-label>
+  <mat-label>
+    <ng-content></ng-content>
+  </mat-label>
   <input matInput [formControl]="formControl" [matAutocomplete]="auto" />
 </mat-form-field>
 <mat-autocomplete #auto [displayWith]="displayFn">

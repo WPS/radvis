@@ -35,6 +35,7 @@ import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage.AbstellanlageBuilder;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
@@ -46,7 +47,6 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProJahr;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProTag;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Groessenklasse;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.IstBikeAndRide;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -82,7 +82,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 
 	@Override
 	protected String createUrl(Abstellanlage savedAbstellanlage) {
-		return baseUrl + "app" + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId());
+		return baseUrl + FrontendLinks.abstellanlageDetails(savedAbstellanlage.getId());
 	}
 
 	public CsvData importCsv(CsvData csvData, Benutzer benutzer) throws CsvImportException {
@@ -233,14 +233,22 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 					.collect(Collectors.joining(", ")));
 		}
 
-		// B_AND_R
-		pruefeBooleanInput("B&R", row.get(Abstellanlage.CsvHeader.B_AND_R));
-		boolean istBikeAndRide = row.get(Abstellanlage.CsvHeader.B_AND_R).equalsIgnoreCase("ja");
-		abstellanlageBuilder.istBikeAndRide(IstBikeAndRide.of(istBikeAndRide));
+		// ABSTELLANLAGEN_ORT
+		AbstellanlagenOrt abstellanlagenOrt;
+		try {
+			abstellanlagenOrt = AbstellanlagenOrt.fromString(row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_ORT));
+			abstellanlageBuilder.abstellanlagenOrt(abstellanlagenOrt);
+		} catch (
+			Exception exception) {
+			throw new AbstellanlageAttributMappingException(
+				"AbstellanlagenOrt (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_ORT)
+					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenOrt.values())
+					.map(AbstellanlagenOrt::toString).collect(Collectors.joining(", ")));
+		}
 
 		// GROESSENKLASSE
 		String input = row.get(Abstellanlage.CsvHeader.GROESSENKLASSE);
-		if (!istBikeAndRide && !input.isEmpty()) {
+		if (abstellanlagenOrt != AbstellanlagenOrt.BIKE_AND_RIDE && !input.isEmpty()) {
 			throw new AbstellanlageAttributMappingException(
 				"Eine Größenklasse darf nur gesetzt sein, wenn es sich um eine Bike and Ride Abstellanlage handelt.");
 		}
@@ -350,11 +358,11 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 		// ABSTELLANLAGENSTATUS
 		try {
 			abstellanlageBuilder.status(
-				AbstellanlagenStatus.fromString(row.get(Abstellanlage.CsvHeader.ABSTELLANLAGENSTATUS)));
+				AbstellanlagenStatus.fromString(row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_STATUS)));
 		} catch (
 			Exception exception) {
 			throw new AbstellanlageAttributMappingException(
-				"Status (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGENSTATUS)
+				"Status (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_STATUS)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenStatus.values())
 					.map(AbstellanlagenStatus::toString).collect(Collectors.joining(", ")));
 		}

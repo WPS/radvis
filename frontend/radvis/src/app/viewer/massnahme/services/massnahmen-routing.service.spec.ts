@@ -14,7 +14,7 @@
 
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { skip } from 'rxjs/operators';
+import { skip, take } from 'rxjs/operators';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
@@ -65,7 +65,7 @@ describe(MassnahmenRoutingService.name, () => {
         const url = 'http://localhost:4200/viewer';
         when(router.url).thenReturn(url);
         service = new MassnahmenRoutingService(instance(router));
-        service.selectedInfrastrukturId$.subscribe(id => {
+        service.selectedInfrastrukturId$.pipe(take(1)).subscribe(id => {
           expect(id).toBeNull();
           done();
         });
@@ -76,7 +76,7 @@ describe(MassnahmenRoutingService.name, () => {
           'http://localhost:4200/viewer/massnahmen/148506/umsetzungsstand?layers=RADVIS_NETZ&view=380000;5250000;620000;5525000&netzklassen=RADNETZ&hintergrund=&signatur=&mitVerlauf=false';
         when(router.url).thenReturn(url);
         service = new MassnahmenRoutingService(instance(router));
-        service.selectedInfrastrukturId$.subscribe(id => {
+        service.selectedInfrastrukturId$.pipe(take(1)).subscribe(id => {
           expect(id).toEqual(148506);
           done();
         });

@@ -16,19 +16,15 @@ package de.wps.radvis.backend.massnahme.schnittstelle;
 
 import java.util.Set;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
@@ -40,6 +36,9 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -82,13 +81,12 @@ public class SaveMassnahmeCommand {
 	private Prioritaet prioritaet;
 	private Kostenannahme kostenannahme;
 	private Long unterhaltsZustaendigerId;
-	private Long markierungsZustaendigerId;
+	private Long zustaendigerId;
 	private SollStandard sollStandard;
 	private Handlungsverantwortlicher handlungsverantwortlicher;
 	private Konzeptionsquelle konzeptionsquelle;
 	private String sonstigeKonzeptionsquelle;
 	private Realisierungshilfe realisierungshilfe;
-
 
 	@AssertTrue(message = "Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.")
 	public boolean isRequiredAbUmsetzungsstatusPlanung() {

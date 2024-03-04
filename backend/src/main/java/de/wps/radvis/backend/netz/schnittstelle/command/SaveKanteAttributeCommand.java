@@ -28,6 +28,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
@@ -59,9 +60,10 @@ public class SaveKanteAttributeCommand {
 	@NotNull
 	private Beleuchtung beleuchtung;
 	@NotNull
-	private StrassenquerschnittRASt06 strassenquerschnittRASt06;
-	@NotNull
 	private Umfeld umfeld;
+	private StrassenkategorieRIN strassenkategorieRIN;
+	@NotNull
+	private StrassenquerschnittRASt06 strassenquerschnittRASt06;
 	private Laenge laengeManuellErfasst;
 	private VerkehrStaerke dtvFussverkehr;
 	private VerkehrStaerke dtvRadverkehr;

@@ -23,7 +23,7 @@ public class LeihstationAttributMappingException extends CsvAttributMappingExcep
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2067880758575285745L;
 

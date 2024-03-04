@@ -12,11 +12,12 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<div class="keine-kommentare hinweis" *ngIf="kommentarListe.length === 0">Es wurden noch keine Kommentare
-  hinterlassen.
+<div class="keine-kommentare hinweis" *ngIf="kommentarListe.length === 0">
+  Es wurden noch keine Kommentare hinterlassen.
 </div>
 <div #kommentarListeContainer class="display-flex flex-column align-items-start overflow-auto pb-10">
   <mat-card
+    appearance="outlined"
     *ngFor="let kommentar of kommentarListe"
     [class.align-self-end]="kommentar.fromLoggedInUser"
     class="mx-10 mt-10 kommentar"

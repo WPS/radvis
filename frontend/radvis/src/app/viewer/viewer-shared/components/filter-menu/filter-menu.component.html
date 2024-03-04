@@ -21,7 +21,7 @@
   [class.hovered]="hovered"
   #triggerButton="matButton"
 >
-  <mat-icon>filter_alt</mat-icon>
+  <mat-icon class="filter-icon">filter_alt</mat-icon>
 </button>
 <div
   class="invisible-trigger"
@@ -32,11 +32,14 @@
 ></div>
 <mat-menu #menu="matMenu" yPosition="below">
   <div class="mat-menu-container">
-    <div class="body" radAccessabilityTabCircleGroup
-         (keydown.tab)="$event.stopPropagation()"
-         (keydown.shift.tab)="$event.stopPropagation()"
-         (keydown.escape)="triggerButton.focus()"
-         (click)="$event.stopPropagation()">
+    <div
+      class="body"
+      radAccessabilityTabCircleGroup
+      (keydown.tab)="$event.stopPropagation()"
+      (keydown.shift.tab)="$event.stopPropagation()"
+      (keydown.escape)="triggerButton.focus()"
+      (click)="$event.stopPropagation()"
+    >
       <mat-form-field class="filter-input-form-field">
         <input
           radAccessabilityTabCircleElement

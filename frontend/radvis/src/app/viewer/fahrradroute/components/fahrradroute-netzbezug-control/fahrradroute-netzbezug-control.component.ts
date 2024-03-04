@@ -22,7 +22,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { UntypedFormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { asString } from 'ol/color';
 import { Coordinate } from 'ol/coordinate';
 import Feature, { FeatureLike } from 'ol/Feature';
@@ -82,8 +82,8 @@ export class FahrradrouteNetzbezugControlComponent
   public loadingRoute = false;
   public createMode = true;
 
-  public customProfileSelectionControl = new FormControl(DEFAULT_PROFILE_ID);
-  public mitFahrtrichtungControl = new FormControl(true);
+  public customProfileSelectionControl = new UntypedFormControl(DEFAULT_PROFILE_ID);
+  public mitFahrtrichtungControl = new UntypedFormControl(true);
 
   customRoutingProfile: CustomRoutingProfile[] = [];
 

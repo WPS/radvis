@@ -10,9 +10,8 @@
   "editor.linkedEditing": false,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.codeActionsOnSave": {
-    // For ESLint
-    "source.fixAll.eslint": true,
-    "source.organizeImports": true
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
   },
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

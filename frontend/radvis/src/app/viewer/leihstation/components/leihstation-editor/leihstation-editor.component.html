@@ -32,12 +32,7 @@
   >
     <mat-icon>my_location</mat-icon>
   </button>
-  <button
-    [attr.aria-label]="'Schließen'"
-    matTooltip="Schließen"
-    (click)="onClose()"
-    mat-icon-button
-  >
+  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -63,67 +58,50 @@
         Diese Leihstation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
       </div>
     </div>
-    <rad-text-input-control formControlName="betreiber">
+
+    <rad-text-input-control formControlName="betreiber" [errors]="formGroup.get('betreiber')?.errors">
       <div class="label">Betreiber</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige [errors]="formGroup.get('betreiber')?.errors || null"></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
-      [nullable]="false"
-      [options]="leihstationQuellSystemOptions"
       formControlName="quellSystem"
-      class="mat-form-field-full-width"
+      [options]="leihstationQuellSystemOptions"
+      [nullable]="false"
     >
       Quellsystem
     </rad-enum-dropdown-control>
-    <a *ngIf="isQuellsystemMobiData" class="quelle-label" [href]="MOBIDATA_DATENSATZ_URL" target="_blank">Datensatz bei
-      MobiData BW</a>
+    <a *ngIf="isQuellsystemMobiData" class="quelle-label" [href]="MOBIDATA_DATENSATZ_URL" target="_blank"
+      >Datensatz bei MobiData BW</a
+    >
 
     <rad-enum-dropdown-control
+      formControlName="status"
       [options]="leihstationStatusOptions"
       [nullable]="false"
-      class="mat-form-field-full-width"
-      formControlName="status"
+      [errors]="formGroup.get('status')?.errors"
     >
       Status
     </rad-enum-dropdown-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('status')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-text-input-control
-      formControlName="anzahlFahrraeder"
-      class="mat-form-field-full-width"
-    >
+    <rad-number-input-control formControlName="anzahlFahrraeder" [errors]="formGroup.get('anzahlFahrraeder')?.errors">
       <div class="label">Anzahl Fahrräder</div>
-    </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('anzahlFahrraeder')?.errors || null"></rad-validation-error-anzeige>
+    </rad-number-input-control>
 
-    <rad-text-input-control
-      formControlName="anzahlPedelecs"
-      class="mat-form-field-full-width"
-    >
+    <rad-number-input-control formControlName="anzahlPedelecs" [errors]="formGroup.get('anzahlPedelecs')?.errors">
       <div class="label">Anzahl Pedelecs</div>
-    </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('anzahlPedelecs')?.errors || null"></rad-validation-error-anzeige>
+    </rad-number-input-control>
 
-    <rad-text-input-control
+    <rad-number-input-control
       formControlName="anzahlAbstellmoeglichkeiten"
-      class="mat-form-field-full-width"
+      [errors]="formGroup.get('anzahlAbstellmoeglichkeiten')?.errors"
     >
       <div class="label">Anzahl Abstellmöglichkeiten</div>
-    </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('anzahlAbstellmoeglichkeiten')?.errors || null"></rad-validation-error-anzeige>
+    </rad-number-input-control>
 
     <mat-checkbox formControlName="freiesAbstellen"> Freies Abstellen möglich</mat-checkbox>
 
-    <rad-text-input-control formControlName="buchungsUrl">
+    <rad-text-input-control formControlName="buchungsUrl" [errors]="formGroup.get('buchungsUrl')?.errors">
       <div class="label">Buchungs-URL</div>
     </rad-text-input-control>
-    <rad-validation-error-anzeige
-      [errors]="formGroup.get('buchungsUrl')?.errors || null"></rad-validation-error-anzeige>
-
   </rad-attribute-editor>
 </form>

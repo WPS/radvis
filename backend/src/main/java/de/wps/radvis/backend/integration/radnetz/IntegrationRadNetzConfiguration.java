@@ -14,9 +14,6 @@
 
 package de.wps.radvis.backend.integration.radnetz;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +29,8 @@ import de.wps.radvis.backend.integration.radnetz.schnittstelle.QualitaetsSicheru
 import de.wps.radvis.backend.integration.radnetz.schnittstelle.repositoryImpl.QuaelitaetsSicherungsRepositoryImpl;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.NonNull;
 
 @Configuration

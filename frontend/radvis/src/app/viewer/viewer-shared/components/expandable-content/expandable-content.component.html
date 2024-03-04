@@ -23,8 +23,7 @@
   <li *ngFor="let line of contentForDisplay">
     {{ line }}
   </li>
-  <li *ngIf="exceedsMaxLength" style="list-style:none;">
+  <li *ngIf="exceedsMaxLength" style="list-style: none">
     <rad-expand-link [(expanded)]="expanded"></rad-expand-link>
   </li>
 </ul>
-

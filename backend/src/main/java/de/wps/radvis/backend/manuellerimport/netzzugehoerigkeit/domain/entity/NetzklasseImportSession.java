@@ -21,9 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionSchritt;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import lombok.Builder;
@@ -31,6 +34,10 @@ import lombok.Getter;
 import lombok.NonNull;
 
 public class NetzklasseImportSession extends AbstractImportSession {
+
+	public static ImportSessionSchritt AUTOMATISCHE_ABBILDUNG = ImportSessionSchritt.of(3);
+	public static ImportSessionSchritt ABBILDUNG_BEARBEITEN = ImportSessionSchritt.of(4);
+	public static ImportSessionSchritt IMPORT_ABSCHLIESSEN = ImportSessionSchritt.of(5);
 
 	@Getter
 	private final Netzklasse netzklasse;
@@ -41,15 +48,20 @@ public class NetzklasseImportSession extends AbstractImportSession {
 	@Getter
 	private Set<LineString> nichtGematchteFeatureLineStrings;
 
+	@Getter
+	private final Verwaltungseinheit organisation;
+
 	@Builder
 	public NetzklasseImportSession(@NonNull Benutzer benutzer, @NonNull Verwaltungseinheit organisation,
 		@NonNull Netzklasse netzklasse) {
-		super(benutzer, organisation);
+		super(benutzer);
 		require(!Netzklasse.RADNETZ_NETZKLASSEN.contains(netzklasse),
 			"Eine RadNETZ Netzklasse darf nicht von Nutzern durch den manuellen Import gesetzt werden");
 		this.kanteIds = new HashSet<>();
+		this.schritt = AUTOMATISCHE_ABBILDUNG;
 		this.nichtGematchteFeatureLineStrings = new HashSet<>();
 		this.netzklasse = netzklasse;
+		this.organisation = organisation;
 	}
 
 	public void toggleNetzklassenzugehoerigkeit(Long kanteId) {
@@ -69,5 +81,16 @@ public class NetzklasseImportSession extends AbstractImportSession {
 
 	public long getAnzahlFeaturesOhneMatch() {
 		return this.nichtGematchteFeatureLineStrings.size();
+	}
+
+	@Override
+	public MultiPolygon getBereich() {
+		return organisation.getBereich()
+			.orElse(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createMultiPolygon());
+	}
+
+	@Override
+	public String getBereichName() {
+		return organisation.getName();
 	}
 }

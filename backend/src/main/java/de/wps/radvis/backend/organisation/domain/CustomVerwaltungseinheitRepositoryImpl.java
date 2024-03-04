@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
@@ -86,5 +87,15 @@ public class CustomVerwaltungseinheitRepositoryImpl implements CustomVerwaltungs
 			.collect(Collectors.toList());
 
 		return ids;
+	}
+
+	// TODO Test!!!!
+	@Override
+	public MultiPolygon getVereintenBereich(List<Long> verwaltungseinheitIds) {
+		return (MultiPolygon) entityManager.createNativeQuery(
+				"SELECT st_multi(st_union(bereich)) FROM organisation WHERE id IN :ids",
+				MultiPolygon.class)
+			.setParameter("ids", verwaltungseinheitIds)
+			.getSingleResult();
 	}
 }

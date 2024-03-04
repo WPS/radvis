@@ -12,22 +12,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 
 describe('fillFormWithMultipleValues', () => {
   it('should throw error if formKey is missing in object', () => {
-    const form = new FormGroup({ text: new FormControl(null) });
+    const form = new UntypedFormGroup({ text: new UntypedFormControl(null) });
     const object = { etwasAnderes: 'test' };
 
     expect(() => fillFormWithMultipleValues(form, [object])).toThrow();
   });
 
   it('should consider all form keys, including disabled', () => {
-    const form = new FormGroup({
-      text: new FormControl(null),
-      notEnabled: new FormControl({ value: null, disabled: true }),
+    const form = new UntypedFormGroup({
+      text: new UntypedFormControl(null),
+      notEnabled: new UntypedFormControl({ value: null, disabled: true }),
     });
     expect(form.get('notEnabled')?.disabled).toBeTrue();
 
@@ -37,8 +37,8 @@ describe('fillFormWithMultipleValues', () => {
   });
 
   it('should handle array values correctly', () => {
-    const form = new FormGroup({
-      arr: new FormControl([]),
+    const form = new UntypedFormGroup({
+      arr: new UntypedFormControl([]),
     });
 
     const object = { arr: ['item1'] };
@@ -47,11 +47,11 @@ describe('fillFormWithMultipleValues', () => {
   });
 
   it('should fill Undetermined value correct', () => {
-    const form = new FormGroup({
-      text: new FormControl(null),
-      arr: new FormControl([]),
-      arrUndetermined: new FormControl([]),
-      undetermined: new FormControl(null),
+    const form = new UntypedFormGroup({
+      text: new UntypedFormControl(null),
+      arr: new UntypedFormControl([]),
+      arrUndetermined: new UntypedFormControl([]),
+      undetermined: new UntypedFormControl(null),
     });
     const object1 = { text: 'test', arr: ['item1', 'item2'], arrUndetermined: ['some'], undetermined: '1' };
     const object2 = { text: 'test', arr: ['item1', 'item2'], arrUndetermined: ['some', 'other'], undetermined: '2' };

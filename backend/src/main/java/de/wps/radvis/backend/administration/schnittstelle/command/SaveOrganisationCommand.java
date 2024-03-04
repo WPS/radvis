@@ -16,13 +16,12 @@ package de.wps.radvis.backend.administration.schnittstelle.command;
 
 import java.util.Set;
 
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

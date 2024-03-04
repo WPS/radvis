@@ -41,17 +41,15 @@ public class MassnahmenZustaendigkeitsService {
 	}
 
 	public List<Benutzer> getZustaendigeBarbeiterVonUmsetzungsstandabfrage(Massnahme massnahme) {
-		Optional<Verwaltungseinheit> baulastZustaendiger = massnahme.getBaulastZustaendiger();
+		Optional<Verwaltungseinheit> zustaendigeVerwaltungseinheit = massnahme.getZustaendiger();
 
-		if (baulastZustaendiger.isEmpty()) {
-			// baulastZustaendiger ist ein Pflichtfeld "ab Planung" an der massnahme
-			// Der Fall koennte z.B. eintreten, wenn die Massnahme erst eine Idee ist. -> Keine Mail versenden
-			log.warn("Es ist zu der Massnahme {} ({}) keine Organisation als Baulast Zuständiger angegeben.",
+		if (zustaendigeVerwaltungseinheit.isEmpty()) {
+			log.warn("Zu der Massnahme {} ({}) ist keine Verwaltungseinheit als Zuständig angegeben.",
 				massnahme.getBezeichnung(), massnahme.getId());
 			return Collections.emptyList();
 		}
 
-		Verwaltungseinheit zustaendigeOrganisation = baulastZustaendiger.get();
+		Verwaltungseinheit zustaendigeOrganisation = zustaendigeVerwaltungseinheit.get();
 
 		List<Benutzer> alleZusteandigeBenutzer = benutzerRepository
 			.findByOrganisationAndStatus(zustaendigeOrganisation, BenutzerStatus.AKTIV);

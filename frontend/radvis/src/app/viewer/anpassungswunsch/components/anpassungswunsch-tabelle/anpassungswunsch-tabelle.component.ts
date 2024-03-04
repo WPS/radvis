@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { AnpassungswunschListenView } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch-listen-view';
@@ -38,7 +38,7 @@ export class AnpassungswunschTabelleComponent {
   data$: Observable<AnpassungswunschListenView[]>;
 
   public anpassungswunschCreatorRoute: string;
-  fertigeAnpassungswuenscheAusblendenControl: FormControl;
+  fertigeAnpassungswuenscheAusblendenControl: UntypedFormControl;
 
   public isBenutzerBerechtigtAnpassungswunschZuErstellen: boolean;
 
@@ -57,7 +57,7 @@ export class AnpassungswunschTabelleComponent {
 
     this.anpassungswunschCreatorRoute = anpassungenRoutingService.getCreatorRoute();
 
-    this.fertigeAnpassungswuenscheAusblendenControl = new FormControl(
+    this.fertigeAnpassungswuenscheAusblendenControl = new UntypedFormControl(
       anpassungswunschFilterService.abgeschlosseneSindAusgeblendet
     );
 

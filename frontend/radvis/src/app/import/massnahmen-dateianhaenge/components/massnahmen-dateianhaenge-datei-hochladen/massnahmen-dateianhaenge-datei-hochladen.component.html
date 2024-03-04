@@ -1,0 +1,119 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<form [formGroup]="formGroup" class="form-group">
+  <rad-multi-organisationen-dropdown-control
+    formControlName="gebietskoerperschaften"
+    [options]="(zuweisbareOrganisationen$ | async) ?? []"
+    [errors]="formGroup.get('gebietskoerperschaften')?.errors"
+  >
+    <div class="ueberschrift">Gebietskörperschaften</div>
+    <div class="beschreibung">
+      {{
+        formGroup.get('gebietskoerperschaften')?.value?.length
+          ? 'Weitere Gebietskörperschaften...'
+          : 'Gebietskörperschaften'
+      }}
+    </div>
+  </rad-multi-organisationen-dropdown-control>
+
+  <rad-enum-dropdown-control
+    formControlName="konzeptionsquelle"
+    [options]="konzeptionsquelleOptions"
+    [nullable]="false"
+    [touchOnWrite]="false"
+    [errors]="formGroup.get('konzeptionsquelle')?.errors"
+  >
+    Quelle auswählen
+  </rad-enum-dropdown-control>
+
+  <div class="hinweis">
+    Durch die Auswahl eines Soll-Standards wird eine eindeutigere Zuordnung zu den bestehenden Maßnahmen ermöglicht.
+  </div>
+  <rad-enum-dropdown-control
+    formControlName="sollStandard"
+    [options]="sollStandardOptions"
+    [nullable]="true"
+    [touchOnWrite]="false"
+    [errors]="formGroup.get('sollStandard')?.errors"
+  >
+    Soll-Standard
+  </rad-enum-dropdown-control>
+
+  <div class="hinweis">Bitte laden Sie ein ZIP-Archiv hoch (max. Dateigröße 300MB).</div>
+  <rad-file-upload-control
+    formControlName="file"
+    class="w-100"
+    dateiEndung="zip"
+    [maxFileSizeInMB]="300"
+    [touchOnWrite]="false"
+    [errors]="formGroup.get('file')?.errors"
+  >
+    ZIP-Archiv auswählen
+  </rad-file-upload-control>
+
+  <div *ngIf="sessionExists && !sessionCreated" class="hinweis red flex-grow mt-10">
+    Es existiert bereits eine Import-Session
+    <span *ngIf="!massnahmenDateianhaengeSessionExists"> eines anderen Typs</span>. Brechen Sie diese ab, um eine neue
+    zu starten.
+  </div>
+
+  <div class="flex-grow"></div>
+  <mat-accordion [multi]="true">
+    <mat-expansion-panel *ngIf="hasFehler" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <div class="display-flex">
+            <mat-icon class="error">report</mat-icon>
+            <div class="ml-3">Fehler</div>
+            <div class="ml-3 hinweis">({{ fehler.length }})</div>
+          </div>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="log-eintrag-wrapper">
+        <div *ngFor="let f of fehler">{{ f }}</div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <div class="display-flex flex-row buttons p-10">
+    <button
+      [disabled]="!massnahmenDateianhaengeSessionExists && formGroup.pristine"
+      mat-flat-button
+      color="primary"
+      class="abbrechen-button"
+      (click)="onAbort()"
+    >
+      Abbrechen
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      class="button"
+      (click)="onNext()"
+      *ngIf="massnahmenDateianhaengeSessionExists"
+      [disabled]="executing || hasFehler"
+    >
+      <ng-container *ngIf="!executing"> Weiter </ng-container>
+      <mat-spinner color="accent" *ngIf="executing" diameter="28"></mat-spinner>
+    </button>
+    <rad-action-button
+      *ngIf="!massnahmenDateianhaengeSessionExists"
+      (action)="onStart()"
+      [waiting]="uploading || executing"
+      [disabled]="sessionExists || formGroup.invalid || hasFehler"
+    >
+      Import starten
+    </rad-action-button>
+  </div>
+</form>

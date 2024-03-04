@@ -17,12 +17,9 @@ package de.wps.radvis.backend.furtKreuzung.domain.valueObject;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
-import java.util.Optional;
-
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

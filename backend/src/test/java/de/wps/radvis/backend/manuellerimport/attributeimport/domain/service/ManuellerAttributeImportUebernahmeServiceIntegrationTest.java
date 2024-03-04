@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -47,7 +48,6 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryTestProvider;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AttributeImportFormat;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionStatus;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Konflikt;
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
@@ -83,6 +83,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
@@ -94,7 +95,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTes
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
-import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
@@ -165,12 +165,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.LUBW);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -240,12 +239,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(),
 			List.of("beleuchtun", "richtung", "vereinbaru", "belag"), AttributeImportFormat.LUBW);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante1, kante2));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -378,12 +376,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.LUBW);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -479,12 +476,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.LUBW);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -582,12 +578,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.LUBW);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -684,12 +679,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.LUBW);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -760,8 +754,9 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		attribute.put("wege_nivea", "GEHWEG");
 		attribute.put("gemeinde_n", "Ötigheim");
 		attribute.put("beleuchtun", "UNBEKANNT");
-		attribute.put("strassenqu", "ANBAUFREIE_STRASSE");
 		attribute.put("umfeld", "GEWERBEGEBIET");
+		attribute.put("strassenka", "NAHRAEUMIG");
+		attribute.put("strassenqu", "ANBAUFREIE_STRASSE");
 		attribute.put("status", "IN_BAU");
 		attribute.put("standards", "STARTSTANDARD_RADNETZ; ZIELSTANDARD_RADNETZ");
 		// FuehrungsformAttributGruppe
@@ -813,8 +808,9 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			"wege_nivea",
 			"gemeinde_n",
 			"beleuchtun",
-			"strassenqu",
 			"umfeld",
+			"strassenka",
+			"strassenqu",
 			"status",
 			"standards",
 			// FuehrungsformAttributGruppe
@@ -843,12 +839,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		Gebietskoerperschaft oetigheim = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
@@ -900,8 +895,9 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(ka.getWegeNiveau().get()).isEqualTo(WegeNiveau.GEHWEG);
 		assertThat(ka.getGemeinde().get()).isEqualTo(oetigheim);
 		assertThat(ka.getBeleuchtung()).isEqualTo(Beleuchtung.UNBEKANNT);
-		assertThat(ka.getStrassenquerschnittRASt06()).isEqualTo(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE);
 		assertThat(ka.getUmfeld()).isEqualTo(Umfeld.GEWERBEGEBIET);
+		assertThat(ka.getStrassenkategorieRIN().get()).isEqualTo(StrassenkategorieRIN.NAHRAEUMIG);
+		assertThat(ka.getStrassenquerschnittRASt06()).isEqualTo(StrassenquerschnittRASt06.ANBAUFREIE_STRASSE);
 		assertThat(ka.getStatus()).isEqualTo(Status.IN_BAU);
 
 		FuehrungsformAttributGruppe fag = kante.getFuehrungsformAttributGruppe();
@@ -979,12 +975,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -1064,12 +1059,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -1162,12 +1156,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -1253,12 +1246,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -1342,12 +1334,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act
@@ -1419,12 +1410,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
 			AttributeImportFormat.RADVIS);
 		session.setFeatureMappings(featureMappings);
-		session.setStatus(ImportSessionStatus.AUTOMATISCHE_ABBILDUNG_DONE);
 
 		InMemoryKantenRepository inMemoryKantenRepository = InMemoryKantenRepositoryTestProvider.withKanten(
 			Set.of(kante));
 
-		when(inMemoryKantenRepositoryFactory.create(any(Verwaltungseinheit.class))).thenReturn(
+		when(inMemoryKantenRepositoryFactory.create(any(MultiPolygon.class))).thenReturn(
 			inMemoryKantenRepository);
 
 		// Act

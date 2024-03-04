@@ -17,10 +17,10 @@ package de.wps.radvis.backend.massnahme.schnittstelle;
 import java.util.List;
 import java.util.Set;
 
-import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
@@ -49,7 +49,7 @@ public class SaveMassnahmeCommandTestDataProvider {
 			.netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG))
 			.baulastZustaendigerId(500L)
 			.unterhaltsZustaendigerId(2L)
-			.markierungsZustaendigerId(1L)
+			.zustaendigerId(1L)
 			.sollStandard(SollStandard.BASISSTANDARD)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)
@@ -60,7 +60,9 @@ public class SaveMassnahmeCommandTestDataProvider {
 		return defaultValue().netzbezug(NetzbezugCommandTestDataProvider.withKante(id).build());
 	}
 
-	public static SaveMassnahmeCommand.SaveMassnahmeCommandBuilder withNetzbezuege(List<Long> kanteIds, List<Long> knotenIds, List<Long> punktuelleNetzbezugIds) {
-		return defaultValue().netzbezug(NetzbezugCommandTestDataProvider.withNetzbezuege(kanteIds, knotenIds, punktuelleNetzbezugIds).build());
+	public static SaveMassnahmeCommand.SaveMassnahmeCommandBuilder withNetzbezuege(List<Long> kanteIds,
+		List<Long> knotenIds, List<Long> punktuelleNetzbezugIds) {
+		return defaultValue().netzbezug(
+			NetzbezugCommandTestDataProvider.withNetzbezuege(kanteIds, knotenIds, punktuelleNetzbezugIds).build());
 	}
 }

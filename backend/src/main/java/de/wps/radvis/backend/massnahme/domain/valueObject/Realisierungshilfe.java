@@ -15,7 +15,7 @@
 package de.wps.radvis.backend.massnahme.domain.valueObject;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.NonNull;
 
 @AllArgsConstructor
 public enum Realisierungshilfe {
@@ -108,6 +108,12 @@ public enum Realisierungshilfe {
 	RSV_F_1("RSV - F 1 Kreuzung mit Gemeinsamen Geh-/ Radweg und Radweg (selbstständig) - innerorts/ außerorts"),
 	RSV_F_2("RSV - F 2 Kreuzung mit Gehweg (selbstständig) - innerorts");
 
-	@Getter
-	private String displayText;
+	@NonNull
+	private final String displayText;
+
+	@Override
+	public String toString() {
+		return displayText;
+	}
+
 }

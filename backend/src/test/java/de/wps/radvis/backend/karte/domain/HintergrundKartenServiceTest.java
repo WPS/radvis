@@ -73,11 +73,12 @@ class HintergrundKartenServiceTest {
 		assertThat(hintergrundKartenService.getTileXYZ("test", new HashMap<>() {
 			private static final long serialVersionUID = 1L;
 
-		{
-			put("x",1);
-			put("y",2);
-			put("z",3);
-		}})).isEmpty();
+			{
+				put("x", 1);
+				put("y", 2);
+				put("z", 3);
+			}
+		})).isEmpty();
 	}
 
 	@Test
@@ -86,14 +87,16 @@ class HintergrundKartenServiceTest {
 		when(hintergrundKartenRepository.find(any())).thenReturn(Optional.empty());
 
 		//act & assert
-		assertThat(hintergrundKartenService.getTileWMS("test", new LinkedMultiValueMap<>(){
+		assertThat(hintergrundKartenService.getTileWMS("test", new LinkedMultiValueMap<>() {
 			private static final long serialVersionUID = 1L;
-		{
-			add("width","1");
-			add("height", "2");
-			add("crs", "crs");
-			add("bbox","0,0,1,1");
-		}})).isEmpty();
+
+			{
+				add("width", "1");
+				add("height", "2");
+				add("crs", "crs");
+				add("bbox", "0,0,1,1");
+			}
+		})).isEmpty();
 	}
 
 	@Test
@@ -109,17 +112,19 @@ class HintergrundKartenServiceTest {
 		//act
 		hintergrundKartenService.getTileXYZ("xyz", new HashMap<>() {
 			private static final long serialVersionUID = 1L;
-		{
-			put("x",1);
-			put("y",2);
-			put("z",3);
-		}});
+
+			{
+				put("x", 1);
+				put("y", 2);
+				put("z", 3);
+			}
+		});
 
 		//assert
 		verify(webClient.get()).uri(uriBuilderToURICaptor.capture());
 		URI uri = uriBuilderToURICaptor.getValue().apply(UriComponentsBuilder.newInstance());
 		assertThat(uri).hasPath("/1/2");
-		assertThat(uri).hasParameter("z","3");
+		assertThat(uri).hasParameter("z", "3");
 	}
 
 	@Test
@@ -136,18 +141,19 @@ class HintergrundKartenServiceTest {
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>() {
 			private static final long serialVersionUID = 1L;
 
-		{
-			add("width", "1");
-			add("height", "2");
-			add("crs", "crs");
-			add("bbox", "0,0,1,1");
-		}};
+			{
+				add("width", "1");
+				add("height", "2");
+				add("crs", "crs");
+				add("bbox", "0,0,1,1");
+			}
+		};
 		hintergrundKartenService.getTileWMS("wms", params);
 
 		//assert
 		verify(webClient.get()).uri(uriBuilderToURICaptor.capture());
 		URI uri = uriBuilderToURICaptor.getValue().apply(UriComponentsBuilder.newInstance());
-		params.forEach((key, value) -> assertThat(uri).hasParameter(key,value.get(0)));
+		params.forEach((key, value) -> assertThat(uri).hasParameter(key, value.get(0)));
 	}
 
 }

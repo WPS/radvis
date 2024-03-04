@@ -107,14 +107,23 @@ public class OrganisationController {
 
 	@GetMapping("{id}")
 	public VerwaltungseinheitView verwaltungseinheitView(@PathVariable("id") Long id) {
-		return new VerwaltungseinheitView(verwaltungseinheitService.findById(id).orElseThrow());
+		return new VerwaltungseinheitView(
+			verwaltungseinheitService.findById(id).orElseThrow(EntityNotFoundException::new));
 	}
 
 	@GetMapping("/bereichAlsString/{id}")
 	public String getBereichVonOrganisationAlsString(@PathVariable("id") Long id) {
 		return verwaltungseinheitService.findById(id)
-			.map(verwaltungseinheit -> verwaltungseinheit.getBereichBuffer(
-				organisationConfigurationProperties.getZustaendigkeitBufferInMeter()).getGeometry())
+			.map(verwaltungseinheit -> verwaltungseinheit.getBereichBufferSimplified(
+				organisationConfigurationProperties.getZustaendigkeitBufferInMeter(),
+				organisationConfigurationProperties.getZustaendigkeitSimplificationToleranceInMeter()
+			))
 			.orElseThrow(EntityNotFoundException::new).toText();
+	}
+
+	@GetMapping("/bereichEnvelopeView/{id}")
+	public VerwaltungseinheitBereichEnvelopeView verwaltungseinheitBereichEnvelopeView(@PathVariable("id") Long id) {
+		return new VerwaltungseinheitBereichEnvelopeView(
+			verwaltungseinheitService.findById(id).orElseThrow(EntityNotFoundException::new));
 	}
 }

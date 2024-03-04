@@ -12,7 +12,7 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<mat-form-field [class.highlight-undetermined]="formControl.value === UNDETERMINED">
+<mat-form-field [class.highlight-undetermined]="formControl.value === UNDETERMINED" class="w-100 form-field">
   <mat-label>
     <ng-content></ng-content>
   </mat-label>
@@ -24,6 +24,7 @@
     #trigger="matAutocompleteTrigger"
     (click)="onClick($event, trigger)"
   />
+  <mat-icon matSuffix class="dropdown-arrow">arrow_drop_down</mat-icon>
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)" [displayWith]="displayFn">
     <mat-option [disabled]="true" [value]="UNDETERMINED" *ngIf="showUndeterminedOption">
       {{ UNDETERMINED_LABEL }}
@@ -38,4 +39,7 @@
       </mat-option>
     </mat-optgroup>
   </mat-autocomplete>
+  <mat-error>
+    <div *ngFor="let msg of errorMessages">{{ msg }}</div>
+  </mat-error>
 </mat-form-field>

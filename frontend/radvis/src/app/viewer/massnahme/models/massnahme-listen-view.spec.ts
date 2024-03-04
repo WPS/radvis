@@ -26,7 +26,7 @@ describe('massnahme-listen-view', () => {
         massnahmenkategorien: 'Umwidmung in gemeinsamen Rad-/Gehweg',
         durchfuehrungszeitraum: '2050',
         baulastZustaendiger: 'testOrganisation (Bundesland)',
-        markierungsZustaendiger: '',
+        zustaendiger: '',
         unterhaltsZustaendiger: '',
         netzklassen: ['Alltag (Kommunalnetz)', 'Freizeit (Kreisnetz)'],
         prioritaet: '5000',

@@ -20,15 +20,6 @@ import static org.valid4j.Assertive.require;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Point;
 
@@ -40,6 +31,14 @@ import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschKateg
 import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschStatus;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.KonsistenzregelVerletzungReferenz;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

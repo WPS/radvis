@@ -35,7 +35,8 @@ public class OsmAuszeichnungsJob extends AbstractJob {
 	private final File osmBasisDaten;
 	private final File osmAngereichertDaten;
 
-	public OsmAuszeichnungsJob(JobExecutionDescriptionRepository repository, OsmAuszeichnungsService osmAuszeichnungsService,
+	public OsmAuszeichnungsJob(JobExecutionDescriptionRepository repository,
+		OsmAuszeichnungsService osmAuszeichnungsService,
 		File osmBasisDaten, File osmAngereichertDaten) {
 		super(repository);
 		require(osmAuszeichnungsService, notNullValue());
@@ -56,8 +57,7 @@ public class OsmAuszeichnungsJob extends AbstractJob {
 		} catch (IOException e) {
 			log.error(
 				"Fehler beim Auszeichnen des RadNETZ in den osm.pbf-Daten. OsmBasisDaten-File: {}. OsmAngereichertDaten-File: {}",
-				osmBasisDaten.getAbsolutePath(), osmAngereichertDaten.getAbsolutePath());
-			log.error(e.getMessage(), e);
+				osmBasisDaten.getAbsolutePath(), osmAngereichertDaten.getAbsolutePath(), e);
 		}
 
 		return Optional.ofNullable(statistik);

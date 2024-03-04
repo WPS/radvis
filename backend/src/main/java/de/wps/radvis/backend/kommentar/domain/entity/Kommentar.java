@@ -19,11 +19,10 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

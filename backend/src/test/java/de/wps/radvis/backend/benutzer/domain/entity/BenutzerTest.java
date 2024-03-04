@@ -51,7 +51,7 @@ class BenutzerTest {
 	void benutzer_alleFelderNichtNull() {
 		// arrange + act + assert
 		assertDoesNotThrow(() -> new Benutzer(Name.of("AlterTestus"), Name.of("Testperson"), BenutzerStatus.INAKTIV,
-			testOrganisation, Mailadresse.of("gueltige@emailadresse.de"), ServiceBwId.of("Some ID"),
+			testOrganisation, Mailadresse.of("gueltigeEmailAdresse@testRadvis.de"), ServiceBwId.of("Some ID"),
 			Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN)));
 
 	}
@@ -61,7 +61,7 @@ class BenutzerTest {
 		// arrange + act + assert
 		assertThrows(RequireViolation.class,
 			() -> new Benutzer(null, Name.of("Testperson"), BenutzerStatus.INAKTIV,
-				testOrganisation, Mailadresse.of("gueltige@emailadresse.de"), ServiceBwId.of("Some ID"),
+				testOrganisation, Mailadresse.of("gueltigeEmailAdresse@testRadvis.de"), ServiceBwId.of("Some ID"),
 				Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN)));
 	}
 
@@ -70,7 +70,7 @@ class BenutzerTest {
 		// arrange + act + assert
 		assertThrows(RequireViolation.class,
 			() -> new Benutzer(null, Name.of("Testperson"), BenutzerStatus.INAKTIV,
-				testOrganisation, Mailadresse.of("gueltige@emailadresse.de"), ServiceBwId.of("Some ID"),
+				testOrganisation, Mailadresse.of("gueltigeEmailAdresse@testRadvis.de"), ServiceBwId.of("Some ID"),
 				Set.of()));
 	}
 
@@ -82,7 +82,7 @@ class BenutzerTest {
 			Name.of("testperson"),
 			BenutzerStatus.AKTIV,
 			testOrganisation,
-			Mailadresse.of("user@radvis.de"),
+			Mailadresse.of("user@testRadvis.de"),
 			ServiceBwId.of("ServiceBwId"),
 			Set.of(Rolle.KREISKOORDINATOREN, Rolle.RADVERKEHRSBEAUFTRAGTER));
 
@@ -92,6 +92,7 @@ class BenutzerTest {
 			Recht.EIGENEN_BEREICH_EINER_ORGANISATION_ZUORDNEN,
 			Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT,
 			Recht.KREISKOORDINATOREN_RADWEGE_ERFASSERIN_IMPORTE_VERANTWORTLICHER_UND_MASSNAHMEN_VERANTWORLICHER,
+			Recht.UMSETZUNGSSTANDSABFRAGEN_AUSWERTEN,
 			Recht.RADNETZ_ROUTENVERLEGUNGEN,
 			Recht.MASSNAHME_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN_VEROEFFENTLICHEN,
 			Recht.RADROUTEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN,

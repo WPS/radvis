@@ -37,7 +37,6 @@ import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.matching.EdgeMatch;
 import com.graphhopper.matching.HmmProbabilities;
-import com.graphhopper.matching.MapMatching;
 import com.graphhopper.matching.MatchResult;
 import com.graphhopper.matching.Observation;
 import com.graphhopper.matching.ObservationWithCandidateStates;
@@ -97,12 +96,15 @@ public class OsmMapMatching {
 		this.locationIndex = (LocationIndexTree) graphHopper.getLocationIndex();
 
 		if (hints.has("vehicle"))
-			throw new IllegalArgumentException("MapMatching hints may no longer contain a vehicle, use the profile parameter instead, see core/#1958");
+			throw new IllegalArgumentException(
+				"MapMatching hints may no longer contain a vehicle, use the profile parameter instead, see core/#1958");
 		if (hints.has("weighting"))
-			throw new IllegalArgumentException("MapMatching hints may no longer contain a weighting, use the profile parameter instead, see core/#1958");
+			throw new IllegalArgumentException(
+				"MapMatching hints may no longer contain a weighting, use the profile parameter instead, see core/#1958");
 
 		if (graphHopper.getProfiles().isEmpty()) {
-			throw new IllegalArgumentException("No profiles found, you need to configure at least one profile to use map matching");
+			throw new IllegalArgumentException(
+				"No profiles found, you need to configure at least one profile to use map matching");
 		}
 		if (!hints.has("profile")) {
 			throw new IllegalArgumentException("You need to specify a profile to perform map matching");
@@ -115,7 +117,8 @@ public class OsmMapMatching {
 			for (Profile p : profiles) {
 				profileNames.add(p.getName());
 			}
-			throw new IllegalArgumentException("Could not find profile '" + profileStr + "', choose one of: " + profileNames);
+			throw new IllegalArgumentException(
+				"Could not find profile '" + profileStr + "', choose one of: " + profileNames);
 		}
 
 		boolean disableLM = hints.getBool(Parameters.Landmark.DISABLE, false);
@@ -138,9 +141,10 @@ public class OsmMapMatching {
 				}
 			}
 			if (lmPreparation == null) {
-				throw new IllegalArgumentException("Cannot find LM preparation for the requested profile: '" + profile.getName() + "'" +
-					"\nYou can try disabling LM using " + Parameters.Landmark.DISABLE + "=true" +
-					"\navailable LM profiles: " + lmProfileNames);
+				throw new IllegalArgumentException(
+					"Cannot find LM preparation for the requested profile: '" + profile.getName() + "'" +
+						"\nYou can try disabling LM using " + Parameters.Landmark.DISABLE + "=true" +
+						"\navailable LM profiles: " + lmProfileNames);
 			}
 			landmarks = lmPreparation;
 		} else {
@@ -170,7 +174,8 @@ public class OsmMapMatching {
 
 		// Create the query graph, containing split edges so that all the places where an observation might have happened
 		// are a node. This modifies the Snap objects and puts the new node numbers into them.
-		queryGraph = QueryGraph.create(graph, snapsPerObservation.stream().flatMap(Collection::stream).collect(Collectors.toList()));
+		queryGraph = QueryGraph.create(graph,
+			snapsPerObservation.stream().flatMap(Collection::stream).collect(Collectors.toList()));
 		weighting = queryGraph.wrapWeighting(unwrappedWeighting);
 
 		// Creates candidates from the Snaps of all observations (a candidate is basically a
@@ -180,12 +185,16 @@ public class OsmMapMatching {
 		// Compute the most likely sequence of map matching candidates:
 		List<SequenceState<State, Observation, Path>> seq = computeViterbiSequence(timeSteps);
 
-		List<EdgeIteratorState> path = seq.stream().filter(s1 -> s1.transitionDescriptor != null).flatMap(s1 -> s1.transitionDescriptor.calcEdges().stream()).collect(Collectors.toList());
+		List<EdgeIteratorState> path = seq.stream().filter(s1 -> s1.transitionDescriptor != null)
+			.flatMap(s1 -> s1.transitionDescriptor.calcEdges().stream()).collect(Collectors.toList());
 
 		MatchResult result = new MatchResult(prepareEdgeMatches(seq));
 		result.setMergedPath(new OsmMapMatching.MapMatchedPath(queryGraph, weighting, path));
-		result.setMatchMillis(seq.stream().filter(s -> s.transitionDescriptor != null).mapToLong(s -> s.transitionDescriptor.getTime()).sum());
-		result.setMatchLength(seq.stream().filter(s -> s.transitionDescriptor != null).mapToDouble(s -> s.transitionDescriptor.getDistance()).sum());
+		result.setMatchMillis(
+			seq.stream().filter(s -> s.transitionDescriptor != null).mapToLong(s -> s.transitionDescriptor.getTime())
+				.sum());
+		result.setMatchLength(seq.stream().filter(s -> s.transitionDescriptor != null)
+			.mapToDouble(s -> s.transitionDescriptor.getDistance()).sum());
 		// result.setGPXEntriesLength(gpxLength(observations));
 		result.setGraph(queryGraph);
 		result.setWeighting(weighting);
@@ -254,7 +263,8 @@ public class OsmMapMatching {
 				double dist = DIST_PLANE.calcDenormalizedDist(snap.getQueryDistance());
 				snap.setClosestEdge(edge);
 				snap.setQueryDistance(dist);
-				if (snap.isValid() && (snap.getSnappedPosition() != Snap.Position.TOWER || seenNodes.add(snap.getClosestNode()))) {
+				if (snap.isValid() && (snap.getSnappedPosition() != Snap.Position.TOWER || seenNodes.add(
+					snap.getClosestNode()))) {
 					snap.calcSnappedPoint(DistanceCalcEarth.DIST_EARTH);
 					if (queryShape.contains(snap.getSnappedPoint().lat, snap.getSnappedPoint().lon)) {
 						snaps.add(snap);
@@ -270,7 +280,8 @@ public class OsmMapMatching {
 	 * transition probabilities. Creates directed candidates for virtual nodes and undirected
 	 * candidates for real nodes.
 	 */
-	private List<ObservationWithCandidateStates> createTimeSteps(List<Observation> filteredObservations, List<Collection<Snap>> splitsPerObservation) {
+	private List<ObservationWithCandidateStates> createTimeSteps(List<Observation> filteredObservations,
+		List<Collection<Snap>> splitsPerObservation) {
 		if (splitsPerObservation.size() != filteredObservations.size()) {
 			throw new IllegalArgumentException(
 				"filteredGPXEntries and queriesPerEntry must have same size.");
@@ -290,7 +301,8 @@ public class OsmMapMatching {
 							throw new RuntimeException("Virtual nodes must only have virtual edges "
 								+ "to adjacent nodes.");
 						}
-						virtualEdges.add((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(), iter.getAdjNode()));
+						virtualEdges.add((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(),
+							iter.getAdjNode()));
 					}
 					if (virtualEdges.size() != 2) {
 						throw new RuntimeException("Each virtual node must have exactly 2 "
@@ -318,7 +330,8 @@ public class OsmMapMatching {
 	/**
 	 * Computes the most likely state sequence for the observations.
 	 */
-	private List<SequenceState<State, Observation, Path>> computeViterbiSequence(List<ObservationWithCandidateStates> timeSteps) {
+	private List<SequenceState<State, Observation, Path>> computeViterbiSequence(
+		List<ObservationWithCandidateStates> timeSteps) {
 		final HmmProbabilities probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
 		final ViterbiAlgorithm<State, Observation, Path> viterbi = new ViterbiAlgorithm<>();
 
@@ -335,16 +348,22 @@ public class OsmMapMatching {
 			}
 
 			if (prevTimeStep == null) {
-				viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates, emissionLogProbabilities);
+				viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates,
+					emissionLogProbabilities);
 			} else {
 				final double linearDistance = distanceCalc.calcDist(prevTimeStep.observation.getPoint().lat,
-					prevTimeStep.observation.getPoint().lon, timeStep.observation.getPoint().lat, timeStep.observation.getPoint().lon);
+					prevTimeStep.observation.getPoint().lon, timeStep.observation.getPoint().lat,
+					timeStep.observation.getPoint().lon);
 
 				for (State from : prevTimeStep.candidates) {
 					for (State to : timeStep.candidates) {
-						final Path path = createRouter().calcPath(from.getSnap().getClosestNode(), to.getSnap().getClosestNode(), from.isOnDirectedEdge() ? from.getOutgoingVirtualEdge().getEdge() : EdgeIterator.ANY_EDGE, to.isOnDirectedEdge() ? to.getIncomingVirtualEdge().getEdge() : EdgeIterator.ANY_EDGE);
+						final Path path = createRouter().calcPath(from.getSnap().getClosestNode(),
+							to.getSnap().getClosestNode(),
+							from.isOnDirectedEdge() ? from.getOutgoingVirtualEdge().getEdge() : EdgeIterator.ANY_EDGE,
+							to.isOnDirectedEdge() ? to.getIncomingVirtualEdge().getEdge() : EdgeIterator.ANY_EDGE);
 						if (path.isFound()) {
-							double transitionLogProbability = probabilities.transitionLogProbability(path.getDistance(), linearDistance);
+							double transitionLogProbability = probabilities.transitionLogProbability(path.getDistance(),
+								linearDistance);
 							Transition<State> transition = new Transition<>(from, to);
 							roadPaths.put(transition, path);
 							transitionLogProbabilities.put(transition, transitionLogProbability);
@@ -366,10 +385,13 @@ public class OsmMapMatching {
 		return viterbi.computeMostLikelySequence();
 	}
 
-	private void fail(int timeStepCounter, ObservationWithCandidateStates prevTimeStep, ObservationWithCandidateStates timeStep) {
+	private void fail(int timeStepCounter, ObservationWithCandidateStates prevTimeStep,
+		ObservationWithCandidateStates timeStep) {
 		String likelyReasonStr = "";
 		if (prevTimeStep != null) {
-			double dist = distanceCalc.calcDist(prevTimeStep.observation.getPoint().lat, prevTimeStep.observation.getPoint().lon, timeStep.observation.getPoint().lat, timeStep.observation.getPoint().lon);
+			double dist = distanceCalc.calcDist(prevTimeStep.observation.getPoint().lat,
+				prevTimeStep.observation.getPoint().lon, timeStep.observation.getPoint().lat,
+				timeStep.observation.getPoint().lon);
 			if (dist > 2000) {
 				likelyReasonStr = "Too long distance to previous measurement? "
 					+ Math.round(dist) + "m, ";
@@ -448,7 +470,8 @@ public class OsmMapMatching {
 			}
 			// state
 			if (transitionAndState.state.isOnDirectedEdge()) { // as opposed to on a node
-				EdgeIteratorState newDirectedRealEdge = resolveToRealEdge(transitionAndState.state.getOutgoingVirtualEdge());
+				EdgeIteratorState newDirectedRealEdge = resolveToRealEdge(
+					transitionAndState.state.getOutgoingVirtualEdge());
 				if (currentDirectedRealEdge != null) {
 					if (!equalEdges(currentDirectedRealEdge, newDirectedRealEdge)) {
 						EdgeMatch edgeMatch = new EdgeMatch(currentDirectedRealEdge, states);
@@ -474,8 +497,10 @@ public class OsmMapMatching {
 	}
 
 	private EdgeIteratorState resolveToRealEdge(EdgeIteratorState edgeIteratorState) {
-		if (queryGraph.isVirtualNode(edgeIteratorState.getBaseNode()) || queryGraph.isVirtualNode(edgeIteratorState.getAdjNode())) {
-			return graph.getEdgeIteratorStateForKey(((VirtualEdgeIteratorState) edgeIteratorState).getOriginalEdgeKey());
+		if (queryGraph.isVirtualNode(edgeIteratorState.getBaseNode()) || queryGraph.isVirtualNode(
+			edgeIteratorState.getAdjNode())) {
+			return graph.getEdgeIteratorStateForKey(
+				((VirtualEdgeIteratorState) edgeIteratorState).getOriginalEdgeKey());
 		} else {
 			return edgeIteratorState;
 		}

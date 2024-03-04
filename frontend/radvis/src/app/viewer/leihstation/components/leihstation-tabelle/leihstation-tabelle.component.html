@@ -35,7 +35,7 @@
   </rad-export-button>
   <button
     class="action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     (click)="onCreate()"
   >
     <mat-icon>add</mat-icon>
@@ -44,7 +44,7 @@
   <button
     *ngIf="csvImportFeatureToggl"
     class="action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     (click)="onOpenCsvImportDialog()"
   >
     <mat-icon>upload</mat-icon>
@@ -52,7 +52,7 @@
   </button>
   <button
     class="action-buttons"
-    [ngClass]="isSmallViewport ? 'mat-menu-item' : 'mat-stroked-button'"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     (click)="onFilterReset()"
   >
     <mat-icon>filter_alt_off</mat-icon>

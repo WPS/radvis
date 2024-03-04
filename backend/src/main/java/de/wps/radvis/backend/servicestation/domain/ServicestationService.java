@@ -16,9 +16,6 @@ package de.wps.radvis.backend.servicestation.domain;
 
 import java.util.Set;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.security.core.Authentication;
 
@@ -29,6 +26,9 @@ import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntitySer
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
+import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Transactional
 public class ServicestationService extends AbstractVersionierteEntityService<Servicestation> {
@@ -68,7 +68,8 @@ public class ServicestationService extends AbstractVersionierteEntityService<Ser
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 		Set<Recht> benutzerRechte = aktiverBenutzer.getRechte();
 
-		return benutzerRechte.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN) &&
+		return servicestation.getQuellSystem().equals(ServicestationenQuellSystem.RADVIS) &&
+			benutzerRechte.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN) &&
 			zustaendigkeitsService.istImZustaendigkeitsbereich(geometry, aktiverBenutzer);
 	}
 }

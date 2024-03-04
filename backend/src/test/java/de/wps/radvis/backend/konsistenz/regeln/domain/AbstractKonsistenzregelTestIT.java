@@ -83,12 +83,13 @@ abstract class AbstractKonsistenzregelTestIT extends DBIntegrationTestIT {
 			@SuppressWarnings("unchecked")
 			List<String> tablesToclear = testEntityManager.getEntityManager()
 				.createNativeQuery(
-					"SELECT relname FROM pg_stat_all_tables " +
-						"WHERE schemaname = 'public' AND NOT ("
-						+ "relname LIKE 'databasechangelog%' "
-						+ "OR relname = 'spatial_ref_sys' "
-						+ "OR relname LIKE '%materialized_view' "
-						+ ")")
+					"""
+						SELECT t.tablename
+						FROM pg_catalog.pg_tables t
+						WHERE t.schemaname = 'public'
+							AND t.tablename != 'spatial_ref_sys'
+							AND t.tablename NOT LIKE 'databasechangelog%'
+						""")
 				.getResultList();
 
 			tablesToclear.forEach(table -> {

@@ -17,10 +17,8 @@ package de.wps.radvis.backend.application.domain;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjektionsJob;
 import de.wps.radvis.backend.integration.grundnetz.domain.DLMNetzbildungJob;

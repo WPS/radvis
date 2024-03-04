@@ -90,7 +90,21 @@
       <binding>java.lang.String</binding>
     </attribute>
     <attribute>
+      <name>fahrradroute_typ</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
       <name>verantwortlich_name</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>verantwortlich_orga_typ</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
@@ -174,16 +188,18 @@
       <binding>java.lang.String</binding>
     </attribute>
     <attribute>
-      <name>variante_kategorie</name>
+      <name>toubiz_id</name>
       <minOccurs>0</minOccurs>
-      <maxOccurs>0</maxOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
       <binding>java.lang.String</binding>
     </attribute>
     <attribute>
-      <name>veroeffentlicht</name>
+      <name>variante_kategorie</name>
       <minOccurs>0</minOccurs>
-      <maxOccurs>0</maxOccurs>
-      <binding>java.lang.Boolean</binding>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.String</binding>
     </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>

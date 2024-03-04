@@ -14,19 +14,17 @@
 
 package de.wps.radvis.backend.application.metrics;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "ExecutionTimeLogger")
 public class ExecutionTimeRequestInterceptor implements HandlerInterceptor {
-
 
 	@Autowired
 	@Qualifier("averageResponseTime")

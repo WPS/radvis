@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
@@ -38,6 +36,7 @@ import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +61,8 @@ public class ManuellerNetzklassenImportAbbildungsService extends AbstractManuell
 		Verwaltungseinheit organisation) {
 		MatchingStatistik statistik = new MatchingStatistik();
 		InMemoryKantenRepository ueberschneidungsRepository = ueberschneidungsRepositoryFactory.create(
-			organisation);
+			organisation.getBereich()
+				.orElse(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createMultiPolygon()));
 		log.info("Führe Matching auf DLM für {} LineStrings aus...", importedLineStrings.size());
 		AtomicInteger count = new AtomicInteger(0);
 

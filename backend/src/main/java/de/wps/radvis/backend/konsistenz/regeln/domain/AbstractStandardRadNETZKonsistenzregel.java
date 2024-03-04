@@ -50,7 +50,8 @@ public abstract class AbstractStandardRadNETZKonsistenzregel implements Konsiste
 	}
 
 	protected String hoechsgeschwindigkeitZwischen(int minTempoExclusive, int maxTempoInclusive) {
-		return hoechsgeschwindigkeitGroesser(minTempoExclusive) + " AND " + hoechsgeschwindigkeitKleinerGleich(maxTempoInclusive);
+		return hoechsgeschwindigkeitGroesser(minTempoExclusive) + " AND " + hoechsgeschwindigkeitKleinerGleich(
+			maxTempoInclusive);
 	}
 
 	protected KonsistenzregelVerletzungsDetails toKonsistenzregelVerletzungsDetails(Map<String, Object> result) {

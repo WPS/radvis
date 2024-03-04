@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
@@ -27,7 +27,7 @@ import { CsvImportService } from 'src/app/viewer/viewer-shared/services/csv-impo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CsvImportDialogComponent {
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
 
   loading = false;
 
@@ -38,8 +38,8 @@ export class CsvImportDialogComponent {
     private notifyUserService: NotifyUserService,
     private csvImportService: CsvImportService
   ) {
-    this.formGroup = new FormGroup({
-      csvImportFile: new FormControl(null, RadvisValidators.isNotNullOrEmpty),
+    this.formGroup = new UntypedFormGroup({
+      csvImportFile: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
     });
   }
 

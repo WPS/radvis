@@ -33,13 +33,19 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.history.Revision;
+import org.springframework.data.history.RevisionSort;
 import org.springframework.data.util.Streamable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ResponseStatusException;
 
+import de.wps.radvis.backend.auditing.domain.entity.RevInfo;
+import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.entity.VersionedId;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.KanteResolver;
 import de.wps.radvis.backend.netz.domain.KnotenResolver;
@@ -59,6 +65,7 @@ import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.KnotenIndex;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
+import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitEntferntEvent;
 import de.wps.radvis.backend.netz.domain.repository.FahrtrichtungAttributGruppeRepository;
@@ -146,6 +153,10 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	}
 
 	public void deleteKante(Kante kante) {
+		require(kante.getQuelle().equals(QuellSystem.RadVis));
+		RadVisDomainEventPublisher.publish(
+			new KanteDeletedEvent(kante.getId(), kante.getGeometry(), NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN,
+				LocalDateTime.now()));
 		kantenRepository.delete(kante);
 	}
 
@@ -357,7 +368,8 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	}
 
 	public Set<Kante> getKantenInOrganisationsbereich(Verwaltungseinheit organisation) {
-		return kantenRepository.getKantenInOrganisationsbereich(organisation);
+		return kantenRepository.getKantenInBereich(organisation.getBereich()
+			.orElse(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createMultiPolygon()));
 	}
 
 	public List<Kante> getRadVisNetzKantenInBereich(Envelope envelope) {
@@ -527,9 +539,8 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		});
 	}
 
-	public void refreshRadVisNetzMaterializedViews() {
-		kantenRepository.refreshRadVisNetzMaterializedView();
-		kantenRepository.refreshRadVisNetzAbschnitteMaterializedView();
+	public void refreshNetzMaterializedViews() {
+		kantenRepository.refreshNetzMaterializedViews();
 	}
 
 	public void aktualisiereKnoten(long knotenId, long knotenVersion, Long gemeinde, Kommentar kommentar,
@@ -581,4 +592,16 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		return kantenRepository.count();
 	}
 
+	public boolean wurdeAngelegtVon(Kante kante, Benutzer benutzer) {
+		require(kante, notNullValue());
+		require(benutzer, notNullValue());
+		Optional<Revision<Long, Kante>> firstRevision = kantenRepository.findRevisions(kante.getId(),
+			PageRequest.of(0, 1, RevisionSort.asc())).stream().findFirst();
+		if (firstRevision.isEmpty()) {
+			log.warn("No revision for Kante {}", kante);
+			return false;
+		}
+		RevInfo revInfo = firstRevision.get().getMetadata().getDelegate();
+		return benutzer.equals(revInfo.getBenutzer());
+	}
 }

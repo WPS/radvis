@@ -25,6 +25,7 @@ export enum Rolle {
   LGL_MITARBEITERIN = 'LGL_MITARBEITERIN',
   RADNETZ_QUALITAETSSICHERIN = 'RADNETZ_QUALITAETSSICHERIN',
   RADVIS_ADMINISTRATOR = 'RADVIS_ADMINISTRATOR',
+  LOG_SICHTER = 'LOG_SICHTER',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -52,6 +53,8 @@ export namespace Rolle {
           return { name: k, displayText: 'LGL-MitarbeiterIn' };
         case Rolle.RADROUTEN_BEARBEITERIN:
           return { name: k, displayText: 'RadroutenbearbeiterIn' };
+        case Rolle.LOG_SICHTER:
+          return { name: k, displayText: 'Log-SichterIn' };
       }
       throw new Error('Beschreibung für enum Rolle fehlt: ' + k);
     }

@@ -50,7 +50,18 @@ public class RadVisStartupJobSchedule implements RadVisJobSchedule {
 		return startupJobs;
 	}
 
+	@Override
 	public boolean forceRun() {
 		return false;
+	}
+
+	@Override
+	public boolean verhindereWeitereJobAusfuehrungBeiFehler() {
+		// Bei den Jobs direkt bei Start der Anwendung sind alle mandatory für eine
+		// richtig funktionierende Anwendung
+		// Das meiste würde zwar auch oberflächlich funktionieren, aber z.B. Routing ist
+		// ohne den am Anfang einmal erfolgreich
+		// durchgelaufenen DlmPbfErstellungsJob nicht möglich.
+		return true;
 	}
 }

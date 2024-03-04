@@ -20,7 +20,8 @@ export type LayerId = string;
 
 export type Color = [number, number, number, number];
 /**
- * @deprecated Struktur zum generischen Erzeugen von Layern, wird nicht mehr gebraucht
+ * @deprecated Struktur zum generischen Erzeugen von Layern, wird nicht mehr gebraucht wenn RadNETZ-Matching entfernt wird.
+ * Backgroundlayer verwenden das hier.
  */
 export class RadVisLayer {
   constructor(

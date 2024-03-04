@@ -20,11 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,6 +43,8 @@ import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationStatus;
 import de.wps.radvis.backend.leihstation.domain.valueObject.UrlAdresse;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Tag("group6")
 @ContextConfiguration(classes = { LeihstationConfiguration.class, })

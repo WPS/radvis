@@ -26,8 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
@@ -59,6 +59,12 @@ import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @deprecated RAD-6071: Das Zuständigkeitsfeld ist ein Pflichtfeld. Dieser MappingService ist deprecated, da er einen
+ * veralteten Import implementiert, der nicht mehr genutzt wird. Bis dieser MappingService entfernt wird,
+ * wird hier die Unbekannte Organisation als Zustaendig gesetzt.
+ */
+@Deprecated
 @Slf4j
 public class MassnahmenMappingService {
 
@@ -175,6 +181,11 @@ public class MassnahmenMappingService {
 			}
 		}
 
+		// RAD-6071: Das Zuständigkeitsfeld ist ein Pflichtfeld. Dieser MappingService ist deprecated, da er einen
+		// veralteten Import implementiert, der nicht mehr genutzt wird. Bis dieser MappingService entfernt wird,
+		// wird hier die Unbekannte Organisation als Zustaendig gesetzt.
+		Verwaltungseinheit zustaendiger = verwaltungseinheitService.getUnbekannteOrganisation();
+
 		String massnahmenPaketId = MassnahmenPaketIdExtractor.getMassnahmenPaketId(simpleFeature);
 
 		List<String> kommentarTexte = mapper.mapKommentarTexte(simpleFeature.getProperties());
@@ -193,6 +204,7 @@ public class MassnahmenMappingService {
 			.prioritaet(prioritaet)
 			.sollStandard(sollStandard)
 			.baulastZustaendiger(baulastZustaendiger)
+			.zustaendiger(zustaendiger)
 			.netzbezug(
 				new MassnahmeNetzBezug(netzbezug.getImmutableKantenAbschnittBezug(),
 					netzbezug.getImmutableKantenPunktBezug(),

@@ -19,10 +19,6 @@ import static org.valid4j.Assertive.require;
 
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Polygon;
@@ -31,6 +27,9 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeatureMapView;
 import de.wps.radvis.backend.quellimport.common.domain.valueObject.Art;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 public class CustomImportedFeaturePersistentRepositoryImpl implements CustomImportedFeaturePersistentRepository {
 
@@ -66,15 +65,15 @@ public class CustomImportedFeaturePersistentRepositoryImpl implements CustomImpo
 	public void buildIndex() {
 
 		entityManager.createNativeQuery(
-			"CREATE INDEX test_idx_tmp ON imported_feature USING GIST (geometrie, quelle, art)")
+				"CREATE INDEX test_idx_tmp ON imported_feature USING GIST (geometrie, quelle, art)")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-			"DROP INDEX IF EXISTS test_idx")
+				"DROP INDEX IF EXISTS test_idx")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-			"ALTER INDEX test_idx_tmp RENAME TO test_idx")
+				"ALTER INDEX test_idx_tmp RENAME TO test_idx")
 			.executeUpdate();
 
 	}
