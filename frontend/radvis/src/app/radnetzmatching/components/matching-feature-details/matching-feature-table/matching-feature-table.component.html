@@ -16,8 +16,7 @@
   [class.primary-color]="isDLM && highlighted"
   [class.secondary-color]="isRadNETZ && highlighted"
   [class.generic-highlight-color]="!isDLM && !isRadNETZ && highlighted"
-  class="feature-header"
->
+  class="feature-header">
   <div class="ml-3">{{ featureLayerName }}</div>
   <div *ngIf="nurLeereAttributeHinweisVisible" class="hinweis">(nur leere Attribute)</div>
   <div class="display-flex flex-row">
@@ -25,17 +24,11 @@
       [attr.aria-label]="getVisibilityTooltip()"
       [matTooltip]="getVisibilityTooltip()"
       (click)="onToggleLeereAttribute()"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon *ngIf="!leereAttributeVisible">visibility</mat-icon>
       <mat-icon *ngIf="leereAttributeVisible">visibility_off</mat-icon>
     </button>
-    <button
-      [attr.aria-label]="'Hauptfeature selektieren'"
-      matTooltip="Hauptfeature selektieren"
-      (click)="onPrimarySelect()"
-      mat-icon-button
-    >
+    <button matTooltip="Hauptfeature selektieren" (click)="onPrimarySelect()" mat-icon-button>
       <mat-icon>ads_click</mat-icon>
     </button>
   </div>
@@ -47,8 +40,7 @@
       (click)="onNetzfehlerErledigt()"
       mat-flat-button
       color="primary"
-      class="border-primary flex-grow"
-    >
+      class="border-primary flex-grow">
       <mat-icon class="mr-5">done_all</mat-icon>
       Als erledigt markieren
     </button>
@@ -59,8 +51,7 @@
         (click)="onZuordnen()"
         mat-flat-button
         color="primary"
-        class="border-primary flex-grow"
-      >
+        class="border-primary flex-grow">
         <mat-icon class="mr-5">add_link</mat-icon>
         DLM-Kanten zuordnen
       </button>
@@ -70,8 +61,7 @@
         (click)="onSave()"
         mat-flat-button
         color="primary"
-        class="flex-grow border-primary"
-      >
+        class="flex-grow border-primary">
         <mat-icon class="mr-5">check</mat-icon>
         Zuordnung speichern
       </button>
@@ -81,8 +71,7 @@
       (click)="onDelete()"
       mat-flat-button
       color="primary"
-      class="flex-grow border-primary"
-    >
+      class="flex-grow border-primary">
       <mat-icon class="mr-5">link_off</mat-icon>
       Zuordnung entfernen
     </button>

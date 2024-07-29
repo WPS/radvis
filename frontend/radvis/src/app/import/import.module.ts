@@ -30,6 +30,7 @@ import { ImportService } from 'src/app/import/services/import.service';
 import { TransformShpService } from 'src/app/import/services/transform-shp.service';
 import { KarteModule } from 'src/app/karte/karte.module';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { MassnahmenImportZuordnungenService } from 'src/app/import/massnahmen/services/massnahmen-import-zuordnungen.service';
 
 @NgModule({
   declarations: [ImportComponent, ImportMenuComponent],

@@ -94,8 +94,8 @@ class ManuellerNetzklassenImportGuardTest {
 		// act + assert
 		assertThatThrownBy(
 			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null))
-			.isInstanceOf(AccessDeniedException.class)
-			.hasMessage("Die Organisation liegt nicht in Ihrem Zuständigkeitsbereich");
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Die Organisation liegt nicht in Ihrem Zuständigkeitsbereich");
 	}
 
 	@Test
@@ -116,7 +116,7 @@ class ManuellerNetzklassenImportGuardTest {
 		// act + assert
 		assertThatThrownBy(
 			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null))
-			.isInstanceOf(AccessDeniedException.class)
-			.hasMessage("Sie haben nicht die Berechtigung Streckendaten zu importieren");
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie haben nicht die Berechtigung Streckendaten zu importieren");
 	}
 }

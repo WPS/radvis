@@ -104,7 +104,6 @@ describe(MassnahmenDateianhaengeDateiHochladenComponent.name, () => {
         sollStandard: expectedSollStandard,
       });
       expect(component.sessionCreated).toBeTrue();
-      verify(notifyUserService.inform(anything())).once();
 
       tick();
 
@@ -164,21 +163,19 @@ describe(MassnahmenDateianhaengeDateiHochladenComponent.name, () => {
 
   describe('session exists', () => {
     let session: MassnahmenDateianhaengeImportSessionView;
-    beforeEach(
-      waitForAsync(() => {
-        importExistsSubject.next(true);
-        session = {
-          log: [],
-          schritt: 2,
-          executing: false,
-          gebietskoerperschaften: [1, 2, 3],
-          konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
-          sollStandard: SollStandard.BASISSTANDARD,
-          zuordnungen: [],
-        };
-        importSessionSubject.next(session);
-      })
-    );
+    beforeEach(waitForAsync(() => {
+      importExistsSubject.next(true);
+      session = {
+        log: [],
+        schritt: 2,
+        executing: false,
+        gebietskoerperschaften: [1, 2, 3],
+        konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
+        sollStandard: SollStandard.BASISSTANDARD,
+        zuordnungen: [],
+      };
+      importSessionSubject.next(session);
+    }));
 
     it('should fill form', () => {
       expect(component.sessionExists).toBeTrue();

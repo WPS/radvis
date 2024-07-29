@@ -30,6 +30,7 @@ import org.locationtech.jts.geom.LineString;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.KantenMapping;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.provider.MappedFeatureTestDataProvider;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.Haendigkeit;
@@ -76,9 +77,9 @@ class MappingServiceTest {
 			new Coordinate(115, 115));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("beleuchtun", "2")
-			)
+			lineString1,
+			Map.of("beleuchtun", "2")
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.875))
 			.build();
@@ -86,8 +87,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("beleuchtun", "1"))
+			lineString2,
+			Map.of("beleuchtun", "1"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -127,9 +128,9 @@ class MappingServiceTest {
 			new Coordinate(115, 115));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("BELEUCHTUN", "2")
-			)
+			lineString1,
+			Map.of("BELEUCHTUN", "2")
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.875))
 			.build();
@@ -137,8 +138,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("BELEUCHTUN", "1"))
+			lineString2,
+			Map.of("BELEUCHTUN", "1"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -182,9 +183,9 @@ class MappingServiceTest {
 		Map<String, Object> propertiesMap = new HashMap<>();
 		propertiesMap.put("BELEUCHTUN", null);
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				propertiesMap
-			)
+			lineString1,
+			propertiesMap
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.875))
 			.build();
@@ -213,9 +214,9 @@ class MappingServiceTest {
 			new Coordinate(120.1, 120));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("richtung", "2")
-			)
+			lineString1,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.85))
 			.build();
@@ -223,8 +224,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("richtung", "1"))
+			lineString2,
+			Map.of("richtung", "1"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -266,9 +267,9 @@ class MappingServiceTest {
 		Map<String, Object> propertiesMap = new HashMap<>();
 		propertiesMap.put("richtung", null);
 		MappedFeature mappedFeature = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString,
-				propertiesMap
-			)
+			lineString,
+			propertiesMap
+		)
 			.haendigkeit(Haendigkeit.of(lineString, kante.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.85))
 			.build();
@@ -298,9 +299,9 @@ class MappingServiceTest {
 			new Coordinate(95.1, 95));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("richtung", "2")
-			)
+			lineString1,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.375))
 			.build();
@@ -308,8 +309,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(95.2, 95),
 			new Coordinate(112.2, 112));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("richtung", "1"))
+			lineString2,
+			Map.of("richtung", "1"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.375, 0.8))
 			.build();
@@ -318,8 +319,8 @@ class MappingServiceTest {
 		LineString lineString3 = GeometryTestdataProvider.createLineString(new Coordinate(120.2, 120),
 			new Coordinate(112.2, 112));
 		MappedFeature mappedFeature3 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString3,
-				Map.of("richtung", "3"))
+			lineString3,
+			Map.of("richtung", "3"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
 			.build();
@@ -358,9 +359,9 @@ class MappingServiceTest {
 		LineString lineString1 = GeometryTestdataProvider.createLineString(new Coordinate(84, 80),
 			new Coordinate(124.1, 120));
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("richtung", "2")
-			)
+			lineString1,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -369,8 +370,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(76, 80),
 			new Coordinate(116.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("richtung", "1"))
+			lineString2,
+			Map.of("richtung", "1"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -407,9 +408,9 @@ class MappingServiceTest {
 			new Coordinate(84, 80));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("richtung", "2")
-			)
+			lineString1,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -417,8 +418,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(76, 80),
 			new Coordinate(116.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("richtung", "1"))
+			lineString2,
+			Map.of("richtung", "1"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -461,9 +462,9 @@ class MappingServiceTest {
 		LineString LS1_links = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(lineString1, 0, 3)
 			.reverse();
 		MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				LS1_links,
-				Map.of("richtung", "2")
-			)
+			LS1_links,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(LS1_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, .3))
 			.build();
@@ -472,45 +473,45 @@ class MappingServiceTest {
 		LineString LS2_links = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(lineString2, 0, 3)
 			.reverse();
 		MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(LS2_links, 0, 3).reverse(),
-				Map.of("richtung", "1")
-			)
+			GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(LS2_links, 0, 3).reverse(),
+			Map.of("richtung", "1")
+		)
 			.haendigkeit(Haendigkeit.of(LS2_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.3, .7))
 			.build();
 
 		LineString LS3_links = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(lineString3, 0, 3);
 		MappedFeature mappedFeature3_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				LS3_links,
-				Map.of("richtung", "3")
-			)
+			LS3_links,
+			Map.of("richtung", "3")
+		)
 			.haendigkeit(Haendigkeit.of(LS3_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(.7, 1))
 			.build();
 
 		LineString LS1_rechts = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(lineString1, 0, -3);
 		MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				LS1_rechts,
-				Map.of("richtung", "2")
-			)
+			LS1_rechts,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(LS1_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, .4))
 			.build();
 
 		LineString LS2_rechts = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(lineString2, 0, -3);
 		MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				LS2_rechts,
-				Map.of("richtung", "1")
-			)
+			LS2_rechts,
+			Map.of("richtung", "1")
+		)
 			.haendigkeit(Haendigkeit.of(LS2_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.2, .8))
 			.build();
 
 		LineString LS3_rechts = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(lineString3, 0, -3);
 		MappedFeature mappedFeature3_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				LS3_rechts,
-				Map.of("richtung", "2")
-			)
+			LS3_rechts,
+			Map.of("richtung", "2")
+		)
 			.haendigkeit(Haendigkeit.of(LS3_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(.6, 1.))
 			.build();
@@ -561,8 +562,8 @@ class MappingServiceTest {
 		Map<String, Object> propertiesMap = new HashMap<>();
 		propertiesMap.put("vereinbaru", null);
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString,
-				propertiesMap)
+			lineString,
+			propertiesMap)
 			.haendigkeit(Haendigkeit.of(lineString, kante.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.5))
 			.build();
@@ -579,7 +580,7 @@ class MappingServiceTest {
 		assertThat(kante.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				ZustaendigkeitAttribute.builder()
@@ -600,8 +601,8 @@ class MappingServiceTest {
 			new Coordinate(100.1, 100));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("vereinbaru", "1"))
+			lineString1,
+			Map.of("vereinbaru", "1"))
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.5))
 			.build();
@@ -609,8 +610,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("vereinbaru", "2"))
+			lineString2,
+			Map.of("vereinbaru", "2"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -632,7 +633,7 @@ class MappingServiceTest {
 		assertThat(kante1.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				ZustaendigkeitAttribute.builder()
@@ -659,8 +660,8 @@ class MappingServiceTest {
 			new Coordinate(100.1, 100));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("vereinbaru", "1"))
+			lineString1,
+			Map.of("vereinbaru", "1"))
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 			.build();
@@ -668,8 +669,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("vereinbaru", "2"))
+			lineString2,
+			Map.of("vereinbaru", "2"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -690,7 +691,7 @@ class MappingServiceTest {
 		assertThat(kante1.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				ZustaendigkeitAttribute.builder()
@@ -709,7 +710,10 @@ class MappingServiceTest {
 
 		assertThat(kantenKonfliktProtokoll.getKonflikte())
 			.usingRecursiveFieldByFieldElementComparator()
-			.containsExactly(new Konflikt(LinearReferenzierterAbschnitt.of(0.5, 0.55), "vereinbaru", "2", Set.of("1")));
+			.containsExactly(
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.5, 0.55), Seitenbezug.BEIDSEITIG, "vereinbaru", "2",
+					Set.of("1"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 1 anderen Abschnitten auf der gleichen Seite gibt."));
 	}
 
 	@Test
@@ -730,8 +734,8 @@ class MappingServiceTest {
 			new Coordinate(100.1, 100));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("vereinbaru", "1"))
+			lineString1,
+			Map.of("vereinbaru", "1"))
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.5))
 			.build();
@@ -739,8 +743,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("vereinbaru", "2"))
+			lineString2,
+			Map.of("vereinbaru", "2"))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.55, 1))
 			.build();
@@ -787,8 +791,8 @@ class MappingServiceTest {
 			new Coordinate(100.1, 100));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("belag", "10", "breite", "1", "wegart", 110))
+			lineString1,
+			Map.of("belag", "10", "breite", "1", "wegart", 110))
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.6))
 			.build();
@@ -796,8 +800,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("belag", "20", "breite", "2", "wegart", 121))
+			lineString2,
+			Map.of("belag", "20", "breite", "2", "wegart", 121))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -821,7 +825,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -841,7 +845,10 @@ class MappingServiceTest {
 		assertThat(kantenKonfliktProtokoll.getKonflikte()).hasSize(1);
 		assertThat(kantenKonfliktProtokoll.getKonflikte())
 			.usingRecursiveFieldByFieldElementComparator()
-			.containsExactly(new Konflikt(LinearReferenzierterAbschnitt.of(0.5, 0.6), "belag", "20", Set.of("10")));
+			.containsExactly(
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.5, 0.6), Seitenbezug.BEIDSEITIG, "belag", "20",
+					Set.of("10"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 1 anderen Abschnitten auf der gleichen Seite gibt."));
 	}
 
 	@Test
@@ -864,8 +871,8 @@ class MappingServiceTest {
 		propertiesMap.put("breite", null);
 		propertiesMap.put("wegart", null);
 		MappedFeature mappedFeature = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString,
-				propertiesMap)
+			lineString,
+			propertiesMap)
 			.haendigkeit(Haendigkeit.of(lineString, kante.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -884,7 +891,7 @@ class MappingServiceTest {
 		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -907,8 +914,8 @@ class MappingServiceTest {
 			new Coordinate(120.2, 110));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("belag", "10", "breite", "1", "wegart", 110))
+			lineString1,
+			Map.of("belag", "10", "breite", "1", "wegart", 110))
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -916,8 +923,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 10),
 			new Coordinate(120.2, 130));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("belag", "20", "breite", "2", "wegart", 121))
+			lineString2,
+			Map.of("belag", "20", "breite", "2", "wegart", 121))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -941,7 +948,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -953,7 +960,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -978,8 +985,8 @@ class MappingServiceTest {
 			new Coordinate(120.2, 110));
 
 		MappedFeature mappedFeature1 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1,
-				Map.of("belag", "10", "breite", "1", "wegart", 110))
+			lineString1,
+			Map.of("belag", "10", "breite", "1", "wegart", 110))
 			.haendigkeit(Haendigkeit.of(lineString1, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -987,8 +994,8 @@ class MappingServiceTest {
 		LineString lineString2 = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 10),
 			new Coordinate(120.2, 130));
 		MappedFeature mappedFeature2 = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2,
-				Map.of("belag", "20", "breite", "2", "wegart", 121))
+			lineString2,
+			Map.of("belag", "20", "breite", "2", "wegart", 121))
 			.haendigkeit(Haendigkeit.of(lineString2, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.build();
@@ -1012,7 +1019,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1024,7 +1031,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1047,8 +1054,8 @@ class MappingServiceTest {
 			new Coordinate(104.1, 100));
 
 		MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_rechts,
-				Map.of("belag", "10"))
+			lineString1_rechts,
+			Map.of("belag", "10"))
 			.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.5))
 			.build();
@@ -1056,8 +1063,8 @@ class MappingServiceTest {
 		LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(0.2, 0),
 			new Coordinate(120.2, 120));
 		MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_links,
-				Map.of("belag", "20"))
+			lineString1_links,
+			Map.of("belag", "20"))
 			.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.5))
 			.build();
@@ -1066,8 +1073,8 @@ class MappingServiceTest {
 			new Coordinate(124.2, 120));
 
 		MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_rechts,
-				Map.of("belag", "30"))
+			lineString2_rechts,
+			Map.of("belag", "30"))
 			.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -1075,8 +1082,8 @@ class MappingServiceTest {
 		LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(6, 10),
 			new Coordinate(116.2, 120));
 		MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_links,
-				Map.of("belag", "40"))
+			lineString2_links,
+			Map.of("belag", "40"))
 			.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -1103,7 +1110,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1119,7 +1126,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1145,8 +1152,8 @@ class MappingServiceTest {
 		LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 74),
 			new Coordinate(101.1, 104));
 		MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_links,
-				Map.of("belag", "20"))
+			lineString1_links,
+			Map.of("belag", "20"))
 			.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 			.build();
@@ -1154,8 +1161,8 @@ class MappingServiceTest {
 		LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 104),
 			new Coordinate(120.2, 124));
 		MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_links,
-				Map.of("belag", "40"))
+			lineString2_links,
+			Map.of("belag", "40"))
 			.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 			.build();
@@ -1164,8 +1171,8 @@ class MappingServiceTest {
 			new Coordinate(100.1, 96));
 
 		MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_rechts,
-				Map.of("belag", "10"))
+			lineString1_rechts,
+			Map.of("belag", "10"))
 			.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 			.build();
@@ -1174,8 +1181,8 @@ class MappingServiceTest {
 			new Coordinate(120.2, 116));
 
 		MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_rechts,
-				Map.of("belag", "30"))
+			lineString2_rechts,
+			Map.of("belag", "30"))
 			.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -1205,7 +1212,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1229,7 +1236,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1253,9 +1260,15 @@ class MappingServiceTest {
 		assertThat(kantenKonfliktProtokoll.getKonflikte())
 			.usingRecursiveFieldByFieldElementComparator()
 			.containsExactlyInAnyOrder(
-				new Konflikt(LinearReferenzierterAbschnitt.of(0.5, 0.55), "belag", "30", Set.of("10")),
-				new Konflikt(LinearReferenzierterAbschnitt.of(0.45, 0.50), "belag", "40", Set.of("20")),
-				new Konflikt(LinearReferenzierterAbschnitt.of(0.50, 0.55), "belag", "40", Set.of("20"))
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.50, 0.55), Seitenbezug.RECHTS, "belag", "30",
+					Set.of("10"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 1 anderen Abschnitten auf der gleichen Seite gibt."),
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.50, 0.55), Seitenbezug.LINKS, "belag", "40",
+					Set.of("20"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 1 anderen Abschnitten auf der gleichen Seite gibt."),
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.45, 0.50), Seitenbezug.LINKS, "belag", "40",
+					Set.of("20"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 1 anderen Abschnitten auf der gleichen Seite gibt.")
 			);
 	}
 
@@ -1287,8 +1300,8 @@ class MappingServiceTest {
 		LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 74),
 			new Coordinate(101.1, 104));
 		MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_links,
-				Map.of("belag", "20"))
+			lineString1_links,
+			Map.of("belag", "20"))
 			.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.45))
 			.build();
@@ -1296,8 +1309,8 @@ class MappingServiceTest {
 		LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 104),
 			new Coordinate(120.2, 124));
 		MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_links,
-				Map.of("belag", "40"))
+			lineString2_links,
+			Map.of("belag", "40"))
 			.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.6, 1))
 			.build();
@@ -1306,8 +1319,8 @@ class MappingServiceTest {
 			new Coordinate(100.1, 96));
 
 		MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_rechts,
-				Map.of("belag", "10"))
+			lineString1_rechts,
+			Map.of("belag", "10"))
 			.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.35))
 			.build();
@@ -1316,8 +1329,8 @@ class MappingServiceTest {
 			new Coordinate(120.2, 116));
 
 		MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_rechts,
-				Map.of("belag", "30"))
+			lineString2_rechts,
+			Map.of("belag", "30"))
 			.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.7, 1))
 			.build();
@@ -1345,7 +1358,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()
@@ -1377,7 +1390,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 			.usingRecursiveFieldByFieldElementComparator(
 				RecursiveComparisonConfiguration.builder().withComparatorForType(
-						LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
+					LineareReferenzTestProvider.comparatorWithTolerance(0.005), LinearReferenzierterAbschnitt.class)
 					.build())
 			.containsExactlyInAnyOrder(
 				FuehrungsformAttribute.builder()

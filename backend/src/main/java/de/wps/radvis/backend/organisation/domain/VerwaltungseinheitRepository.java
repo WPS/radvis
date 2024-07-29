@@ -20,9 +20,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.validation.constraints.NotNull;
 
 public interface VerwaltungseinheitRepository

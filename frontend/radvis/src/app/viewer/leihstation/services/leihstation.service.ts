@@ -36,9 +36,7 @@ export class LeihstationService {
   }
 
   public delete(id: number, command: DeleteLeihstationCommand): Promise<void> {
-    return this.httpClient
-      .delete<void>(`${this.API}/${id}`, { body: command })
-      .toPromise();
+    return this.httpClient.delete<void>(`${this.API}/${id}`, { body: command }).toPromise();
   }
 
   public get(id: number): Observable<Leihstation> {

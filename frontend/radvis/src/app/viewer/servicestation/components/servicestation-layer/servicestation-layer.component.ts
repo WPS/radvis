@@ -32,7 +32,8 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 })
 export class ServicestationLayerComponent
   extends AbstractInfrastrukturLayerComponent<Servicestation>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private layer: VectorLayer;
 
   constructor(

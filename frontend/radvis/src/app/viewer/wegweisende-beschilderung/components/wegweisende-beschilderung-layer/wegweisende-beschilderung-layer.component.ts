@@ -37,7 +37,8 @@ import { WegweisendeBeschilderungRoutingService } from 'src/app/viewer/wegweisen
 })
 export class WegweisendeBeschilderungLayerComponent
   extends AbstractInfrastrukturLayerComponent<WegweisendeBeschilderungListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private olLayer: VectorLayer;
 
   constructor(
@@ -82,7 +83,7 @@ export class WegweisendeBeschilderungLayerComponent
     if (!infrastruktur.geometrie || !isPoint(infrastruktur.geometrie)) {
       throw new Error('Geometrie ist nicht vorhanden oder kein Punkt');
     }
-    const feature = new Feature(new Point((infrastruktur.geometrie.coordinates as unknown) as Coordinate));
+    const feature = new Feature(new Point(infrastruktur.geometrie.coordinates as unknown as Coordinate));
     feature.setId(infrastruktur.id);
     feature.set(
       AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME,

@@ -77,7 +77,7 @@ public class KantenMapping {
 		if (mappedAttributes.isEmpty()) {
 			mappedAttributes = Optional.of(
 				mappedFeatures.stream().map(mappedFeature -> MappedAttributes.of(mappedFeature,
-						unterscheidetSichOrientierungZurKante(mappedFeature.getGeometry())))
+					unterscheidetSichOrientierungZurKante(mappedFeature.getGeometry())))
 					.collect(Collectors.toList()));
 		}
 		return mappedAttributes.get();
@@ -144,7 +144,8 @@ public class KantenMapping {
 	private boolean berechneMuessenFeaturesSeitenbezogenGemapptWerden() {
 		NormalisierteMappedFeatures normalisierteMappedFeatures = getNormalisierteMappedFeatures();
 
-		List<LinearReferenzierterAbschnitt> lineareReferenzen = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> lineareReferenzen = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 		double confidenceInSeitenbezug = 0.;
 		for (LinearReferenzierterAbschnitt linearReferenzierterAbschnitt : lineareReferenzen) {
 			List<MappedFeature> matchingAttribute = normalisierteMappedFeatures.getFeaturesFor(
@@ -179,10 +180,9 @@ public class KantenMapping {
 	private boolean habenFeaturesEinSeitenAttribut() {
 		return mappedFeatures.stream()
 			.map(MappedFeature::getAttributierterSeitenbezug)
-			.allMatch(seitenbezug ->
-				seitenbezug.isPresent() &&
-					(seitenbezug.get().equals(Seitenbezug.LINKS) ||
-						seitenbezug.get().equals(Seitenbezug.RECHTS))
+			.allMatch(seitenbezug -> seitenbezug.isPresent() &&
+				(seitenbezug.get().equals(Seitenbezug.LINKS) ||
+					seitenbezug.get().equals(Seitenbezug.RECHTS))
 			);
 	}
 
@@ -192,7 +192,8 @@ public class KantenMapping {
 		require(!seitenbezug.equals(Seitenbezug.BEIDSEITIG),
 			"Features für beidseitigen Seitenbezug zu ermitteln ist Quatsch");
 
-		List<LinearReferenzierterAbschnitt> lineareReferenzen = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> lineareReferenzen = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		List<MappedAttributes> result = new ArrayList<>();
 

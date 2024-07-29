@@ -44,6 +44,7 @@ import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
@@ -69,7 +70,6 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
 
 @Tag("group4")

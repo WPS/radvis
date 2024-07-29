@@ -23,19 +23,17 @@ export enum RadNetzKategorie {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace RadNetzKategorie {
-  export const options: EnumOption[] = Object.keys(RadNetzKategorie).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case RadNetzKategorie.FREIZEIT:
-          return { name: k, displayText: 'Freizeit' };
-        case RadNetzKategorie.ALLTAG:
-          return { name: k, displayText: 'Alltag' };
-        case RadNetzKategorie.ZIELNETZ:
-          return { name: k, displayText: 'Zielnetz' };
-        case RadNetzKategorie.ALLTAG_FREIZEIT:
-          return { name: k, displayText: 'Alltag und Freizeit' };
-      }
-      throw new Error('Beschreibung für enum RadNetzKategorie fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(RadNetzKategorie).map((k: string): EnumOption => {
+    switch (k) {
+      case RadNetzKategorie.FREIZEIT:
+        return { name: k, displayText: 'Freizeit' };
+      case RadNetzKategorie.ALLTAG:
+        return { name: k, displayText: 'Alltag' };
+      case RadNetzKategorie.ZIELNETZ:
+        return { name: k, displayText: 'Zielnetz' };
+      case RadNetzKategorie.ALLTAG_FREIZEIT:
+        return { name: k, displayText: 'Alltag und Freizeit' };
     }
-  );
+    throw new Error('Beschreibung für enum RadNetzKategorie fehlt: ' + k);
+  });
 }

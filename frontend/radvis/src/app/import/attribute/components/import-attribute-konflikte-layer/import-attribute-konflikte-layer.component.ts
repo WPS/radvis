@@ -44,7 +44,10 @@ export class ImportAttributeKonflikteLayerComponent implements OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private olMapService: OlMapService, private attributeImportService: AttributeImportService) {
+  constructor(
+    private olMapService: OlMapService,
+    private attributeImportService: AttributeImportService
+  ) {
     // holt sich die Konflikte selber
     this.konflikteLayer = new VectorLayer({
       source: this.konflikteVectorSource,

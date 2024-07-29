@@ -29,7 +29,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 class PunktuellerKantenSeitenBezugTest {
 
 	@Test
-	void getPointGeometry() {
+	void testGetPointGeometry() {
 		Kante kante = KanteTestDataProvider.withDefaultValues()
 			.geometry(GeometryTestdataProvider.createLineString(new Coordinate(10, 10),
 				new Coordinate(10, 15),

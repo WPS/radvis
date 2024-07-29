@@ -22,17 +22,15 @@ export enum RadNetzStandard {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace RadNetzStandard {
-  export const options: EnumOption[] = Object.keys(RadNetzStandard).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case RadNetzStandard.ERFUELLT:
-          return { name: k, displayText: 'erfüllt' };
-        case RadNetzStandard.NICHT_ERFUELLT:
-          return { name: k, displayText: 'nicht erfüllt' };
-        case RadNetzStandard.UNBEKANNT:
-          return { name: k, displayText: 'unbekannt' };
-      }
-      throw new Error('Beschreibung für enum RadNETZStandard fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(RadNetzStandard).map((k: string): EnumOption => {
+    switch (k) {
+      case RadNetzStandard.ERFUELLT:
+        return { name: k, displayText: 'erfüllt' };
+      case RadNetzStandard.NICHT_ERFUELLT:
+        return { name: k, displayText: 'nicht erfüllt' };
+      case RadNetzStandard.UNBEKANNT:
+        return { name: k, displayText: 'unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum RadNETZStandard fehlt: ' + k);
+  });
 }

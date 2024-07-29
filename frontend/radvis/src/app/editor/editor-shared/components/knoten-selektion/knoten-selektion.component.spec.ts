@@ -14,14 +14,14 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { ActivatedRoute, ActivatedRouteSnapshot, UrlSegment } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Event, NavigationEnd, Router } from '@angular/router';
 import { MockBuilder } from 'ng-mocks';
 import { Feature, MapBrowserEvent } from 'ol';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import Projection from 'ol/proj/Projection';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
@@ -44,7 +44,8 @@ describe('KnotenSelektionComponent', () => {
   let featureService: NetzausschnittService;
   let editorRoutingService: EditorRoutingService;
   let activatedRoute: ActivatedRoute;
-  const urlSubject = new BehaviorSubject<UrlSegment[]>([new UrlSegment('knoten', {})]);
+  let router: Router;
+  const routerEventSubject = new Subject<Event>();
   let knotenLayerNichtklassifiziert: VectorLayer;
   let netzklassenAuswahlSubject$: Subject<Netzklassefilter[]>;
   let netzklassenAuswahlService: NetzklassenAuswahlService;
@@ -55,13 +56,14 @@ describe('KnotenSelektionComponent', () => {
     featureService = mock(NetzausschnittService);
     editorRoutingService = mock(EditorRoutingService);
     activatedRoute = mock(ActivatedRoute);
+    router = mock(Router);
     netzklassenAuswahlSubject$ = new Subject<Netzklassefilter[]>();
     netzklassenAuswahlService = mock(NetzklassenAuswahlService);
 
     when(olMapService.click$()).thenReturn(of());
     when(featureService.getKnotenForView(anything(), anything())).thenReturn(of(createDummyFeatureCollection()));
     when(activatedRoute.snapshot).thenReturn(createDummySnapshotRoute());
-    when(activatedRoute.url).thenReturn(urlSubject.asObservable());
+    when(router.events).thenReturn(routerEventSubject.asObservable());
     when(netzklassenAuswahlService.currentAuswahl$).thenReturn(netzklassenAuswahlSubject$);
     return MockBuilder(KnotenSelektionComponent, EditorModule)
       .provide({
@@ -72,6 +74,7 @@ describe('KnotenSelektionComponent', () => {
       .provide({ provide: NetzausschnittService, useValue: instance(featureService) })
       .provide({ provide: EditorRoutingService, useValue: instance(editorRoutingService) })
       .provide({ provide: ActivatedRoute, useValue: instance(activatedRoute) })
+      .provide({ provide: Router, useValue: instance(router) })
       .provide({ provide: NetzklassenAuswahlService, useValue: instance(netzklassenAuswahlService) });
   });
 
@@ -134,7 +137,7 @@ describe('KnotenSelektionComponent', () => {
     it('should call refresh when url changes', fakeAsync(() => {
       const refreshSpy = spyOn<any>(component, 'refreshSelektionLayer');
 
-      urlSubject.next([new UrlSegment('knoten', {})]);
+      routerEventSubject.next(new NavigationEnd(123, 'test/url/knoten', ''));
       tick();
 
       expect(refreshSpy).toHaveBeenCalled();
@@ -213,7 +216,7 @@ describe('KnotenSelektionComponent', () => {
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummySnapshotRoute(): ActivatedRouteSnapshot {
-  return ({ firstChild: { params: { id: 2 } } } as unknown) as ActivatedRouteSnapshot;
+  return { firstChild: { params: { id: 2 } } } as unknown as ActivatedRouteSnapshot;
 }
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions

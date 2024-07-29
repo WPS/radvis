@@ -32,8 +32,8 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public class NetzausschnittGuardTest {
 
@@ -58,9 +58,9 @@ public class NetzausschnittGuardTest {
 		@BeforeEach
 		void beforeEach() {
 			benutzer = BenutzerTestDataProvider.admin(
-					VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-						.organisationsArt(OrganisationsArt.BUNDESLAND)
-						.name("Oscorp").build())
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+					.organisationsArt(OrganisationsArt.BUNDESLAND)
+					.name("Oscorp").build())
 				.build();
 			when(benutzerResolver.fromAuthentication(authentication)).thenReturn(benutzer);
 		}

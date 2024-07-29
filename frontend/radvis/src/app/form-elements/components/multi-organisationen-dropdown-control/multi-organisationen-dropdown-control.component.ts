@@ -42,7 +42,8 @@ import invariant from 'tiny-invariant';
 })
 export class MultiOrganisationenDropdownControlComponent
   extends AbstractFormControl<Verwaltungseinheit[]>
-  implements OnChanges {
+  implements OnChanges
+{
   @Input()
   options: Verwaltungseinheit[] = [];
 

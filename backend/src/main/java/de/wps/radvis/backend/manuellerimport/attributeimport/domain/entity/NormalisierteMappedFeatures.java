@@ -56,7 +56,7 @@ public class NormalisierteMappedFeatures {
 
 	/**
 	 * @param lineareReferenzen
-	 * 	Liste and Linearen Referenzen die sich potentiell überlappen
+	 *     Liste and Linearen Referenzen die sich potentiell überlappen
 	 * @return Konsolidierte List an Linearen Referenzen die sich nicht mehr überlappen
 	 */
 	private List<LinearReferenzierterAbschnitt> normalisiereLineareReferenzen(

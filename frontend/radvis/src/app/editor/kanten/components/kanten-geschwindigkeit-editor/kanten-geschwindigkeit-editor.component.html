@@ -13,24 +13,21 @@
   -->
 
 <ng-container *ngIf="hasKanten$ | async">
-  <div *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis hinweis">
-    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-    <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
-  </div>
+  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+    NICHT_BEARBEITBAR_HINWEIS
+  }}</rad-warnhinweis>
   <rad-kanten-attribute-editor-mit-subauswahl
     [disabled]="!editingAllowed"
     [dirty]="!pristine"
     [fetching]="isFetching"
     (save)="onSave()"
     (dismiss)="onClose()"
-    (resetForm)="onReset()"
-  >
+    (resetForm)="onReset()">
     <div [formGroup]="displayedAttributeformGroup" class="attribute group">
       <rad-enum-dropdown-control
         [options]="ortslageOptions"
         class="mat-form-field-full-width"
-        formControlName="ortslage"
-      >
+        formControlName="ortslage">
         Ortslage
       </rad-enum-dropdown-control>
 
@@ -38,16 +35,14 @@
         [nullable]="false"
         [options]="hoechstgeschwindigkeitOptions"
         class="mat-form-field-full-width"
-        formControlName="hoechstgeschwindigkeit"
-      >
+        formControlName="hoechstgeschwindigkeit">
         Höchstgeschwindigkeit
       </rad-enum-dropdown-control>
 
       <rad-enum-dropdown-control
         [options]="hoechstgeschwindigkeitOptions"
         class="mat-form-field-full-width"
-        formControlName="abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung"
-      >
+        formControlName="abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung">
         Abweichende Höchstgeschwindigkeit gegen Stationierungsrichtung
       </rad-enum-dropdown-control>
     </div>
@@ -62,8 +57,9 @@
               (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id)"
               [formControl]="getLineareReferenzenFormControlAt(i)"
               [geometrie]="kantenSelektion.kante.geometry"
-              [selectedIndices]="kantenSelektion.getSelectedSegmentIndices()"
-            ></rad-linear-referenzierter-abschnitt-control>
+              [selectedIndices]="
+                kantenSelektion.getSelectedSegmentIndices()
+              "></rad-linear-referenzierter-abschnitt-control>
           </td>
         </tr>
       </tbody>

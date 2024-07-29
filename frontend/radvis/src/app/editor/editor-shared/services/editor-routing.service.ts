@@ -31,7 +31,10 @@ export class EditorRoutingService {
 
   public static EDITOR_CREATE_SUBROUTE = 'new';
 
-  constructor(private router: Router, private mapQueryParamsService: MapQueryParamsService) {}
+  constructor(
+    private router: Router,
+    private mapQueryParamsService: MapQueryParamsService
+  ) {}
 
   public toEditor(): Promise<boolean> {
     return this.router.navigate([EditorRoutingService.EDITOR_ROUTE], {

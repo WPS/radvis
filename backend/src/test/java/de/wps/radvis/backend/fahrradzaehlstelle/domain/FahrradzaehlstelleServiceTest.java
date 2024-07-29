@@ -54,93 +54,97 @@ class FahrradzaehlstelleServiceTest {
 	@Test
 	public void test_auswertungProStunde() {
 		when(fahrradzaehlstelleRepository.getChannels(any())).thenReturn(createChannelsWithData(
-			new HashMap<>() {{
-				put(Zeitstempel.of("2000-01-01T01:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T02:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T03:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T04:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T05:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T06:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T07:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T08:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T09:00:00+0100"), 9999L);
+			new HashMap<>() {
+				{
+					put(Zeitstempel.of("2000-01-01T01:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T02:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T03:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T04:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T05:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T06:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T07:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T08:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T09:00:00+0100"), 9999L);
 
-				put(Zeitstempel.of("2000-01-02T01:00:00+0100"), 10L);
-				put(Zeitstempel.of("2000-01-02T02:00:00+0100"), 20L);
-				put(Zeitstempel.of("2000-01-02T03:00:00+0100"), 30L);
-				put(Zeitstempel.of("2000-01-02T04:00:00+0100"), 40L);
-				put(Zeitstempel.of("2000-01-02T05:00:00+0100"), 50L);
-				put(Zeitstempel.of("2000-01-02T06:00:00+0100"), 60L);
-				put(Zeitstempel.of("2000-01-02T07:00:00+0100"), 70L);
-				put(Zeitstempel.of("2000-01-02T08:00:00+0100"), 80L);
-				put(Zeitstempel.of("2000-01-02T09:00:00+0100"), 90L);
-				// = 450
+					put(Zeitstempel.of("2000-01-02T01:00:00+0100"), 10L);
+					put(Zeitstempel.of("2000-01-02T02:00:00+0100"), 20L);
+					put(Zeitstempel.of("2000-01-02T03:00:00+0100"), 30L);
+					put(Zeitstempel.of("2000-01-02T04:00:00+0100"), 40L);
+					put(Zeitstempel.of("2000-01-02T05:00:00+0100"), 50L);
+					put(Zeitstempel.of("2000-01-02T06:00:00+0100"), 60L);
+					put(Zeitstempel.of("2000-01-02T07:00:00+0100"), 70L);
+					put(Zeitstempel.of("2000-01-02T08:00:00+0100"), 80L);
+					put(Zeitstempel.of("2000-01-02T09:00:00+0100"), 90L);
+					// = 450
 
-				put(Zeitstempel.of("2000-01-03T01:00:00+0100"), 20L);
-				put(Zeitstempel.of("2000-01-03T02:00:00+0100"), 40L);
-				put(Zeitstempel.of("2000-01-03T03:00:00+0100"), 60L);
-				put(Zeitstempel.of("2000-01-03T04:00:00+0100"), 80L);
-				put(Zeitstempel.of("2000-01-03T05:00:00+0100"), 100L);
-				put(Zeitstempel.of("2000-01-03T06:00:00+0100"), 120L);
-				put(Zeitstempel.of("2000-01-03T07:00:00+0100"), 140L);
-				put(Zeitstempel.of("2000-01-03T08:00:00+0100"), 160L);
-				put(Zeitstempel.of("2000-01-03T09:00:00+0100"), 180L);
-				// = 900
+					put(Zeitstempel.of("2000-01-03T01:00:00+0100"), 20L);
+					put(Zeitstempel.of("2000-01-03T02:00:00+0100"), 40L);
+					put(Zeitstempel.of("2000-01-03T03:00:00+0100"), 60L);
+					put(Zeitstempel.of("2000-01-03T04:00:00+0100"), 80L);
+					put(Zeitstempel.of("2000-01-03T05:00:00+0100"), 100L);
+					put(Zeitstempel.of("2000-01-03T06:00:00+0100"), 120L);
+					put(Zeitstempel.of("2000-01-03T07:00:00+0100"), 140L);
+					put(Zeitstempel.of("2000-01-03T08:00:00+0100"), 160L);
+					put(Zeitstempel.of("2000-01-03T09:00:00+0100"), 180L);
+					// = 900
 
-				put(Zeitstempel.of("2000-01-04T01:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T02:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T03:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T04:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T05:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T06:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T07:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T08:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T09:00:00+0100"), 9999L);
-			}},
-			new HashMap<>() {{
-				put(Zeitstempel.of("2000-01-01T01:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T02:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T03:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T04:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T05:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T06:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T07:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T08:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-01T09:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T01:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T02:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T03:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T04:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T05:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T06:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T07:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T08:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T09:00:00+0100"), 9999L);
+				}
+			},
+			new HashMap<>() {
+				{
+					put(Zeitstempel.of("2000-01-01T01:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T02:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T03:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T04:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T05:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T06:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T07:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T08:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-01T09:00:00+0100"), 9999L);
 
-				put(Zeitstempel.of("2000-01-02T01:00:00+0100"), 50L);
-				put(Zeitstempel.of("2000-01-02T01:30:00+0100"), 50L);
-				put(Zeitstempel.of("2000-01-02T02:00:00+0100"), 200L);
-				put(Zeitstempel.of("2000-01-02T03:00:00+0100"), 300L);
-				put(Zeitstempel.of("2000-01-02T04:00:00+0100"), 400L);
-				put(Zeitstempel.of("2000-01-02T05:00:00+0100"), 500L);
-				put(Zeitstempel.of("2000-01-02T06:00:00+0100"), 600L);
-				put(Zeitstempel.of("2000-01-02T07:00:00+0100"), 700L);
-				put(Zeitstempel.of("2000-01-02T08:00:00+0100"), 800L);
-				put(Zeitstempel.of("2000-01-02T09:00:00+0100"), 900L);
-				// = 4500
+					put(Zeitstempel.of("2000-01-02T01:00:00+0100"), 50L);
+					put(Zeitstempel.of("2000-01-02T01:30:00+0100"), 50L);
+					put(Zeitstempel.of("2000-01-02T02:00:00+0100"), 200L);
+					put(Zeitstempel.of("2000-01-02T03:00:00+0100"), 300L);
+					put(Zeitstempel.of("2000-01-02T04:00:00+0100"), 400L);
+					put(Zeitstempel.of("2000-01-02T05:00:00+0100"), 500L);
+					put(Zeitstempel.of("2000-01-02T06:00:00+0100"), 600L);
+					put(Zeitstempel.of("2000-01-02T07:00:00+0100"), 700L);
+					put(Zeitstempel.of("2000-01-02T08:00:00+0100"), 800L);
+					put(Zeitstempel.of("2000-01-02T09:00:00+0100"), 900L);
+					// = 4500
 
-				put(Zeitstempel.of("2000-01-03T01:00:00+0100"), 200L);
-				put(Zeitstempel.of("2000-01-03T02:00:00+0100"), 400L);
-				put(Zeitstempel.of("2000-01-03T03:00:00+0100"), 600L);
-				put(Zeitstempel.of("2000-01-03T04:00:00+0100"), 800L);
-				put(Zeitstempel.of("2000-01-03T05:00:00+0100"), 1000L);
-				put(Zeitstempel.of("2000-01-03T06:00:00+0100"), 1200L);
-				put(Zeitstempel.of("2000-01-03T07:00:00+0100"), 1400L);
-				put(Zeitstempel.of("2000-01-03T08:00:00+0100"), 1600L);
-				put(Zeitstempel.of("2000-01-03T09:00:00+0100"), 1800L);
-				// = 9000
+					put(Zeitstempel.of("2000-01-03T01:00:00+0100"), 200L);
+					put(Zeitstempel.of("2000-01-03T02:00:00+0100"), 400L);
+					put(Zeitstempel.of("2000-01-03T03:00:00+0100"), 600L);
+					put(Zeitstempel.of("2000-01-03T04:00:00+0100"), 800L);
+					put(Zeitstempel.of("2000-01-03T05:00:00+0100"), 1000L);
+					put(Zeitstempel.of("2000-01-03T06:00:00+0100"), 1200L);
+					put(Zeitstempel.of("2000-01-03T07:00:00+0100"), 1400L);
+					put(Zeitstempel.of("2000-01-03T08:00:00+0100"), 1600L);
+					put(Zeitstempel.of("2000-01-03T09:00:00+0100"), 1800L);
+					// = 9000
 
-				put(Zeitstempel.of("2000-01-04T01:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T02:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T03:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T04:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T05:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T06:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T07:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T08:00:00+0100"), 9999L);
-				put(Zeitstempel.of("2000-01-04T09:00:00+0100"), 9999L);
-			}}
+					put(Zeitstempel.of("2000-01-04T01:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T02:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T03:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T04:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T05:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T06:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T07:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T08:00:00+0100"), 9999L);
+					put(Zeitstempel.of("2000-01-04T09:00:00+0100"), 9999L);
+				}
+			}
 
 		));
 

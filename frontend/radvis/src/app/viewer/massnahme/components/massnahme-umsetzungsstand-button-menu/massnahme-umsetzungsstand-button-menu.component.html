@@ -17,8 +17,7 @@
   *ngIf="!isMenuItem"
   [matMenuTriggerFor]="umsetzungsstandMenu"
   [disabled]="loading"
-  class="menu-open-button"
->
+  class="menu-open-button">
   <ng-container *ngIf="!loading; else spinner">
     <span class="button-label">
       Umsetzungsstandsabfrage

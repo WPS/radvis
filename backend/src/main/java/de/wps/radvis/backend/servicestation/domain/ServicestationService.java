@@ -28,9 +28,7 @@ import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
-@Transactional
 public class ServicestationService extends AbstractVersionierteEntityService<Servicestation> {
 
 	private final BenutzerResolver benutzerResolver;

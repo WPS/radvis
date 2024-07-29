@@ -60,7 +60,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -71,9 +71,9 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerI
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ManuellerImportFehlerursache;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklasseImportSession;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.domain.entity.NetzklassenImportSessionTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -123,7 +123,7 @@ class ManuellerNetzklassenImportServiceTest {
 	ShapeFileRepository shapeFileRepository;
 
 	@BeforeEach
-	void setup() throws GeometryTypeMismatchException, IOException, ZipFileRequiredFilesMissingException {
+	void setup() throws GeometryTypeMismatchException, IOException, ShapeZipInvalidException {
 		MockitoAnnotations.openMocks(this);
 		manuellerNetzklassenImportUebernahmeService = new ManuellerNetzklassenImportUebernahmeService(netzService,
 			entityManager);
@@ -141,7 +141,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 	@Test
 	void testImportNetzklassen_korrekteZip_lineStringsWerdenAusgelesenUndAnhandDesOrganisationsbereichesGefiltert()
-		throws IOException, ZipFileRequiredFilesMissingException,
+		throws IOException, ShapeZipInvalidException,
 		ShapeProjectionException {
 		// arrange
 		SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(
@@ -175,7 +175,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 		when(manuellerNetzklassenImportAbbildungsService.findKantenFromLineStrings(any(),
 			eq(netzklasseImportSession.getOrganisation()))).thenReturn(
-			new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(Set.of(11L, 22L, 33L), Set.of()));
+				new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(Set.of(11L, 22L, 33L), Set.of()));
 
 		// act
 		manuellerNetzklassenImportService.runAutomatischeAbbildung(netzklasseImportSession, new File(""));
@@ -197,7 +197,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 	@Test
 	void testImportNetzklassen_1emptyGeometry_1valid()
-		throws IOException, ZipFileRequiredFilesMissingException,
+		throws IOException, ShapeZipInvalidException,
 		ShapeProjectionException {
 		// arrange
 		SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(
@@ -225,7 +225,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 		when(manuellerNetzklassenImportAbbildungsService.findKantenFromLineStrings(any(),
 			eq(netzklasseImportSession.getOrganisation()))).thenReturn(
-			new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(Set.of(22L), Set.of()));
+				new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(Set.of(22L), Set.of()));
 
 		// act
 		manuellerNetzklassenImportService.runAutomatischeAbbildung(netzklasseImportSession, new File(""));
@@ -301,7 +301,7 @@ class ManuellerNetzklassenImportServiceTest {
 			.forBenutzer(benutzer).organisation(organisation).netzklasse(Netzklasse.RADVORRANGROUTEN).build();
 		when(manuellerNetzklassenImportAbbildungsService.findKantenFromLineStrings(any(),
 			eq(netzklasseImportSession.getOrganisation()))).thenReturn(
-			new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(Set.of(11L, 22L, 33L), Set.of()));
+				new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(Set.of(11L, 22L, 33L), Set.of()));
 
 		// act
 		manuellerNetzklassenImportService.runAutomatischeAbbildung(netzklasseImportSession, new File(""));
@@ -316,7 +316,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 	@Test
 	void testRunAutomatischeAbbildung_RequireViolation_aufSessionGeschrieben()
-		throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+		throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		File testLineStringsFile = new File("src/test/resources/shp/Bodenseekreis_Kreisnetz.zip");
 
@@ -363,7 +363,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 		// act + assert
 		assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessage("Eine Session darf nur nach der Bearbeitung der Abbildung und nur einmal ausgeführt werden");
 	}
 
@@ -380,7 +380,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 		// act + assert
 		assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessage("Die Session wird bereits ausgeführt!");
 	}
 
@@ -397,7 +397,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 		// act + assert
 		assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessage("Eine Session darf nur nach der Bearbeitung der Abbildung und nur einmal ausgeführt werden");
 	}
 
@@ -596,7 +596,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 			// act
 			assertThatThrownBy(() -> manuellerNetzklassenImportService.runUpdate(session)).isInstanceOf(
-					OptimisticLockException.class)
+				OptimisticLockException.class)
 				.hasMessage(
 					"Kanten in der Organisation wurden während des Speicherns aus einer anderen Quelle verändert."
 						+ " Bitte versuchen Sie es erneut.");
@@ -632,7 +632,7 @@ class ManuellerNetzklassenImportServiceTest {
 	}
 
 	@Test
-	void noFeatures_warn() throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+	void noFeatures_warn() throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		when(shapeZipServiceMock.unzip(any())).thenReturn(new File(""));
 		when(shapeZipServiceMock.getShapeFileFromDirectory(any())).thenReturn(Optional.of(new File("")));
@@ -652,7 +652,7 @@ class ManuellerNetzklassenImportServiceTest {
 	}
 
 	@Test
-	void noFeaturesInBereich_warn() throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+	void noFeaturesInBereich_warn() throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		when(shapeZipServiceMock.unzip(any())).thenReturn(new File(""));
 		when(shapeZipServiceMock.getShapeFileFromDirectory(any())).thenReturn(Optional.of(new File("")));
@@ -678,7 +678,7 @@ class ManuellerNetzklassenImportServiceTest {
 
 	@Test
 	void filterZustaendigkeitsbereich()
-		throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+		throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		when(shapeZipServiceMock.unzip(any())).thenReturn(new File(""));
 		when(shapeZipServiceMock.getShapeFileFromDirectory(any())).thenReturn(Optional.of(new File("")));
@@ -799,10 +799,10 @@ class ManuellerNetzklassenImportServiceTest {
 
 		when(manuellerNetzklassenImportAbbildungsService.findKantenFromLineStrings(any(),
 			eq(netzklasseImportSession.getOrganisation()))).thenReturn(
-			new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(
-				Set.of(),
-				Set.of(
-					GeometryTestdataProvider.createLineString(new Coordinate(99, 99), new Coordinate(110, 110)))));
+				new ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis(
+					Set.of(),
+					Set.of(
+						GeometryTestdataProvider.createLineString(new Coordinate(99, 99), new Coordinate(110, 110)))));
 
 		// act
 		manuellerNetzklassenImportService.runAutomatischeAbbildung(netzklasseImportSession, new File(""));

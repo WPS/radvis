@@ -12,13 +12,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 import { HttpClient } from '@angular/common/http';
-import { deepEqual, instance, mock, when } from 'ts-mockito';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
-import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitereKartenebeneTyp';
-import { fakeAsync, tick } from '@angular/core/testing';
+import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene-typ';
+import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
+import { deepEqual, instance, mock, when } from 'ts-mockito';
 
 describe(WeitereKartenebenenService.name, () => {
   let service: WeitereKartenebenenService;

@@ -26,7 +26,7 @@ import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equal-values-from-form';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
@@ -204,12 +204,12 @@ export class KantenFahrtrichtungEditorComponent implements DiscardableComponent,
 
     const selectedFahrtrichtungen: GenericRichtung[] = [];
     selektion.forEach((kantenSelektion, kantenIndex) => {
-      if (kantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)) {
+      if (kantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)) {
         selectedFahrtrichtungen.push({
           richtung: this.currentFahrtrichtungAttributGruppen[kantenIndex].fahrtrichtungLinks,
         });
       }
-      if (kantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)) {
+      if (kantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)) {
         selectedFahrtrichtungen.push({
           richtung: this.currentFahrtrichtungAttributGruppen[kantenIndex].fahrtrichtungRechts,
         });
@@ -225,13 +225,13 @@ export class KantenFahrtrichtungEditorComponent implements DiscardableComponent,
         gruppe => gruppe.id === kantenSelektion.kante.fahrtrichtungAttributGruppe.id
       ) as FahrtrichtungAttributGruppe;
 
-      if (kantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)) {
+      if (kantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)) {
         const { richtung } = readEqualValuesFromForm(this.displayedAttributeformGroup);
         if (richtung) {
           attributGruppeToChange.fahrtrichtungLinks = richtung;
         }
       }
-      if (kantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)) {
+      if (kantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)) {
         const { richtung } = readEqualValuesFromForm(this.displayedAttributeformGroup);
         if (richtung) {
           attributGruppeToChange.fahrtrichtungRechts = richtung;

@@ -54,15 +54,15 @@ describe(ManualRoutingService.name, () => {
       });
     });
 
-    describe(ManualRoutingService.prototype.openManualEditorTransformation.name, () => {
+    describe(ManualRoutingService.prototype.openManualImportTransformation.name, () => {
       beforeEach(() => {
-        manualRoutingService.openManualEditorTransformation();
+        manualRoutingService.openManualImportTransformation();
       });
 
       it('should create url with manual url', () => {
         verify(
           router.createUrlTree(
-            deepEqual([ManualRoutingService.MANUAL_EDITOR_URL]),
+            deepEqual([ManualRoutingService.MANUAL_IMPORT_URL]),
             deepEqual({ fragment: 'transformation' })
           )
         ).once();

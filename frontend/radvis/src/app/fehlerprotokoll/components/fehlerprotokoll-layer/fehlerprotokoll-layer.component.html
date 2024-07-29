@@ -13,8 +13,5 @@
   -->
 
 <rad-fehlerprotokoll-detail-view
-  *ngIf="selectedFeature"
   [canCreateAnpassungswunsch]="canCreateAnpassungswunsch"
-  [selectedFeature]="selectedFeature"
-  (closePopup)="onCloseDetailView()"
-></rad-fehlerprotokoll-detail-view>
+  (closePopup)="onCloseDetailView()"></rad-fehlerprotokoll-detail-view>

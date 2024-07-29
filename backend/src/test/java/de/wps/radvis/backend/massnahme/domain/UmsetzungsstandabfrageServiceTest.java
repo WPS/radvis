@@ -51,8 +51,8 @@ import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
@@ -62,7 +62,6 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class UmsetzungsstandabfrageServiceTest {
 	@Mock
@@ -122,7 +121,6 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme1, benutzer);
@@ -131,7 +129,6 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.zustaendiger(organisation)
 			.build();
@@ -149,7 +146,6 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(4L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.UMGESETZT)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.zustaendiger(organisation)
 			.build();
@@ -158,11 +154,11 @@ class UmsetzungsstandabfrageServiceTest {
 		Massnahme nichtBetroffeneMassnahme3 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(5L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstatus(Umsetzungsstatus.STORNIERT)
-			.umsetzungsstand(new Umsetzungsstand())
+			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(nichtBetroffeneMassnahme3, benutzer);
+		nichtBetroffeneMassnahme3.stornieren(benutzer, LocalDateTime.now());
 
 		List<Long> massnahmeIds = List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId(),
 			nichtBetroffeneMassnahme1.getId(),
@@ -200,19 +196,18 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(benutzer));
+				.thenReturn(List.of(benutzer));
 
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme1, benutzer);
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1));
+				Stream.of(betroffeneMassnahme1));
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
@@ -239,13 +234,12 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(verwaltungseinheit)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(radwegeErfasserin));
+				.thenReturn(List.of(radwegeErfasserin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(verwaltungseinheit)))
 			.thenReturn(List.of(kreiskoordinatorin));
 
@@ -253,7 +247,7 @@ class UmsetzungsstandabfrageServiceTest {
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1));
+				Stream.of(betroffeneMassnahme1));
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
@@ -295,13 +289,12 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(gemeinde)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(radwegeErfasserin));
+				.thenReturn(List.of(radwegeErfasserin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde)))
 			.thenReturn(List.of());
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(kreis)))
@@ -309,7 +302,7 @@ class UmsetzungsstandabfrageServiceTest {
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1));
+				Stream.of(betroffeneMassnahme1));
 
 		when(verwaltungseinheitService.istUebergeordnet(any(), any())).thenReturn(true);
 
@@ -359,23 +352,21 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(mitRadwegeErfasserin)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(ohneRadwegeerfasserin)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(radwegeErfasserin));
+				.thenReturn(List.of(radwegeErfasserin));
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme2)))
-			.thenReturn(List.of());
+				.thenReturn(List.of());
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(mitRadwegeErfasserin)))
 			.thenReturn(List.of(kreiskoordinatorin));
 
@@ -383,7 +374,7 @@ class UmsetzungsstandabfrageServiceTest {
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
+				Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
@@ -452,23 +443,21 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1001L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(gemeinde1)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(1002L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(gemeinde2)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(radwegeErfasserin1));
+				.thenReturn(List.of(radwegeErfasserin1));
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme2)))
-			.thenReturn(List.of(radwegeErfasserin2));
+				.thenReturn(List.of(radwegeErfasserin2));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde1)))
 			.thenReturn(List.of(kreiskoordinatorinGemeinde1));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde2)))
@@ -478,7 +467,7 @@ class UmsetzungsstandabfrageServiceTest {
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
+				Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
@@ -529,12 +518,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.name("verwaltungseinheit")
 			.id(100L)
 			.build();
-		Verwaltungseinheit verwaltungseinheitOhneBenutzerMitMassnahme = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit verwaltungseinheitOhneBenutzerMitMassnahme = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("verwaltungseinheitOhneBenutzerMitMassnahme")
 
 			.id(101L)
 			.build();
-		Verwaltungseinheit verwaltungseinheitMitBenutzerOhneMassnahme = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit verwaltungseinheitMitBenutzerOhneMassnahme = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("verwaltungseinheitMitBenutzerOhneMassnahme")
 
 			.id(103L)
@@ -543,14 +534,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.vorname(Name.of("radwegeErfasserin"))
 			.build();
 		Benutzer radwegeErfasserinOhneMassnahme = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(
-				verwaltungseinheitMitBenutzerOhneMassnahme).id(2L)
+			verwaltungseinheitMitBenutzerOhneMassnahme).id(2L)
 			.vorname(Name.of("radwegeErfasserinOhneMassnahme"))
 			.build();
 		Benutzer kreiskoordinatorin = BenutzerTestDataProvider.kreiskoordinator(verwaltungseinheit).id(3L)
 			.vorname(Name.of("kreiskoordinatorin"))
 			.build();
 		Benutzer kreiskoordinatorinOhneMassnahme = BenutzerTestDataProvider.kreiskoordinator(
-				verwaltungseinheitMitBenutzerOhneMassnahme).id(4L)
+			verwaltungseinheitMitBenutzerOhneMassnahme).id(4L)
 			.vorname(Name.of("kreiskoordinatorinOhneMassnahme"))
 			.build();
 
@@ -558,7 +549,6 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(verwaltungseinheit)
 			.build();
 
@@ -566,24 +556,23 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(verwaltungseinheitOhneBenutzerMitMassnahme)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(radwegeErfasserin));
+				.thenReturn(List.of(radwegeErfasserin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(verwaltungseinheit)))
 			.thenReturn(List.of(kreiskoordinatorin));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(
 			eq(verwaltungseinheitMitBenutzerOhneMassnahme)))
-			.thenReturn(List.of(kreiskoordinatorinOhneMassnahme));
+				.thenReturn(List.of(kreiskoordinatorinOhneMassnahme));
 
 		when(verwaltungseinheitService.istUebergeordnet(any(), any())).thenReturn(true);
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
+				Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
@@ -649,13 +638,12 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1001L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(gemeinde)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(radwegeErfasserin1));
+				.thenReturn(List.of(radwegeErfasserin1));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(gemeinde)))
 			.thenReturn(List.of(kreiskoordinatorinGemeinde));
 		when(massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(eq(kreis)))
@@ -692,25 +680,23 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 				or(eq(betroffeneMassnahme1), eq(betroffeneMassnahme2))))
-			.thenReturn(List.of(benutzer));
+					.thenReturn(List.of(benutzer));
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId()))))
-			.thenReturn(Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
+				.thenReturn(Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
@@ -742,21 +728,19 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 				or(eq(betroffeneMassnahme1), eq(betroffeneMassnahme2))))
-			.thenReturn(List.of(benutzer1, benutzer2));
+					.thenReturn(List.of(benutzer1, benutzer2));
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(List.of(1L, 2L))))
 			.thenReturn(Stream.of(betroffeneMassnahme1, betroffeneMassnahme2));
@@ -782,14 +766,12 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 		Massnahme betroffeneMassnahme2 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(2L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 
@@ -799,7 +781,7 @@ class UmsetzungsstandabfrageServiceTest {
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 				or(eq(betroffeneMassnahme1), eq(betroffeneMassnahme2))))
-			.thenReturn(Collections.emptyList());
+					.thenReturn(Collections.emptyList());
 
 		// act
 		umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(1L, 2L));
@@ -819,18 +801,17 @@ class UmsetzungsstandabfrageServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(betroffeneMassnahme1, nichtRadwegeErfasserin);
 
 		when(
 			massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(eq(betroffeneMassnahme1)))
-			.thenReturn(List.of(nichtRadwegeErfasserin));
+				.thenReturn(List.of(nichtRadwegeErfasserin));
 
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(
 			eq(List.of(betroffeneMassnahme1.getId())))).thenReturn(
-			Stream.of(betroffeneMassnahme1));
+				Stream.of(betroffeneMassnahme1));
 
 		// act
 		umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(List.of(betroffeneMassnahme1.getId()));
@@ -876,8 +857,8 @@ class UmsetzungsstandabfrageServiceTest {
 		List<Massnahme> alle = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
 			List<Massnahme> mlist = new ArrayList<>();
-			for (int j = i * postgisConfigurationProperties.getArgumentLimit();
-				 j < (i + 1) * postgisConfigurationProperties.getArgumentLimit(); j++) {
+			for (int j = i * postgisConfigurationProperties.getArgumentLimit(); j < (i + 1)
+				* postgisConfigurationProperties.getArgumentLimit(); j++) {
 				Massnahme m = MassnahmeTestDataProvider.withDefaultValues().id((long) j).build();
 				mlist.add(m);
 				allIndices.add((long) j);

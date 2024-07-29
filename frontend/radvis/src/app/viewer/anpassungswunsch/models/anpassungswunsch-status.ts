@@ -28,29 +28,27 @@ export enum AnpassungswunschStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AnpassungswunschStatus {
-  export const options: EnumOption[] = Object.keys(AnpassungswunschStatus).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case AnpassungswunschStatus.OFFEN:
-          return { name: k, displayText: 'Offen' };
-        case AnpassungswunschStatus.ERLEDIGT:
-          return { name: k, displayText: 'Erledigt' };
-        case AnpassungswunschStatus.KLAERUNGSBEDARF:
-          return { name: k, displayText: 'Klärungsbedarf' };
-        case AnpassungswunschStatus.KORRIGIERT:
-          return { name: k, displayText: 'Im Drittsystem korrigiert' };
-        case AnpassungswunschStatus.NACHBEARBEITUNG:
-          return { name: k, displayText: 'In Nachbearbeitung' };
-        case AnpassungswunschStatus.ABGELEHNT:
-          return { name: k, displayText: 'Abgelehnt' };
-        case AnpassungswunschStatus.ZURUECKGEZOGEN:
-          return { name: k, displayText: 'Zurückgezogen' };
-        case AnpassungswunschStatus.UMGESETZT:
-          return { name: k, displayText: 'Umgesetzt' };
-      }
-      throw new Error('Beschreibung für enum AnpassungswunschStatus fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(AnpassungswunschStatus).map((k: string): EnumOption => {
+    switch (k) {
+      case AnpassungswunschStatus.OFFEN:
+        return { name: k, displayText: 'Offen' };
+      case AnpassungswunschStatus.ERLEDIGT:
+        return { name: k, displayText: 'Erledigt' };
+      case AnpassungswunschStatus.KLAERUNGSBEDARF:
+        return { name: k, displayText: 'Klärungsbedarf' };
+      case AnpassungswunschStatus.KORRIGIERT:
+        return { name: k, displayText: 'Im Drittsystem korrigiert' };
+      case AnpassungswunschStatus.NACHBEARBEITUNG:
+        return { name: k, displayText: 'In Nachbearbeitung' };
+      case AnpassungswunschStatus.ABGELEHNT:
+        return { name: k, displayText: 'Abgelehnt' };
+      case AnpassungswunschStatus.ZURUECKGEZOGEN:
+        return { name: k, displayText: 'Zurückgezogen' };
+      case AnpassungswunschStatus.UMGESETZT:
+        return { name: k, displayText: 'Umgesetzt' };
     }
-  );
+    throw new Error('Beschreibung für enum AnpassungswunschStatus fehlt: ' + k);
+  });
 
   export const displayTextOf: (anpassungswunschStatus: AnpassungswunschStatus) => string = (
     anpassungswunschStatus: AnpassungswunschStatus

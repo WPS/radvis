@@ -37,6 +37,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
@@ -62,12 +63,12 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.netz.schnittstelle.command.KnotenNetzbezugCommand;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.PunktuellerKantenSeitenBezugCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SeitenabschnittsKantenBezugCommand;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class SaveMassnahmeCommandConverterTest {
 
@@ -106,8 +107,8 @@ class SaveMassnahmeCommandConverterTest {
 		when(verwaltungseinheitResolver.resolve(testOrganisation2.getId())).thenReturn(testOrganisation2);
 
 		when(benutzerresolver.fromAuthentication(any())).thenReturn(testBenutzer);
-		commandConverter = new SaveMassnahmeCommandConverter(kanteResolver, verwaltungseinheitResolver,
-			benutzerresolver, knotenResolver);
+		commandConverter = new SaveMassnahmeCommandConverter(kanteResolver, knotenResolver, verwaltungseinheitResolver,
+			benutzerresolver);
 		domainPublisherMock = mockStatic(RadVisDomainEventPublisher.class);
 	}
 

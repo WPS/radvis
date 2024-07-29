@@ -31,8 +31,8 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
-import { defaultNetzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug-test-data-provider.spec';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anyString, anything, capture, instance, mock, verify, when } from 'ts-mockito';

@@ -78,6 +78,7 @@ public class Dokument extends AbstractEntity {
 	}
 
 	public static boolean isValid(byte[] fileContent) {
-		return fileContent.length < 100_000_000;
+		// Wir arbeiten in MiB, damit es zum FE passt
+		return fileContent.length <= 100 * 1024 * 1024;
 	}
 }

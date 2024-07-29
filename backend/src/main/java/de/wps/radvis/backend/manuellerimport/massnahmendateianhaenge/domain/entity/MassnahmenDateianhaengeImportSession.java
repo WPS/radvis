@@ -14,8 +14,9 @@
 
 package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.entity;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.locationtech.jts.geom.MultiPolygon;
 
@@ -30,9 +31,28 @@ import lombok.NonNull;
 import lombok.Setter;
 
 public class MassnahmenDateianhaengeImportSession extends AbstractImportSession {
+	public static class CsvHeader {
+		public static final String ORDNERNAME = "Maßnahme-ID / Ordnername";
+		public static final String ORDNERSTATUS = "Zuordnung-Status";
+		public static final String HINWEIS = "Hinweis";
+		public static final String DATEINAME = "Dateiname";
+		public static final String DATEI_DUPLIKAT = "Datei ist Duplikat";
+		public static final String DATEI_AUSGEWAEHLT = "für Import ausgewählt";
+		public static final String DATEI_IMPORTIERT = "Datei importiert";
+		public static final List<String> ALL = List.of(
+			ORDNERNAME,
+			ORDNERSTATUS,
+			HINWEIS,
+			DATEINAME,
+			DATEI_DUPLIKAT,
+			DATEI_AUSGEWAEHLT,
+			DATEI_IMPORTIERT);
+	}
+
 	public final static ImportSessionSchritt DATEI_HOCHLADEN = ImportSessionSchritt.of(1);
 	public final static ImportSessionSchritt FEHLER_UEBERPRUEFEN = ImportSessionSchritt.of(2);
 	public final static ImportSessionSchritt DUPLIKATE_UEBERPRUEFEN = ImportSessionSchritt.of(3);
+	public final static ImportSessionSchritt FEHLERPROTOKOLL_HERUNTERLADEN = ImportSessionSchritt.of(4);
 
 	@Getter
 	private final MultiPolygon bereich;
@@ -51,7 +71,7 @@ public class MassnahmenDateianhaengeImportSession extends AbstractImportSession 
 
 	@Getter
 	@Setter
-	private List<MassnahmenDateianhaengeImportZuordnung> zuordnungen;
+	private Map<String, MassnahmenDateianhaengeImportZuordnung> zuordnungen;
 
 	@Builder
 	public MassnahmenDateianhaengeImportSession(
@@ -63,7 +83,7 @@ public class MassnahmenDateianhaengeImportSession extends AbstractImportSession 
 		SollStandard sollStandard) {
 		super(benutzer);
 		this.konzeptionsquelle = konzeptionsquelle;
-		this.zuordnungen = new ArrayList<>();
+		this.zuordnungen = new HashMap<>();
 		this.bereich = bereich;
 		this.bereichName = bereichName;
 		this.gebietskoerperschaftenIds = gebietskoerperschaftenIds;

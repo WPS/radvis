@@ -38,8 +38,6 @@ export class AuswertungService {
     belagart: BelagArt | '';
     fuehrung: Radverkehrsfuehrung | '';
   }): Promise<number> {
-    return this.http
-      .get<number>(`${this.auswertungApi}`, { params })
-      .toPromise();
+    return this.http.get<number>(`${this.auswertungApi}`, { params }).toPromise();
   }
 }

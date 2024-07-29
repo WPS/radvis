@@ -14,15 +14,20 @@
 
 package de.wps.radvis.backend.organisation;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
@@ -30,7 +35,8 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.WahlkreisRepository;
 import de.wps.radvis.backend.organisation.domain.WahlkreisService;
-import de.wps.radvis.backend.organisation.schnittstelle.repositoryImpl.OrganisationenImportRepositoryImpl;
+import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitImportRepositoryFactory;
+import jakarta.annotation.Nonnull;
 import lombok.NonNull;
 
 @Configuration
@@ -52,20 +58,41 @@ public class OrganisationConfiguration {
 	@Autowired
 	private WahlkreisRepository wahlkreisRepository;
 
-	public OrganisationConfiguration(@NonNull GeoConverterConfiguration geoConverterConfiguration) {
+	private final CommonConfigurationProperties commonConfigurationProperties;
+
+	private OrganisationConfigurationProperties organisationConfigurationProperties;
+
+	public OrganisationConfiguration(@NonNull GeoConverterConfiguration geoConverterConfiguration,
+		@NonNull CommonConfigurationProperties commonConfigurationProperties,
+		@Nonnull OrganisationConfigurationProperties organisationConfigurationProperties) {
+		this.organisationConfigurationProperties = organisationConfigurationProperties;
+		this.commonConfigurationProperties = commonConfigurationProperties;
 		this.geoConverterConfiguration = geoConverterConfiguration;
 	}
 
 	@Bean
+	@Lazy
 	public VerwaltungseinheitImportRepository organisationenImportRepository() {
-		return new OrganisationenImportRepositoryImpl(geoConverterConfiguration.coordinateReferenceSystemConverter());
+		File verwaltungsgrenzenShapeFileRoot = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
+			organisationConfigurationProperties.getVerwaltungsgrenzenShapeFilesPath());
+		return verwaltungseinheitImportRepositoryFactory().getImportRepository(verwaltungsgrenzenShapeFileRoot);
+	}
+
+	@Bean
+	public VerwaltungseinheitImportRepositoryFactory verwaltungseinheitImportRepositoryFactory() {
+		return new VerwaltungseinheitImportRepositoryFactory(
+			geoConverterConfiguration.coordinateReferenceSystemConverter(),
+			commonConfigurationProperties.getObersteGebietskoerperschaftOrganisationsArt(),
+			commonConfigurationProperties.getObersteGebietskoerperschaftName());
 	}
 
 	@Bean
 	@Primary
 	public VerwaltungseinheitService verwaltungseinheitService() {
 		return new VerwaltungseinheitService(verwaltungseinheitRepository, gebietskoerperschaftRepository,
-			organisationRepository);
+			organisationRepository, commonConfigurationProperties.getObersteGebietskoerperschaftOrganisationsArt(),
+			commonConfigurationProperties.getObersteGebietskoerperschaftName());
 	}
 
 	@Bean

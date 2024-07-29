@@ -40,17 +40,14 @@
     </span>
   </div>
   <div *ngIf="isExecutable && !fetchingFeatures" class="import-step-footer-buttons">
-    <button [disabled]="isExecuting" mat-flat-button color="primary" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">
-      Zurück
-    </button>
+    <button [disabled]="isExecuting" mat-stroked-button color="primary" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
     <button
       [disabled]="fetchingFeatures || isExecuting"
       mat-flat-button
       color="primary"
       (click)="onExecute()"
-      class="weiter-button"
-    >
+      class="weiter-button">
       Speichern
     </button>
   </div>
@@ -65,7 +62,6 @@
   <rad-import-netzklasse-abschliessen-layer
     *ngIf="session"
     [alleFeatures]="features"
-    [kanteIdsMitNetzklasse]="kanteIdsMitNetzklasse"
-  >
+    [kanteIdsMitNetzklasse]="kanteIdsMitNetzklasse">
   </rad-import-netzklasse-abschliessen-layer>
 </ng-container>

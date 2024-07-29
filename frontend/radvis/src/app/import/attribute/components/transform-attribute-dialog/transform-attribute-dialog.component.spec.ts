@@ -55,21 +55,19 @@ describe(TransformAttributeDialogComponent.name, () => {
     }).compileComponents();
   });
 
-  beforeEach(
-    waitForAsync(() => {
-      fixture = TestBed.createComponent(TransformAttributeDialogComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    fixture = TestBed.createComponent(TransformAttributeDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
-  describe(TransformAttributeDialogComponent.prototype.openManualEditorTransformation.name, () => {
+  describe(TransformAttributeDialogComponent.prototype.openManualImportTransformation.name, () => {
     beforeEach(() => {
-      component.openManualEditorTransformation();
+      component.openManualImportTransformation();
     });
 
     it('should invoke openManualTransformation', () => {
-      verify(manualRoutingService.openManualEditorTransformation()).once();
+      verify(manualRoutingService.openManualImportTransformation()).once();
       expect().nothing();
     });
   });

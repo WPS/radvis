@@ -13,14 +13,13 @@
   -->
 
 <mat-label>
-  <ng-content select=".ueberschrift"></ng-content>
+  <ng-content></ng-content>
 </mat-label>
 <mat-chip-listbox class="mt-8" *ngIf="selectedOrganisationen.length > 0">
   <mat-chip-option
     [selectable]="false"
     *ngFor="let org of selectedOrganisationen"
-    (removed)="onOrganisationRemoved(org)"
-  >
+    (removed)="onOrganisationRemoved(org)">
     {{ org | organisation }}
     <mat-icon
       matChipRemove
@@ -33,20 +32,18 @@
 </mat-chip-listbox>
 <mat-form-field class="w-100 form-field">
   <mat-label>
-    <ng-content select=".beschreibung"></ng-content>
+    {{ selectedOrganisationen.length > 0 ? 'Weitere Gebietskörperschaften...' : 'Gebietskörperschaft auswählen...' }}
   </mat-label>
   <input
     matInput
     [matAutocomplete]="auto"
     [formControl]="formControl"
     #trigger="matAutocompleteTrigger"
-    (click)="onClick($event, trigger)"
-  />
+    (click)="onClick($event, trigger)" />
   <mat-autocomplete
     #auto="matAutocomplete"
     [displayWith]="organisationDisplayName"
-    (optionSelected)="onOptionSelected($event)"
-  >
+    (optionSelected)="onOptionSelected($event)">
     <mat-option *ngFor="let option of filteredOptions" [value]="option">
       {{ option | organisation }}
     </mat-option>

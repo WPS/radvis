@@ -105,7 +105,7 @@ public class FahrradrouteGuard {
 
 		List<Kante> kantenAbschnitte = netzService.getKanten(kantenIdSet);
 		if (!zustaendigkeitsService.anyInZustaendigkeitsbereich(aktiverBenutzer, kantenAbschnitte.stream())) {
-			throw new AccessDeniedException("Es liegt keine Kante oder Knoten in Ihrem Zuständigkeitsbereich.");
+			throw new AccessDeniedException("Die Fahrradroute liegt nicht in Ihrem Zuständigkeitsbereich.");
 		}
 	}
 
@@ -119,9 +119,7 @@ public class FahrradrouteGuard {
 			.map(AbschnittsweiserKantenBezug::getKante);
 
 		return aktiverBenutzer.hatRecht(Recht.RADROUTEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN) &&
-			(
-				fahrradrouteKantenAbschnitte.isEmpty() ||
-					zustaendigkeitsService.anyInZustaendigkeitsbereich(aktiverBenutzer, kantenAbschnitte)
-			);
+			(fahrradrouteKantenAbschnitte.isEmpty() ||
+				zustaendigkeitsService.anyInZustaendigkeitsbereich(aktiverBenutzer, kantenAbschnitte));
 	}
 }

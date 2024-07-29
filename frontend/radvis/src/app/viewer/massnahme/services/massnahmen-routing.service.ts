@@ -16,15 +16,9 @@ import { Injectable } from '@angular/core';
 import { Route, Router } from '@angular/router';
 import { discardGuard } from 'src/app/shared/services/discard.guard';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
-import {
-  KommentarListeComponent,
-} from 'src/app/viewer/kommentare/components/kommentar-liste/kommentar-liste.component';
-import {
-  MassnahmenUmsetzungsstandComponent,
-} from 'src/app/viewer/massnahme/components/massnahme-umsetzungsstand/massnahmen-umsetzungsstand.component';
-import {
-  MassnahmenAttributeEditorComponent,
-} from 'src/app/viewer/massnahme/components/massnahmen-attribute-editor/massnahmen-attribute-editor.component';
+import { KommentarListeComponent } from 'src/app/viewer/kommentare/components/kommentar-liste/kommentar-liste.component';
+import { MassnahmenUmsetzungsstandComponent } from 'src/app/viewer/massnahme/components/massnahme-umsetzungsstand/massnahmen-umsetzungsstand.component';
+import { MassnahmenAttributeEditorComponent } from 'src/app/viewer/massnahme/components/massnahmen-attribute-editor/massnahmen-attribute-editor.component';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { massnahmeDokumentListeResolver } from 'src/app/viewer/massnahme/services/massnahme-dokument-liste.resolver';
 import { massnahmeKommentarListeResolver } from 'src/app/viewer/massnahme/services/massnahme-kommentar-liste.resolver';
@@ -32,9 +26,7 @@ import { massnahmeResolver } from 'src/app/viewer/massnahme/services/massnahme.r
 import { umsetzungsstandGuard } from 'src/app/viewer/massnahme/services/umsetzungsstand.guard';
 import { umsetzungsstandResolver } from 'src/app/viewer/massnahme/services/umsetzungsstand.resolver';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
-import {
-  AbstractInfrastrukturenRoutingService,
-} from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
+import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -79,7 +71,8 @@ export class MassnahmenRoutingService extends AbstractInfrastrukturenRoutingServ
         component: KommentarListeComponent,
         canDeactivate: [discardGuard],
         resolve: { [KommentarListeComponent.KOMMENTARLISTE_DATA_KEY]: massnahmeKommentarListeResolver },
-      }];
+      },
+    ];
   }
 
   public getCreatorRoute(): string {
@@ -104,13 +97,16 @@ export class MassnahmenRoutingService extends AbstractInfrastrukturenRoutingServ
   }
 
   public toUmsetzungstandEditor(id: number): void {
-    const umsetzungstandEditorRoute = [...super.getInfrastrukturenEditorRoute(id), MassnahmenRoutingService.UMSETZUNGSSTAND];
+    const umsetzungstandEditorRoute = [
+      ...super.getInfrastrukturenEditorRoute(id),
+      MassnahmenRoutingService.UMSETZUNGSSTAND,
+    ];
     this.router.navigate(umsetzungstandEditorRoute, {
       queryParamsHandling: 'merge',
     });
   }
 
   private getActiveSubroute(): string | null {
-    return (new RegExp(`${this.infrastrukturArt.pathElement}/\\d+/(.*?)($|\\?)`).exec(this.router.url))?.[1] || null;
+    return new RegExp(`${this.infrastrukturArt.pathElement}/\\d+/(.*?)($|\\?)`).exec(this.router.url)?.[1] || null;
   }
 }

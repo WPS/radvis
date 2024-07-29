@@ -58,11 +58,11 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(undefined);
@@ -72,11 +72,11 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(undefined);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
@@ -86,20 +86,20 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(undefined);
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureB],
         deselected: [featureA],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureB.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(undefined);
@@ -109,20 +109,20 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(undefined);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureB],
         deselected: [featureA],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(undefined);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureB.getId() as string);
@@ -132,20 +132,20 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(undefined);
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureB],
         deselected: [featureA],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureB.getId() as string);
@@ -155,20 +155,20 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(undefined);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureB],
         deselected: [featureA],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureB.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
@@ -178,29 +178,29 @@ describe(KantenCreatorKnotenSelektionComponent.name, () => {
       const selectVonKnotenEventSpy = spyOn(component.selectVonKnoten, 'emit');
       const selectBisKnotenEventSpy = spyOn(component.selectBisKnoten, 'emit');
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: true } },
         selected: [featureA],
         deselected: [],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(undefined);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [featureB],
         deselected: [featureA],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(featureB.getId() as string);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(featureA.getId() as string);
 
-      component['onSelect'](({
+      component['onSelect']({
         mapBrowserEvent: { originalEvent: { ctrlKey: false } },
         selected: [],
         deselected: [featureA, featureB],
-      } as unknown) as SelectEvent);
+      } as unknown as SelectEvent);
 
       expect(selectVonKnotenEventSpy).toHaveBeenCalledWith(undefined);
       expect(selectBisKnotenEventSpy).toHaveBeenCalledWith(undefined);

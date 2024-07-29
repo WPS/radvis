@@ -145,11 +145,9 @@ public class DlmMatchingRepositoryImpl implements DlmMatchingRepository {
 	// Hier werden die PathDetails entlang der Geometrie des MatchResults ermittelt und mit dieser
 	// als ResponePath zusammengeführt. (Das MatchResult bietet nur einen Path, der aber keine Details enthält)
 	private ResponsePath getResponsePath(MatchResult matchResult) {
-		PathMerger pathMerger = new PathMerger(matchResult.getGraph(), matchResult.getWeighting()).
-			setEnableInstructions(false).
-			setPathDetailsBuilders(graphHopper.getPathDetailsBuilderFactory(),
-				List.of(Parameters.Details.EDGE_ID)).
-			setSimplifyResponse(false);
+		PathMerger pathMerger = new PathMerger(matchResult.getGraph(), matchResult.getWeighting())
+			.setEnableInstructions(false).setPathDetailsBuilders(graphHopper.getPathDetailsBuilderFactory(),
+				List.of(Parameters.Details.EDGE_ID)).setSimplifyResponse(false);
 		return pathMerger
 			.doWork(PointList.EMPTY, Collections.singletonList(matchResult.getMergedPath()),
 				graphHopper.getEncodingManager(), null);

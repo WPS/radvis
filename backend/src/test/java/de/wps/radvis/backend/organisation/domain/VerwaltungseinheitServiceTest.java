@@ -27,11 +27,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class VerwaltungseinheitServiceTest {
 
@@ -49,7 +49,7 @@ class VerwaltungseinheitServiceTest {
 		MockitoAnnotations.openMocks(this);
 
 		this.service = new VerwaltungseinheitService(repository, gebietskoerperschaftRepository,
-			organisationRepository);
+			organisationRepository, OrganisationsArt.BUNDESLAND, "Baden-Württemberg");
 	}
 
 	@Test
@@ -112,7 +112,8 @@ class VerwaltungseinheitServiceTest {
 	@Test
 	void testIstUebergeordnet_externeOrganisation() {
 		// arrange
-		Gebietskoerperschaft obersteVerwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft obersteVerwaltungseinheit = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Oberste Organisation").uebergeordneteOrganisation(null)
 			.id(1L).organisationsArt(OrganisationsArt.BUNDESLAND).fachId(1)
 			.build();

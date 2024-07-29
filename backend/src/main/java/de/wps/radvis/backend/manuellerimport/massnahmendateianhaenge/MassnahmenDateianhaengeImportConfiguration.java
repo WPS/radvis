@@ -19,10 +19,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.service.ZipService;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.service.ManuellerMassnahmenDateianhaengeImportService;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.schnittstelle.controller.ManuellerMassnahmenDateianhaengeImportGuard;
+import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.schnittstelle.converter.SaveMassnahmenDateianhaengeCommandConverter;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
@@ -46,10 +48,11 @@ public class MassnahmenDateianhaengeImportConfiguration {
 
 	@Bean
 	public ManuellerMassnahmenDateianhaengeImportService manuellerMassnahmenDateianhaengeImportService(
-		ZipService zipService) {
+		ZipService zipService, CsvRepository csvRepository) {
 		return new ManuellerMassnahmenDateianhaengeImportService(
 			manuellerImportService,
 			zipService,
+			csvRepository,
 			massnahmenRepository,
 			verwaltungseinheitRepository);
 	}
@@ -57,5 +60,10 @@ public class MassnahmenDateianhaengeImportConfiguration {
 	@Bean
 	public ManuellerMassnahmenDateianhaengeImportGuard manuellerMassnahmenDateianhaengeImportGuard() {
 		return new ManuellerMassnahmenDateianhaengeImportGuard(benutzerResolver, verwaltungseinheitService);
+	}
+
+	@Bean
+	public SaveMassnahmenDateianhaengeCommandConverter saveMassnahmenDateianhaengeCommandConverter() {
+		return new SaveMassnahmenDateianhaengeCommandConverter();
 	}
 }

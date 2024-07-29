@@ -17,8 +17,7 @@
     role="region"
     aria-label="Kopfleiste mit Hauptnavigation"
     aria-keyshortcuts="Control+Alt+Shift+N"
-    class="toolbar"
-  >
+    class="toolbar">
     <h1>RadVIS</h1>
     <span class="ml-5" *ngIf="isBenutzerAktiv">|</span>
     <nav class="ml-10" *ngIf="isBenutzerAktiv">
@@ -29,8 +28,7 @@
         #rlaViewer="routerLinkActive"
         [routerLinkActiveOptions]="routerLinkActiveOptions"
         [class.activated]="rlaViewer.isActive"
-        [queryParams]="viewerQueryParams$ | async"
-      >
+        [queryParams]="viewerQueryParams$ | async">
         <div class="nav-link">
           <mat-icon class="mr-3">map</mat-icon>
           Viewer
@@ -44,8 +42,7 @@
         #rlaEditor="routerLinkActive"
         [routerLinkActiveOptions]="routerLinkActiveOptions"
         [class.activated]="rlaEditor.isActive"
-        queryParamsHandling="merge"
-      >
+        queryParamsHandling="merge">
         <div class="nav-link">
           <mat-icon class="mr-3">edit</mat-icon>
           Editor
@@ -59,8 +56,7 @@
         [routerLinkActiveOptions]="routerLinkActiveOptions"
         [class.activated]="rlaImport.isActive"
         [routerLink]="importRoute"
-        queryParamsHandling="merge"
-      >
+        queryParamsHandling="merge">
         <div class="nav-link">
           <mat-icon class="mr-3">upload</mat-icon>
           Import
@@ -73,8 +69,7 @@
         [routerLinkActiveOptions]="routerLinkActiveOptions"
         [class.activated]="rlaAuswertung.isActive"
         [routerLink]="auswertungRoute"
-        queryParamsHandling="merge"
-      >
+        queryParamsHandling="merge">
         <div class="nav-link">
           <mat-icon class="mr-3">insert_chart_outlined</mat-icon>
           Auswertung
@@ -88,8 +83,7 @@
         [routerLinkActiveOptions]="routerLinkActiveOptions"
         [class.activated]="rlaRadnetzMatching.isActive"
         [routerLink]="radnetzMatchingRoute"
-        queryParamsHandling="merge"
-      >
+        queryParamsHandling="merge">
         <div class="nav-link">
           <mat-icon class="mr-3">compare_arrows</mat-icon>
           RadNETZ Matching
@@ -107,24 +101,20 @@
         canBenutzerEditBereicheOfOrganisation &&
         isOrganisationenBearbeitenToggleOn
       "
-      [attr.aria-label]="'Organisationen öffnen'"
       class="icon-toolbar"
       matTooltip="Organisationen öffnen"
       [routerLink]="administrationOrganisationRoute"
       queryParamsHandling="merge"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon>account_balance</mat-icon>
     </button>
 
     <button
       *ngIf="isBenutzerAktiv && isBenutzerOrgaUndNutzerVerwalter"
       class="icon-toolbar"
-      [attr.aria-label]="'Administration öffnen'"
       matTooltip="Administration öffnen"
       [matMenuTriggerFor]="menu"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon>settings</mat-icon>
     </button>
 
@@ -136,67 +126,54 @@
         *ngIf="isOrganisationenBearbeitenToggleOn"
         [routerLink]="administrationOrganisationRoute"
         queryParamsHandling="merge"
-        mat-menu-item
-      >
+        mat-menu-item>
         <span>Organisation</span>
       </button>
     </mat-menu>
 
     <button
       *ngIf="isBenutzerAktiv"
-      [attr.aria-label]="'Benutzerhandbuch öffnen'"
       matTooltip="Benutzerhandbuch öffnen"
       (click)="openManual()"
       mat-icon-button
-      class="icon-toolbar"
-    >
+      class="icon-toolbar">
       <mat-icon>description</mat-icon>
     </button>
 
     <button
-      [attr.aria-label]="'Informationen zu RadVIS anzeigen'"
       matTooltip="Informationen zu RadVIS anzeigen"
       (click)="openInfoDialog()"
       mat-icon-button
-      class="icon-toolbar"
-    >
+      class="icon-toolbar">
       <mat-icon>info</mat-icon>
     </button>
 
     <button
       *ngIf="isBenutzerAktiv && isVordefinierteExporteToggleOn"
-      [attr.aria-label]="'Vordefinierte Exporte öffnen'"
       matTooltip="Vordefinierte Exporte öffnen"
       (click)="openVordefinierteExporte()"
       mat-icon-button
-      class="icon-toolbar"
-    >
+      class="icon-toolbar">
       <mat-icon>download</mat-icon>
     </button>
 
     <button
       *ngIf="isBenutzerAktiv && isBasicAuthZugangsdatenVerwaltenToggleOn"
-      [attr.aria-label]="'Zugangsdaten verwalten'"
       matTooltip="Zugangsdaten verwalten"
       (click)="openVerwaltungZugangsdaten()"
       mat-icon-button
-      class="icon-toolbar"
-    >
+      class="icon-toolbar">
       <mat-icon>vpn_key</mat-icon>
     </button>
 
     <span class="benutzer-details" *ngIf="isBenutzerRegistriert">
       Angemeldet als: {{ benutzerVorname }} {{ benutzerName }}
     </span>
-    <button
-      [attr.aria-label]="'Abmelden'"
-      matTooltip="Abmelden"
-      (click)="logout()"
-      mat-icon-button
-      class="icon-toolbar"
-    >
-      <mat-icon class="ml-1">logout</mat-icon>
-    </button>
+    <form method="post" action="/logout" class="inline">
+      <button type="submit" name="submit_param" matTooltip="Abmelden" mat-icon-button>
+        <mat-icon class="ml-1">logout</mat-icon>
+      </button>
+    </form>
   </mat-toolbar>
   <rad-print-view></rad-print-view>
   <router-outlet></router-outlet>

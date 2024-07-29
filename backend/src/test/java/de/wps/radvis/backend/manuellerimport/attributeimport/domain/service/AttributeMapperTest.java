@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.manuellerimport.attributeimport.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
+import de.wps.radvis.backend.manuellerimport.attributeimport.domain.exception.AttributUebernahmeException;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.MappedAttributes;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.MappedAttributesProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -44,6 +46,8 @@ import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 
 class AttributeMapperTest {
@@ -695,7 +699,8 @@ class AttributeMapperTest {
 	}
 
 	@Test
-	void testeApplyRadverkehrsfuehrung_ohneSeitenbezug_schreibtAttributeAnRelevantesSegment() {
+	void testeApplyRadverkehrsfuehrung_ohneSeitenbezug_schreibtAttributeAnRelevantesSegment()
+		throws AttributUebernahmeException {
 		Kante kante = KanteTestDataProvider.withDefaultValues()
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -763,6 +768,72 @@ class AttributeMapperTest {
 				.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG)
 				.belagArt(BelagArt.BETON)
 				.bordstein(Bordstein.KEINE_ABSENKUNG)
+				.build()));
+	}
+
+	@Test
+	void testeApplyRadverkehrsfuehrung_inkompatibleTrennstreifenFuehrtZuException() {
+		Kante kante = KanteTestDataProvider.withDefaultValues()
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.isZweiseitig(false)
+					.fuehrungsformAttributeLinks(List.of(
+						FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 1)
+							.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+							.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
+							.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
+							.trennstreifenBreiteLinks(Laenge.of(0.5))
+							.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
+							.build()))
+					.fuehrungsformAttributeRechts(List.of(
+						FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 1)
+							.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+							.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
+							.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
+							.trennstreifenBreiteLinks(Laenge.of(0.5))
+							.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
+							.build()))
+					.build())
+			.id(1L).build();
+		LinearReferenzierterAbschnitt abschnitt = LinearReferenzierterAbschnitt.of(0, 1);
+		Radverkehrsfuehrung newFuehrungsform = Radverkehrsfuehrung.UNBEKANNT;
+
+		AttributUebernahmeException exception = catchThrowableOfType(
+			() -> attributeMapper.applyRadverkehrsfuehrung(kante, newFuehrungsform, abschnitt),
+			AttributUebernahmeException.class);
+
+		assertThat(exception.getFehler()).hasSize(2);
+
+		assertThat(exception.getFehler().get(0).getMessage()).contains(
+			"führt zu inkompatiblen Attributen des linken Sicherheitstrennstreifens");
+		assertThat(exception.getFehler().get(0).getSeitenbezug()).isEqualTo(Seitenbezug.BEIDSEITIG);
+		assertThat(exception.getFehler().get(0).getNichtUerbenommeneWerte()).containsExactly(newFuehrungsform
+			.toString());
+		assertThat(exception.getFehler().get(0).getLinearReferenzierterAbschnitt()).isEqualTo(abschnitt);
+
+		assertThat(exception.getFehler().get(1).getMessage()).contains(
+			"führt zu inkompatiblen Attributen des rechten Sicherheitstrennstreifens");
+		assertThat(exception.getFehler().get(1).getSeitenbezug()).isEqualTo(Seitenbezug.BEIDSEITIG);
+		assertThat(exception.getFehler().get(1).getNichtUerbenommeneWerte()).containsExactly(newFuehrungsform
+			.toString());
+		assertThat(exception.getFehler().get(1).getLinearReferenzierterAbschnitt()).isEqualTo(abschnitt);
+
+		assertThat(kante.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
+		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).isEqualTo(List.of(
+			FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 1)
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+				.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
+				.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
+				.trennstreifenBreiteLinks(Laenge.of(0.5))
+				.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
+				.build()));
+		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts()).isEqualTo(List.of(
+			FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 1)
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+				.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
+				.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
+				.trennstreifenBreiteLinks(Laenge.of(0.5))
+				.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
 				.build()));
 	}
 

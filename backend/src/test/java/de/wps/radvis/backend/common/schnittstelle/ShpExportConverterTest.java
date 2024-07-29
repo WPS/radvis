@@ -42,7 +42,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.Point;
 
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -70,7 +70,7 @@ class ShpExportConverterTest {
 	public File temp;
 
 	@Test
-	void convertLines() throws IOException, ZipFileRequiredFilesMissingException {
+	void convertLines() throws IOException, ShapeZipInvalidException {
 		// arrange
 
 		List<ExportData> exportDataList = new ArrayList<>();
@@ -130,7 +130,7 @@ class ShpExportConverterTest {
 	}
 
 	@Test
-	void unwrapGeometryCollection() throws IOException, ZipFileRequiredFilesMissingException {
+	void unwrapGeometryCollection() throws IOException, ShapeZipInvalidException {
 		// arrange
 		Coordinate[] coordinates = {
 			new Coordinate(300.0, 300.0), new Coordinate(600.0, 600.0)
@@ -206,7 +206,7 @@ class ShpExportConverterTest {
 	}
 
 	@Test
-	void unwrapGeometryCollection_onlyMLS_noEmptyGeometries() throws IOException, ZipFileRequiredFilesMissingException {
+	void unwrapGeometryCollection_onlyMLS_noEmptyGeometries() throws IOException, ShapeZipInvalidException {
 		// arrange
 		Coordinate[] coordinates1 = {
 			new Coordinate(100.0, 100.0), new Coordinate(200.0, 200.0)
@@ -267,7 +267,7 @@ class ShpExportConverterTest {
 		FileUtils.deleteDirectory(outputFile);
 	}
 
-	public File unzip(byte[] zipfileContent) throws IOException, ZipFileRequiredFilesMissingException {
+	public File unzip(byte[] zipfileContent) throws IOException, ShapeZipInvalidException {
 		File shpDirectory = Files
 			.createTempDirectory("ShpExportConverterTest")
 			.toFile();

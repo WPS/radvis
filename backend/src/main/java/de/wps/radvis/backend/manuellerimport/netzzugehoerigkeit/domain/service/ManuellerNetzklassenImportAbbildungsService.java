@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.LineString;
 
-import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.manuellerimport.common.FortschrittLogger;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepository;
@@ -71,9 +70,7 @@ public class ManuellerNetzklassenImportAbbildungsService extends AbstractManuell
 		importedLineStrings.forEach(lineString -> {
 			FortschrittLogger.logProgressInPercent(importedLineStrings.size(), count, 4);
 
-			Optional<OsmMatchResult> result = simpleMatchingService.matche(
-				(LineString) CoordinateReferenceSystemConverterUtility.transformGeometry(lineString,
-					KoordinatenReferenzSystem.ETRS89_UTM32_N), statistik);
+			Optional<OsmMatchResult> result = simpleMatchingService.matche(lineString, statistik);
 
 			if (result.isEmpty()) {
 				nichtImportierteLineStrings.add(lineString);
@@ -81,8 +78,8 @@ public class ManuellerNetzklassenImportAbbildungsService extends AbstractManuell
 			}
 
 			List<Long> matchedKantenIDs = ueberschneidungsRepository.findKantenById(
-					result.get().getOsmWayIds().stream().map(
-						OsmWayId::getValue).collect(Collectors.toSet()))
+				result.get().getOsmWayIds().stream().map(
+					OsmWayId::getValue).collect(Collectors.toSet()))
 				.stream()
 				// Matches für die keine Kanten innerhalb der Organisation liegen rausfiltern
 				.filter(Objects::nonNull)

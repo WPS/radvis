@@ -201,7 +201,7 @@ class NetzGuardTest {
 	void testDeleteRadVisKante_adminFremdeRadVisKante_true() {
 		// arrange
 		Benutzer admin = BenutzerTestDataProvider.admin(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.id(8L)
 			.build();
 		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(admin);
@@ -219,7 +219,7 @@ class NetzGuardTest {
 	void testDeleteRadVisKante_adminDlmKante_false() {
 		// arrange
 		Benutzer admin = BenutzerTestDataProvider.admin(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.id(8L)
 			.build();
 		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(admin);
@@ -238,7 +238,7 @@ class NetzGuardTest {
 	void testDeleteRadVisKante_nonAdminDlmKante_false() {
 		// arrange
 		Benutzer admin = BenutzerTestDataProvider.kreiskoordinator(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.id(8L)
 			.build();
 		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(admin);
@@ -257,7 +257,7 @@ class NetzGuardTest {
 	void testDeleteRadVisKante_nonAdminFremdeRadVisKante_false() {
 		// arrange
 		Benutzer kreiskoordinator = BenutzerTestDataProvider.kreiskoordinator(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.id(8L)
 			.build();
 		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(kreiskoordinator);
@@ -276,7 +276,7 @@ class NetzGuardTest {
 	void testDeleteRadVisKante_nonAdminEigeneRadVisKante_true() {
 		// arrange
 		Benutzer kreiskoordinator = BenutzerTestDataProvider.kreiskoordinator(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.id(8L)
 			.build();
 		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(kreiskoordinator);

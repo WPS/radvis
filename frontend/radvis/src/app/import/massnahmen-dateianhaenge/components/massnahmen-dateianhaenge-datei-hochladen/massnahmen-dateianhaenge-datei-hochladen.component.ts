@@ -51,10 +51,6 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
   session: MassnahmenDateianhaengeImportSessionView | null = null;
   sessionCreated: boolean = false;
 
-  get executing(): boolean {
-    return !!this.session && this.session.executing;
-  }
-
   get massnahmenDateianhaengeSessionExists(): boolean {
     return !!this.session;
   }
@@ -65,6 +61,18 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
 
   get hasFehler(): boolean {
     return this.fehler.length > 0;
+  }
+
+  get schrittAbgeschlossenOderHasFehler(): boolean {
+    return this.schrittAbgeschlossen || this.hasFehler;
+  }
+
+  get isDateiHochladenRunning(): boolean {
+    return this.session?.schritt === 1 && this.session.executing;
+  }
+
+  private get schrittAbgeschlossen(): boolean {
+    return (this.session && this.session.schritt > MassnahmenDateianhaengeDateiHochladenComponent.STEP) ?? false;
   }
 
   constructor(
@@ -96,7 +104,7 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
       if (session) {
         this.formGroup.disable();
         this.session = session;
-        if (this.isDateiHochladenRunning()) {
+        if (this.isDateiHochladenRunning) {
           this.startPolling();
         }
 
@@ -151,13 +159,12 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
         next: () => {
           this.startPolling();
           this.sessionCreated = true;
-          this.notifyUserService.inform('Datei wurde erfolgreich hochgeladen und wird nun verarbeitet.');
-          this.uploading = false;
           this.changeDetectorRef.markForCheck();
         },
         error: err => {
           this.errorHandlingService.handleHttpError(err);
           this.sessionCreated = false;
+          this.session = null;
           this.formGroup.enable();
           this.uploading = false;
           this.changeDetectorRef.markForCheck();
@@ -178,20 +185,26 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
       .pipe(
         startWith(0),
         take(MassnahmenDateianhaengeService.MAX_POLLING_CALLS),
-        takeWhile(() => !this.massnahmenDateianhaengeSessionExists || this.isDateiHochladenRunning()),
+        takeWhile(() => this.isDateiHochladenRunning),
         exhaustMap(() => this.service.getImportSession())
       )
       .subscribe({
         next: session => {
           this.session = session;
           this.sessionExists = true;
-          this.changeDetectorRef.markForCheck();
-          if (this.session && this.session.schritt > MassnahmenDateianhaengeDateiHochladenComponent.STEP) {
+          if (this.schrittAbgeschlossen) {
             this.navigateToNextStep();
           }
+          if (this.schrittAbgeschlossenOderHasFehler) {
+            this.uploading = false;
+          }
+          this.changeDetectorRef.markForCheck();
         },
         error: () => {
+          this.uploading = false;
+
           this.notifyUserService.warn('Fehler bei der Statusabfrage. Wurde der Import abgebrochen?');
+          this.changeDetectorRef.markForCheck();
         },
       });
   }
@@ -205,10 +218,6 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
       this.session = null;
       this.changeDetectorRef.markForCheck();
     });
-  }
-
-  private isDateiHochladenRunning(): boolean {
-    return this.session?.schritt === 1 && this.session.executing;
   }
 
   ngOnDestroy(): void {

@@ -26,7 +26,7 @@ import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { NetzDetailSelektion } from 'src/app/shared/models/netzdetail-selektion';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { getRadvisNetzStyleFunction } from 'src/app/shared/models/radvis-netz-style';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { RADVIS_NETZ_LAYER_PREFIX } from 'src/app/viewer/viewer-shared/models/radvis-netz-layer-prefix';
 import {
@@ -34,7 +34,7 @@ import {
   kanteHighlightLayerZIndex,
 } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import invariant from 'tiny-invariant';
 
 @Component({
@@ -154,10 +154,10 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
     const featureLinks = new Feature(geometryLinks);
     featureLinks.set(FeatureProperties.VERLAUF_PROPERTY_NAME, verlauf && selektion.verlaufLinks, true);
     featureLinks.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, selektion.id);
-    featureLinks.set(this.HIGHLIGHTED, !isZweiseitig || selektion.seite === Seitenbezug.LINKS);
+    featureLinks.set(this.HIGHLIGHTED, !isZweiseitig || selektion.seite === KantenSeite.LINKS);
     featureLinks.set(FeatureProperties.ZWEISEITIG_PROPERTY_NAME, isZweiseitig);
     if (isZweiseitig) {
-      featureLinks.set(FeatureProperties.SEITE_PROPERTY_NAME, Seitenbezug.LINKS);
+      featureLinks.set(FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.LINKS);
     }
     result.push(featureLinks);
 
@@ -165,9 +165,9 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
       const featureRechts = new Feature(geometryRechts);
       featureRechts.set(FeatureProperties.VERLAUF_PROPERTY_NAME, verlauf && selektion.verlaufRechts, true);
       featureRechts.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, selektion.id);
-      featureRechts.set(this.HIGHLIGHTED, selektion.seite === Seitenbezug.RECHTS);
+      featureRechts.set(this.HIGHLIGHTED, selektion.seite === KantenSeite.RECHTS);
       featureRechts.set(FeatureProperties.ZWEISEITIG_PROPERTY_NAME, true);
-      featureRechts.set(FeatureProperties.SEITE_PROPERTY_NAME, Seitenbezug.RECHTS);
+      featureRechts.set(FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.RECHTS);
       result.push(featureRechts);
     }
 
@@ -175,12 +175,8 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
   }
 
   private setFeatureHoverHighlighted(highlightedFeature: RadVisFeature, hoverHighlighted: boolean): void {
-    const selectedKanteId = highlightedFeature.attribute.find(
-      attribut => attribut.key === FeatureProperties.KANTE_ID_PROPERTY_NAME
-    )?.value;
-    const selectedSeitenbezug = highlightedFeature.attribute.find(
-      attribut => attribut.key === FeatureProperties.SEITE_PROPERTY_NAME
-    )?.value;
+    const selectedKanteId = highlightedFeature.attributes.get(FeatureProperties.KANTE_ID_PROPERTY_NAME);
+    const selectedSeitenbezug = highlightedFeature.attributes.get(FeatureProperties.SEITE_PROPERTY_NAME);
     const selectedFeatures = this.getFeaturesByIdsAndSeitenbezug(selectedKanteId, selectedSeitenbezug);
     selectedFeatures.forEach(f => {
       f.set(this.HOVER_HIGHLIGHT, hoverHighlighted);
@@ -188,7 +184,7 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
     });
   }
 
-  private getFeaturesByIdsAndSeitenbezug(kanteId: number | string, seitenbezug?: Seitenbezug): Feature<Geometry>[] {
+  private getFeaturesByIdsAndSeitenbezug(kanteId: number | string, kantenSeite?: KantenSeite): Feature<Geometry>[] {
     return this.olLayer
       .getSource()
       .getFeatures()
@@ -196,8 +192,8 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
         return String(kanteId) === String(feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME));
       })
       .filter(feature => {
-        if (seitenbezug) {
-          return feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === seitenbezug;
+        if (kantenSeite) {
+          return feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === kantenSeite;
         }
         return true;
       });

@@ -78,19 +78,20 @@ describe(FahrradrouteFilterService.name, () => {
 
       verify(fahrradrouteService.getAll()).once();
       verify(filterQueryParamsService.filterQueryParamsSnapshot).once();
+      expect().nothing();
     }));
 
-    it('should clear if fahrradrouten got deactivated', fakeAsync(() => {
+    it('should clear if fahrradrouten got deactivated', () => {
+      let receivedFahrradrouten: FahrradrouteListenView[] = [];
       const subscription = fahrradrouteFilterService.filteredList$.subscribe(fahrradrouten => {
-        expect(fahrradrouten).toEqual([]);
+        receivedFahrradrouten = fahrradrouten;
       });
 
-      tick();
       selektierteInfrastrukturen$.next([]);
 
-      tick();
       subscription.unsubscribe();
-    }));
+      expect(receivedFahrradrouten).toEqual([]);
+    });
   });
 
   describe('refetchFahrradrouten', () => {

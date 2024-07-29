@@ -12,10 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { fakeAsync, tick } from '@angular/core/testing';
+import { fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
-import { of, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { NetzklassenAuswahlService } from 'src/app/karte/services/netzklassen-auswahl.service';
+import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { Signatur } from 'src/app/shared/models/signatur';
 import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
@@ -25,7 +27,7 @@ import { SignaturService } from 'src/app/viewer/signatur/services/signatur.servi
 import { SignaturModule } from 'src/app/viewer/signatur/signatur.module';
 import { Infrastruktur } from 'src/app/viewer/viewer-shared/models/infrastruktur';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
-import { instance, mock, when } from 'ts-mockito';
+import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
 
 describe(RadvisSignaturAuswahlComponent.name, () => {
   let fixture: MockedComponentFixture<RadvisSignaturAuswahlComponent>;
@@ -34,18 +36,29 @@ describe(RadvisSignaturAuswahlComponent.name, () => {
   let signaturService: SignaturService;
   let featureTogglzService: FeatureTogglzService;
   let infrastrukturenSelectionService: InfrastrukturenSelektionService;
+  let netzklassenAuswahlService: NetzklassenAuswahlService;
 
-  const selectedInfrastrukturenSubject: Subject<Infrastruktur[]> = new Subject<Infrastruktur[]>();
+  const selectedInfrastrukturenSubject: BehaviorSubject<Infrastruktur[]> = new BehaviorSubject<Infrastruktur[]>([]);
+  const selectedNetzklasseSubject: BehaviorSubject<Netzklassefilter[]> = new BehaviorSubject<Netzklassefilter[]>([
+    Netzklassefilter.RADNETZ,
+  ]);
 
   beforeEach(() => {
     signaturService = mock(SignaturService);
-    when(signaturService.getSignaturen()).thenReturn(of([]));
+    when(signaturService.getSignaturen(anything())).thenReturn([]);
 
     featureTogglzService = mock(FeatureTogglzService);
     infrastrukturenSelectionService = mock(InfrastrukturenSelektionService);
     when(infrastrukturenSelectionService.selektierteInfrastrukturen$).thenReturn(
       selectedInfrastrukturenSubject.asObservable()
     );
+    when(infrastrukturenSelectionService.isSelected(anything())).thenCall((infrastruktur: Infrastruktur) => {
+      return selectedInfrastrukturenSubject.value.includes(infrastruktur);
+    });
+
+    netzklassenAuswahlService = mock(NetzklassenAuswahlService);
+    when(netzklassenAuswahlService.currentAuswahl$).thenReturn(selectedNetzklasseSubject.asObservable());
+    when(netzklassenAuswahlService.currentAuswahl).thenCall(() => selectedNetzklasseSubject.value);
 
     return MockBuilder(RadvisSignaturAuswahlComponent, SignaturModule)
       .provide({
@@ -57,16 +70,19 @@ describe(RadvisSignaturAuswahlComponent.name, () => {
         useValue: instance(infrastrukturenSelectionService),
       })
       .provide({
+        provide: NetzklassenAuswahlService,
+        useValue: instance(netzklassenAuswahlService),
+      })
+      .provide({
         provide: FeatureTogglzService,
         useValue: instance(featureTogglzService),
       });
   });
 
-  beforeEach(fakeAsync(() => {
+  beforeEach(waitForAsync(() => {
     fixture = MockRender(RadvisSignaturAuswahlComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
-    tick();
   }));
 
   it('should init form correctly', () => {
@@ -77,7 +93,10 @@ describe(RadvisSignaturAuswahlComponent.name, () => {
     it('should emit', fakeAsync(() => {
       const signatur = { name: 'Signatür', typ: SignaturTyp.MASSNAHME };
 
-      when(signaturService.getSignaturen()).thenReturn(of([signatur, { name: 'Sigmatur', typ: SignaturTyp.NETZ }]));
+      when(signaturService.getSignaturen(anything())).thenReturn([
+        signatur,
+        { name: 'Sigmatur', typ: SignaturTyp.NETZ },
+      ]);
       const emitterSpy = spyOn(component.selectRadVisSignatur, 'emit');
       component.formControl.patchValue(signatur);
       expect(emitterSpy).toHaveBeenCalled();
@@ -87,12 +106,10 @@ describe(RadvisSignaturAuswahlComponent.name, () => {
 
   describe('onInit', () => {
     it('should show options in dropdown menu', fakeAsync(() => {
-      when(signaturService.getSignaturen()).thenReturn(
-        of([
-          { name: 'Harry', typ: SignaturTyp.NETZ },
-          { name: 'Pppppotter', typ: SignaturTyp.NETZ },
-        ])
-      );
+      when(signaturService.getSignaturen(anything())).thenReturn([
+        { name: 'Harry', typ: SignaturTyp.NETZ },
+        { name: 'Pppppotter', typ: SignaturTyp.NETZ },
+      ]);
       const matSelect = fixture.debugElement.query(By.css('mat-select')).nativeElement;
       matSelect.click();
 
@@ -103,6 +120,123 @@ describe(RadvisSignaturAuswahlComponent.name, () => {
       // Neben den 3 oben gepushten Signaturen gibt es auch noch 'Keine' als Auswahl
       expect(allOptions.length).toEqual(3);
     }));
+  });
+
+  describe('determine compatibility with netzklassen', () => {
+    const radNetzSignatur = { name: 'RadNETZ', typ: SignaturTyp.NETZ };
+    const netzklassenSignatur = { name: 'Netzklassen', typ: SignaturTyp.NETZ };
+    const sonstigeSignatur = { name: 'Sonstiges', typ: SignaturTyp.NETZ };
+    const massnahmeSignatur = { name: 'RadNETZ-Maßnahme', typ: SignaturTyp.MASSNAHME };
+
+    beforeEach(() => {
+      when(signaturService.getSignaturen(anything())).thenReturn([
+        radNetzSignatur,
+        netzklassenSignatur,
+        sonstigeSignatur,
+        massnahmeSignatur,
+      ]);
+    });
+
+    describe('without any Signatur selection', () => {
+      it('should be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.RADNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should be compatible with netzklasse Kreisnetz', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.KREISNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should be compatible with nicht klassifiziert', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+    });
+
+    describe('with RadNETZ Signatur selected', () => {
+      beforeEach(() => {
+        component.formControl.setValue({ name: 'RadNETZ', typ: SignaturTyp.NETZ });
+      });
+
+      it('should be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.RADNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should not be compatible with netzklasse Kreisnetz', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.KREISNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeFalse();
+      });
+
+      it('should not be compatible with nicht klassifiziert', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeFalse();
+      });
+    });
+
+    describe('with RadNETZ Signatur and multiple Netzklassen selected', () => {
+      beforeEach(() => {
+        component.formControl.setValue({ name: 'RadNETZ', typ: SignaturTyp.NETZ });
+      });
+
+      it('should be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.RADNETZ, Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.RADNETZ, Netzklassefilter.KREISNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should not be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.NICHT_KLASSIFIZIERT, Netzklassefilter.KREISNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeFalse();
+      });
+    });
+
+    describe('with Netzklassen Signatur selected', () => {
+      beforeEach(() => {
+        component.formControl.setValue({ name: 'Netzklassen', typ: SignaturTyp.NETZ });
+      });
+
+      it('should be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.RADNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should be compatible with netzklasse Kreisnetz', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.KREISNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should not be compatible with nicht klassifiziert', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeFalse();
+      });
+    });
+
+    describe('with Belagart Signatur selected', () => {
+      beforeEach(() => {
+        component.formControl.setValue({ name: 'Belagart', typ: SignaturTyp.NETZ });
+      });
+
+      it('should be compatible with netzklasse RadNETZ', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.RADNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should be compatible with netzklasse Kreisnetz', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.KREISNETZ]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+
+      it('should be compatible with nicht klassifiziert', () => {
+        selectedNetzklasseSubject.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        expect(component.isSelectionCompatibleWithNetzklassenfilter()).toBeTrue();
+      });
+    });
   });
 
   describe('loadSignaturen', () => {
@@ -117,19 +251,27 @@ describe(RadvisSignaturAuswahlComponent.name, () => {
         { name: 'Maßnahmen - Was letzte Preis?', typ: SignaturTyp.NETZ },
       ];
       keineMassnahmenSignaturen = alleSignaturen.filter(s => s.typ !== SignaturTyp.MASSNAHME);
-      when(signaturService.getSignaturen()).thenReturn(of(alleSignaturen));
     });
 
-    it('should show all signaturen when massnahmen selected', () => {
+    it('should show all signaturen when massnahmen selected', fakeAsync(() => {
+      resetCalls(signaturService);
+      when(signaturService.getSignaturen(anything())).thenReturn(alleSignaturen);
       selectedInfrastrukturenSubject.next([MASSNAHMEN]);
+      tick();
 
-      expect(component.signaturenSubject$.value).toEqual(alleSignaturen);
-    });
+      verify(signaturService.getSignaturen(anything())).once();
+      expect(capture(signaturService.getSignaturen).last()[0]).toEqual([SignaturTyp.MASSNAHME, SignaturTyp.NETZ]);
+      expect(component.signaturen).toEqual(alleSignaturen);
+    }));
 
     it('should show filtered signaturen when massnahmen not selected', () => {
+      resetCalls(signaturService);
+      when(signaturService.getSignaturen(anything())).thenReturn(keineMassnahmenSignaturen);
       selectedInfrastrukturenSubject.next([]);
 
-      expect(component.signaturenSubject$.value).toEqual(keineMassnahmenSignaturen);
+      verify(signaturService.getSignaturen(anything())).once();
+      expect(capture(signaturService.getSignaturen).last()[0]).toEqual([SignaturTyp.NETZ]);
+      expect(component.signaturen).toEqual(keineMassnahmenSignaturen);
     });
   });
 });

@@ -16,14 +16,25 @@ package de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObjec
 
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.NonNull;
+
 public enum MassnahmenImportZuordnungStatus {
 
-	NEU,
-	GEMAPPT,
-	GELOESCHT,
-	FEHLERHAFT;
+	NEU("Neu"),
+	ZUGEORDNET("Bearbeitet"),
+	GELOESCHT("Gelöscht"),
+	FEHLERHAFT("Fehlerhaft");
+
+	@NonNull
+	@Getter
+	private final String displayText;
+
+	MassnahmenImportZuordnungStatus(@NonNull String displayText) {
+		this.displayText = displayText;
+	}
 
 	public static Set<MassnahmenImportZuordnungStatus> statusMitZugeordneterMassnahme() {
-		return Set.of(GELOESCHT, GEMAPPT);
+		return Set.of(GELOESCHT, ZUGEORDNET);
 	}
 }

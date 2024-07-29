@@ -12,33 +12,34 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-/* eslint-disable no-unused-vars */
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipRemove, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MockBuilder } from 'ng-mocks';
+import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
 import { MassnahmenkategorienDropdownControlComponent } from 'src/app/viewer/massnahme/components/massnahmenkategorien-dropdown-control/massnahmenkategorien-dropdown-control.component';
+import { MassnahmeModule } from 'src/app/viewer/massnahme/massnahme.module';
 import { MassnahmenkategorieOptionGroup } from 'src/app/viewer/massnahme/models/massnahmenkategorie-option-group';
 import { MASSNAHMENKATEGORIEN } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
-import { ViewerModule } from 'src/app/viewer/viewer.module';
 
 describe(MassnahmenkategorienDropdownControlComponent.name, () => {
   let component: MassnahmenkategorienDropdownControlComponent;
-  let fixture: ComponentFixture<MassnahmenkategorienDropdownControlComponent>;
+  let fixture: MockedComponentFixture<MassnahmenkategorienDropdownControlComponent>;
 
-  beforeEach(() => {
-    return MockBuilder(MassnahmenkategorienDropdownControlComponent, ViewerModule);
+  ngMocks.faster();
+
+  beforeAll(() => {
+    return MockBuilder(MassnahmenkategorienDropdownControlComponent, MassnahmeModule);
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MassnahmenkategorienDropdownControlComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(MassnahmenkategorienDropdownControlComponent);
+    component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
 
@@ -267,7 +268,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
 
 describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () => {
   let component: MassnahmenkategorienDropdownControlComponent;
-  let fixture: ComponentFixture<MassnahmenkategorienDropdownControlComponent>;
+  let fixture: MockedComponentFixture<MassnahmenkategorienDropdownControlComponent>;
 
   beforeEach(() => {
     return TestBed.configureTestingModule({
@@ -278,14 +279,15 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
         ReactiveFormsModule,
         MatTooltipModule,
         MatFormFieldModule,
+        MatIconModule,
         NoopAnimationsModule,
       ],
     });
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MassnahmenkategorienDropdownControlComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(MassnahmenkategorienDropdownControlComponent);
+    component = fixture.point.componentInstance;
     component.groupedOptions = MASSNAHMENKATEGORIEN;
     fixture.detectChanges();
     fixture.autoDetectChanges(true);

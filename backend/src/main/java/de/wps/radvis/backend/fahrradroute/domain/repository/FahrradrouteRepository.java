@@ -33,6 +33,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
 
 public interface FahrradrouteRepository extends CrudRepository<Fahrradroute, Long>, CustomFahrradrouteRepository {
 
@@ -135,21 +136,22 @@ public interface FahrradrouteRepository extends CrudRepository<Fahrradroute, Lon
 		+ " AND fahrradroute.kategorie = de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie.LANDESRADFERNWEG")
 	Set<TfisId> findAllTfisIdsOfLandesradfernwege();
 
-	@Query(
-		"SELECT fahrradroute.tfisId FROM Fahrradroute fahrradroute JOIN fahrradroute.varianten variante WHERE fahrradroute.tfisId IS NOT NULL"
-			+ " AND variante.geometrie IS NULL AND variante.tfisId IS NOT NULL")
+	@Query("SELECT fahrradroute.tfisId FROM Fahrradroute fahrradroute JOIN fahrradroute.varianten variante WHERE fahrradroute.tfisId IS NOT NULL"
+		+ " AND variante.geometrie IS NULL AND variante.tfisId IS NOT NULL")
 	Set<TfisId> findAllTfisIdsWithVariantenWithoutGeometrie();
 
 	@Query(nativeQuery = true, value = "SELECT name FROM fahrradroute_aud AS f, rev_info AS r WHERE f.revtype=0 AND r.id=f.rev AND r.job_execution_description_id=?1")
 	List<String> findAllNamesOfInsertedByJobId(Long jobId);
 
-	@Query(nativeQuery = true, value =
-		"SELECT f_vorher.name FROM fahrradroute_aud AS f_vorher, fahrradroute_aud AS f_nachher, rev_info AS r"
-			+ " WHERE f_nachher.revtype=2 AND r.id=f_nachher.rev AND r.job_execution_description_id=?1 AND f_vorher.id=f_nachher.id AND "
-			+ "f_vorher.rev=(SELECT MAX(f.rev) FROM fahrradroute_aud AS f WHERE f.id=f_nachher.id AND f.rev < f_nachher.rev)")
+	@Query(nativeQuery = true, value = "SELECT f_vorher.name FROM fahrradroute_aud AS f_vorher, fahrradroute_aud AS f_nachher, rev_info AS r"
+		+ " WHERE f_nachher.revtype=2 AND r.id=f_nachher.rev AND r.job_execution_description_id=?1 AND f_vorher.id=f_nachher.id AND "
+		+ "f_vorher.rev=(SELECT MAX(f.rev) FROM fahrradroute_aud AS f WHERE f.id=f_nachher.id AND f.rev < f_nachher.rev)")
 	List<String> findAllNamesOfDeletedByJobId(Long jobId);
 
 	List<Fahrradroute> findAllByFahrradrouteTypAndTfisIdNotIn(FahrradrouteTyp tfisRoute, Set<TfisId> alreadySaved);
+
+	@Query("Select k FROM Fahrradroute f JOIN f.abschnittsweiserKantenBezug kb JOIN kb.kante k LEFT OUTER JOIN FETCH k.vonKnoten as k1 LEFT OUTER JOIN FETCH k.nachKnoten as k2 WHERE f.id=?1")
+	Set<Kante> getKantenWithKnotenByFahrradroute(Long id);
 
 	@Modifying
 	@Query("UPDATE Fahrradroute f SET f.customProfileId = " + GraphhopperRoutingRepository.DEFAULT_PROFILE_ID

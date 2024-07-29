@@ -37,9 +37,9 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerIstNichtRegistriertException;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class BenutzerGuardTest {
 
@@ -170,7 +170,7 @@ class BenutzerGuardTest {
 	void pruefeBearbeiterIstZustaendigFuerBenutzer_benutzerRegierungsbezirk_benutzerRegierungsbezirk_Zustaendig() {
 		// arrange
 		when(benutzerService.findAdminaufSelberEbene(benutzerRegierungsbezirk.getOrganisation())).thenReturn(
-				List.of(benutzerRegierungsbezirk))
+			List.of(benutzerRegierungsbezirk))
 			.thenReturn(List.of(benutzerRegierungsbezirk));
 
 		// act
@@ -184,7 +184,7 @@ class BenutzerGuardTest {
 		when(benutzerService.findAdminaufSelberEbene(benutzerGemeinde.getOrganisation())).thenReturn(List.of());
 		when(benutzerService.findAdminaufSelberEbene(
 			benutzerGemeinde.getOrganisation().getUebergeordneteVerwaltungseinheit().get()))
-			.thenReturn(List.of(benutzerRegierungsbezirk));
+				.thenReturn(List.of(benutzerRegierungsbezirk));
 
 		// act
 		assertTrue(this.benutzerGuard.pruefeBearbeiterIstAutorisiertFuerBenutzer(benutzerRegierungsbezirk,
@@ -217,7 +217,7 @@ class BenutzerGuardTest {
 		// arrange
 		when(benutzerService.findAdminaufSelberEbene(
 			benutzerAndererRegierungsbezirk.getOrganisation())).thenReturn(
-			List.of());
+				List.of());
 
 		// assert
 		assertThat(benutzerGuard.pruefeBearbeiterIstAutorisiertFuerBenutzer(benutzerRegierungsbezirk,
@@ -376,7 +376,7 @@ class BenutzerGuardTest {
 		assertThat(benutzerGuard.rollenDieDerBenutzerAenderWillAberNichtDarf(aktiverBenutzer,
 			// RADNETZ_ERFASSERIN_REGIERUNGSBEZIRK wird durch KREISKOORDINATOREN ersetzt
 			andererBenutzer, Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN, Rolle.KREISKOORDINATOREN)))
-			.contains(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN);
+				.contains(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN);
 	}
 
 	@Test
@@ -417,7 +417,7 @@ class BenutzerGuardTest {
 		assertThat(benutzerGuard.rollenDieDerBenutzerAenderWillAberNichtDarf(aktiverBenutzer,
 			// RADNETZ_ERFASSERIN_REGIERUNGSBEZIRK wird durch KREISKOORDINATOREN ersetzt
 			andererBenutzer, Set.of(Rolle.KREISKOORDINATOREN, Rolle.RADVERKEHRSBEAUFTRAGTER)))
-			.contains(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN);
+				.contains(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN);
 	}
 
 	@Test
@@ -438,7 +438,7 @@ class BenutzerGuardTest {
 		assertThat(benutzerGuard.rollenDieDerBenutzerAenderWillAberNichtDarf(aktiverBenutzer,
 			// RADNETZ_ERFASSERIN_REGIERUNGSBEZIRK wird durch KREISKOORDINATOREN ersetzt
 			andererBenutzer, Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN, Rolle.EXTERNER_DIENSTLEISTER)))
-			.isEmpty();
+				.isEmpty();
 	}
 
 }

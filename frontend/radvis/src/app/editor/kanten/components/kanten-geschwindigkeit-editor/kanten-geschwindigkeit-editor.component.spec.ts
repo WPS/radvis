@@ -109,11 +109,8 @@ describe('KantenGeschwindigkeitEditorComponent', () => {
       ]);
       tick();
 
-      const {
-        ortslage,
-        hoechstgeschwindigkeit,
-        abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung,
-      } = component.displayedAttributeformGroup.value;
+      const { ortslage, hoechstgeschwindigkeit, abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung } =
+        component.displayedAttributeformGroup.value;
 
       expect(ortslage).toEqual(KantenOrtslage.INNERORTS);
       expect(hoechstgeschwindigkeit).toBeInstanceOf(UndeterminedValue);
@@ -151,11 +148,8 @@ describe('KantenGeschwindigkeitEditorComponent', () => {
       ]);
       tick();
 
-      const {
-        ortslage,
-        hoechstgeschwindigkeit,
-        abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung,
-      } = component.displayedAttributeformGroup.value;
+      const { ortslage, hoechstgeschwindigkeit, abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung } =
+        component.displayedAttributeformGroup.value;
 
       expect(ortslage).toEqual(KantenOrtslage.INNERORTS);
       expect(hoechstgeschwindigkeit).toBeInstanceOf(UndeterminedValue);

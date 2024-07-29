@@ -129,6 +129,10 @@ public class FuehrungsformAttributGruppe extends VersionierteEntity {
 		return Collections.unmodifiableSet(fuehrungsformAttributeLinks);
 	}
 
+	public Set<FuehrungsformAttribute> getImmutableFuehrungsformAttributeRechtsSet() {
+		return Collections.unmodifiableSet(fuehrungsformAttributeRechts);
+	}
+
 	public void replaceFuehrungsformAttribute(List<FuehrungsformAttribute> fuehrungsformAttributeLinks,
 		List<FuehrungsformAttribute> fuehrungsformAttributeRechts) {
 		require(isSeitenBezugValid(fuehrungsformAttributeLinks, fuehrungsformAttributeRechts, isZweiseitig),

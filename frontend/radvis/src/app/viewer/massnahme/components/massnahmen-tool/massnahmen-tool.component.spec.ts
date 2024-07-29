@@ -26,7 +26,7 @@ import { defaultMassnahmeToolView } from 'src/app/viewer/massnahme/models/massna
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
-import { defaultNetzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug-test-data-provider.spec';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
@@ -84,13 +84,11 @@ describe(MassnahmenToolComponent.name, () => {
     );
   });
 
-  beforeEach(
-    waitForAsync(() => {
-      when(massnahmenRoutingService.getIdFromRoute()).thenReturn(3);
-      when(massnahmeService.getMassnahmeToolView(3)).thenResolve(defaultMassnahmeToolView);
-      when(massnahmeService.getBenachrichtigungsFunktion(3)).thenResolve(true);
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    when(massnahmenRoutingService.getIdFromRoute()).thenReturn(3);
+    when(massnahmeService.getMassnahmeToolView(3)).thenResolve(defaultMassnahmeToolView);
+    when(massnahmeService.getBenachrichtigungsFunktion(3)).thenResolve(true);
+  }));
 
   describe('constructor', () => {
     it('should set MassnahmeToolView from route data and retrieve benachrichtigungsfunktion when another massnahme was selected', fakeAsync(() => {

@@ -42,6 +42,7 @@ import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteZustaendi
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.NetzMapView;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
@@ -62,6 +63,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
+import de.wps.radvis.backend.netz.domain.valueObject.KantenSeite;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
@@ -81,7 +83,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class NetzToGeoJsonConverterTest {
 
@@ -230,7 +231,7 @@ class NetzToGeoJsonConverterTest {
 	}
 
 	@Test
-	public void testConvertFuehrungsformAttribute() {
+	public void testConvertFuehrungsformAttribute_einseitig() {
 		// Arrange
 		FuehrungsformAttribute atStart = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0, 0.3),
 			BelagArt.ASPHALT, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
@@ -296,6 +297,8 @@ class NetzToGeoJsonConverterTest {
 			Radverkehrsfuehrung.SCHUTZSTREIFEN);
 		assertThat(features).extracting(p -> p.getProperty(NetzToGeoJsonConverter.KANTE_ID_KEY))
 			.containsExactly("1234", "1234", "1234");
+		assertThat(features).extracting(p -> p.getProperty(NetzToGeoJsonConverter.SEITE_PROPERTY_NAME))
+			.containsExactly(null, null, null);
 
 		LineString lineString = (LineString) features.get(0).getGeometry();
 		assertThat(lineString.getCoordinates().get(0)).isEqualTo(new LngLatAlt(0, 0));
@@ -307,6 +310,96 @@ class NetzToGeoJsonConverterTest {
 
 		lineString = (LineString) features.get(2).getGeometry();
 		assertThat(lineString.getCoordinates().get(0)).isEqualTo(new LngLatAlt(40, 0));
+		assertThat(lineString.getCoordinates().get(1)).isEqualTo(new LngLatAlt(100, 0));
+	}
+
+	@Test
+	public void testConvertFuehrungsformAttribute_zweiseitig() {
+		// Arrange
+		FuehrungsformAttribute atStartLeft = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0, 0.2),
+			BelagArt.ASPHALT, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
+			Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND, KfzParkenTyp.PARKEN_VERBOTEN,
+			KfzParkenForm.PARKBUCHTEN, Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			null,
+			null,
+			null,
+			null,
+			TrennstreifenForm.UNBEKANNT,
+			TrennstreifenForm.UNBEKANNT
+		);
+		FuehrungsformAttribute wholeRight = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.0, 1.0),
+			BelagArt.BETON,
+			Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT, Radverkehrsfuehrung.RADFAHRSTREIFEN,
+			KfzParkenTyp.PARKEN_VERBOTEN,
+			KfzParkenForm.PARKBUCHTEN, Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			null,
+			null,
+			null,
+			null,
+			TrennstreifenForm.UNBEKANNT,
+			TrennstreifenForm.UNBEKANNT
+		);
+		FuehrungsformAttribute atEndLeft = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.2, 1),
+			BelagArt.BETONSTEINPFLASTER_PLATTENBELAG, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN, KfzParkenTyp.PARKEN_VERBOTEN, KfzParkenForm.PARKBUCHTEN,
+			Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			null,
+			null,
+			null,
+			null,
+			TrennstreifenForm.UNBEKANNT,
+			TrennstreifenForm.UNBEKANNT
+		);
+
+		FuehrungsformAttributGruppe gruppe = FuehrungsformAttributGruppe.builder()
+			.isZweiseitig(true)
+			.fuehrungsformAttributeLinks(List.of(atStartLeft, atEndLeft))
+			.fuehrungsformAttributeRechts(List.of(wholeRight)).build();
+
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM)
+			.id(1234l)
+			.isZweiseitig(true)
+			.fuehrungsformAttributGruppe(gruppe)
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder().isZweiseitig(true).build())
+			.build();
+
+		KanteFuehrungsformAttributeView kanteFuehrungsformAttributeView = new KanteFuehrungsformAttributeView();
+		ReflectionTestUtils.setField(kanteFuehrungsformAttributeView, "geometry", kante.getGeometry());
+		ReflectionTestUtils.setField(kanteFuehrungsformAttributeView, "id", kante.getId());
+		ReflectionTestUtils
+			.setField(kanteFuehrungsformAttributeView, "fuehrungsformAttributGruppe",
+				kante.getFuehrungsformAttributGruppe());
+
+		// Act
+		FeatureCollection result = netzToGeoJsonConverterService
+			.convertFuehrungsformAttribute(Set.of(kanteFuehrungsformAttributeView), List.of("radverkehrsfuehrung"));
+
+		// Assert
+		List<Feature> features = result.getFeatures().stream()
+			.sorted(Comparator.comparing(f -> ((LineString) f.getGeometry()).getCoordinates().get(0).getLongitude()))
+			.collect(Collectors.toList());
+		assertThat(features).hasSize(3);
+		assertThat(features).extracting(p -> p.getProperty("radverkehrsfuehrung"))
+			.containsExactly(
+				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+				Radverkehrsfuehrung.RADFAHRSTREIFEN,
+				Radverkehrsfuehrung.SCHUTZSTREIFEN
+			);
+		assertThat(features).extracting(p -> p.getProperty(NetzToGeoJsonConverter.KANTE_ID_KEY))
+			.containsExactly("1234", "1234", "1234");
+		assertThat(features).extracting(p -> p.getProperty(NetzToGeoJsonConverter.SEITE_PROPERTY_NAME))
+			.containsExactly(KantenSeite.LINKS, KantenSeite.RECHTS, KantenSeite.LINKS);
+
+		LineString lineString = (LineString) features.get(0).getGeometry();
+		assertThat(lineString.getCoordinates().get(0)).isEqualTo(new LngLatAlt(0, 0));
+		assertThat(lineString.getCoordinates().get(1)).isEqualTo(new LngLatAlt(20, 0));
+
+		lineString = (LineString) features.get(1).getGeometry();
+		assertThat(lineString.getCoordinates().get(0)).isEqualTo(new LngLatAlt(0, 0));
+		assertThat(lineString.getCoordinates().get(1)).isEqualTo(new LngLatAlt(100, 0));
+
+		lineString = (LineString) features.get(2).getGeometry();
+		assertThat(lineString.getCoordinates().get(0)).isEqualTo(new LngLatAlt(20, 0));
 		assertThat(lineString.getCoordinates().get(1)).isEqualTo(new LngLatAlt(100, 0));
 	}
 
@@ -455,7 +548,7 @@ class NetzToGeoJsonConverterTest {
 		// Features nach Reihenfolge der Linestrings sortieren, da die Reihenfolge der GeschwindigkeitAttributGruppen
 		// nicht bei jedem Durchlauf gleich ist (werden als Set gespeichert)
 		List<Feature> features = result.getFeatures().stream().sorted(Comparator.comparing(
-				feature -> ((LineString) feature.getGeometry()).getCoordinates().get(0).getLongitude()))
+			feature -> ((LineString) feature.getGeometry()).getCoordinates().get(0).getLongitude()))
 			.collect(Collectors.toList());
 
 		assertThat(features).hasSize(3);

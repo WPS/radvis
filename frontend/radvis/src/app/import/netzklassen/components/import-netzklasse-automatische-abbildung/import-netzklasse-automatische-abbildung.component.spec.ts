@@ -20,7 +20,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { MockComponent } from 'ng-mocks';
 import { Subject } from 'rxjs';
+import { InfoPanelComponent } from 'src/app/import/import-shared/components/info-panel/info-panel.component';
 import { AutomatischerImportSchritt } from 'src/app/import/models/automatischer-import-schritt';
 import { Severity } from 'src/app/import/models/import-session-view';
 import { ImportNetzklasseAutomatischeAbbildungTestAdapter } from 'src/app/import/netzklassen/components/import-netzklasse-automatische-abbildung/import-netzklasse-automatische-abbildung-test-adapter.spec';
@@ -56,7 +58,7 @@ describe(ImportNetzklasseAutomatischeAbbildungComponent.name, () => {
     when(netzklassenImportService.getImportSession()).thenReturn(sessionSubject.asObservable());
 
     await TestBed.configureTestingModule({
-      declarations: [ImportNetzklasseAutomatischeAbbildungComponent],
+      declarations: [ImportNetzklasseAutomatischeAbbildungComponent, MockComponent(InfoPanelComponent)],
       imports: [
         MatIconModule,
         RouterModule,

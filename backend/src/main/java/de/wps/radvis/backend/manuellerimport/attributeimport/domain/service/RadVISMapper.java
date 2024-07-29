@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.springframework.data.util.Pair;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.exception.AttributUebernahmeException;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.AttributUebernahmeFehler;
@@ -61,7 +62,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public class RadVISMapper extends AttributeMapper implements AttributivSeitenbezogenerMapper {
 	private final VerwaltungseinheitService verwaltungseinheitService;
@@ -671,8 +671,9 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 	}
 
 	private Optional<Verwaltungseinheit> getVerwaltungseinheit(String orgaNameUndArt) {
-		Optional<Pair<String, OrganisationsArt>> organisationsArtPairOpt = Verwaltungseinheit.parseBezeichnungWithOrgaArtAllCaps(
-			orgaNameUndArt);
+		Optional<Pair<String, OrganisationsArt>> organisationsArtPairOpt = Verwaltungseinheit
+			.parseBezeichnungWithOrgaArtAllCaps(
+				orgaNameUndArt);
 		return organisationsArtPairOpt.flatMap(
 			organisationsArtPair -> verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(
 				organisationsArtPair.getFirst(), organisationsArtPair.getSecond()

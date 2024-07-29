@@ -19,16 +19,16 @@ public enum MappingFehlermeldung {
 	MASSNAHME_MEHRFACH("ID in der Quelle mehrfach vorhanden."),
 	MASSNAHME_NICHT_EINDEUTIG("%s Maßnahmen gefunden."),
 	MASSNAHME_NICHT_GEFUNDEN("Maßnahme nicht gefunden."),
-	FALSCHER_GEOMETRIE_TYP("NetzBezug kann nicht automatisiert ermittelt werden: Unzulässiger Geometrie-Typ. "
-		+ "Erlaubt sind (Multi)Point und (Multi)LineString sowie eine GeometryCollection, "
-		+ "die nur (Multi)Points und/oder (Multi)LineStrings enthält."),
-	GEOMETRIEN_ABWEICHEND("Abweichende Geometrien gefunden."),
 	PFLICHTATTRIBUT_NICHT_AUSGEWAEHLT("Pflichtattribut nicht ausgewählt."),
 	PFLICHTATTRIBUT_NICHT_GESETZT("Pflichtattribut fehlt."),
 	ATTRIBUT_WERT_UNGUELTIG("'%s' ist kein gültiger Wert."),
 	VERWALTUNGSEINHEIT_NICHT_GEFUNDEN("Verwaltungseinheit '%s' existiert nicht."),
 	QUERVALIDIERUNG_PFLICHTATTRIBUTE("Pflichtattribut für Umsetzungsstatus '%s' fehlt."),
-	QUERVALIDIERUNG_MASSNAHMENKATEGORIE("Nur eine Kategorie pro Oberkategorie erlaubt.");
+	QUERVALIDIERUNG_MASSNAHMENKATEGORIE("Nur eine Kategorie pro Oberkategorie erlaubt."),
+	LOESCHUNG_QUELLE_RADNETZ_UNGUELTIG("Maßnahme hat Quelle RadNETZ und kann daher nicht gelöscht werden."),
+	MASSNAHME_ID_INVALID(
+		"Die ID %s ist ungültig: Erlaubt sind alphanumerische Zeichen sowie Punkt, Leerzeichen und Unterstrich");
+
 	private final String fehlermeldung;
 
 	MappingFehlermeldung(String fehlermeldung) {

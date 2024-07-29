@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.application;
 
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.spatial4j.io.jackson.GeometryAsGeoJSONSerializer;
 import org.locationtech.spatial4j.io.jackson.ShapeAsGeoJSONSerializer;
 import org.locationtech.spatial4j.io.jackson.ShapeDeserializer;
 import org.locationtech.spatial4j.shape.Shape;
@@ -25,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import de.wps.radvis.backend.application.schnittstelle.CustomGeometryAsGeoJsonSerializer;
 import de.wps.radvis.backend.application.schnittstelle.SridGeometryDeserializer;
 
 @Configuration
@@ -36,7 +36,7 @@ public class JacksonConfiguration {
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(Geometry.class, new SridGeometryDeserializer());
 		module.addDeserializer(Shape.class, new ShapeDeserializer());
-		module.addSerializer(Geometry.class, new GeometryAsGeoJSONSerializer());
+		module.addSerializer(Geometry.class, new CustomGeometryAsGeoJsonSerializer());
 		module.addSerializer(Shape.class, new ShapeAsGeoJSONSerializer());
 		return module;
 	}

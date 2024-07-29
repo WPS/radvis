@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<ng-container *ngFor="let selektion of selectedNetzbezug.kantenSeitenAbschnitte">
+  <rad-lineare-referenzierung-layer
+    *ngIf="!netzZweiseitig && !selektion.istZweiseitig"
+    [selectedIndices]="selektion.getSelectedIndices()"
+    [segmentierung]="selektion.getSegmentierung()"
+    [originalGeometry]="selektion.lineString"
+    [minZoom]="minZoom"
+    (selectElement)="onSelectSegment($event, selektion.kanteId)"
+    (deselectElement)="onDeselectSegment($event, selektion.kanteId)"
+    (segmentierungChanged)="onSegmentierungChanged($event, selektion.kanteId)"
+    [zIndex]="lineareReferenzierungZIndex"></rad-lineare-referenzierung-layer>
+  <ng-container *ngIf="netzZweiseitig || selektion.istZweiseitig">
+    <rad-lineare-referenzierung-layer
+      [selectedIndices]="selektion.getSelectedIndices(LINKS)"
+      [segmentierung]="selektion.getSegmentierung(LINKS)"
+      [originalGeometry]="selektion.lineString"
+      [kantenSeite]="LINKS"
+      [minZoom]="minZoom"
+      (selectElement)="onSelectSegment($event, selektion.kanteId, LINKS)"
+      (deselectElement)="onDeselectSegment($event, selektion.kanteId, LINKS)"
+      (segmentierungChanged)="onSegmentierungChanged($event, selektion.kanteId, LINKS)"
+      [zIndex]="lineareReferenzierungZIndex"></rad-lineare-referenzierung-layer>
+    <rad-lineare-referenzierung-layer
+      [selectedIndices]="selektion.getSelectedIndices(RECHTS)"
+      [segmentierung]="selektion.getSegmentierung(RECHTS)"
+      [originalGeometry]="selektion.lineString"
+      [kantenSeite]="RECHTS"
+      [minZoom]="minZoom"
+      (selectElement)="onSelectSegment($event, selektion.kanteId, RECHTS)"
+      (deselectElement)="onDeselectSegment($event, selektion.kanteId, RECHTS)"
+      (segmentierungChanged)="onSegmentierungChanged($event, selektion.kanteId, RECHTS)"
+      [zIndex]="lineareReferenzierungZIndex"></rad-lineare-referenzierung-layer>
+  </ng-container>
+</ng-container>

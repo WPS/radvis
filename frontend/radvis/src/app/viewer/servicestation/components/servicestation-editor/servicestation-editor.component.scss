@@ -13,6 +13,7 @@
  */
 
 @import 'src/style/spacing';
+@import 'src/style/colors';
 
 :host.is-creator {
   height: 100%;
@@ -36,4 +37,9 @@
     flex-direction: column;
     width: 100%;
   }
+}
+
+.fremdnetz-hinweis {
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid map-get($grayscale, 100);
 }

@@ -52,7 +52,7 @@ public class FurtKreuzungNetzBezug extends AbstractNetzBezug {
 	@OneToMany
 	@JoinTable(name = "furt_kreuzung_knoten", joinColumns = {
 		@JoinColumn(name = "furt_kreuzung_id") }, inverseJoinColumns = {
-		@JoinColumn(name = "knoten_id") })
+			@JoinColumn(name = "knoten_id") })
 	private Set<Knoten> knotenBezug;
 
 	public FurtKreuzungNetzBezug(Set<AbschnittsweiserKantenSeitenBezug> abschnittsweiserKantenSeitenBezug,

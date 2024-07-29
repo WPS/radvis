@@ -152,10 +152,10 @@ export class ImportNetzklasseAbbildungBearbeitenLayerComponent implements OnDest
     return !hatNetzklasseVorher && hatNetzklasseNachher
       ? ImportNetzklasseAbbildungBearbeitenLayerComponent.COLOR_NETZKLASSE_INSERTED
       : hatNetzklasseVorher && !hatNetzklasseNachher
-      ? ImportNetzklasseAbbildungBearbeitenLayerComponent.COLOR_NETZKLASSE_DELETED
-      : hatNetzklasseVorher && hatNetzklasseNachher
-      ? ImportNetzklasseAbbildungBearbeitenLayerComponent.COLOR_NETZKLASSE_ALREADYPRESENT
-      : undefined;
+        ? ImportNetzklasseAbbildungBearbeitenLayerComponent.COLOR_NETZKLASSE_DELETED
+        : hatNetzklasseVorher && hatNetzklasseNachher
+          ? ImportNetzklasseAbbildungBearbeitenLayerComponent.COLOR_NETZKLASSE_ALREADYPRESENT
+          : undefined;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

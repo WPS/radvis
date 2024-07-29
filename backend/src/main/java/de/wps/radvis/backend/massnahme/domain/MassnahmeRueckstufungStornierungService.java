@@ -93,9 +93,11 @@ public class MassnahmeRueckstufungStornierungService {
 				massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(massnahme).forEach(
 					benutzer -> benutzerMassnahmenIdMap.merge(
 						benutzer,
-						new HashSet<>() {{
-							add(massnahme.getId());
-						}},
+						new HashSet<>() {
+							{
+								add(massnahme.getId());
+							}
+						},
 						(oldMassnahmenIds, newMassnahmenIds) -> {
 							oldMassnahmenIds.addAll(newMassnahmenIds);
 							return oldMassnahmenIds;
@@ -104,11 +106,10 @@ public class MassnahmeRueckstufungStornierungService {
 
 		// Map von empfaenger auf massnahmen
 		benutzerMassnahmenIdMap
-			.forEach((benutzer, massnahmenIds) ->
-				mailService.sendHtmlMail(
-					List.of(benutzer.getMailadresse().toString()),
-					"[RadVIS] Massnahmenstornierung aufgrund von RadNETZ-Rueckstufung",
-					generateRueckstufungStornierungEmail(massnahmenIds)));
+			.forEach((benutzer, massnahmenIds) -> mailService.sendHtmlMail(
+				List.of(benutzer.getMailadresse().toString()),
+				"[RadVIS] Massnahmenstornierung aufgrund von RadNETZ-Rueckstufung",
+				generateRueckstufungStornierungEmail(massnahmenIds)));
 
 	}
 

@@ -21,7 +21,10 @@ import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes'
 export abstract class AbstractInfrastrukturenRoutingService {
   private selectedInfrastrukturId$$: BehaviorSubject<number | null>;
 
-  constructor(protected router: Router, protected infrastrukturArt: Infrastruktur) {
+  constructor(
+    protected router: Router,
+    protected infrastrukturArt: Infrastruktur
+  ) {
     this.selectedInfrastrukturId$$ = new BehaviorSubject(this.getIdFromRoute());
     this.router.events
       .pipe(

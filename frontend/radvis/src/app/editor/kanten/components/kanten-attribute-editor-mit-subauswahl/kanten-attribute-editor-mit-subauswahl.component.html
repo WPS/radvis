@@ -14,7 +14,7 @@
 
 <div class="mat-tab-wrapper">
   <div class="close-button">
-    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+    <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </div>
@@ -28,11 +28,13 @@
   </mat-tab-group>
 </div>
 <div class="buttons display-flex p-10">
-  <button [disabled]="disabled" (click)="onReset()" mat-stroked-button class="flex-grow border-primary" type="button">
+  <button [disabled]="disabled" (click)="onReset()" mat-stroked-button color="primary" type="button">
     Zurücksetzen
   </button>
 
-  <rad-action-button [disabled]="disabled" [dirty]="dirty" [waiting]="fetching" (action)="onSave()">
-    Speichern
-  </rad-action-button>
+  <div>
+    <rad-action-button [disabled]="disabled" [dirty]="dirty" [waiting]="fetching" (action)="onSave()">
+      Speichern
+    </rad-action-button>
+  </div>
 </div>

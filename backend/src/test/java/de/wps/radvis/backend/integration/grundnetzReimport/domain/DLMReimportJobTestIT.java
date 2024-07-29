@@ -75,7 +75,9 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
+import de.wps.radvis.backend.common.domain.valueObject.BasisnetzImportSource;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
@@ -142,7 +144,6 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataProvider;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
@@ -300,7 +301,7 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			dlmImportRepository, netzService, updateKantenService,
 			createKantenService, executeTopologischeUpdatesService, kantenMappingRepository,
 			entityManager, new VernetzungService(kantenRepository, knotenRepository, netzService),
-			kanteUpdateElevationService);
+			kanteUpdateElevationService, BasisnetzImportSource.DLM);
 
 		auditingContextServiceMockedStatic = mockStatic(AdditionalRevInfoHolder.class);
 	}
@@ -377,9 +378,9 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 					.build())
 			.zustaendigkeitAttributGruppe(ZustaendigkeitAttributGruppe.builder()
 				.zustaendigkeitAttribute(List.of(ZustaendigkeitAttributGruppeTestDataProvider
-						.withLineareReferenz(0.0, 0.5)
-						.erhaltsZustaendiger(gebietskoerperschaft)
-						.vereinbarungsKennung(VereinbarungsKennung.of("DEF")).build(),
+					.withLineareReferenz(0.0, 0.5)
+					.erhaltsZustaendiger(gebietskoerperschaft)
+					.vereinbarungsKennung(VereinbarungsKennung.of("DEF")).build(),
 					ZustaendigkeitAttributGruppeTestDataProvider
 						.withLineareReferenz(0.5, 1.0)
 						.erhaltsZustaendiger(gebietskoerperschaft)
@@ -509,7 +510,7 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 		// Knoten bleiben unverändert
 		assertThat(Stream.concat(knotenRepository.findKnotenByQuelle(QuellSystem.DLM),
 			knotenRepository.findKnotenByQuelle(QuellSystem.RadVis)))
-			.containsExactlyInAnyOrderElementsOf(basisNetzKnoten);
+				.containsExactlyInAnyOrderElementsOf(basisNetzKnoten);
 
 		// Kanten
 		List<Kante> alleKanten = findAllDLMAndRadVisKanten();
@@ -620,10 +621,10 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 
 		assertThat(Stream.concat(knotenRepository.findKnotenByQuelle(QuellSystem.DLM),
 			knotenRepository.findKnotenByQuelle(QuellSystem.RadVis)))
-			.hasSize(6)
-			.containsAll(basisNetzKnoten)
-			.map(Knoten::getKoordinate)
-			.containsExactlyInAnyOrderElementsOf(expectedKoordinaten);
+				.hasSize(6)
+				.containsAll(basisNetzKnoten)
+				.map(Knoten::getKoordinate)
+				.containsExactlyInAnyOrderElementsOf(expectedKoordinaten);
 
 		// Kanten
 		List<Kante> alleKanten = findAllDLMAndRadVisKanten().stream()
@@ -773,11 +774,11 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 		assertThat(bestehendeKnoten).hasSize(4);
 		assertThat(Stream.concat(knotenRepository.findKnotenByQuelle(QuellSystem.DLM),
 			knotenRepository.findKnotenByQuelle(QuellSystem.RadVis)))
-			.hasSize(5)
-			.containsAll(bestehendeKnoten)
-			.map(Knoten::getKoordinate)
-			.containsExactlyInAnyOrder(new Coordinate(0, 0), new Coordinate(10, 0), new Coordinate(25, 0),
-				new Coordinate(30, 0), new Coordinate(40, 0));
+				.hasSize(5)
+				.containsAll(bestehendeKnoten)
+				.map(Knoten::getKoordinate)
+				.containsExactlyInAnyOrder(new Coordinate(0, 0), new Coordinate(10, 0), new Coordinate(25, 0),
+					new Coordinate(30, 0), new Coordinate(40, 0));
 
 		// Kanten
 		List<Kante> alleKanten = findAllDLMAndRadVisKanten().stream()
@@ -803,7 +804,7 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 		List<String> expectedStrassenNamen = List.of("bestehendeKante1", "neuerName2", "neuerName3", "radVisStrasse");
 		assertThat(alleKanten.stream()
 			.map(kante -> kante.getKantenAttributGruppe().getKantenAttribute().getStrassenName().get().toString()))
-			.containsExactlyInAnyOrderElementsOf(expectedStrassenNamen);
+				.containsExactlyInAnyOrderElementsOf(expectedStrassenNamen);
 
 		// Beleuchtung stellvertretend fuer die Attribute
 		List<Beleuchtung> expectedBeleuchtung = List.of(Beleuchtung.RETROREFLEKTIERENDE_RANDMARKIERUNG,
@@ -977,8 +978,8 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 		// assert
 		assertThat(netzService.findKanteByQuelle(QuellSystem.DLM)
 			.filter(kante -> kante.getDlmId().getValue().equals("4")))
-			.extracting(Kante::isGrundnetz)
-			.containsExactly(true);
+				.extracting(Kante::isGrundnetz)
+				.containsExactly(true);
 
 		assertThat(applicationEvents.stream()).isEmpty();
 	}
@@ -1187,7 +1188,7 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 			.hasSize(2);
 		assertThat(knotenRepository.getKnotenFuerKanteIds(
 			findAllDLMAndRadVisKanten().stream().map(Kante::getId).collect(Collectors.toSet())))
-			.hasSize(4);
+				.hasSize(4);
 
 		// Lösche verschobenen Knoten
 		assertThat(knotenRepository.getKnotenInBereichFuerQuelle(new Envelope(-3, 3, -3, 3), QuellSystem.DLM))
@@ -1526,12 +1527,12 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 		assertThat(massnahmeNetzBezugAenderungs).hasSize(0);
 		assertThat(massnahmeRepository.findById(kantenMassnahme.getId()).get().getNetzbezug()
 			.getImmutableKantenAbschnittBezug())
-			.extracting(AbschnittsweiserKantenBezug::getKante)
-			.doesNotContain(kante1);
+				.extracting(AbschnittsweiserKantenBezug::getKante)
+				.doesNotContain(kante1);
 		assertThat(massnahmeRepository.findById(kantenPunktMassnahme.getId()).get().getNetzbezug()
 			.getImmutableKantenPunktBezug())
-			.extracting(PunktuellerKantenSeitenBezug::getKante)
-			.doesNotContain(kante1);
+				.extracting(PunktuellerKantenSeitenBezug::getKante)
+				.doesNotContain(kante1);
 	}
 
 	@Test
@@ -1647,7 +1648,7 @@ class DLMReimportJobTestIT extends DBIntegrationTestIT {
 		assertThat(massnahmeNetzBezugAenderungs).hasSize(0);
 		assertThat(massnahmeRepository.findById(knotenMassnahme.getId()).get().getNetzbezug()
 			.getImmutableKnotenBezug())
-			.doesNotContain(k1);
+				.doesNotContain(k1);
 	}
 
 	@Test

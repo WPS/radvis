@@ -12,22 +12,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
+import { FormElementsModule } from 'src/app/form-elements/form-elements.module';
 import { FileUploadControlComponent } from './file-upload-control.component';
 
 describe(FileUploadControlComponent.name, () => {
   let component: FileUploadControlComponent;
-  let fixture: ComponentFixture<FileUploadControlComponent>;
+  let fixture: MockedComponentFixture<FileUploadControlComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [FileUploadControlComponent],
-    }).compileComponents();
+  ngMocks.faster();
+
+  beforeAll(() => {
+    return MockBuilder(FileUploadControlComponent, FormElementsModule);
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FileUploadControlComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(FileUploadControlComponent);
+    component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
 
@@ -70,6 +71,7 @@ describe(FileUploadControlComponent.name, () => {
       });
 
       it('should be valid if no dateiEndung', () => {
+        component.dateiEndung = '';
         component.formControl.setValue('test.gpg');
         expect(component.validate()).toBeNull();
       });
@@ -103,6 +105,7 @@ describe(FileUploadControlComponent.name, () => {
           component.dateiEndung = ['gpg', 'ddd'];
           component.formControl.setValue('test.blubb');
           expect(component.validate()).not.toBeNull();
+          expect(Object.keys(component.validate()!).length).toBe(1);
           expect(component.validate()?.fileNameMismatch).not.toBeUndefined();
         });
       });
@@ -118,7 +121,7 @@ describe(FileUploadControlComponent.name, () => {
         component.fileSizeInMB = 50.1;
         component.maxFileSizeInMB = 50;
         expect(component.validate()).not.toBeNull();
-        expect(component.validate()?.fileNameMismatch).toBeUndefined();
+        expect(Object.keys(component.validate()!).length).toBe(1);
         expect(component.validate()?.fileSizeTooLarge).not.toBeUndefined();
       });
 

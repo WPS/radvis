@@ -15,17 +15,13 @@
 import { Injectable } from '@angular/core';
 import { Route, Router } from '@angular/router';
 import { discardGuard } from 'src/app/shared/services/discard.guard';
-import {
-  AbstellanlageEditorComponent
-} from 'src/app/viewer/abstellanlage/components/abstellanlage-editor/abstellanlage-editor.component';
+import { AbstellanlageEditorComponent } from 'src/app/viewer/abstellanlage/components/abstellanlage-editor/abstellanlage-editor.component';
 import { ABSTELLANLAGEN } from 'src/app/viewer/abstellanlage/models/abstellanlage.infrastruktur';
 import { abstellanlageDokumentListeResolver } from 'src/app/viewer/abstellanlage/services/abstellanlage-dokument-liste.resolver';
 import { abstellanlageResolver } from 'src/app/viewer/abstellanlage/services/abstellanlage.resolver';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
-import {
-  AbstractInfrastrukturenRoutingService
-} from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
+import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -79,6 +75,6 @@ export class AbstellanlageRoutingService extends AbstractInfrastrukturenRoutingS
   }
 
   private getActiveSubroute(): string | null {
-    return (new RegExp(`${this.infrastrukturArt.pathElement}/\\d+/(.*?)($|\\?)`).exec(this.router.url))?.[1] || null;
+    return new RegExp(`${this.infrastrukturArt.pathElement}/\\d+/(.*?)($|\\?)`).exec(this.router.url)?.[1] || null;
   }
 }

@@ -36,7 +36,10 @@ export class MapQueryParamsService extends AbstractQueryParamsService<MapQueryPa
   signatur$: Observable<Signatur | null>;
   mitVerlauf$: Observable<boolean>;
 
-  constructor(private activRoute: ActivatedRoute, router: Router) {
+  constructor(
+    private activRoute: ActivatedRoute,
+    router: Router
+  ) {
     super(router);
     this.mapQueryParams$ = this.activRoute.queryParams.pipe(
       map(params => {

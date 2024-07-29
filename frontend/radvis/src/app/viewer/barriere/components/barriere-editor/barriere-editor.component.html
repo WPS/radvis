@@ -14,7 +14,7 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">Barriere <span *ngIf="isCreator">erstellen</span></h2>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -26,20 +26,17 @@
     [dirty]="isDirty"
     [fetching]="isFetching"
     [showHeader]="false"
-    [canEdit]="isCreator || currentBarriere?.darfBenutzerBearbeiten || false"
-  >
+    [canEdit]="isCreator || currentBarriere?.darfBenutzerBearbeiten || false">
     <rad-netzbezug-selektion-control
       [selectedId]="selectedId"
       [layerId]="BARRIEREN.name"
       formControlName="netzbezug"
-      class="mt-10 mb-10"
-    ></rad-netzbezug-selektion-control>
+      class="mt-10 mb-10"></rad-netzbezug-selektion-control>
 
     <rad-organisationen-dropdown-control
       formControlName="verantwortlicheOrganisation"
       [options]="(alleOrganisationen$ | async) || []"
-      [errors]="formGroup.get('verantwortlicheOrganisation')?.errors"
-    >
+      [errors]="formGroup.get('verantwortlicheOrganisation')?.errors">
       Verantwortliche Organisation
     </rad-organisationen-dropdown-control>
 
@@ -47,32 +44,28 @@
       formControlName="barrierenForm"
       [groupedOptions]="barrierenFormOptions"
       [nullable]="false"
-      [errors]="formGroup.get('barrierenForm')?.errors"
-    >
+      [errors]="formGroup.get('barrierenForm')?.errors">
       Barrierenform
     </rad-grouped-enum-dropdown-control>
 
     <rad-enum-dropdown-control
       formControlName="verbleibendeDurchfahrtsbreite"
       [options]="verbleibendeDurchfahrtsbreiteOptions"
-      [errors]="formGroup.get('verbleibendeDurchfahrtsbreite')?.errors"
-    >
+      [errors]="formGroup.get('verbleibendeDurchfahrtsbreite')?.errors">
       Barrierendurchfahrbreite
     </rad-enum-dropdown-control>
 
     <rad-enum-dropdown-control
       formControlName="sicherung"
       [options]="sicherungOptions"
-      [errors]="formGroup.get('sicherung')?.errors"
-    >
+      [errors]="formGroup.get('sicherung')?.errors">
       Absperranlagensicherung
     </rad-enum-dropdown-control>
 
     <rad-enum-dropdown-control
       formControlName="markierung"
       [options]="markierungOptions"
-      [errors]="formGroup.get('markierung')?.errors"
-    >
+      [errors]="formGroup.get('markierung')?.errors">
       Absperranlagenmarkierung
     </rad-enum-dropdown-control>
 
@@ -80,8 +73,7 @@
       formControlName="begruendung"
       [maxLength]="2000"
       [asTextarea]="true"
-      [errors]="formGroup.get('begruendung')?.errors"
-    >
+      [errors]="formGroup.get('begruendung')?.errors">
       <div class="label">Begründung für das Erfordernis der Barriere</div>
     </rad-text-input-control>
   </rad-attribute-editor>

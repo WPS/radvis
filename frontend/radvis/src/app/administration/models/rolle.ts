@@ -30,33 +30,31 @@ export enum Rolle {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Rolle {
-  export const options: EnumOption[] = Object.keys(Rolle).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Rolle.RADVIS_ADMINISTRATOR:
-          return { name: k, displayText: 'RadVIS AdministratorIn' };
-        case Rolle.KREISKOORDINATOREN:
-          return { name: k, displayText: 'KreiskoordinatorIn' };
-        case Rolle.RADWEGE_ERFASSERIN:
-          return { name: k, displayText: 'Radwege ErfasserIn - Kommune/Kreis/Regierungsbezirk' };
-        case Rolle.RADVERKEHRSBEAUFTRAGTER:
-          return { name: k, displayText: 'RadverkehrsbeauftragteR Regierungsbezirk' };
-        case Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN:
-          return { name: k, displayText: 'BearbeiterIn (VM)/RadNETZ-AdministratorIn' };
-        case Rolle.EXTERNER_DIENSTLEISTER:
-          return { name: k, displayText: 'Externer Dienstleister' };
-        case Rolle.RADVIS_BETRACHTER:
-          return { name: k, displayText: 'BetrachterIn' };
-        case Rolle.RADNETZ_QUALITAETSSICHERIN:
-          return { name: k, displayText: 'RadNETZ-QualitätssicherIn' };
-        case Rolle.LGL_MITARBEITERIN:
-          return { name: k, displayText: 'LGL-MitarbeiterIn' };
-        case Rolle.RADROUTEN_BEARBEITERIN:
-          return { name: k, displayText: 'RadroutenbearbeiterIn' };
-        case Rolle.LOG_SICHTER:
-          return { name: k, displayText: 'Log-SichterIn' };
-      }
-      throw new Error('Beschreibung für enum Rolle fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Rolle).map((k: string): EnumOption => {
+    switch (k) {
+      case Rolle.RADVIS_ADMINISTRATOR:
+        return { name: k, displayText: 'RadVIS AdministratorIn' };
+      case Rolle.KREISKOORDINATOREN:
+        return { name: k, displayText: 'KreiskoordinatorIn' };
+      case Rolle.RADWEGE_ERFASSERIN:
+        return { name: k, displayText: 'Radwege ErfasserIn - Kommune/Kreis/Regierungsbezirk' };
+      case Rolle.RADVERKEHRSBEAUFTRAGTER:
+        return { name: k, displayText: 'RadverkehrsbeauftragteR Regierungsbezirk' };
+      case Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN:
+        return { name: k, displayText: 'BearbeiterIn (VM)/RadNETZ-AdministratorIn' };
+      case Rolle.EXTERNER_DIENSTLEISTER:
+        return { name: k, displayText: 'Externer Dienstleister' };
+      case Rolle.RADVIS_BETRACHTER:
+        return { name: k, displayText: 'BetrachterIn' };
+      case Rolle.RADNETZ_QUALITAETSSICHERIN:
+        return { name: k, displayText: 'RadNETZ-QualitätssicherIn' };
+      case Rolle.LGL_MITARBEITERIN:
+        return { name: k, displayText: 'LGL-MitarbeiterIn' };
+      case Rolle.RADROUTEN_BEARBEITERIN:
+        return { name: k, displayText: 'RadroutenbearbeiterIn' };
+      case Rolle.LOG_SICHTER:
+        return { name: k, displayText: 'Log-SichterIn' };
     }
-  );
+    throw new Error('Beschreibung für enum Rolle fehlt: ' + k);
+  });
 }

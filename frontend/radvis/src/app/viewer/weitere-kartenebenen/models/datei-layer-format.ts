@@ -22,19 +22,17 @@ export enum DateiLayerFormat {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace DateiLayerFormat {
-  export const options: EnumOption[] = Object.keys(DateiLayerFormat).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case DateiLayerFormat.SHAPE:
-          return { name: k, displayText: 'Shapefile (Shape-ZIP)' };
-        case DateiLayerFormat.GEOJSON:
-          return { name: k, displayText: 'GeoJSON' };
-        case DateiLayerFormat.GEOPACKAGE:
-          return { name: k, displayText: 'GeoPackage' };
-      }
-      throw new Error('Beschreibung für enum DateiLayerTyp fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(DateiLayerFormat).map((k: string): EnumOption => {
+    switch (k) {
+      case DateiLayerFormat.SHAPE:
+        return { name: k, displayText: 'Shapefile (Shape-ZIP)' };
+      case DateiLayerFormat.GEOJSON:
+        return { name: k, displayText: 'GeoJSON' };
+      case DateiLayerFormat.GEOPACKAGE:
+        return { name: k, displayText: 'GeoPackage' };
     }
-  );
+    throw new Error('Beschreibung für enum DateiLayerTyp fehlt: ' + k);
+  });
 
   export const getDisplayText = (dateiLayerFormat: DateiLayerFormat): string => {
     if (!dateiLayerFormat) {

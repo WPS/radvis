@@ -55,8 +55,8 @@ public class KantenSegment {
 
 	public static double ERLAUBTE_MAXIMALE_DISTANZ = 30;
 	public static double SOFTMAX_FAKTOR = 3.;
-	public static double NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ =
-		(1 + ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR) / (ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR);
+	public static double NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ = (1 + ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR)
+		/ (ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR);
 
 	@NonNull
 	@Getter
@@ -128,29 +128,29 @@ public class KantenSegment {
 
 		boolean muessenAttributeUmgedrehtWerden = zielnetzProjektion
 			.isWurdenVonUndBisBeiProjektionVertauscht() != quellnetzProjektion
-			.isWurdenVonUndBisBeiProjektionVertauscht();
+				.isWurdenVonUndBisBeiProjektionVertauscht();
 
 		Richtung fahrtrichtungLinks = quellnetzKante.getFahrtrichtungAttributGruppe().getFahrtrichtungLinks();
 		this.fahrtrichtungLinks = muessenAttributeUmgedrehtWerden ? fahrtrichtungLinks.umgedreht() : fahrtrichtungLinks;
 		Richtung fahrtrichtungRechts = quellnetzKante.getFahrtrichtungAttributGruppe().getFahrtrichtungRechts();
-		this.fahrtrichtungRechts = muessenAttributeUmgedrehtWerden ?
-			fahrtrichtungRechts.umgedreht() : fahrtrichtungRechts;
+		this.fahrtrichtungRechts = muessenAttributeUmgedrehtWerden ? fahrtrichtungRechts.umgedreht()
+			: fahrtrichtungRechts;
 
 		List<GeschwindigkeitAttribute> geschwindigkeitAttribute;
 		if (muessenAttributeUmgedrehtWerden) {
 			geschwindigkeitAttribute = quellnetzKante.getGeschwindigkeitAttributGruppe()
 				.getGeschwindigkeitAttribute().stream()
 				.map(
-					zuDrehendeGeschwindigkeitAttribute -> zuDrehendeGeschwindigkeitAttribute.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung()
-						.isPresent() ?
-						new GeschwindigkeitAttribute(
+					zuDrehendeGeschwindigkeitAttribute -> zuDrehendeGeschwindigkeitAttribute
+						.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung()
+						.isPresent() ? new GeschwindigkeitAttribute(
 							zuDrehendeGeschwindigkeitAttribute.getLinearReferenzierterAbschnitt(),
 							zuDrehendeGeschwindigkeitAttribute.getOrtslage().orElse(null),
-							zuDrehendeGeschwindigkeitAttribute.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung()
+							zuDrehendeGeschwindigkeitAttribute
+								.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung()
 								.get(),
 							zuDrehendeGeschwindigkeitAttribute.getHoechstgeschwindigkeit()
-						) :
-						zuDrehendeGeschwindigkeitAttribute).collect(Collectors.toList());
+						) : zuDrehendeGeschwindigkeitAttribute).collect(Collectors.toList());
 		} else {
 			geschwindigkeitAttribute = quellnetzKante.getGeschwindigkeitAttributGruppe()
 				.getImmutableGeschwindigkeitAttribute();
@@ -195,12 +195,12 @@ public class KantenSegment {
 			double orthogonaleDistanz = segment.distancePerpendicular(coordinate);
 			// entspricht softsign( richtungsbezug * (distanz / SOFTMAX_FAKTOR))
 			// -> bei einem Wert von SOFTMAX_FAKTOR für die Distanz in Metern haben wir eine 50% confidence
-			sum +=
-				richtungsbezug * ((orthogonaleDistanz / SOFTMAX_FAKTOR) / (1. + (orthogonaleDistanz / SOFTMAX_FAKTOR)));
+			sum += richtungsbezug * ((orthogonaleDistanz / SOFTMAX_FAKTOR) / (1. + (orthogonaleDistanz
+				/ SOFTMAX_FAKTOR)));
 		}
 
-		double averageNormalisiertAufErlaubteDistanz =
-			sum * NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ / vonKanteCoordinates.length;
+		double averageNormalisiertAufErlaubteDistanz = sum * NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ
+			/ vonKanteCoordinates.length;
 
 		return new Haendigkeit(averageNormalisiertAufErlaubteDistanz);
 	}
@@ -222,7 +222,7 @@ public class KantenSegment {
 				- linearReferenzierterAbschnittAufZielnetzKante.getVonValue();
 			LinearReferenzierterAbschnitt projizierteLinearReferenzierterAbschnitt = LinearReferenzierterAbschnitt
 				.of(t.getLinearReferenzierterAbschnitt().getVonValue() * segementLaenge
-						+ linearReferenzierterAbschnittAufZielnetzKante.getVonValue(),
+					+ linearReferenzierterAbschnittAufZielnetzKante.getVonValue(),
 					t.getLinearReferenzierterAbschnitt().getBisValue() * segementLaenge
 						+ linearReferenzierterAbschnittAufZielnetzKante.getVonValue());
 

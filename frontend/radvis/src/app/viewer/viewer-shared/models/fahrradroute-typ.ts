@@ -22,19 +22,17 @@ export enum FahrradrouteTyp {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace FahrradrouteTyp {
-  export const options: EnumOption[] = Object.keys(FahrradrouteTyp).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case FahrradrouteTyp.RADVIS_ROUTE:
-          return { name: k, displayText: 'RadVIS-Route' };
-        case FahrradrouteTyp.TOUBIZ_ROUTE:
-          return { name: k, displayText: 'Toubiz-Route' };
-        case FahrradrouteTyp.TFIS_ROUTE:
-          return { name: k, displayText: 'TFIS-Route' };
-      }
-      throw new Error('Beschreibung für enum FahrradrouteTyp fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(FahrradrouteTyp).map((k: string): EnumOption => {
+    switch (k) {
+      case FahrradrouteTyp.RADVIS_ROUTE:
+        return { name: k, displayText: 'RadVIS-Route' };
+      case FahrradrouteTyp.TOUBIZ_ROUTE:
+        return { name: k, displayText: 'Toubiz-Route' };
+      case FahrradrouteTyp.TFIS_ROUTE:
+        return { name: k, displayText: 'TFIS-Route' };
     }
-  );
+    throw new Error('Beschreibung für enum FahrradrouteTyp fehlt: ' + k);
+  });
 
   export const getQuelleName = (typ: FahrradrouteTyp): string => {
     if (typ === FahrradrouteTyp.TFIS_ROUTE) {

@@ -18,28 +18,24 @@
   aria-keyshortcuts="Control+Alt+Shift+E"
   *ngIf="infrastrukturenOben.length > 0"
   [class.collapsed]="infrastrukturenCollapsed"
-  class="container"
->
+  class="container">
   <div
     [class.justify-content-center]="infrastrukturenCollapsed"
     [class.justify-content-flex-end]="!infrastrukturenCollapsed"
-    class="collapse-toggle-area"
-  >
+    class="collapse-toggle-area">
     <button
       #infrastrukturenCollapseButton
       (click)="infrastrukturenCollapsed = !infrastrukturenCollapsed"
       [attr.aria-label]="infrastrukturenCollapsed ? 'Ebenenauswahl Aufklappen' : 'Ebenenauswahl Einklappen'"
       [matTooltip]="infrastrukturenCollapsed ? 'Ebenenauswahl Aufklappen' : 'Ebenenauswahl Einklappen'"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon *ngIf="!infrastrukturenCollapsed">keyboard_arrow_left</mat-icon>
       <mat-icon *ngIf="infrastrukturenCollapsed">keyboard_arrow_right</mat-icon>
     </button>
   </div>
   <div
     *ngIf="selektierteInfrastrukturen$ | async as selektierteInfrastrukturen"
-    class="display-flex flex-column h-100 no-overflow"
-  >
+    class="display-flex flex-column h-100 no-overflow">
     <div class="display-flex flex-column flex-grow h-100 w-100 scrollable-bereich">
       <!-- Infrastrukturen oben -->
       <table>
@@ -50,8 +46,7 @@
       <ng-container *ngIf="weitereKartenebenenFeatureAktiv">
         <rad-weitere-kartenebenen-infrastruktur-menu
           [collapsed]="infrastrukturenCollapsed"
-          class="w-100"
-        ></rad-weitere-kartenebenen-infrastruktur-menu>
+          class="w-100"></rad-weitere-kartenebenen-infrastruktur-menu>
         <table *ngIf="weitereKartenebenen$ | async as WeitereKartenebenen">
           <ng-template [ngForOf]="WeitereKartenebenen" [ngForTemplate]="weitereKartenebenenItem" ngFor></ng-template>
         </table>
@@ -74,8 +69,7 @@
         [matTooltipDisabled]="!infrastrukturenCollapsed"
         [tabindex]="infrastrukturenCollapsed ? 0 : -1"
         class="tabellen-ansicht-item"
-        matTooltip="Tabellenansicht"
-      >
+        matTooltip="Tabellenansicht">
         <td class="icon-column">
           <mat-icon class="material-icons-outlined my-3 ml-5" radAccessabilityText="Tabellenansicht"
             >table_chart
@@ -91,8 +85,7 @@
               (change)="onToggleTabellen()"
               (click)="$event.stopPropagation()"
               [checked]="(tabellenVisible$ | async) || false"
-              aria-label="Tabellenansicht"
-            ></mat-checkbox>
+              aria-label="Tabellenansicht"></mat-checkbox>
           </td>
         </ng-container>
       </tr>
@@ -105,14 +98,12 @@
         [class.selected]="selektierteInfrastrukturen.includes(infrastruktur)"
         [matTooltipDisabled]="!infrastrukturenCollapsed"
         [matTooltip]="infrastruktur.name"
-        [tabindex]="infrastrukturenCollapsed ? 0 : -1"
-      >
+        [tabindex]="infrastrukturenCollapsed ? 0 : -1">
         <td class="icon-column">
           <mat-icon
             [radAccessabilityText]="infrastruktur.displayName"
             [svgIcon]="iconPrefix + infrastruktur.name"
-            class="my-3 ml-5"
-          ></mat-icon>
+            class="my-3 ml-5"></mat-icon>
         </td>
         <ng-container *ngIf="!infrastrukturenCollapsed">
           <td class="text-column w-100 pl-3" [id]="infrastruktur.displayName">
@@ -126,8 +117,7 @@
               (change)="onClickInfrastrukturen(infrastruktur)"
               (click)="$event.stopPropagation()"
               [attr.aria-labelledby]="infrastruktur.displayName"
-              [checked]="selektierteInfrastrukturen.includes(infrastruktur)"
-            ></mat-checkbox>
+              [checked]="selektierteInfrastrukturen.includes(infrastruktur)"></mat-checkbox>
           </td>
         </ng-container>
         <td *ngIf="infrastrukturenCollapsed">
@@ -142,8 +132,7 @@
         [class.selected]="selectedWeitereKartenebenen.includes(weitereKarteebenen)"
         [matTooltipDisabled]="!infrastrukturenCollapsed"
         [matTooltip]="weitereKarteebenen.name"
-        [tabindex]="infrastrukturenCollapsed ? 0 : -1"
-      >
+        [tabindex]="infrastrukturenCollapsed ? 0 : -1">
         <td class="position-relative" [class.pr-5]="!infrastrukturenCollapsed">
           <div [matBadge]="i + 1" class="my-3 icon-with-badge-container" matBadgeSize="small">
             <mat-icon [radAccessabilityText]="weitereKarteebenen.name" class="material-icons-outlined icon-column ml-5">
@@ -163,8 +152,7 @@
               (change)="onClickWeiterKartenebenen(weitereKarteebenen)"
               (click)="$event.stopPropagation()"
               [attr.aria-label]="weitereKarteebenen.name"
-              [checked]="selectedWeitereKartenebenen.includes(weitereKarteebenen)"
-            ></mat-checkbox>
+              [checked]="selectedWeitereKartenebenen.includes(weitereKarteebenen)"></mat-checkbox>
           </td>
         </ng-container>
         <td *ngIf="infrastrukturenCollapsed">

@@ -50,15 +50,17 @@ public class KonfliktToGeoJsonConverter {
 
 		if (konflikt.getLinearReferenzierterAbschnitt().getVonValue() != 0.
 			|| konflikt.getLinearReferenzierterAbschnitt().getBisValue() != 1.) {
-			double metermarkeVon =
-				konflikt.getLinearReferenzierterAbschnitt().getVonValue() * lineString.getLength();
-			double metermarkeBis =
-				konflikt.getLinearReferenzierterAbschnitt().getBisValue() * lineString.getLength();
+			double metermarkeVon = konflikt.getLinearReferenzierterAbschnitt().getVonValue() * lineString.getLength();
+			double metermarkeBis = konflikt.getLinearReferenzierterAbschnitt().getBisValue() * lineString.getLength();
 			betroffenerAbschnitt = new DecimalFormat("#.##").format(metermarkeVon) + " m bis "
 				+ new DecimalFormat("#.##").format(metermarkeBis) + " m";
 		}
 
+		String seitenbezugName = konflikt.getSeitenbezug() != null ? konflikt.getSeitenbezug().name().toLowerCase()
+			: "";
+
 		return new KonfliktView(konflikt.getAttributName(), betroffenerAbschnitt,
-			konflikt.getUebernommenerWert(), nichtUebernommeneWerte);
+			konflikt.getUebernommenerWert(), nichtUebernommeneWerte, seitenbezugName,
+			konflikt.getBemerkung());
 	}
 }

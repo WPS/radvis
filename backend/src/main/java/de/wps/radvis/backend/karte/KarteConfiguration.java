@@ -23,6 +23,7 @@ import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.karte.domain.HintergrundKartenRepository;
 import de.wps.radvis.backend.karte.domain.HintergrundKartenService;
 import de.wps.radvis.backend.karte.domain.KarteConfigurationProperties;
+import de.wps.radvis.backend.karte.schnittstelle.HintergrundKartenController;
 import de.wps.radvis.backend.karte.schnittstelle.HintergrundKartenRepositoryImpl;
 import lombok.NonNull;
 
@@ -43,12 +44,19 @@ public class KarteConfiguration {
 
 	@Bean
 	public HintergrundKartenRepository hintergrundKartenRepository() {
-		return new HintergrundKartenRepositoryImpl(karteConfigurationProperties.getHintergrundKarten());
+		return new HintergrundKartenRepositoryImpl(karteConfigurationProperties.getHintergrundKartenProxy());
 	}
 
 	@Bean
 	public HintergrundKartenService hintergrundKartenService() {
 		return new HintergrundKartenService(hintergrundKartenRepository(), commonConfigurationProperties,
 			webClientBuilder);
+	}
+
+	@Bean
+	public HintergrundKartenController hintergrundKartenController() {
+		return new HintergrundKartenController(hintergrundKartenService(),
+			karteConfigurationProperties.getHintergrundKarten(),
+			karteConfigurationProperties.getDefaultHintergrundKarte());
 	}
 }

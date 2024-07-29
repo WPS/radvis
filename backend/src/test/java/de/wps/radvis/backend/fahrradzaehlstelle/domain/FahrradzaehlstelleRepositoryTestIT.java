@@ -79,11 +79,11 @@ class FahrradzaehlstelleRepositoryTestIT extends DBIntegrationTestIT {
 					Channel.builder()
 						.channelId(ChannelId.of(456L))
 						.fahrradzaehlDaten(Map.of(
-								aeltererZeitstempel,
-								FahrradzaehlDatenEintrag.builder().zaehlstand(Zaehlstand.of(12L)).build(),
-								neuesterZeitstempel,
-								FahrradzaehlDatenEintrag.builder().zaehlstand(Zaehlstand.of(25L)).build()
-							)
+							aeltererZeitstempel,
+							FahrradzaehlDatenEintrag.builder().zaehlstand(Zaehlstand.of(12L)).build(),
+							neuesterZeitstempel,
+							FahrradzaehlDatenEintrag.builder().zaehlstand(Zaehlstand.of(25L)).build()
+						)
 						).build()
 				)).build()
 		);

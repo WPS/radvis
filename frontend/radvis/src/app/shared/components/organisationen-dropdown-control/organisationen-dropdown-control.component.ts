@@ -44,7 +44,8 @@ import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 })
 export class OrganisationenDropdownControlComponent
   extends AbstractUndeterminedFormControl<Verwaltungseinheit>
-  implements OnChanges, OnInit {
+  implements OnChanges, OnInit
+{
   @Input()
   options: Verwaltungseinheit[] = [];
 

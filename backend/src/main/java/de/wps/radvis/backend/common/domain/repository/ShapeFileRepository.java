@@ -61,7 +61,8 @@ public interface ShapeFileRepository {
 	void validate(File shpFile)
 		throws ShapeEncodingException, ShapeUnreadableException, IOException, ShapeProjectionException;
 
-	@NonNull Consumer<SimpleFeature> setzeGeometryFactoryAufGeometrie(
+	@NonNull
+	Consumer<SimpleFeature> setzeGeometryFactoryAufGeometrie(
 		KoordinatenReferenzSystem koordinatenReferenzSystem);
 
 	SimpleFeature transformGeometryToUTM32(SimpleFeature simpleFeature);

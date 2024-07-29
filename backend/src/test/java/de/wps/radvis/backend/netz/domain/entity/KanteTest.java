@@ -659,12 +659,12 @@ class KanteTest {
 			new Coordinate[] { new Coordinate(1, 1), new Coordinate(5, 1), new Coordinate(10, 1) });
 
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(
-				ursprungsLinestring.getStartPoint().getCoordinate(), QuellSystem.DLM)
+			ursprungsLinestring.getStartPoint().getCoordinate(), QuellSystem.DLM)
 			.id(1L)
 			.build();
 
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(
-				ursprungsLinestring.getEndPoint().getCoordinate(), QuellSystem.DLM)
+			ursprungsLinestring.getEndPoint().getCoordinate(), QuellSystem.DLM)
 			.id(2L)
 			.build();
 

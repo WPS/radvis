@@ -17,13 +17,14 @@ import { KarteMenuItemComponent } from './karte-menu-item.component';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { KarteModule } from 'src/app/karte/karte.module';
 
 describe(KarteMenuItemComponent.name, () => {
   let component: KarteMenuItemComponent;
   let fixture: MockedComponentFixture<KarteMenuItemComponent>;
 
   beforeEach(() => {
-    return MockBuilder(KarteMenuItemComponent, SharedModule);
+    return MockBuilder(KarteMenuItemComponent, [SharedModule, KarteModule]);
   });
 
   beforeEach(() => {

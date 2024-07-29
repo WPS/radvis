@@ -61,15 +61,17 @@ public class OsmAuszeichnungsService {
 	public static final Set<Netzklasse> RELEVANTE_NETZKLASSEN = Set.of(Netzklasse.RADNETZ_ALLTAG,
 		Netzklasse.RADNETZ_FREIZEIT);
 
-	public static final Map<String, String> RELEVANTE_BELAGARTEN_TO_OSMVALUE = new HashMap<>() {{
-		put(BelagArt.ASPHALT.name(), "asphalt");
-		put(BelagArt.BETON.name(), "concrete");
-		put(BelagArt.NATURSTEINPFLASTER.name(), "cobblestone");
-		put(BelagArt.BETONSTEINPFLASTER_PLATTENBELAG.name(), "paving_stones");
-		put(BelagArt.WASSERGEBUNDENE_DECKE.name(), "compacted");
-		put(BelagArt.UNGEBUNDENE_DECKE.name(), "unpaved");
-		put(BelagArt.SONSTIGER_BELAG.name(), "other");
-	}};
+	public static final Map<String, String> RELEVANTE_BELAGARTEN_TO_OSMVALUE = new HashMap<>() {
+		{
+			put(BelagArt.ASPHALT.name(), "asphalt");
+			put(BelagArt.BETON.name(), "concrete");
+			put(BelagArt.NATURSTEINPFLASTER.name(), "cobblestone");
+			put(BelagArt.BETONSTEINPFLASTER_PLATTENBELAG.name(), "paving_stones");
+			put(BelagArt.WASSERGEBUNDENE_DECKE.name(), "compacted");
+			put(BelagArt.UNGEBUNDENE_DECKE.name(), "unpaved");
+			put(BelagArt.SONSTIGER_BELAG.name(), "other");
+		}
+	};
 
 	private final KantenRepository kantenRepository;
 

@@ -48,7 +48,8 @@ export interface AutoCompleteOption {
 })
 export class AutocompleteDropdownComponent
   extends AbstractUndeterminedFormControl<AutoCompleteOption>
-  implements OnChanges, OnInit {
+  implements OnChanges, OnInit
+{
   @Input()
   options: AutoCompleteOption[] = [];
 

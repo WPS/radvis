@@ -28,7 +28,10 @@ export class KonsistenzregelService {
   private readonly api = '/api/konsistenzregel';
   private readonly MAX_ANZAHL_VERLETZUNGEN = 300;
 
-  constructor(private http: HttpClient, private notifyUserService: NotifyUserService) {}
+  constructor(
+    private http: HttpClient,
+    private notifyUserService: NotifyUserService
+  ) {}
 
   public getAllKonsistenzRegel(): Observable<Konsistenzregel[]> {
     return this.http.get<Konsistenzregel[]>(`${this.api}/list`);
@@ -40,16 +43,14 @@ export class KonsistenzregelService {
       params = params.set('view', view?.join(','));
     }
 
-    return this.http
-      .get<FehlerprotokollView[]>(`${this.api}/verletzung/list`, { params })
-      .pipe(
-        tap(result => {
-          if (result.length === this.MAX_ANZAHL_VERLETZUNGEN) {
-            this.notifyUserService.warn(
-              'Die Anzahl der dargestellten Konsistenzregel-Verletzungen wurde beschränkt. Für den vollständigen Datensatz nutzen Sie bitte den WFS-Dienst (s. Handbuch).'
-            );
-          }
-        })
-      );
+    return this.http.get<FehlerprotokollView[]>(`${this.api}/verletzung/list`, { params }).pipe(
+      tap(result => {
+        if (result.length === this.MAX_ANZAHL_VERLETZUNGEN) {
+          this.notifyUserService.warn(
+            'Die Anzahl der dargestellten Konsistenzregel-Verletzungen wurde beschränkt. Für den vollständigen Datensatz nutzen Sie bitte den WFS-Dienst (s. Handbuch).'
+          );
+        }
+      })
+    );
   }
 }

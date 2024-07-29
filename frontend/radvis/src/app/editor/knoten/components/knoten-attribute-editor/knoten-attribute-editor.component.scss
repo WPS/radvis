@@ -21,11 +21,8 @@
 }
 
 .editing-not-allowed-hinweis {
-  display: flex;
-  align-items: center;
   padding: 1rem 0.5rem;
-  border-bottom: 1px solid map-get($grayscale, 300);
-  width: 17rem;
+  border-bottom: 1px solid map-get($grayscale, 100);
 }
 
 .text-area {

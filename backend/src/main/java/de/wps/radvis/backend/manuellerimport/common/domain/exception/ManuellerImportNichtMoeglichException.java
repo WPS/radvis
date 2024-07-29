@@ -31,4 +31,8 @@ public class ManuellerImportNichtMoeglichException extends Exception {
 	public ManuellerImportNichtMoeglichException(String message, Throwable e) {
 		super(MESSAGE_PREFIX + message, e);
 	}
+
+	public ManuellerImportNichtMoeglichException(String message) {
+		super(message);
+	}
 }

@@ -53,18 +53,22 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group1")
-@ContextConfiguration(classes = { ServicestationConfiguration.class, OrganisationConfiguration.class,
-	BenutzerConfiguration.class, DokumentConfiguration.class })
+@ContextConfiguration(classes = {
+	ServicestationConfiguration.class,
+	OrganisationConfiguration.class,
+	GeoConverterConfiguration.class,
+	BenutzerConfiguration.class,
+	DokumentConfiguration.class,
+})
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
 })
 @MockBeans({
-	@MockBean(GeoConverterConfiguration.class),
 	@MockBean(VerwaltungseinheitImportRepository.class),
 	@MockBean(ZustaendigkeitsService.class),
-	@MockBean(MailService.class)
+	@MockBean(MailService.class),
 })
 class ServicestationRepositoryTestIT extends DBIntegrationTestIT {
 

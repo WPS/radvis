@@ -193,8 +193,7 @@ public class Fahrradroute extends VersionierteEntity {
 		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation,
 		List<FahrradrouteVariante> varianten,
 		boolean veroeffentlicht,
-		Long customProfileId
-	) {
+		Long customProfileId) {
 		super(id, version);
 		require(fahrradrouteTyp, notNullValue());
 		require(name, notNullValue());
@@ -402,7 +401,7 @@ public class Fahrradroute extends VersionierteEntity {
 			linearReferenzierteProfilEigenschaften,
 			netzbezugLineString != null && netzbezugLineString.getGeometryType().equals("LineString")
 				? FahrradrouteVariante.createDefaultStuetzpunkte(abschnittsweiserKantenBezug,
-				(LineString) netzbezugLineString)
+					(LineString) netzbezugLineString)
 				: null,
 			new FahrradroutenMatchingAndRoutingInformation(),
 			new ArrayList<>(),
@@ -620,7 +619,7 @@ public class Fahrradroute extends VersionierteEntity {
 			return netzbezugLineString.getLength();
 		}
 		return abschnittsweiserKantenBezug.stream().mapToDouble(
-				aKB -> aKB.getLinearReferenzierterAbschnitt().relativeLaenge() * aKB.getKante().getGeometry().getLength())
+			aKB -> aKB.getLinearReferenzierterAbschnitt().relativeLaenge() * aKB.getKante().getGeometry().getLength())
 			.sum();
 	}
 
@@ -678,28 +677,33 @@ public class Fahrradroute extends VersionierteEntity {
 	 * Beim Setzten des Netzbezuges werden auch die Stuetzpunkte aus dem abschnittsweiserKantenBezug berechnet und die
 	 * alten ueberschrieben.
 	 */
-	public void updateNetzbezug(Geometry netzbezugLineString,
+	public void updateNetzbezug(Optional<Geometry> netzbezugLineString,
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezug,
 		List<LinearReferenzierteProfilEigenschaften> linearReferenzierteProfilEigenschaften,
 		Optional<Geometry> originalGeometrie) {
-		require(netzbezugLineString.getGeometryType().equals("LineString"));
 		require(netzbezugLineString, notNullValue());
+		if (netzbezugLineString.isPresent()) {
+			require(netzbezugLineString.get().getGeometryType().equals(Geometry.TYPENAME_LINESTRING));
+		}
 		require(abschnittsweiserKantenBezug, notNullValue());
 		require(!abschnittsweiserKantenBezug.isEmpty());
 		require(originalGeometrie, notNullValue());
 
 		originalGeometrie.ifPresent(geometry -> this.originalGeometrie = geometry);
-		this.netzbezugLineString = netzbezugLineString;
+		this.netzbezugLineString = netzbezugLineString.orElse(null);
 		this.abschnittsweiserKantenBezug.clear();
 		this.abschnittsweiserKantenBezug.addAll(abschnittsweiserKantenBezug);
 		this.linearReferenzierteProfilEigenschaften.clear();
 		this.linearReferenzierteProfilEigenschaften.addAll(linearReferenzierteProfilEigenschaften);
 
-		// Immer wenn der Netzbezug mit neuen Werten geupdated wird wollen wir auch die Stuetzpunkte
-		// neu setzten, da die eventuell alten noch vorhandenen nicht mehr zu der jetzt gesetzten Route passen
-		// TODO: gibt es den Fall, dass die Assertions nicht gesetzt sind? Wenn nein, hochreichen!
-		this.stuetzpunkte = FahrradrouteVariante.createDefaultStuetzpunkte(abschnittsweiserKantenBezug,
-			(LineString) netzbezugLineString);
+		if (netzbezugLineString.isPresent()) {
+			// Immer wenn der Netzbezug mit neuen Werten geupdated wird wollen wir auch die Stuetzpunkte
+			// neu setzten, da die eventuell alten noch vorhandenen nicht mehr zu der jetzt gesetzten Route passen
+			this.stuetzpunkte = FahrradrouteVariante.createDefaultStuetzpunkte(abschnittsweiserKantenBezug,
+				(LineString) netzbezugLineString.get());
+		} else {
+			this.stuetzpunkte = null;
+		}
 
 		RadVisDomainEventPublisher.publish(new FahrradrouteUpdatedEvent(this));
 	}

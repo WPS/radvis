@@ -31,14 +31,14 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 
 public class BenutzerTestDataProvider {
 
-	public static Comparator<BenutzerDBListView> benutzerDBListViewComparator = (a, b) ->
-		a.getVorname().equals(b.getVorname()) &&
-			a.getNachname().equals(b.getNachname()) &&
-			a.getStatus().equals(b.getStatus()) &&
-			a.getOrganisation().equals(b.getOrganisation()) &&
-			a.getEmail().equals(b.getEmail()) &&
-			a.getId().equals(b.getId()) &&
-			a.getRollen().equals(b.getRollen()) ? 0 : 1;
+	public static Comparator<BenutzerDBListView> benutzerDBListViewComparator = (a, b) -> a.getVorname().equals(b
+		.getVorname()) &&
+		a.getNachname().equals(b.getNachname()) &&
+		a.getStatus().equals(b.getStatus()) &&
+		a.getOrganisation().equals(b.getOrganisation()) &&
+		a.getEmail().equals(b.getEmail()) &&
+		a.getId().equals(b.getId()) &&
+		a.getRollen().equals(b.getRollen()) ? 0 : 1;
 
 	public static BenutzerBuilder defaultBenutzer() {
 		return radwegeErfasserinKommuneKreis(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());

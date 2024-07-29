@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.common.domain;
 
+import static de.wps.radvis.backend.common.domain.Validators.isValidDateipfad;
 import static de.wps.radvis.backend.common.domain.Validators.isValidURL;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.empty;
@@ -21,8 +22,6 @@ import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.not;
 import static org.valid4j.Assertive.require;
 
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -51,8 +50,6 @@ public class JobConfigurationProperties {
 	private final String bietigheimBissingenShapeFilePath;
 
 	private final String ttSibFilesPath;
-
-	private final String verwaltungsgrenzenShapeFilesPath;
 
 	private final String dlmBasisStrassenXmlFilePath;
 
@@ -91,7 +88,6 @@ public class JobConfigurationProperties {
 		String rvkEsslingenShapeFilePath,
 		String bietigheimBissingenShapeFilePath,
 		String ttSibFilesPath,
-		String verwaltungsgrenzenShapeFilesPath,
 		String dlmBasisStrassenXmlFilePath,
 		String dlmBasisWegeXmlFilePath,
 		String umsetzungsstandabfragenCsvImportFilePath,
@@ -105,26 +101,28 @@ public class JobConfigurationProperties {
 		String fahrradzaehlstellenMobiDataImportBaseUrl,
 		String fahrradzaehlstellenMobiDataImportStartDate,
 		String servicestationImportUrl) {
-
 		require(isValidDateipfad(radwegeLglTuttlingenShpFilePath),
 			"radwegeLglTuttlingenShpFilePath muss Dateipfadstruktur haben");
-		require(isValidDateipfad(radNetzShapeFilesPath), "radNetzShapeFilesPath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(radNetzShapeFilesPath),
+			"radNetzShapeFilesPath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(radNetzStreckenShapeFilesPath),
 			"radNetzStreckenShapeFilesPath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(gisGoeppingenShapeFilesPath1),
 			"gisGoeppingenShapeFilesPath1 muss Dateipfadstruktur haben");
 		require(isValidDateipfad(gisGoeppingenShapeFilesPath2),
 			"gisGoeppingenShapeFilesPath2 muss Dateipfadstruktur haben");
-		require(isValidDateipfad(radWegeDBShapeFilePath), "radWegeDBShapeFilePath muss Dateipfadstruktur haben");
-		require(isValidDateipfad(rvkEsslingenShapeFilePath), "rvkEsslingenShapeFilePath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(radWegeDBShapeFilePath),
+			"radWegeDBShapeFilePath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(rvkEsslingenShapeFilePath),
+			"rvkEsslingenShapeFilePath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(bietigheimBissingenShapeFilePath),
 			"bietigheimBissingenShapeFilePath muss Dateipfadstruktur haben");
-		require(isValidDateipfad(ttSibFilesPath), "ttSibFilesPath muss Dateipfadstruktur haben");
-		require(isValidDateipfad(verwaltungsgrenzenShapeFilesPath),
-			"verwaltungsgrenzenShapeFilesPath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(ttSibFilesPath),
+			"ttSibFilesPath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(dlmBasisStrassenXmlFilePath),
 			"dlmBasisStrassenXmlFilePath muss Dateipfadstruktur haben");
-		require(isValidDateipfad(dlmBasisWegeXmlFilePath), "dlmBasisWegeXmlFilePath muss Dateipfadstruktur haben");
+		require(isValidDateipfad(dlmBasisWegeXmlFilePath),
+			"dlmBasisWegeXmlFilePath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(radnetzMassnahmenImportPath),
 			"radnetzMassnahmenImportPath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(umsetzungsstandabfragenCsvImportFilePath),
@@ -147,7 +145,6 @@ public class JobConfigurationProperties {
 		require(isValidURL(fahrradzaehlstellenMobiDataImportBaseUrl),
 			"Die FahrradzaehlstellenMobiDataImportURL muss URL-Struktur haben");
 		require(fahrradzaehlstellenMobiDataImportStartDate, hasLength(6));
-
 		this.radwegeLglTuttlingenShpFilePath = radwegeLglTuttlingenShpFilePath;
 		this.radNetzShapeFilesPath = radNetzShapeFilesPath;
 		this.radNetzStreckenShapeFilesPath = radNetzStreckenShapeFilesPath;
@@ -157,7 +154,6 @@ public class JobConfigurationProperties {
 		this.rvkEsslingenShapeFilePath = rvkEsslingenShapeFilePath;
 		this.bietigheimBissingenShapeFilePath = bietigheimBissingenShapeFilePath;
 		this.ttSibFilesPath = ttSibFilesPath;
-		this.verwaltungsgrenzenShapeFilesPath = verwaltungsgrenzenShapeFilesPath;
 		this.dlmBasisStrassenXmlFilePath = dlmBasisStrassenXmlFilePath;
 		this.dlmBasisWegeXmlFilePath = dlmBasisWegeXmlFilePath;
 		this.radnetzMassnahmenImportPath = radnetzMassnahmenImportPath;
@@ -171,14 +167,5 @@ public class JobConfigurationProperties {
 		this.wahlkreisePath = wahlkreisePath;
 		this.fahrradzaehlstellenMobiDataImportBaseUrl = fahrradzaehlstellenMobiDataImportBaseUrl;
 		this.fahrradzaehlstellenMobiDataImportStartDate = fahrradzaehlstellenMobiDataImportStartDate;
-	}
-
-	public static boolean isValidDateipfad(String value) {
-		try {
-			Paths.get(value);
-			return true;
-		} catch (InvalidPathException e) {
-			return false;
-		}
 	}
 }

@@ -44,12 +44,12 @@ public class TtSibQuerschnitt extends TtSibAbstractEntity {
 		require(
 			!neuerTtSibStreifen.getEinordnung().equals(TtSibEinordnung.MITTE)
 				|| this.ttSibStreifen.stream().noneMatch(streifen -> streifen.getEinordnung().equals(
-				TtSibEinordnung.MITTE)),
+					TtSibEinordnung.MITTE)),
 			"Es gibt bereits einen Streifen M");
 
 		require(this.ttSibStreifen.stream().noneMatch(
-				streifen -> streifen.getEinordnung().equals(neuerTtSibStreifen.getEinordnung()) && streifen.getNr()
-					.equals(neuerTtSibStreifen.getNr())),
+			streifen -> streifen.getEinordnung().equals(neuerTtSibStreifen.getEinordnung()) && streifen.getNr()
+				.equals(neuerTtSibStreifen.getNr())),
 			String
 				.format("Streifen mit TtSibEinordnung %s hat bereits die Nummer %d", neuerTtSibStreifen.getEinordnung(),
 					neuerTtSibStreifen.getNr()));

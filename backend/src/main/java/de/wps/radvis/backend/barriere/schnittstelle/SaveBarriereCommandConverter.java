@@ -14,9 +14,7 @@
 
 package de.wps.radvis.backend.barriere.schnittstelle;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.barriere.domain.entity.Barriere;
 import de.wps.radvis.backend.barriere.domain.entity.BarriereNetzBezug;
@@ -25,20 +23,16 @@ import de.wps.radvis.backend.netz.domain.KnotenResolver;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
-import de.wps.radvis.backend.netz.schnittstelle.command.KnotenNetzbezugCommand;
-import de.wps.radvis.backend.netz.schnittstelle.command.SaveNetzBezugCommandConverter;
+import de.wps.radvis.backend.netz.schnittstelle.NetzbezugCommandConverter;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 
-public class SaveBarriereCommandConverter extends SaveNetzBezugCommandConverter {
+public class SaveBarriereCommandConverter extends NetzbezugCommandConverter<BarriereNetzBezug> {
 
-	private final KnotenResolver knotenResolver;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 
 	public SaveBarriereCommandConverter(KanteResolver kantenResolver, KnotenResolver knotenResolver,
 		VerwaltungseinheitResolver verwaltungseinheitResolver) {
-		super(kantenResolver);
-
-		this.knotenResolver = knotenResolver;
+		super(kantenResolver, knotenResolver);
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 	}
 
@@ -66,16 +60,9 @@ public class SaveBarriereCommandConverter extends SaveNetzBezugCommandConverter 
 		);
 	}
 
-	private BarriereNetzBezug createNetzbezug(BarriereNetzBezugCommand netzbezugCommand) {
-		final Set<AbschnittsweiserKantenSeitenBezug> kantenSeitenAbschnitte = netzbezugCommand.getKantenBezug()
-			.stream().map(this::createKantenSeitenAbschnitt)
-			.collect(Collectors.toSet());
-		final Set<PunktuellerKantenSeitenBezug> kantenSeitenPunkte = netzbezugCommand.getPunktuellerKantenBezug()
-			.stream().map(this::createPunktuellerKantenSeitenBezug)
-			.collect(Collectors.toSet());
-		final HashSet<Knoten> knoten = new HashSet<>(knotenResolver.getKnoten(
-			netzbezugCommand.getKnotenBezug().stream().map(KnotenNetzbezugCommand::getKnotenId).collect(
-				Collectors.toSet())));
-		return new BarriereNetzBezug(kantenSeitenAbschnitte, kantenSeitenPunkte, knoten);
+	@Override
+	protected BarriereNetzBezug buildNetzbezug(Set<AbschnittsweiserKantenSeitenBezug> abschnitte,
+		Set<PunktuellerKantenSeitenBezug> punkte, Set<Knoten> knoten) {
+		return new BarriereNetzBezug(abschnitte, punkte, knoten);
 	}
 }

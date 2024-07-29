@@ -58,10 +58,6 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 	private CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
 	@Getter
 	private OsmMapMatching mapMatchingBike;
-	@Getter
-	private OsmMapMatching mapMatchingFoot;
-	@Getter
-	private OsmMapMatching mapMatchingCar;
 	private GeometryFactory geometryFactory;
 	private OsmMatchedGraphHopper graphHopper;
 
@@ -79,46 +75,27 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 		// Für Bedeutung und Effekt bei Veränderung des measurementErrorSigma siehe:
 		// https://bis2wps.atlassian.net/wiki/spaces/WI/pages/99352577/Graphhopper#Anpassung-des-Matchings
 		initializeMapMatching(measurementErrorSigma);
-
 	}
 
 	private void initializeMapMatching(Double measurementErrorSigma) {
 		PMap hintsBike = new PMap();
 		hintsBike.putObject("profile", "bike");
-		mapMatchingBike = new OsmMapMatching(graphHopper, hintsBike);
-		mapMatchingBike.setMeasurementErrorSigma(measurementErrorSigma);
-		PMap hintsFoot = new PMap();
-		hintsFoot.putObject("profile", "foot");
-		mapMatchingFoot = new OsmMapMatching(graphHopper, hintsFoot);
-		mapMatchingFoot.setMeasurementErrorSigma(measurementErrorSigma);
-		PMap hintsCar = new PMap();
-		hintsCar.putObject("profile", "car");
-		mapMatchingCar = new OsmMapMatching(graphHopper, hintsCar);
-		mapMatchingCar.setMeasurementErrorSigma(measurementErrorSigma);
+		mapMatchingBike = new OsmMapMatching(graphHopper, hintsBike, measurementErrorSigma);
 	}
 
 	@Override
-	public LineString matchGeometry(LineString geometrie, String profile) throws KeinMatchGefundenException {
-		MatchResult matchResult = this.matcheGeometrie(geometrie, profile);
-		return extrahiereLineString(matchResult.getMergedPath().calcPoints(),
-			KoordinatenReferenzSystem.ETRS89_UTM32_N);
-	}
-
-	@Override
-	public LinearReferenziertesOsmMatchResult matchGeometryLinearReferenziert(LineString geometrie, String profile)
-		throws KeinMatchGefundenException {
-		MatchResult matchResult = this.matcheGeometrie(geometrie, profile);
+	public LinearReferenziertesOsmMatchResult extrahiereLineareReferenzierung(MatchResult matchResult) {
 		List<LinearReferenzierteOsmWayId> osmWayIds = extrahiereWayIdsWithLR(matchResult);
 		return new LinearReferenziertesOsmMatchResult(extrahiereLineString(matchResult.getMergedPath().calcPoints(),
 			KoordinatenReferenzSystem.ETRS89_UTM32_N), osmWayIds);
 	}
 
-	private MatchResult matcheGeometrie(LineString lineStringInUtm, String profile) throws KeinMatchGefundenException {
+	@Override
+	public MatchResult matchGeometry(LineString lineStringInUtm) throws KeinMatchGefundenException {
 		require(lineStringInUtm, notNullValue());
 		require(lineStringInUtm.getSRID() == KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid(),
 			"Erwartete SRID '" + KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()
 				+ "' entspricht nicht lineStringInUtm.getSRID() '" + lineStringInUtm.getSRID() + "'");
-		require(profile, notNullValue());
 
 		LineString lineStringInWgs84 = (LineString) coordinateReferenceSystemConverter
 			.transformGeometry(lineStringInUtm,
@@ -132,16 +109,7 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 		}
 
 		try {
-			switch (profile) {
-			case "bike":
-				return mapMatchingBike.match(observations);
-			case "foot":
-				return mapMatchingFoot.match(observations);
-			case "car":
-				return mapMatchingCar.match(observations);
-			default:
-				throw new RuntimeException("Profile typ '" + profile + "' nicht unterstützt");
-			}
+			return mapMatchingBike.match(observations);
 		} catch (IllegalArgumentException e) {
 			throw new KeinMatchGefundenException(
 				"Der LineString konnte nicht gematched werden. Dies liegt beispielsweise daran, dass die Geometrie oder"
@@ -149,6 +117,12 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 					+ " Pendant in den OSM-Daten hat",
 				e);
 		}
+	}
+
+	@Override
+	public LineString extrahiereLineString(MatchResult matchResult) {
+		return extrahiereLineString(matchResult.getMergedPath().calcPoints(),
+			KoordinatenReferenzSystem.ETRS89_UTM32_N);
 	}
 
 	private LineString extrahiereLineString(PointList pointList, KoordinatenReferenzSystem koordinatenReferenzSystem) {
@@ -196,11 +170,9 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 	// Hier werden die PathDetails entlang der Geometrie des MatchResults ermittelt und mit dieser
 	// als ResponePath zusammengeführt. (Das MatchResult bietet nur einen Path, der aber keine Details enthält)
 	private ResponsePath getResponsePath(MatchResult matchResult) {
-		PathMerger pathMerger = new PathMerger(matchResult.getGraph(), matchResult.getWeighting()).
-			setEnableInstructions(false).
-			setPathDetailsBuilders(graphHopper.getPathDetailsBuilderFactory(),
-				List.of(Parameters.Details.EDGE_ID)).
-			setSimplifyResponse(false);
+		PathMerger pathMerger = new PathMerger(matchResult.getGraph(), matchResult.getWeighting())
+			.setEnableInstructions(false).setPathDetailsBuilders(graphHopper.getPathDetailsBuilderFactory(),
+				List.of(Parameters.Details.EDGE_ID)).setSimplifyResponse(false);
 
 		return pathMerger
 			.doWork(PointList.EMPTY, Collections.singletonList(matchResult.getMergedPath()),
@@ -311,10 +283,10 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 			KoordinatenReferenzSystem.ETRS89_UTM32_N);
 
 		LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(lineStringEdgeUtm32);
-		double vonValueGematchterAbschnittAufEdge =
-			lengthIndexedLine.indexOf(coordinateVonUtm32) / lineStringEdgeUtm32.getLength();
-		double bisValueGematchterAbschnittAufEdge =
-			lengthIndexedLine.indexOf(coordinateBisUmt32) / lineStringEdgeUtm32.getLength();
+		double vonValueGematchterAbschnittAufEdge = lengthIndexedLine.indexOf(coordinateVonUtm32) / lineStringEdgeUtm32
+			.getLength();
+		double bisValueGematchterAbschnittAufEdge = lengthIndexedLine.indexOf(coordinateBisUmt32) / lineStringEdgeUtm32
+			.getLength();
 
 		if (vonValueGematchterAbschnittAufEdge == bisValueGematchterAbschnittAufEdge) {
 			log.warn("von == bis");
@@ -326,15 +298,16 @@ public class OsmMatchingRepositoryImpl implements OsmMatchingRepository {
 			bisValueGematchterAbschnittAufEdge);
 		bisValueGematchterAbschnittAufEdge = Math.max(temp, bisValueGematchterAbschnittAufEdge);
 
-		LinearReferenzierterAbschnitt linRefAbschnittEdgeAufOsmWay = linearReferenzierteOsmWayId.getLinearReferenzierterAbschnitt();
+		LinearReferenzierterAbschnitt linRefAbschnittEdgeAufOsmWay = linearReferenzierteOsmWayId
+			.getLinearReferenzierterAbschnitt();
 		double vonValueEdgeAufOsmWay = linRefAbschnittEdgeAufOsmWay.getVonValue();
 		double fractionLengthEdgeAufOsmWay = linRefAbschnittEdgeAufOsmWay.getBisValue()
 			- vonValueEdgeAufOsmWay;
 
-		double vonValueGematchterAbschnittAufOsmWay =
-			fractionLengthEdgeAufOsmWay * vonValueGematchterAbschnittAufEdge + vonValueEdgeAufOsmWay;
-		double bisValueGematchterAbschnittAufOsmWay =
-			fractionLengthEdgeAufOsmWay * bisValueGematchterAbschnittAufEdge + vonValueEdgeAufOsmWay;
+		double vonValueGematchterAbschnittAufOsmWay = fractionLengthEdgeAufOsmWay * vonValueGematchterAbschnittAufEdge
+			+ vonValueEdgeAufOsmWay;
+		double bisValueGematchterAbschnittAufOsmWay = fractionLengthEdgeAufOsmWay * bisValueGematchterAbschnittAufEdge
+			+ vonValueEdgeAufOsmWay;
 
 		return LinearReferenzierteOsmWayId.of(linearReferenzierteOsmWayId.getValue(),
 			LinearReferenzierterAbschnitt.of(

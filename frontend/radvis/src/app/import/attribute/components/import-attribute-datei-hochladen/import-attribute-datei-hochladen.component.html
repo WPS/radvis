@@ -11,15 +11,14 @@
   ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
-<rad-import-step-layout>
+<rad-import-step-layout header="Attribute-Import">
   <form [formGroup]="formGroup" class="form-group import-step-content">
     <rad-enum-dropdown-control
       formControlName="attributeImportFormat"
       class="mt-10"
       [options]="attributeImportFormatOptions"
       [nullable]="false"
-      [errors]="formGroup.get('attributeImportFormat')?.errors"
-    >
+      [errors]="formGroup.get('attributeImportFormat')?.errors">
       Dateiformat
     </rad-enum-dropdown-control>
 
@@ -28,9 +27,8 @@
         *ngIf="organisationen$ | async as organisationen; else smallSpinner"
         formControlName="organisation"
         [options]="organisationen"
-        [errors]="formGroup.get('organisation')?.errors"
-      >
-        Bereich auswählen
+        [errors]="formGroup.get('organisation')?.errors">
+        Zu importierender Bereich
       </rad-organisationen-dropdown-control>
       <ng-template #smallSpinner>
         <div class="display-flex">
@@ -47,10 +45,13 @@
         class="w-100"
         dateiEndung="zip"
         [maxFileSizeInMB]="300"
-        [errors]="formGroup.get('file')?.errors"
-      >
+        [validating]="formGroup.get('file')?.pending ?? false">
         Shape auswählen
       </rad-file-upload-control>
+      <rad-validation-error-anzeige
+        class="text-small align-self-start"
+        [errors]="formGroup.get('file')?.errors || null"
+        *ngIf="formGroup.get('file')?.dirty"></rad-validation-error-anzeige>
     </div>
     <div class="shape-transform-container mt-10">
       <div class="hinweis">Hier können Sie eine Shape ins LUBW-Format überführen</div>
@@ -64,21 +65,19 @@
   <div class="import-step-footer-buttons">
     <button
       [disabled]="!attributeSessionExists && formGroup.pristine && !uploadDatenVorhanden()"
-      mat-flat-button
+      mat-stroked-button
       color="primary"
       class="abbrechen-button"
-      (click)="onAbort()"
-    >
+      (click)="onAbort()">
       Abbrechen
     </button>
-    <button [disabled]="true" mat-flat-button color="primary">Zurück</button>
+    <button [disabled]="true" mat-stroked-button color="primary">Zurück</button>
     <button
       [disabled]="!formGroup.valid && !attributeSessionExists"
       mat-flat-button
       color="primary"
       (click)="onNext()"
-      class="weiter-button"
-    >
+      class="weiter-button">
       <span>Weiter</span>
     </button>
   </div>

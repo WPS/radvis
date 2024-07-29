@@ -44,11 +44,11 @@ describe('KnotenAttributeEditorComponent', () => {
     activatedRoute = mock(ActivatedRoute);
     paramsSubject = new Subject();
     when(activatedRoute.paramMap).thenReturn(paramsSubject.asObservable());
-    when(activatedRoute.snapshot).thenReturn(({
+    when(activatedRoute.snapshot).thenReturn({
       data: {
         knoten: defaultKnoten,
       },
-    } as unknown) as ActivatedRouteSnapshot);
+    } as unknown as ActivatedRouteSnapshot);
 
     netzService = mock(NetzService);
     organisationenService = mock(OrganisationenService);
@@ -82,11 +82,11 @@ describe('KnotenAttributeEditorComponent', () => {
   describe('form', () => {
     it('should fill form with knoten correct', fakeAsync(() => {
       const currentKnoten: Knoten = { ...defaultKnoten, id: 2 };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
       paramsSubject.next(convertToParamMap({ id: 1 }));
 
       tick();
@@ -116,11 +116,11 @@ describe('KnotenAttributeEditorComponent', () => {
           aktiv: true,
         },
       };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
       paramsSubject.next(convertToParamMap({ id: 1 }));
 
       tick();
@@ -152,11 +152,11 @@ describe('KnotenAttributeEditorComponent', () => {
     it('should read command from form correct', fakeAsync(() => {
       const currentKnoten: Knoten = { ...defaultKnoten, id: 2, knotenVersion: 42 };
       const nextKnoten: Knoten = { ...defaultKnoten, id: 2, knotenVersion: 43 };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
       when(netzService.saveKnoten(anything())).thenReturn(Promise.resolve(nextKnoten));
 
       paramsSubject.next(convertToParamMap({ id: 1 }));
@@ -185,11 +185,11 @@ describe('KnotenAttributeEditorComponent', () => {
   describe('edit RadNETZ', () => {
     it('should disable control if RadNETZ-Knoten is selected', fakeAsync(() => {
       const currentKnoten: Knoten = { ...defaultKnoten, quelle: QuellSystem.RadNETZ };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
 
       paramsSubject.next(convertToParamMap({ id: 1 }));
       tick();
@@ -199,11 +199,11 @@ describe('KnotenAttributeEditorComponent', () => {
 
     it('should enable controls if non-RadNETZ-Knoten is selected', fakeAsync(() => {
       const currentKnoten: Knoten = { ...defaultKnoten, quelle: QuellSystem.DLM };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
 
       paramsSubject.next(convertToParamMap({ id: 1 }));
       tick();
@@ -215,11 +215,11 @@ describe('KnotenAttributeEditorComponent', () => {
   describe('handle readOnly-Knoten', () => {
     it('should disable control if readonly-Knoten is selected', fakeAsync(() => {
       const currentKnoten: Knoten = { ...defaultKnoten, liegtInZustaendigkeitsbereich: false };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
 
       paramsSubject.next(convertToParamMap({ id: 1 }));
       tick();
@@ -229,11 +229,11 @@ describe('KnotenAttributeEditorComponent', () => {
 
     it('should enable controls if editable Knoten is selected', fakeAsync(() => {
       const currentKnoten: Knoten = { ...defaultKnoten, liegtInZustaendigkeitsbereich: true };
-      when(activatedRoute.snapshot).thenReturn(({
+      when(activatedRoute.snapshot).thenReturn({
         data: {
           knoten: currentKnoten,
         },
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
 
       paramsSubject.next(convertToParamMap({ id: 1 }));
       tick();

@@ -15,7 +15,7 @@
 <mat-toolbar>
   <h2>Eigenschaften</h2>
   <span class="details-toolbar-spacer"></span>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button class="close-icon">
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button class="close-icon">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
@@ -28,6 +28,5 @@
     (netzfehlerErledigt)="onNetzfehlerErledigt(feature.id)"
     [feature]="feature"
     [radNetzMatchingState]="radNetzMatchingState"
-    [zugeordneteRadnetzKantenVorhanden]="zugeordneteRadnetzKantenVorhanden"
-  ></rad-matching-feature-table>
+    [zugeordneteRadnetzKantenVorhanden]="zugeordneteRadnetzKantenVorhanden"></rad-matching-feature-table>
 </ng-container>

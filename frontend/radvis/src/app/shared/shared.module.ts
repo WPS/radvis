@@ -12,6 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
@@ -23,6 +24,7 @@ import { MaterialDesignModule } from 'src/app/material-design.module';
 import { AccessabilityTabCircleElementDirective } from 'src/app/shared/components/accessability-tab-circle-element.directive';
 import { AccessabilityTabCircleGroupDirective } from 'src/app/shared/components/accessability-tab-circle-group.directive';
 import { AccessabilityTextDirective } from 'src/app/shared/components/accessability-text.directive';
+import { BedienhinweisComponent } from 'src/app/shared/components/bedienhinweis/bedienhinweis.component';
 import { BenutzerNamePipe } from 'src/app/shared/components/benutzer-name.pipe';
 import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -31,8 +33,13 @@ import { HinweisDialogComponent } from 'src/app/shared/components/hinweis-dialog
 import { HoverDirective } from 'src/app/shared/components/hover.directive';
 import { KommazahlPipe } from 'src/app/shared/components/kommazahl.pipe';
 import { LineareReferenzierungLayerComponent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
+import { NetzbezugHighlightLayerComponent } from 'src/app/shared/components/netzbezug-highlight-layer/netzbezug-highlight-layer.component';
+import { BearbeitungsModusToggleButtonComponent } from 'src/app/shared/components/netzbezug-selektion-control/bearbeitungs-modus-toggle-button/bearbeitungs-modus-toggle-button.component';
+import { NetzbezugSelektionControlComponent } from 'src/app/shared/components/netzbezug-selektion-control/netzbezug-selektion-control.component';
+import { NetzbezugSelektionLayerComponent } from 'src/app/shared/components/netzbezug-selektion-control/netzbezug-selektion-layer/netzbezug-selektion-layer.component';
 import { OlPopupComponent } from 'src/app/shared/components/ol-popup/ol-popup.component';
 import { OrganisationenDropdownControlComponent } from 'src/app/shared/components/organisationen-dropdown-control/organisationen-dropdown-control.component';
+import { OriginalGeometrieLayerComponent } from 'src/app/shared/components/original-geometrie-layer/original-geometrie-layer.component';
 import { PrintViewComponent } from 'src/app/shared/components/print-view/print-view.component';
 import { RegenerateCredentialsConfirmComponent } from 'src/app/shared/components/regenerate-credentials-confirm/regenerate-credentials-confirm.component';
 import { SicherheitstrennstreifenAnzeigeKomplettComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige-komplett.component/sicherheitstrennstreifen-anzeige-komplett.component';
@@ -42,8 +49,8 @@ import { TruncateTextPipe } from 'src/app/shared/components/truncate-text.pipe';
 import { VerwaltungZugangsdatenComponent } from 'src/app/shared/components/verwaltung-zugangsdaten/verwaltung-zugangsdaten.component';
 import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
 import { WahlkreisDropdownControlComponent } from 'src/app/shared/components/wahlkreis-dropdown-control/wahlkreis-dropdown-control.component';
+import { WarnhinweisComponent } from 'src/app/shared/components/warnhinweis/warnhinweis.component';
 import { MatPaginatorIntlLocalizationService } from './services/mat-paginator-intl-localization.service';
-import { ClipboardModule } from '@angular/cdk/clipboard';
 
 const allDeclarations = [
   OlPopupComponent,
@@ -68,6 +75,13 @@ const allDeclarations = [
   SicherheitstrennstreifenAnzeigeKomplettComponent,
   AccessabilityTabCircleGroupDirective,
   AccessabilityTabCircleElementDirective,
+  NetzbezugSelektionControlComponent,
+  NetzbezugSelektionLayerComponent,
+  NetzbezugHighlightLayerComponent,
+  BearbeitungsModusToggleButtonComponent,
+  BedienhinweisComponent,
+  OriginalGeometrieLayerComponent,
+  WarnhinweisComponent,
 ];
 
 @NgModule({

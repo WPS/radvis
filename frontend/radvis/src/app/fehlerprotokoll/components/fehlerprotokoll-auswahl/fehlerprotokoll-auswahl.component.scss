@@ -14,9 +14,15 @@
 
 @import 'src/style/colors';
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 .auswahl-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .mat-menu-container {
@@ -31,4 +37,7 @@
 
 .zoomstufen-hinweis {
   color: map-get($radvis-app-red-palette, 200);
+  font-size: small;
+  max-width: 18rem;
+  height: 1em;
 }

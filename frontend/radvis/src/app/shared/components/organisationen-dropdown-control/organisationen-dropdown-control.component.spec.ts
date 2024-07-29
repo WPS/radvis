@@ -28,9 +28,9 @@ describe(OrganisationenDropdownControlComponent.name, () => {
   });
 
   beforeEach(() => {
-    fixture = MockRender(OrganisationenDropdownControlComponent, ({
+    fixture = MockRender(OrganisationenDropdownControlComponent, {
       options: [],
-    } as unknown) as OrganisationenDropdownControlComponent);
+    } as unknown as OrganisationenDropdownControlComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });

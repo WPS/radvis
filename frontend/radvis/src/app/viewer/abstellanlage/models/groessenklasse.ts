@@ -27,27 +27,25 @@ export enum Groessenklasse {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Groessenklasse {
-  export const options: EnumOption[] = Object.keys(Groessenklasse).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Groessenklasse.BASISANGEBOT_XXS:
-          return { name: k, displayText: 'B+R Basisangebot (XXS)' };
-        case Groessenklasse.BASISANGEBOT_XS:
-          return { name: k, displayText: 'B+R Basisangebot (XS)' };
-        case Groessenklasse.BASISANGEBOT_S:
-          return { name: k, displayText: 'B+R Basisangebot (S)' };
-        case Groessenklasse.STANDARDANGEBOT_M:
-          return { name: k, displayText: 'B+R Standardangebot (M)' };
-        case Groessenklasse.SCHWERPUNKT_L:
-          return { name: k, displayText: 'B+R Schwerpunkt (L)' };
-        case Groessenklasse.HOTSPOT_XL:
-          return { name: k, displayText: 'B+R Hotspot (XL)' };
-        case Groessenklasse.GROSSANLAGE_XXL:
-          return { name: k, displayText: 'B+R Großanlage (XXL)' };
-      }
-      throw new Error('Beschreibung für enum Groessenklasse fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Groessenklasse).map((k: string): EnumOption => {
+    switch (k) {
+      case Groessenklasse.BASISANGEBOT_XXS:
+        return { name: k, displayText: 'B+R Basisangebot (XXS)' };
+      case Groessenklasse.BASISANGEBOT_XS:
+        return { name: k, displayText: 'B+R Basisangebot (XS)' };
+      case Groessenklasse.BASISANGEBOT_S:
+        return { name: k, displayText: 'B+R Basisangebot (S)' };
+      case Groessenklasse.STANDARDANGEBOT_M:
+        return { name: k, displayText: 'B+R Standardangebot (M)' };
+      case Groessenklasse.SCHWERPUNKT_L:
+        return { name: k, displayText: 'B+R Schwerpunkt (L)' };
+      case Groessenklasse.HOTSPOT_XL:
+        return { name: k, displayText: 'B+R Hotspot (XL)' };
+      case Groessenklasse.GROSSANLAGE_XXL:
+        return { name: k, displayText: 'B+R Großanlage (XXL)' };
     }
-  );
+    throw new Error('Beschreibung für enum Groessenklasse fehlt: ' + k);
+  });
 
   export const getDisplayText: (groessenklasse: Groessenklasse) => string = (
     groessenklasse: Groessenklasse

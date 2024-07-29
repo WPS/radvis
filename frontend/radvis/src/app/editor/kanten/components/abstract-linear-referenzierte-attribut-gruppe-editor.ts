@@ -26,7 +26,7 @@ import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equ
 import { SelectElementEvent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { VersionierteEntitaet } from 'src/app/shared/models/versionierte-entitaet';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
@@ -34,8 +34,9 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
 export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
   A extends LinearReferenzierteAttribute,
-  AG extends VersionierteEntitaet
-> implements DiscardableComponent {
+  AG extends VersionierteEntitaet,
+> implements DiscardableComponent
+{
   public NICHT_BEARBEITBAR_HINWEIS = AbstractAttributGruppeEditor.NICHT_BEARBEITBAR_HINWEIS;
 
   public showRadNetzHinweis = false;
@@ -88,12 +89,12 @@ export abstract class AbstractLinearReferenzierteAttributGruppeEditor<
     return this.lineareReferenzenFormArray.at(index) as UntypedFormControl;
   }
 
-  public onSelectLinearesSegment(event: SelectElementEvent, kanteId: number, seitenbezug?: Seitenbezug): void {
-    this.kantenSelektionService.select(kanteId, event.additiv, seitenbezug, event.index);
+  public onSelectLinearesSegment(event: SelectElementEvent, kanteId: number, kantenSeite?: KantenSeite): void {
+    this.kantenSelektionService.select(kanteId, event.additiv, kantenSeite, event.index);
   }
 
-  public onDeselectLinearesSegment(index: number, kanteId: number, seitenbezug?: Seitenbezug): void {
-    this.kantenSelektionService.deselect(kanteId, seitenbezug, index);
+  public onDeselectLinearesSegment(index: number, kanteId: number, kantenSeite?: KantenSeite): void {
+    this.kantenSelektionService.deselect(kanteId, kantenSeite, index);
   }
 
   onSave(): void {

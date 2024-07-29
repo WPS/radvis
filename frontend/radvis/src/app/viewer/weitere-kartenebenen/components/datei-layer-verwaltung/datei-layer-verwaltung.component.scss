@@ -47,3 +47,8 @@
 .save-button {
   width: unset;
 }
+
+rad-file-upload-control + rad-validation-error-anzeige {
+  margin-top: -1rem;
+  padding-left: 16px;
+}

@@ -54,12 +54,14 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/abstellanlage")
 @AllArgsConstructor
+@Transactional
 public class AbstellanlageController {
 	private final AbstellanlageRepository repository;
 	private final AbstellanlageService service;
@@ -74,8 +76,8 @@ public class AbstellanlageController {
 	public Long create(@RequestBody @Valid SaveAbstellanlageCommand command, Authentication authentication) {
 		abstellanlageGuard.create(command, authentication);
 
-		Verwaltungseinheit zustaendig =
-			command.getZustaendigId() != null ? verwaltungseinheitResolver.resolve(command.getZustaendigId()) : null;
+		Verwaltungseinheit zustaendig = command.getZustaendigId() != null ? verwaltungseinheitResolver.resolve(command
+			.getZustaendigId()) : null;
 		Abstellanlage abstellanlage = new Abstellanlage(
 			(Point) command.getGeometrie(),
 			command.getBetreiber(),
@@ -106,8 +108,8 @@ public class AbstellanlageController {
 		Authentication authentication) {
 		abstellanlageGuard.save(id, command, authentication);
 
-		Verwaltungseinheit zustaendig =
-			command.getZustaendigId() != null ? verwaltungseinheitResolver.resolve(command.getZustaendigId()) : null;
+		Verwaltungseinheit zustaendig = command.getZustaendigId() != null ? verwaltungseinheitResolver.resolve(command
+			.getZustaendigId()) : null;
 		Abstellanlage abstellanlage = service.loadForModification(id, command.getVersion());
 		abstellanlage.update(
 			(Point) command.getGeometrie(),

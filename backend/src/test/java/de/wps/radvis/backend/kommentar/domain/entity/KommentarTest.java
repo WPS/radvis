@@ -45,6 +45,6 @@ class KommentarTest {
 			.isNotNull();
 		assertThatThrownBy(
 			() -> new Kommentar(tooLongString, BenutzerTestDataProvider.defaultBenutzer().build())).isInstanceOf(
-			RequireViolation.class);
+				RequireViolation.class);
 	}
 }

@@ -16,11 +16,31 @@
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[scss]":{
+  "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "eslint.format.enable": true,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "fileHeaderComment.template": {
+    "*": [
+      "${commentbegin}",
+      "${commentprefix} Copyright (c) 2023 WPS - Workplace Solutions GmbH",
+      "${commentprefix}",
+      "${commentprefix} Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the \"Licence\");",
+      "${commentprefix}",
+      "${commentprefix} You may not use this work except in compliance with the Licence.",
+      "${commentprefix} You may obtain a copy of the Licence at:",
+      "${commentprefix}",
+      "${commentprefix} https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12",
+      "${commentprefix}",
+      "${commentprefix} Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an \"AS IS\" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
+      "${commentprefix} See the Licence for the specific language governing permissions and limitations under the Licence.",
+      "${commentend}"
+    ]
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }

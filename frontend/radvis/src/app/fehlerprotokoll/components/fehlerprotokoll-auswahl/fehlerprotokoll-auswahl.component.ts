@@ -28,9 +28,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Subscription, of, zip } from 'rxjs';
 import { concatMap, distinctUntilChanged, map } from 'rxjs/operators';
-import { FehlerprotokollLayerComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-layer/fehlerprotokoll-layer.component';
 import { FehlerprotokollTyp } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-typ';
-import { FehlerprotokollView } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-view';
 import {
   FehlerprotokollLoader,
   FehlerprotokollSelectionService,
@@ -65,7 +63,7 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
   @ViewChild('konsistenzregelMenuInnerContainer', { read: AccessabilityTabCircleGroupDirective })
   private konsistenzregelMenuInnerContainer: AccessabilityTabCircleGroupDirective | null = null;
 
-  public fehlerprotokolleOptions: FehlerprotokollTyp[] = FehlerprotokollTyp.getAll();
+  public fehlerprotokolleOptions: FehlerprotokollTyp[];
   public alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
   organisationControl: UntypedFormControl;
   netzklassenImportControl: UntypedFormControl;
@@ -94,6 +92,7 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
       this.fehlerprotokollSelectionService.selectedOrganisation,
       RadvisValidators.isNotNullOrEmpty
     );
+    this.fehlerprotokolleOptions = fehlerprotokollService.getFehlerprotokollTypen();
 
     this.organisationControl.statusChanges
       .pipe(
@@ -155,7 +154,7 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
   get isAnythingSelected(): boolean {
     return (
       this.selectedFehlerprotokolle.length > 0 ||
-      this.selectedKonsistenzregelVerletzungsTypen.length > 0 ||
+      this.selectedKonsistenzregelVerletzungen.length > 0 ||
       ((this.fehlerprotokollSelectionService.attributeImportSelected ||
         this.fehlerprotokollSelectionService.netzklassenImportSelected) &&
         this.fehlerprotokollSelectionService.selectedOrganisation != null)
@@ -163,15 +162,15 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
   }
 
   get areFehlerprotokolleVisibleOnZoomlevel(): boolean {
-    return this.zoom > FehlerprotokollLayerComponent.MIN_ZOOM;
+    return this.zoom > this.fehlerprotokollSelectionService.minZoom;
   }
 
   get selectedFehlerprotokolle(): FehlerprotokollTyp[] {
     return this.fehlerprotokollSelectionService.selectedFehlerprotokollTypen;
   }
 
-  get selectedKonsistenzregelVerletzungsTypen(): string[] {
-    return this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungsTypen;
+  get selectedKonsistenzregelVerletzungen(): string[] {
+    return this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungen;
   }
 
   get isKonsistenzregelnToggleOn(): boolean {
@@ -180,24 +179,21 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
 
   onFehlerprotokollClicked(clickedFehlerprotokoll: FehlerprotokollTyp): void {
     if (this.selectedFehlerprotokolle.includes(clickedFehlerprotokoll)) {
-      this.fehlerprotokollSelectionService.selectedFehlerprotokollTypen = this.selectedFehlerprotokolle.filter(
-        fehlerprotokoll => fehlerprotokoll !== clickedFehlerprotokoll
-      );
+      this.fehlerprotokollSelectionService.unselectFehlerprotokoll(clickedFehlerprotokoll);
     } else {
-      this.fehlerprotokollSelectionService.selectedFehlerprotokollTypen.push(clickedFehlerprotokoll);
+      this.fehlerprotokollSelectionService.selectFehlerprotokoll(clickedFehlerprotokoll);
     }
 
     this.updateFehlerprotokollLoader();
   }
 
   onRegelClicked(clickedRegel: Konsistenzregel): void {
-    const selectedTypen = this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungsTypen;
-    if (selectedTypen.includes(clickedRegel.verletzungsTyp)) {
-      this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungsTypen = selectedTypen.filter(
-        verletzungsTyp => verletzungsTyp !== clickedRegel.verletzungsTyp
-      );
+    if (
+      this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungen.includes(clickedRegel.verletzungsTyp)
+    ) {
+      this.fehlerprotokollSelectionService.unselectKonsistenzregel(clickedRegel);
     } else {
-      selectedTypen.push(clickedRegel.verletzungsTyp);
+      this.fehlerprotokollSelectionService.selectKonsistenzregel(clickedRegel);
     }
 
     this.updateFehlerprotokollLoader();
@@ -231,17 +227,17 @@ export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
         );
       }
 
-      if (this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungsTypen.length > 0) {
+      if (this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungen.length > 0) {
         alleFehlerprotokolleObservables.push(
           this.konsistenzregelService.getAlleVerletzungenForTypen(
-            this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungsTypen,
+            this.fehlerprotokollSelectionService.selectedKonsistenzregelVerletzungen,
             extent
           )
         );
       }
 
       return zip(...alleFehlerprotokolleObservables).pipe(
-        concatMap(fehlerprotokollViews => of(([] as FehlerprotokollView[]).concat(...fehlerprotokollViews)))
+        concatMap(fehlerprotokollViews => of(fehlerprotokollViews.flatMap(x => x)))
       );
     };
 

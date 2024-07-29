@@ -61,6 +61,7 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
@@ -112,7 +113,6 @@ import de.wps.radvis.backend.netz.schnittstelle.view.KnotenEditView;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class NetzControllerTest {
 
@@ -739,10 +739,10 @@ class NetzControllerTest {
 		assertThat(result).hasSize(1);
 		assertThat(
 			result.get(0).getFahrtrichtungAttributGruppe().getFahrtrichtungLinks()).isEqualTo(
-			fahrtrichtungLinks);
+				fahrtrichtungLinks);
 		assertThat(
 			result.get(0).getFahrtrichtungAttributGruppe().getFahrtrichtungRechts()).isEqualTo(
-			fahrtrichtungRechts);
+				fahrtrichtungRechts);
 	}
 
 	@Test
@@ -824,12 +824,12 @@ class NetzControllerTest {
 		Long kanteId = 10L;
 
 		final var geschwindigkeitAttribute = List.of(GeschwindigkeitAttribute.builder()
-				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, 0.65))
-				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
-				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(
-					Hoechstgeschwindigkeit.MAX_90_KMH)
-				.ortslage(KantenOrtslage.INNERORTS)
-				.build(),
+			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, 0.65))
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
+			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(
+				Hoechstgeschwindigkeit.MAX_90_KMH)
+			.ortslage(KantenOrtslage.INNERORTS)
+			.build(),
 			GeschwindigkeitAttribute.builder()
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.65, 1.0))
 				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_50_KMH)
@@ -901,7 +901,7 @@ class NetzControllerTest {
 
 		when(netzService.loadGeschwindigkeitAttributGruppeForModification(
 			kante.getGeschwindigkeitAttributGruppe().getId(), kante.getGeschwindigkeitAttributGruppe().getVersion()))
-			.thenReturn(geschwindigkeitAttributGruppe);
+				.thenReturn(geschwindigkeitAttributGruppe);
 		when(netzService.saveKanten(any())).thenReturn(List.of(kante));
 		when(netzService.getKanten(Set.of(kanteId))).thenReturn(List.of(kante));
 
@@ -940,7 +940,7 @@ class NetzControllerTest {
 
 		when(netzService.loadGeschwindigkeitAttributGruppeForModification(
 			kante.getGeschwindigkeitAttributGruppe().getId(), kante.getGeschwindigkeitAttributGruppe().getVersion()))
-			.thenReturn(geschwindigkeitAttributGruppe);
+				.thenReturn(geschwindigkeitAttributGruppe);
 		when(netzService.saveKanten(any())).thenReturn(List.of(kante));
 		when(netzService.getKanten(Set.of(kanteId))).thenReturn(List.of(kante));
 

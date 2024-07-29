@@ -25,7 +25,7 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import lombok.AccessLevel;

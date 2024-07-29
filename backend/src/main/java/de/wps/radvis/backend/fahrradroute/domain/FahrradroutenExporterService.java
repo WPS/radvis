@@ -43,9 +43,8 @@ public class FahrradroutenExporterService implements ExporterService {
 		GeometryFactory geometryFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 		return fahrradrouteViewRepository.findAllByIdIn(ids).stream()
 			.map(fahrradroute -> {
-				Geometry geometry = fahrradroute.getGeometry() != null ?
-					fahrradroute.getGeometry() :
-					geometryFactory.createMultiLineString();
+				Geometry geometry = fahrradroute.getGeometry() != null ? fahrradroute.getGeometry() : geometryFactory
+					.createMultiLineString();
 				return new ExportData(geometry, convertProperties(fahrradroute));
 			}).collect(Collectors.toList());
 	}

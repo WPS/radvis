@@ -81,14 +81,14 @@ describe(ImportMassnahmenAttributeAuswaehlenComponent.name, () => {
     it('should have empty form', () => {
       expect(component.formGroup.value.pflichtAttribute.every((val: boolean) => !val)).toBeTrue();
       expect(component.formGroup.value.optionaleAttribute.every((val: boolean) => !val)).toBeTrue();
-      expect(component.anyBoxChecked).toBeFalse();
+      expect(component.anyAttributSelected).toBeFalse();
       expect(component.schrittAbgeschlossen).toBeFalse();
     });
 
-    it('should mark anyBoxChecked when a box has been checked', () => {
+    it('should mark anyAttributSelected when a box has been checked', () => {
       component.formControlMap.get(MassnahmenImportAttribute.BEZEICHNUNG)?.setValue(true);
       component.formControlMap.get(MassnahmenImportAttribute.PRIORITAET)?.setValue(true);
-      expect(component.anyBoxChecked).toBeTrue();
+      expect(component.anyAttributSelected).toBeTrue();
     });
 
     it('should build command correctly', () => {
@@ -115,23 +115,23 @@ describe(ImportMassnahmenAttributeAuswaehlenComponent.name, () => {
         MassnahmenImportAttribute.UNTERHALTSZUSTAENDIGER,
       ];
       attributesToCheck.forEach(attribut => component.formControlMap.get(attribut)?.setValue(true));
-      expect(component.anyBoxChecked).toBeTrue();
+      expect(component.anyAttributSelected).toBeTrue();
 
       component.onAlleMassnahmenAbwaehlen();
 
       expect(component.formGroup.value.pflichtAttribute.every((val: boolean) => !val)).toBeTrue();
       expect(component.formGroup.value.optionaleAttribute.every((val: boolean) => !val)).toBeTrue();
-      expect(component.anyBoxChecked).toBeFalse();
+      expect(component.anyAttributSelected).toBeFalse();
     });
 
     it('should check all boxes on check all', () => {
-      expect(component.anyBoxChecked).toBeFalse();
+      expect(component.anyAttributSelected).toBeFalse();
 
       component.onAlleMassnahmenAuswaehlen();
 
       expect(component.formGroup.value.pflichtAttribute.every((val: boolean) => val)).toBeTrue();
       expect(component.formGroup.value.optionaleAttribute.every((val: boolean) => val)).toBeTrue();
-      expect(component.anyBoxChecked).toBeTrue();
+      expect(component.anyAttributSelected).toBeTrue();
     });
 
     it('should route to first step on abort', () => {
@@ -153,7 +153,7 @@ describe(ImportMassnahmenAttributeAuswaehlenComponent.name, () => {
     it('should route to manual on openManual', () => {
       component.openHandbuch();
 
-      verify(manualRoutingService.openUmsetzungsstandsabfragen()).once();
+      verify(manualRoutingService.openManualPflichtattribute()).once();
       expect().nothing();
     });
   });

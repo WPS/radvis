@@ -18,9 +18,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AdministrationModule } from 'src/app/administration/administration.module';
 import { AuswertungModule } from 'src/app/auswertung/auswertung.module';
 import { EditorModule } from 'src/app/editor/editor.module';
+import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
 import { FreischaltungModule } from 'src/app/freischaltung/freischaltung.module';
 import { GlobalErrorHandler } from 'src/app/global-error-handler';
 import { ImportModule } from 'src/app/import/import.module';
+import { HintergrundLayerService } from 'src/app/karte/services/hintergrund-layer.service';
 import { RadnetzMatchingModule } from 'src/app/radnetzmatching/radnetz-matching.module';
 import { RadvisHttpInterceptor } from 'src/app/radvis-http-interceptor';
 import { RegistrierungModule } from 'src/app/registrierung/registrierung.module';
@@ -28,7 +30,9 @@ import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
+import { SignaturService } from 'src/app/viewer/signatur/services/signatur.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
+import { VordefinierteLayerService } from 'src/app/viewer/weitere-kartenebenen/services/vordefinierte-layer.service';
 import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -46,6 +50,19 @@ const initWeitereKartenebenen = (weitereKartenebenenService: WeitereKartenebenen
 const initCustomRoutingProfiles = (routingProfileService: RoutingProfileService) => (): Promise<any> =>
   routingProfileService.initCustomRoutingProfiles();
 
+const initVordefinierteLayer = (vordefinierteLayerService: VordefinierteLayerService) => (): Promise<any> =>
+  vordefinierteLayerService.initPredefinedLayer();
+
+const initHintergrundLayers = (hintergrundLayerService: HintergrundLayerService) => (): Promise<any> =>
+  hintergrundLayerService.initLayers();
+
+const initSignaturen = (signaturService: SignaturService) => (): Promise<any> => signaturService.initSignaturen();
+
+const initFehlerprotokollTypen = (fehlerprotokollService: FehlerprotokollService) => (): Promise<any> =>
+  fehlerprotokollService.initFehlerprotokollTypen();
+
+// Bitte dran denken: Alle APP_INITIALIZER-Endpunkte müssen im Backend in SecurityConfiguration.internalApiFilterChain()
+// als "authenticated" hinzugefügt werden, sonst funktioniert die Anmeldung mit nicht registrierten Benutzern nicht!
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -84,6 +101,24 @@ const initCustomRoutingProfiles = (routingProfileService: RoutingProfileService)
     {
       provide: APP_INITIALIZER,
       multi: true,
+      useFactory: initVordefinierteLayer,
+      deps: [VordefinierteLayerService],
+    },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: initHintergrundLayers,
+      deps: [HintergrundLayerService],
+    },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: initFehlerprotokollTypen,
+      deps: [FehlerprotokollService],
+    },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
       useFactory: initFeatureTogglz,
       deps: [FeatureTogglzService],
     },
@@ -98,6 +133,12 @@ const initCustomRoutingProfiles = (routingProfileService: RoutingProfileService)
       multi: true,
       useFactory: initCustomRoutingProfiles,
       deps: [RoutingProfileService],
+    },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: initSignaturen,
+      deps: [SignaturService],
     },
   ],
 })

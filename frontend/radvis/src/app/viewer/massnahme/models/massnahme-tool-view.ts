@@ -13,7 +13,7 @@
  */
 
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface MassnahmeToolView {
   id: number;

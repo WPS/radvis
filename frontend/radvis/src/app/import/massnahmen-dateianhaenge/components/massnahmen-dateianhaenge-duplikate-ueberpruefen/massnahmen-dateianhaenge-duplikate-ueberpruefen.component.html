@@ -12,12 +12,50 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<p>Duplikate prüfen</p>
+<rad-import-step-layout class="duplicates-table">
+  <div class="import-step-content">
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="importieren">
+        <th mat-header-cell *matHeaderCellDef>Importieren</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="checkbox-wrapper">
+            <mat-checkbox [formControl]="element.selectionControl"></mat-checkbox>
+            <mat-icon
+              *ngIf="element.duplicate"
+              matTooltip="Wenn Sie den Dateianhang importieren, wird die bestehende Datei überschrieben"
+              >info
+            </mat-icon>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="massnahmenId">
+        <th mat-header-cell *matHeaderCellDef class="id-cell">Maßnahmen-ID</th>
+        <td mat-cell *matCellDef="let element" class="id-cell">{{ element.massnahmeKonzeptId }}</td>
+      </ng-container>
+      <ng-container matColumnDef="datei">
+        <th mat-header-cell *matHeaderCellDef>Datei</th>
+        <td mat-cell *matCellDef="let element">{{ element.datei }}</td>
+      </ng-container>
+      <ng-container matColumnDef="hinweis">
+        <th mat-header-cell *matHeaderCellDef>Hinweis</th>
+        <td mat-cell *matCellDef="let element">{{ element.duplicate ? 'Duplikat' : '-' }}</td>
+      </ng-container>
 
-<div class="flex-grow"></div>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
 
-<div class="buttons display-flex p-10">
-  <button mat-flat-button color="primary" (click)="onAbort()">Abbrechen</button>
-  <button mat-flat-button color="primary" (click)="onPrevious()">Zurück</button>
-  <button mat-flat-button color="primary" (click)="onNext()" [disabled]="true">Weiter</button>
-</div>
+  <div class="import-step-footer-message action-hinweis">
+    Über die Checkboxen können Dateien für den Import aus- oder abgewählt werden.
+  </div>
+
+  <div class="import-step-footer-buttons">
+    <button mat-stroked-button color="primary" (click)="onAbort()" [disabled]="isSaving">Abbrechen</button>
+    <button mat-stroked-button color="primary" (click)="onPrevious()" [disabled]="isSaving">Zurück</button>
+    <button mat-flat-button color="primary" *ngIf="schrittAbgeschlossen" (click)="onNext()">Weiter</button>
+    <rad-action-button *ngIf="!schrittAbgeschlossen" (action)="onSave()" [disabled]="!canContinue" [waiting]="isSaving">
+      Speichern
+    </rad-action-button>
+  </div>
+</rad-import-step-layout>

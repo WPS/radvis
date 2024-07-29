@@ -21,6 +21,7 @@ import { ImportTyp } from 'src/app/import/models/import-typ';
 import { NetzklassenImportService } from 'src/app/import/netzklassen/services/netzklassen-import.service';
 import { NetzklassenRoutingService } from 'src/app/import/netzklassen/services/netzklassen-routing.service';
 import { CreateSessionStateService } from 'src/app/import/services/create-session.state.service';
+import { ImportService } from 'src/app/import/services/import.service';
 import { Organisation } from 'src/app/shared/models/organisation-edit-view';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
@@ -49,7 +50,8 @@ export class ImportNetzklasseDateiHochladenComponent {
     private changeDetectorRef: ChangeDetectorRef,
     private createSessionStateService: CreateSessionStateService,
     private organisationenService: OrganisationenService,
-    private olMapService: OlMapService
+    private olMapService: OlMapService,
+    importService: ImportService
   ) {
     this.organisationen$ = organisationenService.getOrganisationen().then(orgs => {
       return orgs.filter(
@@ -59,7 +61,9 @@ export class ImportNetzklasseDateiHochladenComponent {
 
     this.formGroup = new UntypedFormGroup({
       organisation: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-      file: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      file: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty, c =>
+        importService.validateShapefile(c).finally(() => changeDetectorRef.markForCheck())
+      ),
     });
 
     this.formGroup

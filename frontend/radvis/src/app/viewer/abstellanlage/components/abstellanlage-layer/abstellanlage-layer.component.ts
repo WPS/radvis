@@ -32,7 +32,8 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 })
 export class AbstellanlageLayerComponent
   extends AbstractInfrastrukturLayerComponent<Abstellanlage>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private layer: VectorLayer;
 
   constructor(

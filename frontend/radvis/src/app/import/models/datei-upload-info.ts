@@ -28,7 +28,11 @@ export class DateiUploadInfo {
     return this._importTyp;
   }
 
-  private constructor(private _importTyp: ImportTyp, private _file: File, private _organisation: number) {}
+  private constructor(
+    private _importTyp: ImportTyp,
+    private _file: File,
+    private _organisation: number
+  ) {}
 
   public static of(importTyp: ImportTyp, file: File, organisation: number): DateiUploadInfo {
     invariant(importTyp);

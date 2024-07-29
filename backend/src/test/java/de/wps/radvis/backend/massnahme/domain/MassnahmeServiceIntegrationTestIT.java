@@ -42,6 +42,7 @@ import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
@@ -49,7 +50,6 @@ import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataPro
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
@@ -68,7 +68,6 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityNotFoundException;
 
 @Tag("group5")
@@ -151,7 +150,6 @@ class MassnahmeServiceIntegrationTestIT extends DBIntegrationTestIT {
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
 			.benutzerLetzteAenderung(testBenutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(new Umsetzungsstand())
 			.geloescht(true)
 			.version(0L)
 			.build();
@@ -191,7 +189,6 @@ class MassnahmeServiceIntegrationTestIT extends DBIntegrationTestIT {
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
 			.benutzerLetzteAenderung(testBenutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(new Umsetzungsstand())
 			.geloescht(true)
 			.version(0L)
 			.build();

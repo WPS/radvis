@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.massnahme.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.oneOf;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +54,6 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
@@ -159,10 +159,10 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.build();
 
 		Knoten vonKnotenRadNETZ = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(100, 100),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(300L).build();
 		Knoten nachKnotenRadNETZ = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(200, 200),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(400L).build();
 		Kante kanteRadNETZ = KanteTestDataProvider.fromKnoten(vonKnotenRadNETZ, nachKnotenRadNETZ)
 			.id(20L)
@@ -174,7 +174,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -183,7 +182,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKnoten(vonKnoten))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -192,7 +190,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kante))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -201,7 +198,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kante, kanteRadNETZ))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -258,7 +254,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 
 		String linkTemplate = "basisUrl/viewer/massnahmen/%s?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
 		assertThat(contextCaptor.getValue().getVariable("radvisLinks"))
-			.asList()
+			.asInstanceOf(LIST)
 			.containsExactlyInAnyOrder(
 				String.format(linkTemplate, betroffeneMassnahmeKanteAbschnittsweise.getId()),
 				String.format(linkTemplate, betroffeneMassnahmeVonKnoten.getId()),
@@ -289,7 +285,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -298,7 +293,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKnoten(vonKnoten))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -372,7 +366,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante1))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -381,7 +374,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.netzbezug(NetzBezugTestDataProvider.forKantePunktuell(kante2))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.umsetzungsstand(new Umsetzungsstand())
 			.baulastZustaendiger(organisation)
 			.build();
 
@@ -434,7 +426,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 
 		String linkTemplate = "basisUrl/viewer/massnahmen/%s?infrastrukturen=massnahmen&tabellenVisible=true&netzklassen=RADNETZ";
 		assertThat(contextCaptor.getValue().getVariable("radvisLinks"))
-			.asList()
+			.asInstanceOf(LIST)
 			.containsExactlyInAnyOrder(
 				String.format(linkTemplate, betroffeneMassnahme1.getId()),
 				String.format(linkTemplate, betroffeneMassnahme2.getId())

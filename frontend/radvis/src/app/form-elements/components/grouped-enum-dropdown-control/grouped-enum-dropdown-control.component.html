@@ -22,8 +22,7 @@
     [matAutocomplete]="auto"
     [formControl]="formControl"
     #trigger="matAutocompleteTrigger"
-    (click)="onClick($event, trigger)"
-  />
+    (click)="onClick($event, trigger)" />
   <mat-icon matSuffix class="dropdown-arrow">arrow_drop_down</mat-icon>
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)" [displayWith]="displayFn">
     <mat-option [disabled]="true" [value]="UNDETERMINED" *ngIf="showUndeterminedOption">
@@ -32,8 +31,7 @@
     <mat-option *ngIf="nullable" [value]="null">Keine Angabe</mat-option>
     <mat-optgroup
       *ngFor="let group of objectKeys(filteredGroupedOptions)"
-      [label]="filteredGroupedOptions[group].displayText"
-    >
+      [label]="filteredGroupedOptions[group].displayText">
       <mat-option *ngFor="let option of filteredGroupedOptions[group].options" [value]="option.name">
         {{ option.displayText }}
       </mat-option>

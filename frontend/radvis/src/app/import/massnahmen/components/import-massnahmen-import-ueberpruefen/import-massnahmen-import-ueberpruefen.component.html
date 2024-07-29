@@ -12,11 +12,172 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<p>import-massnahmen-import-ueberpruefen works!</p>
+<rad-import-massnahmen-import-ueberpruefen-layer
+  *ngIf="!netzbezugSelektionAktiv"></rad-import-massnahmen-import-ueberpruefen-layer>
 
-<div class="flex-grow"></div>
-<div class="buttons display-flex p-10">
-  <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
-  <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
-  <button mat-flat-button color="primary" class="button" (click)="onNext()">Weiter</button>
-</div>
+<rad-original-geometrie-layer
+  [geometrie]="originalGeometrie"
+  *ngIf="netzbezugSelektionAktiv && originalGeometrie !== null"></rad-original-geometrie-layer>
+
+<rad-import-step-layout>
+  <div
+    *ngIf="loading"
+    class="import-step-content display-flex flex-column align-self-center justify-content-center h-100">
+    <mat-spinner></mat-spinner>
+    <div class="mt-10">Zuordnungs- und Attributfehler werden geladen und geprüft...</div>
+  </div>
+  <table *ngIf="!loading" mat-table [dataSource]="dataSource" class="import-step-content zuordnung-table">
+    <ng-container matColumnDef="importieren">
+      <th mat-header-cell *matHeaderCellDef>Importieren</th>
+      <td mat-cell *matCellDef="let element" class="import-cell">
+        <div class="display-flex flex-row">
+          <mat-checkbox [formControl]="element.selectionControl" (click)="$event.stopPropagation()"></mat-checkbox>
+          <mat-icon
+            inline="true"
+            class="hinweis-icon"
+            [class.warning-color]="element.hasFehler"
+            *ngIf="element.netzbezugHinweise.length"
+            matTooltipClass="tooltip-linebreak"
+            [matTooltip]="element.tooltip">
+            error
+          </mat-icon>
+        </div>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef class="status-cell">Art</th>
+      <td mat-cell *matCellDef="let element" class="status-cell" [ngSwitch]="element.status">
+        <mat-icon
+          *ngSwitchCase="MassnahmenImportZuordnungStatus.ZUGEORDNET"
+          svgIcon="massnahmeZuordnungZugeordnet"
+          matTooltip="Bestehende Maßnahme wird aktualisiert."></mat-icon>
+        <mat-icon
+          *ngSwitchCase="MassnahmenImportZuordnungStatus.NEU"
+          svgIcon="massnahmeZuordnungNeu"
+          matTooltip="Maßnahme wird neu angelegt."></mat-icon>
+        <mat-icon
+          *ngSwitchCase="MassnahmenImportZuordnungStatus.GELOESCHT"
+          svgIcon="massnahmeZuordnungGeloescht"
+          matTooltip="Maßnahme wird gelöscht."></mat-icon>
+        <mat-icon
+          *ngSwitchCase="MassnahmenImportZuordnungStatus.FEHLERHAFT"
+          svgIcon="massnahmeZuordnungFehlerhaft"
+          matTooltip="Es ist ein Fehler bei der Zuordnung aufgetreten."></mat-icon>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="massnahmeKonzeptId">
+      <th mat-header-cell *matHeaderCellDef class="id-cell">Massnahmen-ID</th>
+      <td mat-cell *matCellDef="let element" class="id-cell">
+        {{ element.massnahmeKonzeptId }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="netzbezugHinweise">
+      <th mat-header-cell *matHeaderCellDef>Hinweis</th>
+      <td mat-cell *matCellDef="let element">
+        <ng-container *ngIf="element.netzbezugHinweise.length > 1; else einHinweis">
+          <ul class="pt-1">
+            <li *ngFor="let hinweis of element.netzbezugHinweise">{{ hinweis }}</li>
+          </ul>
+        </ng-container>
+        <ng-template #einHinweis>
+          {{ element.netzbezugHinweise[0] }}
+        </ng-template>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr
+      mat-row
+      (click)="selektiereZuordnungsId(row.zuordnungId)"
+      [class.row-is-selected]="(selektierteZuordnungsId$ | async) === row.zuordnungId"
+      *matRowDef="let row; columns: displayedColumns"
+      class="hinweis-row"></tr>
+  </table>
+
+  <div class="import-step-footer-message footer-shadow">
+    <form [formGroup]="formGroup" class="form-group import-step-content">
+      @if (isSelektierteZuordnungEditierbar) {
+        <rad-netzbezug-selektion-control
+          [layerId]="netzbezugSelektionLayerName"
+          [netzbezugHighlightToggle]="false"
+          formControlName="netzbezug"
+          class="mt-10 mb-10"
+          [canZuruecksetzen]="true"></rad-netzbezug-selektion-control>
+      } @else {
+        <span class="hinweis">
+          Zur Bearbeitung eines Netzbezugs müssen Sie eine neu anzulegende oder zu bearbeitende Maßnahme über die Karte
+          oder die Tabelle auswählen.
+        </span>
+      }
+    </form>
+
+    <p class="bold mb-2 mt-5">Legende:</p>
+    <div class="legend mb-5">
+      @if (netzbezugSelektionAktiv) {
+        <div class="legend-item">
+          <div class="bulletPoint dark-blue"></div>
+          <div>Grundnetz</div>
+        </div>
+        <div class="legend-item">
+          <div class="bulletPoint pink"></div>
+          <div>ausgewählte Elemente</div>
+        </div>
+        <div class="legend-item">
+          <div class="bulletPoint orange"></div>
+          <div>Originalgeometrie</div>
+        </div>
+      } @else {
+        <div class="legend-item">
+          <div class="bulletPoint green"></div>
+          <div>neu angelegte Maßnahme mit Netzbezug</div>
+        </div>
+        <div class="legend-item">
+          <div class="bulletPoint blue"></div>
+          <div>geänderte Maßnahme mit Netzbezug</div>
+        </div>
+        <div class="legend-item">
+          <div class="bulletPoint red"></div>
+          <div>gelöschte Maßnahme mit Netzbezug</div>
+        </div>
+      }
+    </div>
+
+    @if (!anyZuordnungMarkedForSave) {
+      <div class="warning">
+        @if (anyZuordnungSaveable) {
+          Zum Speichern muss mindestens eine Maßnahme ausgewählt sein.
+        } @else {
+          Kein gültiger Netzbezug vorhanden. Bitte bearbeiten Sie einen Netzbezug.
+        }
+      </div>
+    }
+  </div>
+
+  <div class="import-step-footer-buttons">
+    <button mat-stroked-button color="primary" (click)="onAbort()" [disabled]="executing || isSpeichernRunning">
+      Abbrechen
+    </button>
+    <button
+      mat-stroked-button
+      color="primary"
+      [disabled]="netzbezugSelektionAktiv || executing || isSpeichernRunning"
+      (click)="onPrevious()">
+      Zurück
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onNext()"
+      *ngIf="schrittAbgeschlossenOderHasFehler"
+      [disabled]="hasFehler">
+      Weiter
+    </button>
+    <rad-action-button
+      *ngIf="!schrittAbgeschlossenOderHasFehler"
+      (action)="onStart()"
+      [waiting]="executing || isSpeichernRunning"
+      [disabled]="netzbezugSelektionAktiv || loading || !anyZuordnungMarkedForSave">
+      Speichern
+    </rad-action-button>
+  </div>
+</rad-import-step-layout>

@@ -64,8 +64,8 @@ public class AttributProjektionsStatistikService {
 		}
 
 		return features.mapToDouble(
-				feature -> (feature.getAnteilProjiziert() == null ? 0 : feature.getAnteilProjiziert()) * feature
-					.getGeometrie().getLength())
+			feature -> (feature.getAnteilProjiziert() == null ? 0 : feature.getAnteilProjiziert()) * feature
+				.getGeometrie().getLength())
 			.sum();
 	}
 

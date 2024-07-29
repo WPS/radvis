@@ -24,7 +24,7 @@ import java.util.Optional;
 import org.springframework.context.event.EventListener;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.event.PreDlmReimportJobEvent;
@@ -73,14 +73,15 @@ public class ManuellerImportService {
 		importSessionRepository.save(importSession);
 	}
 
-	public File unzipAndValidate(byte[] zip) throws ManuellerImportNichtMoeglichException {
+	public File unzipAndValidateShape(byte[] zip) throws ManuellerImportNichtMoeglichException {
 		File shpDirectory = null;
 
 		try {
 			shpDirectory = shapeZipService.unzip(zip);
 		} catch (IOException e) {
+			log.error("Die hochgeladene Zip-Datei ist fehlerhaft.", e);
 			throw new ManuellerImportNichtMoeglichException("Die hochgeladene Zip-Datei ist fehlerhaft.", e);
-		} catch (ZipFileRequiredFilesMissingException e) {
+		} catch (ShapeZipInvalidException e) {
 			throw new ManuellerImportNichtMoeglichException(e);
 		}
 

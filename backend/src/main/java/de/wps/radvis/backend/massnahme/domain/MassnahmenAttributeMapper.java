@@ -26,21 +26,21 @@ import java.util.stream.Stream;
 import org.geotools.api.feature.Property;
 import org.geotools.api.feature.type.Name;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MassnahmenAttributeMapper {
 
-	private final static String PREFIX_ANMERKUNG_BEMERKUNGE =
-		"Anmerkung aus der Ursprungserfassung 2014 - 2016: " + System.lineSeparator();
+	private final static String PREFIX_ANMERKUNG_BEMERKUNGE = "Anmerkung aus der Ursprungserfassung 2014 - 2016: "
+		+ System.lineSeparator();
 	private final static String PREFIX_REALISIERU = "Musterlösung (2014-2016): " + System.lineSeparator();
-	private final static String PREFIX_ANM_NACH =
-		"Anmerkung aus den Nachbefahrungen 2020-2021: " + System.lineSeparator();
+	private final static String PREFIX_ANM_NACH = "Anmerkung aus den Nachbefahrungen 2020-2021: " + System
+		.lineSeparator();
 
 	public List<String> mapKommentarTexte(Collection<Property> properties) {
 		List<String> result = new ArrayList<>();

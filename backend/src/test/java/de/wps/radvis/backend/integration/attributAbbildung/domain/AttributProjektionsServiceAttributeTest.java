@@ -397,8 +397,8 @@ class AttributProjektionsServiceAttributeTest {
 			assertThat(
 				potentiellInkonsistenteProjizierteNetzklassenAufGrundnetzKante1.get(Set.of(Netzklasse.RADNETZ_ALLTAG))
 					.stream().mapToDouble(LinearReferenzierterAbschnitt::relativeLaenge).sum())
-				.isCloseTo(expectedFractionForProjizierteKantenAttributeAufGrundnetzKante1,
-					Offset.offset(0.01));
+						.isCloseTo(expectedFractionForProjizierteKantenAttributeAufGrundnetzKante1,
+							Offset.offset(0.01));
 
 			// Projektion auf GrundnetzKante2
 			Attributprojektionsbeschreibung attributprojektionsbeschreibung2 = attributProjektionsbeschreibungenSortiert
@@ -739,14 +739,14 @@ class AttributProjektionsServiceAttributeTest {
 			// arrange
 
 			Kante radnetzKante1 = vorgebauteLeereRadnetzKante1.kantenAttributGruppe(new KantenAttributGruppe(
-					KantenAttribute.builder()
-						.build(),
-					Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
+				KantenAttribute.builder()
+					.build(),
+				Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
 				.build();
 			Kante radnetzKante2 = vorgebauteLeereRadnetzKante2.kantenAttributGruppe(new KantenAttributGruppe(
-					KantenAttribute.builder()
-						.build(),
-					Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
+				KantenAttribute.builder()
+					.build(),
+				Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
 				.build();
 
 			KanteDublette kanteDublette1 = erstelleKanteDubletteMock(leereGrundnetzkante1, radnetzKante1,
@@ -779,21 +779,21 @@ class AttributProjektionsServiceAttributeTest {
 
 			assertThat(potentiellInkonsistenteProjizierteNetzklassen.get(Set.of(Netzklasse.RADNETZ_ALLTAG)).stream()
 				.mapToDouble(LinearReferenzierterAbschnitt::relativeLaenge).sum())
-				.isEqualTo(expectedFractionForProjizierteKantenAttributeAufGrundnetzKante, withPrecision(0.02));
+					.isEqualTo(expectedFractionForProjizierteKantenAttributeAufGrundnetzKante, withPrecision(0.02));
 		}
 
 		@Test
 		void testProjiziereNetzklasseAufGrundnetzKante_NetzklassenVerschieden_ErstelltAttributprojektionsbeschreibungenMitRichtigenWerten() {
 			// arrange
 			Kante radnetzKante1 = vorgebauteLeereRadnetzKante1.kantenAttributGruppe(new KantenAttributGruppe(
-					KantenAttribute.builder()
-						.build(),
-					Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
+				KantenAttribute.builder()
+					.build(),
+				Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
 				.build();
 			Kante radnetzKante2 = vorgebauteLeereRadnetzKante2.kantenAttributGruppe(new KantenAttributGruppe(
-					KantenAttribute.builder()
-						.build(),
-					Set.of(Netzklasse.RADNETZ_ZIELNETZ), new HashSet<>()))
+				KantenAttribute.builder()
+					.build(),
+				Set.of(Netzklasse.RADNETZ_ZIELNETZ), new HashSet<>()))
 				.build();
 
 			KanteDublette kanteDublette1 = erstelleKanteDubletteMock(leereGrundnetzkante1, radnetzKante1,
@@ -827,11 +827,11 @@ class AttributProjektionsServiceAttributeTest {
 
 			assertThat(potentiellInkonsistenteProjizierteNetzklassen.get(Set.of(Netzklasse.RADNETZ_ALLTAG)).stream()
 				.mapToDouble(LinearReferenzierterAbschnitt::relativeLaenge).sum())
-				.isEqualTo(5. / 20., withPrecision(0.02));
+					.isEqualTo(5. / 20., withPrecision(0.02));
 
 			assertThat(potentiellInkonsistenteProjizierteNetzklassen.get(Set.of(Netzklasse.RADNETZ_ZIELNETZ)).stream()
 				.mapToDouble(LinearReferenzierterAbschnitt::relativeLaenge).sum())
-				.isEqualTo(14. / 20., withPrecision(0.02));
+					.isEqualTo(14. / 20., withPrecision(0.02));
 		}
 
 		@Test
@@ -902,10 +902,10 @@ class AttributProjektionsServiceAttributeTest {
 
 			List<ZustaendigkeitAttribute> radnetzZustaendigkeitAttribute2 = List
 				.of(ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(0., 1 / 5.)
-						.vereinbarungsKennung(VereinbarungsKennung.of("456"))
-						.unterhaltsZustaendiger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
-						.baulastTraeger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
-						.build(),
+					.vereinbarungsKennung(VereinbarungsKennung.of("456"))
+					.unterhaltsZustaendiger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+					.baulastTraeger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+					.build(),
 					ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(1 / 5., 1.)
 						.vereinbarungsKennung(VereinbarungsKennung.of("789"))
 						.unterhaltsZustaendiger(

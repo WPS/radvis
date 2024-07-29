@@ -20,11 +20,11 @@ import { MapBrowserEvent } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
-import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { PositionSelektionControlComponent } from 'src/app/viewer/viewer-shared/components/position-selektion-control/position-selektion-control.component';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { instance, mock, verify, when } from 'ts-mockito';
 

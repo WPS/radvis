@@ -18,6 +18,7 @@
 
 export const environment = {
   production: false,
+  loginUrl: 'http://localhost:4200/saml2/authenticate/SSO',
 };
 
 /*

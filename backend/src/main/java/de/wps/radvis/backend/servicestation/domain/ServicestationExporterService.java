@@ -61,9 +61,8 @@ public class ServicestationExporterService implements ExporterService {
 					servicestation.getWerkzeug().getValueAsString());
 				attribute.put(Servicestation.CsvHeader.FAHRRADHALTERUNG,
 					servicestation.getFahrradhalterung().getValueAsString());
-				attribute.put(Servicestation.CsvHeader.BESCHREIBUNG, servicestation.getBeschreibung().isPresent() ?
-					servicestation.getBeschreibung().get().getValue() :
-					"");
+				attribute.put(Servicestation.CsvHeader.BESCHREIBUNG, servicestation.getBeschreibung().isPresent()
+					? servicestation.getBeschreibung().get().getValue() : "");
 				attribute.put(Servicestation.CsvHeader.ZUSTAENDIG_IN_RAD_VIS,
 					servicestation.getOrganisation().getDisplayText());
 				attribute.put(Servicestation.CsvHeader.TYP, servicestation.getTyp().toString());

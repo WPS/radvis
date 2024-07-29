@@ -64,7 +64,7 @@ public class BasicAuthenticationProviderTest {
 
 		when(basicAuthBenutzerRepository
 			.findByBenutzerAnmeldenameAndStatusAktiv(any()))
-			.thenReturn(Optional.of(benutzerBasicAuth));
+				.thenReturn(Optional.of(benutzerBasicAuth));
 
 		// act
 		Authentication generatedAuthentication = basicAuthenticationProvider.authenticate(authentication);
@@ -89,7 +89,7 @@ public class BasicAuthenticationProviderTest {
 
 		when(basicAuthBenutzerRepository
 			.findByBenutzerAnmeldenameAndStatusAktiv(any()))
-			.thenReturn(Optional.of(benutzerBasicAuth));
+				.thenReturn(Optional.of(benutzerBasicAuth));
 
 		// act
 		assertThrows(BadCredentialsException.class,
@@ -104,7 +104,7 @@ public class BasicAuthenticationProviderTest {
 			testPasswort, new ArrayList<>());
 		when(basicAuthBenutzerRepository
 			.findByBenutzerAnmeldenameAndStatusAktiv(any()))
-			.thenReturn(Optional.empty());
+				.thenReturn(Optional.empty());
 
 		// act + assert
 		assertThrows(BadCredentialsException.class,

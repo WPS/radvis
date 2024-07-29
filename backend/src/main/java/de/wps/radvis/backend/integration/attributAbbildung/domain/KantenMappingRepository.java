@@ -27,9 +27,8 @@ public interface KantenMappingRepository extends CrudRepository<KantenMapping, L
 
 	Optional<KantenMapping> findByGrundnetzKantenIdAndQuellsystem(Long grundnetzKantenId, QuellSystem quellsystem);
 
-	@Query(value =
-		"SELECT kantenMapping.grundnetzKantenId FROM KantenMapping kantenMapping JOIN kantenMapping.abgebildeteKanten ak"
-			+ " WHERE ak.kanteId = :radNETZKanteId")
+	@Query(value = "SELECT kantenMapping.grundnetzKantenId FROM KantenMapping kantenMapping JOIN kantenMapping.abgebildeteKanten ak"
+		+ " WHERE ak.kanteId = :radNETZKanteId")
 	List<Long> getDlmKanteIds(Long radNETZKanteId);
 
 	void deleteByGrundnetzKantenIdAndQuellsystem(Long dlmnetzKanteId, QuellSystem quellSystem);

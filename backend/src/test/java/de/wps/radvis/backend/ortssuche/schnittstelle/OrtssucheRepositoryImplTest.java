@@ -88,6 +88,10 @@ public class OrtssucheRepositoryImplTest {
 		// arrange
 		Mockito.when(mockedRestTemplate.getForObject(Mockito.anyString(), Mockito.any()))
 			.thenReturn(createSuchErgebnisDto());
+		Mockito.when(mockedCoordinateReferenceSystemConverter.transformCoordinateUnsafe(any(), any(), any()))
+			.thenAnswer(i -> i.getArguments()[0]);
+		Mockito.when(mockedCoordinateReferenceSystemConverter.transformGeometry(any(), any()))
+			.thenAnswer(i -> i.getArguments()[0]);
 
 		// act
 		bkgOrtsSucheService.find("q äöüß &| +-!(){}[]^\"~*?:\\&&||");

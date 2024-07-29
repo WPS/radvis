@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.2</version>
+    <version>3.3.1</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>de.wps.radvis</groupId>
@@ -54,6 +54,11 @@
     <dependency>
       <groupId>org.springframework.session</groupId>
       <artifactId>spring-session-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.26.2</version>
     </dependency>
     <dependency>
       <groupId>com.github.mkopylec</groupId>
@@ -210,14 +215,14 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.19.5</version>
+      <version>1.19.8</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>1.19.5</version>
+      <version>1.19.8</version>
       <scope>test</scope>
     </dependency>
 
@@ -231,6 +236,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+      <version>42.7.3</version>
     </dependency>
 
     <dependency>
@@ -271,11 +277,6 @@
       <groupId>org.jvnet.jaxb2_commons</groupId>
       <artifactId>jaxb2-basics</artifactId>
       <version>1.11.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>1.25.0</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -458,6 +459,28 @@
           <propertyExpansion>
             checkstyle.header.file=${project.basedir}/copyright-header.txt
           </propertyExpansion>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.43.0</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <java>
+            <eclipse>
+              <version>4.15</version>
+              <file>../eclipseFormatter.xml</file>
+            </eclipse>
+            <removeUnusedImports />
+          </java>
         </configuration>
       </plugin>
     </plugins>

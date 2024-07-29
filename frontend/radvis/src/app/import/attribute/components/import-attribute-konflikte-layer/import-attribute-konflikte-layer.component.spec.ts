@@ -29,7 +29,7 @@ describe(ImportAttributeKonflikteLayerComponent.name, () => {
   let olMapService: OlMapService;
   let attributeImportService: AttributeImportService;
   const clickSubject: BehaviorSubject<MapBrowserEvent<UIEvent>> = new BehaviorSubject<MapBrowserEvent<UIEvent>>(
-    ({} as unknown) as MapBrowserEvent<UIEvent>
+    {} as unknown as MapBrowserEvent<UIEvent>
   );
 
   beforeEach(fakeAsync(() => {
@@ -58,10 +58,10 @@ describe(ImportAttributeKonflikteLayerComponent.name, () => {
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([feature]);
       const konflikteSpy = spyOn(component.selectKonflikt, 'emit');
 
-      clickSubject.next(({
+      clickSubject.next({
         pixel: [0, 0],
         originalEvent: { ctrlKey: false, metaKey: false } as PointerEvent,
-      } as unknown) as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<UIEvent>);
       expect(konflikteSpy).toHaveBeenCalledWith([
         [
           { key: 'Betroffener Abschnitt', value: '10m bis 30,45m' } as Property,

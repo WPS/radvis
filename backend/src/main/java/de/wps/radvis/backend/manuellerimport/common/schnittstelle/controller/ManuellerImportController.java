@@ -14,16 +14,24 @@
 
 package de.wps.radvis.backend.manuellerimport.common.schnittstelle.controller;
 
+import java.io.IOException;
+
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.manuellerimport.common.domain.exception.ManuellerImportNichtMoeglichException;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
+import de.wps.radvis.backend.manuellerimport.common.schnittstelle.view.FileValidationResultView;
 import lombok.NonNull;
 
 @RestController
@@ -45,6 +53,20 @@ public class ManuellerImportController {
 	public boolean existsSession(Authentication authentication) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 		return manuellerImportService.importSessionExists(benutzer);
+	}
+
+	@PostMapping(path = "validate-shapefile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public FileValidationResultView validateShapefile(@RequestPart MultipartFile file) {
+		try {
+			manuellerImportService.unzipAndValidateShape(file.getBytes());
+		} catch (ManuellerImportNichtMoeglichException e) {
+			return FileValidationResultView.invalid(e.getMessage());
+		} catch (IOException e) {
+			return FileValidationResultView
+				.invalid("Beim Prüfen des Shapefiles ist ein unerwarteter Fehler aufgetreten.");
+		}
+
+		return FileValidationResultView.valid();
 	}
 
 	@DeleteMapping(path = "delete-session")

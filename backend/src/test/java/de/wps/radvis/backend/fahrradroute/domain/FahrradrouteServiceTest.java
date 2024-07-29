@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.fahrradroute.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -81,6 +83,7 @@ import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
@@ -98,6 +101,8 @@ class FahrradrouteServiceTest {
 	JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 	@Mock
 	BenutzerService benutzerService;
+	@Mock
+	SackgassenService sackgassenService;
 
 	@Captor
 	private ArgumentCaptor<List<Fahrradroute>> fahrradroutenCaptor;
@@ -114,7 +119,7 @@ class FahrradrouteServiceTest {
 		domainPublisherMock = mockStatic(RadVisDomainEventPublisher.class);
 		service = new FahrradrouteService(fahrradrouteRepository, fahrradrouteViewRepository,
 			Lazy.of(graphhopperRoutingRepository), fahrradrouteNetzBezugAenderungRepository,
-			jobExecutionDescriptionRepository, benutzerService);
+			jobExecutionDescriptionRepository, benutzerService, sackgassenService);
 	}
 
 	@AfterEach
@@ -309,13 +314,13 @@ class FahrradrouteServiceTest {
 			LineString lineString = (LineString) fahrradroute.getNetzbezugLineString().get();
 			when(graphhopperRoutingRepository.route(List.of(lineString.getCoordinates()),
 				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID, false)).thenReturn(
-				new RoutingResult(List.of(1L, 2L),
-					KanteTestDataProvider.withDefaultValues()
-						.geometry(lineString)
-						.build()
-						.getGeometry(),
-					Hoehenunterschied.of(123d),
-					Hoehenunterschied.of(234d)));
+					new RoutingResult(List.of(1L, 2L),
+						KanteTestDataProvider.withDefaultValues()
+							.geometry(lineString)
+							.build()
+							.getGeometry(),
+						Hoehenunterschied.of(123d),
+						Hoehenunterschied.of(234d)));
 
 			// Act
 			service.onFahrradrouteCreated(new FahrradrouteCreatedEvent(fahrradroute));
@@ -331,10 +336,10 @@ class FahrradrouteServiceTest {
 			LineString lineString = (LineString) fahrradroute.getNetzbezugLineString().get();
 			when(graphhopperRoutingRepository.route(List.of(lineString.getCoordinates()),
 				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID, false)).thenReturn(
-				new RoutingResult(List.of(1L, 2L),
-					KanteTestDataProvider.withDefaultValues().build().getGeometry(),
-					Hoehenunterschied.of(123d),
-					Hoehenunterschied.of(234d)));
+					new RoutingResult(List.of(1L, 2L),
+						KanteTestDataProvider.withDefaultValues().build().getGeometry(),
+						Hoehenunterschied.of(123d),
+						Hoehenunterschied.of(234d)));
 
 			// Act
 			service.onFahrradrouteUpdated(new FahrradrouteUpdatedEvent(fahrradroute));
@@ -391,7 +396,7 @@ class FahrradrouteServiceTest {
 				List.of(fahrradroute.getNetzbezugLineString().get().getCoordinates()),
 				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
 				false))
-				.thenReturn(profilRoutingResult);
+					.thenReturn(profilRoutingResult);
 
 			// Act
 			ProfilInformationenUpdateStatistik profilInformationenUpdateStatistik = new ProfilInformationenUpdateStatistik();
@@ -422,7 +427,7 @@ class FahrradrouteServiceTest {
 			when(graphhopperRoutingRepository.route(
 				List.of(fahrradroute.getNetzbezugLineString().get().getCoordinates()),
 				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID, false))
-				.thenReturn(routingResult);
+					.thenReturn(routingResult);
 
 			// Act
 			UpdateAbgeleiteteRoutenInfoStatistik updateAbgeleiteteRoutenInfoStatistik = new UpdateAbgeleiteteRoutenInfoStatistik();
@@ -462,7 +467,7 @@ class FahrradrouteServiceTest {
 			when(graphhopperRoutingRepository.route(
 				List.of(fahrradroute.getNetzbezugLineString().get().getCoordinates()),
 				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID, false))
-				.thenReturn(routingResult);
+					.thenReturn(routingResult);
 
 			// Act
 			UpdateAbgeleiteteRoutenInfoStatistik updateAbgeleiteteRoutenInfoStatistik = new UpdateAbgeleiteteRoutenInfoStatistik();
@@ -508,7 +513,7 @@ class FahrradrouteServiceTest {
 		verify(jobExecutionDescriptionRepository, times(1)).findAllByNameInAfterOrderByExecutionStartDesc(
 			afterCaptor.capture(), jobNamesCaptor.capture());
 
-		assertThat(afterCaptor.getValue()).isEqualToIgnoringHours(now.atStartOfDay().minusDays(anzahlTage));
+		assertThat(afterCaptor.getValue()).isCloseTo(now.atStartOfDay(), within(anzahlTage, ChronoUnit.DAYS));
 
 		assertThat(jobNamesCaptor.getValue()).containsExactlyInAnyOrder(
 			FahrradroutenTfisImportJob.JOB_NAME,

@@ -106,21 +106,20 @@ public class MappedAttributes {
 
 	/**
 	 * @param mappedAttributesList
-	 * 	mappedAttributesList muss normalisiert sein, damit diese Methode funktioniert
+	 *     mappedAttributesList muss normalisiert sein, damit diese Methode funktioniert
 	 * @return
 	 */
 	public static List<MappedAttributes> loeseUeberschneidungenAuf(List<MappedAttributes> mappedAttributesList,
 		String attributName, KantenKonfliktProtokoll kantenKonfliktProtokoll) {
 		Map<LinearReferenzierterAbschnitt, Deque<MappedAttributes>> map = new HashMap<>();
 
-		mappedAttributesList.forEach(mappedAttributes ->
-			map.merge(
-				mappedAttributes.getLinearReferenzierterAbschnitt(),
-				new ArrayDeque<>(List.of(mappedAttributes)),
-				(oldList, listWithNewMappedAttributes) -> {
-					oldList.addAll(listWithNewMappedAttributes);
-					return oldList;
-				}));
+		mappedAttributesList.forEach(mappedAttributes -> map.merge(
+			mappedAttributes.getLinearReferenzierterAbschnitt(),
+			new ArrayDeque<>(List.of(mappedAttributes)),
+			(oldList, listWithNewMappedAttributes) -> {
+				oldList.addAll(listWithNewMappedAttributes);
+				return oldList;
+			}));
 
 		List<MappedAttributes> resultUnsorted = new ArrayList<>();
 		for (Map.Entry<LinearReferenzierterAbschnitt, Deque<MappedAttributes>> entry : map.entrySet()) {
@@ -128,19 +127,30 @@ public class MappedAttributes {
 			MappedAttributes lastMappedAttributes = mappedAttributesForLinRef.removeLast();
 			if (!mappedAttributesForLinRef.isEmpty()) {
 				String uebernommenerWert = lastMappedAttributes.getProperty(attributName);
-				Set<String> nichtUebernommeneWerte = mappedAttributesForLinRef.stream()
-					.map(mA -> mA.getProperty(attributName))
-					.collect(Collectors.toSet());
-				nichtUebernommeneWerte.remove(uebernommenerWert);
+				LinearReferenzierterAbschnitt abschnitt = entry.getKey();
 
-				if (!nichtUebernommeneWerte.isEmpty()) {
-					kantenKonfliktProtokoll.add(
-						new Konflikt(
-							entry.getKey(),
-							attributName,
-							uebernommenerWert,
-							nichtUebernommeneWerte));
-				}
+				// Nach Seite gruppieren um informative Konflikte für die Nutzer anzulegen.
+				mappedAttributesForLinRef.stream()
+					.collect(Collectors.groupingBy(MappedAttributes::getSeitenbezug))
+					.forEach((seite, mappedAttributesForSeite) -> {
+						Set<String> nichtUebernommeneWerte = mappedAttributesForSeite.stream()
+							.map(mA -> mA.getProperty(attributName))
+							.collect(Collectors.toSet());
+						nichtUebernommeneWerte.remove(uebernommenerWert);
+
+						if (!nichtUebernommeneWerte.isEmpty()) {
+							kantenKonfliktProtokoll.add(
+								new Konflikt(
+									abschnitt,
+									seite,
+									attributName,
+									uebernommenerWert,
+									nichtUebernommeneWerte,
+									"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit "
+										+ nichtUebernommeneWerte.size()
+										+ " anderen Abschnitten auf der gleichen Seite gibt."));
+						}
+					});
 			}
 			resultUnsorted.add(lastMappedAttributes);
 		}

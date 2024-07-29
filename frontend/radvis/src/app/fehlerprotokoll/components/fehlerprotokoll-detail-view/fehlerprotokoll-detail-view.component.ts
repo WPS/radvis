@@ -13,13 +13,18 @@
  */
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Optional, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Optional,
+  Output,
+} from '@angular/core';
 import { Coordinate } from 'ol/coordinate';
-import { Point } from 'ol/geom';
-import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { AnpassungswunschAnlegenService } from 'src/app/shared/services/anpassungswunsch-anlegen.service';
 import invariant from 'tiny-invariant';
-import { FehlerprotokollLayerComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-layer/fehlerprotokoll-layer.component';
 
 @Component({
   selector: 'rad-fehlerprotokoll-detail-view',
@@ -27,32 +32,41 @@ import { FehlerprotokollLayerComponent } from 'src/app/fehlerprotokoll/component
   styleUrls: ['./fehlerprotokoll-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FehlerprotokollDetailViewComponent implements OnChanges {
-  @Input()
-  selectedFeature!: RadVisFeature;
+export class FehlerprotokollDetailViewComponent {
   @Input()
   canCreateAnpassungswunsch = false;
 
   @Output()
   public closePopup = new EventEmitter<void>();
 
-  public selectedLocation!: Coordinate;
-  public titel!: string;
-  public beschreibung!: string;
-  public entityLink!: string;
-  public datum!: string;
+  public selectedLocation: Coordinate | null = null;
+  public titel: string = '';
+  public beschreibung: string = '';
+  public entityLink: string = '';
+  public datum: string = '';
+  public id: string | undefined;
 
-  constructor(@Optional() public anpassungswunschAnlegenService?: AnpassungswunschAnlegenService) {}
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    @Optional() public anpassungswunschAnlegenService?: AnpassungswunschAnlegenService
+  ) {}
 
-  ngOnChanges(): void {
-    invariant(this.selectedFeature);
+  public showFehlerprotokoll(
+    location: Coordinate,
+    id: string,
+    titel: string,
+    beschreibung: string,
+    entityLink: string,
+    datum: string
+  ): void {
+    this.selectedLocation = location;
+    this.titel = titel;
+    this.beschreibung = beschreibung;
+    this.entityLink = entityLink;
+    this.datum = datum;
+    this.id = id;
 
-    this.selectedLocation = (this.selectedFeature.geometry as Point).getCoordinates();
-
-    this.titel = this.selectedFeature.attribute.find(a => a.key === 'titel')!.value;
-    this.beschreibung = this.selectedFeature.attribute.find(a => a.key === 'beschreibung')!.value;
-    this.entityLink = this.selectedFeature.attribute.find(a => a.key === 'entityLink')!.value;
-    this.datum = this.selectedFeature.attribute.find(a => a.key === 'datum')!.value;
+    this.changeDetector.markForCheck();
   }
 
   public onClosePopup(): void {
@@ -61,11 +75,13 @@ export class FehlerprotokollDetailViewComponent implements OnChanges {
 
   public onAddAnpassungswunsch(): void {
     invariant(this.anpassungswunschAnlegenService);
+    invariant(this.selectedLocation);
+    invariant(this.id);
 
     this.anpassungswunschAnlegenService.addAnpassungswunschFuerFehlerprotokoll(
       this.selectedLocation,
       this.beschreibung,
-      FehlerprotokollLayerComponent.extractProtokollId(this.selectedFeature.attribute)
+      this.id
     );
   }
 }

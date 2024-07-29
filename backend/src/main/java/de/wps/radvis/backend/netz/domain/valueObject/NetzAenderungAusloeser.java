@@ -15,5 +15,7 @@
 package de.wps.radvis.backend.netz.domain.valueObject;
 
 public enum NetzAenderungAusloeser {
-	DLM_REIMPORT_JOB, VERNETZUNG_KORREKTUR, RADVIS_KANTE_LOESCHEN
+	DLM_REIMPORT_JOB,
+	VERNETZUNG_KORREKTUR,
+	RADVIS_KANTE_LOESCHEN
 }

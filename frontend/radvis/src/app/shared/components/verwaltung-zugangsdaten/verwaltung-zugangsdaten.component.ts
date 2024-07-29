@@ -69,7 +69,7 @@ export class VerwaltungZugangsdatenComponent {
   }
 
   openHandbuchSchnittstelleWmsWfs(): void {
-    this.manualRoutingService.openWmsWfsSchnittstelle();
+    this.manualRoutingService.openManualWmsWfsSchnittstelle();
   }
 
   onCopyButtonClicked(): void {

@@ -28,7 +28,7 @@ body {
   margin: 0;
 }
 
-$spaceamounts: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20); // Adjust this to include the pixel amounts you need.
+$spaceamounts: (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20); // Adjust this to include the pixel amounts you need.
 $sides: (top, bottom, left, right); // all positions
 
 @each $space in $spaceamounts {
@@ -77,12 +77,6 @@ $sides: (top, bottom, left, right); // all positions
 
 .mat-mdc-menu-panel.karte-menu > .mat-mdc-menu-content {
   padding: 0;
-}
-
-.mdc-text-field,
-.mat-mdc-form-field-error-wrapper,
-.mat-mdc-form-field-hint-wrapper {
-  padding: 0 0.5rem !important;
 }
 
 .mdc-button,
@@ -140,6 +134,10 @@ $sides: (top, bottom, left, right); // all positions
   align-self: center;
 }
 
+.align-self-stretch {
+  align-self: stretch;
+}
+
 .align-items-end {
   align-items: flex-end;
 }
@@ -170,6 +168,10 @@ $sides: (top, bottom, left, right); // all positions
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.flex-no-shrink {
+  flex-shrink: 0;
 }
 
 .border-primary {
@@ -217,6 +219,10 @@ $sides: (top, bottom, left, right); // all positions
   mat-icon {
     flex-shrink: 0;
   }
+}
+
+.error-snackbar {
+  word-break: break-word;
 }
 
 .indeterminate.mat-mdc-slide-toggle .mdc-switch__handle {
@@ -291,7 +297,14 @@ td.group-header,
 
 /* TODO(mdc-migration, jg): invalides CSS durch +. Entfällt sobald rad-validation-error-anzeige in die jeweiligen input controls integriert wird.
 */
-:is(mat-form-field, rad-organisationen-dropdown-control, rad-number-input-control, rad-text-input-control, rad-massnahmenkategorien-dropdown-control, rad-enum-dropdown-control),
+:is(
+    mat-form-field,
+    rad-organisationen-dropdown-control,
+    rad-number-input-control,
+    rad-text-input-control,
+    rad-massnahmenkategorien-dropdown-control,
+    rad-enum-dropdown-control
+  ),
 + rad-validation-error-anzeige {
   position: relative;
   top: -1rem;
@@ -366,4 +379,10 @@ td.group-header,
 
 .mdc-form-field {
   -webkit-font-smoothing: unset !important;
+}
+
+.text-small {
+  font-size: small;
+  line-height: 1.2em;
+  letter-spacing: 0;
 }

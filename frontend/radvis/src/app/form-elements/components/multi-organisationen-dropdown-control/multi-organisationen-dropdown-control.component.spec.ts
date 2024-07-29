@@ -28,9 +28,9 @@ describe(MultiOrganisationenDropdownControlComponent.name, () => {
   });
 
   beforeEach(() => {
-    fixture = MockRender(MultiOrganisationenDropdownControlComponent, ({
+    fixture = MockRender(MultiOrganisationenDropdownControlComponent, {
       options: [],
-    } as unknown) as MultiOrganisationenDropdownControlComponent);
+    } as unknown as MultiOrganisationenDropdownControlComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
@@ -236,7 +236,7 @@ describe(MultiOrganisationenDropdownControlComponent.name, () => {
         component.writeValue([options[0]]);
         expect(component.filteredOptions).toEqual([options[1], options[2]]);
 
-        component.onOptionSelected(({ option: { value: options[1] } } as unknown) as MatAutocompleteSelectedEvent);
+        component.onOptionSelected({ option: { value: options[1] } } as unknown as MatAutocompleteSelectedEvent);
         expect(component.filteredOptions).toEqual([options[2]]);
       });
 
@@ -319,7 +319,7 @@ describe(MultiOrganisationenDropdownControlComponent.name, () => {
       component.writeValue([defaultOrganisation]);
 
       const org = { ...defaultOrganisation, id: 83556 };
-      component.onOptionSelected(({ option: { value: org } } as unknown) as MatAutocompleteSelectedEvent);
+      component.onOptionSelected({ option: { value: org } } as unknown as MatAutocompleteSelectedEvent);
 
       expect(onChangeSpy).toHaveBeenCalled();
       expect(onChangeSpy.calls.mostRecent().args[0]).toEqual([defaultOrganisation, org]);

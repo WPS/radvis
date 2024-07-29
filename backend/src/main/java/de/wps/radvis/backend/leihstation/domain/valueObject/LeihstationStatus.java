@@ -18,7 +18,9 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum LeihstationStatus {
-	GEPLANT("Geplant"), AKTIV("Aktiv"), AUSSER_BETRIEB("Außer Betrieb");
+	GEPLANT("Geplant"),
+	AKTIV("Aktiv"),
+	AUSSER_BETRIEB("Außer Betrieb");
 
 	private final String displayText;
 

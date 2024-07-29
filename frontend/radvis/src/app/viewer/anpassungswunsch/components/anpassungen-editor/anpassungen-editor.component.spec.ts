@@ -21,7 +21,7 @@ import { MapBrowserEvent } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
-import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { defaultBenutzer } from 'src/app/shared/models/benutzer-test-data-provider.spec';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
@@ -34,7 +34,7 @@ import { SaveAnpassungswunschCommand } from 'src/app/viewer/anpassungswunsch/mod
 import { AnpassungswunschService } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch.service';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { PositionSelektionControlComponent } from 'src/app/viewer/viewer-shared/components/position-selektion-control/position-selektion-control.component';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { AnpassungenEditorComponent } from './anpassungen-editor.component';
 
@@ -152,11 +152,9 @@ describe(AnpassungenEditorComponent.name, () => {
         verantwortlicheOrganisation: defaultOrganisation,
       });
       component.formGroup.markAsDirty();
-      when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve(
-        (null as unknown) as Anpassungswunsch
-      );
+      when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve(null as unknown as Anpassungswunsch);
       const coordinate: Coordinate = [0, 10];
-      olMapClick$.next(({ coordinate } as unknown) as MapBrowserEvent<UIEvent>);
+      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<UIEvent>);
 
       component.onSave();
 
@@ -201,12 +199,12 @@ describe(AnpassungenEditorComponent.name, () => {
 
     it('should reset position on subsequent click', () => {
       let coordinate: Coordinate = [0, 10];
-      olMapClick$.next(({ coordinate } as unknown) as MapBrowserEvent<UIEvent>);
+      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<UIEvent>);
 
       expect(component.selectedCoordinate).toEqual(coordinate);
 
       coordinate = [10, 100];
-      olMapClick$.next(({ coordinate } as unknown) as MapBrowserEvent<UIEvent>);
+      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<UIEvent>);
 
       expect(component.selectedCoordinate).toEqual(coordinate);
     });
@@ -278,7 +276,7 @@ describe(AnpassungenEditorComponent.name, () => {
         });
         component.formGroup.markAsDirty();
         when(anpassungswunschService.updateAnpassungswunsch(anything(), anything())).thenResolve(
-          (null as unknown) as Anpassungswunsch
+          null as unknown as Anpassungswunsch
         );
 
         component.onSave();

@@ -16,18 +16,12 @@ import { Injectable } from '@angular/core';
 import { Route, Router } from '@angular/router';
 import { discardGuard } from 'src/app/shared/services/discard.guard';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
-import {
-  ServicestationEditorComponent
-} from 'src/app/viewer/servicestation/components/servicestation-editor/servicestation-editor.component';
+import { ServicestationEditorComponent } from 'src/app/viewer/servicestation/components/servicestation-editor/servicestation-editor.component';
 import { SERVICESTATIONEN } from 'src/app/viewer/servicestation/models/servicestation.infrastruktur';
-import {
-  servicestationDokumentListeResolver
-} from 'src/app/viewer/servicestation/services/servicestation-dokument-liste.resolver';
+import { servicestationDokumentListeResolver } from 'src/app/viewer/servicestation/services/servicestation-dokument-liste.resolver';
 import { servicestationResolver } from 'src/app/viewer/servicestation/services/servicestation.resolver';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
-import {
-  AbstractInfrastrukturenRoutingService
-} from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
+import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -81,6 +75,6 @@ export class ServicestationRoutingService extends AbstractInfrastrukturenRouting
   }
 
   private getActiveSubroute(): string | null {
-    return (new RegExp(`${this.infrastrukturArt.pathElement}/\\d+/(.*?)($|\\?)`).exec(this.router.url))?.[1] || null;
+    return new RegExp(`${this.infrastrukturArt.pathElement}/\\d+/(.*?)($|\\?)`).exec(this.router.url)?.[1] || null;
   }
 }

@@ -25,23 +25,21 @@ export enum Oberflaechenbeschaffenheit {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Oberflaechenbeschaffenheit {
-  export const options: EnumOption[] = Object.keys(Oberflaechenbeschaffenheit).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Oberflaechenbeschaffenheit.NEUWERTIG:
-          return { name: k, displayText: 'Neuwertig' };
-        case Oberflaechenbeschaffenheit.SEHR_GUTER_BIS_GUTER_ZUSTAND:
-          return { name: k, displayText: 'Sehr guter bis guter Zustand' };
-        case Oberflaechenbeschaffenheit.GUTER_BIS_MITTLERER_ZUSTAND:
-          return { name: k, displayText: 'Guter bis mittlerer Zustand' };
-        case Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE:
-          return { name: k, displayText: 'Anlass zur intensiven Beobachtung und Analyse' };
-        case Oberflaechenbeschaffenheit.EINLEITUNG_BAULICHER_ODER_VERKEHRSBESCHRAENKENDER_MASSNAHMEN:
-          return { name: k, displayText: 'Einleitung baulicher oder verkehrsbeschränkender Maßnahmen' };
-        case Oberflaechenbeschaffenheit.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Oberflaechenbeschaffenheit fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Oberflaechenbeschaffenheit).map((k: string): EnumOption => {
+    switch (k) {
+      case Oberflaechenbeschaffenheit.NEUWERTIG:
+        return { name: k, displayText: 'Neuwertig' };
+      case Oberflaechenbeschaffenheit.SEHR_GUTER_BIS_GUTER_ZUSTAND:
+        return { name: k, displayText: 'Sehr guter bis guter Zustand' };
+      case Oberflaechenbeschaffenheit.GUTER_BIS_MITTLERER_ZUSTAND:
+        return { name: k, displayText: 'Guter bis mittlerer Zustand' };
+      case Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE:
+        return { name: k, displayText: 'Anlass zur intensiven Beobachtung und Analyse' };
+      case Oberflaechenbeschaffenheit.EINLEITUNG_BAULICHER_ODER_VERKEHRSBESCHRAENKENDER_MASSNAHMEN:
+        return { name: k, displayText: 'Einleitung baulicher oder verkehrsbeschränkender Maßnahmen' };
+      case Oberflaechenbeschaffenheit.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Oberflaechenbeschaffenheit fehlt: ' + k);
+  });
 }

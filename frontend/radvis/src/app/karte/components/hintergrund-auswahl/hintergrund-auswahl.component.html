@@ -17,8 +17,7 @@
   (keydown.shift.tab)="$event.preventDefault()"
   (keydown.escape)="close()"
   (change)="onBackgroundSelect($event)"
-  class="display-flex flex-column align-items-start"
->
+  class="display-flex flex-column align-items-start">
   <mat-radio-button
     class="m-5"
     *ngFor="let background of backgrounds"

@@ -219,15 +219,15 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	public void buildIndex() {
 
 		entityManager.createNativeQuery(
-				"CREATE INDEX kante_idx_tmp ON kante USING GIST (geometry, quelle)")
+			"CREATE INDEX kante_idx_tmp ON kante USING GIST (geometry, quelle)")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-				"DROP INDEX IF EXISTS kante_idx")
+			"DROP INDEX IF EXISTS kante_idx")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-				"ALTER INDEX kante_idx_tmp RENAME TO kante_idx")
+			"ALTER INDEX kante_idx_tmp RENAME TO kante_idx")
 			.executeUpdate();
 
 	}
@@ -370,25 +370,37 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 		Polygon bereich = EnvelopeAdapter.toPolygon(envelope, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 		// Relevant bedeutet, dass die Kanten in den, fuer die OSM-Ausleitung relevanten Attributen, vom Default abweichen
 
-		String hqlString =
-			"SELECT new de.wps.radvis.backend.netz.domain.entity.KanteGeometryView(k.id, k.geometry) "
-				+ " FROM Kante k "
-				+ " WHERE k.id IN ("
-				+ " 	SELECT ka.kanteId FROM KantenAbschnittOsmMapping ka"
-				+ " 	WHERE "
-				+ " 		intersects(CAST(:bereich as org.locationtech.jts.geom.Geometry), CAST(ka.geometry as org.locationtech.jts.geom.Geometry)) = true "
-				+ " 	AND ka.status NOT LIKE 'FIKTIV' "
-				+ " 	AND ( ka.radverkehrsfuehrung NOT LIKE 'UNBEKANNT' "
-				+ " 	   OR ka.breite IS NOT NULL "
-				+ "  	   OR ka.belagArt NOT LIKE 'UNBEKANNT' "
-				+ " 	   OR ka.oberflaechenbeschaffenheit NOT LIKE 'UNBEKANNT' "
-				+ " 	   OR ka.status NOT LIKE 'UNTER_VERKEHR' "
-				+ "  	   OR ka.netzklassen IS NOT NULL OR ka.netzklassen NOT LIKE '' )"
-				+ "		) "
-				+ "	OR (EXISTS (SELECT 1 FROM Fahrradroute f JOIN f.abschnittsweiserKantenBezug AS fka WHERE f.drouteId IS NOT NULL AND fka.kante.id = k.id)"
-				+ "		AND intersects(CAST(:bereich as org.locationtech.jts.geom.Geometry), CAST(k.geometry as org.locationtech.jts.geom.Geometry)) = true "
-				+ "		AND k.kantenAttributGruppe.kantenAttribute.status NOT LIKE 'FIKTIV'"
-				+ "		)";
+		String hqlString = """
+			SELECT new de.wps.radvis.backend.netz.domain.entity.KanteGeometryView(k.id, k.geometry)
+			FROM Kante k
+			WHERE
+				k.id IN (
+				SELECT ka.kanteId
+					FROM KantenAbschnittOsmMapping ka
+				WHERE
+					intersects(CAST(:bereich as org.locationtech.jts.geom.Geometry), CAST(ka.geometry as org.locationtech.jts.geom.Geometry)) = true
+						AND ka.status NOT LIKE 'FIKTIV'
+						AND (
+							ka.radverkehrsfuehrung NOT LIKE 'UNBEKANNT'
+							OR ka.breite IS NOT NULL
+							OR ka.belagArt NOT LIKE 'UNBEKANNT'
+							OR ka.oberflaechenbeschaffenheit NOT LIKE 'UNBEKANNT'
+							OR ka.status NOT LIKE 'UNTER_VERKEHR'
+							OR ka.netzklassen IS NOT NULL OR ka.netzklassen NOT LIKE ''
+						)
+				)
+				OR (
+					EXISTS (
+						SELECT 1
+						FROM Fahrradroute f
+						JOIN f.abschnittsweiserKantenBezug AS fka
+						WHERE
+							f.drouteId IS NOT NULL
+							AND fka.kante.id = k.id
+					)
+					AND intersects(CAST(:bereich as org.locationtech.jts.geom.Geometry), CAST(k.geometry as org.locationtech.jts.geom.Geometry)) = true
+					AND k.kantenAttributGruppe.kantenAttribute.status NOT LIKE 'FIKTIV'
+			)""";
 
 		return entityManager.createQuery(hqlString, KanteGeometryView.class)
 			.setParameter("bereich", bereich)
@@ -399,57 +411,55 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	@Override
 	public Stream<KanteOsmMatchWithAttribute> getKanteOsmMatchesWithOsmAttributes(
 		double minimaleUeberdeckungFuerAttributAuszeichnung) {
-		String sqlString =
-			"WITH drouteKantenIds AS (SELECT DISTINCT fk.kante_id AS id FROM fahrradroute f JOIN fahrradroute_kantenabschnitte fk on f.id = fk.fahrradroute_id WHERE f.droute_id IS NOT NULL) "
-				+ "SELECT "
-				+ "    most_relevant_mapping.kante_id, "
-				+ "    most_relevant_mapping.value, "
-				+ "    kante.status, "
-				+ "    kante.netzklassen, "
-				+ "    kante.radverkehrsfuehrung, "
-				+ "    kante.breite, "
-				+ "    kante.belag_art, "
-				+ "    kante.oberflaechenbeschaffenheit, "
-				+ "	   kante.id IN (SELECT * FROM drouteKantenIds) AS dRoute "
-				+ "FROM ("
-				+ "    SELECT "
-				+ "        relevant_mapping.kante_id, "
-				+ "        relevant_mapping.value "
-				+ "    FROM ("
-				+ "        SELECT"
-				+ "            kowi.kante_id, "
-				+ "            kowi.value, "
-				+ "            RANK() OVER ("
-				+ "                PARTITION BY kowi.value"
-				+ "                ORDER BY SUM(kowi.bis-kowi.von) DESC"
-				+ "            ) AS pos"
-				+ "        FROM ( "
-				+ "            SELECT k.value FROM kante_osm_way_ids k "
-				+ "            GROUP BY k.value "
-				+ "            HAVING SUM(k.bis-k.von) >= :minimaleUeberdeckungFuerAttributAuszeichnung "
-				+ "        ) relevant_way "
-				+ "        JOIN kante_osm_way_ids kowi ON kowi.value = relevant_way.value "
-				+ "        GROUP BY kowi.kante_id, kowi.value "
-				+ "    ) relevant_mapping "
-				+ "    WHERE pos = 1 "
-				+ ") AS most_relevant_mapping "
-				+ "JOIN geoserver_radvisnetz_kante_materialized_view kante ON kante.id = most_relevant_mapping.kante_id;";
+		String sqlString = "WITH drouteKantenIds AS (SELECT DISTINCT fk.kante_id AS id FROM fahrradroute f JOIN fahrradroute_kantenabschnitte fk on f.id = fk.fahrradroute_id WHERE f.droute_id IS NOT NULL) "
+			+ "SELECT "
+			+ "    most_relevant_mapping.kante_id, "
+			+ "    most_relevant_mapping.value, "
+			+ "    kante.status, "
+			+ "    kante.netzklassen, "
+			+ "    kante.radverkehrsfuehrung, "
+			+ "    kante.breite, "
+			+ "    kante.belag_art, "
+			+ "    kante.oberflaechenbeschaffenheit, "
+			+ "	   kante.id IN (SELECT * FROM drouteKantenIds) AS dRoute "
+			+ "FROM ("
+			+ "    SELECT "
+			+ "        relevant_mapping.kante_id, "
+			+ "        relevant_mapping.value "
+			+ "    FROM ("
+			+ "        SELECT"
+			+ "            kowi.kante_id, "
+			+ "            kowi.value, "
+			+ "            RANK() OVER ("
+			+ "                PARTITION BY kowi.value"
+			+ "                ORDER BY SUM(kowi.bis-kowi.von) DESC"
+			+ "            ) AS pos"
+			+ "        FROM ( "
+			+ "            SELECT k.value FROM kante_osm_way_ids k "
+			+ "            GROUP BY k.value "
+			+ "            HAVING SUM(k.bis-k.von) >= :minimaleUeberdeckungFuerAttributAuszeichnung "
+			+ "        ) relevant_way "
+			+ "        JOIN kante_osm_way_ids kowi ON kowi.value = relevant_way.value "
+			+ "        GROUP BY kowi.kante_id, kowi.value "
+			+ "    ) relevant_mapping "
+			+ "    WHERE pos = 1 "
+			+ ") AS most_relevant_mapping "
+			+ "JOIN geoserver_radvisnetz_kante_materialized_view kante ON kante.id = most_relevant_mapping.kante_id;";
 
 		Stream<Object[]> resultStream = entityManager.createNativeQuery(sqlString)
 			.setParameter("minimaleUeberdeckungFuerAttributAuszeichnung", minimaleUeberdeckungFuerAttributAuszeichnung)
 			.getResultStream();
-		return resultStream.map(objects ->
-			new KanteOsmMatchWithAttribute(
-				(Long) objects[0], // kanteId
-				(Long) objects[1], // osmWayId
-				(String) objects[2], // Status name des Enums
-				(String) objects[3], // netzklassen ; separiert zu String gejoint
-				(String) objects[4],// Radverkehrsfuehrung name des Enums
-				objects[5] != null ? ((BigDecimal) objects[5]).doubleValue() : null, // Breite
-				(String) objects[6],// BelagArt name des Enums
-				(String) objects[7], // Oberflaechenbeschaffenheit name des Enums
-				(Boolean) objects[8] // DRoutenzugehörigkeit
-			)
+		return resultStream.map(objects -> new KanteOsmMatchWithAttribute(
+			(Long) objects[0], // kanteId
+			(Long) objects[1], // osmWayId
+			(String) objects[2], // Status name des Enums
+			(String) objects[3], // netzklassen ; separiert zu String gejoint
+			(String) objects[4],// Radverkehrsfuehrung name des Enums
+			objects[5] != null ? ((BigDecimal) objects[5]).doubleValue() : null, // Breite
+			(String) objects[6],// BelagArt name des Enums
+			(String) objects[7], // Oberflaechenbeschaffenheit name des Enums
+			(Boolean) objects[8] // DRoutenzugehörigkeit
+		)
 		);
 	}
 

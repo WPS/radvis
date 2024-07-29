@@ -152,14 +152,14 @@ public class FeatureImportRepositoryImpl implements FeatureImportRepository {
 		boolean flipAxes) {
 
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CustomFeatureIterator(featureIterator),
-				Spliterator.ORDERED), false)
+			Spliterator.ORDERED), false)
 			.filter(simpleFeature -> simpleFeature.getDefaultGeometry() != null)
 			.map(simpleFeature -> getImportedFeatureFromSimpleFeature(zielGeometryType, quelle, art,
 				sourceReferenzSystem, flipAxes, simpleFeature))
 			.filter(importedFeature -> importedFeature.getGeometrie() != null)
 			.filter(importedFeature -> performanceFilterEnvelope == null
 				|| performanceFilterEnvelope
-				.contains(importedFeature.getGeometrie().getEnvelopeInternal()));
+					.contains(importedFeature.getGeometrie().getEnvelopeInternal()));
 	}
 
 	private ImportedFeature getImportedFeatureFromSimpleFeature(String zielGeometryType, QuellSystem quelle, Art art,
@@ -199,10 +199,10 @@ public class FeatureImportRepositoryImpl implements FeatureImportRepository {
 			&& zielGeometryType.equals(Geometry.TYPENAME_LINESTRING))
 			// Für z.B. Maßnahmen sind MultiLineStrings mit mehreren LSs erlaubt
 			&& !(quellGeometryType.equals(Geometry.TYPENAME_MULTILINESTRING)
-			&& zielGeometryType.equals(Geometry.TYPENAME_MULTILINESTRING))
+				&& zielGeometryType.equals(Geometry.TYPENAME_MULTILINESTRING))
 
 			&& !(quellGeometryType.equals(Geometry.TYPENAME_POINT)
-			&& zielGeometryType.equals(Geometry.TYPENAME_POINT))) {
+				&& zielGeometryType.equals(Geometry.TYPENAME_POINT))) {
 			throw new GeometrieNormalisierungsException(
 				"Geometrietyp '" + quellGeometryType + "' kann nicht nach '" + zielGeometryType + "' überführt werden");
 		}
@@ -213,10 +213,10 @@ public class FeatureImportRepositoryImpl implements FeatureImportRepository {
 	 * Datenquellen können die Achsen getauscht sein, d.h. Northing ist x und Easting ist y oder umegekehrt. Dies kann
 	 * bei der Transformation zu Koordinaten führen, die inkorrekt sind.
 	 * <p>
-	 * Ansatz: Um dies zu prüfen, wird geschaut, ob die konvertierten Koordinaten einer Geometrie innerhalb von
-	 * Baden-Württemberg ist. Hierbei wird so lange über die enthaltenen Geometrien iteriert bis die konvertierte
-	 * Geometrie entweder vor oder nach Achsentausch in BW liegt. Falls es keine solche Koordinate gibt, wird eine
-	 * KoordinateAusserhalbDesUnterstuetztenBereichsException geworfen.
+	 * Ansatz: Um dies zu prüfen, wird geschaut, ob die konvertierten Koordinaten einer Geometrie innerhalb des
+	 * von der Anwendung verwalteten Bereichs liegen. Hierbei wird so lange über die enthaltenen Geometrien iteriert
+	 * bis die konvertierte Geometrie entweder vor oder nach Achsentausch im Bereich liegt. Falls es keine solche
+	 * Koordinate gibt, wird eine KoordinateAusserhalbDesUnterstuetztenBereichsException geworfen.
 	 */
 	private boolean checkObAchsenZuTauschen(SimpleFeatureCollection simpleFeatureCollection,
 		KoordinatenReferenzSystem sourceReferenzSystem) throws KoordinateAusserhalbDesUnterstuetztenBereichsException {
@@ -247,7 +247,7 @@ public class FeatureImportRepositoryImpl implements FeatureImportRepository {
 			}
 		}
 		throw new KoordinateAusserhalbDesUnterstuetztenBereichsException(
-			"Die Importkoordinaten keiner Geometrie konnten im Bereich von Baden-Württemberg verortet werden.");
+			"Die Importkoordinaten keiner Geometrie konnten im von der Anwendung verwalteten Bereich verortet werden.");
 	}
 
 	private void normalizeCoordinates(Geometry geometry, boolean flipAxes) {
@@ -277,7 +277,7 @@ public class FeatureImportRepositoryImpl implements FeatureImportRepository {
 
 		if (!coordinateReferenceSystemConverter.sindKoordinatenPlausibel(transformedGeometry)) {
 			throw new KoordinateAusserhalbDesUnterstuetztenBereichsException(
-				"Die Importkoordinaten der Geometrie konnten nicht im Bereich von Baden-Württemberg verortet werden.");
+				"Die Importkoordinaten der Geometrie konnten nicht im von der Anwendung verwalteten Bereich verortet werden.");
 		}
 
 		if (transformedGeometry.getGeometryType().equals(Geometry.TYPENAME_MULTILINESTRING)

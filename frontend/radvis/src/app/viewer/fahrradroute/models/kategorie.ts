@@ -31,34 +31,32 @@ export enum Kategorie {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Kategorie {
   export const options: EnumOption[] = Object.keys(Kategorie)
-    .map(
-      (k: string): EnumOption => {
-        switch (k) {
-          case Kategorie.TOURISTISCHE_ROUTE:
-            return { name: k, displayText: 'Touristische Route' };
-          case Kategorie.LANDESRADFERNWEG:
-            return { name: k, displayText: 'Landesradfernweg' };
-          case Kategorie.RADFERNWEG:
-            return { name: k, displayText: 'Radfernweg' };
-          case Kategorie.RADSCHNELLWEG:
-            return { name: k, displayText: 'Radschnellweg' };
-          case Kategorie.UEBERREGIONALER_RADWANDERWEG:
-            return { name: k, displayText: 'Überregionaler Radwanderweg' };
-          case Kategorie.REGIONALER_RADWANDERWEG:
-            return { name: k, displayText: 'Regionaler Radwanderweg' };
-          case Kategorie.VERBINDUNGSRADWANDERWEG:
-            return { name: k, displayText: 'Verbindungsradwanderweg' };
-          case Kategorie.RADVERKEHRSNETZ:
-            return { name: k, displayText: 'Radverkehrsnetz' };
-          case Kategorie.UNMARKIERTER_RADWANDERVORSCHLAG:
-            return { name: k, displayText: 'Unmarkierter Radwandervorschlag' };
-          case Kategorie.SONSTIGER_RADWANDERWEG:
-            return { name: k, displayText: 'Sonstiger Radwanderweg' };
-          case Kategorie.D_ROUTE:
-            return { name: k, displayText: 'D-Route' };
-        }
-        throw new Error('Beschreibung für enum Kategorie fehlt: ' + k);
+    .map((k: string): EnumOption => {
+      switch (k) {
+        case Kategorie.TOURISTISCHE_ROUTE:
+          return { name: k, displayText: 'Touristische Route' };
+        case Kategorie.LANDESRADFERNWEG:
+          return { name: k, displayText: 'Landesradfernweg' };
+        case Kategorie.RADFERNWEG:
+          return { name: k, displayText: 'Radfernweg' };
+        case Kategorie.RADSCHNELLWEG:
+          return { name: k, displayText: 'Radschnellweg' };
+        case Kategorie.UEBERREGIONALER_RADWANDERWEG:
+          return { name: k, displayText: 'Überregionaler Radwanderweg' };
+        case Kategorie.REGIONALER_RADWANDERWEG:
+          return { name: k, displayText: 'Regionaler Radwanderweg' };
+        case Kategorie.VERBINDUNGSRADWANDERWEG:
+          return { name: k, displayText: 'Verbindungsradwanderweg' };
+        case Kategorie.RADVERKEHRSNETZ:
+          return { name: k, displayText: 'Radverkehrsnetz' };
+        case Kategorie.UNMARKIERTER_RADWANDERVORSCHLAG:
+          return { name: k, displayText: 'Unmarkierter Radwandervorschlag' };
+        case Kategorie.SONSTIGER_RADWANDERWEG:
+          return { name: k, displayText: 'Sonstiger Radwanderweg' };
+        case Kategorie.D_ROUTE:
+          return { name: k, displayText: 'D-Route' };
       }
-    )
+      throw new Error('Beschreibung für enum Kategorie fehlt: ' + k);
+    })
     .sort((a, b) => a.displayText.toLowerCase().localeCompare(b.displayText.toLowerCase()));
 }

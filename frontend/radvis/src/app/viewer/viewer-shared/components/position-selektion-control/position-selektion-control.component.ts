@@ -29,11 +29,11 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Subscription } from 'rxjs';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
-import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import { puntuelleKantenBezuegeVectorLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
+import { puntuelleKantenBezuegeVectorLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 
 @Component({
   selector: 'rad-position-selektion-control',
@@ -51,7 +51,8 @@ import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/servi
 })
 export class PositionSelektionControlComponent
   extends AbstractFormControl<Coordinate>
-  implements Validator, OnInit, OnDestroy {
+  implements Validator, OnInit, OnDestroy
+{
   public static readonly BEDIENHINWEIS = 'Klicken Sie auf die Karte, um einen Ort zuzuweisen.';
 
   @Input()

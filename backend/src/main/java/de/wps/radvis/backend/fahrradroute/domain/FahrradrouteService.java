@@ -18,12 +18,14 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.util.Lazy;
 
@@ -43,6 +45,7 @@ import de.wps.radvis.backend.fahrradroute.domain.dbView.FahrradrouteListenDbView
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteNetzBezugAenderung;
 import de.wps.radvis.backend.fahrradroute.domain.entity.ProfilInformationenUpdateStatistik;
+import de.wps.radvis.backend.fahrradroute.domain.entity.TfisImportProblem;
 import de.wps.radvis.backend.fahrradroute.domain.entity.UpdateAbgeleiteteRoutenInfoStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.event.FahrradrouteCreatedEvent;
 import de.wps.radvis.backend.fahrradroute.domain.event.FahrradrouteUpdatedEvent;
@@ -55,8 +58,10 @@ import de.wps.radvis.backend.matching.domain.event.CustomRoutingProfilesDeletedE
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilRoutingResult;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
 import jakarta.persistence.EntityNotFoundException;
@@ -72,12 +77,14 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 
 	private final JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 	private final BenutzerService benutzerService;
+	private SackgassenService sackgassenService;
 
 	public FahrradrouteService(FahrradrouteRepository fahrradrouteRepository,
 		FahrradrouteViewRepository fahrradrouteViewRepository,
 		Lazy<GraphhopperRoutingRepository> graphhopperRoutingRepositorySupplier,
 		FahrradrouteNetzBezugAenderungRepository netzBezugAenderungRepository,
-		JobExecutionDescriptionRepository jobExecutionDescriptionRepository, BenutzerService benutzerService) {
+		JobExecutionDescriptionRepository jobExecutionDescriptionRepository, BenutzerService benutzerService,
+		SackgassenService sackgassenService) {
 		super(fahrradrouteRepository);
 		this.fahrradrouteRepository = fahrradrouteRepository;
 		this.fahrradrouteViewRepository = fahrradrouteViewRepository;
@@ -85,6 +92,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 		this.netzBezugAenderungRepository = netzBezugAenderungRepository;
 		this.jobExecutionDescriptionRepository = jobExecutionDescriptionRepository;
 		this.benutzerService = benutzerService;
+		this.sackgassenService = sackgassenService;
 	}
 
 	public List<FahrradrouteListenDbView> getAlleFahrradrouteListenViews() {
@@ -180,27 +188,26 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 
 	private boolean addAbgeleiteteRoutenInformation(Fahrradroute fahrradroute) {
 		fahrradroute.getVarianten().forEach(fahrradrouteVariante -> {
-				if (fahrradrouteVariante.getGeometrie().isEmpty()) {
-					return; // Verhaelt sich im forEach-Loop wie sonst "continue"
-				}
-				try {
-					Long customProfileId = fahrradroute.getCustomProfileId()
-						.orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
-					RoutingResult routingResult = graphhopperRoutingRepositorySupplier.get()
-						.route(Arrays.asList(fahrradrouteVariante.getGeometrie().get().getCoordinates()),
-							customProfileId, false);
-					fahrradrouteVariante.updateAbgeleiteteRoutenInformationen(routingResult.getAnstieg(),
-						routingResult.getAbstieg());
-				} catch (KeineRouteGefundenException e) {
-					log.error("Konnte keine abgeleiteten Routeninformationen für FahrradrouteVariante {} ermitteln: {}",
-						fahrradrouteVariante.getId() != null ?
-							fahrradrouteVariante.getId() :
-							fahrradroute.getName() + fahrradrouteVariante.getKategorie().toString(),
-						e.getMessage(), e);
-					fahrradrouteVariante.updateAbgeleiteteRoutenInformationen(null, null);
-				}
+			if (fahrradrouteVariante.getGeometrie().isEmpty()) {
+				return; // Verhaelt sich im forEach-Loop wie sonst "continue"
 			}
-		);
+			try {
+				Long customProfileId = fahrradroute.getCustomProfileId()
+					.orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
+				RoutingResult routingResult = graphhopperRoutingRepositorySupplier.get()
+					.route(Arrays.asList(fahrradrouteVariante.getGeometrie().get().getCoordinates()),
+						customProfileId, false);
+				fahrradrouteVariante.updateAbgeleiteteRoutenInformationen(routingResult.getAnstieg(),
+					routingResult.getAbstieg());
+			} catch (KeineRouteGefundenException e) {
+				log.error("Konnte keine abgeleiteten Routeninformationen für FahrradrouteVariante {} ermitteln: {}",
+					fahrradrouteVariante.getId() != null ? fahrradrouteVariante.getId()
+						: fahrradroute.getName()
+							+ fahrradrouteVariante.getKategorie().toString(),
+					e.getMessage(), e);
+				fahrradrouteVariante.updateAbgeleiteteRoutenInformationen(null, null);
+			}
+		});
 
 		if (fahrradroute.getNetzbezugLineString().isEmpty()) {
 			log.info(
@@ -279,8 +286,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 					.routeMitProfileigenschaften(
 						Arrays.asList(stuetzpunkte.getCoordinates()),
 						customProfileId,
-						fahrtrichtungBeruecksichtigen
-					));
+						fahrtrichtungBeruecksichtigen));
 		} catch (KeineRouteGefundenException e) {
 			return Optional.empty();
 		}
@@ -297,10 +303,24 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 		case TFIS_IMPORT_FAHRRADROUTEN:
 			return fahrradrouteRepository.findAllTfisImportProbleme();
 		case TFIS_IMPORT_LRFW:
-			return fahrradrouteRepository.findAllLrfwImportProbleme();
+			List<TfisImportProblem> allLrfwImportProbleme = fahrradrouteRepository.findAllLrfwImportProbleme();
+			addSackgassen(allLrfwImportProbleme);
+			return allLrfwImportProbleme;
 		default:
 			log.warn("Der FehlerprotokollService für {} ist nicht implementiert.", typ);
 			return List.of();
+		}
+	}
+
+	private void addSackgassen(List<TfisImportProblem> lrfwImportProbleme) {
+		for (TfisImportProblem tfisImportProblem : lrfwImportProbleme) {
+			if (tfisImportProblem.isHasNetzbezug()) {
+				Set<Kante> gematchteKanten = fahrradrouteRepository
+					.getKantenWithKnotenByFahrradroute(tfisImportProblem.getId());
+				List<Point> sackgassenknoten = sackgassenService.bestimmeSackgassenknoten(gematchteKanten)
+					.stream().map(k -> k.getPoint()).collect(Collectors.toList());
+				tfisImportProblem.addSackgassen(sackgassenknoten);
+			}
 		}
 	}
 
@@ -320,8 +340,11 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 			return fahrradrouteRepository.findAllTfisImportProblemeInBereich(
 				EnvelopeAdapter.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
 		case TFIS_IMPORT_LRFW:
-			return fahrradrouteRepository.findAllLrfwImportProblemeInBereich(
-				EnvelopeAdapter.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
+			List<TfisImportProblem> allLrfwImportProblemeInBereich = fahrradrouteRepository
+				.findAllLrfwImportProblemeInBereich(
+					EnvelopeAdapter.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
+			addSackgassen(allLrfwImportProblemeInBereich);
+			return allLrfwImportProblemeInBereich;
 		default:
 			log.warn("Der FehlerprotokollService für {} ist nicht implementiert.", typ);
 			return List.of();
@@ -344,6 +367,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 						jobExecutionDescription,
 						ImportprotokollTyp.FAHRRADROUTE,
 						importQuelle);
-				}).collect(Collectors.toList());
+				})
+			.collect(Collectors.toList());
 	}
 }

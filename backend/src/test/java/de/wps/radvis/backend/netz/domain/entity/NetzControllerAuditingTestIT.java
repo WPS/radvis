@@ -83,6 +83,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenAttributeMergeService;
@@ -155,7 +156,6 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.quellimport.common.ImportsCommonConfiguration;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataProvider;
@@ -230,7 +230,7 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 			Mockito.when(benutzerResolver.fromAuthentication(Mockito.any()))
 				.thenReturn(
 					BenutzerTestDataProvider.admin(
-							VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
 
 			return new NetzController(netzService, netzAutorisierungsService, benutzerResolver, zustaendigkeitsService,
@@ -497,8 +497,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/saveKanteAllgemein")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -554,8 +554,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/changeSeitenbezug")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -608,8 +608,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/saveGeschwindigkeitAttributGruppe")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -617,7 +617,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		template.execute(status -> {
 			AuditReader auditReader = AuditReaderFactory.get(testEntityManager.getEntityManager());
 			@SuppressWarnings("unchecked")
-			List<Object[]> resultGeschwindigkeitAttributGruppe = auditReader.createQuery()
+			List<Object[]> resultGeschwindigkeitAttributGruppe = auditReader
+				.createQuery()
 				.forRevisionsOfEntity(GeschwindigkeitAttributGruppe.class, false, true)
 				.getResultList();
 
@@ -665,8 +666,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/saveVerlauf")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -743,8 +744,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/saveFuehrungsformAttributGruppe")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -833,8 +834,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/saveZustaendigkeitAttributGruppe")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -893,8 +894,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(List.of(command));
 
 		mockMvc.perform(post("/api/netz/kanten/saveFahrtrichtungAttributGruppe")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -949,11 +950,11 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(command);
 
 		mockMvc.perform(post("/api/netz/knoten/save")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON)
-				.flashAttr("user",
-					BenutzerTestDataProvider.admin(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
-						.build()))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON)
+			.flashAttr("user",
+				BenutzerTestDataProvider.admin(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+					.build()))
 			.andExpect(status().isOk());
 
 		// assert
@@ -1017,8 +1018,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(command);
 
 		mockMvc.perform(post("/api/zuordnung/changeZuordnung")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -1086,8 +1087,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(command);
 
 		mockMvc.perform(post("/api/zuordnung/loescheZuordnung")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert
@@ -1136,8 +1137,8 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		String requestJson = objectWriter.writeValueAsString(command);
 
 		mockMvc.perform(post("/api/netz/kanten/create")
-				.content(requestJson)
-				.contentType(MediaType.APPLICATION_JSON))
+			.content(requestJson)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 
 		// assert

@@ -17,76 +17,134 @@ package de.wps.radvis.backend.common.domain;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 
 class CommonConfigurationPropertiesTest {
 
-	@Test
-	void testePfadIstGueltig_keineException() {
-		String pfad = "F:/WPS_Files/nextCloud/Radvis-Intern/Ressourcen";
-		ExtentProperty extent = new ExtentProperty(0L, 100L, 0L, 100L);
-		String proxy = null;
-		String version = null;
-		String basisURL = "http://foo.bar";
+	private String pfad;
+	private Integer anzahlTageImportprotokolleVorhalten;
+	private ExtentProperty extent;
+	private String proxy;
+	private String version;
+	private String basisURL;
+	private String basisnetzImportSource;
 
-		assertThatNoException().isThrownBy(
-			() -> new CommonConfigurationProperties(pfad, 60, extent, proxy, version, basisURL));
+	@BeforeEach
+	void setup() {
+		pfad = "foo/bar";
+		anzahlTageImportprotokolleVorhalten = 60;
+		extent = new ExtentProperty(0L, 100L, 0L, 100L);
+		proxy = null;
+		version = null;
+		basisURL = "http://foo.bar";
+		basisnetzImportSource = "DLM";
 	}
 
 	@Test
-	void testeErstelleProperties_fail_externeURLungueltig() {
-		String pfad = "http://Eigen?tch#//MURKS!";
-		ExtentProperty extent = new ExtentProperty(0L, 100L, 0L, 100L);
-		String proxy = null;
-		String version = null;
-		String basisURL = "http://foo.bar";
+	void testePfadIstGueltig_keineException() {
+		pfad = "F:/WPS_Files/nextCloud/Radvis-Intern/Ressourcen";
 
-		assertThatThrownBy(() -> {
-			new CommonConfigurationProperties(pfad, 60, extent, proxy, version, basisURL);
-		})
-			.hasMessageContaining("externeResourcenBasisPfad muss Dateipfadstruktur haben");
+		assertThatNoException().isThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"));
+	}
+
+	@Test
+	void testeErstelleProperties_fail_externeUrlUngueltig() {
+		String pfad = "http://Eigen?tch#//MURKS!";
+
+		assertThatThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+				.hasMessageContaining("externeResourcenBasisPfad muss Dateipfadstruktur haben");
+	}
+
+	@Test
+	void testeErstelleProperties_anzahlTageImportprotokolleVorhalten_null() {
+		Integer anzahlTageImportprotokolleVorhalten = null;
+
+		assertThatThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+				.isInstanceOf(org.valid4j.errors.RequireViolation.class)
+				.hasMessageContaining("expected: not null");
 	}
 
 	@Test
 	void testeErstelleProperties_extent_null() {
-		String pfad = "foo/bar";
 		ExtentProperty extent = null;
-		String proxy = null;
-		String version = null;
-		String basisURL = "http://foo.bar";
 
-		assertThatThrownBy(() -> {
-			new CommonConfigurationProperties(pfad, 60, extent, proxy, version, basisURL);
-		})
-			.isInstanceOf(org.valid4j.errors.RequireViolation.class)
-			.hasMessageContaining("expected: not null");
+		assertThatThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+				.isInstanceOf(org.valid4j.errors.RequireViolation.class)
+				.hasMessageContaining("expected: not null");
 	}
 
 	@Test
 	void testeErstelleProperties_proxy_ungueltig() {
-		String pfad = "foo/bar";
-		ExtentProperty extent = new ExtentProperty(0L, 100L, 0L, 100L);
 		String proxy = "irgendsonquatsch";
-		String version = null;
-		String basisURL = "http://foo.bar";
 
-		assertThatThrownBy(() -> {
-			new CommonConfigurationProperties(pfad, 60, extent, proxy, version, basisURL);
-		});
+		assertThatThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"));
 	}
 
 	@Test
 	void testeErstelleProperties_fail_basisURL_null() {
-		String pfad = "foo/bar";
-		ExtentProperty extent = new ExtentProperty(0L, 100L, 0L, 100L);
-		String proxy = null;
-		String version = null;
 		String basisURL = null;
 
-		assertThatThrownBy(() -> {
-			new CommonConfigurationProperties(pfad, 60, extent, proxy, version, basisURL);
-		})
-			.hasMessageContaining("basisUrl muss URL-Struktur haben");
+		assertThatThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+				.hasMessageContaining("basisUrl muss URL-Struktur haben");
 	}
 
+	@Test
+	void testeBasisnetzQuelleUngueltig() {
+		String basisnetzSource = "Without any remorse, I assign an invalid source.";
+
+		assertThatThrownBy(() -> new CommonConfigurationProperties(
+			pfad,
+			anzahlTageImportprotokolleVorhalten,
+			extent,
+			proxy,
+			version,
+			basisURL,
+			basisnetzSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+				.hasMessage("basisnetzImportSource muss einen der folgenden Wert enthalten: DLM, OSM");
+	}
 }

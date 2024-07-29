@@ -83,17 +83,20 @@ public class DRouteMatchingJob extends AbstractJob {
 			.filter(f -> f.getOriginalGeometrie().get().getGeometryType().equals(Geometry.TYPENAME_LINESTRING))
 			.forEach(fahrradroute -> {
 				log.info("Fahrradroute: {} mit der Id: {}", fahrradroute.getName(), fahrradroute.getId());
-				FahrradroutenMatchingAndRoutingInformationBuilder fahrradroutenMatchingAndRoutingInformationBuilder = FahrradroutenMatchingAndRoutingInformation.builder();
-				Optional<LineString> zuMatchendeGeometrieZugeschnitten = fahrradroutenMatchingService.schneideAnfangUndEndeAusserhalbBWsAb(
-					(LineString) fahrradroute.getOriginalGeometrie().get());
+				FahrradroutenMatchingAndRoutingInformationBuilder fahrradroutenMatchingAndRoutingInformationBuilder = FahrradroutenMatchingAndRoutingInformation
+					.builder();
+				Optional<LineString> zuMatchendeGeometrieZugeschnitten = fahrradroutenMatchingService
+					.schneideAnfangUndEndeAusserhalbBWsAb(
+						(LineString) fahrradroute.getOriginalGeometrie().get());
 				if (zuMatchendeGeometrieZugeschnitten.isEmpty()) {
 					return;
 				}
-				Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(
-					zuMatchendeGeometrieZugeschnitten.get(), fahrradrouteMatchingStatistik,
-					fahrradroutenMatchingAndRoutingInformationBuilder, false);
+				Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService
+					.getFahrradrouteNetzbezugResult(
+						zuMatchendeGeometrieZugeschnitten.get(), fahrradrouteMatchingStatistik,
+						fahrradroutenMatchingAndRoutingInformationBuilder, false);
 				if (fahrradrouteNetzbezugResult.isPresent()) {
-					fahrradroute.updateNetzbezug(fahrradrouteNetzbezugResult.get().getGeometry(),
+					fahrradroute.updateNetzbezug(fahrradrouteNetzbezugResult.map(r -> r.getGeometry()),
 						fahrradrouteNetzbezugResult.get().getAbschnittsweiserKantenBezug(),
 						fahrradrouteNetzbezugResult.get().getProfilEigenschaften(),
 						fahrradroute.getOriginalGeometrie());

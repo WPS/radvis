@@ -35,7 +35,10 @@ import { Umsetzungsstand } from 'src/app/viewer/massnahme/models/umsetzungsstand
 export class MassnahmeService {
   private readonly api = '/api/massnahme';
 
-  constructor(private http: HttpClient, private fileHandlingService: FileHandlingService) {}
+  constructor(
+    private http: HttpClient,
+    private fileHandlingService: FileHandlingService
+  ) {}
 
   createMassnahme(command: CreateMassnahmeCommand): Promise<number> {
     return this.http.post<number>(`${this.api}/create`, command).toPromise();
@@ -85,9 +88,7 @@ export class MassnahmeService {
     if (organisationId) {
       params = params.set('organisationId', organisationId);
     }
-    return this.http
-      .get<MassnahmeListenView[]>(`${this.api}/list`, { params })
-      .toPromise();
+    return this.http.get<MassnahmeListenView[]>(`${this.api}/list`, { params }).toPromise();
   }
 
   saveUmsetzungsstand(saveUmsetzungsstandCommand: SaveUmsetzungsstandCommand): Promise<Umsetzungsstand> {

@@ -35,6 +35,7 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.netz.schnittstelle.command.KnotenNetzbezugCommand;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.PunktuellerKantenSeitenBezugCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SeitenabschnittsKantenBezugCommand;
 import lombok.NonNull;
@@ -117,8 +118,9 @@ public class MassnahmeGuard {
 	public void saveUmsetzungsstand(Authentication authentication, SaveUmsetzungsstandCommand command) {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 
-		Optional<MassnahmeNetzBezug> netzbezugByUmsetzungsstandId = this.massnahmeService.getNetzbezugByUmsetzungsstandId(
-			command.getId());
+		Optional<MassnahmeNetzBezug> netzbezugByUmsetzungsstandId = this.massnahmeService
+			.getNetzbezugByUmsetzungsstandId(
+				command.getId());
 
 		if (netzbezugByUmsetzungsstandId.isEmpty()) {
 			throw new AccessDeniedException("Der Netzbezug der Massnahme konnte nicht ermittelt werden.");

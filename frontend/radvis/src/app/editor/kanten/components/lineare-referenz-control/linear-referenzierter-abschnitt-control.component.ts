@@ -35,7 +35,7 @@ import { AbstractFormControl } from 'src/app/form-elements/components/abstract-f
 import { SelectElementEvent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { IS_SELECTABLE_LAYER } from 'src/app/shared/models/selectable-layer-property';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import invariant from 'tiny-invariant';
@@ -56,9 +56,10 @@ import invariant from 'tiny-invariant';
 })
 export class LinearReferenzierterAbschnittControlComponent
   extends AbstractFormControl<LinearReferenzierterAbschnitt[]>
-  implements OnChanges {
+  implements OnChanges
+{
   @Input()
-  seitenbezug: Seitenbezug | undefined;
+  kantenSeite: KantenSeite | undefined;
   @Input()
   selectedIndices: number[] = [];
   @Input()
@@ -87,7 +88,10 @@ export class LinearReferenzierterAbschnittControlComponent
     return this.lineString.getLength();
   }
 
-  constructor(private changeDetector: ChangeDetectorRef, private notifyUserService: NotifyUserService) {
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    private notifyUserService: NotifyUserService
+  ) {
     super();
     const initializerValue: FormControl<number>[] = [];
     this.lineareReferenzenForm = new FormArray(initializerValue);

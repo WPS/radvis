@@ -22,17 +22,15 @@ export enum AbstellanlagenQuellSystem {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AbstellanlagenQuellSystem {
-  export const options: EnumOption[] = Object.keys(AbstellanlagenQuellSystem).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case AbstellanlagenQuellSystem.RADVIS:
-          return { name: k, displayText: 'RadVIS' };
-        case AbstellanlagenQuellSystem.MOBIDATABW:
-          return { name: k, displayText: 'MobiDataBW' };
-      }
-      throw new Error('Beschreibung für enum AbstellanlagenQuellSystem fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(AbstellanlagenQuellSystem).map((k: string): EnumOption => {
+    switch (k) {
+      case AbstellanlagenQuellSystem.RADVIS:
+        return { name: k, displayText: 'RadVIS' };
+      case AbstellanlagenQuellSystem.MOBIDATABW:
+        return { name: k, displayText: 'MobiDataBW' };
     }
-  );
+    throw new Error('Beschreibung für enum AbstellanlagenQuellSystem fehlt: ' + k);
+  });
 
   export const getDisplayText: (abstellanlagenQuellSystem: AbstellanlagenQuellSystem) => string = (
     abstellanlagenQuellSystem: AbstellanlagenQuellSystem

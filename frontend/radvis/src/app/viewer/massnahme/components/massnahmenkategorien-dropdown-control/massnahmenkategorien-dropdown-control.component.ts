@@ -39,7 +39,8 @@ import { MASSNAHMENKATEGORIEN, Massnahmenkategorien } from 'src/app/viewer/massn
 })
 export class MassnahmenkategorienDropdownControlComponent
   extends AbstractFormControl<string[]>
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy
+{
   private static CLICKED_KATEGORIE_CLASS = 'clicked-kategorie';
 
   placeholder = 'Kategorie wählen';

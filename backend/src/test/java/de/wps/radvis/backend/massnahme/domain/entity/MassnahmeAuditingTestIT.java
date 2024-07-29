@@ -171,7 +171,7 @@ class MassnahmeAuditingTestIT extends AuditingTestIT {
 			Mockito.when(benutzerResolver.fromAuthentication(Mockito.any()))
 				.thenReturn(
 					BenutzerTestDataProvider.admin(
-							VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
 			return new MassnahmeController(massnahmeService, umsetzungsstandabfrageService,
 				createMassnahmeCommandConverter,
@@ -264,7 +264,7 @@ class MassnahmeAuditingTestIT extends AuditingTestIT {
 			assertThat(resultMassnahme).hasSize(2);
 			assertThat(resultMassnahme).extracting(objArray -> objArray[0])
 				.containsExactly(MassnahmeTestDataProvider
-						.withDefaultValues().id(massnahme.getId()).build(),
+					.withDefaultValues().id(massnahme.getId()).build(),
 					massnahme);
 			assertThat(resultMassnahme).extracting(objArray -> objArray[2])
 				.containsExactly(RevisionType.ADD, RevisionType.MOD);

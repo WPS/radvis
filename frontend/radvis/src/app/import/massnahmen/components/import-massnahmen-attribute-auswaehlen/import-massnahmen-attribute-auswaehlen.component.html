@@ -13,111 +13,79 @@
   -->
 
 <rad-import-step-layout>
-  <div class="import-step-content">
-    <form class="form-group" [formGroup]="formGroup">
-      <div *ngIf="loading">
-        <mat-spinner></mat-spinner>
-        <div class="mt-10">Maßnahmen werden geladen und geprüft...</div>
-      </div>
-      <div *ngIf="!loading">
-        <h4 class="mt-10">
-          <span>Bitte wählen Sie zu importierende Attribute</span>
-        </h4>
-
-        <div class="hinweis">Bei dem Neuanlegen von Maßnahmen müssen alle Pflichtattribute ausgewählt werden.</div>
-
-        <div class="display-flex buttons p-10">
-          <button
-            mat-stroked-button
-            class="buttons"
-            (click)="onAlleMassnahmenAbwaehlen()"
-            [disabled]="formGroup.disabled"
-          >
-            Alle abwählen
-          </button>
-          <button
-            mat-stroked-button
-            class="buttons"
-            (click)="onAlleMassnahmenAuswaehlen()"
-            [disabled]="formGroup.disabled"
-          >
-            Alle auswählen
-          </button>
-        </div>
-
-        <h4 class="mt-10 ueberschrift">
-          <span>Pflichtattribute</span>
-        </h4>
-        <div formArrayName="pflichtAttribute" class="py-5">
-          <mat-checkbox
-            *ngFor="let element of massnahmenImportPflichtAttributeOptions; index as i"
-            [formControlName]="i"
-            class="w-50"
-          >
-            {{ element.displayText }}
-          </mat-checkbox>
-        </div>
-
-        <div class="hinweis">
-          * Pflichtattribute, die in Abhängigkeit zum Umsetzungsstatus stehen. Weitere Informationen finden Sie im
-          <a href="javascript:void(0);" (click)="openHandbuch()">Handbuch</a>.
-        </div>
-
-        <h4 class="mt-20 ueberschrift">
-          <span>Optionale Attribute</span>
-        </h4>
-        <div formArrayName="optionaleAttribute" class="py-5">
-          <mat-checkbox
-            *ngFor="let element of massnahmenImportOptionaleAttributeOptions; index as i"
-            [formControlName]="i"
-            class="w-50"
-          >
-            {{ element.displayText }}
-          </mat-checkbox>
-        </div>
-      </div>
-    </form>
+  <div
+    *ngIf="loading"
+    class="import-step-content display-flex flex-column align-self-center justify-content-center h-100">
+    <mat-spinner></mat-spinner>
+    <div class="mt-10">Maßnahmen werden geladen und geprüft...</div>
   </div>
-  <mat-accordion [multi]="true" class="import-step-footer-message">
-    <mat-expansion-panel *ngIf="hasFehler" [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <div class="display-flex">
-            <mat-icon class="error">report</mat-icon>
-            <div class="ml-3">Fehler</div>
-            <div class="ml-3 hinweis">({{ fehler.length }})</div>
-          </div>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="log-eintrag-wrapper">
-        <div *ngFor="let f of fehler">{{ f }}</div>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-  <div *ngIf="!anyBoxChecked" class="italic warnhinweis import-step-footer-message">
+  <form class="form-group import-step-content" [formGroup]="formGroup" *ngIf="!loading">
+    <h4 class="mt-10">
+      <span>Bitte wählen Sie zu importierende Attribute</span>
+    </h4>
+
+    <div class="hinweis">Bei dem Neuanlegen von Maßnahmen müssen alle Pflichtattribute ausgewählt werden.</div>
+
+    <div class="display-flex buttons p-10">
+      <button mat-stroked-button class="buttons" (click)="onAlleMassnahmenAbwaehlen()" [disabled]="formGroup.disabled">
+        Alle abwählen
+      </button>
+      <button mat-stroked-button class="buttons" (click)="onAlleMassnahmenAuswaehlen()" [disabled]="formGroup.disabled">
+        Alle auswählen
+      </button>
+    </div>
+
+    <h4 class="mt-10 ueberschrift">
+      <span>Pflichtattribute</span>
+    </h4>
+    <div formArrayName="pflichtAttribute" class="py-5">
+      <mat-checkbox
+        *ngFor="let element of massnahmenImportPflichtAttributeOptions; index as i"
+        [formControlName]="i"
+        class="w-50">
+        {{ element.displayText }}
+      </mat-checkbox>
+    </div>
+
+    <div class="hinweis">
+      * Pflichtattribute, die in Abhängigkeit zum Umsetzungsstatus stehen. Weitere Informationen finden Sie im
+      <a href="javascript:void(0);" (click)="openHandbuch()">Handbuch</a>.
+    </div>
+
+    <h4 class="mt-20 ueberschrift">
+      <span>Optionale Attribute</span>
+    </h4>
+    <div formArrayName="optionaleAttribute" class="py-5">
+      <mat-checkbox
+        *ngFor="let element of massnahmenImportOptionaleAttributeOptions; index as i"
+        [formControlName]="i"
+        class="w-50">
+        {{ element.displayText }}
+      </mat-checkbox>
+    </div>
+  </form>
+  <rad-info-panel class="import-step-footer-message" [fehler]="fehler"></rad-info-panel>
+  <div *ngIf="!anyAttributSelected" class="italic warnhinweis import-step-footer-message">
     Wenn keine Attribute ausgewählt sind, können Maßnahmen nur gelöscht werden.
   </div>
 
   <div class="import-step-footer-buttons">
-    <button mat-stroked-button class="button" (click)="onAbort()">Abbrechen</button>
-    <button mat-stroked-button class="button" (click)="onPrevious()">Zurück</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
     <button
       mat-flat-button
       color="primary"
       (click)="onNext()"
-      *ngIf="validierungRunningOderAbgeschlossen"
-      [disabled]="isAttributeValidierenRunning || hasFehler"
-    >
-      <ng-container *ngIf="!isAttributeValidierenRunning"> Weiter</ng-container>
-      <mat-spinner color="accent" *ngIf="isAttributeValidierenRunning" diameter="28"></mat-spinner>
+      *ngIf="schrittAbgeschlossenOderFehler"
+      [disabled]="hasFehler">
+      Weiter
     </button>
     <rad-action-button
-      *ngIf="!validierungRunningOderAbgeschlossen"
+      *ngIf="!schrittAbgeschlossenOderFehler"
       (action)="onStart()"
-      [waiting]="loading"
-      [disabled]="formGroup.invalid || hasFehler"
-    >
-      Validierung starten
+      [waiting]="executing || isAttributeValidierenRunning"
+      [disabled]="formGroup.invalid || loading">
+      Attribute validieren
     </rad-action-button>
   </div>
 </rad-import-step-layout>

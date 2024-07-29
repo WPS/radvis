@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -65,6 +66,7 @@ public class LeihstationImportServiceTest {
 
 	private LeihstationImportService service;
 	private Benutzer adminBenutzer;
+	private PreparedGeometry boundingArea;
 
 	@BeforeEach
 	void setup() {
@@ -74,9 +76,9 @@ public class LeihstationImportServiceTest {
 		adminBenutzer = BenutzerTestDataProvider
 			.admin(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.build();
+		boundingArea = PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000,
+			1000));
 
-		when(verwaltungseinheitService.getBundeslandBereichPrepared()).thenReturn(
-			PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000)));
 		when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
 			true);
 	}
@@ -111,9 +113,11 @@ public class LeihstationImportServiceTest {
 
 		// act
 		Leihstation result1 = service
-			.mapAttributes(Leihstation.builder().id(leihstation1.getId()), csvData.getRows().get(0), adminBenutzer);
+			.mapAttributes(Leihstation.builder().id(leihstation1.getId()), boundingArea, csvData.getRows().get(0),
+				adminBenutzer);
 		Leihstation result2 = service
-			.mapAttributes(Leihstation.builder().id(leihstation2.getId()), csvData.getRows().get(1), adminBenutzer);
+			.mapAttributes(Leihstation.builder().id(leihstation2.getId()), boundingArea, csvData.getRows().get(1),
+				adminBenutzer);
 
 		// assert
 		assertThat(result1).usingRecursiveComparison().usingOverriddenEquals().isEqualTo(leihstation1);
@@ -149,7 +153,8 @@ public class LeihstationImportServiceTest {
 			incorrectAttributes.put("Quellsystem", "RadVis");
 
 			assertDoesNotThrow(
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0), adminBenutzer));
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
+					adminBenutzer));
 		}
 
 		@Test
@@ -158,7 +163,8 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0), adminBenutzer));
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
+					adminBenutzer));
 		}
 
 		@Test
@@ -167,7 +173,8 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0), adminBenutzer));
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
+					adminBenutzer));
 		}
 
 		@Test
@@ -177,7 +184,8 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0), adminBenutzer));
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
+					adminBenutzer));
 		}
 
 		@Test
@@ -187,7 +195,8 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0), adminBenutzer));
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
+					adminBenutzer));
 		}
 
 		@Test
@@ -196,7 +205,8 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0), adminBenutzer));
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
+					adminBenutzer));
 		}
 
 		@Test
@@ -205,7 +215,7 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0),
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
@@ -218,7 +228,7 @@ public class LeihstationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(LeihstationAttributMappingException.class,
-				() -> service.mapAttributes(Leihstation.builder(), csvData.getRows().get(0),
+				() -> service.mapAttributes(Leihstation.builder(), boundingArea, csvData.getRows().get(0),
 					adminBenutzer));
 		}
 	}

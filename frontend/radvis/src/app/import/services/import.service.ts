@@ -14,13 +14,14 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { FileValidationResultView } from 'src/app/import/models/file-validation-result-view';
 
 @Injectable()
 export class ImportService {
   public static readonly POLLING_INTERVALL_IN_MILLISECONDS = 2500;
   public static readonly MAX_POLLING_CALLS = 3600000 / ImportService.POLLING_INTERVALL_IN_MILLISECONDS;
-  private static readonly MILLISECONDS_IN_HOUR = 3600000;
 
   readonly manuellerImportApi = '/api/import/common';
 
@@ -32,5 +33,29 @@ export class ImportService {
 
   public deleteImportSession(): Observable<void> {
     return this.http.delete<void>(`${this.manuellerImportApi}/delete-session`);
+  }
+
+  private requestValidationResult(file: File): Promise<FileValidationResultView> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http
+      .post<FileValidationResultView>(`${this.manuellerImportApi}/validate-shapefile`, formData)
+      .toPromise();
+  }
+
+  public validateShapefile(control: AbstractControl): Promise<ValidationErrors | null> {
+    if (control.value) {
+      return this.requestValidationResult(control.value)
+        .then(result => {
+          if (result.valid) {
+            return null;
+          }
+
+          return { fileInvalid: result.reason };
+        })
+        .catch(() => ({ fileInvalid: 'Fehler beim Prüfen der Datei. Bitte versuchen Sie es später erneut.' }));
+    }
+
+    return Promise.resolve(null);
   }
 }

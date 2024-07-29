@@ -31,19 +31,19 @@ export class FilterQueryParams extends AbstractQueryParams {
     const filters = new Map<string, FieldFilter[]>();
 
     Object.entries(params)
-    .filter(([key]) => key.startsWith('filter_'))
-    .forEach(([key, value]) => {
-      const pathElement = this.filterKeyToPathElement(key);
-      if (pathElement) {
-        filters.set(pathElement, this.paramToFieldFilterArray(value));
-      }
-    });
+      .filter(([key]) => key.startsWith('filter_'))
+      .forEach(([key, value]) => {
+        const pathElement = this.filterKeyToPathElement(key);
+        if (pathElement) {
+          filters.set(pathElement, this.paramToFieldFilterArray(value));
+        }
+      });
     return new FilterQueryParams(filters);
   }
 
   public static merge(
     params: { filters: Map<string, FieldFilter[]> } | FilterQueryParams,
-    into: FilterQueryParams,
+    into: FilterQueryParams
   ): FilterQueryParams {
     const newFilterMap = new Map<string, FieldFilter[]>(into.filters);
     for (const [pathElement, fieldFilters] of params.filters) {
@@ -64,16 +64,19 @@ export class FilterQueryParams extends AbstractQueryParams {
     return new FilterQueryParams(newFilterMap);
   }
 
-  public static filterQueryParamsEquals(filterQueryParams1: FilterQueryParams | null, filterQueryParams2: FilterQueryParams | null): boolean {
+  public static filterQueryParamsEquals(
+    filterQueryParams1: FilterQueryParams | null,
+    filterQueryParams2: FilterQueryParams | null
+  ): boolean {
     return filterQueryParams1?.toRoute() === filterQueryParams2?.toRoute();
   }
 
   private static paramToFieldFilterArray(param: string | undefined): FieldFilter[] {
     if (param) {
       return param
-      .split(',')
-      .filter(FieldFilter.isValidFilterString)
-      .map(filterStr => FieldFilter.fromString(filterStr));
+        .split(',')
+        .filter(FieldFilter.isValidFilterString)
+        .map(filterStr => FieldFilter.fromString(filterStr));
     }
     return [];
   }
@@ -90,14 +93,14 @@ export class FilterQueryParams extends AbstractQueryParams {
     for (const [pathElement, fieldFilters] of this.filters) {
       if (fieldFilters.length > 0) {
         params[this.QUERY_PARAM_PREFIX + pathElement] = fieldFilters
-        .map(fieldFilter => fieldFilter.stringify())
-        .join(',');
+          .map(fieldFilter => fieldFilter.stringify())
+          .join(',');
       }
     }
     return params;
   }
 
-  public resetInfrastrukturArt(infastrukturArt: string):void {
+  public resetInfrastrukturArt(infastrukturArt: string): void {
     this.filters.delete(infastrukturArt);
   }
 

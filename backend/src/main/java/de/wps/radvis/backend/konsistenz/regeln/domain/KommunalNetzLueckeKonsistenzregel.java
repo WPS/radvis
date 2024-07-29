@@ -16,7 +16,7 @@ package de.wps.radvis.backend.konsistenz.regeln.domain;
 
 import java.util.Set;
 
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 
 public class KommunalNetzLueckeKonsistenzregel extends AbstractNetzklassenLueckeKonsistenzregel {
@@ -24,8 +24,8 @@ public class KommunalNetzLueckeKonsistenzregel extends AbstractNetzklassenLuecke
 	public static String VERLETZUNGS_TYP = "KOMMUNALNETZ_LUECKE";
 
 	public KommunalNetzLueckeKonsistenzregel(
-		NetzklassenSackgassenService netzklassenSackgassenService) {
-		super(netzklassenSackgassenService);
+		SackgassenService sackgassenService) {
+		super(sackgassenService);
 	}
 
 	@Override

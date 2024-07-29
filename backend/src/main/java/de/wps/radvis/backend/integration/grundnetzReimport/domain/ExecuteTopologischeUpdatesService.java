@@ -219,8 +219,8 @@ public class ExecuteTopologischeUpdatesService {
 		List<? extends LinearReferenzierteAttribute> attributeToProject, LineString featureGeometrie,
 		boolean umgekehrteStationierungsrichtung) throws ProjektionsrichtungsAenderungsException {
 		List<? extends LinearReferenzierteAttribute> sortedAttribute = attributeToProject.stream().sorted(
-				Comparator.comparing(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt,
-					LinearReferenzierterAbschnitt.vonZuerst))
+			Comparator.comparing(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt,
+				LinearReferenzierterAbschnitt.vonZuerst))
 			.collect(Collectors.toUnmodifiableList());
 
 		List<LinearReferenzierteAttribute> resultList = new ArrayList<>();
@@ -324,10 +324,10 @@ public class ExecuteTopologischeUpdatesService {
 	private boolean isProjektionsReihenfolgeReversed(Double fractionOfProjectedVon, Double fractionOfProjectedBis,
 		boolean umgekehrteStationierungsrichtung) {
 		return fractionOfProjectedVon != null && fractionOfProjectedBis != null
-			&& (
-			(Double.compare(fractionOfProjectedVon, fractionOfProjectedBis) > 0 && !umgekehrteStationierungsrichtung)
+			&& ((Double.compare(fractionOfProjectedVon, fractionOfProjectedBis) > 0
+				&& !umgekehrteStationierungsrichtung)
 				|| (Double.compare(fractionOfProjectedVon, fractionOfProjectedBis) < 0
-				&& umgekehrteStationierungsrichtung));
+					&& umgekehrteStationierungsrichtung));
 	}
 
 	// Input: Der relative Laengenanteil an der alten Kantengeometrie
@@ -500,8 +500,8 @@ public class ExecuteTopologischeUpdatesService {
 
 			Set<GeschwindigkeitAttribute> geschwindigkeitsAttributeDerTeilkante = vonUndBisVertauscht
 				? geschwindigkeitAttributeDerGesplittetenKante.stream()
-				.map(GeschwindigkeitAttribute::vertauscht)
-				.collect(Collectors.toSet())
+					.map(GeschwindigkeitAttribute::vertauscht)
+					.collect(Collectors.toSet())
 				: geschwindigkeitAttributeDerGesplittetenKante;
 			teilKante.getGeschwindigkeitAttributGruppe()
 				.replaceGeschwindigkeitAttribute(new ArrayList<>(geschwindigkeitsAttributeDerTeilkante));

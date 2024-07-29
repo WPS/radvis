@@ -74,13 +74,12 @@
   }
 
   .buttons {
-    padding: 0 0.8rem 0.8rem 0.8rem;
+    gap: 1rem;
+    margin: 0 0.8rem 0.8rem 0.8rem;
+  }
 
-    button,
-    rad-action-button {
-      width: 8rem;
-      margin-left: 2rem;
-      margin-right: 2rem;
-    }
+  .buttons > * {
+    flex-grow: 1;
+    flex-shrink: 0;
   }
 }

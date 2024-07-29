@@ -41,8 +41,10 @@ public class FurtKreuzungConfiguration {
 
 	public FurtKreuzungConfiguration(
 		@NonNull NetzService kantenUndKnotenResolver,
-		BenutzerResolver benutzerResolver, VerwaltungseinheitService verwaltungseinheitService,
-		VerwaltungseinheitResolver verwaltungseinheitResolver, FurtKreuzungRepository repository) {
+		@NonNull BenutzerResolver benutzerResolver,
+		@NonNull VerwaltungseinheitService verwaltungseinheitService,
+		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
+		@NonNull FurtKreuzungRepository repository) {
 		this.repository = repository;
 		this.kantenUndKnotenResolver = kantenUndKnotenResolver;
 		this.benutzerResolver = benutzerResolver;

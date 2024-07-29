@@ -28,9 +28,25 @@ import invariant from 'tiny-invariant';
 export class FehlerprotokollService {
   private readonly api = '/api/fehlerprotokoll';
 
-  private readonly geoserverApi = '/api/geoserver/saml/radvis/wfs';
+  private fehlerprotokollTypen: FehlerprotokollTyp[] = [];
 
-  constructor(private http: HttpClient, private geoserverService: GeoserverService) {}
+  constructor(
+    private http: HttpClient,
+    private geoserverService: GeoserverService
+  ) {}
+
+  public getFehlerprotokollTypen(): FehlerprotokollTyp[] {
+    return this.fehlerprotokollTypen;
+  }
+
+  public initFehlerprotokollTypen(): Promise<any> {
+    return this.http
+      .get<FehlerprotokollTyp[]>(`${this.api}/types`)
+      .toPromise()
+      .then(result => {
+        this.fehlerprotokollTypen = result;
+      });
+  }
 
   public getFehlerprotokolle(selectedTypen: FehlerprotokollTyp[], view?: Extent): Observable<FehlerprotokollView[]> {
     if (selectedTypen.length === 0) {

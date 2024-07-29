@@ -14,7 +14,7 @@
 
 import { fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { of } from 'rxjs';
 import { ImportAttributeDateiHochladenTestAdapter } from 'src/app/import/attribute/components/import-attribute-datei-hochladen/import-attribute-datei-hochladen-test-adapter.spec';
 import { ImportAttributeDateiHochladenComponent } from 'src/app/import/attribute/components/import-attribute-datei-hochladen/import-attribute-datei-hochladen.component';
@@ -25,6 +25,7 @@ import { ImportModule } from 'src/app/import/import.module';
 import { DateiUploadInfo } from 'src/app/import/models/datei-upload-info';
 import { ImportTyp } from 'src/app/import/models/import-typ';
 import { CreateSessionStateService } from 'src/app/import/services/create-session.state.service';
+import { ImportService } from 'src/app/import/services/import.service';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import {
   defaultBundeslandOrganisation,
@@ -44,6 +45,7 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
   let organisationenService: OrganisationenService;
   let errorHandlingService: ErrorHandlingService;
   let olMapService: OlMapService;
+  let importService: ImportService;
 
   let createSessionStateService: CreateSessionStateService;
 
@@ -60,6 +62,9 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
     errorHandlingService = mock(ErrorHandlingService);
     createSessionStateService = mock(CreateSessionStateService);
     olMapService = mock(OlMapComponent);
+    importService = mock(ImportService);
+
+    when(importService.validateShapefile(anything())).thenResolve(null);
 
     when(organisationenService.getOrganisationen()).thenResolve([organisation]);
     when(organisationenService.getBereichEnvelopeView(anything())).thenResolve({
@@ -75,6 +80,7 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
       .provide({ provide: OrganisationenService, useValue: instance(organisationenService) })
       .provide({ provide: ErrorHandlingService, useValue: instance(errorHandlingService) })
       .provide({ provide: CreateSessionStateService, useValue: instance(createSessionStateService) })
+      .provide({ provide: ImportService, useValue: instance(importService) })
       .provide({ provide: OlMapService, useValue: instance(olMapService) });
   });
 
@@ -244,13 +250,13 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
       });
 
       describe('Form', () => {
-        beforeEach(() => {
+        beforeEach(waitForAsync(() => {
           component.formGroup.enable();
           component.formGroup.patchValue({
             organisation: defaultOrganisation,
             file: instance(mock(File)),
           });
-        });
+        }));
 
         it('should be valid', () => {
           expect(component.formGroup.valid).toBeTrue();
@@ -265,6 +271,15 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
           component.formGroup.get('file')?.reset();
           expect(component.formGroup.valid).toBeFalse();
         });
+
+        it('should be invalid if file invalid', fakeAsync(() => {
+          when(importService.validateShapefile(anything())).thenReturn(Promise.resolve({ test: 'File invalid' }));
+          component.formGroup.patchValue({
+            file: instance(mock(File)),
+          });
+          tick();
+          expect(component.formGroup.valid).toBeFalse();
+        }));
       });
 
       describe('Automatic map zoom', () => {
@@ -291,19 +306,17 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
 
   // Fall 1: es existiert KEINE Session und der createSessionStateService enthaelt eine vollstaendige DateiUploadInfo
   describe('NoSessionExists_sessionStateService.dateiUploadInfo_vorhanden', () => {
-    beforeEach(
-      waitForAsync(() => {
-        when(attributeImportService.existsImportSession()).thenReturn(of(false));
-        when(attributeImportService.getImportSession()).thenReturn(of(null));
-        when(createSessionStateService.dateiUploadInfo).thenReturn(
-          DateiUploadInfo.of(importTyp, emptyTestFile, organisationsId)
-        );
+    beforeEach(waitForAsync(() => {
+      when(attributeImportService.existsImportSession()).thenReturn(of(false));
+      when(attributeImportService.getImportSession()).thenReturn(of(null));
+      when(createSessionStateService.dateiUploadInfo).thenReturn(
+        DateiUploadInfo.of(importTyp, emptyTestFile, organisationsId)
+      );
 
-        fixture = MockRender(ImportAttributeDateiHochladenComponent);
-        component = fixture.point.componentInstance;
-        fixture.detectChanges();
-      })
-    );
+      fixture = MockRender(ImportAttributeDateiHochladenComponent);
+      component = fixture.point.componentInstance;
+      fixture.detectChanges();
+    }));
 
     it('should be filled and not disabled if dateiUploadInfo exists in createSessionStateService', () => {
       expect(component.formGroup.disabled).toBeFalse();
@@ -332,21 +345,19 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
 
   // Fall 2: es existiert eine Session und der createSessionStateService ist leer
   describe('SessionExists', () => {
-    beforeEach(
-      waitForAsync(() => {
-        when(attributeImportService.existsImportSession()).thenReturn(of(true));
-        when(attributeImportService.getImportSession()).thenReturn(
-          of({
-            organisationsID: organisationsId,
-          } as AttributeImportSessionView)
-        );
-        when(createSessionStateService.dateiUploadInfo).thenReturn(null);
+    beforeEach(waitForAsync(() => {
+      when(attributeImportService.existsImportSession()).thenReturn(of(true));
+      when(attributeImportService.getImportSession()).thenReturn(
+        of({
+          organisationsID: organisationsId,
+        } as AttributeImportSessionView)
+      );
+      when(createSessionStateService.dateiUploadInfo).thenReturn(null);
 
-        fixture = MockRender(ImportAttributeDateiHochladenComponent);
-        component = fixture.point.componentInstance;
-        fixture.detectChanges();
-      })
-    );
+      fixture = MockRender(ImportAttributeDateiHochladenComponent);
+      component = fixture.point.componentInstance;
+      fixture.detectChanges();
+    }));
 
     it('should be filled and disabled when session exists', () => {
       expect(component.formGroup.disabled).toBeTrue();

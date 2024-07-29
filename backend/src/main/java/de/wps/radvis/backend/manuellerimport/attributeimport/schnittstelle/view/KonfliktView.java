@@ -30,4 +30,8 @@ public class KonfliktView {
 	private final String uebernommenerWert;
 	@JsonProperty("Nicht übernommene Werte")
 	private final String nichtUebernommeneWerte;
+	@JsonProperty("Seitenbezug")
+	private final String seitenbezug;
+	@JsonProperty("Bemerkung")
+	private final String bemerkung;
 }

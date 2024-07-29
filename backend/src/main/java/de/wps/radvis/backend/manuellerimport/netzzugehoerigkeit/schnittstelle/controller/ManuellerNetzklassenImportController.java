@@ -40,7 +40,7 @@ import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.Kn
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.command.StartNetzklassenImportSessionCommand;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.view.NetzklassenImportSessionView;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import lombok.NonNull;
@@ -54,7 +54,7 @@ public class ManuellerNetzklassenImportController {
 	private final ManuellerNetzklassenImportService manuellerNetzklassenImportService;
 	private final BenutzerResolver benutzerResolver;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
-	private final NetzklassenSackgassenService netzklassenSackgassenService;
+	private final SackgassenService sackgassenService;
 	private final KnotenToGeoJsonConverter knotenToGeoJsonConverter;
 	private final ManuellerNetzklassenImportGuard manuellerNetzklassenImportGuard;
 
@@ -63,14 +63,14 @@ public class ManuellerNetzklassenImportController {
 		@NonNull ManuellerNetzklassenImportService manuellerNetzklassenImportService,
 		@NonNull BenutzerResolver benutzerResolver,
 		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
-		@NonNull NetzklassenSackgassenService netzklassenSackgassenService,
+		@NonNull SackgassenService sackgassenService,
 		@NonNull KnotenToGeoJsonConverter knotenToGeoJsonConverter,
 		@NonNull ManuellerNetzklassenImportGuard manuellerNetzklassenImportGuard) {
 		this.manuellerImportService = manuellerImportService;
 		this.manuellerNetzklassenImportService = manuellerNetzklassenImportService;
 		this.benutzerResolver = benutzerResolver;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
-		this.netzklassenSackgassenService = netzklassenSackgassenService;
+		this.sackgassenService = sackgassenService;
 		this.knotenToGeoJsonConverter = knotenToGeoJsonConverter;
 		this.manuellerNetzklassenImportGuard = manuellerNetzklassenImportGuard;
 	}
@@ -97,7 +97,7 @@ public class ManuellerNetzklassenImportController {
 		Verwaltungseinheit organisation = verwaltungseinheitResolver.resolve(command.getOrganisation());
 
 		File shpDirectory = manuellerImportService
-			.unzipAndValidate(file.getBytes());
+			.unzipAndValidateShape(file.getBytes());
 
 		NetzklasseImportSession importSession = new NetzklasseImportSession(benutzer,
 			organisation,
@@ -133,7 +133,7 @@ public class ManuellerNetzklassenImportController {
 
 		NetzklasseImportSession session = manuellerNetzklassenImportService.getNetzklassenImportSession(benutzer).get();
 
-		Set<Knoten> knoten = netzklassenSackgassenService.bestimmeSackgassenknotenVonKanteIdsInOrganisation(
+		Set<Knoten> knoten = sackgassenService.bestimmeSackgassenknotenVonKanteIdsInOrganisation(
 			session.getKanteIds(),
 			session.getOrganisation());
 

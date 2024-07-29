@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
@@ -56,11 +55,6 @@ public class ProfilInformationenUpdateJob extends AbstractJob {
 
 	@Override
 	protected Optional<JobStatistik> doRun() {
-		if (!FeatureTogglz.FAHRRADROUTE_JOBS.isActive()) {
-			log.info(
-				"Profilinformationen werden nicht geupdated, da Fahrradrouten-Jobs über das FeatureToggle deaktiviert sind.");
-			return Optional.empty();
-		}
 		ProfilInformationenUpdateStatistik profilInformationenUpdateStatistik = new ProfilInformationenUpdateStatistik();
 		fahrradrouteService.updateProfilEigenschaftenVonRadvisUndTfisRouten(profilInformationenUpdateStatistik);
 		log.info(profilInformationenUpdateStatistik.toString());

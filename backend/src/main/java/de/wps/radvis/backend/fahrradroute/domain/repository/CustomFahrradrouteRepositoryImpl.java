@@ -32,30 +32,30 @@ public class CustomFahrradrouteRepositoryImpl implements CustomFahrradrouteRepos
 	public void resetGeoserverFahrradrouteImportDiffMaterializedView(int anzahlTageImportprotokolleVorhalten) {
 
 		entityManager.createNativeQuery(
-				"DROP MATERIALIZED VIEW IF EXISTS geoserver_fahrradroute_import_diff_materialized_view;")
+			"DROP MATERIALIZED VIEW IF EXISTS geoserver_fahrradroute_import_diff_materialized_view;")
 			.executeUpdate();
 
 		Instant queryStartZeit = Instant.now();
 		log.info("Lege geoserver_fahrradroute_import_diff_materialized_view an...");
 
 		entityManager.createNativeQuery(
-				"CREATE MATERIALIZED VIEW geoserver_fahrradroute_import_diff_materialized_view AS "
-					+ "SELECT r.job_execution_description_id            as job_id, "
-					+ "       f_nachher.id                              as fahrradroute_id, "
-					+ "       f_vorher.netzbezug_line_string            as geometrie_vorher, "
-					+ "       COALESCE(st_difference(f_nachher.netzbezug_line_string, f_vorher.netzbezug_line_string), "
-					+ "                f_nachher.netzbezug_line_string) as geometrie_diff "
-					+ "FROM fahrradroute_aud as f_nachher, "
-					+ "     fahrradroute_aud as f_vorher, "
-					+ "     rev_info as r "
-					+ "WHERE f_nachher.revtype = 1 "
-					+ "  AND r.timestamp >= " +
-					Instant.now().minus(anzahlTageImportprotokolleVorhalten, ChronoUnit.DAYS).toEpochMilli()
-					+ "  AND r.id = f_nachher.rev "
-					+ "  AND f_nachher.netzbezug_line_string IS NOT NULL "
-					+ "  AND r.job_execution_description_id IS NOT NULL "
-					+ "  AND f_vorher.id = f_nachher.id "
-					+ "  AND f_vorher.rev = (SELECT max(f.rev) FROM fahrradroute_aud as f WHERE f.id = f_nachher.id AND f.rev < f_nachher.rev); ")
+			"CREATE MATERIALIZED VIEW geoserver_fahrradroute_import_diff_materialized_view AS "
+				+ "SELECT r.job_execution_description_id            as job_id, "
+				+ "       f_nachher.id                              as fahrradroute_id, "
+				+ "       f_vorher.netzbezug_line_string            as geometrie_vorher, "
+				+ "       COALESCE(st_difference(f_nachher.netzbezug_line_string, f_vorher.netzbezug_line_string), "
+				+ "                f_nachher.netzbezug_line_string) as geometrie_diff "
+				+ "FROM fahrradroute_aud as f_nachher, "
+				+ "     fahrradroute_aud as f_vorher, "
+				+ "     rev_info as r "
+				+ "WHERE f_nachher.revtype = 1 "
+				+ "  AND r.timestamp >= " +
+				Instant.now().minus(anzahlTageImportprotokolleVorhalten, ChronoUnit.DAYS).toEpochMilli()
+				+ "  AND r.id = f_nachher.rev "
+				+ "  AND f_nachher.netzbezug_line_string IS NOT NULL "
+				+ "  AND r.job_execution_description_id IS NOT NULL "
+				+ "  AND f_vorher.id = f_nachher.id "
+				+ "  AND f_vorher.rev = (SELECT max(f.rev) FROM fahrradroute_aud as f WHERE f.id = f_nachher.id AND f.rev < f_nachher.rev); ")
 			.executeUpdate();
 
 		log.info("Angelegt geoserver_fahrradroute_import_diff_materialized_view in {} Sekunden",

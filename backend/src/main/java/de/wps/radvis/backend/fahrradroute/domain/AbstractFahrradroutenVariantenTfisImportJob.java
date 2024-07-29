@@ -107,8 +107,8 @@ public abstract class AbstractFahrradroutenVariantenTfisImportJob extends Abstra
 				importStatistik.anzahlVariantenBetrachtet += groupedByVariantenId.size();
 
 				List<FahrradrouteVariante> fahrradrouteVarianten = new ArrayList<>();
-				groupedByVariantenId.forEach((varianteId, varianteFeatures) ->
-					createFahrradrouteVariante(tfisIdString, varianteId, varianteFeatures, importStatistik)
+				groupedByVariantenId.forEach((varianteId, varianteFeatures) -> createFahrradrouteVariante(tfisIdString,
+					varianteId, varianteFeatures, importStatistik)
 						.ifPresent(fahrradrouteVarianten::add)
 				);
 				TfisId tfisId = TfisId.of(tfisIdString);
@@ -201,7 +201,7 @@ public abstract class AbstractFahrradroutenVariantenTfisImportJob extends Abstra
 
 		varianteFeatuesInBW.forEach(simpleFeature -> {
 			Optional<Kante> kanteMitGleicherDlmId = kanteInMemRepository.stream().filter(
-					kante -> kante.getDlmId().getValue().equals(tfisImportService.extractDlmId(simpleFeature)))
+				kante -> kante.getDlmId().getValue().equals(tfisImportService.extractDlmId(simpleFeature)))
 				.findFirst();
 			if (kanteMitGleicherDlmId.isEmpty()) {
 				mussGematchedWerden.add(simpleFeature);

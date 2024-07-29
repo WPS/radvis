@@ -24,8 +24,7 @@
         <rad-text-input-control
           formControlName="name"
           [touchOnWrite]="false"
-          [errors]="formGroupDateiLayer.get('name')?.errors"
-        >
+          [errors]="formGroupDateiLayer.get('name')?.errors">
           <div class="label">Layername</div>
         </rad-text-input-control>
 
@@ -40,11 +39,13 @@
             class="w-100"
             [dateiEndung]="getErlaubteDateiEndung()"
             [maxFileSizeInMB]="maxFileSizeInMB"
-            [touchOnWrite]="false"
-            [errors]="formGroupDateiLayer.get('file')?.errors"
-          >
+            [touchOnWrite]="false">
             Datei Hochladen
           </rad-file-upload-control>
+          <rad-validation-error-anzeige
+            class="text-small align-self-start"
+            [errors]="formGroupDateiLayer.get('file')?.errors || null"
+            *ngIf="formGroupDateiLayer.get('file')?.dirty"></rad-validation-error-anzeige>
         </div>
         <div class="display-flex flex-column align-items-start mt-8">
           <div class="hinweis">
@@ -57,8 +58,7 @@
           [asTextarea]="true"
           [maxLength]="QUELLANGABE_MAX_LENGTH"
           [touchOnWrite]="false"
-          [errors]="formGroupDateiLayer.get('quellangabe')?.errors"
-        >
+          [errors]="formGroupDateiLayer.get('quellangabe')?.errors">
           <div class="label">Quelle/Lizenzbedingungen</div>
         </rad-text-input-control>
       </form>
@@ -68,8 +68,7 @@
           (action)="onCreate()"
           [dirty]="formGroupDateiLayer.dirty"
           [waiting]="saving"
-          [disabled]="!formGroupDateiLayer.valid"
-        >
+          [disabled]="!formGroupDateiLayer.valid">
           Speichern
         </rad-action-button>
       </div>
@@ -84,22 +83,10 @@
         <mat-expansion-panel-header>
           <mat-panel-title>{{ layer.name }}</mat-panel-title>
           <div class="display-flex justify-content-flex-end delete-button">
-            <button
-              aria-label="Style verwalten"
-              mat-icon-button
-              matTooltip="Style verwalten"
-              type="button"
-              (click)="onManageStyles(layer)"
-            >
+            <button mat-icon-button matTooltip="Style verwalten" type="button" (click)="onManageStyles(layer)">
               <mat-icon>brush</mat-icon>
             </button>
-            <button
-              [attr.aria-label]="'Layer entfernen'"
-              mat-icon-button
-              matTooltip="Layer entfernen"
-              type="button"
-              (click)="onDeleteLayer(layer.id)"
-            >
+            <button mat-icon-button matTooltip="Layer entfernen" type="button" (click)="onDeleteLayer(layer.id)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -124,13 +111,11 @@
 <ng-template #styleDialogRef let-data>
   <div class="button-row" style="float: right">
     <button
-      [attr.aria-label]="'Schließen'"
       (click)="dialog.getDialogById(STYLE_DIALOG_ID)?.close()"
       mat-icon-button
       matTooltip="Schließen"
       type="button"
-      class="close-button"
-    >
+      class="close-button">
       <mat-icon>clear</mat-icon>
     </button>
   </div>
@@ -144,12 +129,10 @@
       }}</span>
       <button
         *ngIf="data.layer.sldFilename"
-        [attr.aria-label]="'Style entfernen'"
         mat-icon-button
         matTooltip="Style entfernen"
         type="button"
-        (click)="onDeleteStyle(data.layer.id)"
-      >
+        (click)="onDeleteStyle(data.layer.id)">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -158,19 +141,19 @@
         dateiEndung="sld"
         [maxFileSizeInMB]="1"
         [formControl]="data.formControl"
-        [errors]="data.formControl.errors"
-        style="width: 100%"
-      >
+        style="width: 100%">
         SLD-Datei hochladen
       </rad-file-upload-control>
+      <rad-validation-error-anzeige
+        [errors]="data.formControl?.errors || null"
+        *ngIf="data.formControl?.dirty"></rad-validation-error-anzeige>
     </div>
     <div>
       <rad-action-button
         (action)="onAddOrChangeStyle(data.layer.id, data.formControl.value)"
         [dirty]="data.formControl.dirty"
         [waiting]="uploadingStyle"
-        [disabled]="!data.formControl.valid"
-      >
+        [disabled]="!data.formControl.valid">
         Speichern
       </rad-action-button>
     </div>

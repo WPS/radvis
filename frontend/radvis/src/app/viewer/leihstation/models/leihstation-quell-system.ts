@@ -22,17 +22,15 @@ export enum LeihstationQuellSystem {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace LeihstationQuellSystem {
-  export const options: EnumOption[] = Object.keys(LeihstationQuellSystem).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case LeihstationQuellSystem.RADVIS:
-          return { name: k, displayText: 'RadVIS' };
-        case LeihstationQuellSystem.MOBIDATABW:
-          return { name: k, displayText: 'MobiDataBW' };
-      }
-      throw new Error('Beschreibung für enum LeihstationQuellSystem fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(LeihstationQuellSystem).map((k: string): EnumOption => {
+    switch (k) {
+      case LeihstationQuellSystem.RADVIS:
+        return { name: k, displayText: 'RadVIS' };
+      case LeihstationQuellSystem.MOBIDATABW:
+        return { name: k, displayText: 'MobiDataBW' };
     }
-  );
+    throw new Error('Beschreibung für enum LeihstationQuellSystem fehlt: ' + k);
+  });
 
   export const getDisplayText: (leihstationQuellSystem: LeihstationQuellSystem) => string = (
     leihstationQuellSystem: LeihstationQuellSystem

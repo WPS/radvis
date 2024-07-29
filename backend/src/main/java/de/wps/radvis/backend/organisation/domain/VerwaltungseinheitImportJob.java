@@ -17,18 +17,15 @@ package de.wps.radvis.backend.organisation.domain;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Set;
+
+import org.springframework.data.util.Lazy;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
-import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
-import de.wps.radvis.backend.organisation.domain.entity.Organisation;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,43 +36,19 @@ public class VerwaltungseinheitImportJob extends AbstractJob {
 	// dass der Job ungewollt erneut ausgefuehrt wird.
 	protected static final String JOB_NAME = "OrganisationenImportJob";
 
-	private final VerwaltungseinheitImportRepository verwaltungseinheitImportRepository;
+	private final Lazy<VerwaltungseinheitImportRepository> verwaltungseinheitImportRepositorySupplier;
 	private final OrganisationRepository organisationRepository;
 	private final GebietskoerperschaftRepository gebietskoerperschaftRepository;
 
-	private final File bundeslandFile;
-	private final File regierungsbezirkFile;
-	private final File landkreisFile;
-	private final File gemeindeFile;
-
 	public VerwaltungseinheitImportJob(JobExecutionDescriptionRepository jobExecutionDescriptionRepository,
-		VerwaltungseinheitImportRepository verwaltungseinheitImportRepository,
-		OrganisationRepository organisationRepository, GebietskoerperschaftRepository gebietskoerperschaftRepository,
-		File verwaltungsgrenzenVerzeichnis) {
+		Lazy<VerwaltungseinheitImportRepository> verwaltungseinheitImportRepository,
+		OrganisationRepository organisationRepository, GebietskoerperschaftRepository gebietskoerperschaftRepository) {
 		super(jobExecutionDescriptionRepository);
-
 		require(verwaltungseinheitImportRepository, notNullValue());
 
-		require(verwaltungsgrenzenVerzeichnis.exists(),
-			"Verwaltungsgrenzenverzeichnis existiert nicht: " + verwaltungsgrenzenVerzeichnis.getAbsolutePath());
-		require(verwaltungsgrenzenVerzeichnis.isDirectory(),
-			"Verwaltungsgrenzenverzeichnis ist kein Verzeichnis: " + verwaltungsgrenzenVerzeichnis.getAbsolutePath());
-
-		this.verwaltungseinheitImportRepository = verwaltungseinheitImportRepository;
-
+		this.verwaltungseinheitImportRepositorySupplier = verwaltungseinheitImportRepository;
 		this.organisationRepository = organisationRepository;
 		this.gebietskoerperschaftRepository = gebietskoerperschaftRepository;
-
-		this.bundeslandFile = new File(verwaltungsgrenzenVerzeichnis, "v_at_land.shp");
-		this.regierungsbezirkFile = new File(verwaltungsgrenzenVerzeichnis, "v_at_regierungsbezirk.shp");
-		this.landkreisFile = new File(verwaltungsgrenzenVerzeichnis, "v_at_kreis.shp");
-		this.gemeindeFile = new File(verwaltungsgrenzenVerzeichnis, "v_at_gemeinde.shp");
-
-		require(bundeslandFile.exists(), "Bundesland File existiert nicht: " + bundeslandFile.getAbsolutePath());
-		require(regierungsbezirkFile.exists(),
-			"Regierungsbezirk File existiert nicht: " + regierungsbezirkFile.getAbsolutePath());
-		require(landkreisFile.exists(), "Landkreis File existiert nicht: " + landkreisFile.getAbsolutePath());
-		require(gemeindeFile.exists(), "Gemeinde File existiert nicht: " + gemeindeFile.getAbsolutePath());
 	}
 
 	@Override
@@ -86,17 +59,13 @@ public class VerwaltungseinheitImportJob extends AbstractJob {
 	@Override
 	@Transactional
 	public JobExecutionDescription run() {
-		JobExecutionDescription description = super.run();
-		this.registriereZusaetzlicheOrganisationen();
-		return description;
+		return super.run();
 	}
 
 	@Override
 	@Transactional
 	public JobExecutionDescription run(boolean force) {
-		JobExecutionDescription description = super.run(force);
-		this.registriereZusaetzlicheOrganisationen();
-		return description;
+		return super.run(force);
 	}
 
 	public boolean isRepeatable() {
@@ -106,12 +75,11 @@ public class VerwaltungseinheitImportJob extends AbstractJob {
 	@Override
 	protected Optional<JobStatistik> doRun() {
 		try {
-			gebietskoerperschaftRepository.saveAll(verwaltungseinheitImportRepository
-				.getGebietskoerperschaftenFromShapeFiles(bundeslandFile, regierungsbezirkFile, landkreisFile,
-					gemeindeFile));
+			gebietskoerperschaftRepository.saveAll(
+				verwaltungseinheitImportRepositorySupplier.get().getGebietskoerperschaften());
 
 			organisationRepository.saveAll(
-				verwaltungseinheitImportRepository.getCustomAdditionalOrganisationen());
+				verwaltungseinheitImportRepositorySupplier.get().getCustomAdditionalOrganisationen());
 
 			log.info("Organisationen wurden erfolgreich in die Datenbank geschrieben.");
 		} catch (IOException e) {
@@ -120,23 +88,5 @@ public class VerwaltungseinheitImportJob extends AbstractJob {
 		}
 
 		return Optional.empty();
-	}
-
-	private void registriereZusaetzlicheOrganisationen() {
-		if (organisationRepository.findByName("Toubiz").isPresent()) {
-			log.info("Eine Organisation mit dem Namen 'Toubiz' existiert bereits. Das Anlegen wird übersprungen.");
-			return;
-		}
-
-		Optional<Gebietskoerperschaft> bw = gebietskoerperschaftRepository.findByName("Baden-Württemberg");
-
-		if (bw.isEmpty()) {
-			log.warn(
-				"Baden-Württemberg existiert nicht als Organisation in der DB. Das Anlegen wird übersprungen, da der Bereich nicht ermittelt werden kann");
-			return;
-		}
-
-		organisationRepository.save(
-			new Organisation("Toubiz", null, OrganisationsArt.SONSTIGES, Set.of(bw.get()), true));
 	}
 }

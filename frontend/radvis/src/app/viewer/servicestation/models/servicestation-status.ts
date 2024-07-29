@@ -23,19 +23,17 @@ export enum ServicestationStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ServicestationStatus {
-  export const options: EnumOption[] = Object.keys(ServicestationStatus).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case ServicestationStatus.GEPLANT:
-          return { name: k, displayText: 'Geplant' };
-        case ServicestationStatus.AKTIV:
-          return { name: k, displayText: 'Aktiv' };
-        case ServicestationStatus.AUSSER_BETRIEB:
-          return { name: k, displayText: 'Außer Betrieb' };
-      }
-      throw new Error('Beschreibung für enum ServicestationStatus fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(ServicestationStatus).map((k: string): EnumOption => {
+    switch (k) {
+      case ServicestationStatus.GEPLANT:
+        return { name: k, displayText: 'Geplant' };
+      case ServicestationStatus.AKTIV:
+        return { name: k, displayText: 'Aktiv' };
+      case ServicestationStatus.AUSSER_BETRIEB:
+        return { name: k, displayText: 'Außer Betrieb' };
     }
-  );
+    throw new Error('Beschreibung für enum ServicestationStatus fehlt: ' + k);
+  });
 
   export const getDisplayText: (servicestationStatus: ServicestationStatus) => string = (
     servicestationStatus: ServicestationStatus

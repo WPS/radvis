@@ -42,13 +42,12 @@ public class OsmAbbildungsFehlerService implements FehlerprotokollService {
 		requireFehlerprotokollTypIsOsmAbbildung(fehlerprotokollTyp);
 
 		List<OsmAbbildungsFehler> osmAbbildungsFehler = switch (fehlerprotokollTyp) {
-			case OSM_ABBILDUNG_RADNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByRadnetzIsTrue();
-			case OSM_ABBILDUNG_KREISNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByKreisnetzIsTrue();
-			case OSM_ABBILDUNG_KOMMUNALNETZ ->
-				osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByKommunalnetzIsTrue();
-			case OSM_ABBILDUNG_SONSTIGE ->
-				osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByRadnetzIsFalseAndKreisnetzIsFalseAndKommunalnetzIsFalse();
-			default -> throw new RuntimeException("FehlerprotokollTyp nicht implementiert: " + fehlerprotokollTyp);
+		case OSM_ABBILDUNG_RADNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByRadnetzIsTrue();
+		case OSM_ABBILDUNG_KREISNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByKreisnetzIsTrue();
+		case OSM_ABBILDUNG_KOMMUNALNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerByKommunalnetzIsTrue();
+		case OSM_ABBILDUNG_SONSTIGE -> osmAbbildungsFehlerRepository
+			.findOsmAbbildungsFehlerByRadnetzIsFalseAndKreisnetzIsFalseAndKommunalnetzIsFalse();
+		default -> throw new RuntimeException("FehlerprotokollTyp nicht implementiert: " + fehlerprotokollTyp);
 		};
 
 		return osmAbbildungsFehler.stream()
@@ -63,15 +62,15 @@ public class OsmAbbildungsFehlerService implements FehlerprotokollService {
 
 		Polygon bereichPolygon = EnvelopeAdapter.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 		List<OsmAbbildungsFehler> osmAbbildungsFehler = switch (fehlerprotokollTyp) {
-			case OSM_ABBILDUNG_RADNETZ ->
-				osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichRadNETZ(bereichPolygon);
-			case OSM_ABBILDUNG_KREISNETZ ->
-				osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichKreisnetz(bereichPolygon);
-			case OSM_ABBILDUNG_KOMMUNALNETZ ->
-				osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichKommunalnetz(bereichPolygon);
-			case OSM_ABBILDUNG_SONSTIGE ->
-				osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichSonstige(bereichPolygon);
-			default -> throw new RuntimeException("FehlerprotokollTyp nicht implementiert: " + fehlerprotokollTyp);
+		case OSM_ABBILDUNG_RADNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichRadNETZ(
+			bereichPolygon);
+		case OSM_ABBILDUNG_KREISNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichKreisnetz(
+			bereichPolygon);
+		case OSM_ABBILDUNG_KOMMUNALNETZ -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichKommunalnetz(
+			bereichPolygon);
+		case OSM_ABBILDUNG_SONSTIGE -> osmAbbildungsFehlerRepository.findOsmAbbildungsFehlerInBereichSonstige(
+			bereichPolygon);
+		default -> throw new RuntimeException("FehlerprotokollTyp nicht implementiert: " + fehlerprotokollTyp);
 		};
 
 		return osmAbbildungsFehler.stream()

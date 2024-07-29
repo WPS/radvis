@@ -15,7 +15,7 @@
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { FurtKreuzungTyp } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung-typ';
 import { LichtsignalAnlageEigenschaften } from 'src/app/viewer/furten-kreuzungen/models/lichtsignal-anlage-eigenschaften';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface FurtKreuzung {
   verantwortlicheOrganisation: Verwaltungseinheit;

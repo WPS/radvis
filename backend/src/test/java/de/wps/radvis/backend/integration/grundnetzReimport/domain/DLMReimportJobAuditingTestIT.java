@@ -63,7 +63,9 @@ import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.valueObject.BasisnetzImportSource;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingRepository;
@@ -115,7 +117,6 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataProvider;
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
@@ -272,7 +273,7 @@ class DLMReimportJobAuditingTestIT extends AuditingTestIT {
 			dlmImportRepository, netzService, updateKantenService,
 			createKantenService, executeTopologischeUpdatesService, kantenMappingRepository,
 			entityManager, new VernetzungService(kantenRepository, knotenRepository, netzService),
-			kanteUpdateElevationService);
+			kanteUpdateElevationService, BasisnetzImportSource.DLM);
 	}
 
 	List<Knoten> basisNetzKnoten = new ArrayList<>();
@@ -342,9 +343,9 @@ class DLMReimportJobAuditingTestIT extends AuditingTestIT {
 					.build())
 			.zustaendigkeitAttributGruppe(ZustaendigkeitAttributGruppe.builder()
 				.zustaendigkeitAttribute(List.of(ZustaendigkeitAttributGruppeTestDataProvider
-						.withLineareReferenz(0.0, 0.5)
-						.erhaltsZustaendiger(gebietskoerperschaft)
-						.vereinbarungsKennung(VereinbarungsKennung.of("DEF")).build(),
+					.withLineareReferenz(0.0, 0.5)
+					.erhaltsZustaendiger(gebietskoerperschaft)
+					.vereinbarungsKennung(VereinbarungsKennung.of("DEF")).build(),
 					ZustaendigkeitAttributGruppeTestDataProvider
 						.withLineareReferenz(0.5, 1.0)
 						.erhaltsZustaendiger(gebietskoerperschaft)

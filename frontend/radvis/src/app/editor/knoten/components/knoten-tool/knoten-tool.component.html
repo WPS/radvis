@@ -20,16 +20,14 @@
 
       <rad-fehlerprotokoll-layer
         *ngIf="fehlerprotokolleEnabled"
-        [zIndex]="fehlerprotokollZIndex"
-      ></rad-fehlerprotokoll-layer>
+        [zIndex]="fehlerprotokollZIndex"></rad-fehlerprotokoll-layer>
 
       <div
         class="tool h-100"
         #toolContainer
         role="region"
         aria-label="Knoten-Details"
-        aria-keyshortcuts="Control+Alt+Shift+D"
-      >
+        aria-keyshortcuts="Control+Alt+Shift+D">
         <router-outlet></router-outlet>
       </div>
     </rad-ol-map>

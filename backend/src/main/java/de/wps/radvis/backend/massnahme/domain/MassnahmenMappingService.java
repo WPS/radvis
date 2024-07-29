@@ -30,12 +30,12 @@ import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmenImportProtokoll;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -56,13 +56,12 @@ import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @deprecated RAD-6071: Das Zuständigkeitsfeld ist ein Pflichtfeld. Dieser MappingService ist deprecated, da er einen
- * veralteten Import implementiert, der nicht mehr genutzt wird. Bis dieser MappingService entfernt wird,
- * wird hier die Unbekannte Organisation als Zustaendig gesetzt.
+ *     veralteten Import implementiert, der nicht mehr genutzt wird. Bis dieser MappingService entfernt wird,
+ *     wird hier die Unbekannte Organisation als Zustaendig gesetzt.
  */
 @Deprecated
 @Slf4j
@@ -213,8 +212,6 @@ public class MassnahmenMappingService {
 			.bezeichnung(bezeichnung)
 			.benutzerLetzteAenderung(benutzer)
 			.kommentarListe(kommentarListe)
-			// Standardwerte für Radnetzmaßnahmen:
-			.umsetzungsstand(new Umsetzungsstand())
 			.letzteAenderung(LocalDateTime.now())
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)

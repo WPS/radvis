@@ -165,10 +165,10 @@ public class ShpExportConverter implements ExportConverter {
 		File exportShpFile = null;
 
 		data = data.stream().map(exportData -> {
-				HashMap<String, String> newProperties = new HashMap<>();
-				exportData.getProperties().forEach((key, value) -> newProperties.put(escapeSpecialCharacters(key), value));
-				return new ExportData(exportData.getGeometry(), newProperties);
-			})
+			HashMap<String, String> newProperties = new HashMap<>();
+			exportData.getProperties().forEach((key, value) -> newProperties.put(escapeSpecialCharacters(key), value));
+			return new ExportData(exportData.getGeometry(), newProperties);
+		})
 			.collect(Collectors.toList());
 
 		try {

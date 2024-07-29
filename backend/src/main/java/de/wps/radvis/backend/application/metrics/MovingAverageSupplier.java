@@ -30,7 +30,7 @@ public class MovingAverageSupplier implements Supplier<Number> {
 	 * Factor of 0.99 an old avg of 100 and a new value of 10 --> newAvg of 99.1
 	 *
 	 * @param oldValueFactor
-	 * 	has to be between 0 and 1, the closer to one the factor the smaller the impact of new values
+	 *     has to be between 0 and 1, the closer to one the factor the smaller the impact of new values
 	 */
 	public MovingAverageSupplier(double oldValueFactor) {
 		require(oldValueFactor > 0 && oldValueFactor <= 1);

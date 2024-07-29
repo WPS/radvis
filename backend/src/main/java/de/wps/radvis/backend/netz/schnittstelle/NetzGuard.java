@@ -176,8 +176,8 @@ public class NetzGuard {
 			}
 		}
 
-		if ((!vonKnoten.getQuelle().equals(QuellSystem.DLM) && !vonKnoten.getQuelle().equals(QuellSystem.RadVis)) || (
-			!bisKnoten.getQuelle().equals(QuellSystem.DLM)
+		if ((!vonKnoten.getQuelle().equals(QuellSystem.DLM) && !vonKnoten.getQuelle().equals(QuellSystem.RadVis))
+			|| (!bisKnoten.getQuelle().equals(QuellSystem.DLM)
 				&& !bisKnoten.getQuelle().equals(QuellSystem.RadVis))) {
 			throw new AccessDeniedException("Es können nur Kanten zwischen DLM- oder RadVis-Knoten erstellt werden");
 		}

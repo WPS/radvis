@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -49,6 +50,7 @@ import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
@@ -56,7 +58,6 @@ import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.entity.provider.ServicestationTestDataProvider;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
@@ -81,6 +82,7 @@ class ServicestationImportServiceTest {
 
 	private ServicestationImportService servicestationImportService;
 	private Benutzer adminBenutzer;
+	private PreparedGeometry boundingArea;
 
 	@BeforeEach
 	void setup() {
@@ -92,8 +94,9 @@ class ServicestationImportServiceTest {
 			.admin(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.build();
 
-		when(verwaltungseinheitService.getBundeslandBereichPrepared()).thenReturn(
-			PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000)));
+		boundingArea = PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000,
+			1000));
+
 		when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
 			true);
 	}
@@ -104,7 +107,7 @@ class ServicestationImportServiceTest {
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultOrganisation().build();
 		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt()))
-			.thenReturn(Optional.of(verwaltungseinheit));
+				.thenReturn(Optional.of(verwaltungseinheit));
 
 		Servicestation servicestation1 = Servicestation.builder()
 			.id(10L)
@@ -151,10 +154,10 @@ class ServicestationImportServiceTest {
 
 		// act
 		Servicestation result1 = servicestationImportService
-			.mapAttributes(Servicestation.builder().id(servicestation1.getId()), csvData.getRows().get(0),
+			.mapAttributes(Servicestation.builder().id(servicestation1.getId()), boundingArea, csvData.getRows().get(0),
 				adminBenutzer);
 		Servicestation result2 = servicestationImportService
-			.mapAttributes(Servicestation.builder().id(servicestation2.getId()), csvData.getRows().get(1),
+			.mapAttributes(Servicestation.builder().id(servicestation2.getId()), boundingArea, csvData.getRows().get(1),
 				adminBenutzer);
 
 		// assert
@@ -209,16 +212,19 @@ class ServicestationImportServiceTest {
 					return Optional.of(servicestation1);
 				}
 
-				return position.distance(servicestation2.getGeometrie()) < 1 ?
-					Optional.of(servicestation2) :
-					Optional.empty();
+				return position.distance(servicestation2.getGeometrie()) < 1 ? Optional.of(servicestation2) : Optional
+					.empty();
 			});
 
 		// act
-		Optional<Servicestation.ServicestationBuilder> builderForStation1 = servicestationImportService.getBuilderFromPosition(
-			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100.5, 200.5)));
-		Optional<Servicestation.ServicestationBuilder> builderForStation2 = servicestationImportService.getBuilderFromPosition(
-			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(500.5, 600.5)));
+		Optional<Servicestation.ServicestationBuilder> builderForStation1 = servicestationImportService
+			.getBuilderFromPosition(
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100.5,
+					200.5)));
+		Optional<Servicestation.ServicestationBuilder> builderForStation2 = servicestationImportService
+			.getBuilderFromPosition(
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(500.5,
+					600.5)));
 		Optional<Servicestation.ServicestationBuilder> noBuilder = servicestationImportService.getBuilderFromPosition(
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(300, 300)));
 
@@ -268,8 +274,9 @@ class ServicestationImportServiceTest {
 		// act
 		Optional<Servicestation.ServicestationBuilder> builderRadVIS = servicestationImportService.getBuilderFromId(
 			servicestationRadVIS.getId());
-		Optional<Servicestation.ServicestationBuilder> emptyBuilderMobiData = servicestationImportService.getBuilderFromId(
-			servicestationMobiData.getId());
+		Optional<Servicestation.ServicestationBuilder> emptyBuilderMobiData = servicestationImportService
+			.getBuilderFromId(
+				servicestationMobiData.getId());
 
 		// assert
 		verify(servicestationRepository, times(2)).findByIdAndQuellSystem(any(),
@@ -292,7 +299,7 @@ class ServicestationImportServiceTest {
 			Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultOrganisation().build();
 			when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(verwaltungseinheit.getName(),
 				verwaltungseinheit.getOrganisationsArt()))
-				.thenReturn(Optional.of(verwaltungseinheit));
+					.thenReturn(Optional.of(verwaltungseinheit));
 
 			Servicestation servicestation1 = Servicestation.builder()
 				.id(10L)
@@ -321,7 +328,8 @@ class ServicestationImportServiceTest {
 			csvData = csvRepository.read(csv, Servicestation.CsvHeader.ALL);
 
 			assertDoesNotThrow(
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
@@ -334,7 +342,8 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(ServicestationAttributMappingException.class,
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
@@ -346,7 +355,8 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(ServicestationAttributMappingException.class,
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
@@ -358,7 +368,8 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(ServicestationAttributMappingException.class,
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
@@ -370,7 +381,8 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(ServicestationAttributMappingException.class,
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
@@ -385,10 +397,12 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThatThrownBy(
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer))
-				.isInstanceOf(ServicestationAttributMappingException.class)
-				.hasMessageContaining("Verwaltungseinheit 'Quatschburg (Landkreis)' konnte nicht gefunden werden");
+						.isInstanceOf(ServicestationAttributMappingException.class)
+						.hasMessageContaining(
+							"Verwaltungseinheit 'Quatschburg (Landkreis)' konnte nicht gefunden werden");
 		}
 
 		@Test
@@ -402,27 +416,27 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThatThrownBy(
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer))
-				.isInstanceOf(ServicestationAttributMappingException.class)
-				.hasMessageContaining("Verwaltungseinheit 'Quatschburg (foo)' konnte nicht verarbeitet werden");
+						.isInstanceOf(ServicestationAttributMappingException.class)
+						.hasMessageContaining("Verwaltungseinheit 'Quatschburg (foo)' konnte nicht verarbeitet werden");
 		}
 
 		@Test
 		void marke_zulang() {
-			String lorem =
-				"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
-					+ " Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
-					+ " Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat,"
-					+ " vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim"
-					+ " qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi."
-					+ " Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt"
-					+ " ut laoreet dolore magna aliquam erat volutpat."
-					+ "	Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl"
-					+ " ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate"
-					+ " velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan"
-					+ " et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi."
-					+ "	Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer";
+			String lorem = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+				+ " Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+				+ " Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat,"
+				+ " vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim"
+				+ " qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi."
+				+ " Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt"
+				+ " ut laoreet dolore magna aliquam erat volutpat."
+				+ "	Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl"
+				+ " ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate"
+				+ " velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan"
+				+ " et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi."
+				+ "	Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer";
 
 			List<Map<String, String>> rows = csvData.getRows();
 			HashMap<String, String> incorrectAttributes = new HashMap<>(rows.get(0));
@@ -430,21 +444,24 @@ class ServicestationImportServiceTest {
 			csvData = CsvData.of(List.of(incorrectAttributes), csvData.getHeader());
 
 			assertThrows(ServicestationAttributMappingException.class,
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 
 		@Test
 		void nicht_im_zustaendigkeitsbereich() {
 			assertDoesNotThrow(
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 
 			when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
 				false);
 
 			assertThrows(ServicestationAttributMappingException.class,
-				() -> servicestationImportService.mapAttributes(Servicestation.builder(), csvData.getRows().get(0),
+				() -> servicestationImportService.mapAttributes(Servicestation.builder(), boundingArea,
+					csvData.getRows().get(0),
 					adminBenutzer));
 		}
 	}

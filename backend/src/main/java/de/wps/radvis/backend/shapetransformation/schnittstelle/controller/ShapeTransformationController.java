@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.shapetransformation.domain.TransformationsKonfigurationsRepository;
@@ -68,7 +68,7 @@ public class ShapeTransformationController {
 	public void transformShp(@RequestPart MultipartFile shpFile, @RequestPart MultipartFile transformationFile,
 		HttpServletResponse response)
 		throws IOException, ShapeTransformationException, ShapeProjectionException,
-		ZipFileRequiredFilesMissingException {
+		ShapeZipInvalidException {
 
 		try {
 			TransformationsKonfiguration konfiguration = transformationsKonfigurationsRepository
@@ -99,7 +99,7 @@ public class ShapeTransformationController {
 					transformedDir.delete();
 				}
 			}
-		} catch (ShapeTransformationException | ShapeProjectionException | ZipFileRequiredFilesMissingException e) {
+		} catch (ShapeTransformationException | ShapeProjectionException | ShapeZipInvalidException e) {
 			throw e;
 		} catch (Throwable t) {
 			log.error("Ein unerwarteter Fehler ist beim Transformieren der Shapefile aufgetreten", t);

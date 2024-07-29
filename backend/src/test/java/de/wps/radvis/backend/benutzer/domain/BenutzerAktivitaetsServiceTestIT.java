@@ -38,6 +38,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
@@ -48,15 +49,16 @@ import jakarta.persistence.EntityManager;
 @ContextConfiguration(classes = {
 	BenutzerConfiguration.class,
 	OrganisationConfiguration.class,
-})
-@MockBeans({
-	@MockBean(GeoConverterConfiguration.class),
-	@MockBean(VerwaltungseinheitImportRepository.class),
-	@MockBean(MailService.class),
-	@MockBean(CommonConfigurationProperties.class)
+	GeoConverterConfiguration.class,
 })
 @EnableConfigurationProperties(value = {
-	TechnischerBenutzerConfigurationProperties.class
+	TechnischerBenutzerConfigurationProperties.class,
+	OrganisationConfigurationProperties.class,
+	CommonConfigurationProperties.class,
+})
+@MockBeans({
+	@MockBean(VerwaltungseinheitImportRepository.class),
+	@MockBean(MailService.class),
 })
 class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 

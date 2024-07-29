@@ -112,16 +112,16 @@ class LeihstationMobiDataImportJobTest {
 
 		when(leihstationRepository.findByExterneIdAndQuellSystem(ExterneLeihstationenId.of("bleibt1_unveraendert"),
 			LeihstationQuellSystem.MOBIDATABW))
-			.thenReturn(Optional.of(alteMobiBleibt1));
+				.thenReturn(Optional.of(alteMobiBleibt1));
 		when(leihstationRepository.findByExterneIdAndQuellSystem(ExterneLeihstationenId.of("bleibt2_modifiziert"),
 			LeihstationQuellSystem.MOBIDATABW))
-			.thenReturn(Optional.of(alteMobiBleibt2));
+				.thenReturn(Optional.of(alteMobiBleibt2));
 		when(leihstationRepository.findByExterneIdAndQuellSystem(ExterneLeihstationenId.of("fliegt1"),
 			LeihstationQuellSystem.MOBIDATABW))
-			.thenReturn(Optional.of(alteMobiFliegtraus1));
+				.thenReturn(Optional.of(alteMobiFliegtraus1));
 		when(leihstationRepository.findByExterneIdAndQuellSystem(ExterneLeihstationenId.of("fliegt2"),
 			LeihstationQuellSystem.MOBIDATABW))
-			.thenReturn(Optional.of(alteMobiFliegtraus2));
+				.thenReturn(Optional.of(alteMobiFliegtraus2));
 
 		// veränderte/neue
 		Leihstation neuMobi = LeihstationTestDataProvider.defaultAusMobiData()
@@ -148,7 +148,7 @@ class LeihstationMobiDataImportJobTest {
 			eq(Set.of(ExterneLeihstationenId.of("neu"), ExterneLeihstationenId.of("bleibt1_unveraendert"),
 				ExterneLeihstationenId.of("bleibt2_modifiziert"))),
 			eq(LeihstationQuellSystem.MOBIDATABW)))
-			.thenReturn(2);
+				.thenReturn(2);
 
 		// Act
 		Optional<JobStatistik> statisticOpt = job.doRun();
@@ -156,8 +156,8 @@ class LeihstationMobiDataImportJobTest {
 		// Assert
 		verify(leihstationRepository, times(3)).save(leihstationenCaptor.capture());
 		assertThat(leihstationenCaptor.getAllValues()).extracting(
-				leihstation -> leihstation.getExterneId().get().getValue(),
-				leihstation -> leihstation.getAnzahlFahrraeder().get().getValue())
+			leihstation -> leihstation.getExterneId().get().getValue(),
+			leihstation -> leihstation.getAnzahlFahrraeder().get().getValue())
 			.containsExactlyInAnyOrder(
 				Tuple.tuple("neu", 30),
 				Tuple.tuple("bleibt1_unveraendert", 10),

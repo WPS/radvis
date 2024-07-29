@@ -43,7 +43,7 @@ import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -58,7 +58,7 @@ class KonsistenzregelVerletzungsRepositoryTestIT extends DBIntegrationTestIT {
 		public KantenRepository kantenRepository;
 
 		@MockBean
-		public NetzklassenSackgassenService netzklassenSackgassenService;
+		public SackgassenService sackgassenService;
 
 		@MockBean
 		public JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
@@ -78,7 +78,8 @@ class KonsistenzregelVerletzungsRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Test
 	public void saveAndLoad() {
-		KonsistenzregelVerletzung konsistenzregelVerletzung = KonsistenzregelVerletzungTestdataProvider.defaultVerletzung()
+		KonsistenzregelVerletzung konsistenzregelVerletzung = KonsistenzregelVerletzungTestdataProvider
+			.defaultVerletzung()
 			.build();
 		assertThat(konsistenzregelVerletzung.getId()).isNull();
 		KonsistenzregelVerletzung saved = konsistenzregelVerletzungsRepository.save(konsistenzregelVerletzung);

@@ -22,17 +22,15 @@ export enum ServicestationQuellSystem {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ServicestationQuellSystem {
-  export const options: EnumOption[] = Object.keys(ServicestationQuellSystem).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case ServicestationQuellSystem.RADVIS:
-          return { name: k, displayText: 'RadVIS' };
-        case ServicestationQuellSystem.MOBIDATABW:
-          return { name: k, displayText: 'MobiDataBW' };
-      }
-      throw new Error('Beschreibung für enum AbstellanlagenQuellSystem fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(ServicestationQuellSystem).map((k: string): EnumOption => {
+    switch (k) {
+      case ServicestationQuellSystem.RADVIS:
+        return { name: k, displayText: 'RadVIS' };
+      case ServicestationQuellSystem.MOBIDATABW:
+        return { name: k, displayText: 'MobiDataBW' };
     }
-  );
+    throw new Error('Beschreibung für enum AbstellanlagenQuellSystem fehlt: ' + k);
+  });
 
   export const getDisplayText = (servicestationenQuellSystem: ServicestationQuellSystem): string => {
     const enumOption = options.find(({ name }) => name === servicestationenQuellSystem);

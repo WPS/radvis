@@ -304,8 +304,8 @@ class AttributProjektionsServiceSpecialCasesTest {
 
 		List<ZustaendigkeitAttribute> radnetzZustaendigkeitAttribute = List
 			.of(ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(0., 0.4)
-					.vereinbarungsKennung(VereinbarungsKennung.of("Erste zwei Fünftel"))
-					.build(),
+				.vereinbarungsKennung(VereinbarungsKennung.of("Erste zwei Fünftel"))
+				.build(),
 				ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(0.4, 0.6)
 					.vereinbarungsKennung(VereinbarungsKennung.of("Drittes Fünftel"))
 					.build(),

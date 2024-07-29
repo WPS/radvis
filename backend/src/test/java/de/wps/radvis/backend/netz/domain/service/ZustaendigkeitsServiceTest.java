@@ -58,8 +58,8 @@ class ZustaendigkeitsServiceTest {
 	public void testeMultipolygonBufferWorksCorrectly() {
 		MultiPolygon multiPolygonWithHoles = geometryFactory.createMultiPolygon(new Polygon[] {
 			geometryFactory.createPolygon(geometryFactory.createLinearRing(
-					new Coordinate[] { new Coordinate(10000, 10000), new Coordinate(10000, 20000),
-						new Coordinate(20000, 20000), new Coordinate(20000, 10000), new Coordinate(10000, 10000) }),
+				new Coordinate[] { new Coordinate(10000, 10000), new Coordinate(10000, 20000),
+					new Coordinate(20000, 20000), new Coordinate(20000, 10000), new Coordinate(10000, 10000) }),
 				new LinearRing[] {
 					geometryFactory.createLinearRing(
 						new Coordinate[] { new Coordinate(13000, 13000), new Coordinate(13000, 17000),
@@ -68,9 +68,9 @@ class ZustaendigkeitsServiceTest {
 			),
 
 			geometryFactory.createPolygon(geometryFactory.createLinearRing(
-					new Coordinate[] { new Coordinate(30000, 10000), new Coordinate(30000, 20000),
-						new Coordinate(40000, 20000), new Coordinate(40000, 10000),
-						new Coordinate(30000, 10000) }),
+				new Coordinate[] { new Coordinate(30000, 10000), new Coordinate(30000, 20000),
+					new Coordinate(40000, 20000), new Coordinate(40000, 10000),
+					new Coordinate(30000, 10000) }),
 				new LinearRing[] {
 					geometryFactory.createLinearRing(
 						new Coordinate[] { new Coordinate(33000, 13000), new Coordinate(33000, 17000),

@@ -130,7 +130,7 @@ export class RoutingProfileVerwaltenDialogComponent implements AfterViewInit, On
   }
 
   public onOpenHandbuch(): void {
-    this.manualRoutingService.openRoutingProfile();
+    this.manualRoutingService.openManualRoutingProfile();
   }
 
   private createProfileFormGroup(): UntypedFormGroup {

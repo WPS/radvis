@@ -44,6 +44,16 @@ import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectio
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Importiert D-Routen aus der konfigurierten Shapefile.
+ *
+ * Anforderungen an die Shapefile:
+ * <ol>
+ * <li>Die Geometrie ist ein zusammenhängender LineString pro D-Route.</li>
+ * <li>Das Feld "name" enthält den Namen der D-Route.</li>
+ * <li>Optional: Das Feld "id" enthält die Nummer der D-Route.</li>
+ * </ol>
+ */
 @Slf4j
 public class DRouteImportJob extends AbstractJob {
 	// Dieser Job Name sollte sich nicht mehr aendern, weil Controller und DB Eintraege den Namen verwenden
@@ -106,7 +116,7 @@ public class DRouteImportJob extends AbstractJob {
 
 				Fahrradroute fahrradroute = new Fahrradroute(
 					FahrradrouteName.of(drouteName),
-					this.getDRouteIDForName(drouteName),
+					this.getDRouteID(feature),
 					geometry,
 					KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 						.createPoint(geometry.getCoordinates()[0]),
@@ -123,7 +133,17 @@ public class DRouteImportJob extends AbstractJob {
 		return Optional.of(importStatistik);
 	}
 
-	private DrouteId getDRouteIDForName(String name) {
+	private DrouteId getDRouteID(SimpleFeature feature) {
+		// Alte Datensätze haben keine "id" Felder, da wandeln wir händisch den Namen in die D-Routen ID um.
+		Object routenIdObj = feature.getAttribute("id");
+		if (routenIdObj != null) {
+			String routenId = routenIdObj.toString().trim();
+			if (!routenId.isEmpty()) {
+				return DrouteId.of(routenId);
+			}
+		}
+
+		String name = feature.getAttribute("name").toString();
 		switch (name) {
 		case "Saar-Mosel-Main":
 			return DrouteId.of("5");

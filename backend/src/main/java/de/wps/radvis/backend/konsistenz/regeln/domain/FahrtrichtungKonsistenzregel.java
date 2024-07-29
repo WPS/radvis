@@ -30,9 +30,8 @@ import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 public class FahrtrichtungKonsistenzregel implements Konsistenzregel {
 	public static String VERLETZUNGS_TYP = "FAHRTRICHTUNG_AN_KNOTEN_GEGENSAETZLICH";
 	public static String TITEL = "Knoten mit gegensätzlicher Fahrtrichtung";
-	public static String BESCHREIBUNG =
-		"Die Einrichtungsführung könnte unplausibel sein. Dies kann zum Beispiel der Fall sein, weil mehrere Kanten"
-			+ " sich in einem Knoten treffen oder weil mehrere Kanten von diesem Knoten wegführen.";
+	public static String BESCHREIBUNG = "Die Einrichtungsführung könnte unplausibel sein. Dies kann zum Beispiel der Fall sein, weil mehrere Kanten"
+		+ " sich in einem Knoten treffen oder weil mehrere Kanten von diesem Knoten wegführen.";
 	private final KantenRepository kantenRepository;
 
 	public FahrtrichtungKonsistenzregel(KantenRepository kantenRepository) {
@@ -40,7 +39,8 @@ public class FahrtrichtungKonsistenzregel implements Konsistenzregel {
 	}
 
 	public enum RichtungAusKnotenPerspektive {
-		INCOMING, OUTGOING
+		INCOMING,
+		OUTGOING
 	}
 
 	@Override

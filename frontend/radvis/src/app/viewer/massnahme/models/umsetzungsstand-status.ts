@@ -24,21 +24,19 @@ export enum UmsetzungsstandStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace UmsetzungsstandStatus {
-  const options: EnumOption[] = Object.keys(UmsetzungsstandStatus).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case UmsetzungsstandStatus.NEU_ANGELEGT:
-          return { name: k, displayText: 'Neu angelegt' };
-        case UmsetzungsstandStatus.IMPORTIERT:
-          return { name: k, displayText: 'Importiert' };
-        case UmsetzungsstandStatus.AKTUALISIERT:
-          return { name: k, displayText: 'Aktualisiert' };
-        case UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT:
-          return { name: k, displayText: 'Aktualisierung angefordert' };
-      }
-      throw new Error('Beschreibung für enum UmsetzungsstandStatus fehlt: ' + k);
+  const options: EnumOption[] = Object.keys(UmsetzungsstandStatus).map((k: string): EnumOption => {
+    switch (k) {
+      case UmsetzungsstandStatus.NEU_ANGELEGT:
+        return { name: k, displayText: 'Neu angelegt' };
+      case UmsetzungsstandStatus.IMPORTIERT:
+        return { name: k, displayText: 'Importiert' };
+      case UmsetzungsstandStatus.AKTUALISIERT:
+        return { name: k, displayText: 'Aktualisiert' };
+      case UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT:
+        return { name: k, displayText: 'Aktualisierung angefordert' };
     }
-  );
+    throw new Error('Beschreibung für enum UmsetzungsstandStatus fehlt: ' + k);
+  });
 
   export const displayTextOf: (umsetzungsstandStatus: UmsetzungsstandStatus) => string = (
     umsetzungsstandStatus: UmsetzungsstandStatus

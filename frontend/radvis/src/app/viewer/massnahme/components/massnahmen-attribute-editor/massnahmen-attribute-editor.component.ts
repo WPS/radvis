@@ -214,9 +214,10 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     this.massnahmeService
       .saveMassnahme(command)
       .then((massnahme: Massnahme) => {
-        const umsetzungsstandabfrageAktualisieren =
+        let umsetzungsstandabfrageAktualisieren = false;
+        umsetzungsstandabfrageAktualisieren =
           this.currentMassnahme?.umsetzungsstatus !== massnahme.umsetzungsstatus &&
-          massnahme.konzeptionsquelle === Konzeptionsquelle.RADNETZ_MASSNAHME &&
+          Konzeptionsquelle.isRadNetzMassnahme(massnahme.konzeptionsquelle) &&
           (massnahme.umsetzungsstatus === Umsetzungsstatus.STORNIERT ||
             massnahme.umsetzungsstatus === Umsetzungsstatus.UMGESETZT);
 
@@ -252,7 +253,11 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   }
 
   get isRadNETZMassnahme(): boolean {
-    return this.currentMassnahme?.konzeptionsquelle === Konzeptionsquelle.RADNETZ_MASSNAHME;
+    if (this.currentMassnahme) {
+      return Konzeptionsquelle.isRadNetzMassnahme(this.currentMassnahme.konzeptionsquelle);
+    }
+
+    return false;
   }
 
   private resetForm(massnahme: Massnahme): void {
@@ -291,7 +296,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     this.formGroup.get('letzteAenderung')?.disable({ emitEvent: false });
     this.formGroup.get('benutzerLetzteAenderung')?.disable({ emitEvent: false });
 
-    if (massnahme.konzeptionsquelle === Konzeptionsquelle.RADNETZ_MASSNAHME) {
+    if (Konzeptionsquelle.isRadNetzMassnahme(massnahme.konzeptionsquelle)) {
       this.formGroup.get('konzeptionsquelle')?.disable({ emitEvent: false });
     } else {
       this.formGroup.get('konzeptionsquelle')?.enable({ emitEvent: false });
@@ -330,9 +335,9 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   private onKonzeptionsquelleChanged = (newValue: Konzeptionsquelle): void => {
     const sonstigeKonzeptionsquelleControl = this.formGroup.get('sonstigeKonzeptionsquelle') as AbstractControl;
     if (newValue === Konzeptionsquelle.SONSTIGE) {
-      sonstigeKonzeptionsquelleControl.setValidators(RadvisValidators.isNotNullOrEmpty);
+      sonstigeKonzeptionsquelleControl.addValidators(RadvisValidators.isNotNullOrEmpty);
     } else {
-      sonstigeKonzeptionsquelleControl.setValidators(null);
+      sonstigeKonzeptionsquelleControl.removeValidators(RadvisValidators.isNotNullOrEmpty);
     }
     sonstigeKonzeptionsquelleControl.updateValueAndValidity();
   };

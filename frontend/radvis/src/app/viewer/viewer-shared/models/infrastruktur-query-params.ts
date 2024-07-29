@@ -24,7 +24,10 @@ export class InfrastrukturenQueryParams extends AbstractQueryParams {
     return this._tabellenVisible;
   }
 
-  constructor(private _infrastrukturen: string[], private _tabellenVisible: boolean | null) {
+  constructor(
+    private _infrastrukturen: string[],
+    private _tabellenVisible: boolean | null
+  ) {
     super();
   }
 

@@ -151,16 +151,6 @@ public class CoordinateReferenceSystemConverterUtility {
 		}
 	}
 
-	public static Geometry tauscheLatLong(Geometry geometry) {
-		Geometry copy = geometry.copy();
-
-		for (Coordinate c : copy.getCoordinates()) {
-			c.setCoordinate(new Coordinate(c.y, c.x, c.z));
-		}
-
-		return copy;
-	}
-
 	private static MathTransform getMathTransform(CoordinateReferenceSystem sourceCrs,
 		CoordinateReferenceSystem zielCrs)
 		throws FactoryException {

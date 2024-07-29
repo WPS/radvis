@@ -12,9 +12,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { MassnahmenImportProtokollStats } from 'src/app/import/massnahmen/models/massnahmen-import-protokoll-stats';
 import { MassnahmenImportService } from 'src/app/import/massnahmen/services/massnahmen-import.service';
 import { MassnahmenImportRoutingService } from 'src/app/import/massnahmen/services/massnahmen-routing.service';
+import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 
 @Component({
   selector: 'rad-import-massnahmen-fehlerprotokoll-herunterladen',
@@ -24,15 +26,29 @@ import { MassnahmenImportRoutingService } from 'src/app/import/massnahmen/servic
 })
 export class ImportMassnahmenFehlerprotokollHerunterladenComponent {
   private static readonly STEP = 5;
+  protokollStats?: MassnahmenImportProtokollStats;
 
   constructor(
     private massnahmenImportService: MassnahmenImportService,
-    private massnahmenImportRoutingService: MassnahmenImportRoutingService
+    private massnahmenImportRoutingService: MassnahmenImportRoutingService,
+    private fileHandlingService: FileHandlingService,
+    changeDetector: ChangeDetectorRef
   ) {
-    const session$ = this.massnahmenImportService.getImportSession();
+    massnahmenImportService.getProtokollStats().subscribe(protokoll => {
+      this.protokollStats = protokoll;
+      changeDetector.markForCheck();
+    });
   }
 
-  onNext(): void {
-    this.massnahmenImportRoutingService.navigateToFirst();
+  onDownloadFehlerProtokoll(): void {
+    this.massnahmenImportService
+      .downloadFehlerprotokoll()
+      .subscribe(blob => this.fileHandlingService.downloadInBrowser(blob, 'import-protokoll.csv'));
+  }
+
+  onDone(): void {
+    this.massnahmenImportService.deleteImportSession().subscribe(() => {
+      this.massnahmenImportRoutingService.navigateToFirst();
+    });
   }
 }

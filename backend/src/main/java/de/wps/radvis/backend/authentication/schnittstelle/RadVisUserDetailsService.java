@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 
 import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
@@ -43,8 +44,23 @@ public class RadVisUserDetailsService implements UserDetailsService {
 		return potentialBenutzer.map(RadVisUserDetailsService::fromUser).orElse(new RadVisUserDetails(id));
 	}
 
+	public UserDetails loadUserByUsername(String serviceBwId, Saml2AuthenticatedPrincipal saml2AuthenticatedPrincipal) {
+		ServiceBwId id = ServiceBwId.of(serviceBwId);
+		Optional<Benutzer> potentialBenutzer = benutzerService.findBenutzerByServiceBwIdAndInitialize(id);
+
+		return potentialBenutzer.map(benutzer -> fromUser(benutzer, saml2AuthenticatedPrincipal
+			.getRelyingPartyRegistrationId(), saml2AuthenticatedPrincipal.getSessionIndexes()))
+			.orElse(new RadVisUserDetails(id, saml2AuthenticatedPrincipal.getRelyingPartyRegistrationId(),
+				saml2AuthenticatedPrincipal.getSessionIndexes()));
+	}
+
 	public static UserDetails fromUser(Benutzer benutzer) {
 		return new RadVisUserDetails(benutzer, createAuthorities(benutzer));
+	}
+
+	public static UserDetails fromUser(Benutzer benutzer, String relyingPartyRegistrationId,
+		List<String> sessionIndex) {
+		return new RadVisUserDetails(benutzer, createAuthorities(benutzer), relyingPartyRegistrationId, sessionIndex);
 	}
 
 	private static List<GrantedAuthority> createAuthorities(Benutzer benutzer) {

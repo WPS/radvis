@@ -17,6 +17,8 @@ package de.wps.radvis.backend.netz.domain.entity;
 import java.time.LocalDateTime;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
@@ -46,8 +48,8 @@ public class NetzBezugAenderung extends AbstractEntity {
 	private NetzAenderungAusloeser ausloeser;
 	private Geometry geometry;
 
-	public Geometry getIconPosition() {
-		return geometry.getCentroid();
+	public MultiPoint getIconPosition() {
+		return new MultiPoint(new Point[] { geometry.getCentroid() }, geometry.getFactory());
 	}
 
 	public Geometry getOriginalGeometry() {

@@ -14,27 +14,25 @@
 
 package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.schnittstelle.view;
 
-import java.io.File;
 import java.util.List;
 
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.entity.MassnahmenDateianhaengeImportZuordnung;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject.MassnahmenDateianhaengeImportZuordnungStatus;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject.MassnahmenDateianhaengeMappingHinweis;
-import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 
 public record MassnahmenDateianhaengeImportZuordnungView(
 	String ordnername,
 	Long massnahmeId,
 	MassnahmenDateianhaengeImportZuordnungStatus status,
-	List<String> dateien,
-	List<MassnahmenDateianhaengeMappingHinweis> hinweise
+	List<MassnahmenDateianhaengeImportDateiView> dateien,
+	MassnahmenDateianhaengeMappingHinweis hinweis
 ) {
 	public static MassnahmenDateianhaengeImportZuordnungView of(MassnahmenDateianhaengeImportZuordnung zuordnung) {
 		return new MassnahmenDateianhaengeImportZuordnungView(
 			zuordnung.getOrdnerName(),
-			zuordnung.getMassnahme().map(Massnahme::getId).orElse(null),
+			zuordnung.getMassnahmeId(),
 			zuordnung.getStatus(),
-			zuordnung.getDateien().stream().map(File::getName).toList(),
-			zuordnung.getHinweise());
+			zuordnung.getDateien().values().stream().map(MassnahmenDateianhaengeImportDateiView::of).toList(),
+			zuordnung.getHinweis().orElse(null));
 	}
 }

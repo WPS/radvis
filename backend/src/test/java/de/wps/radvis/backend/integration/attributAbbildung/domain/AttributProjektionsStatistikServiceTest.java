@@ -123,7 +123,7 @@ class AttributProjektionsStatistikServiceTest {
 		when(netzService
 			.getKantenInBereichMitNetzklassen(erweiterterEnvelopeFuerKonsistenzCheck, Set.of(NetzklasseFilter.RADNETZ),
 				false))
-			.thenReturn(alleRelevantenKanten);
+					.thenReturn(alleRelevantenKanten);
 
 		// act
 		statistikService.ueberpruefeTopologieDerNetzklassen(partition, idsBereitsAbgearbeitet, statistik, "");
@@ -161,7 +161,7 @@ class AttributProjektionsStatistikServiceTest {
 		when(netzService
 			.getKantenInBereichMitNetzklassen(erweiterterEnvelopeFuerKonsistenzCheck, Set.of(NetzklasseFilter.RADNETZ),
 				false))
-			.thenReturn(alleRelevantenKanten);
+					.thenReturn(alleRelevantenKanten);
 
 		// act
 		statistikService.ueberpruefeTopologieDerNetzklassen(partition, idsBereitsAbgearbeitet, statistik, "");
@@ -199,7 +199,7 @@ class AttributProjektionsStatistikServiceTest {
 		when(netzService
 			.getKantenInBereichMitNetzklassen(erweiterterEnvelopeFuerKonsistenzCheck, Set.of(NetzklasseFilter.RADNETZ),
 				false))
-			.thenReturn(alleRelevantenKanten);
+					.thenReturn(alleRelevantenKanten);
 
 		idsBereitsAbgearbeitet.add(kanteAmRandVonPartition.getId());
 
@@ -239,7 +239,7 @@ class AttributProjektionsStatistikServiceTest {
 		when(netzService
 			.getKantenInBereichMitNetzklassen(erweiterterEnvelopeFuerKonsistenzCheck, Set.of(NetzklasseFilter.RADNETZ),
 				false))
-			.thenReturn(alleRelevantenKanten);
+					.thenReturn(alleRelevantenKanten);
 
 		// act
 		statistikService.ueberpruefeTopologieDerNetzklassen(partition, idsBereitsAbgearbeitet, statistik, "");

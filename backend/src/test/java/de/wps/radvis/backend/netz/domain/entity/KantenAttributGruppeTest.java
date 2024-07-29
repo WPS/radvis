@@ -160,11 +160,11 @@ public class KantenAttributGruppeTest {
 			assertThatThrownBy(
 				() -> kantenAttributGruppe.update(kantenAttributGruppe.getNetzklassen(),
 					Set.of(IstStandard.STARTSTANDARD_RADNETZ), kantenAttributGruppe.kantenAttribute))
-				.isInstanceOf(RequireViolation.class);
+						.isInstanceOf(RequireViolation.class);
 			assertThatThrownBy(
 				() -> kantenAttributGruppe.update(kantenAttributGruppe.getNetzklassen(),
 					Set.of(IstStandard.ZIELSTANDARD_RADNETZ), kantenAttributGruppe.kantenAttribute))
-				.isInstanceOf(RequireViolation.class);
+						.isInstanceOf(RequireViolation.class);
 
 			assertThat(kantenAttributGruppe.getIstStandards()).isEmpty();
 			assertThat(kantenAttributGruppe.getNetzklassen()).containsExactlyInAnyOrder(Netzklasse.RADVORRANGROUTEN);
@@ -183,7 +183,7 @@ public class KantenAttributGruppeTest {
 				// act + assert
 				assertThatThrownBy(
 					() -> kantenAttributGruppe.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG))))
-					.isInstanceOf(RequireViolation.class);
+						.isInstanceOf(RequireViolation.class);
 
 				assertThat(kantenAttributGruppe.getIstStandards()).containsExactlyInAnyOrder(
 					IstStandard.STARTSTANDARD_RADNETZ);

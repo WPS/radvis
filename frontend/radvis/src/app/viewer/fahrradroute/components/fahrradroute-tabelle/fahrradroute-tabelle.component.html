@@ -23,15 +23,13 @@
     matSort
     #sort="matSort"
     [sort]="sort"
-    (changeBreakpointState)="onChangeBreakpointState($event)"
-  >
+    (changeBreakpointState)="onChangeBreakpointState($event)">
     <rad-export-button
       (export)="onExport($event)"
       [exporting]="exporting"
       [exportFormate]="exportFormate"
       class="action-buttons"
-      [isMenuItem]="isSmallViewport"
-    >
+      [isMenuItem]="isSmallViewport">
     </rad-export-button>
 
     <button
@@ -40,8 +38,7 @@
       [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
       queryParamsHandling="merge"
       routerLinkActive="activated"
-      *ngIf="isBenutzerBerechtigtFahrradroutenZuErstellen"
-    >
+      *ngIf="isBenutzerBerechtigtFahrradroutenZuErstellen">
       <mat-icon>add</mat-icon>
       Neu anlegen
     </button>
@@ -49,8 +46,7 @@
     <button
       class="action-buttons"
       [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-      (click)="onFilterReset()"
-    >
+      (click)="onFilterReset()">
       <mat-icon>filter_alt_off</mat-icon>
       Alle Filter zurücksetzen
     </button>
@@ -60,8 +56,7 @@
       class="action-buttons display-flex flex-row align-self-end"
       style="margin-left: auto"
       [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-      (click)="onRoutingProfileVerwalten()"
-    >
+      (click)="onRoutingProfileVerwalten()">
       <mat-icon>settings</mat-icon>
       Routing-Profile verwalten
     </button>

@@ -39,10 +39,9 @@ public class MehrdeutigeLinearReferenzierteAttributeException extends Mehrdeutig
 	@Override
 	public String getMessage() {
 
-		String additionalInfo = linearReferenzierterAbschnitt != null ?
-			String.format(" Die Projektion betrifft den Abschnitt %s auf der GrundnetzKante.",
-				linearReferenzierterAbschnitt) :
-			"";
+		String additionalInfo = linearReferenzierterAbschnitt != null ? String.format(
+			" Die Projektion betrifft den Abschnitt %s auf der GrundnetzKante.",
+			linearReferenzierterAbschnitt) : "";
 		return super.getMessage() + additionalInfo;
 	}
 }

@@ -25,26 +25,24 @@ export enum VerbleibendeDurchfahrtsbreite {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace VerbleibendeDurchfahrtsbreite {
-  export const options: EnumOption[] = Object.keys(VerbleibendeDurchfahrtsbreite).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case VerbleibendeDurchfahrtsbreite.KEINE_DURCHFAHRT_MOEGLICH:
-          return {
-            name: VerbleibendeDurchfahrtsbreite.KEINE_DURCHFAHRT_MOEGLICH,
-            displayText: 'keine Durchfahrt möglich',
-          };
-        case VerbleibendeDurchfahrtsbreite.KLEINER_130CM:
-          return { name: VerbleibendeDurchfahrtsbreite.KLEINER_130CM, displayText: '< 1,30 m' };
-        case VerbleibendeDurchfahrtsbreite.ZWISCHEN_130CM_160CM:
-          return { name: VerbleibendeDurchfahrtsbreite.ZWISCHEN_130CM_160CM, displayText: '1,30 m bis 1,60 m' };
-        case VerbleibendeDurchfahrtsbreite.ZWISCHEN_160CM_250CM:
-          return { name: VerbleibendeDurchfahrtsbreite.ZWISCHEN_160CM_250CM, displayText: '1,60 m bis 2,50 m' };
-        case VerbleibendeDurchfahrtsbreite.GROESSER_250CM:
-          return { name: VerbleibendeDurchfahrtsbreite.GROESSER_250CM, displayText: '> 2,50 m' };
-      }
-      throw new Error('Beschreibung für enum VerbleibendeDurchfahrtsbreite fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(VerbleibendeDurchfahrtsbreite).map((k: string): EnumOption => {
+    switch (k) {
+      case VerbleibendeDurchfahrtsbreite.KEINE_DURCHFAHRT_MOEGLICH:
+        return {
+          name: VerbleibendeDurchfahrtsbreite.KEINE_DURCHFAHRT_MOEGLICH,
+          displayText: 'keine Durchfahrt möglich',
+        };
+      case VerbleibendeDurchfahrtsbreite.KLEINER_130CM:
+        return { name: VerbleibendeDurchfahrtsbreite.KLEINER_130CM, displayText: '< 1,30 m' };
+      case VerbleibendeDurchfahrtsbreite.ZWISCHEN_130CM_160CM:
+        return { name: VerbleibendeDurchfahrtsbreite.ZWISCHEN_130CM_160CM, displayText: '1,30 m bis 1,60 m' };
+      case VerbleibendeDurchfahrtsbreite.ZWISCHEN_160CM_250CM:
+        return { name: VerbleibendeDurchfahrtsbreite.ZWISCHEN_160CM_250CM, displayText: '1,60 m bis 2,50 m' };
+      case VerbleibendeDurchfahrtsbreite.GROESSER_250CM:
+        return { name: VerbleibendeDurchfahrtsbreite.GROESSER_250CM, displayText: '> 2,50 m' };
     }
-  );
+    throw new Error('Beschreibung für enum VerbleibendeDurchfahrtsbreite fehlt: ' + k);
+  });
   // .sort((a, b) => a.displayText.toLowerCase().localeCompare(b.displayText.toLowerCase()));
 
   export const getDisplayText: (durchfahrtsbreite: VerbleibendeDurchfahrtsbreite) => string = (

@@ -43,7 +43,8 @@ import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-op
 })
 export class GroupedEnumDropdownControlComponent
   extends AbstractUndeterminedFormControl<string>
-  implements OnInit, OnChanges {
+  implements OnInit, OnChanges
+{
   @Input()
   groupedOptions: GroupedEnumOptions = {};
 

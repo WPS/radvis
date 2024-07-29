@@ -60,7 +60,7 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AttributeImportFormat;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
@@ -197,16 +197,16 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 
 		when(matchingService.matche(eq((LineString) importedFeature1SchneidetKanten0Und1.getDefaultGeometry()),
 			any())).thenReturn(
-			Optional
-				.of(new OsmMatchResult(ueberschneidung1,
-					List.of(OsmWayId.of(0L), OsmWayId.of(1L)))));
+				Optional
+					.of(new OsmMatchResult(ueberschneidung1,
+						List.of(OsmWayId.of(0L), OsmWayId.of(1L)))));
 
 		when(inMemoryKantenRepository.findKantenById(Set.of(0L, 1L))).thenReturn(
 			List.of(kante0, kante1));
 
 		when(matchingService.matche(eq((LineString) importedFeature2SchneidetKanten2.getDefaultGeometry()),
 			any())).thenReturn(
-			Optional.of(new OsmMatchResult(ueberschneidung2, List.of(OsmWayId.of(2L)))));
+				Optional.of(new OsmMatchResult(ueberschneidung2, List.of(OsmWayId.of(2L)))));
 
 		when(inMemoryKantenRepository.findKantenById(Set.of(2L))).thenReturn(
 			List.of(kante2));
@@ -281,12 +281,12 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 
 		when(matchingService.matche(eq(featureMapping.getImportedLineString()),
 			any())).thenReturn(
-			Optional.of(new OsmMatchResult(ueberschneidung1,
-				List.of(OsmWayId.of(0L), OsmWayId.of(1L), OsmWayId.of(2L)))));
+				Optional.of(new OsmMatchResult(ueberschneidung1,
+					List.of(OsmWayId.of(0L), OsmWayId.of(1L), OsmWayId.of(2L)))));
 
 		when(inMemoryKantenRepository.findKantenById(
 			Set.of(0L, 1L, 2L))).thenReturn(
-			Stream.of(kante0, kante1, null).collect(Collectors.toList()));
+				Stream.of(kante0, kante1, null).collect(Collectors.toList()));
 
 		Verwaltungseinheit organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.bereich(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100)).id(1L).build();
@@ -332,7 +332,7 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 		// act + assert
 		assertThatThrownBy(
 			() -> this.manuellerAttributeImportAbbildungsService.rematchFeaturemapping(featureMapping, organisation))
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 	}
 
 	@Nested
@@ -385,8 +385,8 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 			when(simpleMatchingService.matche(
 				eq(featureMapping.getImportedLineString()),
 				any())).thenReturn(
-				Optional.of(new OsmMatchResult(ueberschneidung1,
-					List.of(OsmWayId.of(0L), OsmWayId.of(1L), OsmWayId.of(2L)))));
+					Optional.of(new OsmMatchResult(ueberschneidung1,
+						List.of(OsmWayId.of(0L), OsmWayId.of(1L), OsmWayId.of(2L)))));
 
 			Verwaltungseinheit organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 				.bereich(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 18, 18)).id(1L).build();

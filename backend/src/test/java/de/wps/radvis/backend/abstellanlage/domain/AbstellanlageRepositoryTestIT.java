@@ -55,18 +55,22 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group1")
-@ContextConfiguration(classes = { AbstellanlageConfiguration.class, OrganisationConfiguration.class,
-	BenutzerConfiguration.class, DokumentConfiguration.class })
+@ContextConfiguration(classes = {
+	AbstellanlageConfiguration.class,
+	OrganisationConfiguration.class,
+	GeoConverterConfiguration.class,
+	BenutzerConfiguration.class,
+	DokumentConfiguration.class,
+})
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
 })
 @MockBeans({
-	@MockBean(GeoConverterConfiguration.class),
 	@MockBean(VerwaltungseinheitImportRepository.class),
 	@MockBean(ZustaendigkeitsService.class),
-	@MockBean(MailService.class)
+	@MockBean(MailService.class),
 })
 class AbstellanlageRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -159,8 +163,7 @@ class AbstellanlageRepositoryTestIT extends DBIntegrationTestIT {
 	@Test
 	void testFindByPositionAndQuellSystemRadVis() {
 		// act
-		assertThatNoException().isThrownBy(() ->
-			abstellanlageRepository.findByPositionAndQuellSystemRadVis(
-				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint()));
+		assertThatNoException().isThrownBy(() -> abstellanlageRepository.findByPositionAndQuellSystemRadVis(
+			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint()));
 	}
 }

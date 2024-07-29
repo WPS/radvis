@@ -26,8 +26,8 @@ import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierung
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { Umsetzungsstand } from 'src/app/viewer/massnahme/models/umsetzungsstand';
 import { UmsetzungsstandStatus } from 'src/app/viewer/massnahme/models/umsetzungsstand-status';
-import { KantenSeitenbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
-import { defaultNetzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug-test-data-provider.spec';
+import { KantenSeitenbezug } from 'src/app/shared/models/netzbezug';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 
 const eineTestOrga = {
   id: 5,
@@ -69,7 +69,7 @@ export const defaultMassnahme: Massnahme = {
             [5, 5],
           ],
         },
-        seitenbezug: KantenSeitenbezug.BEIDSEITIG,
+        kantenSeite: KantenSeitenbezug.BEIDSEITIG,
         linearReferenzierterAbschnitt: { von: 0, bis: 1 },
       },
     ],

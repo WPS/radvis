@@ -15,7 +15,9 @@
 package de.wps.radvis.backend.karte.schnittstelle;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.wps.radvis.backend.karte.domain.HintergrundKarteConfigurationProperties;
 import de.wps.radvis.backend.karte.domain.HintergrundKartenService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -36,9 +39,15 @@ import reactor.core.publisher.Mono;
 public class HintergrundKartenController {
 
 	private final HintergrundKartenService hintergrundKartenService;
+	private final Map<String, HintergrundKarteConfigurationProperties> hintergrundKarten;
+	private final String defaultHintergrundKarte;
 
 	public HintergrundKartenController(
-		@NonNull HintergrundKartenService hintergrundKartenService) {
+		@NonNull HintergrundKartenService hintergrundKartenService,
+		@NonNull Map<String, HintergrundKarteConfigurationProperties> hintergrundKarten,
+		@NonNull String defaultHintergrundKarte) {
+		this.defaultHintergrundKarte = defaultHintergrundKarte;
+		this.hintergrundKarten = hintergrundKarten;
 		this.hintergrundKartenService = hintergrundKartenService;
 	}
 
@@ -66,5 +75,13 @@ public class HintergrundKartenController {
 		params.add("crs", crs);
 
 		return hintergrundKartenService.getTileWMS(key, params).orElseThrow();
+	}
+
+	@GetMapping("layers")
+	public List<HintergrundKarteView> getLayers() {
+		return hintergrundKarten.entrySet().stream().map((entry) -> {
+			return new HintergrundKarteView(entry.getKey(), entry.getValue(),
+				defaultHintergrundKarte.equals(entry.getKey()));
+		}).collect(Collectors.toList());
 	}
 }

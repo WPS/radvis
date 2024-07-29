@@ -19,6 +19,7 @@ import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import jakarta.persistence.CascadeType;
@@ -47,6 +48,17 @@ public class DokumentListe extends AbstractEntity {
 
 	public void addDokument(Dokument dokument) {
 		require(dokument, notNullValue());
+		this.dokumente.add(dokument);
+	}
+
+	public void addOrReplaceDokumentWithEqualDateiname(Dokument dokument, boolean isDuplicate) {
+		require(dokument, notNullValue());
+		if (isDuplicate) {
+			Optional<Dokument> existingDokument = this.dokumente.stream()
+				.filter(dok -> dok.getDateiname().equals(dokument.getDateiname()))
+				.findFirst();
+			existingDokument.ifPresent(existing -> this.dokumente.remove(existing));
+		}
 		this.dokumente.add(dokument);
 	}
 

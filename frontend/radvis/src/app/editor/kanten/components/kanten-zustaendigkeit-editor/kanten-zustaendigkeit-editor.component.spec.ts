@@ -495,13 +495,8 @@ describe('KantenZustaendigkeitEditorComponent', () => {
 
       const [selektion]: KantenSelektion[] = component.currentSelektion || [];
 
-      const [
-        vonBis1,
-        vonBis2,
-        vonBis3,
-      ]: LinearReferenzierterAbschnitt[] = selektion.kante.zustaendigkeitAttributGruppe.zustaendigkeitAttribute.map(
-        a => a.linearReferenzierterAbschnitt
-      );
+      const [vonBis1, vonBis2, vonBis3]: LinearReferenzierterAbschnitt[] =
+        selektion.kante.zustaendigkeitAttributGruppe.zustaendigkeitAttribute.map(a => a.linearReferenzierterAbschnitt);
 
       expect(vonBis1).toEqual({ von: 0, bis: 0.3 } as LinearReferenzierterAbschnitt);
       expect(vonBis2).toEqual({ von: 0.3, bis: 0.7 } as LinearReferenzierterAbschnitt);

@@ -20,13 +20,11 @@
       <mat-icon class="search-icon mr-3" matPrefix>search</mat-icon>
       <button
         *ngIf="formControl.value?.length > 0"
-        [attr.aria-label]="'Eingabe zurücksetzen'"
         matTooltip="Eingabe zurücksetzen"
         (click)="onClearSearch()"
         matSuffix
         mat-icon-button
-        class="ml-3"
-      >
+        class="ml-3">
         <mat-icon>clear</mat-icon>
       </button>
     </mat-form-field>
@@ -35,8 +33,7 @@
       *ngIf="isBenutzerBerechtigtOrganisationZuErstellen"
       (click)="onCreate()"
       mat-stroked-button
-      class="action-buttons"
-    >
+      class="action-buttons">
       <mat-icon>add</mat-icon>
       Neu anlegen
     </button>
@@ -69,6 +66,5 @@
     [pageIndex]="page$ | async"
     [pageSize]="pageSize$ | async"
     showFirstLastButtons
-    [attr.aria-label]="'Seite wählen'"
-  ></mat-paginator>
+    [attr.aria-label]="'Seite wählen'"></mat-paginator>
 </div>

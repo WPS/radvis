@@ -43,7 +43,7 @@ public class CustomNetzfehlerRepositoryImpl implements CustomNetzfehlerRepositor
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT netzfehler FROM Netzfehler netzfehler")
+			"SELECT netzfehler FROM Netzfehler netzfehler")
 			.append(" WHERE")
 			.append(whereClauseFuerBereich())
 			.append(" AND netzfehler.erledigt = false");
@@ -62,7 +62,7 @@ public class CustomNetzfehlerRepositoryImpl implements CustomNetzfehlerRepositor
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT netzfehler FROM Netzfehler netzfehler")
+			"SELECT netzfehler FROM Netzfehler netzfehler")
 			.append(" WHERE").append(whereClauseFuerBereich())
 			.append(" AND netzfehler.netzfehlerTyp IN :netzfehlerTypen")
 			.append(" AND netzfehler.erledigt = false");

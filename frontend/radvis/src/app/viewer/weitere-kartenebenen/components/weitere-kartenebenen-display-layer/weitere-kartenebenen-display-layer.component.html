@@ -21,8 +21,7 @@
       [url]="layer.url"
       [zindex]="layer.zindex"
       [zoomstufe]="layer.zoomstufe"
-      [layerId]="layer.id"
-    ></rad-weitere-wms-kartenebenen>
+      [layerId]="layer.id"></rad-weitere-wms-kartenebenen>
   </ng-container>
   <ng-container *ngIf="isWFS(layer)">
     <rad-weitere-wfs-kartenebenen
@@ -33,7 +32,6 @@
       [name]="layer.name"
       [quelle]="layer.quellangabe"
       [url]="layer.url"
-      [zindex]="layer.zindex"
-    ></rad-weitere-wfs-kartenebenen>
+      [zindex]="layer.zindex"></rad-weitere-wfs-kartenebenen>
   </ng-container>
 </ng-container>

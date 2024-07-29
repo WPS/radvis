@@ -55,8 +55,8 @@ export class TransformAttributeDialogComponent {
       });
   }
 
-  openManualEditorTransformation(): void {
-    this.manualRoutingService.openManualEditorTransformation();
+  openManualImportTransformation(): void {
+    this.manualRoutingService.openManualImportTransformation();
   }
 
   private createForm(): UntypedFormGroup {

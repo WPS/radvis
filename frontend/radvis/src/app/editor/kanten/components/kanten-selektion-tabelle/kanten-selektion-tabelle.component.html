@@ -25,8 +25,7 @@
           (hover)="onTabelleHover($event, s.kante.id)"
           class="element"
           [class.hovered]="isHovered(s.kante.id)"
-          tabindex="0"
-        >
+          tabindex="0">
           <div class="display-flex align-items-center justify-content-center">
             <mat-checkbox [checked]="true" (click)="onSelect(s.kante.id)"></mat-checkbox>
           </div>
@@ -39,8 +38,7 @@
           (hover)="onTabelleHover($event, s.kante.id, LINKS)"
           class="element"
           [class.hovered]="isHovered(s.kante.id, LINKS)"
-          tabindex="0"
-        >
+          tabindex="0">
           <div class="display-flex align-items-center justify-content-center">
             <mat-checkbox (click)="onSelect(s.kante.id, LINKS)" [checked]="s.istSeiteSelektiert(LINKS)"></mat-checkbox>
           </div>
@@ -53,13 +51,11 @@
           (hover)="onTabelleHover($event, s.kante.id, RECHTS)"
           class="element"
           [class.hovered]="isHovered(s.kante.id, RECHTS)"
-          tabindex="0"
-        >
+          tabindex="0">
           <div class="display-flex align-items-center justify-content-center">
             <mat-checkbox
               [checked]="s.istSeiteSelektiert(RECHTS)"
-              (click)="onSelect(s.kante.id, RECHTS)"
-            ></mat-checkbox>
+              (click)="onSelect(s.kante.id, RECHTS)"></mat-checkbox>
           </div>
         </td>
       </tr>

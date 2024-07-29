@@ -71,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @deprecated RAD-6071: Das Zuständigkeitsfeld an Massnahmen ist ein Pflichtfeld. Der MappingService ist deprecated,
- * da er einen veralteten Import implementiert, der nicht mehr genutzt wird. Dieser ImportJob wird langfristig entfernt.
+ *     da er einen veralteten Import implementiert, der nicht mehr genutzt wird. Dieser ImportJob wird langfristig entfernt.
  */
 @Slf4j
 @Deprecated
@@ -328,7 +328,7 @@ public class MassnahmenImportJob extends AbstractJob {
 		require(seitenabschnittsKantenSeitenAbschnitte.stream()
 			.allMatch(abschnitt -> abschnitt.getSeitenbezug().equals(Seitenbezug.BEIDSEITIG)));
 		return AbschnittsweiserKantenSeitenBezug.groupByKante(seitenabschnittsKantenSeitenAbschnitte).values()
-			.stream().map(AbschnittsweiserKantenSeitenBezug::fasseIntersectionsZusammen).flatMap(List::stream)
+			.stream().map(AbschnittsweiserKantenSeitenBezug::fasseUeberlappendeBezuegeZusammen).flatMap(List::stream)
 			.collect(Collectors.toSet());
 	}
 

@@ -25,15 +25,18 @@
   flex-direction: column;
 }
 
-::ng-deep.import-step-footer-buttons {
+:host::ng-deep.import-step-footer-buttons {
   gap: 1rem;
   display: flex;
   flex-direction: row;
   padding: 1rem;
 }
 
-::ng-deep.import-step-footer-buttons > * {
+:host::ng-deep.import-step-footer-buttons > * {
   flex-grow: 1;
   flex-basis: 0;
 }
 
+:host::ng-deep.import-step-footer-buttons > button {
+  padding: 0px;
+}

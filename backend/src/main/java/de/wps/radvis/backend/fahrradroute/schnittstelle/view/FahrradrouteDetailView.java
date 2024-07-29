@@ -115,8 +115,8 @@ public class FahrradrouteDetailView {
 			.orElse(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID);
 
 		if (fahrradroute.getFahrradroutenMatchingAndRoutingInformation().isPresent()) {
-			FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation =
-				fahrradroute.getFahrradroutenMatchingAndRoutingInformation().get();
+			FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroute
+				.getFahrradroutenMatchingAndRoutingInformation().get();
 			this.routedOrMatchedGeometry = fahrradroutenMatchingAndRoutingInformation
 				.getRoutedOrMatchedGeometry().orElse(null);
 
@@ -124,8 +124,8 @@ public class FahrradrouteDetailView {
 				.getAbweichendeSegmente().orElse(null);
 			if (fahrradroutenMatchingAndRoutingInformation.getKehrtwenden().isPresent()) {
 				this.kehrtwenden = Arrays.stream(
-						fahrradroutenMatchingAndRoutingInformation.getKehrtwenden().get()
-							.getCoordinates())
+					fahrradroutenMatchingAndRoutingInformation.getKehrtwenden().get()
+						.getCoordinates())
 					.map(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()::createPoint)
 					.collect(Collectors.toList());
 			} else {

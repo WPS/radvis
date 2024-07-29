@@ -95,7 +95,7 @@ class LeihstationRepositoryTestIT extends DBIntegrationTestIT {
 	@Test
 	void findByPosition() {
 		Leihstation leihstation = leihstationRepository.save(LeihstationTestDataProvider.defaultLeihstation().geometrie(
-				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 100)))
+			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 100)))
 			.build());
 
 		entityManager.flush();
@@ -108,15 +108,15 @@ class LeihstationRepositoryTestIT extends DBIntegrationTestIT {
 
 		assertThat(leihstationRepository.findByPositionAndQuellSystemRadVis(
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(98.9, 100))))
-			.isEmpty();
+				.isEmpty();
 
 		assertThat(leihstationRepository.findByPositionAndQuellSystemRadVis(
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(100, 98.9))))
-			.isEmpty();
+				.isEmpty();
 
 		assertThat(leihstationRepository.findByPositionAndQuellSystemRadVis(
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(99.5, 99.5))))
-			.isNotEmpty();
+				.isNotEmpty();
 	}
 
 	@Test
@@ -159,7 +159,7 @@ class LeihstationRepositoryTestIT extends DBIntegrationTestIT {
 		// Act + Assert
 		assertThat(leihstationRepository.findByExterneIdAndQuellSystem(
 			ExterneLeihstationenId.of("MobiStation1"), LeihstationQuellSystem.MOBIDATABW))
-			.contains(mobiStation1);
+				.contains(mobiStation1);
 
 	}
 

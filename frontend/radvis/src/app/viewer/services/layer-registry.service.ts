@@ -92,7 +92,7 @@ export class LayerRegistryService {
     const fahrradrouteLayerEintrag: LayerEintrag = this.defaultInfrastrukturEintrag(
       FAHRRADROUTE,
       fahrradrouteRoutingService,
-      f => (f.id ? f.id : f.attribute.find(a => a.key === FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME)?.value)
+      f => (f.id ? f.id : f.attributes.get(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME))
     );
 
     const anpassungswunschLayerEintrag = this.defaultInfrastrukturEintrag(
@@ -153,32 +153,26 @@ export class LayerRegistryService {
       iconFileName: 'icon-kante',
       anzeigeNameFn: (): string => 'Kante',
       identityFn: (f: RadVisFeature): string => {
-        const selectedKanteId =
-          Number(f.attribute.find(attribut => attribut.key === FeatureProperties.KANTE_ID_PROPERTY_NAME)?.value) ||
-          f.id;
+        const selectedKanteId = Number(f.attributes.get(FeatureProperties.KANTE_ID_PROPERTY_NAME)) || f.id;
         invariant(selectedKanteId, 'Die selektierte Kante besitzt keine ID');
 
-        const selectedSeitenbezug =
-          f.attribute.find(attribut => attribut.key === FeatureProperties.SEITE_PROPERTY_NAME)?.value || '';
+        const selectedSeitenbezug = f.attributes.get(FeatureProperties.SEITE_PROPERTY_NAME) || '';
         return `${RADVIS_NETZ_LAYER_PREFIX}${selectedKanteId}${selectedSeitenbezug}`;
       },
       routeTo: (f: RadVisFeature, location?: Coordinate): void => {
         invariant(location, 'Die Klickposition muss mit übergeben werden.');
 
-        const selectedKanteId =
-          Number(f.attribute.find(attribut => attribut.key === FeatureProperties.KANTE_ID_PROPERTY_NAME)?.value) ||
-          f.id;
+        const selectedKanteId = Number(f.attributes.get(FeatureProperties.KANTE_ID_PROPERTY_NAME)) || f.id;
         invariant(selectedKanteId, 'Die selektierte Kante besitzt keine ID');
 
-        const selectedSeitenbezug = f.attribute.find(attribut => attribut.key === FeatureProperties.SEITE_PROPERTY_NAME)
-          ?.value;
+        const selectedSeitenbezug = f.attributes.get(FeatureProperties.SEITE_PROPERTY_NAME);
         return netzdetailRoutingService.toKanteDetails(selectedKanteId, location, selectedSeitenbezug);
       },
     };
 
     const weitereKartenebenenEintrag: LayerEintrag = {
       anzeigeNameFn: f => {
-        const layerId = f.attribute.find(attr => attr.key === WeitereKartenebene.LAYER_ID_KEY)?.value;
+        const layerId = f.attributes.get(WeitereKartenebene.LAYER_ID_KEY);
         let layerName;
         if (layerId) {
           layerName = weitereKartenebenenService.weitereKartenebenen.find(e => e.id === layerId)?.name;
@@ -188,10 +182,9 @@ export class LayerRegistryService {
       iconFileName: 'icon-externer-layer',
       identityFn: f => {
         return (
-          f.attribute.find(attr => attr.key === WeitereKartenebene.LAYER_ID_KEY)?.value +
+          f.attributes.get(WeitereKartenebene.LAYER_ID_KEY) +
           '/' +
-          (f.id ||
-            f.attribute.find(attr => attr.key === WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME)?.value)
+          (f.id || f.attributes.get(WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME))
         );
       },
       routeTo: f => {
@@ -243,12 +236,9 @@ export class LayerRegistryService {
     // Für Features mit weder id noch KanteId oder fahrradrouteId noch externeWmsFeatureId in den Attributen können keine Routen erstellt werden
     if (
       !f.id &&
-      !f.attribute.find(
-        a =>
-          a.key === WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME ||
-          a.key === FeatureProperties.KANTE_ID_PROPERTY_NAME ||
-          a.key === FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME
-      )?.value
+      !f.attributes.has(WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME) &&
+      !f.attributes.has(FeatureProperties.KANTE_ID_PROPERTY_NAME) &&
+      !f.attributes.has(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME)
     ) {
       return null;
     }
@@ -280,10 +270,8 @@ export class LayerRegistryService {
       anzeigeNameFn: anzeigeNameFn
         ? anzeigeNameFn
         : (f: RadVisFeature): string => {
-            const bezeichnungAttribut = f.attribute.find(
-              a => a.key === AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME
-            );
-            return bezeichnungAttribut ? bezeichnungAttribut.value : infrastruktur.displayName;
+            const bezeichnungAttribut = f.attributes.get(AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME);
+            return bezeichnungAttribut ? bezeichnungAttribut : infrastruktur.displayName;
           },
       identityFn: (f: RadVisFeature): string => {
         const id = idFromFeature(f);

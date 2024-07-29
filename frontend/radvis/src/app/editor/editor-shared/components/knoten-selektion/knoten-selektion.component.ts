@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input, NgZone, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Feature, MapBrowserEvent } from 'ol';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Geometry } from 'ol/geom';
@@ -33,6 +33,7 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { createVectorSource } from 'src/app/shared/services/vector-source.factory';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'rad-knoten-selektion',
@@ -57,6 +58,7 @@ export class KnotenSelektionComponent implements OnDestroy {
     private featureService: NetzausschnittService,
     public editorRoutingService: EditorRoutingService,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     netzklassenAuswahlService: NetzklassenAuswahlService
   ) {
     netzklassenAuswahlService.currentAuswahl$.subscribe(selectedNetzklassen => {
@@ -115,7 +117,7 @@ export class KnotenSelektionComponent implements OnDestroy {
     this.olMapService.addLayer(this.selektionLayer);
 
     this.subscriptions.push(
-      this.activatedRoute.url.subscribe(() => {
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
         this.refreshSelektionLayer();
       })
     );

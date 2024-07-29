@@ -47,6 +47,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
@@ -74,7 +75,6 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -297,8 +297,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 
 		Kante kanteDLMOhneRadNETZKlasseInnerhalbGemeinde = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 20))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		List<FuehrungsformAttribute> fuehrungsformAttribute = List.of(
 			FuehrungsformAttribute.builder()
@@ -318,47 +318,47 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		Kante kanteRadNETZMitBasisstandardInnerhalbGemeindeMitBaulasttraegerPlusRadverkehrsfuehrungAnteil0_4 = getKanteBuilder(
 			new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT), Set.of(IstStandard.BASISSTANDARD))
-			.zustaendigkeitAttributGruppe(
-				ZustaendigkeitAttributGruppeTestDataProvider
-					.withLeereGrundnetzAttribute()
-					.zustaendigkeitAttribute(
-						List.of(
-							ZustaendigkeitAttribute.builder()
-								.baulastTraeger(baulastTraeger)
-								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0., 0.4))
-								.build(),
-							ZustaendigkeitAttribute.builder()
-								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.4, 0.8))
-								.build(),
-							ZustaendigkeitAttribute.builder()
-								.baulastTraeger(baulastTraeger)
-								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
-								.build()))
+				.zustaendigkeitAttributGruppe(
+					ZustaendigkeitAttributGruppeTestDataProvider
+						.withLeereGrundnetzAttribute()
+						.zustaendigkeitAttribute(
+							List.of(
+								ZustaendigkeitAttribute.builder()
+									.baulastTraeger(baulastTraeger)
+									.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0., 0.4))
+									.build(),
+								ZustaendigkeitAttribute.builder()
+									.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.4, 0.8))
+									.build(),
+								ZustaendigkeitAttribute.builder()
+									.baulastTraeger(baulastTraeger)
+									.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.8, 1))
+									.build()))
+						.build())
+				.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.fuehrungsformAttributeLinks(fuehrungsformAttribute)
+					.fuehrungsformAttributeRechts(fuehrungsformAttribute)
 					.build())
-			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
-				.fuehrungsformAttributeLinks(fuehrungsformAttribute)
-				.fuehrungsformAttributeRechts(fuehrungsformAttribute)
-				.build())
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 		Kante kanteRadNETZMitBasisstandardInnerhalbGemeindeOhneBaulasttraeger = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 50), Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT),
 			Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 		Kante kanteRadNETZMitBasisstandardAusserhalbGemeinde = getKanteBuilder(new Coordinate(31, 10),
 			new Coordinate(40, 20), Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT),
 			Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.RadVis).dlmId(null)
-			.build();
+				.quelle(QuellSystem.RadVis).dlmId(null)
+				.build();
 		Kante kanteRadvisOhneRadNETZKLasseInnerhalbGmeinde = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 40))
-			.quelle(QuellSystem.RadVis).dlmId(null)
-			.build();
+				.quelle(QuellSystem.RadVis).dlmId(null)
+				.build();
 		Kante kanteRadvisMitRadNETZKLasseUndStandardInnerhalbGemeinde = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 40), Set.of(Netzklasse.RADNETZ_ALLTAG), Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.RadVis).dlmId(null)
-			.build();
+				.quelle(QuellSystem.RadVis).dlmId(null)
+				.build();
 
 		Kante kanteRadNETZAusserhalbGemeinde = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
 			.quelle(QuellSystem.RadVis).dlmId(null)
@@ -405,15 +405,15 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 			.build();
 		Kante kanteRadNETZMitRadNETZKlasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT), Collections.emptySet())
-			.quelle(QuellSystem.RadNETZ).dlmId(null)
-			.build();
+				.quelle(QuellSystem.RadNETZ).dlmId(null)
+				.build();
 		Kante kanteRadvisOhneRadNETZKLasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
 			.quelle(QuellSystem.RadVis).dlmId(null)
 			.build();
 		Kante kanteLGLMitRadNETZKLasse = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Set.of(Netzklasse.RADNETZ_ZIELNETZ), Collections.emptySet())
-			.quelle(QuellSystem.LGL).dlmId(null)
-			.build();
+				.quelle(QuellSystem.LGL).dlmId(null)
+				.build();
 
 		Kante kanteRadVis = getKanteBuilder(new Coordinate(31, 31), new Coordinate(40, 40))
 			.quelle(QuellSystem.RadVis).dlmId(null)
@@ -504,23 +504,23 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteQuelleRadNETZFreizeitUndAlltag = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT), Collections.emptySet())
-			.quelle(QuellSystem.RadVis).dlmId(null)
-			.build();
+				.quelle(QuellSystem.RadVis).dlmId(null)
+				.build();
 
 		Kante kanteQuelleRadNETZZielnetz = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ZIELNETZ), Collections.emptySet())
-			.quelle(QuellSystem.RadVis).dlmId(null)
-			.build();
+				.quelle(QuellSystem.RadVis).dlmId(null)
+				.build();
 
 		Kante kanteKreisNetzFreizeit = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Set.of(Netzklasse.KREISNETZ_FREIZEIT), Collections.emptySet())
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		Kante kanteKreisNetzAlltag = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Set.of(Netzklasse.KREISNETZ_ALLTAG), Collections.emptySet())
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		kantenRepository.save(kanteQuelleRadNETZFreizeitUndAlltag);
 		kantenRepository.save(kanteQuelleRadNETZZielnetz);
@@ -553,8 +553,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteRadNETZ = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Set.of(Netzklasse.RADNETZ_ALLTAG), Collections.emptySet())
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		Kante kanteNichtKlassifiziert = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
 			.quelle(QuellSystem.DLM)
@@ -585,18 +585,18 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteBasisstandardUndRadNETZStartstandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20),
 			Collections.emptySet(), Set.of(IstStandard.BASISSTANDARD, IstStandard.STARTSTANDARD_RADNETZ))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		Kante kanteBasisStandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20), Collections.emptySet(),
 			Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		Kante kanteRadvorrangrouten = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40),
 			Collections.emptySet(), Set.of(IstStandard.RADVORRANGROUTEN))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		Kante kanteKeinStandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
 			.quelle(QuellSystem.DLM)
@@ -633,8 +633,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Kante kanteBasisstandard = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 20), Collections.emptySet(),
 			Set.of(IstStandard.BASISSTANDARD))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		Kante kanteOhneStandards = getKanteBuilder(new Coordinate(1, 10), new Coordinate(2, 40))
 			.quelle(QuellSystem.DLM)
@@ -913,8 +913,8 @@ class AuswertungRepositoryImplTestIT extends DBIntegrationTestIT {
 	void testGetKmAnzahl_Fuehrungsform() {
 		Kante kanteOhneFuehrungsformAttribute = getKanteBuilder(new Coordinate(1, 10),
 			new Coordinate(2, 20))
-			.quelle(QuellSystem.DLM)
-			.build();
+				.quelle(QuellSystem.DLM)
+				.build();
 
 		List<FuehrungsformAttribute> fuehrungsformAsphaltUndBegegnungszone0_2 = List.of(
 			FuehrungsformAttribute.builder()

@@ -74,7 +74,7 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
   protected initServiceSubscriptions(): void {
     this.subscriptions.push(
       this.filterService.filteredList$.subscribe(list => {
-        const features = ([] as Feature[]).concat(...list.map(infrastruktur => this.convertToFeature(infrastruktur)));
+        const features = list.flatMap(infrastruktur => this.convertToFeature(infrastruktur));
         this.vectorSource.clear(true);
         this.vectorSource.addFeatures(features);
         if (this.selectedId) {

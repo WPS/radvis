@@ -28,7 +28,9 @@ import lombok.Getter;
 @Getter
 public class SecurityConfigurationProperties {
 
-	public final boolean disableSAML;
+	public final boolean localAuthSetup;
+	public final String localAuthSuccessUrl;
+
 	public final String serviceBwIdKey;
 
 	private final String ACS;
@@ -36,27 +38,25 @@ public class SecurityConfigurationProperties {
 	private final String externerApiUserName;
 	private final String externerApiUserPassword;
 
-	private final String radRoutenplanerIP;
-
 	private final String prometheusWhitelistIP;
 
 	@ConstructorBinding
-	public SecurityConfigurationProperties(boolean disableSAML,
+	public SecurityConfigurationProperties(boolean localAuthSetup,
+		String localAuthSuccessUrl,
 		String ACS,
 		String externerApiUserName,
 		String externerApiUserPassword,
-		String radRoutenplanerIP,
 		String prometheusWhitelistIP,
 		String serviceBwIdKey
 	) {
 		require(ACS, notNullValue());
 		require(externerApiUserName, notNullValue());
 		require(externerApiUserPassword, notNullValue());
-		this.disableSAML = disableSAML;
+		this.localAuthSetup = localAuthSetup;
+		this.localAuthSuccessUrl = localAuthSuccessUrl;
 		this.ACS = ACS;
 		this.externerApiUserName = externerApiUserName;
 		this.externerApiUserPassword = externerApiUserPassword;
-		this.radRoutenplanerIP = radRoutenplanerIP;
 		this.prometheusWhitelistIP = prometheusWhitelistIP;
 		this.serviceBwIdKey = serviceBwIdKey;
 	}

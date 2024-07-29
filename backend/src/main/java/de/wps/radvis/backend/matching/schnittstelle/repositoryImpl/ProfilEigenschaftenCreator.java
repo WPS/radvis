@@ -61,19 +61,19 @@ public class ProfilEigenschaftenCreator {
 
 	/**
 	 * @param gematchedteGeometrie
-	 * 	in WGS84
-	 * 	WICHTIG: Graphhopper arbeitet mit Lat/Lon vertauscht vs unser System
-	 * 	(siehe GraphhopperRoutingRepository.extrahiereLinestring - tauscht Koordinaten um) und hier arbeiten wir mit
-	 * 	dem Graphhopper Model - entsprechend muss auch der LineString aussehen
+	 *     in WGS84
+	 *     WICHTIG: Graphhopper arbeitet mit Lat/Lon vertauscht vs unser System
+	 *     (siehe GraphhopperRoutingRepository.extrahiereLinestring - tauscht Koordinaten um) und hier arbeiten wir mit
+	 *     dem Graphhopper Model - entsprechend muss auch der LineString aussehen
 	 * @param fractionIndexedLine
-	 * 	sollte gematchedteGeometrie enthalten - wird nur aus performance Gründen übergeben
+	 *     sollte gematchedteGeometrie enthalten - wird nur aus performance Gründen übergeben
 	 */
 	public static LinearReferenzierteProfilEigenschaften createLinearReferenzierteProfilEigenschaften(
 		DlmMatchedGraphHopper graphHopper, LineString gematchedteGeometrie, FractionIndexedLine fractionIndexedLine,
 		PathDetail pathDetail) {
 		Integer edgeId = (Integer) pathDetail.getValue();
-		SeitenbezogeneProfilEigenschaften
-			seitenbezogeneProfilEigenschaften = graphHopper.getGraphHopperEdgesAufProfilEigenschaften()
+		SeitenbezogeneProfilEigenschaften seitenbezogeneProfilEigenschaften = graphHopper
+			.getGraphHopperEdgesAufProfilEigenschaften()
 			.get(edgeId);
 		Coordinate coordinateVon = gematchedteGeometrie.getCoordinates()[pathDetail.getFirst()];
 		double von = fractionIndexedLine.getFractionAtIndex(pathDetail.getFirst());
@@ -88,17 +88,14 @@ public class ProfilEigenschaftenCreator {
 			.getEdgeIteratorState(edgeId, Integer.MIN_VALUE).fetchWayGeometry(FetchMode.ALL)
 			.toLineString(false);
 
-		boolean inOrder =
-			lineString.getStartPoint().getCoordinate().equals(coordinateVon) || lineString.getEndPoint()
-				.getCoordinate().equals(coordinateBis);
+		boolean inOrder = lineString.getStartPoint().getCoordinate().equals(coordinateVon) || lineString.getEndPoint()
+			.getCoordinate().equals(coordinateBis);
 
 		return new LinearReferenzierteProfilEigenschaften(FahrradrouteProfilEigenschaften.of(
-			inOrder ?
-				seitenbezogeneProfilEigenschaften.getBelagArtRechts() :
-				seitenbezogeneProfilEigenschaften.getBelagArtLinks(),
-			inOrder ?
-				seitenbezogeneProfilEigenschaften.getRadverkehrsfuehrungRechts() :
-				seitenbezogeneProfilEigenschaften.getRadverkehrsfuehrungLinks()),
+			inOrder ? seitenbezogeneProfilEigenschaften.getBelagArtRechts() : seitenbezogeneProfilEigenschaften
+				.getBelagArtLinks(),
+			inOrder ? seitenbezogeneProfilEigenschaften.getRadverkehrsfuehrungRechts()
+				: seitenbezogeneProfilEigenschaften.getRadverkehrsfuehrungLinks()),
 			LinearReferenzierterAbschnitt.of(von, bis));
 	}
 

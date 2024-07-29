@@ -54,6 +54,7 @@ import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
@@ -84,7 +85,6 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -174,7 +174,6 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.umsetzungsstand(umsetzungsstand)
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
@@ -256,11 +255,11 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 		gebietskoerperschaftRepository.save(gebietskoerperschaft);
 
 		Kante kanteVollstaendigInnerhalb = KanteTestDataProvider.withCoordinatesAndQuelle(100, 100, 200, 200,
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		Kante kanteTeilweiseInnerhalb = KanteTestDataProvider.withCoordinatesAndQuelle(200, 200, 400, 400,
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		Kante kanteAusserhalb = KanteTestDataProvider.withCoordinatesAndQuelle(400, 400, 600, 600, QuellSystem.DLM)
@@ -681,7 +680,6 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.umsetzungsstand(umsetzungsstand)
 			.benutzerLetzteAenderung(
 				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)

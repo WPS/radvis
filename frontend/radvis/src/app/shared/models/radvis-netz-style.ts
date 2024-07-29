@@ -20,7 +20,7 @@ import { StyleFunction } from 'ol/style/Style';
 import { isArray } from 'rxjs/internal-compatibility';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { LineStringShifter } from 'src/app/shared/services/line-string-shifter';
 
 const STROKE_WIDTH_IN_PIXEL = 4;
@@ -31,14 +31,21 @@ const defaultPointLargeStyle = new Style({
 });
 
 export const shiftFeature = (feature: FeatureLike, resolution: number, gapWidth: number): LineString => {
-  const isLeft: boolean = feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.LINKS;
-  let shiftDistanceInPixel = STROKE_WIDTH_IN_PIXEL / 2 + gapWidth / 2;
-  shiftDistanceInPixel = isLeft ? -shiftDistanceInPixel : shiftDistanceInPixel;
-  return LineStringShifter.shiftLineStringByPixel(
-    feature.getGeometry() as LineString,
-    shiftDistanceInPixel,
-    resolution
-  );
+  const shiftDistanceInPixel = STROKE_WIDTH_IN_PIXEL / 2 + gapWidth / 2;
+  let featureShift;
+  const seiteProperty = feature.get(FeatureProperties.SEITE_PROPERTY_NAME);
+  switch (seiteProperty) {
+    case KantenSeite.LINKS:
+      featureShift = -shiftDistanceInPixel;
+      break;
+    case KantenSeite.RECHTS:
+      featureShift = shiftDistanceInPixel;
+      break;
+    default:
+      featureShift = 0;
+      break;
+  }
+  return LineStringShifter.shiftLineStringByPixel(feature.getGeometry() as LineString, featureShift, resolution);
 };
 
 export const getRadvisNetzStyleFunction = (kantenStyle?: StyleFunction, pointStyle?: StyleFunction) => {

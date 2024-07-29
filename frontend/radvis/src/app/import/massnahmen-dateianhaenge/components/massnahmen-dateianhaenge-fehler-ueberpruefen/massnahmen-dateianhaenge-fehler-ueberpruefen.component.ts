@@ -29,7 +29,7 @@ export interface MassnahmenDateianhaengeFehlerUeberpruefenRow {
   rowspan: number;
   hide: boolean;
   datei: string;
-  hinweise: MassnahmenDateianhaengeMappingHinweis[];
+  hinweis: MassnahmenDateianhaengeMappingHinweis | null;
 }
 
 @Component({
@@ -44,6 +44,7 @@ export class MassnahmenDateianhaengeFehlerUeberpruefenComponent {
   dataSource: MatTableDataSource<MassnahmenDateianhaengeFehlerUeberpruefenRow>;
   displayedColumns = ['ordner', 'datei', 'fehler'];
 
+  session: MassnahmenDateianhaengeImportSessionView;
   canContinue = false;
 
   constructor(
@@ -51,10 +52,12 @@ export class MassnahmenDateianhaengeFehlerUeberpruefenComponent {
     private routingService: MassnahmenDateianhaengeRoutingService,
     route: ActivatedRoute
   ) {
-    const session: MassnahmenDateianhaengeImportSessionView = route.snapshot.data.session;
-    this.canContinue = session.zuordnungen.some(z => z.status === MassnahmenDateianhaengeZuordnungStatus.GEMAPPT);
+    this.session = route.snapshot.data.session;
+    this.canContinue = this.session.zuordnungen.some(
+      z => z.status === MassnahmenDateianhaengeZuordnungStatus.ZUGEORDNET
+    );
     this.dataSource = new MatTableDataSource<MassnahmenDateianhaengeFehlerUeberpruefenRow>(
-      this.convertZuordnungen(session.zuordnungen)
+      this.convertZuordnungen(this.session.zuordnungen)
     );
   }
 
@@ -67,6 +70,10 @@ export class MassnahmenDateianhaengeFehlerUeberpruefenComponent {
   }
 
   onNext(): void {
+    if (this.session.schritt > MassnahmenDateianhaengeFehlerUeberpruefenComponent.STEP) {
+      this.routingService.navigateToNext(MassnahmenDateianhaengeFehlerUeberpruefenComponent.STEP);
+      return;
+    }
     this.service
       .continueAfterFehlerUeberpruefen()
       .subscribe(() => this.routingService.navigateToNext(MassnahmenDateianhaengeFehlerUeberpruefenComponent.STEP));
@@ -79,7 +86,7 @@ export class MassnahmenDateianhaengeFehlerUeberpruefenComponent {
       const base: MassnahmenDateianhaengeFehlerUeberpruefenRow = {
         ordnername: next.ordnername,
         datei: '-',
-        hinweise: next.hinweise,
+        hinweis: next.hinweis,
         rowspan: next.dateien.length || 1,
         hide: false,
       };
@@ -90,7 +97,7 @@ export class MassnahmenDateianhaengeFehlerUeberpruefenComponent {
         const datei = next.dateien[i];
         current.push({
           ...base,
-          datei: datei,
+          datei: datei.dateiname,
           hide: i > 0,
         });
       }

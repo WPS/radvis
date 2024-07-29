@@ -20,8 +20,11 @@ import lombok.NonNull;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum RadverkehrsfuehrungKategorie {
-	SELBSTSTAENDIG("Selbstständig"), STRASSENBEGLEITEND("Straßenbegleitend"), FAHRBAHNFUEHRUNG(
-		"Fahrbahnführung"), UNBEKANNT("Unbekannt");
+	SELBSTSTAENDIG("Selbstständig"),
+	STRASSENBEGLEITEND("Straßenbegleitend"),
+	FAHRBAHNFUEHRUNG(
+		"Fahrbahnführung"),
+	UNBEKANNT("Unbekannt");
 
 	@NonNull
 	private String displayText;

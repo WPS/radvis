@@ -65,6 +65,7 @@ import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.netz.domain.KanteResolver;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import lombok.NonNull;
@@ -95,6 +96,8 @@ public class FahrradrouteConfiguration {
 
 	@NonNull
 	private CommonConfigurationProperties commonConfigurationProperties;
+	@NonNull
+	private SackgassenService sackgassenService;
 
 	public FahrradrouteConfiguration(
 		@NonNull GeoConverterConfiguration geoConverterConfiguration,
@@ -104,7 +107,8 @@ public class FahrradrouteConfiguration {
 		@NonNull BenutzerResolver benutzerResolver,
 		@NonNull KanteResolver kanteResolver,
 		@NonNull ZustaendigkeitsService zustaendigkeitsService,
-		@NonNull VerwaltungseinheitService verwaltungseinheitService) {
+		@NonNull VerwaltungseinheitService verwaltungseinheitService,
+		@NonNull SackgassenService sackgassenService) {
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
 		this.commonConfigurationProperties = commonConfigurationProperties;
@@ -115,6 +119,7 @@ public class FahrradrouteConfiguration {
 		this.kanteResolver = kanteResolver;
 		this.zustaendigkeitsService = zustaendigkeitsService;
 		this.verwaltungseinheitService = verwaltungseinheitService;
+		this.sackgassenService = sackgassenService;
 
 		if (commonConfigurationProperties.getProxyAdress() != null) {
 			Proxy proxy = new Proxy(Proxy.Type.HTTP,
@@ -160,7 +165,8 @@ public class FahrradrouteConfiguration {
 	public FahrradrouteService fahrradrouteService() {
 		return new FahrradrouteService(fahrradrouteRepository, fahrradrouteViewRepository,
 			org.springframework.data.util.Lazy.of(() -> graphhopperRoutingRepository),
-			fahrradrouteNetzBezugAenderungRepository, jobExecutionDescriptionRepository, benutzerService);
+			fahrradrouteNetzBezugAenderungRepository, jobExecutionDescriptionRepository, benutzerService,
+			sackgassenService);
 	}
 
 	@Bean

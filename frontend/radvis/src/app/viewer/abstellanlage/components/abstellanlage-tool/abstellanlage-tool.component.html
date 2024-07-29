@@ -17,27 +17,15 @@
     <h2 class="flex-grow">Abstellanlage</h2>
     <button
       *ngIf="abstellanlage.darfBenutzerBearbeiten"
-      [attr.aria-label]="'Abstellanlage löschen'"
       matTooltip="Abstellanlage löschen"
       (click)="onDeleteAbstellanlage()"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon>delete</mat-icon>
     </button>
-    <button
-      [attr.aria-label]="'Zur Position der Abstellanlage springen'"
-      matTooltip="Zur Position der Abstellanlage springen"
-      (click)="focusAbstellanlageIntoView()"
-      mat-icon-button
-    >
+    <button matTooltip="Zur Position der Abstellanlage springen" (click)="focusAbstellanlageIntoView()" mat-icon-button>
       <mat-icon>my_location</mat-icon>
     </button>
-    <button
-      [attr.aria-label]="'Abstellanlage-Editor schließen'"
-      matTooltip="Abstellanlage-Editor schließen"
-      (click)="onClose()"
-      mat-icon-button
-    >
+    <button matTooltip="Abstellanlage-Editor schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </mat-toolbar>
@@ -51,8 +39,7 @@
       [active]="rlaEigenschaften.isActive"
       routerLinkActive
       #rlaEigenschaften="routerLinkActive"
-      class="nav-bar-item"
-    >
+      class="nav-bar-item">
       Eigenschaften
     </a>
     <a
@@ -63,8 +50,7 @@
       [routerLink]="dateiRoute"
       [routerLinkActiveOptions]="routerLinkActiveOptions"
       [active]="rlaDateien.isActive"
-      class="nav-bar-item"
-    >
+      class="nav-bar-item">
       Dateien
     </a>
   </nav>

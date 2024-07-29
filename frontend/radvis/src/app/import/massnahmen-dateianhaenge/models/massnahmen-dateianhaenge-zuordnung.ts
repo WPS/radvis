@@ -16,14 +16,20 @@ export interface MassnahmenDateianhaengeZuordnung {
   ordnername: string;
   massnahmeId: number | null;
   status: MassnahmenDateianhaengeZuordnungStatus;
-  dateien: string[];
-  hinweise: MassnahmenDateianhaengeMappingHinweis[];
+  dateien: MassnahmenDateianhaengeImportDatei[];
+  hinweis: MassnahmenDateianhaengeMappingHinweis | null;
 }
 
 export enum MassnahmenDateianhaengeZuordnungStatus {
-  GEMAPPT = 'GEMAPPT',
+  ZUGEORDNET = 'ZUGEORDNET',
   IGNORIERT = 'IGNORIERT',
   FEHLERHAFT = 'FEHLERHAFT',
+}
+
+export interface MassnahmenDateianhaengeImportDatei {
+  dateiname: string;
+  isDuplicate: boolean;
+  isSelected: boolean;
 }
 
 export interface MassnahmenDateianhaengeMappingHinweis {

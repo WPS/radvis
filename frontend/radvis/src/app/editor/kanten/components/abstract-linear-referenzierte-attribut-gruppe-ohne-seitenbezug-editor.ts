@@ -19,7 +19,7 @@ import { VersionierteEntitaet } from 'src/app/shared/models/versionierte-entitae
 
 export abstract class AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor<
   A extends LinearReferenzierteAttribute,
-  AG extends VersionierteEntitaet
+  AG extends VersionierteEntitaet,
 > extends AbstractLinearReferenzierteAttributGruppeEditor<A, AG> {
   public onInsertAtIndex(kantenIndex: number, segmentIndex: number): void {
     const arrayToChange = this.getAttributeFromAttributGruppe(this.currentAttributgruppen[kantenIndex]);

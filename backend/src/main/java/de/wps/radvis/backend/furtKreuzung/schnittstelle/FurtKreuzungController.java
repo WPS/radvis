@@ -57,7 +57,8 @@ public class FurtKreuzungController {
 	private final BenutzerResolver benutzerResolver;
 
 	public FurtKreuzungController(FurtKreuzungRepository furtKreuzungRepository,
-		SaveFurtKreuzungCommandConverter createFurtKreuzungCommandConverter, FurtKreuzungService furtKreuzungService,
+		SaveFurtKreuzungCommandConverter createFurtKreuzungCommandConverter,
+		FurtKreuzungService furtKreuzungService,
 		FurtKreuzungGuard furtKreuzungGuard, BenutzerResolver benutzerResolver) {
 		this.furtKreuzungRepository = furtKreuzungRepository;
 		this.saveFurtKreuzungCommandConverter = createFurtKreuzungCommandConverter;

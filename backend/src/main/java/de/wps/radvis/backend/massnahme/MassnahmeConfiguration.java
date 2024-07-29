@@ -151,8 +151,8 @@ public class MassnahmeConfiguration {
 
 	@Bean
 	public SaveMassnahmeCommandConverter saveMassnahmeCommandConverter() {
-		return new SaveMassnahmeCommandConverter(kantenUndKnotenResolver, verwaltungseinheitService, benutzerResolver,
-			kantenUndKnotenResolver);
+		return new SaveMassnahmeCommandConverter(kantenUndKnotenResolver, kantenUndKnotenResolver,
+			verwaltungseinheitService, benutzerResolver);
 	}
 
 	@Bean

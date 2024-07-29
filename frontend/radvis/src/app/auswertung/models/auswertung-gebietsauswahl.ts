@@ -21,15 +21,13 @@ export enum AuswertungGebietsauswahl {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AuswertungGebietsauswahl {
-  export const options: EnumOption[] = Object.keys(AuswertungGebietsauswahl).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT:
-          return { name: k, displayText: 'Gebietskörperschaft' };
-        case AuswertungGebietsauswahl.WAHLKREIS:
-          return { name: k, displayText: 'Wahlkreis' };
-      }
-      throw new Error('Beschreibung für enum AuswertungGebietsauswahl fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(AuswertungGebietsauswahl).map((k: string): EnumOption => {
+    switch (k) {
+      case AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT:
+        return { name: k, displayText: 'Gebietskörperschaft' };
+      case AuswertungGebietsauswahl.WAHLKREIS:
+        return { name: k, displayText: 'Wahlkreis' };
     }
-  );
+    throw new Error('Beschreibung für enum AuswertungGebietsauswahl fehlt: ' + k);
+  });
 }

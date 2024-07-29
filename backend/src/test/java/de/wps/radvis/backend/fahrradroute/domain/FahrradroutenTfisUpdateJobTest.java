@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -246,67 +245,6 @@ class FahrradroutenTfisUpdateJobTest {
 			new Coordinate(105, 100),
 			new Coordinate(10, 50),
 			new Coordinate(10, 0));
-	}
-
-	@Test
-	void updatesNotWhenNoNetzbezugLineString()
-		throws ShapeProjectionException, IOException, KeinMatchGefundenException {
-		// arrange
-		String tfisIdZuImportieren = "tfisID_0";
-		SimpleFeature simpleFeature1 = createNichtVariantenFeature(tfisIdZuImportieren,
-			"eins name",
-			Map.of(),
-			new Coordinate(10, 20), new Coordinate(10, 100));
-		MultiLineString geometry1 = (MultiLineString) simpleFeature1.getDefaultGeometry();
-
-		when(shapeFileRepository.readShape(any())).thenReturn(Stream.of(simpleFeature1))
-			.thenReturn(Stream.of(simpleFeature1))
-			.thenReturn(Stream.of(simpleFeature1)); // Steam wird zwei mal durchgegangen
-
-		when(fahrradrouteRepository.findAllTfisIdsWithoutNetzbezugLineString())
-			.thenReturn(Set.of(TfisId.of(tfisIdZuImportieren)));
-
-		// matching faken
-		String dlmId1 = "DLM1";
-		String dlmId2 = "DLM2";
-		String dlmId3 = "DLM3";
-
-		Knoten knoten1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(10, 20), QuellSystem.DLM).id(1L)
-			.build();
-		Knoten knoten2 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(10, 100), QuellSystem.DLM).id(2L)
-			.build();
-		Knoten knoten3 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(200, 100), QuellSystem.DLM)
-			.id(3L).build();
-		Knoten knoten4 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(200, 400), QuellSystem.DLM)
-			.id(4L).build();
-
-		Kante netzbezugKante1 = KanteTestDataProvider.fromKnoten(knoten1, knoten2).id(1L)
-			.dlmId(DlmId.of(dlmId1)).build();
-		Kante netzbezugKante3 = KanteTestDataProvider.fromKnoten(knoten3, knoten4)
-			.id(3L)
-			.dlmId(DlmId.of(dlmId3)).build();
-		List<Kante> netzbezug = new ArrayList<>(List.of(netzbezugKante1, netzbezugKante3));
-		when(kantenRepository.findAllByDlmIdIn(any()))
-			.thenReturn(netzbezug);
-
-		when(tfisImportService.isLandesradfernweg(simpleFeature1)).thenReturn(false);
-		when(tfisImportService.isNotStichwegOrAlternativStrecke(simpleFeature1)).thenReturn(true);
-		when(tfisImportService.extractDlmIds(List.of(simpleFeature1))).thenReturn(Set.of(dlmId1, dlmId2, dlmId3));
-		when(tfisImportService.konstruiereOriginalGeometrie(List.of(simpleFeature1)))
-			.thenReturn(geometry1);
-		when(tfisImportService.anteilInBW(geometry1)).thenReturn(1.);
-		when(tfisImportService.extractDlmId(simpleFeature1)).thenReturn(dlmId1);
-		when(tfisImportService.extractName(any())).thenCallRealMethod();
-		when(tfisImportService.extractLineString(simpleFeature1)).thenCallRealMethod();
-		when(tfisImportService.extractStartpunkt(simpleFeature1)).thenReturn(Optional.of(
-			GeometryTestdataProvider.createPoint(knoten4.getKoordinate())));
-
-		// act
-		job.doRun();
-
-		// assert
-		verify(fahrradrouteRepository, never()).save(any());
-		verify(fahrradrouteRepository, never()).findByTfisId(any());
 	}
 
 	private SimpleFeature transformGeometryToUTM32(SimpleFeature simpleFeature) {

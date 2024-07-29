@@ -30,8 +30,10 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { createVectorSource } from 'src/app/shared/services/vector-source.factory';
 import { SignaturService } from 'src/app/viewer/signatur/services/signatur.service';
 import { signaturNetzklasseLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import invariant from 'tiny-invariant';
+import { shiftFeature } from 'src/app/shared/models/radvis-netz-style';
+import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 
 @Component({
   selector: 'rad-signatur-netzklasse-layer',
@@ -145,7 +147,16 @@ export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnCh
     if (!this.generatedStyleFunction) {
       return new Style();
     } else {
-      return this.generatedStyleFunction(feature, resolution);
+      const generatedStyles = this.generatedStyleFunction(feature, resolution);
+
+      // Fuege dem vom SLDReader generierten Style noch eine Anpassung der Geometrie für zweiseitige Kanten hinzu
+      const shiftedGeometry = shiftFeature(feature, resolution, MapStyles.LINE_GAP_FOR_DOUBLE_LINE);
+      if (Array.isArray(generatedStyles)) {
+        generatedStyles.forEach(value => value.setGeometry(shiftedGeometry));
+      } else {
+        generatedStyles.setGeometry(shiftedGeometry);
+      }
+      return generatedStyles;
     }
   };
 }

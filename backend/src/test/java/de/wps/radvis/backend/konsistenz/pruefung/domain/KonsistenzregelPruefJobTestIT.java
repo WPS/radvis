@@ -129,7 +129,8 @@ class KonsistenzregelPruefJobTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		KonsistenzregelPruefJobStatistik jobStatistik = (KonsistenzregelPruefJobStatistik) konsistenzregelPruefJob.doRun()
+		KonsistenzregelPruefJobStatistik jobStatistik = (KonsistenzregelPruefJobStatistik) konsistenzregelPruefJob
+			.doRun()
 			.get();
 
 		// Assert
@@ -161,7 +162,8 @@ class KonsistenzregelPruefJobTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		KonsistenzregelPruefJobStatistik jobStatistik = (KonsistenzregelPruefJobStatistik) konsistenzregelPruefJob.doRun()
+		KonsistenzregelPruefJobStatistik jobStatistik = (KonsistenzregelPruefJobStatistik) konsistenzregelPruefJob
+			.doRun()
 			.get();
 
 		// Assert
@@ -181,8 +183,8 @@ class KonsistenzregelPruefJobTestIT extends DBIntegrationTestIT {
 		Coordinate vorhandeneEndKoordinate = new Coordinate(200, 200);
 		Kante kante = kantenRepository.save(
 			KanteTestDataProvider.withRichtungRadverkehrsfuehrungIstStandardBreiteQuellsystem(
-					IN_RICHTUNG, SONDERWEG_RADWEG_STRASSENBEGLEITEND, STARTSTANDARD_RADNETZ, 1.39, QuellSystem.DLM,
-					false)
+				IN_RICHTUNG, SONDERWEG_RADWEG_STRASSENBEGLEITEND, STARTSTANDARD_RADNETZ, 1.39, QuellSystem.DLM,
+				false)
 				.geometry(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 					.createLineString(new Coordinate[] { vorhandeneStartKoordinate, vorhandeneEndKoordinate }))
 				.vonKnoten(
@@ -209,7 +211,8 @@ class KonsistenzregelPruefJobTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// Act
-		KonsistenzregelPruefJobStatistik jobStatistik = (KonsistenzregelPruefJobStatistik) konsistenzregelPruefJob.doRun()
+		KonsistenzregelPruefJobStatistik jobStatistik = (KonsistenzregelPruefJobStatistik) konsistenzregelPruefJob
+			.doRun()
 			.get();
 
 		// Assert

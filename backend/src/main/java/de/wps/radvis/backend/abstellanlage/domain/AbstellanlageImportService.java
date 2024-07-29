@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.springframework.data.util.Pair;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -57,11 +58,12 @@ import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.exception.CsvImportException;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import jakarta.persistence.EntityNotFoundException;
 
 public class AbstellanlageImportService extends AbstractCsvImportService<Abstellanlage, AbstellanlageBuilder> {
 
@@ -91,15 +93,18 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 				"Sie haben nicht die Berechtigung Abstellanlagen zu erstellen oder zu bearbeiten.");
 		}
 
+		Verwaltungseinheit obersteVerwaltungseinheit = verwaltungseinheitService.getObersteGebietskoerperschaft()
+			.orElseThrow(EntityNotFoundException::new);
+		PreparedGeometry boundingArea = PreparedGeometryFactory.prepare(obersteVerwaltungseinheit.getBereich().get());
+
 		return super.importCsv(csvData,
-			(abstellanlageBuilder, row) -> this.mapAttributes(abstellanlageBuilder, row, benutzer));
+			(abstellanlageBuilder, row) -> this.mapAttributes(abstellanlageBuilder, boundingArea, row, benutzer));
 	}
 
-	private Abstellanlage mapAttributes(AbstellanlageBuilder abstellanlageBuilder, Map<String, String> row,
+	private Abstellanlage mapAttributes(AbstellanlageBuilder abstellanlageBuilder, PreparedGeometry boundingArea,
+		Map<String, String> row,
 		Benutzer benutzer)
 		throws AbstellanlageAttributMappingException {
-
-		PreparedGeometry boundingArea = verwaltungseinheitService.getBundeslandBereichPrepared();
 
 		// QUELLSYSTEM
 		AbstellanlagenQuellSystem quellSystem;
@@ -110,7 +115,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			throw new AbstellanlageAttributMappingException(
 				"Quellsystem (" + row.get(Abstellanlage.CsvHeader.QUELLSYSTEM)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenQuellSystem.values())
-					.map(AbstellanlagenQuellSystem::toString).collect(Collectors.joining(", ")));
+						.map(AbstellanlagenQuellSystem::toString).collect(Collectors.joining(", ")));
 		}
 		if (quellSystem.equals(AbstellanlagenQuellSystem.MOBIDATABW)) {
 			throw new AbstellanlageAttributMappingException(
@@ -124,7 +129,8 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			Point point = extractPositionInternal(row);
 			if (!boundingArea.contains(point)) {
 				throw new AbstellanlageAttributMappingException(
-					"Position " + point + " liegt nicht in Baden-Württemberg. Bitte prüfen Sie die Koordinaten.");
+					"Position " + point
+						+ " liegt nicht im Bereich, der von der Anwendung verwaltet wird. Bitte prüfen Sie die Koordinaten.");
 			}
 			if (!zustaendigkeitsService.istImZustaendigkeitsbereich(point, benutzer)) {
 				throw new AccessDeniedException(
@@ -174,7 +180,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 						zustaendigBezeichnung));
 			}
 			verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(nameUndOrganisationsart.getFirst(),
-					nameUndOrganisationsart.getSecond())
+				nameUndOrganisationsart.getSecond())
 				.map(abstellanlageBuilder::zustaendig)
 				.orElseThrow(() -> new AbstellanlageAttributMappingException(
 					String.format("Verwaltungseinheit '%s' konnte nicht gefunden werden", zustaendigBezeichnung)));
@@ -230,7 +236,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 				"Überwacht (" + row.get(Abstellanlage.CsvHeader.UEBERWACHT)
 					+ ") kann nicht gelesen werden. Erlaubt: "
 					+ Arrays.stream(Ueberwacht.values()).map(Ueberwacht::toString)
-					.collect(Collectors.joining(", ")));
+						.collect(Collectors.joining(", ")));
 		}
 
 		// ABSTELLANLAGEN_ORT
@@ -243,7 +249,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			throw new AbstellanlageAttributMappingException(
 				"AbstellanlagenOrt (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_ORT)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenOrt.values())
-					.map(AbstellanlagenOrt::toString).collect(Collectors.joining(", ")));
+						.map(AbstellanlagenOrt::toString).collect(Collectors.joining(", ")));
 		}
 
 		// GROESSENKLASSE
@@ -263,7 +269,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			throw new AbstellanlageAttributMappingException(
 				"Größenklasse (" + input
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(Groessenklasse.values())
-					.map(Groessenklasse::toString).collect(Collectors.joining(", ")));
+						.map(Groessenklasse::toString).collect(Collectors.joining(", ")));
 		}
 
 		// STELLPLATZART
@@ -275,7 +281,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			throw new AbstellanlageAttributMappingException(
 				"Stellplatzart (" + row.get(Abstellanlage.CsvHeader.STELLPLATZART)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(Stellplatzart.values())
-					.map(Stellplatzart::toString).collect(Collectors.joining(", ")));
+						.map(Stellplatzart::toString).collect(Collectors.joining(", ")));
 		}
 
 		// UEBERDACHT
@@ -364,7 +370,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			throw new AbstellanlageAttributMappingException(
 				"Status (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_STATUS)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenStatus.values())
-					.map(AbstellanlagenStatus::toString).collect(Collectors.joining(", ")));
+						.map(AbstellanlagenStatus::toString).collect(Collectors.joining(", ")));
 		}
 
 		// DOKUMENTLISTE nicht veraendern

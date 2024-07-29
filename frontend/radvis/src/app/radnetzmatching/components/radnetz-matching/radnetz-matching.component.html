@@ -21,8 +21,7 @@
     (showLayer)="onShowLayer($event)"
     [layers]="selectableLayers"
     [visibleLayers]="visibleZusaetzlicheLayers$ | async"
-    class="layer-auswahl"
-  ></rad-layer-auswahl>
+    class="layer-auswahl"></rad-layer-auswahl>
 </div>
 
 <div class="map flex-grow">
@@ -32,14 +31,12 @@
     (locationSelect)="onLocationSelected($event)"
     (zoomChange)="onZoomChanged($event)"
     [class.flag-cursor]="showFlag"
-    class="w-100; h-100"
-  >
+    class="w-100; h-100">
     <rad-landkreise-layer *ngIf="landkreiseLayerVisible"></rad-landkreise-layer>
 
     <rad-radnetz-kanten-layer
       *ngIf="radNetzLayerVisible"
-      [zugeordneteRadnetzKanteIds]="zugeordneteRadnetzKanteIds"
-    ></rad-radnetz-kanten-layer>
+      [zugeordneteRadnetzKanteIds]="zugeordneteRadnetzKanteIds"></rad-radnetz-kanten-layer>
 
     <rad-dlm-kanten-selektion
       (dlmKantenSelect)="onDlmKantenSelect($event)"
@@ -48,34 +45,29 @@
       [selectionActive]="
         currentState === RadNetzMatchingState.ZUORDNEN_ACTIVE ||
         currentState === RadNetzMatchingState.DLM_KANTEN_SELECTED
-      "
-    ></rad-dlm-kanten-selektion>
+      "></rad-dlm-kanten-selektion>
 
     <rad-feature-layer
       *ngFor="let layer of visibileNetzfehlerLayer$ | async; let index = index"
       [layer]="layer"
       [index]="index + 100"
       [netzklassen]="[]"
-      [featureWasRemoved]="featureWasRemoved$ | async"
-    ></rad-feature-layer>
+      [featureWasRemoved]="featureWasRemoved$ | async"></rad-feature-layer>
     <rad-zugeordnete-dlm-kanten-layer *ngIf="zugeordneteDlmKantenLayerVisible"></rad-zugeordnete-dlm-kanten-layer>
 
     <rad-landkreis-erledigt-markieren
-      [erledigtMarkierenActive]="erledigtMarkierenActive"
-    ></rad-landkreis-erledigt-markieren>
+      [erledigtMarkierenActive]="erledigtMarkierenActive"></rad-landkreis-erledigt-markieren>
 
     <rad-fehlerprotokoll-layer *ngIf="fehlerprotokolleEnabled" [zIndex]="350"></rad-fehlerprotokoll-layer>
   </rad-ol-map>
 
   <button
-    [attr.aria-label]="'Landkreis als erledigt markieren'"
     matTooltip="Landkreis als erledigt markieren"
     (click)="toggleErledigteMarkieren()"
     mat-mini-fab
     [color]="erledigtMarkierenActive ? 'primary' : 'accent'"
     class="kreis-erledigt-button"
-    [class.indented]="((featuresAtDisplay$ | async) || []).length > 0"
-  >
+    [class.indented]="((featuresAtDisplay$ | async) || []).length > 0">
     <mat-icon>done_all</mat-icon>
   </button>
 
@@ -91,8 +83,7 @@
       [featuresAtDisplay]="features"
       [radNetzMatchingState]="currentState"
       [zugeordneteRadnetzKantenVorhanden]="zugeordneteRadnetzKanteIds.length > 0"
-      class="map-properties-display"
-    >
+      class="map-properties-display">
     </rad-matching-feature-details>
   </ng-container>
 </div>

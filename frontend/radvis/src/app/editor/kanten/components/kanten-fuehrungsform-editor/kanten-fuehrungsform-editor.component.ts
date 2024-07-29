@@ -13,8 +13,15 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  UntypedFormArray,
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidatorFn,
+} from '@angular/forms';
 import { Feature } from 'ol';
 import { LineString } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
@@ -22,9 +29,7 @@ import VectorSource from 'ol/source/Vector';
 import { StyleFunction } from 'ol/style/Style';
 import { Observable, of } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
-import {
-  AbstractLinearReferenzierteAttributGruppeEditor,
-} from 'src/app/editor/kanten/components/abstract-linear-referenzierte-attribut-gruppe-editor';
+import { AbstractLinearReferenzierteAttributGruppeEditor } from 'src/app/editor/kanten/components/abstract-linear-referenzierte-attribut-gruppe-editor';
 import { Benutzungspflicht } from 'src/app/editor/kanten/models/benutzungspflicht';
 import { Bordstein } from 'src/app/editor/kanten/models/bordstein';
 import { FuehrungsformAttributGruppe } from 'src/app/editor/kanten/models/fuehrungsform-attribut-gruppe';
@@ -35,9 +40,7 @@ import { KfzParkenForm } from 'src/app/editor/kanten/models/kfz-parken-form';
 import { KfzParkenTyp } from 'src/app/editor/kanten/models/kfz-parken-typ';
 import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberflaechenbeschaffenheit';
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
-import {
-  SaveFuehrungsformAttributGruppeCommand,
-} from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
+import { SaveFuehrungsformAttributGruppeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
 import { SaveFuehrungsformAttributeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribute-command';
 import { TrennstreifenForm } from 'src/app/editor/kanten/models/trennstreifen-form';
 import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
@@ -47,13 +50,14 @@ import { UndeterminedValue } from 'src/app/form-elements/components/abstract-und
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { BelagArt } from 'src/app/shared/models/belag-art';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
 import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { DiscardableComponent, discardGuard } from 'src/app/shared/services/discard.guard';
+import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
+import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
@@ -71,10 +75,10 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
 })
 export class KantenFuehrungsformEditorComponent
   extends AbstractLinearReferenzierteAttributGruppeEditor<FuehrungsformAttribute, FuehrungsformAttributGruppe>
-  implements DiscardableComponent, OnDestroy, OnInit {
-
-  public LINKS = Seitenbezug.LINKS;
-  public RECHTS = Seitenbezug.RECHTS;
+  implements DiscardableComponent, OnDestroy, OnInit
+{
+  public LINKS = KantenSeite.LINKS;
+  public RECHTS = KantenSeite.RECHTS;
 
   public Richtung = Richtung;
 
@@ -90,9 +94,49 @@ export class KantenFuehrungsformEditorComponent
   public lineareReferenzenLinksFormArray: UntypedFormArray = new UntypedFormArray([]);
   public lineareReferenzenRechtsFormArray: UntypedFormArray = new UntypedFormArray([]);
 
+  private validateTrennungZu: ValidatorFn = ctrl => {
+    if (
+      ctrl.value &&
+      !(ctrl.value instanceof UndeterminedValue) &&
+      !this.trennstreifenTrennungZuOptions.some(opt => opt.name === ctrl.value)
+    ) {
+      return {
+        trennungZuInvalid: `Aktueller Wert "${TrennstreifenTrennungZu.displayText(ctrl.value)}" ist für die gewählte Radverkehrsführung nicht erlaubt, bitte Auswahl ändern.`,
+      };
+    }
+
+    return null;
+  };
+
   // Sicherheitstrennstreifen
-  public trennstreifenFormGroupLinks: UntypedFormGroup;
-  public trennstreifenFormGroupRechts: UntypedFormGroup;
+  public trennstreifenFormGroupLinks = new FormGroup({
+    trennstreifenFormLinks: new FormControl<TrennstreifenForm | null | UndeterminedValue>(null, [
+      RadvisValidators.isNotNullOrEmpty,
+    ]),
+    trennstreifenTrennungZuLinks: new FormControl<TrennstreifenTrennungZu | null | UndeterminedValue>(
+      null,
+      this.validateTrennungZu
+    ),
+    trennstreifenBreiteLinks: new FormControl<number | null | UndeterminedValue>(null, [
+      RadvisValidators.isNotNullOrEmpty,
+      RadvisValidators.isPositiveFloatNumber,
+      RadvisValidators.maxDecimalPlaces(2),
+    ]),
+  });
+  public trennstreifenFormGroupRechts = new FormGroup({
+    trennstreifenFormRechts: new FormControl<TrennstreifenForm | null | UndeterminedValue>(null, [
+      RadvisValidators.isNotNullOrEmpty,
+    ]),
+    trennstreifenTrennungZuRechts: new FormControl<TrennstreifenTrennungZu | null | UndeterminedValue>(
+      null,
+      this.validateTrennungZu
+    ),
+    trennstreifenBreiteRechts: new FormControl<number | null | UndeterminedValue>(null, [
+      RadvisValidators.isNotNullOrEmpty,
+      RadvisValidators.isPositiveFloatNumber,
+      RadvisValidators.maxDecimalPlaces(2),
+    ]),
+  });
 
   public trennstreifenSeiteOptions: EnumOption[] = [];
   public trennstreifenFormOptions = TrennstreifenForm.options;
@@ -133,29 +177,16 @@ export class KantenFuehrungsformEditorComponent
   ];
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private netzService: NetzService,
     private olMapService: OlMapService,
     private featureTogglzService: FeatureTogglzService,
+    private discardGuardService: DiscardGuardService,
     changeDetectorRef: ChangeDetectorRef,
     notifyUserService: NotifyUserService,
     kantenSelektionService: KantenSelektionService,
-    benutzerDetailsService: BenutzerDetailsService,
+    benutzerDetailsService: BenutzerDetailsService
   ) {
     super(changeDetectorRef, notifyUserService, kantenSelektionService, benutzerDetailsService);
-
-    this.trennstreifenFormGroupLinks = new UntypedFormGroup({
-      trennstreifenFormLinks: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-      trennstreifenTrennungZuLinks: new UntypedFormControl(null),
-      trennstreifenBreiteLinks: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.isPositiveFloatNumber, RadvisValidators.maxDecimalPlaces(2)]),
-    });
-
-    this.trennstreifenFormGroupRechts = new UntypedFormGroup({
-      trennstreifenFormRechts: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty]),
-      trennstreifenTrennungZuRechts: new UntypedFormControl(null),
-      trennstreifenBreiteRechts: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.isPositiveFloatNumber, RadvisValidators.maxDecimalPlaces(2)]),
-    });
 
     this.stationierungsrichtungSource = new VectorSource();
     this.stationierungsrichtungLayer = new VectorLayer({
@@ -166,10 +197,10 @@ export class KantenFuehrungsformEditorComponent
 
     this.subscriptions.push(
       this.lineareReferenzenLinksFormArray.valueChanges.subscribe((value: LinearReferenzierterAbschnitt[][]) =>
-        this.updateCurrentAttributgruppenWithLineareReferenzen(value, Seitenbezug.LINKS),
+        this.updateCurrentAttributgruppenWithLineareReferenzen(value, KantenSeite.LINKS)
       ),
       this.lineareReferenzenRechtsFormArray.valueChanges.subscribe((value: LinearReferenzierterAbschnitt[][]) => {
-        this.updateCurrentAttributgruppenWithLineareReferenzen(value, Seitenbezug.RECHTS);
+        this.updateCurrentAttributgruppenWithLineareReferenzen(value, KantenSeite.RECHTS);
       }),
       this.trennstreifenFormGroupLinks.valueChanges.subscribe(() => {
         this.onTrennstreifenFormValueChanged(this.trennstreifenFormGroupLinks);
@@ -177,9 +208,11 @@ export class KantenFuehrungsformEditorComponent
       this.trennstreifenFormGroupRechts.valueChanges.subscribe(() => {
         this.onTrennstreifenFormValueChanged(this.trennstreifenFormGroupRechts);
       }),
-      this.displayedAttributeformGroup.valueChanges.subscribe(() => {
-        this.resetTrennungZuOptions(this.currentSelektion ?? []);
-      }),
+      this.displayedAttributeformGroup
+        .get('radverkehrsfuehrung')!
+        .valueChanges.subscribe((value: Radverkehrsfuehrung) => {
+          this.onRadverkehrsfuehrungChanged(value);
+        })
     );
   }
 
@@ -189,11 +222,11 @@ export class KantenFuehrungsformEditorComponent
       this.kantenSelektionService.selektierteKanten$.subscribe(kanten => {
         this.stationierungsrichtungSource.clear();
         this.stationierungsrichtungSource.addFeatures(
-          kanten.map(k => new Feature(new LineString(k.geometry.coordinates))),
+          kanten.map(k => new Feature(new LineString(k.geometry.coordinates)))
         );
         this.stationierungsrichtungSource.changed();
         this.changeDetectorRef.markForCheck();
-      }),
+      })
     );
   }
 
@@ -213,8 +246,8 @@ export class KantenFuehrungsformEditorComponent
   public override onSave(): void {
     if (
       !this.displayedAttributeformGroup.valid ||
-      this.trennstreifenFormGroupLinks.dirty && !this.trennstreifenFormGroupLinks.valid ||
-      this.trennstreifenFormGroupRechts.dirty && !this.trennstreifenFormGroupRechts.valid
+      (this.trennstreifenFormGroupLinks.dirty && !this.trennstreifenFormGroupLinks.valid) ||
+      (this.trennstreifenFormGroupRechts.dirty && !this.trennstreifenFormGroupRechts.valid)
     ) {
       this.notifyUserService.warn('Das Formular kann nicht gespeichert werden, weil es ungültige Einträge enthält.');
       return;
@@ -238,18 +271,25 @@ export class KantenFuehrungsformEditorComponent
   }
 
   public isTrennstreifenFormVisible(): boolean {
-    return this.getAttributeForSelektion(this.currentSelektion ?? [])
-    .every(attribute => this.relevanteRadverkehrsfuehrungen.includes(attribute.radverkehrsfuehrung));
+    return this.getAttributeForSelektion(this.currentSelektion).every(attribute =>
+      this.relevanteRadverkehrsfuehrungen.includes(attribute.radverkehrsfuehrung)
+    );
   }
 
   public isAnyTrennstreifenLinksSelektiert(): boolean {
-    return !!this.trennstreifenSeiteSelected &&
-      (this.trennstreifenSeiteSelected === TrennstreifenSeite.A || this.trennstreifenSeiteSelected === TrennstreifenSeite.C);
+    return (
+      !!this.trennstreifenSeiteSelected &&
+      (this.trennstreifenSeiteSelected === TrennstreifenSeite.A ||
+        this.trennstreifenSeiteSelected === TrennstreifenSeite.C)
+    );
   }
 
   public isAnyTrennstreifenRechtsSelektiert(): boolean {
-    return !!this.trennstreifenSeiteSelected &&
-      (this.trennstreifenSeiteSelected === TrennstreifenSeite.B || this.trennstreifenSeiteSelected === TrennstreifenSeite.D);
+    return (
+      !!this.trennstreifenSeiteSelected &&
+      (this.trennstreifenSeiteSelected === TrennstreifenSeite.B ||
+        this.trennstreifenSeiteSelected === TrennstreifenSeite.D)
+    );
   }
 
   public getLineareReferenzenLinksFormControlAt(index: number): UntypedFormControl {
@@ -260,14 +300,14 @@ export class KantenFuehrungsformEditorComponent
     return this.lineareReferenzenRechtsFormArray.at(index) as UntypedFormControl;
   }
 
-  public onInsertAtIndex(kantenIndex: number, segmentIndex: number, seitenbezug?: Seitenbezug): void {
+  public onInsertAtIndex(kantenIndex: number, segmentIndex: number, kantenSeite?: KantenSeite): void {
     let arrayToChange: FuehrungsformAttribute[];
-    if (seitenbezug === Seitenbezug.LINKS || seitenbezug === undefined) {
+    if (kantenSeite === KantenSeite.LINKS || kantenSeite === undefined) {
       arrayToChange = this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks;
       const deepCopy = JSON.parse(JSON.stringify(arrayToChange[segmentIndex - 1])) as FuehrungsformAttribute;
       arrayToChange.splice(segmentIndex, 0, deepCopy);
     }
-    if (seitenbezug === Seitenbezug.RECHTS || seitenbezug === undefined) {
+    if (kantenSeite === KantenSeite.RECHTS || kantenSeite === undefined) {
       arrayToChange = this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts;
       const deepCopy = JSON.parse(JSON.stringify(arrayToChange[segmentIndex - 1])) as FuehrungsformAttribute;
       arrayToChange.splice(segmentIndex, 0, deepCopy);
@@ -275,110 +315,124 @@ export class KantenFuehrungsformEditorComponent
     this.kantenSelektionService.adjustSelectionForSegmentInsertion(
       (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
       segmentIndex,
-      seitenbezug,
+      kantenSeite
     );
   }
 
-  public onDeleteAtIndex(kantenIndex: number, segmentIndex: number, seitenbezug?: Seitenbezug): void {
+  public onDeleteAtIndex(kantenIndex: number, segmentIndex: number, kantenSeite?: KantenSeite): void {
     let arrayToChange: FuehrungsformAttribute[];
-    if (seitenbezug === Seitenbezug.LINKS || seitenbezug === undefined) {
+    if (kantenSeite === KantenSeite.LINKS || kantenSeite === undefined) {
       arrayToChange = this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks;
       arrayToChange.splice(segmentIndex, 1);
     }
-    if (seitenbezug === Seitenbezug.RECHTS || seitenbezug === undefined) {
+    if (kantenSeite === KantenSeite.RECHTS || kantenSeite === undefined) {
       arrayToChange = this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts;
       arrayToChange.splice(segmentIndex, 1);
     }
     this.kantenSelektionService.adjustSelectionForSegmentDeletion(
       (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
       segmentIndex,
-      seitenbezug,
+      kantenSeite
     );
   }
 
   public override canDiscard(): boolean {
-    return super.canDiscard() && this.trennstreifenFormGroupRechts.pristine && this.trennstreifenFormGroupLinks.pristine;
+    return (
+      super.canDiscard() && this.trennstreifenFormGroupRechts.pristine && this.trennstreifenFormGroupLinks.pristine
+    );
   }
 
   onTrennstreifenSeiteSelectionChanged(seite: TrennstreifenSeite): void {
     // Seitenbezug ändert sich (initiale Selektion oder z.B. Wechsel von Trennstreifen B zu C)
-    const seitenbezugChanged = (!this.trennstreifenSeiteSelected && !this.trennstreifenEinseitig) ||
+    const seitenbezugChanged =
+      (!this.trennstreifenSeiteSelected && !this.trennstreifenEinseitig) ||
       (seite === TrennstreifenSeite.A || seite === TrennstreifenSeite.B) !==
-      (this.trennstreifenSeiteSelected === TrennstreifenSeite.A || this.trennstreifenSeiteSelected === TrennstreifenSeite.B);
+        (this.trennstreifenSeiteSelected === TrennstreifenSeite.A ||
+          this.trennstreifenSeiteSelected === TrennstreifenSeite.B);
 
     // Manche Wechsel (z.B. A -> B) sind ok, manche können aber dazu führen, dass Kanten(seiten) deselektiert werden,
     // wodurch Änderungen verloren gingen. Der Wechsel von Trennstreifen-Seiten (also A/B <-> C/D) triggert also bei
     // angefassten Forms immer den Discard-Guard um sicher zu gehen, dass keine Änderungen verloren gehen.
     let canDiscardObservable: Observable<boolean>;
-    if (this.currentSelektion && seitenbezugChanged && (seite != null) && (this.trennstreifenSeiteSelected != null)) {
-      canDiscardObservable = discardGuard(this, this.route.snapshot, this.router.routerState.snapshot, this.router.routerState.snapshot) as Observable<boolean>;
+    if (this.currentSelektion && seitenbezugChanged && seite != null && this.trennstreifenSeiteSelected != null) {
+      canDiscardObservable = this.discardGuardService.canDeactivate(this) as Observable<boolean>;
     } else {
       canDiscardObservable = of(true);
     }
 
-    canDiscardObservable.subscribe(proceed => {
-      if (!proceed) {
-        return;
-      }
-
-      this.trennstreifenSeiteSelected = seite;
-
-      // Zunächst alle Werte im Drop-Down zulassen, damit eine vorherige Einschränkung (z.B. auf "nur Parken") nicht dazu
-      // führt, dass das Drop-Down leer bleibt, sollte sich die Menge der Auswahlmöglichkeiten durch die neue Selektion
-      // geändert haben (z.B. auf "alle", wodurch Werte abseits "nur Parken" möglich sind, die aber ggf. nicht im Drop-
-      // Down angezeigt würden).
-      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
-
-      if (this.currentSelektion) {
-        if (seitenbezugChanged) {
-          this.resetTrennstreifenAttribute(this.currentSelektion);
+    this.subscriptions.push(
+      canDiscardObservable.subscribe(proceed => {
+        if (!proceed) {
+          return;
         }
 
-        let zuSelektierendeKanten: Kante[];
-        let zuSelektierendeSeite: Seitenbezug;
-        if (this.trennstreifenSeiteSelected === TrennstreifenSeite.C || this.trennstreifenSeiteSelected === TrennstreifenSeite.D) {
-          zuSelektierendeKanten = this.currentSelektion.map(s => s.kante).filter(k => k.zweiseitig);
-          zuSelektierendeSeite = Seitenbezug.RECHTS;
-        } else {
-          zuSelektierendeKanten = this.currentSelektion.map(s => s.kante);
-          zuSelektierendeSeite = Seitenbezug.LINKS;
-        }
+        this.trennstreifenSeiteSelected = seite;
 
-        // Selektiere korrekte Kanten(seiten) für die Seite des ausgewählten Trennstreifens.
-        this.currentSelektion.forEach(selektion => {
-          if (!zuSelektierendeKanten.includes(selektion.kante)) {
-            return;
+        // Zunächst alle Werte im Drop-Down zulassen, damit eine vorherige Einschränkung (z.B. auf "nur Parken") nicht dazu
+        // führt, dass das Drop-Down leer bleibt, sollte sich die Menge der Auswahlmöglichkeiten durch die neue Selektion
+        // geändert haben (z.B. auf "alle", wodurch Werte abseits "nur Parken" möglich sind, die aber ggf. nicht im Drop-
+        // Down angezeigt würden).
+        this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
+
+        if (this.currentSelektion) {
+          if (seitenbezugChanged) {
+            this.resetTrennstreifenAttribute(this.currentSelektion);
           }
 
-          // Ggf. haben wir schon auf der zu selektierenden Seite einen ausgewählten Abschnitt -> dann Auswahl nicht verändern.
-          if (!selektion.istSeiteSelektiert(zuSelektierendeSeite)) {
+          let zuSelektierendeKanten: Kante[];
+          let zuSelektierendeSeite: KantenSeite;
+          if (
+            this.trennstreifenSeiteSelected === TrennstreifenSeite.C ||
+            this.trennstreifenSeiteSelected === TrennstreifenSeite.D
+          ) {
+            zuSelektierendeKanten = this.currentSelektion.map(s => s.kante).filter(k => k.zweiseitig);
+            zuSelektierendeSeite = KantenSeite.RECHTS;
+          } else {
+            zuSelektierendeKanten = this.currentSelektion.map(s => s.kante);
+            zuSelektierendeSeite = KantenSeite.LINKS;
+          }
+
+          // Selektiere korrekte Kanten(seiten) für die Seite des ausgewählten Trennstreifens.
+          this.currentSelektion.forEach(selektion => {
+            if (!zuSelektierendeKanten.includes(selektion.kante)) {
+              return;
+            }
+
+            // Ggf. haben wir schon auf der zu selektierenden Seite einen ausgewählten Abschnitt -> dann Auswahl nicht verändern.
+            if (!selektion.istSeiteSelektiert(zuSelektierendeSeite)) {
+              if (selektion.kante.zweiseitig) {
+                this.kantenSelektionService.select(selektion.kante.id, true, zuSelektierendeSeite);
+              } else {
+                this.kantenSelektionService.select(selektion.kante.id, true);
+              }
+            }
+          });
+
+          // Deselektiere die Kanten(seiten), die nicht mehr relevant sind, weil ein Trennstreifen der anderen Seite ausgewählt wurde.
+          const zuDeselektierendeSeite =
+            zuSelektierendeSeite === KantenSeite.RECHTS ? KantenSeite.LINKS : KantenSeite.RECHTS;
+          this.currentSelektion.forEach(selektion => {
             if (selektion.kante.zweiseitig) {
-              this.kantenSelektionService.select(selektion.kante.id, true, zuSelektierendeSeite);
-            } else {
-              this.kantenSelektionService.select(selektion.kante.id, true);
+              if (this.kantenSelektionService.isSelektiert(selektion.kante.id, zuDeselektierendeSeite)) {
+                this.kantenSelektionService.deselect(selektion.kante.id, zuDeselektierendeSeite);
+              }
+            } else if (!zuSelektierendeKanten.includes(selektion.kante)) {
+              if (this.kantenSelektionService.isSelektiert(selektion.kante.id)) {
+                this.kantenSelektionService.deselect(selektion.kante.id);
+              }
             }
-          }
-        });
+          });
+        }
 
-        // Deselektiere die Kanten(seiten), die nicht mehr relevant sind, weil ein Trennstreifen der anderen Seite ausgewählt wurde.
-        const zuDeselektierendeSeite = zuSelektierendeSeite === Seitenbezug.RECHTS ? Seitenbezug.LINKS : Seitenbezug.RECHTS;
-        this.currentSelektion.forEach(selektion => {
-          if (selektion.kante.zweiseitig) {
-            if (this.kantenSelektionService.isSelektiert(selektion.kante.id, zuDeselektierendeSeite)) {
-              this.kantenSelektionService.deselect(selektion.kante.id, zuDeselektierendeSeite);
-            }
-          } else if (!zuSelektierendeKanten.includes(selektion.kante)) {
-            if (this.kantenSelektionService.isSelektiert(selektion.kante.id)) {
-              this.kantenSelektionService.deselect(selektion.kante.id);
-            }
-          }
-        });
-      }
-
-      // TODO hier noch nötig, wenn sich doch die Selektion und dadurch angezeigten Attribute ändert (was diese method ebenfalls aufrufen sollte)
-      this.resetTrennungZuOptions(this.currentSelektion ?? []);
-      this.updateTrennstreifenControlActivation(this.trennstreifenSeiteSelected);
-    });
+        this.updateTrennungZuOptions(
+          this.getFuehrungsformAttributeForTrennstreifenSeite(
+            this.currentSelektion,
+            this.trennstreifenSeiteSelected
+          ).map(attr => attr.radverkehrsfuehrung)
+        );
+        this.updateTrennstreifenControlActivation(this.trennstreifenSeiteSelected);
+      })
+    );
   }
 
   protected saveAttributgruppe(attributgruppen: FuehrungsformAttributGruppe[]): Promise<Kante[]> {
@@ -395,7 +449,11 @@ export class KantenFuehrungsformEditorComponent
       benutzungspflicht: new UntypedFormControl(null),
       parkenTyp: new UntypedFormControl(null),
       parkenForm: new UntypedFormControl(null),
-      breite: new UntypedFormControl(null, [RadvisValidators.isPositiveFloatNumber, RadvisValidators.maxDecimalPlaces(2), RadvisValidators.max(100)]),
+      breite: new UntypedFormControl(null, [
+        RadvisValidators.isPositiveFloatNumber,
+        RadvisValidators.maxDecimalPlaces(2),
+        RadvisValidators.max(100),
+      ]),
     });
   }
 
@@ -424,29 +482,35 @@ export class KantenFuehrungsformEditorComponent
     // Seite der Kante ab, gibt es keine Kantenauswahl mehr, die für "C" Werte haben kann, daher wird der
     // Trennstreifen auch abgewählt.
     if (
-      (this.trennstreifenSeiteSelected === TrennstreifenSeite.A || this.trennstreifenSeiteSelected === TrennstreifenSeite.B) &&
-      selektion?.every(s => s.kante.zweiseitig && !s.istSeiteSelektiert(Seitenbezug.LINKS))
+      (this.trennstreifenSeiteSelected === TrennstreifenSeite.A ||
+        this.trennstreifenSeiteSelected === TrennstreifenSeite.B) &&
+      selektion?.every(s => s.kante.zweiseitig && !s.istSeiteSelektiert(KantenSeite.LINKS))
     ) {
       this.trennstreifenSeiteSelected = undefined;
     } else if (
-      (this.trennstreifenSeiteSelected === TrennstreifenSeite.C || this.trennstreifenSeiteSelected === TrennstreifenSeite.D) &&
-      selektion?.every(s => !s.kante.zweiseitig || !s.istSeiteSelektiert(Seitenbezug.RECHTS))
+      (this.trennstreifenSeiteSelected === TrennstreifenSeite.C ||
+        this.trennstreifenSeiteSelected === TrennstreifenSeite.D) &&
+      selektion?.every(s => !s.kante.zweiseitig || !s.istSeiteSelektiert(KantenSeite.RECHTS))
     ) {
       this.trennstreifenSeiteSelected = undefined;
     }
 
-    this.resetTrennungZuOptions(selektion);
+    this.updateTrennungZuOptions(
+      this.getFuehrungsformAttributeForTrennstreifenSeite(selektion, this.trennstreifenSeiteSelected).map(
+        attr => attr.radverkehrsfuehrung
+      )
+    );
     this.resetTrennstreifenFormToOriginalKantenValues(selektion);
     this.trennstreifenBearbeiteteSeiten = new Set();
   }
 
-  protected getAttributeForSelektion(selektion: KantenSelektion[]): FuehrungsformAttribute[] {
+  protected getAttributeForSelektion(selektion: KantenSelektion[] | null): FuehrungsformAttribute[] {
     const result: FuehrungsformAttribute[] = [];
-    selektion.forEach((kantenSelektion, kantenIndex) => {
-      kantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS).forEach(selectedSegmentIndex => {
+    selektion?.forEach((kantenSelektion, kantenIndex) => {
+      kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS).forEach(selectedSegmentIndex => {
         result.push(this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks[selectedSegmentIndex]);
       });
-      kantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS).forEach(selectedSegmentIndex => {
+      kantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS).forEach(selectedSegmentIndex => {
         result.push(this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts[selectedSegmentIndex]);
       });
     });
@@ -455,10 +519,10 @@ export class KantenFuehrungsformEditorComponent
 
   protected resetLineareReferenzenFormArrays(newSelektion: KantenSelektion[]): void {
     const valuesLinks = newSelektion.map(kantenSelektion =>
-      this.extractLineareReferenzenFromKante(kantenSelektion.kante, Seitenbezug.LINKS),
+      this.extractLineareReferenzenFromKante(kantenSelektion.kante, KantenSeite.LINKS)
     );
     const valuesRechts = newSelektion.map(kantenSelektion =>
-      this.extractLineareReferenzenFromKante(kantenSelektion.kante, Seitenbezug.RECHTS),
+      this.extractLineareReferenzenFromKante(kantenSelektion.kante, KantenSeite.RECHTS)
     );
 
     this.resetFormArray(this.lineareReferenzenFormArray, valuesLinks);
@@ -467,12 +531,14 @@ export class KantenFuehrungsformEditorComponent
   }
 
   protected convertAttributgruppeToCommand(
-    fuehrungsformAttributGruppe: FuehrungsformAttributGruppe,
+    fuehrungsformAttributGruppe: FuehrungsformAttributGruppe
   ): SaveFuehrungsformAttributGruppeCommand {
-    const attributeCommandLinks: SaveFuehrungsformAttributeCommand[] = fuehrungsformAttributGruppe.fuehrungsformAttributeLinks as SaveFuehrungsformAttributeCommand[];
-    const attributeCommandRechts: SaveFuehrungsformAttributeCommand[] = fuehrungsformAttributGruppe.fuehrungsformAttributeRechts as SaveFuehrungsformAttributeCommand[];
+    const attributeCommandLinks: SaveFuehrungsformAttributeCommand[] =
+      fuehrungsformAttributGruppe.fuehrungsformAttributeLinks as SaveFuehrungsformAttributeCommand[];
+    const attributeCommandRechts: SaveFuehrungsformAttributeCommand[] =
+      fuehrungsformAttributGruppe.fuehrungsformAttributeRechts as SaveFuehrungsformAttributeCommand[];
     const associatedKantenSelektion = this.currentSelektion?.find(
-      kantenSelektion => kantenSelektion.kante.fuehrungsformAttributGruppe.id === fuehrungsformAttributGruppe.id,
+      kantenSelektion => kantenSelektion.kante.fuehrungsformAttributGruppe.id === fuehrungsformAttributGruppe.id
     ) as KantenSelektion;
 
     return {
@@ -486,30 +552,30 @@ export class KantenFuehrungsformEditorComponent
 
   protected updateCurrentAttributgruppenWithLineareReferenzen(
     newLineareReferenzenArrays: LinearReferenzierterAbschnitt[][],
-    seitenbezug?: Seitenbezug,
+    kantenSeite?: KantenSeite
   ): void {
     newLineareReferenzenArrays.forEach((lineareReferenzen, kantenIndex) => {
       lineareReferenzen.forEach((lineareReferenz, segmentIndex) => {
-        if (seitenbezug === undefined) {
+        if (kantenSeite === undefined) {
           if (!this.kantenSelektionService.selektierteKanten[kantenIndex].zweiseitig) {
             this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks[
               segmentIndex
-              ].linearReferenzierterAbschnitt = lineareReferenz;
+            ].linearReferenzierterAbschnitt = lineareReferenz;
             this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts[
               segmentIndex
-              ].linearReferenzierterAbschnitt = lineareReferenz;
+            ].linearReferenzierterAbschnitt = lineareReferenz;
           }
-        } else if (seitenbezug === Seitenbezug.LINKS) {
+        } else if (kantenSeite === KantenSeite.LINKS) {
           if (this.kantenSelektionService.selektierteKanten[kantenIndex].zweiseitig) {
             this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks[
               segmentIndex
-              ].linearReferenzierterAbschnitt = lineareReferenz;
+            ].linearReferenzierterAbschnitt = lineareReferenz;
           }
-        } else if (seitenbezug === Seitenbezug.RECHTS) {
+        } else if (kantenSeite === KantenSeite.RECHTS) {
           if (this.kantenSelektionService.selektierteKanten[kantenIndex].zweiseitig) {
             this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts[
               segmentIndex
-              ].linearReferenzierterAbschnitt = lineareReferenz;
+            ].linearReferenzierterAbschnitt = lineareReferenz;
           }
         }
       });
@@ -521,15 +587,15 @@ export class KantenFuehrungsformEditorComponent
 
     this.currentSelektion?.forEach(kantenSelektion => {
       const attributgruppeToChange = this.currentAttributgruppen.find(
-        gruppe => gruppe.id === kantenSelektion.kante.fuehrungsformAttributGruppe.id,
+        gruppe => gruppe.id === kantenSelektion.kante.fuehrungsformAttributGruppe.id
       ) as FuehrungsformAttributGruppe;
-      kantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS).forEach(selectedSegmentIndex => {
+      kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS).forEach(selectedSegmentIndex => {
         attributgruppeToChange.fuehrungsformAttributeLinks[selectedSegmentIndex] = {
           ...attributgruppeToChange.fuehrungsformAttributeLinks[selectedSegmentIndex],
           ...changedAttributePartial,
         };
       });
-      kantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS).forEach(selectedSegmentIndex => {
+      kantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS).forEach(selectedSegmentIndex => {
         attributgruppeToChange.fuehrungsformAttributeRechts[selectedSegmentIndex] = {
           ...attributgruppeToChange.fuehrungsformAttributeRechts[selectedSegmentIndex],
           ...changedAttributePartial,
@@ -542,33 +608,31 @@ export class KantenFuehrungsformEditorComponent
     if (!trennstreifenFormVisibleAfter) {
       // Setzt Trennstreifen zurück, da es keine Trennstreifen gibt. Also im Sinne von: Setzt alle Felder auf null.
 
-      this.trennstreifenFormGroupLinks.reset(undefined);
-      this.trennstreifenFormGroupRechts.reset(undefined);
+      this.trennstreifenFormGroupLinks.reset();
+      this.trennstreifenFormGroupRechts.reset();
       this.trennstreifenBearbeiteteSeiten = new Set();
 
       this.currentAttributgruppen.forEach(attributgruppe => {
-        [
-          ...attributgruppe.fuehrungsformAttributeLinks,
-          ...attributgruppe.fuehrungsformAttributeRechts,
-        ]
-        .forEach(attribute => {
-          if (!this.relevanteRadverkehrsfuehrungen.includes(attribute.radverkehrsfuehrung)) {
-            attribute.trennstreifenFormLinks = null;
-            attribute.trennstreifenTrennungZuLinks = null;
-            attribute.trennstreifenBreiteLinks = null;
+        [...attributgruppe.fuehrungsformAttributeLinks, ...attributgruppe.fuehrungsformAttributeRechts].forEach(
+          attribute => {
+            if (!this.relevanteRadverkehrsfuehrungen.includes(attribute.radverkehrsfuehrung)) {
+              attribute.trennstreifenFormLinks = null;
+              attribute.trennstreifenTrennungZuLinks = null;
+              attribute.trennstreifenBreiteLinks = null;
 
-            attribute.trennstreifenFormRechts = null;
-            attribute.trennstreifenTrennungZuRechts = null;
-            attribute.trennstreifenBreiteRechts = null;
+              attribute.trennstreifenFormRechts = null;
+              attribute.trennstreifenTrennungZuRechts = null;
+              attribute.trennstreifenBreiteRechts = null;
+            }
           }
-        });
+        );
       });
     } else if (!trennstreifenFormVisibleBefore && trennstreifenFormVisibleAfter) {
       // Resettet Trennstreifen-Form auf Werte der Kantenselektion. Es kann nämlich sein, dass die Auswahl einer
       // Radverkehrsführung ohne Trennstreifen (z.B. Piktogrammkette) nur temporär war, weil sich z.B. der Nutzer
       // verklickt hat. In dem Fall, dass also die Auswahl wieder zurückgesetzt wird, stellen wir die derzeitigen Werte
       // wieder her, damit nicht "undefined" (also nichts) gespeichert wird.
-      this.resetTrennstreifenFormToOriginalKantenValues(this.currentSelektion ?? []);
+      this.resetTrennstreifenFormToOriginalKantenValues(this.currentSelektion);
     }
   }
 
@@ -576,16 +640,18 @@ export class KantenFuehrungsformEditorComponent
     return kante.fuehrungsformAttributGruppe;
   }
 
-  private extractLineareReferenzenFromKante(kante: Kante, seitenbezug: Seitenbezug): LinearReferenzierterAbschnitt[] {
+  private extractLineareReferenzenFromKante(kante: Kante, kantenSeite: KantenSeite): LinearReferenzierterAbschnitt[] {
     let fuehrungsformAttributeArray: FuehrungsformAttribute[];
-    if (seitenbezug === Seitenbezug.LINKS) {
+    if (kantenSeite === KantenSeite.LINKS) {
       fuehrungsformAttributeArray = kante.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks;
-    } else if (seitenbezug === Seitenbezug.RECHTS) {
+    } else if (kantenSeite === KantenSeite.RECHTS) {
       fuehrungsformAttributeArray = kante.fuehrungsformAttributGruppe.fuehrungsformAttributeRechts;
     } else {
       throw Error('Kein gültiger Seitenbezug');
     }
-    return fuehrungsformAttributeArray.map(fuehrungsformAttribute => fuehrungsformAttribute.linearReferenzierterAbschnitt);
+    return fuehrungsformAttributeArray.map(
+      fuehrungsformAttribute => fuehrungsformAttribute.linearReferenzierterAbschnitt
+    );
   }
 
   private onTrennstreifenFormValueChanged(form: UntypedFormGroup): void {
@@ -593,10 +659,14 @@ export class KantenFuehrungsformEditorComponent
       return;
     }
 
-    const relevanteAttributGruppen = this.getFuehrungsformAttributeForTrennstreifenSeite(this.currentSelektion, this.trennstreifenSeiteSelected);
+    const relevanteAttributGruppen = this.getFuehrungsformAttributeForTrennstreifenSeite(
+      this.currentSelektion,
+      this.trennstreifenSeiteSelected
+    );
 
     relevanteAttributGruppen.forEach(attribute =>
-      this.applyFormValuesToAttribute(attribute, form, this.trennstreifenSeiteSelected));
+      this.applyFormValuesToAttribute(attribute, form, this.trennstreifenSeiteSelected)
+    );
 
     if (!form.pristine) {
       this.trennstreifenBearbeiteteSeiten = new Set(this.trennstreifenBearbeiteteSeiten);
@@ -605,23 +675,11 @@ export class KantenFuehrungsformEditorComponent
   }
 
   // Aktualisiert "Trennung Zu"-Feld, da Werte abhängig von Radverkehrsführung sind.
-  private resetTrennungZuOptions(selektion: KantenSelektion[]): void {
-    const linkerTrennstreifen = this.trennstreifenSeiteSelected === TrennstreifenSeite.A || this.trennstreifenSeiteSelected === TrennstreifenSeite.C;
-    let trennstreifenFormValue;
-    if (linkerTrennstreifen) {
-      trennstreifenFormValue = this.trennstreifenFormGroupLinks.value.trennstreifenFormLinks;
+  private updateTrennungZuOptions(radverkehrsfuehrungValues: Radverkehrsfuehrung[]): void {
+    if (radverkehrsfuehrungValues.some(rvf => this.trennstreifenNurParkenRadverkehrsfuehrungen.includes(rvf))) {
+      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
     } else {
-      trennstreifenFormValue = this.trennstreifenFormGroupRechts.value.trennstreifenFormRechts;
-    }
-
-    if (trennstreifenFormValue !== TrennstreifenForm.UNBEKANNT && trennstreifenFormValue !== TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN) {
-      if (this.getAttributeForSelektion(selektion)
-      .some(attrib => this.trennstreifenNurParkenRadverkehrsfuehrungen.includes(attrib.radverkehrsfuehrung))
-      ) {
-        this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
-      } else {
-        this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
-      }
+      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
     }
   }
 
@@ -632,17 +690,17 @@ export class KantenFuehrungsformEditorComponent
   }
 
   // Setzt das Trennstreifen-Form auf die Werte der Kante zurück, also auf die unveränderten Originalwerte.
-  private resetTrennstreifenFormToOriginalKantenValues(selektion: KantenSelektion[]): void {
-    selektion.forEach((kantenSelektion, kantenIndex) => {
+  private resetTrennstreifenFormToOriginalKantenValues(selektion: KantenSelektion[] | null): void {
+    selektion?.forEach((kantenSelektion, kantenIndex) => {
       this.resetToOriginalTrennstreifenAttribute(
-        kantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS),
+        kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS),
         kantenSelektion.kante.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks,
-        this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks,
+        this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks
       );
       this.resetToOriginalTrennstreifenAttribute(
-        kantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS),
+        kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS),
         kantenSelektion.kante.fuehrungsformAttributGruppe.fuehrungsformAttributeRechts,
-        this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts,
+        this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts
       );
     });
 
@@ -651,13 +709,16 @@ export class KantenFuehrungsformEditorComponent
   }
 
   // Überträgt Werte aus der Trennstreifen-Form für die gegebene Seite in die FührungsformAttribute
-  private applyFormValuesToAttribute(attribute: FuehrungsformAttribute, form: UntypedFormGroup, seite: TrennstreifenSeite | undefined): void {
+  private applyFormValuesToAttribute(
+    attribute: FuehrungsformAttribute,
+    form: UntypedFormGroup,
+    seite: TrennstreifenSeite | undefined
+  ): void {
     // Erst Form-Felder aktualisieren, bevor deren Werte in die FührungsformAttribute übertragen werden.
     this.updateTrennstreifenControlActivation(seite);
-    this.resetTrennungZuOptions(this.currentSelektion ?? []);
+    this.updateTrennungZuOptions([attribute.radverkehrsfuehrung]);
 
-    Object.keys(form.getRawValue())
-    .forEach(formKey => {
+    Object.keys(form.getRawValue()).forEach(formKey => {
       const field = form.get(formKey);
       if (!(field?.value instanceof UndeterminedValue)) {
         // @ts-expect-error Migration von ts-ignore
@@ -666,7 +727,11 @@ export class KantenFuehrungsformEditorComponent
     });
   }
 
-  private resetToOriginalTrennstreifenAttribute(selectedSegmentIndices: number[], originalAttribute: FuehrungsformAttribute[], currentFuehrungsformAttribute: FuehrungsformAttribute[]): void {
+  private resetToOriginalTrennstreifenAttribute(
+    selectedSegmentIndices: number[],
+    originalAttribute: FuehrungsformAttribute[],
+    currentFuehrungsformAttribute: FuehrungsformAttribute[]
+  ): void {
     originalAttribute.forEach((attribute, selectedSegmentIndex) => {
       if (selectedSegmentIndices.includes(selectedSegmentIndex)) {
         const trennstreifenAttribute = {
@@ -688,35 +753,37 @@ export class KantenFuehrungsformEditorComponent
 
   private updateTrennstreifenControlActivation(seite: TrennstreifenSeite | undefined): void {
     const linkerTrennstreifen = seite === TrennstreifenSeite.A || seite === TrennstreifenSeite.C;
-    const form = linkerTrennstreifen ? this.trennstreifenFormGroupLinks : this.trennstreifenFormGroupRechts;
 
-    let trennstreifenFormValue: TrennstreifenForm;
+    let trennstreifenFormValue: TrennstreifenForm | UndeterminedValue | null;
     let trennstreifenTrennungZuControl: AbstractControl | null;
     let trennstreifenBreiteControl: AbstractControl | null;
 
     if (linkerTrennstreifen) {
-      trennstreifenFormValue = form.value.trennstreifenFormLinks;
-      trennstreifenTrennungZuControl = form.get('trennstreifenTrennungZuLinks');
-      trennstreifenBreiteControl = form.get('trennstreifenBreiteLinks');
+      trennstreifenFormValue = this.trennstreifenFormGroupLinks.value.trennstreifenFormLinks ?? null;
+      trennstreifenTrennungZuControl = this.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks;
+      trennstreifenBreiteControl = this.trennstreifenFormGroupLinks.controls.trennstreifenBreiteLinks;
     } else {
-      trennstreifenFormValue = form.value.trennstreifenFormRechts;
-      trennstreifenTrennungZuControl = form.get('trennstreifenTrennungZuRechts');
-      trennstreifenBreiteControl = form.get('trennstreifenBreiteRechts');
+      trennstreifenFormValue = this.trennstreifenFormGroupRechts.value.trennstreifenFormRechts ?? null;
+      trennstreifenTrennungZuControl = this.trennstreifenFormGroupRechts.controls.trennstreifenTrennungZuRechts;
+      trennstreifenBreiteControl = this.trennstreifenFormGroupRechts.controls.trennstreifenBreiteRechts;
     }
 
-    if (trennstreifenFormValue === TrennstreifenForm.UNBEKANNT || trennstreifenFormValue === TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN) {
-      trennstreifenTrennungZuControl?.setValue(null, { emitEvent: false });
-      trennstreifenTrennungZuControl?.disable({ emitEvent: false });
-      trennstreifenBreiteControl?.setValue(null, { emitEvent: false });
-      trennstreifenBreiteControl?.disable({ emitEvent: false });
+    if (
+      trennstreifenFormValue === TrennstreifenForm.UNBEKANNT ||
+      trennstreifenFormValue === TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN
+    ) {
+      trennstreifenTrennungZuControl.setValue(null, { emitEvent: false });
+      trennstreifenTrennungZuControl.disable({ emitEvent: false });
+      trennstreifenBreiteControl.setValue(null, { emitEvent: false });
+      trennstreifenBreiteControl.disable({ emitEvent: false });
     } else {
-      trennstreifenTrennungZuControl?.enable({ emitEvent: false });
-      trennstreifenBreiteControl?.enable({ emitEvent: false });
+      trennstreifenTrennungZuControl.enable({ emitEvent: false });
+      trennstreifenBreiteControl.enable({ emitEvent: false });
     }
   }
 
-  private resetTrennstreifenAttribute(selektionen: KantenSelektion[]): void {
-    if (selektionen.length >= 1) {
+  private resetTrennstreifenAttribute(selektionen: KantenSelektion[] | null): void {
+    if (selektionen && selektionen.length >= 1) {
       this.trennstreifenEinseitig = !selektionen.some(selektion => selektion.kante.zweiseitig);
 
       if (this.trennstreifenEinseitig) {
@@ -725,14 +792,25 @@ export class KantenFuehrungsformEditorComponent
         this.trennstreifenSeiteOptions = [...TrennstreifenSeite.optionsLinks, ...TrennstreifenSeite.optionsRechts];
       }
 
-      const fahrtrichtungenLinks = [...new Set(selektionen.map(selektion => selektion.kante.fahrtrichtungAttributGruppe.fahrtrichtungLinks))];
+      const fahrtrichtungenLinks = [
+        ...new Set(selektionen.map(selektion => selektion.kante.fahrtrichtungAttributGruppe.fahrtrichtungLinks)),
+      ];
       this.trennstreifenRichtungLinks = fahrtrichtungenLinks.length === 1 ? fahrtrichtungenLinks[0] : undefined;
 
-      const fahrtrichtungenRechts = [...new Set(selektionen.filter(selektion => selektion.kante.zweiseitig).map(selektion => selektion.kante.fahrtrichtungAttributGruppe.fahrtrichtungRechts))];
+      const fahrtrichtungenRechts = [
+        ...new Set(
+          selektionen
+            .filter(selektion => selektion.kante.zweiseitig)
+            .map(selektion => selektion.kante.fahrtrichtungAttributGruppe.fahrtrichtungRechts)
+        ),
+      ];
       this.trennstreifenRichtungRechts = fahrtrichtungenRechts.length === 1 ? fahrtrichtungenRechts[0] : undefined;
     }
 
-    const relevanteAttribute = this.getFuehrungsformAttributeForTrennstreifenSeite(selektionen, this.trennstreifenSeiteSelected);
+    const relevanteAttribute = this.getFuehrungsformAttributeForTrennstreifenSeite(
+      selektionen,
+      this.trennstreifenSeiteSelected
+    );
     if (relevanteAttribute.length === 0) {
       this.trennstreifenFormGroupLinks.reset(undefined, { emitEvent: false });
       this.trennstreifenFormGroupRechts.reset(undefined, { emitEvent: false });
@@ -744,26 +822,41 @@ export class KantenFuehrungsformEditorComponent
     fillFormWithMultipleValues(this.trennstreifenFormGroupRechts, relevanteAttribute, false);
   }
 
-  private getFuehrungsformAttributeForTrennstreifenSeite(selektion: KantenSelektion[], seite: TrennstreifenSeite | undefined): FuehrungsformAttribute[] {
+  private getFuehrungsformAttributeForTrennstreifenSeite(
+    selektion: KantenSelektion[] | null,
+    seite: TrennstreifenSeite | undefined
+  ): FuehrungsformAttribute[] {
     const relevanteAttributGruppen: FuehrungsformAttribute[] = [];
 
-    selektion.forEach((kantenSelektion, kantenIndex) => {
+    selektion?.forEach((kantenSelektion, kantenIndex) => {
       const linkerRadweg = seite === TrennstreifenSeite.A || seite === TrennstreifenSeite.B;
       const rechterRadweg = seite === TrennstreifenSeite.C || seite === TrennstreifenSeite.D;
 
       if (linkerRadweg) {
-        kantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS).forEach(selectedSegmentIndex => {
-          relevanteAttributGruppen.push(this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks[selectedSegmentIndex]);
+        kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS).forEach(selectedSegmentIndex => {
+          relevanteAttributGruppen.push(
+            this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks[selectedSegmentIndex]
+          );
         });
       }
-      if (kantenSelektion.kante.zweiseitig && rechterRadweg || !kantenSelektion.kante.zweiseitig && linkerRadweg) {
-        kantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS).forEach(selectedSegmentIndex => {
-          relevanteAttributGruppen.push(this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts[selectedSegmentIndex]);
+      if ((kantenSelektion.kante.zweiseitig && rechterRadweg) || (!kantenSelektion.kante.zweiseitig && linkerRadweg)) {
+        kantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS).forEach(selectedSegmentIndex => {
+          relevanteAttributGruppen.push(
+            this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts[selectedSegmentIndex]
+          );
         });
       }
     });
 
     return relevanteAttributGruppen;
+  }
+
+  private onRadverkehrsfuehrungChanged(radverkehrsfuehrung: Radverkehrsfuehrung): void {
+    this.updateTrennungZuOptions([radverkehrsfuehrung]);
+    this.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.updateValueAndValidity({ emitEvent: false });
+    this.trennstreifenFormGroupRechts.controls.trennstreifenTrennungZuRechts.updateValueAndValidity({
+      emitEvent: false,
+    });
   }
 
   // eslint-disable-next-line no-unused-vars

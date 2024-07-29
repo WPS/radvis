@@ -14,7 +14,7 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">Maßnahme erstellen</h2>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -25,19 +25,16 @@
     (resetForm)="onReset()"
     [dirty]="formGroup.dirty"
     [fetching]="isFetching"
-    [showHeader]="false"
-  >
+    [showHeader]="false">
     <rad-netzbezug-selektion-control
       formControlName="netzbezug"
       class="mt-10 mb-10"
-      [layerId]="MASSNAHMEN.name"
-    ></rad-netzbezug-selektion-control>
+      [layerId]="MASSNAHMEN.name"></rad-netzbezug-selektion-control>
 
     <rad-enum-dropdown-control
       formControlName="umsetzungsstatus"
       [options]="umsetzungsstatusOptions"
-      [nullable]="false"
-    >
+      [nullable]="false">
       Umsetzungsstatus
     </rad-enum-dropdown-control>
 
@@ -49,15 +46,13 @@
       Kategorien
     </rad-massnahmenkategorien-dropdown-control>
     <rad-validation-error-anzeige
-      [errors]="formGroup.get('massnahmenkategorien')?.errors || null"
-    ></rad-validation-error-anzeige>
+      [errors]="formGroup.get('massnahmenkategorien')?.errors || null"></rad-validation-error-anzeige>
 
     <mat-checkbox
       formControlName="veroeffentlicht"
       class="mb-2"
       matTooltip="Veröffentlichung im Web-Viewer der Öffentlichkeit."
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       Veröffentlicht
     </mat-checkbox>
 
@@ -66,8 +61,7 @@
     <rad-autocomplete-dropdown
       formControlName="baulastZustaendiger"
       [options]="(alleOrganisationenOptions | async) || []"
-      [errors]="formGroup.get('baulastZustaendiger')?.errors"
-    >
+      [errors]="formGroup.get('baulastZustaendiger')?.errors">
       Baulastträger
     </rad-autocomplete-dropdown>
 
@@ -75,15 +69,13 @@
       formControlName="zustaendiger"
       [nullable]="false"
       [options]="(alleOrganisationenOptions | async) || []"
-      [errors]="formGroup.get('zustaendiger')?.errors"
-    >
+      [errors]="formGroup.get('zustaendiger')?.errors">
       Zuständige/r
     </rad-autocomplete-dropdown>
 
     <rad-text-input-control
       formControlName="durchfuehrungszeitraum"
-      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors"
-    >
+      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors">
       <div class="label">Durchführungszeitraum</div>
     </rad-text-input-control>
 
@@ -91,8 +83,7 @@
       formControlName="sollStandard"
       [options]="sollStandardOptions"
       [nullable]="false"
-      [errors]="formGroup.get('sollStandard')?.errors"
-    >
+      [errors]="formGroup.get('sollStandard')?.errors">
       Soll-Standard
     </rad-enum-dropdown-control>
 
@@ -100,8 +91,7 @@
       formControlName="handlungsverantwortlicher"
       [options]="handlungsverantwortlicherOptions"
       [nullable]="umsetzungsstatusAbPlanung()"
-      [errors]="formGroup.get('handlungsverantwortlicher')?.errors"
-    >
+      [errors]="formGroup.get('handlungsverantwortlicher')?.errors">
       Wer soll tätig werden?
     </rad-enum-dropdown-control>
 
@@ -109,16 +99,14 @@
       formControlName="konzeptionsquelle"
       [options]="konzeptionsquelleOptions"
       [nullable]="false"
-      [errors]="formGroup.get('konzeptionsquelle')?.errors"
-    >
+      [errors]="formGroup.get('konzeptionsquelle')?.errors">
       Quelle
     </rad-enum-dropdown-control>
 
     <rad-text-input-control
       *ngIf="sonstigeKonzeptionsquelle()"
       formControlName="sonstigeKonzeptionsquelle"
-      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors"
-    >
+      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors">
       <div class="label">Sonstige Quelle</div>
     </rad-text-input-control>
   </rad-attribute-editor>

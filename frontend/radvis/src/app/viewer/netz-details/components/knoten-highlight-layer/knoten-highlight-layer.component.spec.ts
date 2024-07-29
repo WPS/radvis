@@ -20,7 +20,7 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { PointGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { NetzDetailsModule } from 'src/app/viewer/netz-details/netz-details.module';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { anything, capture, instance, mock, reset, verify } from 'ts-mockito';
 import { KnotenHighlightLayerComponent } from './knoten-highlight-layer.component';
 

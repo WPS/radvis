@@ -14,7 +14,7 @@
 
 <mat-toolbar *ngIf="isCreator" radRightDetailsShortcut>
   <h2 class="flex-grow">Servicestation erstellen</h2>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -26,19 +26,14 @@
     [dirty]="isDirty"
     [fetching]="isFetching"
     [showHeader]="false"
-    [canEdit]="canEdit"
-  >
+    [canEdit]="canEdit">
     <rad-position-selektion-control
       formControlName="geometrie"
       class="mt-10"
-      [withInfrastrukturIcon]="iconName"
-    ></rad-position-selektion-control>
-    <div class="hinweis fremdnetz-hinweis" *ngIf="isQuellsystemMobiData">
-      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-      <div class="ml-10">
-        Diese Servicestation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
-      </div>
-    </div>
+      [withInfrastrukturIcon]="iconName"></rad-position-selektion-control>
+    <rad-warnhinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
+      Diese Servicestation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
+    </rad-warnhinweis>
 
     <rad-text-input-control formControlName="name" [errors]="formGroup.get('name')?.errors">
       <div class="label">Name</div>
@@ -48,8 +43,7 @@
       formControlName="quellSystem"
       [options]="servicestationQuellSystemOptions"
       [nullable]="false"
-      [errors]="formGroup.get('quellSystem')?.errors"
-    >
+      [errors]="formGroup.get('quellSystem')?.errors">
       Quellsystem
     </rad-enum-dropdown-control>
 
@@ -59,8 +53,7 @@
       formControlName="oeffnungszeiten"
       [asTextarea]="true"
       [maxLength]="2000"
-      [errors]="formGroup.get('oeffnungszeiten')?.errors"
-    >
+      [errors]="formGroup.get('oeffnungszeiten')?.errors">
       <div class="label">Öffnungszeiten</div>
     </rad-text-input-control>
 
@@ -81,8 +74,7 @@
       formControlName="beschreibung"
       [asTextarea]="true"
       [maxLength]="2000"
-      [errors]="formGroup.get('beschreibung')?.errors"
-    >
+      [errors]="formGroup.get('beschreibung')?.errors">
       <div class="label">Beschreibung</div>
     </rad-text-input-control>
 

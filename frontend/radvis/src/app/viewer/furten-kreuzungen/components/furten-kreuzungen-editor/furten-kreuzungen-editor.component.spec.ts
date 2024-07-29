@@ -29,7 +29,7 @@ import { Linksabbieger } from 'src/app/viewer/furten-kreuzungen/models/linksabbi
 import { Rechtsabbieger } from 'src/app/viewer/furten-kreuzungen/models/rechtsabbieger';
 import { SaveFurtKreuzungCommand } from 'src/app/viewer/furten-kreuzungen/models/save-furt-kreuzung-command';
 import { FurtenKreuzungenService } from 'src/app/viewer/furten-kreuzungen/services/furten-kreuzungen.service';
-import { defaultNetzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug-test-data-provider.spec';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { FurtenKreuzungenEditorComponent } from './furten-kreuzungen-editor.component';
 

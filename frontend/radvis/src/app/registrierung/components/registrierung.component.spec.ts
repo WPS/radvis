@@ -15,7 +15,7 @@
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockedComponentFixture, MockModule, MockRender } from 'ng-mocks';
 import { Rolle } from 'src/app/administration/models/rolle';
 import { MaterialDesignModule } from 'src/app/material-design.module';
 import { RegistriereBenutzerCommand } from 'src/app/registrierung/registriere-benutzer-command';
@@ -25,24 +25,30 @@ import { defaultOrganisation } from 'src/app/shared/models/organisation-test-dat
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { RegistrierungComponent } from './registrierung.component';
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
+import { FormElementsModule } from 'src/app/form-elements/form-elements.module';
 
 describe('RegistrierungComponent', () => {
   let component: RegistrierungComponent;
-  let fixture: ComponentFixture<RegistrierungComponent>;
+  let fixture: MockedComponentFixture<RegistrierungComponent>;
   let registrierungService: RegistrierungService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     registrierungService = mock(RegistrierungService);
-    await TestBed.configureTestingModule({
+    return TestBed.configureTestingModule({
       declarations: [RegistrierungComponent, MockComponent(OrganisationenDropdownControlComponent)],
       providers: [{ provide: RegistrierungService, useValue: instance(registrierungService) }],
-      imports: [RouterTestingModule, MockModule(MaterialDesignModule), MockModule(ReactiveFormsModule)],
+      imports: [
+        RouterTestingModule,
+        FormElementsModule,
+        MockModule(MaterialDesignModule),
+        MockModule(ReactiveFormsModule),
+      ],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RegistrierungComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(RegistrierungComponent);
+    component = fixture.point.componentInstance;
     // @ts-expect-error Migration von ts-ignore
     spyOn(component, 'reloadApplication').and.callFake(() => {});
     fixture.detectChanges();

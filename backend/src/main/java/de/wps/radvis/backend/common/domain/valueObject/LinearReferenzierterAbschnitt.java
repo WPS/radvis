@@ -191,6 +191,21 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 				Math.max(bis.getAbschnittsmarke(), other.bis.getAbschnittsmarke())));
 	}
 
+	public static LinearReferenzierterAbschnitt snappeAufEndpunkte(LinearReferenzierterAbschnitt abschnitt,
+		double gesamtlaengeBezugsKante, double minimaleSegmentLaenge) {
+		double newVon = abschnitt.getVonValue();
+		if (abschnitt.getVonValue() * gesamtlaengeBezugsKante < minimaleSegmentLaenge) {
+			newVon = 0;
+		}
+
+		double newBis = abschnitt.getBisValue();
+		if (gesamtlaengeBezugsKante - abschnitt.getBisValue() * gesamtlaengeBezugsKante < minimaleSegmentLaenge) {
+			newBis = 1;
+		}
+
+		return new LinearReferenzierterAbschnitt(newVon, newBis);
+	}
+
 	public static LinearReferenzierterAbschnitt of(LinearLocation anfang, LinearLocation ende,
 		LocationIndexedLine locationIndexedLine) {
 
@@ -210,9 +225,9 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 	 * stattfindet, ist, ob eine valide Lineare Referenz rauskommt, also ob keine Punktprojektion rauskommt.
 	 *
 	 * @param auf
-	 * 	der LineString auf den sich die Lineare Referenz bezieht
+	 *     der LineString auf den sich die Lineare Referenz bezieht
 	 * @param von
-	 * 	der LineString von dem aus auf den anderen LineString projiziert wird
+	 *     der LineString von dem aus auf den anderen LineString projiziert wird
 	 * @return die LineareReferenz die von projiziert auf auf ergibt
 	 */
 	public static LinearReferenzierterAbschnitt of(LineString auf, LineString von) {

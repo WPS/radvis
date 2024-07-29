@@ -37,10 +37,23 @@ import lombok.NonNull;
 import lombok.Setter;
 
 public class MassnahmenImportSession extends AbstractImportSession {
+	public static class CsvHeader {
+		public static final String MASSNAHME_ID = "Maßnahme-ID";
+		public static final String IMPORTIERT = "Importiert";
+		public static final String STATUS = "Status";
+		public static final String HINWEIS = "Hinweis";
+		public static final List<String> ALL = List.of(
+			MASSNAHME_ID,
+			IMPORTIERT,
+			STATUS,
+			HINWEIS);
+	}
 
 	public final static ImportSessionSchritt DATEI_HOCHLADEN = ImportSessionSchritt.of(1);
 	public final static ImportSessionSchritt ATTRIBUTE_AUSWAEHLEN = ImportSessionSchritt.of(2);
 	public final static ImportSessionSchritt ATTRIBUTFEHLER_UEBERPRUEFEN = ImportSessionSchritt.of(3);
+	public final static ImportSessionSchritt IMPORT_UEBERPRUEFEN_UND_SPEICHERN = ImportSessionSchritt.of(4);
+	public final static ImportSessionSchritt FEHLERPROTOKOLL_HERUNTERLADEN = ImportSessionSchritt.of(5);
 
 	private final MultiPolygon bereich;
 
@@ -73,7 +86,7 @@ public class MassnahmenImportSession extends AbstractImportSession {
 		require(gebietskoerperschaftenIds, not(empty()));
 
 		this.konzeptionsquelle = konzeptionsquelle;
-		zuordnungen = new ArrayList<>();
+		this.zuordnungen = new ArrayList<>();
 		this.bereich = bereich;
 		this.bereichName = bereichName;
 		this.gebietskoerperschaftenIds = gebietskoerperschaftenIds;

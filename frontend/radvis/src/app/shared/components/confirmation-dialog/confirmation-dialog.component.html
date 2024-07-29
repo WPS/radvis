@@ -15,15 +15,15 @@
 <div *ngIf="data.title" mat-dialog-title class="mb-10 dialog-title">{{ data.title }}</div>
 
 <div mat-dialog-content>
-  <p>{{ data.question }}</p>
+  <div class="mb-10" [innerHTML]="data.question"></div>
   <div class="display-flex justify-content-flex-end dialog-options">
     <ng-container *ngIf="data.inverseButtonColorCoding">
       <button [mat-dialog-close]="false" class="border-primary" mat-stroked-button>{{ data.labelNo }}</button>
       <button [mat-dialog-close]="true" cdkFocusInitial color="primary" mat-flat-button>{{ data.labelYes }}</button>
     </ng-container>
     <ng-container *ngIf="!data.inverseButtonColorCoding">
-      <button [mat-dialog-close]="false" cdkFocusInitial color="primary" mat-flat-button>{{ data.labelNo }}</button>
       <button [mat-dialog-close]="true" class="border-primary" mat-stroked-button>{{ data.labelYes }}</button>
+      <button [mat-dialog-close]="false" cdkFocusInitial color="primary" mat-flat-button>{{ data.labelNo }}</button>
     </ng-container>
   </div>
 </div>

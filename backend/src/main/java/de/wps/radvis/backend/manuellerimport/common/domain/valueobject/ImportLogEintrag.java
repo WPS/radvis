@@ -47,8 +47,4 @@ public class ImportLogEintrag {
 
 		return new ImportLogEintrag(fehlerBeschreibung, Severity.WARN);
 	}
-
-	public enum Severity {
-		ERROR, WARN
-	}
 }

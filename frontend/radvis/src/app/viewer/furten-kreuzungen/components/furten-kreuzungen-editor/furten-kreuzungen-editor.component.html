@@ -14,7 +14,7 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">Furt/Kreuzung <span *ngIf="isCreator">erstellen</span></h2>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -26,30 +26,25 @@
     [dirty]="isDirty"
     [fetching]="isFetching"
     [showHeader]="false"
-    [canEdit]="isCreator || currentFurtKreuzung?.benutzerDarfBearbeiten || false"
-  >
+    [canEdit]="isCreator || currentFurtKreuzung?.benutzerDarfBearbeiten || false">
     <rad-netzbezug-selektion-control
       [selectedId]="selectedId"
       [layerId]="FURTEN_KREUZUNGEN.name"
       formControlName="netzbezug"
-      class="mt-10 mb-10"
-    ></rad-netzbezug-selektion-control>
+      class="mt-10 mb-10"></rad-netzbezug-selektion-control>
     <rad-organisationen-dropdown-control
       formControlName="verantwortlicheOrganisation"
-      [options]="(alleOrganisationen$ | async) || []"
-    >
+      [options]="(alleOrganisationen$ | async) || []">
       Verantwortliche Organisation
     </rad-organisationen-dropdown-control>
     <rad-validation-error-anzeige
-      [errors]="formGroup.get('verantwortlicheOrganisation')?.errors || null"
-    ></rad-validation-error-anzeige>
+      [errors]="formGroup.get('verantwortlicheOrganisation')?.errors || null"></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
       [nullable]="false"
       [options]="typOptions"
       class="mat-form-field-full-width"
-      formControlName="typ"
-    >
+      formControlName="typ">
       Typ
     </rad-enum-dropdown-control>
     <rad-validation-error-anzeige [errors]="formGroup.get('typ')?.errors || null"></rad-validation-error-anzeige>
@@ -57,8 +52,7 @@
     <rad-grouped-enum-dropdown-control
       class="mat-form-field-full-width"
       formControlName="knotenForm"
-      [groupedOptions]="knotenFormOptions"
-    >
+      [groupedOptions]="knotenFormOptions">
       Knotenform
     </rad-grouped-enum-dropdown-control>
     <rad-validation-error-anzeige [errors]="formGroup.get('knotenForm')?.errors || null"></rad-validation-error-anzeige>
@@ -68,8 +62,7 @@
     <rad-autocomplete-enum-dropdown-control
       class="mat-form-field-full-width"
       formControlName="furtKreuzungMusterloesung"
-      [options]="(musterloesungOptions$ | async) ?? []"
-    >
+      [options]="(musterloesungOptions$ | async) ?? []">
       Musterlösung
     </rad-autocomplete-enum-dropdown-control>
 
@@ -87,25 +80,25 @@
         class="mat-form-field-full-width"
         [nullable]="false"
         [options]="rechtsabbiegerOptions"
-        formControlName="rechtsabbieger"
-      >
+        formControlName="rechtsabbieger">
         Rechtsabbieger
       </rad-enum-dropdown-control>
       <rad-validation-error-anzeige
-        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('rechtsabbieger')?.errors || null"
-      ></rad-validation-error-anzeige>
+        [errors]="
+          formGroup.get('lichtsignalAnlageEigenschaften')?.get('rechtsabbieger')?.errors || null
+        "></rad-validation-error-anzeige>
 
       <rad-enum-dropdown-control
         class="mat-form-field-full-width"
         [nullable]="false"
         [options]="linksabbiegerOptions"
-        formControlName="linksabbieger"
-      >
+        formControlName="linksabbieger">
         Linksabbieger
       </rad-enum-dropdown-control>
       <rad-validation-error-anzeige
-        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('linksabbieger')?.errors || null"
-      ></rad-validation-error-anzeige>
+        [errors]="
+          formGroup.get('lichtsignalAnlageEigenschaften')?.get('linksabbieger')?.errors || null
+        "></rad-validation-error-anzeige>
 
       <mat-checkbox formControlName="vorgezogeneHalteLinie" class="mb-2"> Vorgezogene Haltelinie</mat-checkbox>
       <mat-checkbox formControlName="radAufstellflaeche" class="mb-2"> Rad-Aufstellfläche</mat-checkbox>
@@ -113,20 +106,21 @@
         class="mat-form-field-full-width"
         [nullable]="false"
         [options]="gruenAnforderungOptions"
-        formControlName="gruenAnforderung"
-      >
+        formControlName="gruenAnforderung">
         Grünanforderung
       </rad-enum-dropdown-control>
       <rad-validation-error-anzeige
-        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('gruenAnforderung')?.errors || null"
-      ></rad-validation-error-anzeige>
+        [errors]="
+          formGroup.get('lichtsignalAnlageEigenschaften')?.get('gruenAnforderung')?.errors || null
+        "></rad-validation-error-anzeige>
       <rad-text-input-control class="mat-form-field-full-width w-100" formControlName="umlaufzeit">
         <div class="label">Umlaufzeit</div>
         <div class="suffix">Sekunden</div>
       </rad-text-input-control>
       <rad-validation-error-anzeige
-        [errors]="formGroup.get('lichtsignalAnlageEigenschaften')?.get('umlaufzeit')?.errors || null"
-      ></rad-validation-error-anzeige>
+        [errors]="
+          formGroup.get('lichtsignalAnlageEigenschaften')?.get('umlaufzeit')?.errors || null
+        "></rad-validation-error-anzeige>
     </ng-container>
   </rad-attribute-editor>
 </form>

@@ -39,7 +39,7 @@ export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService
     const benutzerOrganisation = benutzerDetailsService.aktuellerBenutzerOrganisation();
 
     if (benutzerOrganisation) {
-      if (Verwaltungseinheit.isLandesweit(benutzerOrganisation)) {
+      if (Verwaltungseinheit.isLandesOderBundesweit(benutzerOrganisation)) {
         this.organisation = null;
       } else {
         this.organisation = benutzerOrganisation;

@@ -13,37 +13,32 @@
   -->
 
 <ng-container *ngIf="hasKanten$ | async">
-  <div *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis hinweis">
-    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-    <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
-  </div>
+  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+    NICHT_BEARBEITBAR_HINWEIS
+  }}</rad-warnhinweis>
   <rad-kanten-attribute-editor-mit-subauswahl
     [disabled]="!editingAllowed"
     [dirty]="!pristine"
     [fetching]="isFetching"
     (save)="onSave()"
     (dismiss)="onClose()"
-    (resetForm)="onReset()"
-  >
+    (resetForm)="onReset()">
     <div [formGroup]="displayedAttributeformGroup" class="attribute group">
       <rad-organisationen-dropdown-control
         formControlName="baulastTraeger"
-        [options]="(alleOrganisationenOptions | async) || []"
-      >
+        [options]="(alleOrganisationenOptions | async) || []">
         Baulastträger
       </rad-organisationen-dropdown-control>
 
       <rad-organisationen-dropdown-control
         formControlName="unterhaltsZustaendiger"
-        [options]="(alleOrganisationenOptions | async) || []"
-      >
+        [options]="(alleOrganisationenOptions | async) || []">
         Zuständig für Unterhalt
       </rad-organisationen-dropdown-control>
 
       <rad-organisationen-dropdown-control
         formControlName="erhaltsZustaendiger"
-        [options]="(alleOrganisationenOptions | async) || []"
-      >
+        [options]="(alleOrganisationenOptions | async) || []">
         Zuständig für Erhalt
       </rad-organisationen-dropdown-control>
 
@@ -62,8 +57,9 @@
               (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id)"
               [formControl]="getLineareReferenzenFormControlAt(i)"
               [geometrie]="kantenSelektion.kante.geometry"
-              [selectedIndices]="kantenSelektion.getSelectedSegmentIndices()"
-            ></rad-linear-referenzierter-abschnitt-control>
+              [selectedIndices]="
+                kantenSelektion.getSelectedSegmentIndices()
+              "></rad-linear-referenzierter-abschnitt-control>
           </td>
         </tr>
       </tbody>

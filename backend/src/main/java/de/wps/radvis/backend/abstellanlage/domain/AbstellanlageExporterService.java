@@ -81,8 +81,7 @@ public class AbstellanlageExporterService implements ExporterService {
 					Groessenklasse::toString).orElse(""));
 				attribute.put(Abstellanlage.CsvHeader.STELLPLATZART, abstellanlage.getStellplatzart().toString());
 				attribute.put(Abstellanlage.CsvHeader.UEBERDACHT,
-					abstellanlage.getUeberdacht() != null && abstellanlage.getUeberdacht().getValue() ? "Ja" :
-						"Nein");
+					abstellanlage.getUeberdacht() != null && abstellanlage.getUeberdacht().getValue() ? "Ja" : "Nein");
 				attribute.put(Abstellanlage.CsvHeader.GEBUEHREN_PRO_TAG,
 					abstellanlage.getGebuehrenProTag().map(GebuehrenProTag::getValue).map(Objects::toString)
 						.orElse(""));

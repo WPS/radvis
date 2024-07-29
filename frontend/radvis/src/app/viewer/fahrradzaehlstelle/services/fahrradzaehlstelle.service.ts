@@ -47,8 +47,6 @@ export class FahrradzaehlstelleService {
       .set('endDate', endDate.toISOString().split('.')[0] + 'Z')
       .set('artDerAuswertung', artDerAuswertung);
 
-    return this.http
-      .get<FahrradzaehlstelleAuswertung>(`${this.api}/channelData`, { params })
-      .toPromise();
+    return this.http.get<FahrradzaehlstelleAuswertung>(`${this.api}/channelData`, { params }).toPromise();
   }
 }

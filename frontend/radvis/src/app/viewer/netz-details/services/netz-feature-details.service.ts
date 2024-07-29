@@ -15,7 +15,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Coordinate } from 'ol/coordinate';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
+import { RadVisFeatureAttributes } from 'src/app/shared/models/rad-vis-feature-attributes';
 import invariant from 'tiny-invariant';
 
 @Injectable({
@@ -29,14 +29,14 @@ export class NetzFeatureDetailsService {
   /**
    * @deprecated Wird entfernt sobald RadNETZ Matching entfernt wird
    */
-  getAttributeFuerKante(id: number, clickposition: Coordinate): Promise<RadVisFeatureAttribut[]> {
+  getAttributeFuerKante(id: number, clickposition: Coordinate): Promise<RadVisFeatureAttributes> {
     invariant(id, 'Id muss gesetzt sein');
 
     let params = new HttpParams();
     params = params.append('position', clickposition.toString());
 
     return this.http
-      .get<RadVisFeatureAttribut[]>(`${NetzFeatureDetailsService.BASE_URL}/kante-feature-details/${id}`, { params })
+      .get<RadVisFeatureAttributes>(`${NetzFeatureDetailsService.BASE_URL}/kante-feature-details/${id}`, { params })
       .toPromise();
   }
 }

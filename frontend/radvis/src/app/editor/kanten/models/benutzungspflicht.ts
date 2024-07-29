@@ -22,17 +22,15 @@ export enum Benutzungspflicht {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Benutzungspflicht {
-  export const options: EnumOption[] = Object.keys(Benutzungspflicht).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Benutzungspflicht.VORHANDEN:
-          return { name: k, displayText: 'Vorhanden' };
-        case Benutzungspflicht.NICHT_VORHANDEN:
-          return { name: k, displayText: 'Nicht vorhanden' };
-        case Benutzungspflicht.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Benutzungspflicht fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Benutzungspflicht).map((k: string): EnumOption => {
+    switch (k) {
+      case Benutzungspflicht.VORHANDEN:
+        return { name: k, displayText: 'Vorhanden' };
+      case Benutzungspflicht.NICHT_VORHANDEN:
+        return { name: k, displayText: 'Nicht vorhanden' };
+      case Benutzungspflicht.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Benutzungspflicht fehlt: ' + k);
+  });
 }

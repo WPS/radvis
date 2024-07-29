@@ -22,17 +22,15 @@ export enum NetzBezugAenderungsArt {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace NetzBezugAenderungsArt {
-  export const options: EnumOption[] = Object.keys(NetzBezugAenderungsArt).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case NetzBezugAenderungsArt.KANTE_GELOESCHT:
-          return { name: k, displayText: 'Kante gelöscht' };
-        case NetzBezugAenderungsArt.KANTE_VERAENDERT:
-          return { name: k, displayText: 'Kante verändert' };
-        case NetzBezugAenderungsArt.KNOTEN_GELOESCHT:
-          return { name: k, displayText: 'Knotens gelöscht' };
-      }
-      throw new Error('Beschreibung für enum NetzBezugAenderungsArt fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(NetzBezugAenderungsArt).map((k: string): EnumOption => {
+    switch (k) {
+      case NetzBezugAenderungsArt.KANTE_GELOESCHT:
+        return { name: k, displayText: 'Kante gelöscht' };
+      case NetzBezugAenderungsArt.KANTE_VERAENDERT:
+        return { name: k, displayText: 'Kante verändert' };
+      case NetzBezugAenderungsArt.KNOTEN_GELOESCHT:
+        return { name: k, displayText: 'Knotens gelöscht' };
     }
-  );
+    throw new Error('Beschreibung für enum NetzBezugAenderungsArt fehlt: ' + k);
+  });
 }

@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.FrontendLinks;
@@ -42,9 +44,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Getter
 public class ManuellerImportFehler extends AbstractEntity implements FehlerprotokollEintrag {
 	@Getter(AccessLevel.NONE)
 	@ManyToOne
@@ -65,16 +67,12 @@ public class ManuellerImportFehler extends AbstractEntity implements Fehlerproto
 	@CollectionTable(name = "manueller_import_fehler_konflikt")
 	private Set<Konflikt> konflikte;
 
-	@Getter
 	private Geometry iconPosition;
 
-	@Getter
 	private String titel;
 
-	@Getter
 	private String beschreibung;
 
-	@Getter
 	private String entityLink;
 
 	private ManuellerImportFehler(Kante kante, Geometry originalGeometrie, ImportTyp importTyp,
@@ -93,9 +91,10 @@ public class ManuellerImportFehler extends AbstractEntity implements Fehlerproto
 		this.fehlerursache = fehlerursache;
 		this.konflikte = konflikte;
 
-		this.iconPosition = kante != null ? kante.getVonKnoten().getPoint() : originalGeometrie.getCentroid();
+		this.iconPosition = kante != null ? kante.getGeometry().getCentroid() : originalGeometrie.getCentroid();
 		this.titel = ManuellerImportFehler.generateTitel(importTyp);
-		this.beschreibung = ManuellerImportFehler.generateBeschreibung(konflikte, fehlerursache);
+		this.beschreibung = ManuellerImportFehler.generateBeschreibung(kante != null ? kante.getId() : null, konflikte,
+			fehlerursache);
 		this.entityLink = ManuellerImportFehler.generateEntityLink(kante != null ? kante.getId() : null);
 	}
 
@@ -132,6 +131,11 @@ public class ManuellerImportFehler extends AbstractEntity implements Fehlerproto
 			ManuellerImportFehlerursache.ATTRIBUTE_NICHT_EINDEUTIG, konflikte);
 	}
 
+	@Override
+	public MultiPoint getIconPosition() {
+		return new MultiPoint(new Point[] { (Point) iconPosition }, iconPosition.getFactory());
+	}
+
 	public Optional<Kante> getKante() {
 		return Optional.ofNullable(kante);
 	}
@@ -145,8 +149,8 @@ public class ManuellerImportFehler extends AbstractEntity implements Fehlerproto
 	}
 
 	/**
-	 * Achtung: Wenn moeglich den Optional<Geometry> getter von originalGeometrie verwenden,
-	 * da die originalGeometrie beim ManuellerImportFehler nullable ist.
+	 * Achtung: Wenn moeglich den Optional<Geometry> getter von originalGeometrie verwenden, da die originalGeometrie
+	 * beim ManuellerImportFehler nullable ist.
 	 */
 	public Geometry getOriginalGeometry() {
 		return this.originalGeometrie;
@@ -161,22 +165,32 @@ public class ManuellerImportFehler extends AbstractEntity implements Fehlerproto
 			importTyp.equals(ImportTyp.ATTRIBUTE_UEBERNEHMEN) ? "Attribute" : "Netzklasse");
 	}
 
-	public static String generateBeschreibung(Set<Konflikt> konflikte, ManuellerImportFehlerursache fehlerursache) {
+	public static String generateBeschreibung(Long kanteid, Set<Konflikt> konflikte,
+		ManuellerImportFehlerursache fehlerursache) {
 		StringBuilder stringBuilder = new StringBuilder();
 		if (fehlerursache.equals(ManuellerImportFehlerursache.KEIN_MATCHING)) {
 			stringBuilder.append("Das Feature konnte nicht auf das Netz abgebildet werden.");
 		} else {
+			if (kanteid != null) {
+				stringBuilder.append(String.format("Für die Kante %d ", kanteid));
+			} else {
+				stringBuilder.append("Für eine Kante ");
+			}
 			stringBuilder
 				.append(String.format(
-					"Für die Kante konnte(n) %d Attribut(e) aus der Shape nicht vollständig übernommen werden:\n",
+					"konnte(n) %d Attribut(e) aus der Shape nicht vollständig übernommen werden:\n",
 					konflikte.size()));
 			int i = 1;
 			for (Konflikt konflikt : konflikte) {
 				stringBuilder.append(i++).append(".\n");
+				stringBuilder.append("Bemerkung: ").append(konflikt.getBemerkung()).append("\n");
 				stringBuilder.append("Attributname: ").append(konflikt.getAttributName()).append("\n");
 				stringBuilder.append("Übernommener Wert: ").append(konflikt.getUebernommenerWert()).append("\n");
 				stringBuilder.append("Nicht übernommen: ")
 					.append(String.join(", ", konflikt.getNichtUebernommeneWerte())).append("\n");
+				stringBuilder.append("Seite: ").append(konflikt.getSeitenbezug()).append("\n");
+				stringBuilder.append("Abschnitt: ").append(konflikt.getLinearReferenzierterAbschnitt().toString())
+					.append("\n\n");
 			}
 		}
 		return stringBuilder.toString();
@@ -196,7 +210,7 @@ public class ManuellerImportFehler extends AbstractEntity implements Fehlerproto
 		if (this.originalGeometrie == null) {
 			this.originalGeometrie = deletedKanteGeometry;
 		}
-		this.beschreibung =
-			"HINWEIS: Die betroffene Kante mit Id " + kanteId + " existiert nicht mehr!\n" + this.beschreibung;
+		this.beschreibung = "HINWEIS: Die betroffene Kante mit Id " + kanteId + " existiert nicht mehr!\n"
+			+ this.beschreibung;
 	}
 }

@@ -12,20 +12,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { BenutzerName } from 'src/app/shared/models/benutzer-name';
+import { CreateDateiLayerCommand } from 'src/app/viewer/weitere-kartenebenen/models/create-datei-layer-command';
+import { DateiLayer } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer';
+import { DateiLayerFormat } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer-format';
 import { DateiLayerService } from 'src/app/viewer/weitere-kartenebenen/services/datei-layer.service';
 import { anything, deepEqual, instance, mock, when } from 'ts-mockito';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { of } from 'rxjs';
-import { DateiLayer } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer';
-import { BenutzerName } from 'src/app/shared/models/benutzer-name';
-import { DateiLayerFormat } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer-format';
-import { CreateDateiLayerCommand } from 'src/app/viewer/weitere-kartenebenen/models/create-datei-layer-command';
-import { fakeAsync, tick } from '@angular/core/testing';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 
 describe(DateiLayerService.name, () => {
   let service: DateiLayerService;
-  let fileHandlingServiceMock: FileHandlingService;
   let httpClientMock: HttpClient;
 
   const testDateiLayers: DateiLayer[] = [
@@ -47,9 +45,7 @@ describe(DateiLayerService.name, () => {
     when(httpClientMock.get(deepEqual(`${DateiLayerService.API}/list`))).thenReturn(of(testDateiLayers));
     when(httpClientMock.post(anything(), anything())).thenReturn(of(new HttpResponse({ status: 200 })));
 
-    fileHandlingServiceMock = mock(FileHandlingService);
-
-    service = new DateiLayerService(instance(httpClientMock), instance(fileHandlingServiceMock));
+    service = new DateiLayerService(instance(httpClientMock));
   });
 
   it('should trigger allDateiLayers$ after refreshDateiLayers is called', fakeAsync(() => {

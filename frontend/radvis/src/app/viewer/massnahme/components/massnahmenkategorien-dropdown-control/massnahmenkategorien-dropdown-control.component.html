@@ -22,9 +22,8 @@
       [matTooltip]="displayFn(kategorie) + ' (' + displayOberkategorie(kategorie) + ')'"
       [removable]="true"
       (click)="onChipClick(kategorie, trigger)"
-      (removed)="onRemoved(kategorie)"
-    >
-      {{ displayFn(kategorie) | slice: 0:30 }}{{ kategorie.length > 30 ? ' ...' : '' }}
+      (removed)="onRemoved(kategorie)">
+      {{ displayFn(kategorie) | slice: 0 : 30 }}{{ kategorie.length > 30 ? ' ...' : '' }}
       <button matChipRemove *ngIf="formControl.enabled" aria-label="Kategorie aus Auswahl entfernen">
         <mat-icon> cancel</mat-icon>
       </button>
@@ -39,32 +38,27 @@
       [formControl]="formControl"
       [placeholder]="placeholder"
       #trigger="matAutocompleteTrigger"
-      (click)="onClick($event, trigger)"
-    />
+      (click)="onClick($event, trigger)" />
   </mat-chip-grid>
   <mat-autocomplete
     #auto="matAutocomplete"
     (optionSelected)="onOptionSelected($event, autoInput)"
     (opened)="onPanelOpened()"
-    (closed)="onPanelClosed()"
-  >
+    (closed)="onPanelClosed()">
     <mat-option disabled="true" *ngIf="filteredGroupedOptions.length === 0">Keine passenden Ergebnisse</mat-option>
     <mat-optgroup
       class="first-level-optgroup"
       *ngFor="let firstLevelGroup of filteredGroupedOptions"
-      [label]="firstLevelGroup.displayText"
-    >
+      [label]="firstLevelGroup.displayText">
       <ng-container *ngFor="let secondLevelGroup of firstLevelGroup.options">
         <mat-optgroup
           *ngIf="!secondLevelGroup.hidden; else noSecondLevelOptGroup"
           [label]="secondLevelGroup.displayText"
-          class="second-level-optgroup"
-        >
+          class="second-level-optgroup">
           <mat-option
             *ngFor="let option of secondLevelGroup.options"
             [value]="option.name"
-            [id]="getElementIdByKategorie(option.name)"
-          >
+            [id]="getElementIdByKategorie(option.name)">
             {{ option.displayText }}
           </mat-option>
         </mat-optgroup>
@@ -73,8 +67,7 @@
             [class.mat-option-like-optgroup]="secondLevelGroup.options.length === 1"
             *ngFor="let option of secondLevelGroup.options"
             [value]="option.name"
-            [id]="'kategorie-option-' + option.name"
-          >
+            [id]="'kategorie-option-' + option.name">
             {{ option.displayText }}
           </mat-option>
         </ng-template>

@@ -22,6 +22,10 @@
   height: 100%;
 }
 
+:host::ng-deep .mat-mdc-outlined-button > .mat-icon {
+  margin: 0;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -74,8 +78,6 @@
 }
 
 .fremdnetz-hinweis {
-  display: flex;
-  align-items: center;
   padding: 1rem 0.5rem;
   border-bottom: 1px solid map-get($grayscale, 100);
 }

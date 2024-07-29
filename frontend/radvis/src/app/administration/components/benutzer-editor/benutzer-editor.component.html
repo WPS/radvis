@@ -24,8 +24,7 @@
       mat-stroked-button
       color="primary"
       class="action-button"
-      (click)="onAblehnen()"
-    >
+      (click)="onAblehnen()">
       Ablehnen
     </button>
     <button
@@ -33,8 +32,7 @@
       mat-flat-button
       color="primary"
       class="action-button"
-      (click)="onAktivieren()"
-    >
+      (click)="onAktivieren()">
       Aktivieren
     </button>
   </div>
@@ -56,8 +54,7 @@
   <rad-autocomplete-dropdown
     formControlName="organisation"
     [options]="organisationOptions"
-    [errors]="form.get('organisation')?.errors"
-  >
+    [errors]="form.get('organisation')?.errors">
     Organisation
   </rad-autocomplete-dropdown>
 
@@ -66,8 +63,7 @@
     [options]="rollen"
     [nullable]="false"
     [multiple]="true"
-    [errors]="form.get('rollen')?.errors"
-  >
+    [errors]="form.get('rollen')?.errors">
     Rollen
   </rad-enum-dropdown-control>
 

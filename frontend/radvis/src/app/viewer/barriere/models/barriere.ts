@@ -16,7 +16,7 @@ import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { Markierung } from 'src/app/viewer/barriere/models/markierung';
 import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
 import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/verbleibende-durchfahrtsbreite';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface Barriere {
   verantwortlicheOrganisation: Verwaltungseinheit;

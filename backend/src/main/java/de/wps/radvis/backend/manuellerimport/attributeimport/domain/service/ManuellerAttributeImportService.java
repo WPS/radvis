@@ -36,7 +36,7 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -113,10 +113,14 @@ public class ManuellerAttributeImportService {
 						return true;
 					}
 				})
-				.filter(feature -> session.getBereich()
-					.intersects(CoordinateReferenceSystemConverterUtility.transformGeometry(
-						(Geometry) feature.getDefaultGeometry(),
-						KoordinatenReferenzSystem.ETRS89_UTM32_N)))
+				.map(simpleFeature -> {
+					Geometry utm32Geometry = CoordinateReferenceSystemConverterUtility.transformGeometry(
+						(Geometry) simpleFeature.getDefaultGeometry(),
+						KoordinatenReferenzSystem.ETRS89_UTM32_N);
+					simpleFeature.setDefaultGeometry(utm32Geometry);
+					return simpleFeature;
+				})
+				.filter(feature -> session.getBereich().intersects((Geometry) feature.getDefaultGeometry()))
 				.collect(Collectors.toList());
 
 			if (numberOfNullGeometries.get() > 0) {
@@ -181,25 +185,28 @@ public class ManuellerAttributeImportService {
 				this.attributMapperFactory.createMapper(session.getAttributeImportFormat()),
 				attributeImportKonfliktProtokoll);
 
+			// Matching-Fehler
 			manuellerImportFehlerRepository.saveAll(
 				session.getFeatureMappings().stream()
 					.filter(fm -> fm.getKantenAufDieGemappedWurde().isEmpty())
-					.map(fm -> new ManuellerImportFehler(
-						CoordinateReferenceSystemConverterUtility.transformGeometry(
-							fm.getImportedLineString(),
-							KoordinatenReferenzSystem.ETRS89_UTM32_N),
-						ImportTyp.ATTRIBUTE_UEBERNEHMEN, importZeitpunkt,
+					.map(fm -> new ManuellerImportFehler(fm.getImportedLineString(),
+						ImportTyp.ATTRIBUTE_UEBERNEHMEN,
+						importZeitpunkt,
 						session.getBenutzer(),
 						session.getOrganisation()))
 					.collect(Collectors.toList()));
+
+			// Attribute nicht eindeutig
 			manuellerImportFehlerRepository.saveAll(
 				attributeImportKonfliktProtokoll.getKantenKonfliktProtokolle().stream()
 					.filter(kKP -> kantenRepository.findById(kKP.getKanteId()).isPresent())
 					.map(kantenKonfliktProtokoll -> kantenRepository.findById(
 						kantenKonfliktProtokoll.getKanteId()).map(
-						k -> new ManuellerImportFehler(k, importZeitpunkt, session.getBenutzer(),
-							session.getOrganisation(),
-							kantenKonfliktProtokoll.getKonflikte())))
+							k -> new ManuellerImportFehler(k,
+								importZeitpunkt,
+								session.getBenutzer(),
+								session.getOrganisation(),
+								kantenKonfliktProtokoll.getKonflikte())))
 					.filter(Optional::isPresent)
 					.map(Optional::get)
 					.collect(Collectors.toList()));
@@ -221,7 +228,7 @@ public class ManuellerAttributeImportService {
 	}
 
 	public List<ImportierbaresAttribut> validateAttribute(byte[] shpZip, AttributeImportFormat attributeImportFormat)
-		throws IOException, ZipFileRequiredFilesMissingException {
+		throws IOException, ShapeZipInvalidException {
 		AttributeMapper mapper = attributMapperFactory.createMapper(attributeImportFormat);
 		File shpDirectory = zipService.unzip(shpZip);
 		Optional<File> shapeFileFromDirectory = zipService.getShapeFileFromDirectory(shpDirectory);
@@ -239,7 +246,7 @@ public class ManuellerAttributeImportService {
 							.getAttributWerte(shapeFileFromDirectory.get(), attrName);
 
 						Set<String> ungueltigeAttributWerte = attributWerte.filter(
-								attrWert -> !mapper.isAttributWertValid(attrName, attrWert))
+							attrWert -> !mapper.isAttributWertValid(attrName, attrWert))
 							.collect(Collectors.toSet());
 
 						boolean areWerteValid = ungueltigeAttributWerte.isEmpty();
@@ -268,7 +275,7 @@ public class ManuellerAttributeImportService {
 							next.getAttributDisplayName() + ", " + curr.getAttributDisplayName(),
 							next.isValid() && curr.isValid(),
 							Stream.concat(next.getUngueltigeWerte().stream(),
-									curr.getUngueltigeWerte().stream())
+								curr.getUngueltigeWerte().stream())
 								.collect(Collectors.toSet()));
 					})))
 				.values().stream().filter(Optional::isPresent).map(Optional::get).toList();

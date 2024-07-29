@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.common.schnittstelle;
 
-import static org.valid4j.Assertive.require;
-
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.api.referencing.FactoryException;
 import org.geotools.api.referencing.operation.TransformException;
@@ -25,15 +23,14 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
-import de.wps.radvis.backend.common.domain.KoordinateAusserhalbDesUnterstuetztenBereichsException;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 
 public class CoordinateReferenceSystemConverter {
 
-	private final Envelope badenWuerttembergEnvelope;
+	private final Envelope obersteGebietskoerperschaftEnvelope;
 
-	public CoordinateReferenceSystemConverter(Envelope badenWuerttembergEnvelope) {
-		this.badenWuerttembergEnvelope = badenWuerttembergEnvelope;
+	public CoordinateReferenceSystemConverter(Envelope obersteGebietskoerperschaftEnvelope) {
+		this.obersteGebietskoerperschaftEnvelope = obersteGebietskoerperschaftEnvelope;
 	}
 
 	/**
@@ -78,42 +75,7 @@ public class CoordinateReferenceSystemConverter {
 			zielReferenzSystem);
 	}
 
-	public Geometry tauscheLatLong(Geometry geometry) {
-		return CoordinateReferenceSystemConverterUtility.tauscheLatLong(geometry);
-	}
-
 	public boolean sindKoordinatenPlausibel(Geometry geometry) {
-		return badenWuerttembergEnvelope.contains(geometry.getEnvelopeInternal());
-	}
-
-	public boolean mussLatLongGetauschtWerden(Geometry geom)
-		throws KoordinateAusserhalbDesUnterstuetztenBereichsException {
-		KoordinatenReferenzSystem koordinatenReferenzSystem = KoordinatenReferenzSystem.ofSrid(geom.getSRID());
-		require(koordinatenReferenzSystem.equals(KoordinatenReferenzSystem.WGS84),
-			"Diese Methode ist bisher nur fuer WGS84 entwickelt");
-
-		try {
-			Geometry transformedNonFlippedGeometry = transformGeometry(geom,
-				KoordinatenReferenzSystem.ETRS89_UTM32_N);
-			if (sindKoordinatenPlausibel(transformedNonFlippedGeometry)) {
-				return false;
-			}
-		} catch (Exception ignored) {
-			// ignorieren es wird nach Coordinaten-Flipping vielleicht klappen
-		}
-
-		try {
-			Geometry getauscht = tauscheLatLong(geom);
-			Geometry transformedFlippedGeometry = transformGeometry(getauscht,
-				KoordinatenReferenzSystem.ETRS89_UTM32_N);
-			if (sindKoordinatenPlausibel(transformedFlippedGeometry)) {
-				return true;
-			}
-		} catch (Exception ignored) {
-			// ignorieren, die KoordinateAusserhalbDesUnterstuetztenBereichsException wird geworfen
-		}
-
-		throw new KoordinateAusserhalbDesUnterstuetztenBereichsException(
-			"Die Importkoordinaten keiner Geometrie konnten im Bereich von Baden-Württemberg verortet werden.");
+		return obersteGebietskoerperschaftEnvelope.contains(geometry.getEnvelopeInternal());
 	}
 }

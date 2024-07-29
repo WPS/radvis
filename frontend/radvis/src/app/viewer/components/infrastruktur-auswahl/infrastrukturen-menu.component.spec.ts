@@ -27,6 +27,7 @@ import { Infrastruktur, InfrastrukturToken } from 'src/app/viewer/viewer-shared/
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { anything, instance, mock, verify, when } from 'ts-mockito';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe(InfrastrukturenMenuComponent.name, () => {
   let component: InfrastrukturenMenuComponent;
@@ -38,7 +39,7 @@ describe(InfrastrukturenMenuComponent.name, () => {
   let featureTogglzService: FeatureTogglzService;
   let weitereKartenebenenService: WeitereKartenebenenService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     selektierteInfrastrukturenSubject$ = new Subject<Infrastruktur[]>();
     infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
     viewerRoutingService = mock(ViewerRoutingService);
@@ -51,7 +52,7 @@ describe(InfrastrukturenMenuComponent.name, () => {
     when(weitereKartenebenenService.weitereKartenebenen$).thenReturn(of([]));
     when(weitereKartenebenenService.selectedWeitereKartenebenen$).thenReturn(of([]));
 
-    await TestBed.configureTestingModule({
+    return TestBed.configureTestingModule({
       providers: [
         {
           provide: InfrastrukturenSelektionService,
@@ -75,7 +76,7 @@ describe(InfrastrukturenMenuComponent.name, () => {
         },
       ],
       declarations: [InfrastrukturenMenuComponent, MockComponent(MatCheckbox), MockComponent(MatIcon)],
-      imports: [ReactiveFormsModule],
+      imports: [ReactiveFormsModule, MatTooltipModule],
     }).compileComponents();
   });
 

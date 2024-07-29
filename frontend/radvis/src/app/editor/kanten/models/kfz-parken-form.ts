@@ -27,27 +27,25 @@ export enum KfzParkenForm {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace KfzParkenForm {
-  export const options: EnumOption[] = Object.keys(KfzParkenForm).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case KfzParkenForm.PARKBUCHTEN:
-          return { name: k, displayText: 'Parkbuchten' };
-        case KfzParkenForm.FAHRBAHNPARKEN_MARKIERT:
-          return { name: k, displayText: 'Fahrbahnparken (markiert)' };
-        case KfzParkenForm.FAHRBAHNPARKEN_UNMARKIERT:
-          return { name: k, displayText: 'Fahrbahnparken (unmarkiert)' };
-        case KfzParkenForm.GEHWEGPARKEN_MARKIERT:
-          return { name: k, displayText: 'Gehwegparken (markiert)' };
-        case KfzParkenForm.GEHWEGPARKEN_UNMARKIERT:
-          return { name: k, displayText: 'Gehwegparken (unmarkiert)' };
-        case KfzParkenForm.HALBES_GEHWEGPARKEN_MARKIERT:
-          return { name: k, displayText: 'Halbes Gehwegparken (markiert)' };
-        case KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT:
-          return { name: k, displayText: 'Halbes Gehwegparken (unmarkiert)' };
-        case KfzParkenForm.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum KfzParkenForm fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(KfzParkenForm).map((k: string): EnumOption => {
+    switch (k) {
+      case KfzParkenForm.PARKBUCHTEN:
+        return { name: k, displayText: 'Parkbuchten' };
+      case KfzParkenForm.FAHRBAHNPARKEN_MARKIERT:
+        return { name: k, displayText: 'Fahrbahnparken (markiert)' };
+      case KfzParkenForm.FAHRBAHNPARKEN_UNMARKIERT:
+        return { name: k, displayText: 'Fahrbahnparken (unmarkiert)' };
+      case KfzParkenForm.GEHWEGPARKEN_MARKIERT:
+        return { name: k, displayText: 'Gehwegparken (markiert)' };
+      case KfzParkenForm.GEHWEGPARKEN_UNMARKIERT:
+        return { name: k, displayText: 'Gehwegparken (unmarkiert)' };
+      case KfzParkenForm.HALBES_GEHWEGPARKEN_MARKIERT:
+        return { name: k, displayText: 'Halbes Gehwegparken (markiert)' };
+      case KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT:
+        return { name: k, displayText: 'Halbes Gehwegparken (unmarkiert)' };
+      case KfzParkenForm.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum KfzParkenForm fehlt: ' + k);
+  });
 }

@@ -18,35 +18,26 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
-import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
-import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.netz.domain.KanteResolver;
 import de.wps.radvis.backend.netz.domain.KnotenResolver;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
-import de.wps.radvis.backend.netz.schnittstelle.command.KnotenNetzbezugCommand;
-import de.wps.radvis.backend.netz.schnittstelle.command.PunktuellerKantenSeitenBezugCommand;
-import de.wps.radvis.backend.netz.schnittstelle.command.SeitenabschnittsKantenBezugCommand;
+import de.wps.radvis.backend.netz.schnittstelle.NetzbezugCommandConverter;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 
-public class CreateMassnahmeCommandConverter {
+public class CreateMassnahmeCommandConverter extends NetzbezugCommandConverter<MassnahmeNetzBezug> {
 
-	private final KnotenResolver knotenResolver;
-	private final KanteResolver kantenResolver;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 	private final BenutzerResolver benutzerResolver;
 
@@ -55,12 +46,9 @@ public class CreateMassnahmeCommandConverter {
 		KnotenResolver knotenResolver,
 		VerwaltungseinheitResolver verwaltungseinheitResolver,
 		BenutzerResolver benutzerResolver) {
-		require(kantenResolver, notNullValue());
-		require(knotenResolver, notNullValue());
+		super(kantenResolver, knotenResolver);
 		require(verwaltungseinheitResolver, notNullValue());
 		require(benutzerResolver, notNullValue());
-		this.kantenResolver = kantenResolver;
-		this.knotenResolver = knotenResolver;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 		this.benutzerResolver = benutzerResolver;
 	}
@@ -98,35 +86,9 @@ public class CreateMassnahmeCommandConverter {
 			command.getSonstigeKonzeptionsquelle());
 	}
 
-	private MassnahmeNetzBezug createNetzbezug(NetzbezugCommand netzbezugCommand) {
-		final Set<AbschnittsweiserKantenSeitenBezug> kantenSeitenAbschnitte = netzbezugCommand.getKantenBezug()
-			.stream().map(this::createKantenSeitenAbschnitt)
-			.collect(Collectors.toSet());
-		final Set<PunktuellerKantenSeitenBezug> kantenSeitenPunkte = netzbezugCommand.getPunktuellerKantenBezug()
-			.stream().map(this::createPunktuellerKantenSeitenBezug)
-			.collect(Collectors.toSet());
-		final HashSet<Knoten> knoten = new HashSet<>(knotenResolver.getKnoten(
-			netzbezugCommand.getKnotenBezug().stream().map(KnotenNetzbezugCommand::getKnotenId).collect(
-				Collectors.toSet())));
-		return new MassnahmeNetzBezug(kantenSeitenAbschnitte, kantenSeitenPunkte, knoten);
+	@Override
+	protected MassnahmeNetzBezug buildNetzbezug(Set<AbschnittsweiserKantenSeitenBezug> abschnitte,
+		Set<PunktuellerKantenSeitenBezug> punkte, Set<Knoten> knoten) {
+		return new MassnahmeNetzBezug(abschnitte, punkte, knoten);
 	}
-
-	private AbschnittsweiserKantenSeitenBezug createKantenSeitenAbschnitt(
-		SeitenabschnittsKantenBezugCommand seitenabschnittsKantenBezugCommand) {
-
-		Kante kante = kantenResolver.getKante(seitenabschnittsKantenBezugCommand.getKanteId());
-		LinearReferenzierterAbschnitt abschnitt = seitenabschnittsKantenBezugCommand.getLinearReferenzierterAbschnitt();
-		Seitenbezug seitenbezug = seitenabschnittsKantenBezugCommand.getSeitenbezug();
-		return new AbschnittsweiserKantenSeitenBezug(kante, abschnitt, seitenbezug);
-	}
-
-	private PunktuellerKantenSeitenBezug createPunktuellerKantenSeitenBezug(
-		PunktuellerKantenSeitenBezugCommand punktuellerKantenSeitenBezugCommand) {
-
-		Kante kante = kantenResolver.getKante(punktuellerKantenSeitenBezugCommand.getKanteId());
-		LineareReferenz lineareReferenz = LineareReferenz.of(punktuellerKantenSeitenBezugCommand.getLineareReferenz());
-		Seitenbezug seitenbezug = Seitenbezug.BEIDSEITIG;
-		return new PunktuellerKantenSeitenBezug(kante, lineareReferenz, seitenbezug);
-	}
-
 }

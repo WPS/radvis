@@ -16,7 +16,7 @@ import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/ve
 import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
 import { Markierung } from 'src/app/viewer/barriere/models/markierung';
 import { Barriere } from 'src/app/viewer/barriere/models/barriere';
-import { defaultNetzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug-test-data-provider.spec';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { BARRIEREN_FORM } from 'src/app/viewer/barriere/models/barrieren-form';
 

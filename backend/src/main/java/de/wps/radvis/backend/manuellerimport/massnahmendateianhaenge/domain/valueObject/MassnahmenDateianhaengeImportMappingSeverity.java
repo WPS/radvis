@@ -15,5 +15,6 @@
 package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject;
 
 public enum MassnahmenDateianhaengeImportMappingSeverity {
-	ERROR, WARN
+	ERROR,
+	WARN
 }

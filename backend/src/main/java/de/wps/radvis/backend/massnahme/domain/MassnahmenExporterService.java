@@ -43,9 +43,8 @@ public class MassnahmenExporterService implements ExporterService {
 		GeometryFactory geometryFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 		return massnahmeRepository.findAllByIdIn(ids).stream()
 			.map(massnahme -> {
-				GeometryCollection geometry = massnahme.getGeometry() != null ?
-					massnahme.getGeometry() :
-					geometryFactory.createGeometryCollection();
+				GeometryCollection geometry = massnahme.getGeometry() != null ? massnahme.getGeometry()
+					: geometryFactory.createGeometryCollection();
 				return new ExportData(geometry, convertProperties(massnahme));
 			}).collect(Collectors.toList());
 	}

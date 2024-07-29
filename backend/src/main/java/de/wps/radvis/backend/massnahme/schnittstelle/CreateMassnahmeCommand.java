@@ -28,6 +28,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -87,4 +88,8 @@ public class CreateMassnahmeCommand {
 		return Massnahme.hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien);
 	}
 
+	@AssertTrue(message = "RadNETZ-Maßnahmen (2016) dürfen nicht angelegt werden.")
+	public boolean isErlaubteKonzeptionsquelle() {
+		return !konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME);
+	}
 }

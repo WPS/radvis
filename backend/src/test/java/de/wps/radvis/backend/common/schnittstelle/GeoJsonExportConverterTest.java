@@ -71,16 +71,15 @@ class GeoJsonExportConverterTest {
 
 		exportDataList.add(exportData2);
 
-		String expectedResult =
-			"{\"type\":\"FeatureCollection\",\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:25832\"}},\"features\":["
-				+ "{\"type\":\"Feature\",\"properties\":{\"key1\":\"value1\"},\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":["
-				+ "{\"type\":\"Point\",\"coordinates\":[100.0,100.0]},"
-				+ "{\"type\":\"LineString\",\"coordinates\":[[100.0,100.0],[200.0,200.0]]}"
-				+ "]}},"
-				+ "{\"type\":\"Feature\",\"properties\":{\"key2\":\"value2\"},\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":["
-				+ "{\"type\":\"MultiPoint\",\"coordinates\":[[20.0,10.0],[200.0,100.0]]}"
-				+ "]}}"
-				+ "]}";
+		String expectedResult = "{\"type\":\"FeatureCollection\",\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:25832\"}},\"features\":["
+			+ "{\"type\":\"Feature\",\"properties\":{\"key1\":\"value1\"},\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":["
+			+ "{\"type\":\"Point\",\"coordinates\":[100.0,100.0]},"
+			+ "{\"type\":\"LineString\",\"coordinates\":[[100.0,100.0],[200.0,200.0]]}"
+			+ "]}},"
+			+ "{\"type\":\"Feature\",\"properties\":{\"key2\":\"value2\"},\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":["
+			+ "{\"type\":\"MultiPoint\",\"coordinates\":[[20.0,10.0],[200.0,100.0]]}"
+			+ "]}}"
+			+ "]}";
 		// act
 		byte[] byteArray = geoJsonExportConverter.convert(exportDataList);
 

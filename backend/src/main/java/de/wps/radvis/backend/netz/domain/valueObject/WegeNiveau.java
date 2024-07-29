@@ -15,5 +15,6 @@
 package de.wps.radvis.backend.netz.domain.valueObject;
 
 public enum WegeNiveau {
-	GEHWEG, FAHRBAHN
+	GEHWEG,
+	FAHRBAHN
 }

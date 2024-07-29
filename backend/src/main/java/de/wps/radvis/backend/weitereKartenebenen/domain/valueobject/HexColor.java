@@ -46,7 +46,7 @@ public class HexColor {
 		return new HexColor(value);
 	}
 
-	protected static boolean isValid(String value) {
+	public static boolean isValid(String value) {
 		return Pattern.matches("#[\\da-f]{6}", value);
 	}
 

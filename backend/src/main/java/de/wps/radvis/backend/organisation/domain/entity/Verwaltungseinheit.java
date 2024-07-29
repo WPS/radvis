@@ -29,7 +29,7 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.springframework.data.util.Pair;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

@@ -21,13 +21,14 @@ import {
   EventEmitter,
   forwardRef,
   HostListener,
+  Input,
   NgZone,
   OnDestroy,
   Output,
   ViewChild,
 } from '@angular/core';
 import { ResizeObserver } from '@juggle/resize-observer';
-import { Feature, Map as OlMap, MapBrowserEvent, Overlay } from 'ol';
+import { Feature, MapBrowserEvent, Map as OlMap, Overlay } from 'ol';
 import { ScaleLine } from 'ol/control';
 import { Coordinate } from 'ol/coordinate';
 import { buffer, Extent, getCenter } from 'ol/extent';
@@ -46,6 +47,7 @@ import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.s
 import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import { Signatur } from 'src/app/shared/models/signatur';
 import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
 import { WMSLegende } from 'src/app/shared/models/wms-legende';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
@@ -64,6 +66,9 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
   public static readonly CLICK_HIT_TOLERANCE = 20;
   private static readonly ZOOM_DURATION: number = 250;
   private static readonly ZOOM_OFFSET: number = 0.5;
+
+  @Input()
+  selectedSignatur: Signatur | null = null;
 
   @Output()
   get locationSelect(): Observable<LocationSelectEvent> {
@@ -590,7 +595,12 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
 }
 
 class VisibleRectangle {
-  constructor(public left: number, public top: number, public right: number, public bottom: number) {
+  constructor(
+    public left: number,
+    public top: number,
+    public right: number,
+    public bottom: number
+  ) {
     invariant(left <= right);
     invariant(top <= bottom);
   }

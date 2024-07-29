@@ -21,15 +21,13 @@ export enum KantenOrtslage {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace KantenOrtslage {
-  export const options: EnumOption[] = Object.keys(KantenOrtslage).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case KantenOrtslage.INNERORTS:
-          return { name: k, displayText: 'Innerorts' };
-        case KantenOrtslage.AUSSERORTS:
-          return { name: k, displayText: 'Außerorts' };
-      }
-      throw new Error('Beschreibung für enum KantenOrtslage fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(KantenOrtslage).map((k: string): EnumOption => {
+    switch (k) {
+      case KantenOrtslage.INNERORTS:
+        return { name: k, displayText: 'Innerorts' };
+      case KantenOrtslage.AUSSERORTS:
+        return { name: k, displayText: 'Außerorts' };
     }
-  );
+    throw new Error('Beschreibung für enum KantenOrtslage fehlt: ' + k);
+  });
 }

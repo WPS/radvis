@@ -1513,6 +1513,7 @@
             -- ################# ext_bw ################# --
             NULL                                             as "ext_bw_EuroVelo",
             COALESCE(rel_routen.is_d_route, 0)               as "ext_bw_RadNETZ_D",
+            netzklassen                                      as "ext_bw_netzklassen",
             CASE
                 WHEN netzklassen LIKE '%RADNETZ_ALLTAG%' OR netzklassen LIKE '%RADNETZ_FREIZEIT%'
                     THEN 1

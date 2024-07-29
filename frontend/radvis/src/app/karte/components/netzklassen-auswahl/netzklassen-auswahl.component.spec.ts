@@ -12,47 +12,128 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { MatToolbar } from '@angular/material/toolbar';
-import { MockComponent } from 'ng-mocks';
-import { Subject } from 'rxjs';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { NetzklassenAuswahlComponent } from 'src/app/karte/components/netzklassen-auswahl/netzklassen-auswahl.component';
+import { KarteModule } from 'src/app/karte/karte.module';
 import { NetzklassenAuswahlService } from 'src/app/karte/services/netzklassen-auswahl.service';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
+import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
 import { anything, instance, mock, verify, when } from 'ts-mockito';
 
 describe('NetzklassenAuswahlComponent', () => {
   let component: NetzklassenAuswahlComponent;
-  let fixture: ComponentFixture<NetzklassenAuswahlComponent>;
-  let netzklassenAuswahlSubject$: Subject<Netzklassefilter[]>;
+  let fixture: MockedComponentFixture<NetzklassenAuswahlComponent>;
+  let netzklassenAuswahlSubject$: BehaviorSubject<Netzklassefilter[]>;
   let netzklassenAuswahlService: NetzklassenAuswahlService;
 
-  beforeEach(async () => {
-    netzklassenAuswahlSubject$ = new Subject<Netzklassefilter[]>();
+  beforeEach(() => {
+    netzklassenAuswahlSubject$ = new BehaviorSubject<Netzklassefilter[]>([Netzklassefilter.RADNETZ]);
     netzklassenAuswahlService = mock(NetzklassenAuswahlService);
     when(netzklassenAuswahlService.currentAuswahl$).thenReturn(netzklassenAuswahlSubject$);
-    await TestBed.configureTestingModule({
-      providers: [
-        {
-          provide: NetzklassenAuswahlService,
-          useValue: instance(netzklassenAuswahlService),
-        },
-      ],
-      declarations: [NetzklassenAuswahlComponent, MockComponent(MatCheckbox), MockComponent(MatToolbar)],
-      imports: [ReactiveFormsModule],
-    }).compileComponents();
+    when(netzklassenAuswahlService.currentAuswahl).thenCall(() => netzklassenAuswahlSubject$.value);
+
+    return MockBuilder([NetzklassenAuswahlComponent, ReactiveFormsModule], KarteModule).provide({
+      provide: NetzklassenAuswahlService,
+      useValue: instance(netzklassenAuswahlService),
+    });
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NetzklassenAuswahlComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(NetzklassenAuswahlComponent);
+    component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('is Signatur Compatible', () => {
+    it('should be false if no signatur selected', () => {
+      netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+      fixture = MockRender(NetzklassenAuswahlComponent, { selectedSignatur: null } as NetzklassenAuswahlComponent, {
+        reset: true,
+      });
+      fixture.detectChanges();
+      expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(false);
+    });
+
+    it('should unsubscribe', () => {
+      fixture.destroy();
+
+      expect(netzklassenAuswahlSubject$.observers.length).toBe(0);
+    });
+
+    describe('with RadNETZ-Signatur', () => {
+      beforeEach(() => {
+        fixture = MockRender(
+          NetzklassenAuswahlComponent,
+          {
+            selectedSignatur: { name: 'RadNETZ', typ: SignaturTyp.NETZ },
+          } as NetzklassenAuswahlComponent,
+          { reset: true, detectChanges: false }
+        );
+      });
+
+      it('should be true if nur nicht klassifiziert', () => {
+        netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        fixture.detectChanges();
+        expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(true);
+      });
+
+      it('should be false if radNETZ visible', () => {
+        netzklassenAuswahlSubject$.next([Netzklassefilter.RADNETZ]);
+        fixture.detectChanges();
+        expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(false);
+      });
+    });
+
+    describe('with Netzklassen-Signatur', () => {
+      beforeEach(() => {
+        fixture = MockRender(
+          NetzklassenAuswahlComponent,
+          {
+            selectedSignatur: { name: 'Netzklassen', typ: SignaturTyp.NETZ },
+          } as NetzklassenAuswahlComponent,
+          { reset: true, detectChanges: false }
+        );
+      });
+
+      it('should be true if nur nicht klassifiziert', () => {
+        netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+        fixture.detectChanges();
+        expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(true);
+      });
+
+      it('should be false if Kreisnetz ausgewählt', () => {
+        netzklassenAuswahlSubject$.next([Netzklassefilter.KREISNETZ]);
+        fixture.detectChanges();
+        expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(false);
+      });
+    });
+
+    it('should change according to selectedNetzklassen', fakeAsync(() => {
+      netzklassenAuswahlSubject$.next([]);
+      fixture = MockRender(
+        NetzklassenAuswahlComponent,
+        {
+          selectedSignatur: { name: 'RadNETZ', typ: SignaturTyp.NETZ },
+        } as NetzklassenAuswahlComponent,
+        { reset: true }
+      );
+      expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(false);
+
+      netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
+      tick();
+      expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(true);
+
+      netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT, Netzklassefilter.RADNETZ]);
+      tick();
+      expect(fixture.point.componentInstance['showSignaturIncompatibleHinweis']).toBe(false);
+    }));
   });
 
   describe('netzklassen output', () => {

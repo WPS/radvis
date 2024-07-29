@@ -38,6 +38,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.common.domain.MailService;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
@@ -47,7 +48,6 @@ import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityNotFoundException;
 
 class OrganisationGuardTest {
@@ -78,14 +78,16 @@ class OrganisationGuardTest {
 		MockitoAnnotations.openMocks(this);
 		organisationGuard = new OrganisationGuard(benutzerResolver,
 			new BenutzerService(benutzerRepository, new VerwaltungseinheitService(verwaltungseinheitRepository,
-				gebietskoerperschaftRepository, organisationRepository),
+				gebietskoerperschaftRepository, organisationRepository,
+				OrganisationsArt.BUNDESLAND, "Baden-Württemberg"),
 				"technischerBenutzerServiceBwId", "basisUrl", mailService),
 			administrationService, organisationRepository);
 	}
 
 	@Test
 	void save_hasRecht() {
-		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.id(26354l).build();
 		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2l)
 			.zustaendigFuerBereichOf(
@@ -111,7 +113,8 @@ class OrganisationGuardTest {
 
 	@Test
 	void save_hasRecht_uebergeordnet() {
-		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.id(26354l).build();
 		Verwaltungseinheit uebergeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
@@ -139,7 +142,8 @@ class OrganisationGuardTest {
 
 	@Test
 	void save_hasRecht_nichtUebergeordnet() {
-		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.id(26354l).build();
 		Verwaltungseinheit uebergeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.id(6534l)
@@ -169,7 +173,8 @@ class OrganisationGuardTest {
 
 	@Test
 	void save_canZuweisen() {
-		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.id(26354l).build();
 		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2l)
 			.zustaendigFuerBereichOf(
@@ -234,7 +239,8 @@ class OrganisationGuardTest {
 
 	@Test
 	void save_zustaendigkeitAdded_notZuweisbar_throws() {
-		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.id(26354l).build();
 		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation()
 			.zustaendigFuerBereichOf(

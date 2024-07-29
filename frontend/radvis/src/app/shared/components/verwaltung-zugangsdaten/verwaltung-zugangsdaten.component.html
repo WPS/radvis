@@ -15,7 +15,7 @@
 <div mat-dialog-title>
   <div class="display-flex justify-content-space-between">
     <div>Verwaltung Zugangsdaten</div>
-    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" mat-dialog-close="true" mat-icon-button>
+    <button matTooltip="Schließen" mat-dialog-close="true" mat-icon-button>
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -44,8 +44,7 @@
           color="primary"
           matTooltip="In die Zwischenablage kopieren"
           [cdkCopyToClipboard]="passwort"
-          (click)="onCopyButtonClicked()"
-        >
+          (click)="onCopyButtonClicked()">
           <mat-icon>content_copy</mat-icon>
         </button>
       </td>

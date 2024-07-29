@@ -16,10 +16,8 @@ package de.wps.radvis.backend.application.schnittstelle;
 
 import java.util.List;
 
-import de.wps.radvis.backend.common.domain.entity.AbstractJob;
-
 public interface RadVisJobSchedule {
-	List<Class<? extends AbstractJob>> jobsToRun();
+	List<String> jobsToRun();
 
 	boolean forceRun();
 

@@ -54,12 +54,9 @@ import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 
 public class NetzToFeatureDetailsConverter {
 
-	public KanteDetailView convertKantetoKanteDetailView(Kante kante, Coordinate atPosition, String seite) {
-		KantenSeite kantenSeite = "links".equals(seite) ? KantenSeite.LINKS : KantenSeite.RECHTS;
-
-		if (!kante.isZweiseitig()) {
-			kantenSeite = KantenSeite.LINKS;
-		}
+	public KanteDetailView convertKantetoKanteDetailView(Kante kante, Coordinate atPosition,
+		String anzuzeigendeKantenSeite) {
+		KantenSeite kantenSeite = parseAnzuzeigendeKantenSeite(kante, anzuzeigendeKantenSeite);
 
 		Map<String, String> attributeAufGanzerLaenge = new HashMap<>();
 		attributeAufGanzerLaenge.put("ID", kante.getId().toString());
@@ -190,11 +187,19 @@ public class NetzToFeatureDetailsConverter {
 			attributeAufGanzerLaenge,
 			attributeAnPosition,
 			trennstreifenAttribute.values().stream().filter(e -> e != null).count() > 1 ? trennstreifenAttribute : null,
-			kante.isZweiseitig() ? seite : null, kante.getVerlaufLinks().orElse(null),
+			kante.isZweiseitig() ? anzuzeigendeKantenSeite : null, kante.getVerlaufLinks().orElse(null),
 			kante.getVerlaufRechts().orElse(null),
 			trennstreifenEinseitig,
 			trennstreifenRichtungRechts,
 			trennstreifenRichtungLinks);
+	}
+
+	private static KantenSeite parseAnzuzeigendeKantenSeite(Kante kante, String seite) {
+		if (!kante.isZweiseitig() || seite == null || seite.isEmpty()) {
+			// Zeige auch bei zweiseitigen Kanten die linke Seite an, wenn keine explizit ausgewählt ist.
+			return KantenSeite.LINKS;
+		}
+		return KantenSeite.valueOf(seite);
 	}
 
 	public KnotenDetailView convertKnotenToKnotenDetailView(Knoten knoten, KnotenOrtslage knotenOrtslage) {

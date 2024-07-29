@@ -34,6 +34,7 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.ExtentProperty;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
@@ -59,16 +60,22 @@ class OsmMatchedGraphHopperTest {
 
 		MockitoAnnotations.openMocks(this);
 		ExtentProperty extent = new ExtentProperty(492846.960, 500021.252, 5400410.543, 5418644.476);
-		commonConfigurationProperties = new CommonConfigurationProperties("src/test/resources/",
-			60, extent, null, "test",
-			"https://radvis-dev.landbw.de/");
+		commonConfigurationProperties = new CommonConfigurationProperties(
+			"src/test/resources/",
+			60,
+			extent,
+			null,
+			"test",
+			"https://radvis-dev.landbw.de/",
+			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources");
 		graphhopperOsmConfigurationProperties = new GraphhopperOsmConfigurationProperties(
 			"target/test-routing-graph-cache", mappingCacheVerzeichnis, 1d);
 		graphhopperServiceConfiguration = new MatchingConfiguration(
 			new GeoConverterConfiguration(commonConfigurationProperties),
 			commonConfigurationProperties,
 			graphhopperOsmConfigurationProperties,
-			new OsmPbfConfigurationProperties("test_angereichert.osm.pbf", "src/test/resources/test_small.osm.pbf",
+			new OsmPbfConfigurationProperties("test_angereichert.osm.pbf", "test_osm-basisnetz.osm.pbf",
+				"src/test/resources/test_small.osm.pbf",
 				"https://someurl.com", 0.0),
 			graphhopperDlmConfigurationProperties);
 		osmMatchingCacheRepository = graphhopperServiceConfiguration.osmMatchingCacheRepository();

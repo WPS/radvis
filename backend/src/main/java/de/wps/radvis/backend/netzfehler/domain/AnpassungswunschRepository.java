@@ -20,15 +20,11 @@ import java.util.stream.Stream;
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.netzfehler.domain.entity.Anpassungswunsch;
-import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschKategorie;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschStatus;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.KonsistenzregelVerletzungReferenz;
 
 public interface AnpassungswunschRepository
 	extends CrudRepository<Anpassungswunsch, Long> {
-
-	Iterable<Anpassungswunsch> findAllByStatusAndKategorie(AnpassungswunschStatus anpassungswunschStatus,
-		AnpassungswunschKategorie kategorie);
 
 	Iterable<Anpassungswunsch> findAllByStatusIsNotIn(List<AnpassungswunschStatus> anpassungswunschStatusList);
 

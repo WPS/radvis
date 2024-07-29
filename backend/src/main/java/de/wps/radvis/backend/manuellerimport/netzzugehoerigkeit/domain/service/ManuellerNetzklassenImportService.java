@@ -145,10 +145,15 @@ public class ManuellerNetzklassenImportService {
 						return true;
 					}
 				})
+				.map(simpleFeature -> {
+					Geometry utm32Geometry = CoordinateReferenceSystemConverterUtility.transformGeometry(
+						(Geometry) simpleFeature.getDefaultGeometry(),
+						KoordinatenReferenzSystem.ETRS89_UTM32_N);
+					simpleFeature.setDefaultGeometry(utm32Geometry);
+					return simpleFeature;
+				})
 				.filter(feature -> session.getOrganisation().getBereich()
-					.map(geo -> geo.intersects(CoordinateReferenceSystemConverterUtility.transformGeometry(
-						(Geometry) feature.getDefaultGeometry(),
-						KoordinatenReferenzSystem.ETRS89_UTM32_N)))
+					.map(geo -> geo.intersects((Geometry) feature.getDefaultGeometry()))
 					.orElse(false))
 				.collect(Collectors.toSet());
 
@@ -164,7 +169,7 @@ public class ManuellerNetzklassenImportService {
 					ImportLogEintrag.ofWarnung(
 						"Shapefile enthält keine Features im Bereich der Organisation "
 							+ session.getOrganisation()
-							.getName()
+								.getName()
 							+ ". Bei Fortführung des Imports wird die Netzklasse \""
 							+ session.getNetzklasse() + "\" in diesem Bereich gelöscht!"));
 			}
@@ -215,8 +220,7 @@ public class ManuellerNetzklassenImportService {
 
 		// Abbildung auf das RadVis-Netz
 		ManuellerNetzklassenImportAbbildungsService.MatchingErgebnis matchingErgebnis = manuellerNetzklassenImportAbbildungsService
-			.findKantenFromLineStrings(
-				lineStrings, netzklasseImportSession.getOrganisation());
+			.findKantenFromLineStrings(lineStrings, netzklasseImportSession.getOrganisation());
 		Set<Long> kanteIds = matchingErgebnis.matchedKanten;
 		log.info("LineStrings auf {} Kanten abgebildet", kanteIds.size());
 		netzklasseImportSession.getKanteIds().addAll(kanteIds);

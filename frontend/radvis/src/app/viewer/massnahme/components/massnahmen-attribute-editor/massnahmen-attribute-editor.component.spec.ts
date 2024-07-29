@@ -17,6 +17,8 @@ import { ActivatedRoute, Data } from '@angular/router';
 import { MockBuilder } from 'ng-mocks';
 import { of, Subject } from 'rxjs';
 import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -33,8 +35,6 @@ import { MassnahmeNetzbezugDisplayService } from 'src/app/viewer/massnahme/servi
 import { MassnahmeUpdatedService } from 'src/app/viewer/massnahme/services/massnahme-updated.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
-import { defaultNetzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug-test-data-provider.spec';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
@@ -237,22 +237,26 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
       expect().nothing();
     }));
 
-    it('should update umsetzungsstand for status changed from STORNIERT to UMGESETZT', fakeAsync(() => {
-      massnahme.umsetzungsstatus = Umsetzungsstatus.STORNIERT;
-      massnahme.konzeptionsquelle = Konzeptionsquelle.RADNETZ_MASSNAHME;
+    Konzeptionsquelle.values
+      .filter(k => Konzeptionsquelle.isRadNetzMassnahme(k))
+      .forEach(k => {
+        it(`should update umsetzungsstand for status changed from STORNIERT to UMGESETZT (${k})`, fakeAsync(() => {
+          massnahme.umsetzungsstatus = Umsetzungsstatus.STORNIERT;
+          massnahme.konzeptionsquelle = k;
 
-      const neueMassnahme: Massnahme = { ...massnahme };
-      neueMassnahme.umsetzungsstatus = Umsetzungsstatus.UMGESETZT;
-      when(massnahmeService.saveMassnahme(anything())).thenReturn(Promise.resolve(neueMassnahme));
+          const neueMassnahme: Massnahme = { ...massnahme };
+          neueMassnahme.umsetzungsstatus = Umsetzungsstatus.UMGESETZT;
+          when(massnahmeService.saveMassnahme(anything())).thenReturn(Promise.resolve(neueMassnahme));
 
-      massnahmenAttributeEditorComponent.formGroup.markAsDirty();
-      massnahmenAttributeEditorComponent.onSave();
+          massnahmenAttributeEditorComponent.formGroup.markAsDirty();
+          massnahmenAttributeEditorComponent.onSave();
 
-      tick();
+          tick();
 
-      verify(massnahmenRoutingService.toUmsetzungstandEditor(anything())).once();
-      expect().nothing();
-    }));
+          verify(massnahmenRoutingService.toUmsetzungstandEditor(anything())).once();
+          expect().nothing();
+        }));
+      });
 
     it('should not update umsetzungsstand when status not changed', fakeAsync(() => {
       massnahme.umsetzungsstatus = Umsetzungsstatus.STORNIERT;
@@ -271,37 +275,41 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
     }));
 
     describe('enable/disable form', () => {
-      it('it should toggle with Konzeptionsquelle RadNETZ-Maßnahme', fakeAsync(() => {
-        expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeFalse();
+      Konzeptionsquelle.values
+        .filter(k => Konzeptionsquelle.isRadNetzMassnahme(k))
+        .forEach(k => {
+          it(`it should toggle with Konzeptionsquelle ${k}`, fakeAsync(() => {
+            expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeFalse();
 
-        dataSubject.next({
-          massnahme: {
-            ...massnahme,
-            canEdit: false,
-            konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
-          } as Massnahme,
+            dataSubject.next({
+              massnahme: {
+                ...massnahme,
+                canEdit: false,
+                konzeptionsquelle: k,
+              } as Massnahme,
+            });
+
+            tick();
+
+            expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeTrue();
+            expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeTrue();
+            expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeTrue();
+
+            dataSubject.next({
+              massnahme: {
+                ...massnahme,
+                canEdit: true,
+                konzeptionsquelle: k,
+              } as Massnahme,
+            });
+
+            tick();
+
+            expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeFalse();
+            expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeTrue();
+            expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeTrue();
+          }));
         });
-
-        tick();
-
-        expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeTrue();
-        expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeTrue();
-        expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeTrue();
-
-        dataSubject.next({
-          massnahme: {
-            ...massnahme,
-            canEdit: true,
-            konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
-          } as Massnahme,
-        });
-
-        tick();
-
-        expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeFalse();
-        expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeTrue();
-        expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeTrue();
-      }));
 
       it('it should toggle with Konzeptionsquelle keine RadNETZ-Maßnahme', fakeAsync(() => {
         expect(massnahmenAttributeEditorComponent.formGroup.disabled).toBeFalse();
@@ -339,9 +347,7 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
         expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeFalse();
         expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeFalse();
 
-        const radNETZMassnahme: Massnahme = { ...massnahme };
-        radNETZMassnahme.konzeptionsquelle = Konzeptionsquelle.RADNETZ_MASSNAHME;
-        dataSubject.next({ massnahme: radNETZMassnahme });
+        dataSubject.next({ massnahme: { ...massnahme, konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME } });
         tick();
 
         expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeTrue();
@@ -352,6 +358,12 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
 
         expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeFalse();
         expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeFalse();
+
+        dataSubject.next({ massnahme: { ...massnahme, konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME_2024 } });
+        tick();
+
+        expect(massnahmenAttributeEditorComponent.isRadNETZMassnahme).toBeTrue();
+        expect(massnahmenAttributeEditorComponent.formGroup.get('konzeptionsquelle')?.disabled).toBeTrue();
       }));
     });
 

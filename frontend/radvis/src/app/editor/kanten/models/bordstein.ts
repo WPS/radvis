@@ -23,19 +23,17 @@ export enum Bordstein {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Bordstein {
-  export const options: EnumOption[] = Object.keys(Bordstein).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Bordstein.KOMPLETT_ABGESENKT:
-          return { name: k, displayText: 'Komplett abgesenkt' };
-        case Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER:
-          return { name: k, displayText: 'Absenkung > 0 cm < 3 cm' };
-        case Bordstein.KEINE_ABSENKUNG:
-          return { name: k, displayText: 'Keine Absenkung' };
-        case Bordstein.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Bordstein fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Bordstein).map((k: string): EnumOption => {
+    switch (k) {
+      case Bordstein.KOMPLETT_ABGESENKT:
+        return { name: k, displayText: 'Komplett abgesenkt' };
+      case Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER:
+        return { name: k, displayText: 'Absenkung > 0 cm < 3 cm' };
+      case Bordstein.KEINE_ABSENKUNG:
+        return { name: k, displayText: 'Keine Absenkung' };
+      case Bordstein.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Bordstein fehlt: ' + k);
+  });
 }

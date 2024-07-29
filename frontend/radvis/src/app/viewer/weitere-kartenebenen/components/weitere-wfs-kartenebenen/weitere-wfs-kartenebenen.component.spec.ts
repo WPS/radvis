@@ -63,14 +63,14 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
 
   const testUrl = 'https://testurl.de';
   beforeEach(() => {
-    fixture = MockRender(WeitereWfsKartenebenenComponent, ({
+    fixture = MockRender(WeitereWfsKartenebenenComponent, {
       url: testUrl,
       deckkraft: 1,
       minZoom: 8.7,
       zindex: 1000,
       layerId: 10,
       quelle: 'Testquelle',
-    } as unknown) as WeitereWfsKartenebenenComponent);
+    } as unknown as WeitereWfsKartenebenenComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });

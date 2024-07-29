@@ -316,8 +316,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 						LinearReferenzierterAbschnitt.of(0, 1))))
 				.kategorie(Kategorie.RADSCHNELLWEG)
 				.build();
-			fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-				when(netzService.getKanten(Set.of(bezug.getKante().getId())))
+			fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKanten(Set.of(bezug
+				.getKante().getId())))
 					.thenReturn(List.of(kanteOutsideZustaendigkeitsbereich)));
 
 			// Act+Assert
@@ -416,8 +416,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 					))
 				.kategorie(Kategorie.RADSCHNELLWEG)
 				.build();
-			fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-				when(netzService.getKanten(Set.of(bezug.getKante().getId())))
+			fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKanten(Set.of(bezug
+				.getKante().getId())))
 					.thenReturn(List.of(kanteOutsideZustaendigkeitsbereich)));
 
 			// Act+Assert
@@ -518,7 +518,7 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				when(netzService.getKanten(Set.of(
 					radvisRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().get(0).getKante()
 						.getId()))).thenReturn(
-					List.of(kanteWithinZustaendigkeitsbereich, kanteOutsideZustaendigkeitsbereich));
+							List.of(kanteWithinZustaendigkeitsbereich, kanteOutsideZustaendigkeitsbereich));
 
 				// Act+Assert
 				assertDoesNotThrow(() -> fahrradrouteGuard.changeVeroeffentlicht(authentication, command));
@@ -527,8 +527,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 			@Test
 			public void deleteFarradroute() {
 				// Arrange
-				radvisRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				radvisRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().forEach(bezug -> when(
+					netzService.getKante(bezug.getKante().getId()))
 						.thenReturn(kanteWithinZustaendigkeitsbereich));
 				when(netzService.getKanten(Set.of(
 					radvisRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().get(0).getKante()
@@ -545,8 +545,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 					.kategorie(Kategorie.LANDESRADFERNWEG)
 					.build();
-				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+					.getKante().getId()))
 						.thenReturn(kanteOutsideZustaendigkeitsbereich));
 
 				// Act+Assert
@@ -560,8 +560,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 					.kategorie(Kategorie.D_ROUTE)
 					.build();
-				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+					.getKante().getId()))
 						.thenReturn(kanteOutsideZustaendigkeitsbereich));
 
 				// Act+Assert
@@ -603,8 +603,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 			@Test
 			public void deleteFarradroute() {
 				// Arrange
-				toubizRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				toubizRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().forEach(bezug -> when(
+					netzService.getKante(bezug.getKante().getId()))
 						.thenReturn(kanteWithinZustaendigkeitsbereich));
 				when(netzService.getKanten(Set.of(
 					toubizRouteWithinZustaendigkeitsbereich.getAbschnittsweiserKantenBezug().get(0).getKante()
@@ -621,8 +621,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 					.kategorie(Kategorie.LANDESRADFERNWEG)
 					.build();
-				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+					.getKante().getId()))
 						.thenReturn(kanteWithinZustaendigkeitsbereich));
 
 				// Act+Assert
@@ -636,8 +636,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 					.kategorie(Kategorie.D_ROUTE)
 					.build();
-				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+					.getKante().getId()))
 						.thenReturn(kanteWithinZustaendigkeitsbereich));
 
 				// Act+Assert
@@ -688,7 +688,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				@Test
 				public void changeVeroeffentlicht() {
 					// Arrange
-					ChangeFahrradrouteVeroeffentlichtCommand command = ChangeFahrradrouteVeroeffentlichtCommand.builder()
+					ChangeFahrradrouteVeroeffentlichtCommand command = ChangeFahrradrouteVeroeffentlichtCommand
+						.builder()
 						.veroeffentlicht(true).id(1L).version(2L).build();
 
 					when(fahrradrouteService.loadForModification(eq(command.getId()),
@@ -704,8 +705,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 					Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 						.kategorie(Kategorie.RADSCHNELLWEG)
 						.build();
-					fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-						when(netzService.getKante(bezug.getKante().getId()))
+					fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+						.getKante().getId()))
 							.thenReturn(kanteOutsideZustaendigkeitsbereich));
 
 					// Act+Assert
@@ -730,7 +731,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				@Test
 				public void changeVeroeffentlicht() {
 					// Arrange
-					ChangeFahrradrouteVeroeffentlichtCommand command = ChangeFahrradrouteVeroeffentlichtCommand.builder()
+					ChangeFahrradrouteVeroeffentlichtCommand command = ChangeFahrradrouteVeroeffentlichtCommand
+						.builder()
 						.veroeffentlicht(true).id(1L).version(2L).build();
 
 					when(fahrradrouteService.loadForModification(eq(command.getId()),
@@ -746,8 +748,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 					Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 						.kategorie(Kategorie.RADSCHNELLWEG)
 						.build();
-					fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-						when(netzService.getKante(bezug.getKante().getId()))
+					fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+						.getKante().getId()))
 							.thenReturn(kanteOutsideZustaendigkeitsbereich));
 
 					// Act+Assert
@@ -789,8 +791,8 @@ class FahrradrouteGuardTest implements RadVisDomainEventPublisherSensitiveTest {
 				Fahrradroute fahrradroute = FahrradrouteTestDataProvider.withDefaultValues()
 					.kategorie(Kategorie.RADSCHNELLWEG)
 					.build();
-				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug ->
-					when(netzService.getKante(bezug.getKante().getId()))
+				fahrradroute.getAbschnittsweiserKantenBezug().forEach(bezug -> when(netzService.getKante(bezug
+					.getKante().getId()))
 						.thenReturn(kanteOutsideZustaendigkeitsbereich));
 
 				// Act+Assert

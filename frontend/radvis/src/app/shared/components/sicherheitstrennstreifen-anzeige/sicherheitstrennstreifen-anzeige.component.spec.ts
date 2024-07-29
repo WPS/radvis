@@ -12,27 +12,42 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
+import { SicherheitstrennstreifenAnzeigeComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige/sicherheitstrennstreifen-anzeige.component';
+import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
+import { SharedModule } from 'src/app/shared/shared.module';
 
-import { SicherheitstrennstreifenAnzeigeComponent } from './sicherheitstrennstreifen-anzeige.component';
-
-describe('SicherheitstrennstreifenAnzeigeComponent', () => {
+describe(SicherheitstrennstreifenAnzeigeComponent.name, () => {
   let component: SicherheitstrennstreifenAnzeigeComponent;
-  let fixture: ComponentFixture<SicherheitstrennstreifenAnzeigeComponent>;
+  let fixture: MockedComponentFixture<SicherheitstrennstreifenAnzeigeComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [SicherheitstrennstreifenAnzeigeComponent],
-    }).compileComponents();
+  ngMocks.faster();
+
+  beforeAll(() => {
+    return MockBuilder(SicherheitstrennstreifenAnzeigeComponent, SharedModule);
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SicherheitstrennstreifenAnzeigeComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(SicherheitstrennstreifenAnzeigeComponent);
+    component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should emit change on selecting a different Seite', () => {
+    const selectedSeiteChangeSpy = spyOn(component.selectedSeiteChange, 'emit');
+    component.selectedSeite = TrennstreifenSeite.A;
+    component.onTrennstreifenClicked(TrennstreifenSeite.B);
+    expect(selectedSeiteChangeSpy).toHaveBeenCalled();
+  });
+
+  it('should not emit change on selecting the same Seite', () => {
+    const selectedSeiteChangeSpy = spyOn(component.selectedSeiteChange, 'emit');
+    component.selectedSeite = TrennstreifenSeite.A;
+    component.onTrennstreifenClicked(TrennstreifenSeite.A);
+    expect(selectedSeiteChangeSpy).not.toHaveBeenCalled();
   });
 });

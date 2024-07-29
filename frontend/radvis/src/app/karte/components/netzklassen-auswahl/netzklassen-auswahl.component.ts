@@ -12,10 +12,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { Observable } from 'rxjs';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { NetzklassenAuswahlService } from 'src/app/karte/services/netzklassen-auswahl.service';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
+import { Signatur } from 'src/app/shared/models/signatur';
 
 @Component({
   selector: 'rad-netzklassen-auswahl',
@@ -23,15 +24,49 @@ import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
   styleUrls: ['./netzklassen-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NetzklassenAuswahlComponent {
+export class NetzklassenAuswahlComponent implements OnInit, OnDestroy {
   @Input()
   public zoom: number = Number.MAX_VALUE;
+  @Input()
+  public selectedSignatur: Signatur | null = null;
 
   public selectedNetzklassen$: Observable<Netzklassefilter[]>;
   public allNetzklassen: Netzklassefilter[] = Netzklassefilter.getAll();
 
-  constructor(private netzklassenAuswahlService: NetzklassenAuswahlService) {
+  protected showSignaturIncompatibleHinweis = false;
+  protected readonly signaturIncompatibleHinweis = Signatur.SIGNATUR_NETZFILTER_INCOMPATIBLE_MESSAGE;
+
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private netzklassenAuswahlService: NetzklassenAuswahlService,
+    changeDetector: ChangeDetectorRef
+  ) {
     this.selectedNetzklassen$ = this.netzklassenAuswahlService.currentAuswahl$;
+    this.subscriptions.push(
+      this.selectedNetzklassen$.subscribe(netzklassenfilter => {
+        if (this.selectedSignatur) {
+          this.showSignaturIncompatibleHinweis = !Signatur.isCompatibleWithNetzklassenfilter(
+            this.selectedSignatur,
+            netzklassenfilter
+          );
+          changeDetector.markForCheck();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  ngOnInit(): void {
+    if (this.selectedSignatur) {
+      this.showSignaturIncompatibleHinweis = !Signatur.isCompatibleWithNetzklassenfilter(
+        this.selectedSignatur,
+        this.netzklassenAuswahlService.currentAuswahl
+      );
+    }
   }
 
   onNetzklassenAuswahlChange(netzklasse: Netzklassefilter, checked: boolean): void {

@@ -1,0 +1,30 @@
+<mat-accordion [multi]="true">
+  <mat-expansion-panel *ngIf="fehler.length > 0" [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <div class="display-flex">
+          <mat-icon class="error">report</mat-icon>
+          <div class="ml-3">Fehler</div>
+          <div class="ml-3 hinweis">({{ fehler.length }})</div>
+        </div>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="log-eintrag-wrapper">
+      <div *ngFor="let f of fehler">{{ f }}</div>
+    </div>
+  </mat-expansion-panel>
+  <mat-expansion-panel *ngIf="warnungen.length > 0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <div class="display-flex">
+          <mat-icon class="warning">warning</mat-icon>
+          <div class="ml-3">Warnungen</div>
+          <div class="hinweis ml-3">({{ warnungen.length }})</div>
+        </div>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="log-eintrag-wrapper">
+      <div *ngFor="let w of warnungen">{{ w }}</div>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

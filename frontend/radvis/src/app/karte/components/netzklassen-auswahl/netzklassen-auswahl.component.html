@@ -12,21 +12,22 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<table class="w-100" radAccessabilityTabCircleGroup>
+<table class="w-100" radAccessabilityTabCircleGroup *ngIf="selectedNetzklassen$ | async as selectedNetzklassen">
   <tr *ngFor="let netzklasse of allNetzklassen" class="mb-3">
     <td>
       <mat-checkbox
         radAccessabilityTabCircleElement
         (change)="onNetzklassenAuswahlChange(netzklasse, $event.checked)"
-        [checked]="(selectedNetzklassen$ | async)?.includes(netzklasse)?? false"
-      >
+        [checked]="selectedNetzklassen.includes(netzklasse)">
         {{ netzklasse.displayText }}
       </mat-checkbox>
-      <div
-        *ngIf="((selectedNetzklassen$ | async)?.includes(netzklasse)?? false) && !netzklasse.isVisibleOnZoomlevel(zoom)"
-      >
-        <span class="mat-small zoomstufen-hinweis">Auf aktueller Zoomstufe nicht sichtbar!</span>
+      <div *ngIf="selectedNetzklassen.includes(netzklasse) && !netzklasse.isVisibleOnZoomlevel(zoom)">
+        <span class="text-small zoomstufen-hinweis">Auf aktueller Zoomstufe nicht sichtbar!</span>
       </div>
     </td>
   </tr>
 </table>
+
+<div class="compatibility-notice text-small" *ngIf="showSignaturIncompatibleHinweis">
+  {{ signaturIncompatibleHinweis }}
+</div>

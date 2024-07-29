@@ -20,8 +20,7 @@
   (selectedSeiteChange)="onTrennstreifenSeiteSelectionChanged($event)"
   [richtung]="trennstreifenRichtungLinks"
   [linksDirty]="trennstreifenBearbeiteteSeiten.has(TrennstreifenSeite.A)"
-  [rechtsDirty]="trennstreifenBearbeiteteSeiten.has(TrennstreifenSeite.B)"
-></rad-sicherheitstrennstreifen-anzeige>
+  [rechtsDirty]="trennstreifenBearbeiteteSeiten.has(TrennstreifenSeite.B)"></rad-sicherheitstrennstreifen-anzeige>
 <div *ngIf="!trennstreifenEinseitig" class="trennstreifen-strasse" matTooltip="Straße">
   <div *ngIf="!trennstreifenEinseitig" class="strassenmarkierung"></div>
 </div>
@@ -34,5 +33,4 @@
   (selectedSeiteChange)="onTrennstreifenSeiteSelectionChanged($event)"
   [richtung]="trennstreifenRichtungRechts"
   [linksDirty]="trennstreifenBearbeiteteSeiten.has(TrennstreifenSeite.C)"
-  [rechtsDirty]="trennstreifenBearbeiteteSeiten.has(TrennstreifenSeite.D)"
-></rad-sicherheitstrennstreifen-anzeige>
+  [rechtsDirty]="trennstreifenBearbeiteteSeiten.has(TrennstreifenSeite.D)"></rad-sicherheitstrennstreifen-anzeige>

@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.weitereKartenebenen.schnittstelle;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.security.core.Authentication;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.weitereKartenebenen.domain.WeitereKartenebenenConfigurationProperties;
 import de.wps.radvis.backend.weitereKartenebenen.domain.entity.WeitereKartenebene;
 import de.wps.radvis.backend.weitereKartenebenen.domain.repository.WeitereKartenebenenRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,11 +43,13 @@ import lombok.extern.slf4j.Slf4j;
 public class WeitereKartenebenenController {
 	private final WeitereKartenebenenRepository weitereKartenebenenRepository;
 	private final BenutzerResolver benutzerResolver;
+	private WeitereKartenebenenConfigurationProperties configurationProperties;
 
 	public WeitereKartenebenenController(WeitereKartenebenenRepository weitereKartenebenenRepository,
-		BenutzerResolver benutzerResolver) {
+		BenutzerResolver benutzerResolver, WeitereKartenebenenConfigurationProperties configurationProperties) {
 		this.weitereKartenebenenRepository = weitereKartenebenenRepository;
 		this.benutzerResolver = benutzerResolver;
+		this.configurationProperties = configurationProperties;
 	}
 
 	@GetMapping("/list")
@@ -56,8 +60,14 @@ public class WeitereKartenebenenController {
 		}
 
 		return weitereKartenebenenRepository.findAllByBenutzerOrderById(
-				benutzer).stream()
+			benutzer).stream()
 			.map(WeitereKartenebenenView::new);
+	}
+
+	@GetMapping("vordefiniert")
+	public List<VordefinierteLayerView> getVordefinierteLayer() {
+		return configurationProperties.getVordefinierteLayer().stream()
+			.map(config -> new VordefinierteLayerView(config)).collect(Collectors.toList());
 	}
 
 	@PostMapping(path = "/save")

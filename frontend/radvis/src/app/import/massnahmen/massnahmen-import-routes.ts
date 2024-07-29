@@ -20,6 +20,7 @@ import { ImportMassnahmenFehlerprotokollHerunterladenComponent } from 'src/app/i
 import { ImportMassnahmenImportUeberpruefenComponent } from 'src/app/import/massnahmen/components/import-massnahmen-import-ueberpruefen/import-massnahmen-import-ueberpruefen.component';
 import { massnahmenImportSessionExistsGuard } from 'src/app/import/massnahmen/services/massnahmen-import-session-exists.guard';
 import { MassnahmenImportRoutingService } from 'src/app/import/massnahmen/services/massnahmen-routing.service';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 
 export class MassnahmenImportRoutes {
   public static CHILDROUTES: Routes = [
@@ -45,6 +46,7 @@ export class MassnahmenImportRoutes {
     {
       path: MassnahmenImportRoutingService.IMPORT_UEBERPRUEFEN,
       component: ImportMassnahmenImportUeberpruefenComponent,
+      canDeactivate: [discardGuard],
       canActivate: [massnahmenImportSessionExistsGuard],
     },
     {

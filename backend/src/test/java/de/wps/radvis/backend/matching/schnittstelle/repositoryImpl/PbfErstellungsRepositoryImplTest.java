@@ -112,10 +112,8 @@ class PbfErstellungsRepositoryImplTest {
 	@Mock
 	private OsmMatchingCacheRepository osmMatchingCacheRepository;
 
-	private final Comparator<Coordinate> lenientCoordinateComparator = (coor1, coor2) ->
-		coor1.distance(coor2) < 0.000002 ?
-			0 :
-			-1;
+	private final Comparator<Coordinate> lenientCoordinateComparator = (coor1, coor2) -> coor1.distance(coor2)
+		< 0.000002 ? 0 : -1;
 
 	@BeforeEach
 	void setUp() {
@@ -154,7 +152,7 @@ class PbfErstellungsRepositoryImplTest {
 			assertThat(list).hasSize(6);
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 		} catch (IOException e) {
@@ -198,7 +196,7 @@ class PbfErstellungsRepositoryImplTest {
 		//act
 		pbfErstellungsRepository.writePbf(
 			Map.of(GeometryTestdataProvider.createMultiLineString(
-					coordinatesKante1, coordinatesKante2).getEnvelopeInternal(),
+				coordinatesKante1, coordinatesKante2).getEnvelopeInternal(),
 				kanten),
 			pbfFile);
 
@@ -216,9 +214,9 @@ class PbfErstellungsRepositoryImplTest {
 				.usingComparatorForType(lenientCoordinateComparator, Coordinate.class)
 				.containsExactlyInAnyOrderElementsOf(
 					Stream.concat(
-							Arrays.stream(coordinatesKante1),
-							Arrays.stream(coordinatesKante2)
-						)
+						Arrays.stream(coordinatesKante1),
+						Arrays.stream(coordinatesKante2)
+					)
 						.map(coordinate -> converter.transformCoordinateUnsafe(coordinate,
 							KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84))
 						.collect(Collectors.toList())
@@ -226,7 +224,7 @@ class PbfErstellungsRepositoryImplTest {
 
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 
@@ -302,7 +300,7 @@ class PbfErstellungsRepositoryImplTest {
 		//act
 		pbfErstellungsRepository.writePbf(
 			Map.of(GeometryTestdataProvider.createMultiLineString(coordinatesKante1, coordinatesKante2)
-					.getEnvelopeInternal(),
+				.getEnvelopeInternal(),
 				kanten),
 			pbfFile);
 
@@ -320,10 +318,10 @@ class PbfErstellungsRepositoryImplTest {
 				.usingComparatorForType(lenientCoordinateComparator, Coordinate.class)
 				.containsExactlyInAnyOrderElementsOf(
 					Stream.concat(
-							Arrays.stream(coordinatesKante1),
-							// der erste Stützpunkt ist beiden Kanten gemeinsam
-							Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
-						)
+						Arrays.stream(coordinatesKante1),
+						// der erste Stützpunkt ist beiden Kanten gemeinsam
+						Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
+					)
 						.map(coordinate -> converter.transformCoordinateUnsafe(coordinate,
 							KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84))
 						.collect(Collectors.toList())
@@ -331,7 +329,7 @@ class PbfErstellungsRepositoryImplTest {
 
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 
@@ -433,10 +431,10 @@ class PbfErstellungsRepositoryImplTest {
 				.usingComparatorForType(lenientCoordinateComparator, Coordinate.class)
 				.containsExactlyInAnyOrderElementsOf(
 					Stream.concat(
-							Arrays.stream(coordinatesKante1),
-							// der erste Stützpunkt ist beiden Kanten gemeinsam
-							Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
-						)
+						Arrays.stream(coordinatesKante1),
+						// der erste Stützpunkt ist beiden Kanten gemeinsam
+						Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
+					)
 						.map(coordinate -> converter.transformCoordinateUnsafe(coordinate,
 							KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84))
 						.collect(Collectors.toList())
@@ -444,7 +442,7 @@ class PbfErstellungsRepositoryImplTest {
 
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 
@@ -546,10 +544,10 @@ class PbfErstellungsRepositoryImplTest {
 				.usingComparatorForType(lenientCoordinateComparator, Coordinate.class)
 				.containsExactlyInAnyOrderElementsOf(
 					Stream.concat(
-							Arrays.stream(coordinatesKante1),
-							// der erste Stützpunkt ist beiden Kanten gemeinsam
-							Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
-						)
+						Arrays.stream(coordinatesKante1),
+						// der erste Stützpunkt ist beiden Kanten gemeinsam
+						Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
+					)
 						.map(coordinate -> converter.transformCoordinateUnsafe(coordinate,
 							KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84))
 						.collect(Collectors.toList())
@@ -557,7 +555,7 @@ class PbfErstellungsRepositoryImplTest {
 
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 
@@ -667,10 +665,10 @@ class PbfErstellungsRepositoryImplTest {
 				.usingComparatorForType(lenientCoordinateComparator, Coordinate.class)
 				.containsExactlyInAnyOrderElementsOf(
 					Stream.concat(
-							Arrays.stream(coordinatesKante1),
-							// der erste Stützpunkt ist beiden Kanten gemeinsam
-							Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
-						)
+						Arrays.stream(coordinatesKante1),
+						// der erste Stützpunkt ist beiden Kanten gemeinsam
+						Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
+					)
 						.map(coordinate -> converter.transformCoordinateUnsafe(coordinate,
 							KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84))
 						.collect(Collectors.toList())
@@ -678,7 +676,7 @@ class PbfErstellungsRepositoryImplTest {
 
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 
@@ -780,10 +778,10 @@ class PbfErstellungsRepositoryImplTest {
 				.usingComparatorForType(lenientCoordinateComparator, Coordinate.class)
 				.containsExactlyInAnyOrderElementsOf(
 					Stream.concat(
-							Arrays.stream(coordinatesKante1),
-							// der erste Stützpunkt ist beiden Kanten gemeinsam
-							Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
-						)
+						Arrays.stream(coordinatesKante1),
+						// der erste Stützpunkt ist beiden Kanten gemeinsam
+						Arrays.stream(Arrays.copyOfRange(coordinatesKante2, 1, 3))
+					)
 						.map(coordinate -> converter.transformCoordinateUnsafe(coordinate,
 							KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84))
 						.collect(Collectors.toList())
@@ -791,7 +789,7 @@ class PbfErstellungsRepositoryImplTest {
 
 			// Die Ids an den Ways sollen die Ids der Kanten sein
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(entityContainer -> entityContainer.getEntity().getId())
 				.containsExactlyInAnyOrder(111111L, 222222L);
 
@@ -938,8 +936,8 @@ class PbfErstellungsRepositoryImplTest {
 		//act
 		pbfErstellungsRepository.writePbf(
 			Map.of(GeometryTestdataProvider.createMultiLineString(
-					coordinatesKante1, coordinatesKante2, coordinatesKante3,
-					coordinatesKante4, coordinatesKante5).getEnvelopeInternal(),
+				coordinatesKante1, coordinatesKante2, coordinatesKante3,
+				coordinatesKante4, coordinatesKante5).getEnvelopeInternal(),
 				kanten.stream()),
 			pbfFile);
 
@@ -953,7 +951,7 @@ class PbfErstellungsRepositoryImplTest {
 			// Wir haben 5 Ways und 10 Nodes
 			assertThat(list).hasSize(15);
 			assertThat(list).filteredOn(
-					entityContainer -> entityContainer.getType().equals(EntityType.Way))
+				entityContainer -> entityContainer.getType().equals(EntityType.Way))
 				.extracting(
 					entityContainer -> entityContainer.getEntity().getId(), this::getTags)
 				.usingRecursiveFieldByFieldElementComparator()
@@ -1154,8 +1152,8 @@ class PbfErstellungsRepositoryImplTest {
 			AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> listAssert = assertThat(
 				list).filteredOn(
 					entityContainer -> entityContainer.getType().equals(EntityType.Way))
-				.extracting(entityContainer -> entityContainer.getEntity().getId(), this::getTags)
-				.usingRecursiveFieldByFieldElementComparator();
+					.extracting(entityContainer -> entityContainer.getEntity().getId(), this::getTags)
+					.usingRecursiveFieldByFieldElementComparator();
 			listAssert.hasSize(6);
 			listAssert.contains(
 				// 1: Keine Barriere = keine tags

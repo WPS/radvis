@@ -42,12 +42,8 @@ public class MatchingJobStatistik extends JobStatistik {
 	public int anzahlKantenMitZuSchlechtemGraphhopperMatch;
 	public int anzahlKantenOhneMatchInsgesamt;
 
-	public int anzahlMatchesMitFoot;
-	public int anzahlMatchesMitCar;
-
 	// Strecke
 	public int anzahlStrecken;
-	public int anzahlGuteStreckenmatches;
 	public int anzahlOhneValideStreckenmatchesInsgesamt;
 	public int anzahlKeineStreckenmatches;
 	public int anzahlStreckenmatchesZuLang;

@@ -15,7 +15,10 @@
 import invariant from 'tiny-invariant';
 
 export class FieldFilter {
-  constructor(public field: string, public value: string) {}
+  constructor(
+    public field: string,
+    public value: string
+  ) {}
 
   public static fromString(str: string): FieldFilter {
     invariant(this.isValidFilterString(str));

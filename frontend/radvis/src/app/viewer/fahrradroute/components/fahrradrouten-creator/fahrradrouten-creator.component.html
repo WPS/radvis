@@ -14,7 +14,7 @@
 
 <mat-toolbar radRightDetailsShortcut>
   <h2 class="flex-grow">Fahrradroute erstellen</h2>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -26,19 +26,16 @@
     [dirty]="formGroup.dirty"
     [fetching]="isFetching || isRouting"
     [disabled]="isFetching || isRouting"
-    [showHeader]="false"
-  >
+    [showHeader]="false">
     <div class="m-5"><b>Routenverlauf</b></div>
 
     <rad-fahrradroute-netzbezug-control
       class="my-10"
       (loading)="isRouting = $event"
-      formControlName="netzbezug"
-    ></rad-fahrradroute-netzbezug-control>
+      formControlName="netzbezug"></rad-fahrradroute-netzbezug-control>
     <rad-validation-error-anzeige
       class="ml-10"
-      [errors]="formGroup.get('netzbezug')?.errors || null"
-    ></rad-validation-error-anzeige>
+      [errors]="formGroup.get('netzbezug')?.errors || null"></rad-validation-error-anzeige>
     <button (click)="onOeffneHoehenprofil()" mat-stroked-button class="m-5">Öffne Höhenprofil</button>
     <mat-divider></mat-divider>
     <rad-text-input-control class="mat-form-field-full-width" formControlName="name">
@@ -60,8 +57,7 @@
       [nullable]="false"
       [options]="kategorieOptions"
       class="mat-form-field-full-width"
-      formControlName="kategorie"
-    >
+      formControlName="kategorie">
       Kategorie
     </rad-enum-dropdown-control>
     <rad-validation-error-anzeige [errors]="formGroup.get('kategorie')?.errors || null"></rad-validation-error-anzeige>

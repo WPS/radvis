@@ -22,8 +22,7 @@
           *matCellDef="let element"
           class="id-cell"
           [attr.rowspan]="element.rowspan"
-          [class.display-none]="element.hide"
-        >
+          [class.display-none]="element.hide">
           {{ element.ordnername }}
         </td>
       </ng-container>
@@ -36,9 +35,7 @@
       <ng-container matColumnDef="fehler">
         <th mat-header-cell *matHeaderCellDef>Fehler</th>
         <td mat-cell *matCellDef="let element" [attr.rowspan]="element.rowspan" [class.display-none]="element.hide">
-          <ul class="hinweis-liste">
-            <li *ngFor="let hinweis of element.hinweise">{{ hinweis.text }}</li>
-          </ul>
+          {{ element.hinweis?.text }}
         </td>
       </ng-container>
 
@@ -47,9 +44,14 @@
     </table>
   </div>
 
+  <div *ngIf="!canContinue" class="import-step-footer-message hinweis red m-5">
+    Es wurde keine valide Datei zum Importieren hochgeladen. Bitte brechen Sie den Import ab und starten mit
+    korrigierten Daten erneut.
+  </div>
+
   <div class="import-step-footer-buttons">
-    <button mat-flat-button color="primary" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" (click)="onPrevious()">Zurück</button>
+    <button mat-stroked-button color="primary" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" (click)="onPrevious()">Zurück</button>
     <button mat-flat-button color="primary" (click)="onNext()" [disabled]="!canContinue">Weiter</button>
   </div>
 </rad-import-step-layout>

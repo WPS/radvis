@@ -28,27 +28,25 @@ export enum QuellSystem {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace QuellSystem {
-  export const options: EnumOption[] = Object.keys(QuellSystem).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case QuellSystem.RadNETZ:
-          return { name: k, displayText: 'RadNETZ' };
-        case QuellSystem.DLM:
-          return { name: k, displayText: 'DLM' };
-        case QuellSystem.LGL:
-          return { name: k, displayText: 'LGL' };
-        case QuellSystem.RadwegeDB:
-          return { name: k, displayText: 'RadwegeDB' };
-        case QuellSystem.RvkEsslingen:
-          return { name: k, displayText: 'RvkEsslingen' };
-        case QuellSystem.BietigheimBissingen:
-          return { name: k, displayText: 'BietigheimBissingen' };
-        case QuellSystem.GisGoeppingen:
-          return { name: k, displayText: 'GisGoeppingen' };
-        case QuellSystem.RadVis:
-          return { name: k, displayText: 'RadVis' };
-      }
-      throw new Error('Beschreibung für enum QuellSystem fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(QuellSystem).map((k: string): EnumOption => {
+    switch (k) {
+      case QuellSystem.RadNETZ:
+        return { name: k, displayText: 'RadNETZ' };
+      case QuellSystem.DLM:
+        return { name: k, displayText: 'DLM' };
+      case QuellSystem.LGL:
+        return { name: k, displayText: 'LGL' };
+      case QuellSystem.RadwegeDB:
+        return { name: k, displayText: 'RadwegeDB' };
+      case QuellSystem.RvkEsslingen:
+        return { name: k, displayText: 'RvkEsslingen' };
+      case QuellSystem.BietigheimBissingen:
+        return { name: k, displayText: 'BietigheimBissingen' };
+      case QuellSystem.GisGoeppingen:
+        return { name: k, displayText: 'GisGoeppingen' };
+      case QuellSystem.RadVis:
+        return { name: k, displayText: 'RadVis' };
     }
-  );
+    throw new Error('Beschreibung für enum QuellSystem fehlt: ' + k);
+  });
 }

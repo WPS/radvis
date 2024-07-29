@@ -22,7 +22,7 @@ export class NotifyUserService {
   constructor(private snackBar: MatSnackBar) {}
 
   public warn(msg: string, btnText: string = 'Ok'): void {
-    this.snackBar.open(msg, btnText);
+    this.snackBar.open(msg, btnText, { panelClass: 'error-snackbar' });
   }
 
   public inform(msg: string): void {

@@ -42,7 +42,9 @@ public class Haendigkeit {
 	}
 
 	enum Orientierung {
-		LINKS, RECHTS, UNBESTIMMT;
+		LINKS,
+		RECHTS,
+		UNBESTIMMT;
 	}
 
 	public double getVorzeichenbehafteteWahrscheinlichkeit() {

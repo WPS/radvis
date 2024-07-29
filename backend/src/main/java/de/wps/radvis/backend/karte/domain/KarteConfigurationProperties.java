@@ -25,15 +25,24 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import lombok.Getter;
 
 @ConfigurationProperties("radvis.karte")
+@Getter
 public class KarteConfigurationProperties {
-	@Getter
-	private final Map<String, String> hintergrundKarten;
+	private final Map<String, String> hintergrundKartenProxy;
+	private final Map<String, HintergrundKarteConfigurationProperties> hintergrundKarten;
+	private final String defaultHintergrundKarte;
 
 	@ConstructorBinding
-	public KarteConfigurationProperties(Map<String, String> hintergrundKarten) {
+	public KarteConfigurationProperties(Map<String, String> hintergrundKartenProxy,
+		Map<String, HintergrundKarteConfigurationProperties> hintergrundKarten, String defaultHintergrundKarte) {
+		require(hintergrundKartenProxy, notNullValue());
 		require(hintergrundKarten, notNullValue());
-		require(hintergrundKarten.size() > 0, "hintergrundKarten darf nicht lees sein");
+		require(defaultHintergrundKarte, notNullValue());
+		require(hintergrundKarten.size() > 0, "Es muss mindestens eine Hintergrundkarte konfiguriert sein.");
+		require(hintergrundKarten.keySet().contains(defaultHintergrundKarte),
+			"Keine Karte zu default Hintergrundkarte gefunden");
 
+		this.defaultHintergrundKarte = defaultHintergrundKarte;
 		this.hintergrundKarten = hintergrundKarten;
+		this.hintergrundKartenProxy = hintergrundKartenProxy;
 	}
 }

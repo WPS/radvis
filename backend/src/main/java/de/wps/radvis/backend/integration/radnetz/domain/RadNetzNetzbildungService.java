@@ -97,7 +97,7 @@ public class RadNetzNetzbildungService extends AbstractNetzbildungService {
 				} else {
 					radNetzNetzbildungProtokollService
 						.handle(new GeometrieTypNichtUnterstuetztException(feature.getTechnischeId(),
-								feature.getGeometrie()),
+							feature.getGeometrie()),
 							RadNETZNetzbildungJob.class.getSimpleName());
 				}
 			} else {

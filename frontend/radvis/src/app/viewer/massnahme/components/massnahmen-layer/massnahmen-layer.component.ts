@@ -21,7 +21,12 @@ import VectorSource from 'ol/source/Vector';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
-import { isLineString, isMultiLineString, isPoint } from 'src/app/shared/models/geojson-geometrie';
+import {
+  geojsonGeometryToFeatureGeometry,
+  isLineString,
+  isMultiLineString,
+  isPoint,
+} from 'src/app/shared/models/geojson-geometrie';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { Signatur } from 'src/app/shared/models/signatur';
 import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
@@ -35,9 +40,7 @@ import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
 import { SignaturStyleProviderService } from 'src/app/viewer/signatur/services/signatur-style-provider.service';
-import {
-  AbstractInfrastrukturLayerComponent,
-} from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
+import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
 import { infrastrukturSignaturLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { Style } from 'ol/style';
@@ -50,7 +53,8 @@ import { Style } from 'ol/style';
 })
 export class MassnahmenLayerComponent
   extends AbstractInfrastrukturLayerComponent<MassnahmeListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private olLayer: VectorLayer;
 
   private selectedSignatur$: Observable<Signatur | null>;
@@ -145,7 +149,7 @@ export class MassnahmenLayerComponent
     } else if (isLineString(infrastruktur.geometry)) {
       feature = new Feature(new Point(new LineString(infrastruktur.geometry.coordinates).getCoordinateAt(0.5)));
     } else if (isPoint(infrastruktur.geometry)) {
-      feature = new Feature(new Point((infrastruktur.geometry.coordinates as unknown) as Coordinate));
+      feature = new Feature(new Point(infrastruktur.geometry.coordinates as unknown as Coordinate));
     } else {
       throw new Error('Geometrie ist weder Punkt noch LineString');
     }
@@ -175,13 +179,14 @@ export class MassnahmenLayerComponent
         const styleFunctionResult = styleFunction(massnahmeFeature, 0);
 
         if (styleFunctionResult) {
-          const styleForFeature = styleFunctionResult instanceof Style ? [styleFunctionResult] : styleFunctionResult as Style[];
+          const styleForFeature =
+            styleFunctionResult instanceof Style ? [styleFunctionResult] : (styleFunctionResult as Style[]);
 
           if (styleForFeature.length > 0) {
             const strokeColor = styleForFeature
-            .find(style => !!style.getStroke())
-            ?.getStroke()
-            .getColor();
+              .find(style => !!style.getStroke())
+              ?.getStroke()
+              .getColor();
             iconFeature.set(this.ICON_COLOR_PROPERTY_NAME, strokeColor);
             shouldResetStyle = false;
           }
@@ -220,12 +225,7 @@ export class MassnahmenLayerComponent
       // den StreckenNetzbezug als LineString/MultiLineString
       .filter(m => isLineString(m.geometry) || isMultiLineString(m.geometry))
       .forEach(massnahme => {
-        let feature;
-        if (isMultiLineString(massnahme.geometry)) {
-          feature = new Feature({ geometry: new MultiLineString(massnahme.geometry.coordinates) });
-        } else {
-          feature = new Feature({ geometry: new LineString(massnahme.geometry.coordinates) });
-        }
+        const feature = geojsonGeometryToFeatureGeometry(massnahme.geometry)!;
         feature.set(
           'Umsetzungsstatus',
           Umsetzungsstatus.options.find(opt => opt.name === massnahme.umsetzungsstatus)?.displayText

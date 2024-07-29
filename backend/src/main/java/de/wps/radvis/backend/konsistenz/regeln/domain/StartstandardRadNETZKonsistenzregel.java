@@ -41,20 +41,17 @@ public class StartstandardRadNETZKonsistenzregel extends AbstractStandardRadNETZ
 
 		String alltagZielnetzTempoGroesser50 = radNETZ_AlltagOderZielnetz + " AND " + hoechsgeschwindigkeitGroesser(50);
 
-		String alltagZielnetzTempo30_50_DTV5000_SV500 =
-			radNETZ_AlltagOderZielnetz + " AND "
-				+ hoechsgeschwindigkeitZwischen(30, 50) + " AND "
-				+ "(dtv_pkw > 5000 OR sv > 500) ";
+		String alltagZielnetzTempo30_50_DTV5000_SV500 = radNETZ_AlltagOderZielnetz + " AND "
+			+ hoechsgeschwindigkeitZwischen(30, 50) + " AND "
+			+ "(dtv_pkw > 5000 OR sv > 500) ";
 
-		String alltagZielnetzTempo20_30_DTV10000_SV800 =
-			radNETZ_AlltagOderZielnetz + " AND "
-				+ hoechsgeschwindigkeitZwischen(20, 30) + " AND "
-				+ "(dtv_pkw > 10000 OR sv > 800) ";
+		String alltagZielnetzTempo20_30_DTV10000_SV800 = radNETZ_AlltagOderZielnetz + " AND "
+			+ hoechsgeschwindigkeitZwischen(20, 30) + " AND "
+			+ "(dtv_pkw > 10000 OR sv > 800) ";
 
-		String alltagZielnetzTempoKleiner20_DTV12000_SV1000 =
-			radNETZ_AlltagOderZielnetz + " AND "
-				+ hoechsgeschwindigkeitKleinerGleich(20) + " AND "
-				+ "(dtv_pkw > 12000 OR sv > 1000) ";
+		String alltagZielnetzTempoKleiner20_DTV12000_SV1000 = radNETZ_AlltagOderZielnetz + " AND "
+			+ hoechsgeschwindigkeitKleinerGleich(20) + " AND "
+			+ "(dtv_pkw > 12000 OR sv > 1000) ";
 
 		String sql = "SELECT "
 			+ "				ka.id, "

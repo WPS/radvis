@@ -13,31 +13,27 @@
   -->
 
 <ng-container *ngIf="hasKanten$ | async">
-  <div *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis hinweis">
-    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-    <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
-  </div>
+  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+    NICHT_BEARBEITBAR_HINWEIS
+  }}</rad-warnhinweis>
   <rad-kanten-attribute-editor-mit-subauswahl
     [disabled]="!editingAllowed"
     [dirty]="!areAttributesPristine"
     [fetching]="isFetching"
     (save)="onSave()"
     (dismiss)="onClose()"
-    (resetForm)="onReset()"
-  >
+    (resetForm)="onReset()">
     <div [formGroup]="displayedAttributeformGroup" class="group attribute">
       <rad-enum-dropdown-control
         formControlName="richtung"
         [nullable]="false"
         [options]="richtungOptions"
-        class="mt-10 mat-form-field-full-width"
-      >
+        class="mt-10 mat-form-field-full-width">
         Richtung
       </rad-enum-dropdown-control>
     </div>
     <rad-kanten-selektion-tabelle
       [selektion]="currentSelektion || []"
-      class="selektions-tabelle auswahl"
-    ></rad-kanten-selektion-tabelle>
+      class="selektions-tabelle auswahl"></rad-kanten-selektion-tabelle>
   </rad-kanten-attribute-editor-mit-subauswahl>
 </ng-container>

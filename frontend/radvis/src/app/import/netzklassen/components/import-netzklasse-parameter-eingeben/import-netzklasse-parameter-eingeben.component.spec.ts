@@ -58,18 +58,16 @@ describe(ImportNetzklasseParameterEingebenComponent.name, () => {
 
   // Fall 0: wenn vorher noch nichts an der Komponente gemacht wurde
   describe('NoSessionAndNoDateiUploadInfo', () => {
-    beforeEach(
-      waitForAsync(() => {
-        // Fall 0
-        when(netzklassenImportService.getImportSession()).thenReturn(of(null));
-        when(createSessionStateService.dateiUploadInfo).thenReturn(null);
-        when(createSessionStateService.parameterInfo).thenReturn(null);
+    beforeEach(waitForAsync(() => {
+      // Fall 0
+      when(netzklassenImportService.getImportSession()).thenReturn(of(null));
+      when(createSessionStateService.dateiUploadInfo).thenReturn(null);
+      when(createSessionStateService.parameterInfo).thenReturn(null);
 
-        fixture = MockRender(ImportNetzklasseParameterEingebenComponent);
-        component = fixture.point.componentInstance;
-        fixture.detectChanges();
-      })
-    );
+      fixture = MockRender(ImportNetzklasseParameterEingebenComponent);
+      component = fixture.point.componentInstance;
+      fixture.detectChanges();
+    }));
 
     it('should update parameterInfo if a Netzklasse is chosen', () => {
       component.formControl.setValue(netzklasse);
@@ -83,20 +81,18 @@ describe(ImportNetzklasseParameterEingebenComponent.name, () => {
 
   // Fall 1: es existiert KEINE Session und der createSessionStateService enthaelt eine vollstaendige DateiUploadInfo
   describe('NoSessionExists_sessionStateService.dateiUploadInfo_vorhanden', () => {
-    beforeEach(
-      waitForAsync(() => {
-        // Fall 1
-        when(netzklassenImportService.getImportSession()).thenReturn(of(null));
-        when(createSessionStateService.dateiUploadInfo).thenReturn(
-          DateiUploadInfo.of(importTyp, emptyTestFile, organisationsId)
-        );
-        when(createSessionStateService.parameterInfo).thenReturn(NetzklassenParameter.of(netzklasse));
+    beforeEach(waitForAsync(() => {
+      // Fall 1
+      when(netzklassenImportService.getImportSession()).thenReturn(of(null));
+      when(createSessionStateService.dateiUploadInfo).thenReturn(
+        DateiUploadInfo.of(importTyp, emptyTestFile, organisationsId)
+      );
+      when(createSessionStateService.parameterInfo).thenReturn(NetzklassenParameter.of(netzklasse));
 
-        fixture = MockRender(ImportNetzklasseParameterEingebenComponent);
-        component = fixture.point.componentInstance;
-        fixture.detectChanges();
-      })
-    );
+      fixture = MockRender(ImportNetzklasseParameterEingebenComponent);
+      component = fixture.point.componentInstance;
+      fixture.detectChanges();
+    }));
 
     it('Should fill form correctly but enable modification', () => {
       expect(component.sessionExists).toBeFalse();
@@ -172,23 +168,21 @@ describe(ImportNetzklasseParameterEingebenComponent.name, () => {
 
   // Fall 2: es existiert eine Session und der createSessionStateService ist leer
   describe('SessionExists', () => {
-    beforeEach(
-      waitForAsync(() => {
-        // Fall 2
-        when(netzklassenImportService.getImportSession()).thenReturn(
-          of({
-            organisationsID: organisationsId,
-            netzklasse,
-          } as NetzklassenImportSessionView)
-        );
-        when(createSessionStateService.dateiUploadInfo).thenReturn(null);
-        when(createSessionStateService.parameterInfo).thenReturn(null);
+    beforeEach(waitForAsync(() => {
+      // Fall 2
+      when(netzklassenImportService.getImportSession()).thenReturn(
+        of({
+          organisationsID: organisationsId,
+          netzklasse,
+        } as NetzklassenImportSessionView)
+      );
+      when(createSessionStateService.dateiUploadInfo).thenReturn(null);
+      when(createSessionStateService.parameterInfo).thenReturn(null);
 
-        fixture = MockRender(ImportNetzklasseParameterEingebenComponent);
-        component = fixture.point.componentInstance;
-        fixture.detectChanges();
-      })
-    );
+      fixture = MockRender(ImportNetzklasseParameterEingebenComponent);
+      component = fixture.point.componentInstance;
+      fixture.detectChanges();
+    }));
 
     it('Should fill form correctly but disable for modification', () => {
       expect(component.sessionExists).toBeTrue();

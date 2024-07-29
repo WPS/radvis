@@ -146,7 +146,7 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 				csvData = csvRepository.read(bytes, CsvHeader.ALL, ';', true);
 
 			} catch (IOException | CsvReadException e) {
-				log.error("Die Datei mit der Url: {} konnte aus folgendem Grund nicht eingelesen werden: ", url, e);
+				log.error("Die Datei mit der URL {} konnte aus folgendem Grund nicht eingelesen werden: ", url, e);
 				abstellanlageBRImportStatistik.anzahlUrlsOderDateienFehlerhaft++;
 				continue;
 			}

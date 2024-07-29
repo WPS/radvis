@@ -23,19 +23,17 @@ export enum Beleuchtung {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Beleuchtung {
-  export const options: EnumOption[] = Object.keys(Beleuchtung).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Beleuchtung.VORHANDEN:
-          return { name: k, displayText: 'Vorhanden' };
-        case Beleuchtung.NICHT_VORHANDEN:
-          return { name: k, displayText: 'Nicht Vorhanden' };
-        case Beleuchtung.RETROREFLEKTIERENDE_RANDMARKIERUNG:
-          return { name: k, displayText: 'Retroreflektierende Randmarkierung' };
-        case Beleuchtung.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Beleuchtung fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Beleuchtung).map((k: string): EnumOption => {
+    switch (k) {
+      case Beleuchtung.VORHANDEN:
+        return { name: k, displayText: 'Vorhanden' };
+      case Beleuchtung.NICHT_VORHANDEN:
+        return { name: k, displayText: 'Nicht Vorhanden' };
+      case Beleuchtung.RETROREFLEKTIERENDE_RANDMARKIERUNG:
+        return { name: k, displayText: 'Retroreflektierende Randmarkierung' };
+      case Beleuchtung.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Beleuchtung fehlt: ' + k);
+  });
 }

@@ -42,7 +42,7 @@ import Text from 'ol/style/Text';
 import { Subscription } from 'rxjs';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LineStringOperations } from 'src/app/shared/models/line-string-operations';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { IS_SELECTABLE_LAYER } from 'src/app/shared/models/selectable-layer-property';
 import { LineStringShifter } from 'src/app/shared/services/line-string-shifter';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -69,7 +69,7 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
   @Input()
   selectedIndices: number[] | null = null;
   @Input()
-  seitenbezug: Seitenbezug | undefined;
+  kantenSeite: KantenSeite | undefined;
   @Input()
   modificationDisabled = false;
   @Input()
@@ -104,7 +104,10 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private olMapService: OlMapService, private notifyUserService: NotifyUserService) {
+  constructor(
+    private olMapService: OlMapService,
+    private notifyUserService: NotifyUserService
+  ) {
     this.shiftableSegmentPointsLayer = new VectorLayer({
       source: this.shiftableSegmentPointsSource,
       style: this.getSegmentPointStyleFunctionWithColor(MapStyles.FEATURE_COLOR),
@@ -149,11 +152,11 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
   }
 
   private get displayedGeometry(): LineString {
-    if (this.seitenbezug) {
+    if (this.kantenSeite) {
       let shiftDistanceInPixel = MapStyles.LINE_WIDTH_FOR_DOUBLE_LINE / 2 + MapStyles.LINE_GAP_FOR_DOUBLE_LINE / 2;
-      if (this.seitenbezug === Seitenbezug.LINKS) {
+      if (this.kantenSeite === KantenSeite.LINKS) {
         shiftDistanceInPixel = -shiftDistanceInPixel;
-      } else if (this.seitenbezug !== Seitenbezug.RECHTS) {
+      } else if (this.kantenSeite !== KantenSeite.RECHTS) {
         throw Error('Kein valider Seitenbezug');
       }
       return LineStringShifter.shiftLineStringByPixel(
@@ -391,9 +394,9 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
       const point = feature.getGeometry() as Point;
       const segmentOfPoint = LineStringOperations.getSegmentOfPointOnLineString(point, this.displayedGeometry);
       let offsetX = 0;
-      if (this.seitenbezug === Seitenbezug.LINKS) {
+      if (this.kantenSeite === KantenSeite.LINKS) {
         offsetX = -3;
-      } else if (this.seitenbezug === Seitenbezug.RECHTS) {
+      } else if (this.kantenSeite === KantenSeite.RECHTS) {
         offsetX = 3;
       }
       return new Style({

@@ -69,9 +69,10 @@ public class DlmPbfErstellungService {
 
 		log.info("Hole Kanten-Stream (DLM) aus der DB...");
 		Map<Envelope, Stream<Kante>> kantenStreams = partitionen.stream().collect(Collectors.toMap(Function.identity(),
-			partition -> kantenRepository.getKantenInBereichNachQuellenEagerFetchFahrtrichtungEagerFetchFuehrungsformAttributeLinks(
-				partition,
-				Set.of(QuellSystem.DLM, QuellSystem.RadVis))));
+			partition -> kantenRepository
+				.getKantenInBereichNachQuellenEagerFetchFahrtrichtungEagerFetchFuehrungsformAttributeLinks(
+					partition,
+					Set.of(QuellSystem.DLM, QuellSystem.RadVis))));
 
 		log.info("Schreibe DLM-Kanten als osm.pbf-Daten nach {}.", outputFile.getAbsolutePath());
 		pbfErstellungsRepository.writePbf(kantenStreams, tempOutputFile);

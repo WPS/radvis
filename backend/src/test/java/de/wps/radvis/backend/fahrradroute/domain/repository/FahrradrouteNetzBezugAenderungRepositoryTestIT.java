@@ -124,7 +124,7 @@ public class FahrradrouteNetzBezugAenderungRepositoryTestIT extends DBIntegratio
 			.save(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
 
 		Fahrradroute fahrradroute = fahrradrouteRepository.save(FahrradrouteTestDataProvider.onKante(
-				netzService.saveKante(KanteTestDataProvider.withDefaultValues().build()))
+			netzService.saveKante(KanteTestDataProvider.withDefaultValues().build()))
 			.verantwortlich(gebietskoerperschaft).build());
 		Benutzer technischerBenutzer = benutzerRepository.save(
 			BenutzerTestDataProvider.admin(gebietskoerperschaft).build());

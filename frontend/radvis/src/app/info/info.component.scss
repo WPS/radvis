@@ -29,7 +29,21 @@ mat-accordion {
   padding: 1rem;
 }
 
-.ansprechpartner-dokumente {
+.ansprechpartner-dokumente,
+.datenschutz-dokumente {
+  align-items: flex-start;
+
+  h2 {
+    font-size: 1em;
+  }
+}
+
+.default-versionsinfo-dialog {
+  max-width: 500px;
+  margin: auto;
+}
+
+.quellenangaben {
   align-items: flex-start;
 
   h2 {

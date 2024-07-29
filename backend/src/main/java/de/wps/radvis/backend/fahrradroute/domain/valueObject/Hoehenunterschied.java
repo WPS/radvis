@@ -48,4 +48,3 @@ public class Hoehenunterschied {
 		return String.format("%.2f", this.value) + " m";
 	}
 }
-

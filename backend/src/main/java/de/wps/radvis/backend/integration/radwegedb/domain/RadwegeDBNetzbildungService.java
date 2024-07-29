@@ -82,7 +82,7 @@ public class RadwegeDBNetzbildungService extends AbstractNetzbildungService {
 				try {
 					if (feature.getGeometrie().getNumGeometries() == 1
 						&& feature.getGeometrie().getGeometryN(0).getGeometryType()
-						.equals(Geometry.TYPENAME_LINESTRING)) {
+							.equals(Geometry.TYPENAME_LINESTRING)) {
 						addImportedFeatureStrecke(feature);
 						statistik.anzahlKantenErstellt++;
 					} else {

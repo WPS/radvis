@@ -96,10 +96,10 @@ public class RoutingUndMatchingProfilInformationIntegrationTest {
 
 		kanten = List.of(
 			KanteTestDataProvider.withDefaultValuesAndZweiseitig().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(10, 0),
-						new Coordinate(10, 10),
-						new Coordinate(10, 20))) // Länge 20m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(10, 0),
+					new Coordinate(10, 10),
+					new Coordinate(10, 20))) // Länge 20m
 				.fuehrungsformAttributGruppe(FuehrungsformAttributGruppe.builder()
 					.isZweiseitig(true)
 					.fuehrungsformAttributeLinks(
@@ -112,22 +112,22 @@ public class RoutingUndMatchingProfilInformationIntegrationTest {
 				.id(1L)
 				.build(),
 			KanteTestDataProvider.withDefaultValuesAndZweiseitig().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(10, 20),
-						new Coordinate(20, 20),
-						new Coordinate(30, 20),
-						new Coordinate(40, 20))) // Länge 30m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(10, 20),
+					new Coordinate(20, 20),
+					new Coordinate(30, 20),
+					new Coordinate(40, 20))) // Länge 30m
 				.fuehrungsformAttributGruppe(FuehrungsformAttributGruppe.builder()
 					.isZweiseitig(true)
 					.fuehrungsformAttributeLinks(
 						List.of(FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 0.6).belagArt(
-								BelagArt.NATURSTEINPFLASTER).build(),
+							BelagArt.NATURSTEINPFLASTER).build(),
 							FuehrungsformAttributeTestDataProvider.withLineareReferenz(0.6, 1).belagArt(BelagArt.BETON)
 								.build()
 						))
 					.fuehrungsformAttributeRechts(
 						List.of(FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 0.4).belagArt(
-								BelagArt.WASSERGEBUNDENE_DECKE).build(),
+							BelagArt.WASSERGEBUNDENE_DECKE).build(),
 							FuehrungsformAttributeTestDataProvider.withLineareReferenz(0.4, 1).belagArt(
 								BelagArt.ASPHALT).build()
 						))
@@ -135,32 +135,32 @@ public class RoutingUndMatchingProfilInformationIntegrationTest {
 				.id(2L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(40, 20),
-						new Coordinate(50, 20),
-						new Coordinate(50, 50))) // Länge 40m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(40, 20),
+					new Coordinate(50, 20),
+					new Coordinate(50, 50))) // Länge 40m
 				.id(3L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(50, 50),
-						new Coordinate(60, 50),
-						new Coordinate(60, 70))) // Länge 30m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(50, 50),
+					new Coordinate(60, 50),
+					new Coordinate(60, 70))) // Länge 30m
 				.id(4L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(-500, -500),
-						new Coordinate(500, -500),
-						new Coordinate(-500, -500),
-						new Coordinate(-500, 500)))
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(-500, -500),
+					new Coordinate(500, -500),
+					new Coordinate(-500, -500),
+					new Coordinate(-500, 500)))
 				.id(5L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(-500, -500),
-						new Coordinate(0, 50),
-						new Coordinate(500, 500)))
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(-500, -500),
+					new Coordinate(0, 50),
+					new Coordinate(500, 500)))
 				.id(6L)
 				.build()
 		);
@@ -170,8 +170,8 @@ public class RoutingUndMatchingProfilInformationIntegrationTest {
 		pbfErstellungsRepository.writePbf(PbfErstellungsTestDataProvider.getEnvelopeToKantenStreamMap(List.of(kanten)),
 			pbfFile);
 
-		DlmMatchedGraphHopperFactory dlmMatchedGraphHopperFactory = DlmMatchedGraphhopperTestdataProvider.
-			initializeFactoryForPBFFile(pbfFile.getAbsolutePath(), temp.getAbsolutePath());
+		DlmMatchedGraphHopperFactory dlmMatchedGraphHopperFactory = DlmMatchedGraphhopperTestdataProvider
+			.initializeFactoryForPBFFile(pbfFile.getAbsolutePath(), temp.getAbsolutePath());
 
 		graphhopperRoutingRepository = new GraphhopperRoutingRepositoryImpl(dlmMatchedGraphHopperFactory,
 			coordinateReferenceSystemConverter, mock(CustomRoutingProfileRepository.class));

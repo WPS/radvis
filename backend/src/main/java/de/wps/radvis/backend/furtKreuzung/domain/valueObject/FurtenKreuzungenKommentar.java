@@ -53,12 +53,3 @@ public class FurtenKreuzungenKommentar {
 		return value.length() <= KOMMENTAR_MAX_LENGTH;
 	}
 }
-
-
-
-
-
-
-
-
-

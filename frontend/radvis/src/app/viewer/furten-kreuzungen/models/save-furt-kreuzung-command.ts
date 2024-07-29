@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 import { LichtsignalAnlageEigenschaften } from 'src/app/viewer/furten-kreuzungen/models/lichtsignal-anlage-eigenschaften';
 
 export interface SaveFurtKreuzungCommand {

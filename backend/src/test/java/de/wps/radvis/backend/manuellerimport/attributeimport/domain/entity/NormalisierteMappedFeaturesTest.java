@@ -38,7 +38,8 @@ class NormalisierteMappedFeaturesTest {
 			Collections.emptyList());
 
 		// Act
-		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		// Assert
 		assertThat(result).isEmpty();
@@ -57,7 +58,8 @@ class NormalisierteMappedFeaturesTest {
 					.build()));
 
 		// Act
-		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		// Assert
 		assertThat(result).containsExactly(
@@ -79,7 +81,8 @@ class NormalisierteMappedFeaturesTest {
 					.build()));
 
 		// Act
-		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		// Assert
 		assertThat(result).containsExactly(
@@ -101,7 +104,8 @@ class NormalisierteMappedFeaturesTest {
 					.build()));
 
 		// Act
-		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		// Assert
 		assertThat(result).containsExactly(
@@ -123,7 +127,8 @@ class NormalisierteMappedFeaturesTest {
 					.build()));
 
 		// Act
-		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		// Assert
 		assertThat(result).containsExactly(
@@ -148,7 +153,8 @@ class NormalisierteMappedFeaturesTest {
 					.build()));
 
 		// Act
-		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> result = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		// Assert
 		assertThat(result).containsExactly(
@@ -174,12 +180,12 @@ class NormalisierteMappedFeaturesTest {
 		// Act & Assert
 		assertThatThrownBy(
 			() -> normalisierteMappedFeaturesLeer.getFeaturesFor(LinearReferenzierterAbschnitt.of(0, 0.5)))
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 
 		assertThatThrownBy(
 			() -> normalisierteMappedFeaturesMitAnderenReferenzen.getFeaturesFor(
 				LinearReferenzierterAbschnitt.of(0.2, 0.5)))
-			.isInstanceOf(RequireViolation.class);
+					.isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -200,7 +206,8 @@ class NormalisierteMappedFeaturesTest {
 					.build()));
 
 		// Act
-		List<LinearReferenzierterAbschnitt> lineareReferenzen = normalisierteMappedFeatures.getLineareReferenzenNormalizedAndSorted();
+		List<LinearReferenzierterAbschnitt> lineareReferenzen = normalisierteMappedFeatures
+			.getLineareReferenzenNormalizedAndSorted();
 
 		assertThat(lineareReferenzen).containsExactly(
 			LinearReferenzierterAbschnitt.of(0, 0.2),

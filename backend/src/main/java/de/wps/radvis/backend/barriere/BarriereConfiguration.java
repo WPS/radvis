@@ -41,10 +41,10 @@ public class BarriereConfiguration {
 
 	public BarriereConfiguration(
 		@NonNull NetzService kantenUndKnotenResolver,
-		VerwaltungseinheitResolver verwaltungseinheitResolver,
-		BarriereRepository barriereRepository,
-		BenutzerResolver benutzerResolver,
-		VerwaltungseinheitService verwaltungseinheitService) {
+		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
+		@NonNull BarriereRepository barriereRepository,
+		@NonNull BenutzerResolver benutzerResolver,
+		@NonNull VerwaltungseinheitService verwaltungseinheitService) {
 		this.kantenUndKnotenResolver = kantenUndKnotenResolver;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 		this.barriereRepository = barriereRepository;

@@ -24,22 +24,19 @@
   #sort="matSort"
   [sort]="sort"
   [sortingDataAccessor]="barriereFilterService.getInfrastrukturValueForKey"
-  (changeBreakpointState)="onChangeBreakpointState($event)"
->
+  (changeBreakpointState)="onChangeBreakpointState($event)">
   <button
     (click)="onCreate()"
     class="create-button action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    *ngIf="isBenutzerBerechtigtBarrierenZuErstellen"
-  >
+    *ngIf="isBenutzerBerechtigtBarrierenZuErstellen">
     <mat-icon>add</mat-icon>
     Neu anlegen
   </button>
   <button
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    (click)="onFilterReset()"
-  >
+    (click)="onFilterReset()">
     <mat-icon>filter_alt_off</mat-icon>
     Alle Filter zurücksetzen
   </button>

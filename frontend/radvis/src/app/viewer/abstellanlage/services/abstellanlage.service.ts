@@ -27,7 +27,10 @@ import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste
 export class AbstellanlageService {
   private readonly API = '/api/abstellanlage';
 
-  constructor(private http: HttpClient, private fileHandlingService: FileHandlingService) {}
+  constructor(
+    private http: HttpClient,
+    private fileHandlingService: FileHandlingService
+  ) {}
 
   public create(command: SaveAbstellanlageCommand): Promise<number> {
     return this.http.post<number>(`${this.API}/new`, command).toPromise();
@@ -38,9 +41,7 @@ export class AbstellanlageService {
   }
 
   public delete(id: number, command: DeleteAbstellanlageCommand): Promise<void> {
-    return this.http
-      .delete<void>(`${this.API}/${id}`, { body: command })
-      .toPromise();
+    return this.http.delete<void>(`${this.API}/${id}`, { body: command }).toPromise();
   }
 
   public getAll(): Promise<Abstellanlage[]> {

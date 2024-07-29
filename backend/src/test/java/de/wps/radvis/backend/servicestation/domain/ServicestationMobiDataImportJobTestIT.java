@@ -54,9 +54,11 @@ import de.wps.radvis.backend.common.domain.entity.JobExecutionDescriptionTestDat
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
@@ -64,7 +66,6 @@ import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.entity.ServicestationMobiDataImportStatistik;
 import de.wps.radvis.backend.servicestation.domain.entity.provider.ServicestationTestDataProvider;
@@ -76,8 +77,13 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp
 @ContextConfiguration(classes = {
 	de.wps.radvis.backend.servicestation.domain.ServicestationMobiDataImportJobTestIT.TestConfiguration.class,
 	CommonConfiguration.class,
-	GeoConverterConfiguration.class, OrganisationConfiguration.class })
-@EnableConfigurationProperties(value = { CommonConfigurationProperties.class })
+	GeoConverterConfiguration.class,
+	OrganisationConfiguration.class,
+})
+@EnableConfigurationProperties(value = {
+	CommonConfigurationProperties.class,
+	OrganisationConfigurationProperties.class,
+})
 class ServicestationMobiDataImportJobTestIT extends DBIntegrationTestIT {
 
 	private Gebietskoerperschaft badSaeckingen;
@@ -381,8 +387,10 @@ class ServicestationMobiDataImportJobTestIT extends DBIntegrationTestIT {
 		Optional<JobStatistik> jobStatistikZweiterDurchlauf = servicestationenImportJob.doRun();
 
 		// assert
-		ServicestationMobiDataImportStatistik mobiDataImportStatistikInitial = (ServicestationMobiDataImportStatistik) jobStatistikInitial.get();
-		ServicestationMobiDataImportStatistik mobiDataImportStatistikZweiterDurchlauf = (ServicestationMobiDataImportStatistik) jobStatistikZweiterDurchlauf.get();
+		ServicestationMobiDataImportStatistik mobiDataImportStatistikInitial = (ServicestationMobiDataImportStatistik) jobStatistikInitial
+			.get();
+		ServicestationMobiDataImportStatistik mobiDataImportStatistikZweiterDurchlauf = (ServicestationMobiDataImportStatistik) jobStatistikZweiterDurchlauf
+			.get();
 
 		assertThat(mobiDataImportStatistikInitial.anzahlGeloescht).isZero();
 		assertThat(mobiDataImportStatistikInitial.anzahlGeupdated).isZero();

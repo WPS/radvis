@@ -39,8 +39,10 @@ import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.NetzNetzklasse
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
+import de.wps.radvis.backend.netz.domain.valueObject.KantenSeite;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
@@ -53,6 +55,8 @@ import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 public class NetzToGeoJsonConverter {
 	// Der Key doppelt sich mit FeatureProperties.KANTE_ID_KEY im Frontend.
 	public static final String KANTE_ID_KEY = "kanteId";
+	// Der Key doppelt sich mit FeatureProperties.SEITE_PROPERTY_NAME im Frontend.
+	public static final String SEITE_PROPERTY_NAME = "seitenbezug";
 
 	public FeatureCollection convertNetzAusschnitt(NetzMapView netzAusschnitt, boolean includeKanten,
 		boolean mitVerlauf) {
@@ -183,9 +187,9 @@ public class NetzToGeoJsonConverter {
 			feature.setProperty("job", netzfehler.getJobZuordnung());
 			if (netzfehler.getJobZuordnung().equals("MatchNetzAufDLMJob " + QuellSystem.RadwegeDB)
 				|| netzfehler.getJobZuordnung()
-				.equals("AttributProjektionsJob " + QuellSystem.RadwegeDB)
+					.equals("AttributProjektionsJob " + QuellSystem.RadwegeDB)
 				|| netzfehler.getJobZuordnung()
-				.equals("MatchNetzAufOSMJob DLM")) {
+					.equals("MatchNetzAufOSMJob DLM")) {
 				continue;
 			}
 			featureCollection.add(feature);
@@ -263,8 +267,9 @@ public class NetzToGeoJsonConverter {
 
 		kanten.forEach(kante -> kante.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttributeSet()
 			.forEach(zustaendigkeitAttribut -> {
+				LineString segment = kante.getSegment(zustaendigkeitAttribut.getLinearReferenzierterAbschnitt());
 				Feature feature = GeoJsonConverter
-					.createFeature(kante.getSegment(zustaendigkeitAttribut.getLinearReferenzierterAbschnitt()));
+					.createFeature(segment);
 				setPropertyIfAttributeExists(feature, "vereinbarungs_kennung",
 					zustaendigkeitAttribut.getVereinbarungsKennung().map(VereinbarungsKennung::toString).orElse(null),
 					attribute);
@@ -289,29 +294,61 @@ public class NetzToGeoJsonConverter {
 		List<String> attribute) {
 		FeatureCollection featureCollection = GeoJsonConverter.createFeatureCollection();
 
-		kanten.forEach(kante -> kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinksSet()
-			.forEach(fuehrungsformAttribut -> {
-				Feature feature = GeoJsonConverter
-					.createFeature(kante.getSegment(fuehrungsformAttribut.getLinearReferenzierterAbschnitt()));
-				setPropertyIfAttributeExists(feature, "belag_art", fuehrungsformAttribut.getBelagArt(), attribute);
-				setPropertyIfAttributeExists(feature, "oberflaechenbeschaffenheit",
-					fuehrungsformAttribut.getOberflaechenbeschaffenheit(), attribute);
-				setPropertyIfAttributeExists(feature, "benutzungspflicht",
-					fuehrungsformAttribut.getBenutzungspflicht(), attribute);
-				setPropertyIfAttributeExists(feature, "bordstein", fuehrungsformAttribut.getBordstein(), attribute);
-				setPropertyIfAttributeExists(feature, "radverkehrsfuehrung",
-					fuehrungsformAttribut.getRadverkehrsfuehrung(), attribute);
-				setPropertyIfAttributeExists(feature, "parken_typ", fuehrungsformAttribut.getParkenTyp(), attribute);
-				setPropertyIfAttributeExists(feature, "parken_form", fuehrungsformAttribut.getParkenForm(),
-					attribute);
-				setPropertyIfAttributeExists(feature, "breite", fuehrungsformAttribut.getBreite(), attribute);
+		kanten.forEach(kante -> {
+			if (kante.getFuehrungsformAttributGruppe().isZweiseitig()) {
+				addFeaturesWithFuehrungsformAttributes(
+					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinksSet(),
+					kante,
+					KantenSeite.LINKS,
+					attribute,
+					featureCollection);
 
-				feature.setProperty(KANTE_ID_KEY, kante.getId().toString());
-
-				featureCollection.add(feature);
-			}));
+				addFeaturesWithFuehrungsformAttributes(
+					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechtsSet(),
+					kante,
+					KantenSeite.RECHTS,
+					attribute,
+					featureCollection);
+			} else {
+				addFeaturesWithFuehrungsformAttributes(
+					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinksSet(),
+					kante,
+					null, // Einseitige Kanten haben keine linke oder rechte Seite
+					attribute,
+					featureCollection);
+			}
+		});
 
 		return featureCollection;
+	}
+
+	private void addFeaturesWithFuehrungsformAttributes(Set<FuehrungsformAttribute> fuehrungsformAttribute,
+		KanteFuehrungsformAttributeView kante, KantenSeite seite, List<String> attribute,
+		FeatureCollection featureCollection) {
+		fuehrungsformAttribute.forEach(fuehrungsformAttribut -> {
+			Feature feature = GeoJsonConverter.createFeature(
+				kante.getSegment(fuehrungsformAttribut.getLinearReferenzierterAbschnitt()));
+
+			feature.setProperty(KANTE_ID_KEY, kante.getId().toString());
+			feature.setProperty(SEITE_PROPERTY_NAME, seite);
+
+			setPropertyIfAttributeExists(feature, "belag_art", fuehrungsformAttribut.getBelagArt(), attribute);
+			setPropertyIfAttributeExists(feature, "oberflaechenbeschaffenheit",
+				fuehrungsformAttribut.getOberflaechenbeschaffenheit(), attribute);
+			setPropertyIfAttributeExists(feature, "benutzungspflicht",
+				fuehrungsformAttribut.getBenutzungspflicht(), attribute);
+			setPropertyIfAttributeExists(feature, "bordstein", fuehrungsformAttribut.getBordstein(),
+				attribute);
+			setPropertyIfAttributeExists(feature, "radverkehrsfuehrung",
+				fuehrungsformAttribut.getRadverkehrsfuehrung(), attribute);
+			setPropertyIfAttributeExists(feature, "parken_typ", fuehrungsformAttribut.getParkenTyp(),
+				attribute);
+			setPropertyIfAttributeExists(feature, "parken_form", fuehrungsformAttribut.getParkenForm(),
+				attribute);
+			setPropertyIfAttributeExists(feature, "breite", fuehrungsformAttribut.getBreite(), attribute);
+
+			featureCollection.add(feature);
+		});
 	}
 
 	public FeatureCollection convertGeschwindigkeitattribute(Set<KanteGeschwindigkeitAttributeView> kanten,

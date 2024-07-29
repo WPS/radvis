@@ -146,7 +146,7 @@ class OsmAbbildungsFehlerServiceTestIT extends DBIntegrationTestIT {
 		// Der letzte Eintrag fuer RadNETZ nicht extra nochmal genauer asserten...
 		assertThat(fehlerprotokolle.stream().filter(f -> f.getId().equals(osmAbbildungsFehler.get(5).getKanteId()))
 			.findFirst())
-			.isPresent();
+				.isPresent();
 	}
 
 	@Test
@@ -279,7 +279,7 @@ class OsmAbbildungsFehlerServiceTestIT extends DBIntegrationTestIT {
 		// Der letzte Eintrag fuer RadNETZ nicht extra nochmal genauer asserten...
 		assertThat(fehlerprotokolle.stream().filter(f -> f.getId().equals(osmAbbildungsFehler.get(5).getKanteId()))
 			.findFirst())
-			.isPresent();
+				.isPresent();
 	}
 
 	@Test

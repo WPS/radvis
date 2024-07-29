@@ -22,17 +22,15 @@ export enum Linksabbieger {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Linksabbieger {
-  export const options: EnumOption[] = Object.keys(Linksabbieger).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Linksabbieger.EIGENES_SIGNALISIEREN:
-          return { name: k, displayText: 'Eigenes Signalisieren' };
-        case Linksabbieger.INDIREKTES_ABBIEGEN:
-          return { name: k, displayText: 'Indirektes Abbiegen' };
-        case Linksabbieger.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Linksabbieger fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Linksabbieger).map((k: string): EnumOption => {
+    switch (k) {
+      case Linksabbieger.EIGENES_SIGNALISIEREN:
+        return { name: k, displayText: 'Eigenes Signalisieren' };
+      case Linksabbieger.INDIREKTES_ABBIEGEN:
+        return { name: k, displayText: 'Indirektes Abbiegen' };
+      case Linksabbieger.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Linksabbieger fehlt: ' + k);
+  });
 }

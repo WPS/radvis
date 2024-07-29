@@ -21,19 +21,16 @@
 <div class="feature-table">
   <rad-detail-feature-table
     [attribute]="attributeGruppiert"
-    [leereAttributeVisible]="leereAttributeVisible"
-  ></rad-detail-feature-table>
+    [leereAttributeVisible]="leereAttributeVisible"></rad-detail-feature-table>
   <rad-sicherheitstrennstreifen-anzeige-komplett
     *ngIf="isTrennstreifenFeatureEnabled && isTrennstreifenVorhanden"
     class="sicherheitstrennstreifen"
     [trennstreifenEinseitig]="trennstreifenEinseitig"
     [trennstreifenRichtungLinks]="trennstreifenRichtungLinks"
-    [trennstreifenRichtungRechts]="trennstreifenRichtungRechts"
-  ></rad-sicherheitstrennstreifen-anzeige-komplett>
+    [trennstreifenRichtungRechts]="trennstreifenRichtungRechts"></rad-sicherheitstrennstreifen-anzeige-komplett>
 </div>
 
 <rad-kanten-highlight-layer
   *ngIf="selektion"
   [selektion]="selektion"
-  [verlauf]="mitVerlauf$ | async"
-></rad-kanten-highlight-layer>
+  [verlauf]="mitVerlauf$ | async"></rad-kanten-highlight-layer>

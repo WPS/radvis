@@ -1,0 +1,72 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<button
+  type="button"
+  mat-stroked-button
+  (click)="onSelektionStarten()"
+  [disabled]="disabled"
+  *ngIf="!selectionMode"
+  color="primary"
+  class="w-100">
+  <span *ngIf="!netzbezugSelected">Netzbezug auswählen</span>
+  <span *ngIf="netzbezugSelected">Netzbezug ändern</span>
+</button>
+<div *ngIf="selectionMode && !disabled" class="display-flex flex-column align-items-start p-10 mat-elevation-z3">
+  <div class="hinweis mb-2">Netzbezug auswählen</div>
+  <mat-slide-toggle class="m-5" (toggleChange)="onToggleZweiseitigeNetzanzeige()" [checked]="zweiseitigeNetzanzeige">
+    <span class="slide-toggle-size-vs-button-size-offset">Kanten zweiseitig anzeigen</span>
+  </mat-slide-toggle>
+  <rad-bearbeitungs-modus-toggle-button
+    [toggled]="pointSelectionMode"
+    (toggle)="onTogglePunktModus()"
+    ariaLabelId="punkt-auswahl-label"
+    iconName="location_searching">
+    <div id="punkt-auswahl-label">Punkt auf Kante auswählen</div>
+  </rad-bearbeitungs-modus-toggle-button>
+  <rad-bearbeitungs-modus-toggle-button
+    [toggled]="schereSelectionMode"
+    (toggle)="onToggleSchereModus()"
+    ariaLabelId="auswahl-teilen-label"
+    iconName="content_cut">
+    <div id="auswahl-teilen-label">Auswahl teilen</div>
+  </rad-bearbeitungs-modus-toggle-button>
+  <div class="display-flex justify-content-flex-end align-self-stretch" *ngIf="selectionMode">
+    <button
+      *ngIf="canZuruecksetzen"
+      mat-stroked-button
+      (click)="onZuruecksetzen()"
+      [disabled]="disabled"
+      color="primary">
+      Zurücksetzen
+    </button>
+
+    <button mat-raised-button (click)="onSelektionBeenden()" class="ml-10" [disabled]="disabled" color="primary">
+      Auswahl bestätigen
+    </button>
+  </div>
+
+  <rad-netzbezug-selektion-layer
+    [netzbezug]="netzbezug"
+    [pointSelectionMode]="pointSelectionMode"
+    [schereMode]="schereSelectionMode"
+    [netzZweiseitig]="zweiseitigeNetzanzeige"
+    (netzbezugChange)="onNetzbezugChange($event)"></rad-netzbezug-selektion-layer>
+</div>
+
+<rad-netzbezug-highlight-layer
+  *ngIf="netzbezugHighlightToggle && !selectionMode && netzbezug"
+  [netzbezug]="netzbezug"
+  [layerId]="layerId"></rad-netzbezug-highlight-layer>
+<rad-validation-error-anzeige [errors]="validate()" class="mt-5"></rad-validation-error-anzeige>

@@ -28,16 +28,14 @@
         [attr.aria-label]="dokument.dateiname + ' löschen'"
         [matTooltip]="dokument.dateiname + ' löschen'"
         (click)="onDelete(dokument)"
-        mat-icon-button
-      >
+        mat-icon-button>
         <mat-icon>delete</mat-icon>
       </button>
       <button
         [attr.aria-label]="dokument.dateiname + ' herunterladen'"
         [matTooltip]="dokument.dateiname + ' herunterladen'"
         (click)="onDownload(dokument)"
-        mat-icon-button
-      >
+        mat-icon-button>
         <mat-icon>download</mat-icon>
       </button>
     </div>
@@ -50,27 +48,26 @@
     </rad-file-upload-control>
     <rad-validation-error-anzeige
       [errors]="formGroup.get('file')?.errors || null"
-      *ngIf="formGroup.get('file')?.dirty"
-    ></rad-validation-error-anzeige>
+      *ngIf="formGroup.get('file')?.dirty"></rad-validation-error-anzeige>
   </div>
-  <div class="display-flex buttons justify-content-space-between">
+  <div class="display-flex buttons">
     <button
       [disabled]="formGroup.pristine"
       (click)="resetForm()"
-      mat-flat-button
+      mat-stroked-button
       color="primary"
-      class="abbrechen-button"
-    >
+      class="abbrechen-button">
       Abbrechen
     </button>
-
-    <rad-action-button
-      [waiting]="uploading"
-      [dirty]="formGroup.dirty"
-      [disabled]="formGroup.pristine"
-      (action)="onUpload()"
-      class="upload-button"
-      >Hochladen
-    </rad-action-button>
+    <div>
+      <rad-action-button
+        [waiting]="uploading"
+        [dirty]="formGroup.dirty"
+        [disabled]="formGroup.pristine"
+        (action)="onUpload()"
+        class="upload-button">
+        Hochladen
+      </rad-action-button>
+    </div>
   </div>
 </form>

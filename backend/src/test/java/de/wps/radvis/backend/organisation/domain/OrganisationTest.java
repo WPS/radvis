@@ -35,8 +35,8 @@ public class OrganisationTest {
 		MultiPolygon bereich1 = GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100);
 		MultiPolygon bereich2 = GeometryTestdataProvider.createQuadratischerBereich(50, 50, 150, 150);
 		Organisation organisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().zustaendigFuerBereichOf(
-				Set.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1l).bereich(bereich1).build(),
-					VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2l).bereich(bereich2).build()))
+			Set.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1l).bereich(bereich1).build(),
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2l).bereich(bereich2).build()))
 			.build();
 
 		assertThat(organisation.getBereich()).isPresent();
@@ -64,8 +64,8 @@ public class OrganisationTest {
 		MultiPolygon bereich1 = GeometryTestdataProvider.createQuadratischerBereich(0, 0, 40, 40);
 		MultiPolygon bereich2 = GeometryTestdataProvider.createQuadratischerBereich(50, 50, 150, 150);
 		Organisation organisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().zustaendigFuerBereichOf(
-				Set.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1l).bereich(bereich1).build(),
-					VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2l).bereich(bereich2).build()))
+			Set.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1l).bereich(bereich1).build(),
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2l).bereich(bereich2).build()))
 			.build();
 
 		assertThat(organisation.getBereich()).isPresent();

@@ -16,9 +16,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { IMPORTPROTOKOLLE } from 'src/app/viewer/importprotokolle/models/importprotokoll.infrastruktur';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
-import {
-  AbstractInfrastrukturenRoutingService,
-} from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
+import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 import { ImportprotokollTyp } from 'src/app/viewer/importprotokolle/models/importprotokoll-typ';
 
 @Injectable({

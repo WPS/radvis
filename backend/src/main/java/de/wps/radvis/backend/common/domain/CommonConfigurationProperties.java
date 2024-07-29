@@ -18,20 +18,21 @@ import static de.wps.radvis.backend.common.domain.Validators.isValidDateipfad;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
+import de.wps.radvis.backend.common.domain.valueObject.BasisnetzImportSource;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import lombok.Getter;
 
 @ConfigurationProperties("radvis.common")
 @Getter
 public class CommonConfigurationProperties {
-
-	private final Envelope badenWuerttembergEnvelope = new Envelope(
-		new Coordinate(378073.54, 5255657.09),
-		new Coordinate(633191.12, 5534702.95));
 	private static final String BASIS_URL_PATTERN = "^https?://[A-zäöüÄÖÜ\\d_\\-/.]*:?[0-9]{0,5}/?[-a-zA-ZäöüÄÖÜ\\d()!@:%_+.~#?&/=]*$";
 
 	private final String externeResourcenBasisPfad;
@@ -48,30 +49,56 @@ public class CommonConfigurationProperties {
 
 	private final String basisUrl;
 
+	private final BasisnetzImportSource basisnetzImportSource;
+
+	private final Envelope obersteGebietskoerperschaftEnvelope;
+
+	private final String obersteGebietskoerperschaftName;
+
+	private final OrganisationsArt obersteGebietskoerperschaftOrganisationsArt;
+
+	private final String staticResourcesPath;
+
 	@ConstructorBinding
 	public CommonConfigurationProperties(String externeResourcenBasisPfad,
 		Integer anzahlTageImportprotokolleVorhalten,
 		ExtentProperty extent,
 		String proxy,
 		String version,
-		String basisUrl) {
+		String basisUrl,
+		String basisnetzImportSource,
+		String obersteGebietskoerperschaftName,
+		OrganisationsArt obersteGebietskoerperschaftOrganisationsArt, String staticResourcesPath) {
 		require(externeResourcenBasisPfad, notNullValue());
-		require(externeResourcenBasisPfad.length() > 1, "externeResourcenBasisPfad muss länge größer 1 haben");
+		require(externeResourcenBasisPfad.length() > 1, "externeResourcenBasisPfad muss Länge größer 1 haben");
 		require(anzahlTageImportprotokolleVorhalten, notNullValue());
 		require(isValidDateipfad(externeResourcenBasisPfad), "externeResourcenBasisPfad muss Dateipfadstruktur haben");
 		require(extent, notNullValue());
 		require(isValidBasisURL(basisUrl), "basisUrl muss URL-Struktur haben");
+		require(BasisnetzImportSource.isValid(basisnetzImportSource),
+			"basisnetzImportSource muss einen der folgenden Wert enthalten: " + Arrays.stream(
+				BasisnetzImportSource.values()).map(v -> v.name()).collect(Collectors.joining(", ")));
+		require(staticResourcesPath, notNullValue());
 		this.externeResourcenBasisPfad = externeResourcenBasisPfad;
 		this.anzahlTageImportprotokolleVorhalten = anzahlTageImportprotokolleVorhalten;
 		this.extentProperty = extent;
 		this.version = version;
 		this.basisUrl = basisUrl;
+		this.basisnetzImportSource = BasisnetzImportSource.valueOf(basisnetzImportSource);
+		this.staticResourcesPath = staticResourcesPath;
 
 		if (proxy != null && !proxy.isEmpty()) {
 			String[] proxyparts = proxy.split(":");
 			this.proxyAdress = proxyparts[0];
 			this.proxyPort = Integer.parseInt(proxyparts[1]);
 		}
+
+		obersteGebietskoerperschaftEnvelope = new Envelope(
+			new Coordinate(extent.getMinX(), extent.getMinY()),
+			new Coordinate(extent.getMaxX(), extent.getMaxY()));
+		this.obersteGebietskoerperschaftName = obersteGebietskoerperschaftName;
+		this.obersteGebietskoerperschaftOrganisationsArt = obersteGebietskoerperschaftOrganisationsArt;
+
 	}
 
 	/**
@@ -80,5 +107,4 @@ public class CommonConfigurationProperties {
 	public static boolean isValidBasisURL(String value) {
 		return value != null && value.matches(BASIS_URL_PATTERN);
 	}
-
 }

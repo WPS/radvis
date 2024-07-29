@@ -53,20 +53,18 @@ public interface KantenRepository
 	Stream<Kante> findKanteByQuelle(QuellSystem quelle);
 
 	@Query(
-		value =
-			"SELECT kante.id AS id, kante.geometry AS geometry"
-				+ " FROM Kante kante "
-				+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
-				+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)"
-				+ " LIMIT 10000", nativeQuery = true)
+		value = "SELECT kante.id AS id, kante.geometry AS geometry"
+			+ " FROM Kante kante "
+			+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
+			+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)"
+			+ " LIMIT 10000", nativeQuery = true)
 	Slice<KanteElevationView> findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry();
 
 	@Query(
-		value =
-			"SELECT COUNT(*)"
-				+ " FROM Kante kante "
-				+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
-				+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)", nativeQuery = true)
+		value = "SELECT COUNT(*)"
+			+ " FROM Kante kante "
+			+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
+			+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)", nativeQuery = true)
 	int countAllByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry();
 
 	@Query("SELECT kante "

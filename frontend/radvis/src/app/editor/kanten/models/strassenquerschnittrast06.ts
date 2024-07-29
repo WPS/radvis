@@ -32,37 +32,35 @@ export enum StrassenquerschnittRASt06 {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace StrassenquerschnittRASt06 {
-  export const options: EnumOption[] = Object.keys(StrassenquerschnittRASt06).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case StrassenquerschnittRASt06.WOHNWEG:
-          return { name: k, displayText: 'Wohnweg' };
-        case StrassenquerschnittRASt06.WOHNSTRASSE:
-          return { name: k, displayText: 'Wohnstraße' };
-        case StrassenquerschnittRASt06.SAMMELSTRASSE:
-          return { name: k, displayText: 'Sammelstraße' };
-        case StrassenquerschnittRASt06.QUARTIERSSTRASSE:
-          return { name: k, displayText: 'Quartiersstraße' };
-        case StrassenquerschnittRASt06.DOERFLICHE_HAUPTSTRASSE:
-          return { name: k, displayText: 'Dörfliche Hauptstraße' };
-        case StrassenquerschnittRASt06.OERTLICHE_EINFAHRTSSTRASSE:
-          return { name: k, displayText: 'Örtliche Einfahrtsstraße' };
-        case StrassenquerschnittRASt06.OERTLICHE_GESCHAEFTSSTRASSE:
-          return { name: k, displayText: 'Örtliche Geschäftsstraße' };
-        case StrassenquerschnittRASt06.HAUPTGESCHAEFTSSTRASSE:
-          return { name: k, displayText: 'Hauptgeschäftsstraße' };
-        case StrassenquerschnittRASt06.GEWERBESTRASSE:
-          return { name: k, displayText: 'Gewerbestraße' };
-        case StrassenquerschnittRASt06.INDUSTRIESTRASSE:
-          return { name: k, displayText: 'Industriestraße' };
-        case StrassenquerschnittRASt06.VERBINDUNGSSTRASSE:
-          return { name: k, displayText: 'Verbindungsstraße' };
-        case StrassenquerschnittRASt06.ANBAUFREIE_STRASSE:
-          return { name: k, displayText: 'Anbaufreie Straße' };
-        case StrassenquerschnittRASt06.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Strassenquerschnitt nach RASt 06 fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(StrassenquerschnittRASt06).map((k: string): EnumOption => {
+    switch (k) {
+      case StrassenquerschnittRASt06.WOHNWEG:
+        return { name: k, displayText: 'Wohnweg' };
+      case StrassenquerschnittRASt06.WOHNSTRASSE:
+        return { name: k, displayText: 'Wohnstraße' };
+      case StrassenquerschnittRASt06.SAMMELSTRASSE:
+        return { name: k, displayText: 'Sammelstraße' };
+      case StrassenquerschnittRASt06.QUARTIERSSTRASSE:
+        return { name: k, displayText: 'Quartiersstraße' };
+      case StrassenquerschnittRASt06.DOERFLICHE_HAUPTSTRASSE:
+        return { name: k, displayText: 'Dörfliche Hauptstraße' };
+      case StrassenquerschnittRASt06.OERTLICHE_EINFAHRTSSTRASSE:
+        return { name: k, displayText: 'Örtliche Einfahrtsstraße' };
+      case StrassenquerschnittRASt06.OERTLICHE_GESCHAEFTSSTRASSE:
+        return { name: k, displayText: 'Örtliche Geschäftsstraße' };
+      case StrassenquerschnittRASt06.HAUPTGESCHAEFTSSTRASSE:
+        return { name: k, displayText: 'Hauptgeschäftsstraße' };
+      case StrassenquerschnittRASt06.GEWERBESTRASSE:
+        return { name: k, displayText: 'Gewerbestraße' };
+      case StrassenquerschnittRASt06.INDUSTRIESTRASSE:
+        return { name: k, displayText: 'Industriestraße' };
+      case StrassenquerschnittRASt06.VERBINDUNGSSTRASSE:
+        return { name: k, displayText: 'Verbindungsstraße' };
+      case StrassenquerschnittRASt06.ANBAUFREIE_STRASSE:
+        return { name: k, displayText: 'Anbaufreie Straße' };
+      case StrassenquerschnittRASt06.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Strassenquerschnitt nach RASt 06 fehlt: ' + k);
+  });
 }

@@ -176,15 +176,10 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 			_abstract = _abstract.substring(0, 499);
 		}
 
-		if (originalGeometrie == null) {
-			log.info("Toubiz ID: {} konnte nicht importiert werden: Fehlende Geometrie",
-				ToubizId.of(article.getId()));
-			return null;
-		}
-
 		String homepage = getHompage(article);
-
 		String email = getEmail(article);
+		double trackDistance = article.getTour().getTrackInformation().getDistance();
+		Laenge offizielleLaenge = trackDistance > 0 ? Laenge.of(trackDistance) : null;
 
 		return ImportedToubizRoute.builder()
 			.name(FahrradrouteName.of(article.getName()))
@@ -193,7 +188,7 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 			.kurzbezeichnung(_abstract)
 			.beschreibung(article.getDescription())
 			.info(article.getTour().getMoreInformation())
-			.offizielleLaenge(Laenge.of(article.getTour().getTrackInformation().getDistance()))
+			.offizielleLaenge(offizielleLaenge)
 			.tourenkategorie(tourenkategorie)
 			.homepage(homepage)
 			.emailAnsprechpartner(email)
@@ -214,7 +209,8 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 				ToubizFahrradrouteContactInformationErgebnisDto.class);
 		} catch (RestClientException e) {
 			log.error(
-				"RestClientException: Das Abrufen der Homepage ist fehlgeschlagen. Die Route wird ohne Homepage importiert", e);
+				"RestClientException: Das Abrufen der Homepage ist fehlgeschlagen. Die Route wird ohne Homepage importiert",
+				e);
 		}
 		return ergebnis != null && ergebnis.getWebsite() != null ? ergebnis.getWebsite() : "";
 	}
@@ -235,7 +231,8 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 			ergebnis = restTemplate.getForObject(url, ToubizFahrradrouteEmailsErgebnisDto.class);
 		} catch (RestClientException e) {
 			log.error(
-				"RestClientException: Das Abrufen der Email ist fehlgeschlagen. Die Route wird ohne Mailadresse importiert", e);
+				"RestClientException: Das Abrufen der Email ist fehlgeschlagen. Die Route wird ohne Mailadresse importiert",
+				e);
 		}
 
 		return ergebnis != null ? ergebnis.getFirstEmail() : null;

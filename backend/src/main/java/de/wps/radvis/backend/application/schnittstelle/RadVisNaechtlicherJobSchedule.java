@@ -14,74 +14,18 @@
 
 package de.wps.radvis.backend.application.schnittstelle;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.GeoserverFehlerprotokolleUpdateJob;
-import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageBRImportJob;
-import de.wps.radvis.backend.benutzer.domain.SetzeBenutzerInaktivJob;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
-import de.wps.radvis.backend.common.domain.entity.AbstractJob;
-import de.wps.radvis.backend.fahrradroute.domain.DRouteMatchingJob;
-import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenTfisUpdateJob;
-import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenToubizImportJob;
-import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenVariantenTfisUpdateJob;
-import de.wps.radvis.backend.fahrradroute.domain.ProfilInformationenUpdateJob;
-import de.wps.radvis.backend.fahrradroute.domain.RecreateFahrradrouteImportDiffViewJob;
-import de.wps.radvis.backend.fahrradzaehlstelle.domain.FahrradzaehlstellenMobiDataImportJob;
-import de.wps.radvis.backend.integration.grundnetzReimport.domain.DLMReimportJob;
-import de.wps.radvis.backend.konsistenz.pruefung.domain.KonsistenzregelPruefJob;
-import de.wps.radvis.backend.leihstation.domain.LeihstationMobiDataImportJob;
-import de.wps.radvis.backend.matching.domain.DlmPbfErstellungsJob;
-import de.wps.radvis.backend.matching.domain.MatchNetzAufOSMJob;
-import de.wps.radvis.backend.matching.domain.OsmAuszeichnungsJob;
-import de.wps.radvis.backend.matching.domain.OsmPbfDownloadJob;
-import de.wps.radvis.backend.servicestation.domain.ServicestationMobiDataImportJob;
-import de.wps.radvis.backend.wegweisendeBeschilderung.domain.WegweisendeBeschilderungImportJob;
-
 public class RadVisNaechtlicherJobSchedule implements RadVisJobSchedule {
+	private final List<String> radVisNaechtlicherJobSchedule;
+
+	public RadVisNaechtlicherJobSchedule(List<String> radVisNaechtlicherJobSchedule) {
+		this.radVisNaechtlicherJobSchedule = radVisNaechtlicherJobSchedule;
+	}
+
 	@Override
-	public List<Class<? extends AbstractJob>> jobsToRun() {
-		List<Class<? extends AbstractJob>> naechtlicheJobs = new ArrayList<>();
-
-		if (FeatureTogglz.DLM_REIMPORT_NAECHTLICH_AUSFUEHREN.isActive()) {
-			naechtlicheJobs.add(DLMReimportJob.class);
-		}
-
-		naechtlicheJobs.add(OsmPbfDownloadJob.class);
-
-		if (FeatureTogglz.NETZ_AUF_OSM_MATCHING_NAECHTLICH_AUSFUEHREN.isActive()) {
-			naechtlicheJobs.add(MatchNetzAufOSMJob.class);
-		}
-
-		naechtlicheJobs.add(DlmPbfErstellungsJob.class);
-		naechtlicheJobs.add(OsmAuszeichnungsJob.class);
-		naechtlicheJobs.add(FahrradroutenToubizImportJob.class);
-
-		naechtlicheJobs.add(FahrradroutenTfisUpdateJob.class);
-		naechtlicheJobs.add(FahrradroutenVariantenTfisUpdateJob.class);
-		if (FeatureTogglz.D_ROUTEN_NAECHTLICH_NETZBEZUG_MATCHVERSUCH.isActive()) {
-			naechtlicheJobs.add(DRouteMatchingJob.class);
-		}
-		naechtlicheJobs.add(ProfilInformationenUpdateJob.class);
-		naechtlicheJobs.add(RecreateFahrradrouteImportDiffViewJob.class);
-
-		naechtlicheJobs.add(WegweisendeBeschilderungImportJob.class);
-		naechtlicheJobs.add(AbstellanlageBRImportJob.class);
-		naechtlicheJobs.add(LeihstationMobiDataImportJob.class);
-		naechtlicheJobs.add(ServicestationMobiDataImportJob.class);
-
-		naechtlicheJobs.add(GeoserverFehlerprotokolleUpdateJob.class);
-
-		if (FeatureTogglz.KONSISTENZREGELN.isActive()) {
-			naechtlicheJobs.add(KonsistenzregelPruefJob.class);
-		}
-
-		naechtlicheJobs.add(FahrradzaehlstellenMobiDataImportJob.class);
-
-		naechtlicheJobs.add(SetzeBenutzerInaktivJob.class);
-
-		return naechtlicheJobs;
+	public List<String> jobsToRun() {
+		return radVisNaechtlicherJobSchedule;
 	}
 
 	@Override

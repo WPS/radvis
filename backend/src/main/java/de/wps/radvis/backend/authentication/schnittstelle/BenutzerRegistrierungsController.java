@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
+import de.wps.radvis.backend.authentication.domain.exception.BenutzerNotAuthenticatedException;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerExistiertBereitsException;
@@ -58,9 +59,14 @@ public class BenutzerRegistrierungsController {
 	@PostMapping(path = "/registriere-benutzer")
 	public void registriereBenutzer(Authentication authentication,
 		@RequestBody @Valid RegistriereBenutzerCommand command)
-		throws BenutzerExistiertBereitsException {
+		throws BenutzerExistiertBereitsException, BenutzerNotAuthenticatedException {
 
 		RadVisUserDetails currentUser = (RadVisUserDetails) authentication.getPrincipal();
+
+		if (currentUser.getServiceBwId() == null) {
+			throw new BenutzerNotAuthenticatedException(
+				"Sie sind nicht authentifiziert, bitte versuchen Sie es erneut.");
+		}
 
 		Benutzer neuerBenutzer = benutzerService.registriereBenutzer(
 			command.getVorname(),
@@ -71,13 +77,14 @@ public class BenutzerRegistrierungsController {
 			command.getEmail());
 
 		// refresh SecurityContext
-		UserDetails neueUserDetails = RadVisUserDetailsService.fromUser(neuerBenutzer);
+		UserDetails neueUserDetails = RadVisUserDetailsService.fromUser(neuerBenutzer, currentUser
+			.getRelyingPartyRegistrationId(), currentUser.getSessionIndexes());
 		SecurityContextHolder.getContext().setAuthentication(new RadVisAuthentication(neueUserDetails));
 
-		String linkAufBenutzer =
-			commonConfigurationProperties.getBasisUrl() + FrontendLinks.benutzerAdministration(neuerBenutzer.getId());
+		String linkAufBenutzer = commonConfigurationProperties.getBasisUrl() + FrontendLinks.benutzerAdministration(
+			neuerBenutzer.getId());
 		String mailText = String.format("Der Benutzer '%s %s' wurde angelegt und wartet auf Freischaltung.\n" +
-				"Die Bearbeitung des Benutzers kann erfolgen unter %s .",
+			"Die Bearbeitung des Benutzers kann erfolgen unter %s .",
 			neuerBenutzer.getVorname(), neuerBenutzer.getNachname(), linkAufBenutzer);
 		List<Benutzer> zustaendigeBenutzer = benutzerService.getAlleZustaendigenBenutzer(neuerBenutzer);
 		List<String> zustaendigeMailadressen = zustaendigeBenutzer.stream()

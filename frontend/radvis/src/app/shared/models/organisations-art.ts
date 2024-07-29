@@ -15,6 +15,7 @@
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
 export enum OrganisationsArt {
+  STAAT = 'STAAT',
   BUNDESLAND = 'BUNDESLAND',
   GEMEINDE = 'GEMEINDE',
   KREIS = 'KREIS',
@@ -28,29 +29,29 @@ export enum OrganisationsArt {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace OrganisationsArt {
-  export const options: EnumOption[] = Object.keys(OrganisationsArt).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case OrganisationsArt.BUNDESLAND:
-          return { name: k, displayText: 'Bundesland' };
-        case OrganisationsArt.GEMEINDE:
-          return { name: k, displayText: 'Gemeinde' };
-        case OrganisationsArt.KREIS:
-          return { name: k, displayText: 'Kreis' };
-        case OrganisationsArt.REGIERUNGSBEZIRK:
-          return { name: k, displayText: 'Regierungsbezirk' };
-        case OrganisationsArt.TOURISMUSVERBAND:
-          return { name: k, displayText: 'Tourismusverband' };
-        case OrganisationsArt.EXTERNER_DIENSTLEISTER:
-          return { name: k, displayText: 'Externer Dienstleister' };
-        case OrganisationsArt.REGIONALVERBAND:
-          return { name: k, displayText: 'Regionalverband' };
-        case OrganisationsArt.SONSTIGES:
-          return { name: k, displayText: 'Sonstiges' };
-      }
-      throw new Error('Beschreibung für enum OrganisationsArt fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(OrganisationsArt).map((k: string): EnumOption => {
+    switch (k) {
+      case OrganisationsArt.STAAT:
+        return { name: k, displayText: 'Staat' };
+      case OrganisationsArt.BUNDESLAND:
+        return { name: k, displayText: 'Bundesland' };
+      case OrganisationsArt.GEMEINDE:
+        return { name: k, displayText: 'Gemeinde' };
+      case OrganisationsArt.KREIS:
+        return { name: k, displayText: 'Kreis' };
+      case OrganisationsArt.REGIERUNGSBEZIRK:
+        return { name: k, displayText: 'Regierungsbezirk' };
+      case OrganisationsArt.TOURISMUSVERBAND:
+        return { name: k, displayText: 'Tourismusverband' };
+      case OrganisationsArt.EXTERNER_DIENSTLEISTER:
+        return { name: k, displayText: 'Externer Dienstleister' };
+      case OrganisationsArt.REGIONALVERBAND:
+        return { name: k, displayText: 'Regionalverband' };
+      case OrganisationsArt.SONSTIGES:
+        return { name: k, displayText: 'Sonstiges' };
     }
-  );
+    throw new Error('Beschreibung für enum OrganisationsArt fehlt: ' + k);
+  });
 
   // Achtung, hier ist die Reihenfolge der Definitionen wichtig:
   // Das Feld istGebietskoerperschaft vom nameSpace OrganisationsArt soll nicht bei dem Aufruf
@@ -59,6 +60,7 @@ export namespace OrganisationsArt {
     // Achtung, die Zuordnung von gebietskoerperschaft zu den einzelnen Felder
     // findet auch nochmal im BE in OrganisationsArt.java statt
     switch (orgaArt) {
+      case OrganisationsArt.STAAT:
       case OrganisationsArt.BUNDESLAND:
       case OrganisationsArt.GEMEINDE:
       case OrganisationsArt.KREIS:

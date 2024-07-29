@@ -111,9 +111,8 @@ public class MassnahmenImportProtokoll {
 		}
 
 		log.info("Es wurden {}% der Massnahmen ohne Fehler importiert", 100. - 100. *
-			(!hasFehler() ? 1. :
-				((double) getAnzahlFehlerhafterMassnahmen())
-					/ (double) gesamtanzahlMassnahmen.get()));
+			(!hasFehler() ? 1. : ((double) getAnzahlFehlerhafterMassnahmen())
+				/ (double) gesamtanzahlMassnahmen.get()));
 
 		log.info("Import Fehler Details, gruppiert nach MASSN_P-Id:\n {}",
 			getMapVonIdAufFehler());

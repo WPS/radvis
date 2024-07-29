@@ -15,84 +15,38 @@
 package de.wps.radvis.backend.matching.domain.entity;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.valid4j.Assertive.ensure;
 import static org.valid4j.Assertive.require;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.index.SpatialIndex;
-import org.locationtech.jts.index.quadtree.Quadtree;
 
 import de.topobyte.osm4j.core.model.impl.Node;
-import lombok.Getter;
-import lombok.Setter;
 
+/**
+ * Der NodeIndex ist im wesentlichen eine Map von Koordinate auf node-ID (nicht auf Knoten-ID).
+ *
+ * Wichtig ist hierbei, dass es aus Performance- und Speichergründen KEIN spatialer Index ist (also kein QuadTree o.Ä.),
+ * der mit Ungenauigkeiten bei angefragten Koordinaten umgehen kann. Kleinste Abweichungen bei den angefragten
+ * Koordinaten führen also zu leeren Suchergebnissen.
+ */
 public class NodeIndex {
 
-	public static final double PRECISION = 0.000001;
-
-	@Setter
-	@Getter
-	private double precision;
-
-	private final SpatialIndex index;
+	private final HashMap<Coordinate, Long> index;
 
 	public NodeIndex() {
-		this.precision = PRECISION;
-		this.index = new Quadtree();
+		this.index = new HashMap<>();
 	}
 
 	public void fuegeEin(Node node) {
 		require(node, notNullValue());
-
-		Envelope envelope = createEnvelope(node);
-		index.insert(envelope, node);
+		index.put(getCoordinate(node), node.getId());
 	}
 
-	public Optional<Node> finde(Node node) {
+	public Optional<Long> finde(Node node) {
 		require(node, notNullValue());
-
-		Envelope envelope = createEnvelope(node);
-		@SuppressWarnings("unchecked")
-		List<Node> queryResult = index.query(envelope);
-
-		if (queryResult.isEmpty()) {
-			return Optional.empty();
-		}
-		Coordinate coordinate = getCoordinate(node);
-
-		Node resultNode = queryResult.stream()
-			.min(Comparator.comparing(n -> getCoordinate(n).distance(coordinate))).get();
-
-		Coordinate resultCoordinate = getCoordinate(node);
-
-		if (!(coordinate.distance(resultCoordinate) <= precision)) {
-			return Optional.empty();
-		}
-
-		ensure(resultNode, notNullValue());
-		return Optional.of(resultNode);
-	}
-
-	public NodeIndex getIndexForCoordinatesIn(Envelope envelope) {
-		NodeIndex nodeIndex = new NodeIndex();
-		nodeIndex.setPrecision(this.precision);
-
-		@SuppressWarnings("unchecked")
-		List<Node> allInEnvelope = index.query(envelope);
-
-		allInEnvelope.forEach(nodeIndex::fuegeEin);
-		return nodeIndex;
-	}
-
-	private Envelope createEnvelope(Node node) {
-		Coordinate coordinate = getCoordinate(node);
-		return new Envelope(coordinate.x - precision, coordinate.x + precision, coordinate.y - precision,
-			coordinate.y + precision);
+		return Optional.ofNullable(index.get(getCoordinate(node)));
 	}
 
 	private Coordinate getCoordinate(Node node) {

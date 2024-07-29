@@ -19,8 +19,11 @@ import { DomSanitizer } from '@angular/platform-browser';
 import Point from 'ol/geom/Point';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import {
+  RadVisFeatureAttributes,
+  toRadVisFeatureAttributesFromMap,
+} from 'src/app/shared/models/rad-vis-feature-attributes';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { AbstellanlageRoutingService } from 'src/app/viewer/abstellanlage/services/abstellanlage-routing.service';
 import { AnpassungenRoutingService } from 'src/app/viewer/anpassungswunsch/services/anpassungen-routing.service';
 import { BarriereRoutingService } from 'src/app/viewer/barriere/services/barriere-routing.service';
@@ -64,9 +67,9 @@ describe(LayerRegistryService.name, () => {
     furtenKreuzungenRoutingService = mock(FurtenKreuzungenRoutingService);
     wegweisendeBeschilderungRoutingService = mock(WegweisendeBeschilderungRoutingService);
 
-    domSanitizerMock = ({
+    domSanitizerMock = {
       bypassSecurityTrustResourceUrl: (val: string) => val,
-    } as unknown) as DomSanitizer;
+    } as unknown as DomSanitizer;
     iconRegistry = mock(MatIconRegistry);
 
     layerRegistryService = new LayerRegistryService(
@@ -91,7 +94,12 @@ describe(LayerRegistryService.name, () => {
   describe('getUniqueKey', () => {
     it('should generate the correct unique key for Massnahme', () => {
       // arrange
-      const radVisFeature = new RadVisFeature(13, [], MASSNAHMEN.name, new Point([1, 1]));
+      const radVisFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        MASSNAHMEN.name,
+        new Point([1, 1])
+      );
 
       // act
       const uniqueKey = layerRegistryService.getUniqueKey(radVisFeature);
@@ -102,7 +110,12 @@ describe(LayerRegistryService.name, () => {
 
     it('should generate the correct unique key for Fahrradrouten', () => {
       // arrange
-      const radVisFeature = new RadVisFeature(13, [], FAHRRADROUTE.name, new Point([1, 1]));
+      const radVisFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        FAHRRADROUTE.name,
+        new Point([1, 1])
+      );
 
       // act
       const uniqueKey = layerRegistryService.getUniqueKey(radVisFeature);
@@ -115,13 +128,7 @@ describe(LayerRegistryService.name, () => {
       // arrange
       const radVisFeature = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME,
-            value: 13,
-            linearReferenziert: false,
-          },
-        ],
+        toRadVisFeatureAttributesFromMap([[FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, 13]]),
         FAHRRADROUTE.name,
         new Point([1, 1])
       );
@@ -135,7 +142,12 @@ describe(LayerRegistryService.name, () => {
 
     it('should generate the correct unique key for Knoten', () => {
       // arrange
-      const radVisFeature = new RadVisFeature(13, [], RadvisKnotenLayerComponent.LAYER_NAME, new Point([1, 1]));
+      const radVisFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        RadvisKnotenLayerComponent.LAYER_NAME,
+        new Point([1, 1])
+      );
 
       // act
       const uniqueKey = layerRegistryService.getUniqueKey(radVisFeature);
@@ -169,13 +181,13 @@ describe(LayerRegistryService.name, () => {
 
       it('Zweiseitige Kante', () => {
         // arrange
-        const radVisFeature = getRadVisFeatureForKanteWithAttributes(13, '13', 'links');
+        const radVisFeature = getRadVisFeatureForKanteWithAttributes(13, '13', 'LINKS');
 
         // act
         const uniqueKey = layerRegistryService.getUniqueKey(radVisFeature);
 
         // assert
-        expect(uniqueKey).toEqual(`${RADVIS_NETZ_LAYER_PREFIX}13links`);
+        expect(uniqueKey).toEqual(`${RADVIS_NETZ_LAYER_PREFIX}13LINKS`);
       });
     });
   });
@@ -183,7 +195,12 @@ describe(LayerRegistryService.name, () => {
   describe('toEditor', () => {
     it('should navigate to Massnahmen Editor', () => {
       // arrange
-      const radVisFeature = new RadVisFeature(13, [], MASSNAHMEN.name, new Point([1, 1]));
+      const radVisFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        MASSNAHMEN.name,
+        new Point([1, 1])
+      );
 
       // act
       layerRegistryService.toEditor(radVisFeature, [2, 2]);
@@ -195,7 +212,12 @@ describe(LayerRegistryService.name, () => {
 
     it('should navigate to Fahrradrouten Detail View', () => {
       // arrange
-      const radVisFeature = new RadVisFeature(13, [], FAHRRADROUTE.name, new Point([1, 1]));
+      const radVisFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        FAHRRADROUTE.name,
+        new Point([1, 1])
+      );
 
       // act
       layerRegistryService.toEditor(radVisFeature, [2, 2]);
@@ -207,7 +229,12 @@ describe(LayerRegistryService.name, () => {
 
     it('should navigate to Knoten Detail View', () => {
       // arrange
-      const radVisFeature = new RadVisFeature(13, [], RadvisKnotenLayerComponent.LAYER_NAME, new Point([1, 1]));
+      const radVisFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        RadvisKnotenLayerComponent.LAYER_NAME,
+        new Point([1, 1])
+      );
 
       // act
       layerRegistryService.toEditor(radVisFeature, [2, 2]);
@@ -234,7 +261,7 @@ describe(LayerRegistryService.name, () => {
 
       it('Zweiseitige Kante', () => {
         // arrange
-        const radVisFeature = getRadVisFeatureForKanteWithAttributes(null, '13', 'links');
+        const radVisFeature = getRadVisFeatureForKanteWithAttributes(null, '13', 'LINKS');
 
         // act
         layerRegistryService.toEditor(radVisFeature, [2, 2]);
@@ -243,7 +270,7 @@ describe(LayerRegistryService.name, () => {
         verify(netzdetailRoutingService.toKanteDetails(anything(), anything(), anything())).once();
         expect(capture(netzdetailRoutingService.toKanteDetails).last()[0]).toEqual(13);
         expect(capture(netzdetailRoutingService.toKanteDetails).last()[1]).toEqual([2, 2]);
-        expect(capture(netzdetailRoutingService.toKanteDetails).last()[2]).toEqual(Seitenbezug.LINKS);
+        expect(capture(netzdetailRoutingService.toKanteDetails).last()[2]).toEqual(KantenSeite.LINKS);
       });
     });
   });
@@ -261,7 +288,7 @@ describe(LayerRegistryService.name, () => {
 
       testParamsLayerIds.forEach((layerId, index) => {
         // arrange
-        const radVisFeature = new RadVisFeature(13, [], layerId, new Point([1, 1]));
+        const radVisFeature = new RadVisFeature(13, toRadVisFeatureAttributesFromMap(), layerId, new Point([1, 1]));
 
         // act
         const name = layerRegistryService.getName(radVisFeature);
@@ -275,25 +302,13 @@ describe(LayerRegistryService.name, () => {
       const testParamsFeatures = [
         new RadVisFeature(
           13,
-          [
-            {
-              key: 'bezeichnung',
-              value: 'massnahmeMitDerBezeichnung123',
-              linearReferenziert: false,
-            } as RadVisFeatureAttribut,
-          ],
+          toRadVisFeatureAttributesFromMap([['bezeichnung', 'massnahmeMitDerBezeichnung123']]),
           MASSNAHMEN.name,
           new Point([1, 1])
         ),
         new RadVisFeature(
           13,
-          [
-            {
-              key: 'bezeichnung',
-              value: 'fahrradrouteMitDerBezeichnung123',
-              linearReferenziert: false,
-            } as RadVisFeatureAttribut,
-          ],
+          toRadVisFeatureAttributesFromMap([['bezeichnung', 'fahrradrouteMitDerBezeichnung123']]),
           FAHRRADROUTE.name,
           new Point([1, 1])
         ),
@@ -315,13 +330,7 @@ describe(LayerRegistryService.name, () => {
     it('should have Massnahmen', () => {
       const massnahmeFeature = new RadVisFeature(
         13,
-        [
-          {
-            key: 'bezeichnung',
-            value: 'massnahmeMitDerBezeichnung123',
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([['bezeichnung', 'massnahmeMitDerBezeichnung123']]),
         MASSNAHMEN.name,
         new Point([1, 1])
       );
@@ -334,13 +343,7 @@ describe(LayerRegistryService.name, () => {
     it('should have Massnahmen', () => {
       const fahrradrouteFeature = new RadVisFeature(
         13,
-        [
-          {
-            key: 'bezeichnung',
-            value: 'fahrradrouteMitDerBezeichnung123',
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([['bezeichnung', 'fahrradrouteMitDerBezeichnung123']]),
         FAHRRADROUTE.name,
         new Point([1, 1])
       );
@@ -354,25 +357,24 @@ describe(LayerRegistryService.name, () => {
       expect(layerRegistryService['findLayerEintrag'](getRadVisFeatureForKanteWithAttributes(13))).toBeTruthy();
       expect(layerRegistryService['findLayerEintrag'](getRadVisFeatureForKanteWithAttributes(13, '13'))).toBeTruthy();
       expect(
-        layerRegistryService['findLayerEintrag'](getRadVisFeatureForKanteWithAttributes(13, '13', 'links'))
+        layerRegistryService['findLayerEintrag'](getRadVisFeatureForKanteWithAttributes(13, '13', 'LINKS'))
       ).toBeTruthy();
     });
 
     it('should have RadVIS Knoten', () => {
-      const knotenFeature = new RadVisFeature(13, [], RadvisKnotenLayerComponent.LAYER_NAME, new Point([1, 1]));
+      const knotenFeature = new RadVisFeature(
+        13,
+        toRadVisFeatureAttributesFromMap(),
+        RadvisKnotenLayerComponent.LAYER_NAME,
+        new Point([1, 1])
+      );
       expect(layerRegistryService['findLayerEintrag'](knotenFeature)).toBeTruthy();
     });
 
     it('should have Signaturen', () => {
       const signaturFeature = new RadVisFeature(
         13,
-        [
-          {
-            key: 'bezeichnung',
-            value: 'signaturFeatureMitDerBezeichnung123',
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([['bezeichnung', 'signaturFeatureMitDerBezeichnung123']]),
         RadvisSignaturLayerComponent.ID_PREFIX,
         new Point([1, 1])
       );
@@ -384,13 +386,7 @@ describe(LayerRegistryService.name, () => {
       // aktuell bedeutet ein highlighted massnahme ist die ohne ID
       const massnahmeHighlightedFeature = new RadVisFeature(
         null,
-        [
-          {
-            key: 'bezeichnung',
-            value: 'massnahmeOhneId',
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([['bezeichnung', 'massnahmeOhneId']]),
         MASSNAHMEN.name,
         new Point([1, 1])
       );
@@ -405,24 +401,16 @@ describe(LayerRegistryService.name, () => {
 const getRadVisFeatureForKanteWithAttributes = (
   id: number | null,
   kanteId: string | undefined = undefined,
-  seitenbezug: string | undefined = undefined
+  kantenSeite: string | undefined = undefined
 ): RadVisFeature => {
-  const attributes: RadVisFeatureAttribut[] = [];
+  const attributes: RadVisFeatureAttributes = toRadVisFeatureAttributesFromMap();
 
   if (kanteId) {
-    attributes.push({
-      key: FeatureProperties.KANTE_ID_PROPERTY_NAME,
-      value: kanteId,
-      linearReferenziert: false,
-    } as RadVisFeatureAttribut);
+    attributes.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, kanteId);
   }
 
-  if (seitenbezug) {
-    attributes.push({
-      key: FeatureProperties.SEITE_PROPERTY_NAME,
-      value: seitenbezug,
-      linearReferenziert: false,
-    } as RadVisFeatureAttribut);
+  if (kantenSeite) {
+    attributes.set(FeatureProperties.SEITE_PROPERTY_NAME, kantenSeite);
   }
 
   return new RadVisFeature(id, attributes, RADVIS_NETZ_LAYER_PREFIX, new Point([1, 1]));

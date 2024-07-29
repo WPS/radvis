@@ -79,15 +79,15 @@ class KantenSegmentTest {
 		// Arrange
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnittGrundnetzKante = LinearReferenzierterAbschnitt.of(
 			0.4, 1);
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnittKanteMitZuProjizierendenAttributen = LinearReferenzierterAbschnitt.of(
-			0.2, 0.6);
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnittKanteMitZuProjizierendenAttributen = LinearReferenzierterAbschnitt
+			.of(
+				0.2, 0.6);
 
-		List<GeschwindigkeitAttribute> geschwindigkeitAttribute =
-			List.of(GeschwindigkeitAttribute.builder()
-				.ortslage(KantenOrtslage.INNERORTS)
-				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN)
-				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_50_KMH)
-				.build());
+		List<GeschwindigkeitAttribute> geschwindigkeitAttribute = List.of(GeschwindigkeitAttribute.builder()
+			.ortslage(KantenOrtslage.INNERORTS)
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN)
+			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_50_KMH)
+			.build());
 
 		List<FuehrungsformAttribute> fuehrungsformAttribute = List.of(
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0, 0.1),
@@ -238,15 +238,15 @@ class KantenSegmentTest {
 		// Arrange
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnittGrundnetzKante = LinearReferenzierterAbschnitt.of(
 			0.4, 1);
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnittKanteMitZuProjizierendenAttributen = LinearReferenzierterAbschnitt.of(
-			0.2, 0.6);
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnittKanteMitZuProjizierendenAttributen = LinearReferenzierterAbschnitt
+			.of(
+				0.2, 0.6);
 
-		GeschwindigkeitAttribute geschwindigkeitAttribute =
-			GeschwindigkeitAttribute.builder()
-				.ortslage(KantenOrtslage.INNERORTS)
-				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN)
-				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_50_KMH)
-				.build();
+		GeschwindigkeitAttribute geschwindigkeitAttribute = GeschwindigkeitAttribute.builder()
+			.ortslage(KantenOrtslage.INNERORTS)
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN)
+			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_50_KMH)
+			.build();
 
 		List<FuehrungsformAttribute> fuehrungsformAttribute = List.of(
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0, 0.1), BelagArt.ASPHALT,
@@ -392,38 +392,38 @@ class KantenSegmentTest {
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(vertikaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, 5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(vertikaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, -5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, -5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, 5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(horizontaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, -5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(horizontaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, 5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 		}
 
 		@Test
@@ -432,38 +432,38 @@ class KantenSegmentTest {
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(vertikaleKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, 5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(vertikaleKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, -5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, -5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, 5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(horizontaleKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, -5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(horizontaleKante.reverse(),
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, 5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 		}
 
 		@Test
@@ -473,43 +473,43 @@ class KantenSegmentTest {
 				.haendigkeitVonKanteZuKante(vertikaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante.reverse(), 5,
 						0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+							.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(vertikaleKante.reverse(),
 					GeometryTestdataProvider
 						.getLinestringVerschobenUmCoordinate(vertikaleKante.reverse(), -5, 0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+							.isEqualTo(Haendigkeit.Orientierung.LINKS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), 5,
 						0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+							.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), -5,
 						0)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+							.isEqualTo(Haendigkeit.Orientierung.LINKS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), 0,
 						-5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+							.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(schraegeKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), 0,
 						5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+							.isEqualTo(Haendigkeit.Orientierung.LINKS);
 
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(horizontaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, -5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(Haendigkeit.Orientierung.LINKS);
 			assertThat(KantenSegment
 				.haendigkeitVonKanteZuKante(horizontaleKante,
 					GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, 5)).orientierung)
-				.isEqualTo(Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(Haendigkeit.Orientierung.RECHTS);
 		}
 
 		@Test
@@ -528,7 +528,7 @@ class KantenSegmentTest {
 				.isLessThan(0.3);
 			assertThat(KantenSegment.haendigkeitVonKanteZuKante(komplizierteKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -5, 0)).wahrscheinlichkeit)
-				.isGreaterThan(0.6);
+					.isGreaterThan(0.6);
 		}
 
 		@Test
@@ -585,7 +585,7 @@ class KantenSegmentTest {
 				.isLessThan(0.3);
 			assertThat(KantenSegment.haendigkeitVonKanteZuKante(komplizierteKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -6, 0)).wahrscheinlichkeit)
-				.isGreaterThan(0.5);
+					.isGreaterThan(0.5);
 		}
 
 	}

@@ -50,11 +50,11 @@ describe(MassnahmenDateianhaengeFehlerUeberpruefenComponent.name, () => {
 
   describe('valid session zuordnungen', () => {
     beforeAll(() => {
-      when(route.snapshot).thenReturn(({
+      when(route.snapshot).thenReturn({
         data: {
           session: defaultMassnahmenDateianhaengeSessionFehlerUeberpruefen,
         } as Data,
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
 
       fixture = MockRender(MassnahmenDateianhaengeFehlerUeberpruefenComponent);
       component = fixture.point.componentInstance;
@@ -97,7 +97,7 @@ describe(MassnahmenDateianhaengeFehlerUeberpruefenComponent.name, () => {
 
   describe('invalid session zuordnungen', () => {
     beforeAll(() => {
-      when(route.snapshot).thenReturn(({
+      when(route.snapshot).thenReturn({
         data: {
           session: {
             ...defaultMassnahmenDateianhaengeSessionFehlerUeberpruefen,
@@ -106,18 +106,27 @@ describe(MassnahmenDateianhaengeFehlerUeberpruefenComponent.name, () => {
                 ordnername: 'NichtFindbareMassnahmenID',
                 massnahmeId: null,
                 status: MassnahmenDateianhaengeZuordnungStatus.FEHLERHAFT,
-                dateien: ['test.pdf', 'test-bild.png'],
-                hinweise: [
+                dateien: [
                   {
-                    text: 'Maßnahme NichtFindbareMassnahmenID wurde nicht gefunden',
-                    severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+                    dateiname: 'test.pdf',
+                    isDuplicate: false,
+                    isSelected: false,
+                  },
+                  {
+                    dateiname: 'test-bild.png',
+                    isDuplicate: false,
+                    isSelected: false,
                   },
                 ],
+                hinweis: {
+                  text: 'Maßnahme NichtFindbareMassnahmenID wurde nicht gefunden',
+                  severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+                },
               },
             ],
           } as MassnahmenDateianhaengeImportSessionView,
         } as Data,
-      } as unknown) as ActivatedRouteSnapshot);
+      } as unknown as ActivatedRouteSnapshot);
 
       fixture = MockRender(MassnahmenDateianhaengeFehlerUeberpruefenComponent);
       component = fixture.point.componentInstance;

@@ -15,6 +15,8 @@
 package de.wps.radvis.backend.common.domain.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class JobStatistik {
@@ -23,5 +25,20 @@ public abstract class JobStatistik {
 		ObjectMapper mapper = new ObjectMapper();
 
 		return mapper.writeValueAsString(this);
+	}
+
+	public String toPrettyJSON() {
+		DefaultPrettyPrinter p = new DefaultPrettyPrinter();
+		DefaultPrettyPrinter.Indenter i = new DefaultIndenter("  ", "\n");
+		p.indentArraysWith(i);
+		p.indentObjectsWith(i);
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setDefaultPrettyPrinter(p);
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			return super.toString();
+		}
 	}
 }

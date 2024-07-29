@@ -68,15 +68,19 @@ public class AuswertungRepositoryImpl implements AuswertungRepository {
 		// Unterhalt
 		if (auswertungsFilter.getUnterhalt() != null) {
 			additionalWhereClauses += " AND abschnitt.unterhalts_zustaendiger = :unterhalt";
-			additionalParameters.put("unterhalt",
-				getOrgaBezeichnungInMaterializedView(auswertungsFilter.getUnterhalt()));
+			additionalParameters.put(
+				"unterhalt",
+				getOrgaBezeichnungInMaterializedView(auswertungsFilter.getUnterhalt())
+			);
 		}
 
 		// Erhalt
 		if (auswertungsFilter.getErhalt() != null) {
 			additionalWhereClauses += " AND abschnitt.erhalts_zustaendiger = :erhalt";
-			additionalParameters.put("erhalt",
-				getOrgaBezeichnungInMaterializedView(auswertungsFilter.getErhalt()));
+			additionalParameters.put(
+				"erhalt",
+				getOrgaBezeichnungInMaterializedView(auswertungsFilter.getErhalt())
+			);
 		}
 
 		// Netzklassen
@@ -94,8 +98,8 @@ public class AuswertungRepositoryImpl implements AuswertungRepository {
 				netzklassenClauses.add("abschnitt.netzklassen IS NULL");
 			}
 
-			additionalWhereClauses +=
-				" AND " + netzklassenClauses.stream().collect(Collectors.joining(" OR ", " (", ") "));
+			additionalWhereClauses += " AND " + netzklassenClauses.stream().collect(Collectors.joining(" OR ", " (",
+				") "));
 		}
 
 		// IstStandards
@@ -113,8 +117,8 @@ public class AuswertungRepositoryImpl implements AuswertungRepository {
 				iststandardClauses.add("abschnitt.standards IS NULL");
 			}
 
-			additionalWhereClauses +=
-				" AND " + iststandardClauses.stream().collect(Collectors.joining(" OR ", " (", ") "));
+			additionalWhereClauses += " AND " + iststandardClauses.stream().collect(Collectors.joining(" OR ", " (",
+				") "));
 
 		}
 
@@ -130,10 +134,10 @@ public class AuswertungRepositoryImpl implements AuswertungRepository {
 			additionalParameters.put("radverkehrsfuehrung", auswertungsFilter.getRadverkehrsfuehrung().name());
 		}
 
-		String sqlString =
+		String sqlString = """
+				SELECT COALESCE(sum(st_length(abschnitt.geometry)), 0) FROM geoserver_radvisnetz_kante_abschnitte_materialized_view abschnitt
 			"""
-					SELECT COALESCE(sum(st_length(abschnitt.geometry)), 0) FROM geoserver_radvisnetz_kante_abschnitte_materialized_view abschnitt
-				""" + joins + " WHERE abschnitt.status = 'UNTER_VERKEHR'" + additionalWhereClauses;
+			+ joins + " WHERE abschnitt.status = 'UNTER_VERKEHR'" + additionalWhereClauses;
 
 		Query query = entityManager
 			.createNativeQuery(sqlString);

@@ -20,9 +20,9 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FahrradrouteNetzbezugHighlightLayerComponent } from 'src/app/viewer/fahrradroute/components/fahrradroute-netzbezug-highlight-layer/fahrradroute-netzbezug-highlight-layer.component';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
-import { KantenNetzbezug } from 'src/app/viewer/viewer-shared/models/kanten-netzbezug';
+import { KantenNetzbezug } from 'src/app/shared/models/kanten-netzbezug';
 import { defaultKantenbezug } from 'src/app/viewer/viewer-shared/models/kantennetzbezug-test-data-provider.spec';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { instance, mock } from 'ts-mockito';
 
@@ -52,7 +52,7 @@ describe(FahrradrouteNetzbezugHighlightLayerComponent.name, () => {
     inputs = {
       kantenBezug: defaultKantenbezug,
       layerId: MASSNAHMEN.name,
-      fahrradRouteNetzbezug: (undefined as unknown) as FahrradrouteNetzbezug,
+      fahrradRouteNetzbezug: undefined as unknown as FahrradrouteNetzbezug,
     };
     fixture = MockRender(FahrradrouteNetzbezugHighlightLayerComponent, inputs, { detectChanges: false });
 

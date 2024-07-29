@@ -54,8 +54,8 @@ public class SaveFuehrungsformAttributGruppeCommand {
 			fuehrungsformAttributeLinks.stream()
 				.map(SaveFuehrungsformAttributeCommand::getLinearReferenzierterAbschnitt)
 				.collect(Collectors.toList())) && LinearReferenzierterAbschnitt.segmentsCoverFullLine(
-			fuehrungsformAttributeRechts.stream()
-				.map(SaveFuehrungsformAttributeCommand::getLinearReferenzierterAbschnitt)
-				.collect(Collectors.toList()));
+					fuehrungsformAttributeRechts.stream()
+						.map(SaveFuehrungsformAttributeCommand::getLinearReferenzierterAbschnitt)
+						.collect(Collectors.toList()));
 	}
 }

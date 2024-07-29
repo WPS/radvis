@@ -46,3 +46,8 @@ button {
 .red {
   color: map-get($radvis-app-red-palette, 200);
 }
+
+rad-file-upload-control + rad-validation-error-anzeige {
+  margin-top: -1rem;
+  padding-left: 16px;
+}

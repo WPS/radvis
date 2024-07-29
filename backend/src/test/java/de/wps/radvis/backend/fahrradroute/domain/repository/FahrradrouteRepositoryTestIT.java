@@ -49,6 +49,7 @@ import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
@@ -82,7 +83,6 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -164,6 +164,31 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
+	public void getKantenWithKnotenByFahrradroute() {
+		// arrange
+		Verwaltungseinheit gebietskoerperschaft = gebietskoerperschaftRepository
+			.save(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
+
+		Kante kante1 = netzService.saveKante(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante2 = netzService.saveKante(KanteTestDataProvider.withDefaultValues().build());
+		Kante kanteAndereFahrradrooute = netzService.saveKante(KanteTestDataProvider.withDefaultValues().build());
+		@SuppressWarnings("unused")
+		Kante kanteNichtEnthalten = netzService.saveKante(KanteTestDataProvider.withDefaultValues().build());
+
+		Fahrradroute fahrradroute1 = fahrradrouteRepository
+			.save(FahrradrouteTestDataProvider.onKante(kante1, kante2).verantwortlich(gebietskoerperschaft).build());
+		fahrradrouteRepository
+			.save(FahrradrouteTestDataProvider.onKante(kanteAndereFahrradrooute).verantwortlich(gebietskoerperschaft)
+				.build());
+
+		// act
+		Set<Kante> result = fahrradrouteRepository.getKantenWithKnotenByFahrradroute(fahrradroute1.getId());
+
+		// assert
+		assertThat(result).containsExactlyInAnyOrder(kante1, kante2);
+	}
+
+	@Test
 	public void findByKanteIdInFahrradrouteVariantenNetzBezuege() {
 		// arrange
 		Verwaltungseinheit gebietskoerperschaft = gebietskoerperschaftRepository
@@ -207,8 +232,8 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 	void saveFahrradroute_netzbezug_inOrder() {
 		// arrange
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezug = List.of(new AbschnittsweiserKantenBezug(
-				KanteTestDataProvider.withCoordinatesAndQuelle(50, 50, 40, 40, QuellSystem.RadNETZ).build(),
-				LinearReferenzierterAbschnitt.of(0, 1)),
+			KanteTestDataProvider.withCoordinatesAndQuelle(50, 50, 40, 40, QuellSystem.RadNETZ).build(),
+			LinearReferenzierterAbschnitt.of(0, 1)),
 			new AbschnittsweiserKantenBezug(
 				KanteTestDataProvider.withCoordinatesAndQuelle(20, 20, 10, 10, QuellSystem.RadNETZ).build(),
 				LinearReferenzierterAbschnitt.of(0, 1)),
@@ -233,9 +258,9 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 			.extracting(Kante::getGeometry)
 			.extracting(Geometry::getCoordinates)
 			.containsExactly(new Coordinate[] {
-					new Coordinate(50, 50),
-					new Coordinate(40, 40)
-				},
+				new Coordinate(50, 50),
+				new Coordinate(40, 40)
+			},
 				new Coordinate[] {
 					new Coordinate(20, 20),
 					new Coordinate(10, 10)
@@ -694,16 +719,12 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 				.geometry(
 					GeometryTestdataProvider.createLineString(
 						new Coordinate(1, 1),
-						new Coordinate(10, 10)
-					)
-				)
+						new Coordinate(10, 10)))
 				.kantenAttributGruppe(
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteKreisnetz = kantenRepository.save(
@@ -711,16 +732,12 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 				.geometry(
 					GeometryTestdataProvider.createLineString(
 						new Coordinate(20, 20),
-						new Coordinate(30, 30)
-					)
-				)
+						new Coordinate(30, 30)))
 				.kantenAttributGruppe(
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.KREISNETZ_ALLTAG)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteKommunalnetz = kantenRepository.save(
@@ -728,16 +745,12 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 				.geometry(
 					GeometryTestdataProvider.createLineString(
 						new Coordinate(30, 30),
-						new Coordinate(40, 40)
-					)
-				)
+						new Coordinate(40, 40)))
 				.kantenAttributGruppe(
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.KOMMUNALNETZ_FREIZEIT)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		entityManager.flush();
@@ -745,69 +758,59 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 
 		final Fahrradroute lrfwRadnetz = fahrradrouteRepository.save(
 			FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-					List.of(new AbschnittsweiserKantenBezug(
-						kanteRadnetz,
-						LinearReferenzierterAbschnitt.of(0, 1))),
-					kanteRadnetz.getGeometry(),
-					kanteRadnetz.getGeometry()
-				)
+				List.of(new AbschnittsweiserKantenBezug(
+					kanteRadnetz,
+					LinearReferenzierterAbschnitt.of(0, 1))),
+				kanteRadnetz.getGeometry(),
+				kanteRadnetz.getGeometry())
 				.kategorie(Kategorie.LANDESRADFERNWEG)
 				.verantwortlich(gebietskoerperschaft)
 				.name(FahrradrouteName.of("LRFW-RadNetz"))
-				.build()
-		);
+				.build());
 		final Fahrradroute lrfwKreisnetz = fahrradrouteRepository.save(
 			FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-					List.of(new AbschnittsweiserKantenBezug(
-						kanteKreisnetz,
-						LinearReferenzierterAbschnitt.of(0, 1))),
-					kanteKreisnetz.getGeometry(),
-					kanteKreisnetz.getGeometry()
-				)
+				List.of(new AbschnittsweiserKantenBezug(
+					kanteKreisnetz,
+					LinearReferenzierterAbschnitt.of(0, 1))),
+				kanteKreisnetz.getGeometry(),
+				kanteKreisnetz.getGeometry())
 				.kategorie(Kategorie.LANDESRADFERNWEG)
 				.verantwortlich(gebietskoerperschaft)
 				.name(FahrradrouteName.of("LRFW-Kreisnetz"))
-				.build()
-		);
+				.build());
 		final Fahrradroute drouteKommunalnetz = fahrradrouteRepository.save(
 			FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-					List.of(new AbschnittsweiserKantenBezug(
-						kanteKommunalnetz,
-						LinearReferenzierterAbschnitt.of(0, 1))),
-					kanteKommunalnetz.getGeometry(),
-					kanteKommunalnetz.getGeometry()
-				)
+				List.of(new AbschnittsweiserKantenBezug(
+					kanteKommunalnetz,
+					LinearReferenzierterAbschnitt.of(0, 1))),
+				kanteKommunalnetz.getGeometry(),
+				kanteKommunalnetz.getGeometry())
 				.kategorie(Kategorie.D_ROUTE)
 				.verantwortlich(gebietskoerperschaft)
 				.name(FahrradrouteName.of("LRFW-Kommunalnetz"))
-				.build()
-		);
+				.build());
 		final Fahrradroute originalGeometrieNull = fahrradrouteRepository.save(
 			FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-					List.of(new AbschnittsweiserKantenBezug(
-						kanteKommunalnetz,
-						LinearReferenzierterAbschnitt.of(0, 1))),
-					kanteKommunalnetz.getGeometry(),
-					null
-				)
+				List.of(new AbschnittsweiserKantenBezug(
+					kanteKommunalnetz,
+					LinearReferenzierterAbschnitt.of(0, 1))),
+				kanteKommunalnetz.getGeometry(),
+				null)
 				.kategorie(Kategorie.D_ROUTE)
 				.verantwortlich(gebietskoerperschaft)
 				.name(FahrradrouteName.of("originalGeometrieNull"))
-				.build()
-		);
+				.build());
 		final Fahrradroute netzbezugLineStringNull = fahrradrouteRepository.save(
 			FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-					List.of(new AbschnittsweiserKantenBezug(
-						kanteKommunalnetz,
-						LinearReferenzierterAbschnitt.of(0, 1))),
-					null,
-					kanteKommunalnetz.getGeometry()
-				)
+				List.of(new AbschnittsweiserKantenBezug(
+					kanteKommunalnetz,
+					LinearReferenzierterAbschnitt.of(0, 1))),
+				null,
+				kanteKommunalnetz.getGeometry())
 				.kategorie(Kategorie.D_ROUTE)
 				.verantwortlich(gebietskoerperschaft)
 				.name(FahrradrouteName.of("netzbezugLineStringNull"))
-				.build()
-		);
+				.build());
 
 		entityManager.flush();
 		entityManager.clear();
@@ -824,68 +827,77 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 		PGobject kanteKommunalnetzGeometry = PostGisHelper.getPGobject(
 			drouteKommunalnetz.getNetzbezugLineString().get());
 
-		Map<String, Object> expectedLrfwRadnetz = new HashMap<>() {{
-			put("Name", lrfwRadnetz.getName().getName());
-			put("Routen-ID", "08-" + lrfwRadnetz.getId());
-			put("D-Route", null);
-			put("EuroVelo", 0);
-			put("Landesnetz", 1);
-			put("KommuNetz", null);
-			put("Radnetz_D", 0);
-			put("geometry", kanteRadnetzGeometry);
-		}};
+		Map<String, Object> expectedLrfwRadnetz = new HashMap<>() {
+			{
+				put("Name", lrfwRadnetz.getName().getName());
+				put("Routen-ID", "08-" + lrfwRadnetz.getId());
+				put("D-Route", null);
+				put("EuroVelo", 0);
+				put("Landesnetz", 1);
+				put("KommuNetz", null);
+				put("Radnetz_D", 0);
+				put("geometry", kanteRadnetzGeometry);
+			}
+		};
 
-		Map<String, Object> expectedLrfwKreisnetz = new HashMap<>() {{
-			put("Name", lrfwKreisnetz.getName().getName());
-			put("Routen-ID", "08-" + lrfwKreisnetz.getId());
-			put("D-Route", null);
-			put("EuroVelo", 0);
-			put("Landesnetz", 0);
-			put("KommuNetz", null);
-			put("Radnetz_D", 0);
-			put("geometry", kanteKreisnetzGeometry);
-		}};
+		Map<String, Object> expectedLrfwKreisnetz = new HashMap<>() {
+			{
+				put("Name", lrfwKreisnetz.getName().getName());
+				put("Routen-ID", "08-" + lrfwKreisnetz.getId());
+				put("D-Route", null);
+				put("EuroVelo", 0);
+				put("Landesnetz", 0);
+				put("KommuNetz", null);
+				put("Radnetz_D", 0);
+				put("geometry", kanteKreisnetzGeometry);
+			}
+		};
 
-		Map<String, Object> expectedDrouteKommunalnetz = new HashMap<>() {{
-			put("Name", drouteKommunalnetz.getName().getName());
-			put("Routen-ID", "08-" + drouteKommunalnetz.getId());
-			put("D-Route", null); // Trotz D-Route "null", da kein Werte-Mapping bereitgestellt wurde
-			put("EuroVelo", 0);
-			put("Landesnetz", 0);
-			put("KommuNetz", null);
-			put("Radnetz_D", 1);
-			put("geometry", kanteKommunalnetzGeometry);
-		}};
+		Map<String, Object> expectedDrouteKommunalnetz = new HashMap<>() {
+			{
+				put("Name", drouteKommunalnetz.getName().getName());
+				put("Routen-ID", "08-" + drouteKommunalnetz.getId());
+				put("D-Route", null); // Trotz D-Route "null", da kein Werte-Mapping bereitgestellt wurde
+				put("EuroVelo", 0);
+				put("Landesnetz", 0);
+				put("KommuNetz", null);
+				put("Radnetz_D", 1);
+				put("geometry", kanteKommunalnetzGeometry);
+			}
+		};
 
-		Map<String, Object> expectedOrigGeoNull = new HashMap<>() {{
-			put("Name", originalGeometrieNull.getName().getName());
-			put("Routen-ID", "08-" + originalGeometrieNull.getId());
-			put("D-Route", null); // Trotz D-Route "null", da kein Werte-Mapping bereitgestellt wurde
-			put("EuroVelo", 0);
-			put("Landesnetz", 0);
-			put("KommuNetz", null);
-			put("Radnetz_D", 1);
-			put("geometry", kanteKommunalnetzGeometry);
-		}};
+		Map<String, Object> expectedOrigGeoNull = new HashMap<>() {
+			{
+				put("Name", originalGeometrieNull.getName().getName());
+				put("Routen-ID", "08-" + originalGeometrieNull.getId());
+				put("D-Route", null); // Trotz D-Route "null", da kein Werte-Mapping bereitgestellt wurde
+				put("EuroVelo", 0);
+				put("Landesnetz", 0);
+				put("KommuNetz", null);
+				put("Radnetz_D", 1);
+				put("geometry", kanteKommunalnetzGeometry);
+			}
+		};
 
-		Map<String, Object> expectedNetzbezugLineStringNull = new HashMap<>() {{
-			put("Name", netzbezugLineStringNull.getName().getName());
-			put("Routen-ID", "08-" + netzbezugLineStringNull.getId());
-			put("D-Route", null); // Trotz D-Route "null", da kein Werte-Mapping bereitgestellt wurde
-			put("EuroVelo", 0);
-			put("Landesnetz", 0);
-			put("KommuNetz", null);
-			put("Radnetz_D", 1);
-			put("geometry", kanteKommunalnetzGeometry);
-		}};
+		Map<String, Object> expectedNetzbezugLineStringNull = new HashMap<>() {
+			{
+				put("Name", netzbezugLineStringNull.getName().getName());
+				put("Routen-ID", "08-" + netzbezugLineStringNull.getId());
+				put("D-Route", null); // Trotz D-Route "null", da kein Werte-Mapping bereitgestellt wurde
+				put("EuroVelo", 0);
+				put("Landesnetz", 0);
+				put("KommuNetz", null);
+				put("Radnetz_D", 1);
+				put("geometry", kanteKommunalnetzGeometry);
+			}
+		};
 
 		assertThat(resultList).containsExactlyInAnyOrder(
 			expectedLrfwKreisnetz,
 			expectedLrfwRadnetz,
 			expectedDrouteKommunalnetz,
 			expectedOrigGeoNull,
-			expectedNetzbezugLineStringNull
-		);
+			expectedNetzbezugLineStringNull);
 	}
 
 	private void saveInRepoOrgaKantenUndFahrradrouteFrom(List<Fahrradroute> fahrradrouten) {
@@ -896,8 +908,7 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 			Stream<AbschnittsweiserKantenBezug> alleKantenbezuege = Stream
 				.concat(
 					route.getAbschnittsweiserKantenBezug().stream(),
-					route.getVarianten().stream().flatMap(v -> v.getAbschnittsweiserKantenBezug().stream())
-				);
+					route.getVarianten().stream().flatMap(v -> v.getAbschnittsweiserKantenBezug().stream()));
 			kantenRepository
 				.saveAll(alleKantenbezuege.map(AbschnittsweiserKantenBezug::getKante).collect(Collectors.toList()));
 		});

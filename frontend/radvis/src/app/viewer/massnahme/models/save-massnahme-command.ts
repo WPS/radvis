@@ -19,7 +19,7 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface SaveMassnahmeCommand {
   id: number;

@@ -75,46 +75,46 @@ public class HaendigkeitTest {
 		assertThat(Haendigkeit
 			.of(vertikaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, 5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(vertikaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, -5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, -5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, 5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 
 		assertThat(Haendigkeit
 			.of(horizontaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, -5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(horizontaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, 5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 	}
 
 	@Test
@@ -123,46 +123,46 @@ public class HaendigkeitTest {
 		assertThat(Haendigkeit
 			.of(vertikaleKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, 5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(vertikaleKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 
 		assertThat(Haendigkeit
 			.of(schraegeKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(schraegeKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, -5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 
 		assertThat(Haendigkeit
 			.of(schraegeKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, -5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(schraegeKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante, 0, 5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 
 		assertThat(Haendigkeit
 			.of(horizontaleKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, -5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(horizontaleKante.reverse(),
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, 5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 	}
 
 	@Test
@@ -172,51 +172,51 @@ public class HaendigkeitTest {
 			.of(vertikaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante.reverse(), 5,
 					0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(
+							Haendigkeit.Orientierung.RECHTS);
 		assertThat(Haendigkeit
 			.of(vertikaleKante.reverse(),
 				GeometryTestdataProvider
 					.getLinestringVerschobenUmCoordinate(vertikaleKante.reverse(), -5, 0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(
+							Haendigkeit.Orientierung.LINKS);
 
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), 5,
 					0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(
+							Haendigkeit.Orientierung.RECHTS);
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), -5,
 					0)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(
+							Haendigkeit.Orientierung.LINKS);
 
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), 0,
 					-5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+						.isEqualTo(
+							Haendigkeit.Orientierung.RECHTS);
 		assertThat(Haendigkeit
 			.of(schraegeKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(schraegeKante.reverse(), 0,
 					5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+						.isEqualTo(
+							Haendigkeit.Orientierung.LINKS);
 
 		assertThat(Haendigkeit
 			.of(horizontaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, -5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.LINKS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.LINKS);
 		assertThat(Haendigkeit
 			.of(horizontaleKante,
 				GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(horizontaleKante, 0, 5)).orientierung)
-			.isEqualTo(
-				Haendigkeit.Orientierung.RECHTS);
+					.isEqualTo(
+						Haendigkeit.Orientierung.RECHTS);
 	}
 
 	@Test
@@ -235,7 +235,7 @@ public class HaendigkeitTest {
 			.isLessThan(0.3);
 		assertThat(Haendigkeit.of(komplizierteKante,
 			GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -5, 0)).wahrscheinlichkeit)
-			.isGreaterThan(0.6);
+				.isGreaterThan(0.6);
 	}
 
 	@Test
@@ -254,7 +254,7 @@ public class HaendigkeitTest {
 			.isLessThan(0.3);
 		assertThat(Haendigkeit.of(komplizierteKante,
 			GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(vertikaleKante, -6, 0)).wahrscheinlichkeit)
-			.isGreaterThan(0.5);
+				.isGreaterThan(0.5);
 	}
 
 	@Test

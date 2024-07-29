@@ -46,7 +46,10 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 3px 0 3px -2px rgb(0 0 0 / 20%), 3px 0 4px 0 rgb(0 0 0 / 14%), 1px 0 8px 0 rgb(0 0 0 / 12%);
+  box-shadow:
+    3px 0 3px -2px rgb(0 0 0 / 20%),
+    3px 0 4px 0 rgb(0 0 0 / 14%),
+    1px 0 8px 0 rgb(0 0 0 / 12%);
 }
 
 .infrastrukturen-tabs {
@@ -61,7 +64,11 @@
 .infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
   box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
   margin-bottom: $shadow-spacing;
-  margin-right: 48px;
+  padding-right: 48px;
+}
+
+.dialog .infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
+  padding-right: 0px;
 }
 
 .full-screen-button {
@@ -72,7 +79,6 @@
   width: 48px;
   height: 48px;
   border-radius: 0;
-  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.2);
 }
 
 // Entspricht Breakpoints.TabletLandscape siehe https://material.angular.io/cdk/layout/overview#predefined-breakpoints

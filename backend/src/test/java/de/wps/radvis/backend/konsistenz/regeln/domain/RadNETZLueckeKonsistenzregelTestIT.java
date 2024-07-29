@@ -40,7 +40,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 
@@ -60,13 +60,13 @@ class RadNETZLueckeKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 	KnotenRepository knotenRepository;
 
 	@Autowired
-	NetzklassenSackgassenService netzklassenSackgassenService;
+	SackgassenService sackgassenService;
 
 	RadNETZLueckeKonsistenzregel radNETZLueckeKonsistenzregel;
 
 	@BeforeEach
 	void setUp() {
-		radNETZLueckeKonsistenzregel = new RadNETZLueckeKonsistenzregel(netzklassenSackgassenService);
+		radNETZLueckeKonsistenzregel = new RadNETZLueckeKonsistenzregel(sackgassenService);
 	}
 
 	@Test
@@ -85,18 +85,18 @@ class RadNETZLueckeKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 
 		kantenRepository.save(
 			KanteTestDataProvider.fromKnotenUndQuelle(knoten1, knoten2, QuellSystem.DLM).kantenAttributGruppe(
-					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG))
-						.build())
+				KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG))
+					.build())
 				.build());
 		kantenRepository.save(
 			KanteTestDataProvider.fromKnotenUndQuelle(knoten2, knoten3, QuellSystem.DLM).kantenAttributGruppe(
-					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(Set.of(Netzklasse.RADNETZ_FREIZEIT))
-						.build())
+				KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(Set.of(Netzklasse.RADNETZ_FREIZEIT))
+					.build())
 				.build());
 		kantenRepository.save(
 			KanteTestDataProvider.fromKnotenUndQuelle(knoten3, knoten4, QuellSystem.RadVis).kantenAttributGruppe(
-					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG))
-						.build())
+				KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG))
+					.build())
 				.build());
 		TestTransaction.flagForCommit();
 		TestTransaction.end();

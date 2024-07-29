@@ -31,57 +31,83 @@ export const defaultMassnahmenDateianhaengeSessionFehlerUeberpruefen: Massnahmen
     {
       ordnername: 'PassendeMassnahme',
       massnahmeId: 4,
-      status: MassnahmenDateianhaengeZuordnungStatus.GEMAPPT,
-      dateien: ['test.pdf', 'test-bild.png'],
-      hinweise: [],
+      status: MassnahmenDateianhaengeZuordnungStatus.ZUGEORDNET,
+      dateien: [
+        {
+          dateiname: 'test.pdf',
+          isDuplicate: false,
+          isSelected: true,
+        },
+        {
+          dateiname: 'test-bild.png',
+          isDuplicate: false,
+          isSelected: true,
+        },
+      ],
+      hinweis: null,
     },
     {
       ordnername: 'NichtFindbareMassnahmenID',
       massnahmeId: null,
       status: MassnahmenDateianhaengeZuordnungStatus.FEHLERHAFT,
-      dateien: ['test.pdf', 'test-bild.png'],
-      hinweise: [
+      dateien: [
         {
-          text: 'Maßnahme NichtFindbareMassnahmenID wurde nicht gefunden',
-          severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+          dateiname: 'test.pdf',
+          isDuplicate: false,
+          isSelected: false,
+        },
+        {
+          dateiname: 'test-bild.png',
+          isDuplicate: false,
+          isSelected: false,
         },
       ],
+      hinweis: {
+        text: 'Maßnahme NichtFindbareMassnahmenID wurde nicht gefunden',
+        severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+      },
     },
     {
       ordnername: 'LeererOrdner',
       massnahmeId: 5,
       status: MassnahmenDateianhaengeZuordnungStatus.IGNORIERT,
       dateien: [],
-      hinweise: [
-        {
-          text: 'Ordner ist leer',
-          severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
-        },
-      ],
+      hinweis: {
+        text: 'Ordner ist leer',
+        severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+      },
     },
     {
       ordnername: 'KeineEindeutigeZuordnung',
       massnahmeId: null,
       status: MassnahmenDateianhaengeZuordnungStatus.FEHLERHAFT,
-      dateien: ['datei.png'],
-      hinweise: [
+      dateien: [
         {
-          text: 'Keine eindeutige Zuordnung möglich, da 2 potentielle Maßnahmen gefunden wurden',
-          severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+          dateiname: 'datei.png',
+          isDuplicate: false,
+          isSelected: false,
         },
       ],
+      hinweis: {
+        text: 'Keine eindeutige Zuordnung möglich, da 2 potentielle Maßnahmen gefunden wurden',
+        severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+      },
     },
     {
       ordnername: 'UngültigeMassnahmeID',
       massnahmeId: null,
       status: MassnahmenDateianhaengeZuordnungStatus.IGNORIERT,
-      dateien: ['datei.pdf'],
-      hinweise: [
+      dateien: [
         {
-          text: 'Ordnername ist keine gültige Maßnahme-ID',
-          severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+          dateiname: 'datei.pdf',
+          isDuplicate: false,
+          isSelected: false,
         },
       ],
+      hinweis: {
+        text: 'Ordnername ist keine gültige Maßnahme-ID',
+        severity: MassnahmenDateianhaengeImportMappingSeverity.ERROR,
+      },
     },
   ],
 };

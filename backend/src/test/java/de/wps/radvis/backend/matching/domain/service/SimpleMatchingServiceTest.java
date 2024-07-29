@@ -87,7 +87,7 @@ class SimpleMatchingServiceTest {
 		LineString matching2 = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(
 			lineString, 0, -1).reverse();
 		when(dlmMatchingRepository.matchGeometry(any(), eq("bike"))).thenReturn(
-				new OsmMatchResult(matching1, Collections.emptyList()))
+			new OsmMatchResult(matching1, Collections.emptyList()))
 			.thenReturn(new OsmMatchResult(matching2, Collections.emptyList()));
 
 		when(matchingKorrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(lineString, matching1)).thenThrow(
@@ -119,7 +119,7 @@ class SimpleMatchingServiceTest {
 		LineString matching2 = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(
 			lineString, 0, -1).reverse();
 		when(dlmMatchingRepository.matchGeometry(any(), eq("bike"))).thenReturn(
-				new OsmMatchResult(matching1, Collections.emptyList()))
+			new OsmMatchResult(matching1, Collections.emptyList()))
 			.thenReturn(new OsmMatchResult(matching2, Collections.emptyList()));
 
 		when(matchingKorrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(lineString, matching1)).thenThrow(
@@ -159,7 +159,7 @@ class SimpleMatchingServiceTest {
 			new Coordinate(120, 120), new Coordinate(140, 120));
 		LineString matching2 = matching1.reverse();
 		when(dlmMatchingRepository.matchGeometry(any(), eq("bike"))).thenReturn(
-				new OsmMatchResult(matching1, Collections.emptyList()))
+			new OsmMatchResult(matching1, Collections.emptyList()))
 			.thenReturn(new OsmMatchResult(matching2, Collections.emptyList()));
 
 		LineString matchOhneLoop = GeometryTestdataProvider.createLineString(new Coordinate(100, 100),
@@ -171,7 +171,7 @@ class SimpleMatchingServiceTest {
 
 		when(
 			matchingKorrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(lineString, matchOhneLoop)).thenThrow(
-			new GeometryLaengeMismatchException("ヤバイっすね", Integer.MIN_VALUE, Integer.MAX_VALUE, 10L, matching1));
+				new GeometryLaengeMismatchException("ヤバイっすね", Integer.MIN_VALUE, Integer.MAX_VALUE, 10L, matching1));
 		when(matchingKorrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(lineString,
 			reverseMatchOhneLoop)).thenReturn(reverseMatchOhneLoop);
 
@@ -205,7 +205,7 @@ class SimpleMatchingServiceTest {
 		LineString matching2 = GeometryTestdataProvider.getLinestringVerschobenUmCoordinate(
 			lineString, 0, -1).reverse();
 		when(dlmMatchingRepository.matchGeometry(any(), eq("bike"))).thenReturn(
-				new OsmMatchResult(matching1, Collections.emptyList()))
+			new OsmMatchResult(matching1, Collections.emptyList()))
 			.thenReturn(new OsmMatchResult(matching2, Collections.emptyList()));
 
 		when(matchingKorrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(lineString, matching1)).thenThrow(

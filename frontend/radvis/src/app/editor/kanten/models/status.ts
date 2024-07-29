@@ -25,23 +25,21 @@ export enum Status {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Status {
-  export const options: EnumOption[] = Object.keys(Status).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Status.FIKTIV:
-          return { name: k, displayText: 'Fiktiv' };
-        case Status.IN_BAU:
-          return { name: k, displayText: 'In Bau' };
-        case Status.KONZEPTION:
-          return { name: k, displayText: 'Konzeption' };
-        case Status.NICHT_FUER_RADVERKEHR_FREIGEGEBEN:
-          return { name: k, displayText: 'Nicht für Radverkehr freigegeben' };
-        case Status.NICHT_MIT_RAD_BEFAHRBAR:
-          return { name: k, displayText: 'Nicht mit dem Rad befahrbar' };
-        case Status.UNTER_VERKEHR:
-          return { name: k, displayText: 'Unter Verkehr' };
-      }
-      throw new Error('Beschreibung für enum Status fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Status).map((k: string): EnumOption => {
+    switch (k) {
+      case Status.FIKTIV:
+        return { name: k, displayText: 'Fiktiv' };
+      case Status.IN_BAU:
+        return { name: k, displayText: 'In Bau' };
+      case Status.KONZEPTION:
+        return { name: k, displayText: 'Konzeption' };
+      case Status.NICHT_FUER_RADVERKEHR_FREIGEGEBEN:
+        return { name: k, displayText: 'Nicht für Radverkehr freigegeben' };
+      case Status.NICHT_MIT_RAD_BEFAHRBAR:
+        return { name: k, displayText: 'Nicht mit dem Rad befahrbar' };
+      case Status.UNTER_VERKEHR:
+        return { name: k, displayText: 'Unter Verkehr' };
     }
-  );
+    throw new Error('Beschreibung für enum Status fehlt: ' + k);
+  });
 }

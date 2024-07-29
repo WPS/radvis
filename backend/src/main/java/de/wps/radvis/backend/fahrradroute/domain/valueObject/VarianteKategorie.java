@@ -19,7 +19,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public enum VarianteKategorie {
 
-	GEGENRICHTUNG("Gegenrichtung"), ALTERNATIVSTRECKE("Alternativstrecke"), ZUBRINGERSTRECKE("Zubringerstrecke");
+	GEGENRICHTUNG("Gegenrichtung"),
+	ALTERNATIVSTRECKE("Alternativstrecke"),
+	ZUBRINGERSTRECKE("Zubringerstrecke");
 
 	private final String displayText;
 

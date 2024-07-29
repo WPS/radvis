@@ -21,9 +21,12 @@ import java.util.Set;
 
 import de.wps.radvis.backend.common.domain.SetToStringAttributeConverter;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,29 +37,46 @@ public class Konflikt {
 
 	@Embedded
 	private LinearReferenzierterAbschnitt linearReferenzierterAbschnitt;
+	@Enumerated(EnumType.STRING)
+	private Seitenbezug seitenbezug;
 	private String attributName;
 	private String uebernommenerWert;
 	@Convert(converter = SetToStringAttributeConverter.class)
 	private Set<String> nichtUebernommeneWerte;
+	private String bemerkung;
 
-	public Konflikt(String attributName, String uebernommenerWert,
-		Set<String> nichtUebernommeneWerte) {
-		this(LinearReferenzierterAbschnitt.of(0, 1), attributName, uebernommenerWert, nichtUebernommeneWerte);
-	}
-
-	public Konflikt(LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, String attributName,
-		String uebernommenerWert,
-		Set<String> nichtUebernommeneWerte) {
-		require(linearReferenzierterAbschnitt, notNullValue());
+	public Konflikt(String attributName, String uebernommenerWert, Set<String> nichtUebernommeneWerte) {
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt1 = LinearReferenzierterAbschnitt.of(0, 1);
+		require(linearReferenzierterAbschnitt1, notNullValue());
 		require(attributName, notNullValue());
 		require(uebernommenerWert, notNullValue());
 		require(nichtUebernommeneWerte, notNullValue());
 		require(!nichtUebernommeneWerte.isEmpty(),
 			"Bei einem Konflikt muss es immer zumindest einen Wert geben, der nicht übernommen wurde");
 
-		this.linearReferenzierterAbschnitt = linearReferenzierterAbschnitt;
+		this.linearReferenzierterAbschnitt = linearReferenzierterAbschnitt1;
 		this.attributName = attributName;
 		this.uebernommenerWert = uebernommenerWert;
 		this.nichtUebernommeneWerte = nichtUebernommeneWerte;
+	}
+
+	public Konflikt(LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Seitenbezug seitenbezug,
+		String attributName,
+		String uebernommenerWert, Set<String> nichtUebernommeneWerte, String bemerkung) {
+		require(linearReferenzierterAbschnitt, notNullValue());
+		require(seitenbezug, notNullValue());
+		require(attributName, notNullValue());
+		require(uebernommenerWert, notNullValue());
+		require(nichtUebernommeneWerte, notNullValue());
+		require(!nichtUebernommeneWerte.isEmpty(),
+			"Bei einem Konflikt muss es immer zumindest einen Wert geben, der nicht übernommen wurde");
+		require(bemerkung, notNullValue());
+
+		this.linearReferenzierterAbschnitt = linearReferenzierterAbschnitt;
+		this.seitenbezug = seitenbezug;
+		this.attributName = attributName;
+		this.uebernommenerWert = uebernommenerWert;
+		this.nichtUebernommeneWerte = nichtUebernommeneWerte;
+		this.bemerkung = bemerkung;
 	}
 }

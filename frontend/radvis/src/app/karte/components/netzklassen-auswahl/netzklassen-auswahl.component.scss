@@ -17,3 +17,8 @@
 .zoomstufen-hinweis {
   color: map-get($radvis-app-red-palette, 200);
 }
+
+.compatibility-notice {
+  max-width: 20rem;
+  color: map-get($radvis-app-red-palette, 200);
+}

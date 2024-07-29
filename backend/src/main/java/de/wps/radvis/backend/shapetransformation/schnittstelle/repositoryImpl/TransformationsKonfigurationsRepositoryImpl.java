@@ -59,8 +59,11 @@ public class TransformationsKonfigurationsRepositoryImpl implements Transformati
 		Charset charset = findCharset(data);
 		char delimiter = findDelimiter(data, charset);
 
-		try (InputStreamReader reader = new InputStreamReader(new BOMInputStream(new ByteArrayInputStream(data)),
-			charset);
+		BOMInputStream.Builder inputStreamBuilder = BOMInputStream
+			.builder()
+			.setInputStream(new ByteArrayInputStream(data));
+
+		try (InputStreamReader reader = new InputStreamReader(inputStreamBuilder.get(), charset);
 			CSVReader csvReader = new CSVReaderBuilder(reader)
 				.withCSVParser(
 					new CSVParserBuilder()
@@ -100,8 +103,11 @@ public class TransformationsKonfigurationsRepositoryImpl implements Transformati
 		return zeilen;
 	}
 
-	private static BufferedReader createBufferedReader(byte[] data, Charset charset) {
-		return new BufferedReader(new InputStreamReader(new BOMInputStream(new ByteArrayInputStream(data)), charset));
+	private static BufferedReader createBufferedReader(byte[] data, Charset charset) throws IOException {
+		BOMInputStream.Builder inputStreamBuilder = BOMInputStream
+			.builder()
+			.setInputStream(new ByteArrayInputStream(data));
+		return new BufferedReader(new InputStreamReader(inputStreamBuilder.get(), charset));
 	}
 
 	private Charset findCharset(byte[] data) {

@@ -110,38 +110,35 @@ class AttributprojektionsbeschreibungTest {
 		// seitenbezogene attribute werden nach richtung getrennt gespeichert
 		assertThat(attributprojektionsbeschreibung.getSeitenbezogeneProjizierteAttribute().stream()
 			.map(SeitenbezogeneProjizierteAttribute::getRichtung))
-			.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
-				fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
+				.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
+					fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
 		assertThat(attributprojektionsbeschreibung.getSeitenbezogeneProjizierteAttribute().stream()
 			.map(SeitenbezogeneProjizierteAttribute::getRichtung))
-			.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
-				fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
+				.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
+					fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
 		assertThat(attributprojektionsbeschreibung.getSeitenbezogeneProjizierteAttribute().stream()
 			.map(SeitenbezogeneProjizierteAttribute::getLinearReferenzierterAbschnittAufZielnetzkante))
-			.containsExactly(LinearReferenzierterAbschnitt.of(0., 0.5), LinearReferenzierterAbschnitt.of(0.5, 1.));
+				.containsExactly(LinearReferenzierterAbschnitt.of(0., 0.5), LinearReferenzierterAbschnitt.of(0.5, 1.));
 
-		Map<KantenAttribute, Double> potentiellInkonsistenteProjizierteKantenattributeZuAnteil =
-			(Map<KantenAttribute, Double>) ReflectionTestUtils
-				.getField(attributprojektionsbeschreibung,
-					"potentiellInkonsistenteProjizierteKantenattributeZuAnteil");
+		Map<KantenAttribute, Double> potentiellInkonsistenteProjizierteKantenattributeZuAnteil = (Map<KantenAttribute, Double>) ReflectionTestUtils
+			.getField(attributprojektionsbeschreibung,
+				"potentiellInkonsistenteProjizierteKantenattributeZuAnteil");
 		assertThat(potentiellInkonsistenteProjizierteKantenattributeZuAnteil)
 			.containsOnlyKeys(kantenAttribute1);
 		assertThat(potentiellInkonsistenteProjizierteKantenattributeZuAnteil)
 			.containsEntry(kantenAttribute1, 1.);
 
-		Map<Set<IstStandard>, Double> potentiellInkonsistenteProjizierteIstStandards =
-			(Map<Set<IstStandard>, Double>) ReflectionTestUtils
-				.getField(attributprojektionsbeschreibung,
-					"potentiellInkonsistenteProjizierteIstStandards");
+		Map<Set<IstStandard>, Double> potentiellInkonsistenteProjizierteIstStandards = (Map<Set<IstStandard>, Double>) ReflectionTestUtils
+			.getField(attributprojektionsbeschreibung,
+				"potentiellInkonsistenteProjizierteIstStandards");
 		assertThat(potentiellInkonsistenteProjizierteIstStandards)
 			.containsOnlyKeys(istStandards1);
 		assertThat(potentiellInkonsistenteProjizierteIstStandards)
 			.containsEntry(istStandards1, 1.);
 
-		Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>> potentiellInkonsistenteProjizierteNetzklassen =
-			(Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>>) ReflectionTestUtils
-				.getField(attributprojektionsbeschreibung,
-					"potentiellInkonsistenteProjizierteNetzklassen");
+		Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>> potentiellInkonsistenteProjizierteNetzklassen = (Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>>) ReflectionTestUtils
+			.getField(attributprojektionsbeschreibung,
+				"potentiellInkonsistenteProjizierteNetzklassen");
 		assertThat(potentiellInkonsistenteProjizierteNetzklassen)
 			.containsOnlyKeys(netzklassen1);
 		assertThat(potentiellInkonsistenteProjizierteNetzklassen)
@@ -221,18 +218,18 @@ class AttributprojektionsbeschreibungTest {
 
 		assertThat(attributprojektionsbeschreibung.getSeitenbezogeneProjizierteAttribute().stream()
 			.map(SeitenbezogeneProjizierteAttribute::getRichtung))
-			.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
-				fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
+				.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
+					fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
 		assertThat(attributprojektionsbeschreibung.getSeitenbezogeneProjizierteAttribute().stream()
 			.map(SeitenbezogeneProjizierteAttribute::getRichtung))
-			.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
-				fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
+				.containsExactly(fahrtrichtungAttributGruppe1.getFahrtrichtungLinks(),
+					fahrtrichtungAttributGruppe2.getFahrtrichtungLinks());
 		assertThat(attributprojektionsbeschreibung.getSeitenbezogeneProjizierteAttribute().stream()
 			.map(SeitenbezogeneProjizierteAttribute::getLinearReferenzierterAbschnittAufZielnetzkante))
-			.containsExactly(LinearReferenzierterAbschnitt.of(0., 0.5), LinearReferenzierterAbschnitt.of(0.5, 1.));
+				.containsExactly(LinearReferenzierterAbschnitt.of(0., 0.5), LinearReferenzierterAbschnitt.of(0.5, 1.));
 
-		Map<KantenAttribute, Double> potentiellInkonsistenteProjizierteKantenattributeZuAnteil =
-			(Map<KantenAttribute, Double>) ReflectionTestUtils.getField(attributprojektionsbeschreibung,
+		Map<KantenAttribute, Double> potentiellInkonsistenteProjizierteKantenattributeZuAnteil = (Map<KantenAttribute, Double>) ReflectionTestUtils
+			.getField(attributprojektionsbeschreibung,
 				"potentiellInkonsistenteProjizierteKantenattributeZuAnteil");
 		assertThat(potentiellInkonsistenteProjizierteKantenattributeZuAnteil)
 			.containsOnlyKeys(kantenAttribute1, kantenAttribute2);
@@ -241,8 +238,8 @@ class AttributprojektionsbeschreibungTest {
 		assertThat(potentiellInkonsistenteProjizierteKantenattributeZuAnteil)
 			.containsEntry(kantenAttribute2, .5);
 
-		Map<Set<IstStandard>, Double> potentiellInkonsistenteProjizierteIstStandards =
-			(Map<Set<IstStandard>, Double>) ReflectionTestUtils.getField(attributprojektionsbeschreibung,
+		Map<Set<IstStandard>, Double> potentiellInkonsistenteProjizierteIstStandards = (Map<Set<IstStandard>, Double>) ReflectionTestUtils
+			.getField(attributprojektionsbeschreibung,
 				"potentiellInkonsistenteProjizierteIstStandards");
 		assertThat(potentiellInkonsistenteProjizierteIstStandards)
 			.containsOnlyKeys(istStandards1, istStandards2);
@@ -251,8 +248,8 @@ class AttributprojektionsbeschreibungTest {
 		assertThat(potentiellInkonsistenteProjizierteIstStandards)
 			.containsEntry(istStandards2, .5);
 
-		Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>> potentiellInkonsistenteProjizierteNetzklassen =
-			(Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>>) ReflectionTestUtils.getField(
+		Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>> potentiellInkonsistenteProjizierteNetzklassen = (Map<Set<Netzklasse>, List<LinearReferenzierterAbschnitt>>) ReflectionTestUtils
+			.getField(
 				attributprojektionsbeschreibung,
 				"potentiellInkonsistenteProjizierteNetzklassen");
 		assertThat(potentiellInkonsistenteProjizierteNetzklassen)

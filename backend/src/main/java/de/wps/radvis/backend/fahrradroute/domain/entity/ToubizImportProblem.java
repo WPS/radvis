@@ -17,6 +17,8 @@ package de.wps.radvis.backend.fahrradroute.domain.entity;
 import java.time.LocalDateTime;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
@@ -33,7 +35,6 @@ public class ToubizImportProblem extends AbstractEntity implements Fehlerprotoko
 
 	private String routenName;
 
-	@Getter
 	@NonNull
 	private Geometry iconPosition;
 
@@ -62,7 +63,8 @@ public class ToubizImportProblem extends AbstractEntity implements Fehlerprotoko
 					+ "anpassen lassen oder in RadVIS das Netz erweitern.",
 				routenName);
 		} else {
-			// In diesem Fall gibt es Segmente, an denen der ermittelte Netzbezug deutlich von der Originalgeometrie abweicht
+			// In diesem Fall gibt es Segmente, an denen der ermittelte Netzbezug deutlich von der Originalgeometrie
+			// abweicht
 			return String.format(
 				"Beim Import der Fahrradroute '%s' aus Toubiz konnte auf mindestens einem Abschnitt kein genauer Bezug "
 					+ "zum RadVIS-Netz hergestellt werden.\n"
@@ -73,7 +75,13 @@ public class ToubizImportProblem extends AbstractEntity implements Fehlerprotoko
 	}
 
 	@Override
+	public MultiPoint getIconPosition() {
+		return new MultiPoint(new Point[] { (Point) this.iconPosition }, this.iconPosition.getFactory());
+	}
+
+	@Override
 	public String getEntityLink() {
 		return FrontendLinks.fahrradrouteDetailView(id);
 	}
+
 }

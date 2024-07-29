@@ -49,11 +49,11 @@ import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.entity.ServicestationMobiDataImportStatistik;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
@@ -256,17 +256,18 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 
 	private Servicestation.ServicestationBuilder getExistingOrNewServicestationBuilder(
 		ServicestationName servicestationName, Point point) {
-		Optional<Servicestation> servicestationOptional = servicestationRepository.findNearestByNameAndQuellSystemAndPosition(
-			servicestationName,
-			ServicestationenQuellSystem.MOBIDATABW,
-			point,
-			MAX_VERSCHIEBUNG_VORHANDENER_STATION
-		);
+		Optional<Servicestation> servicestationOptional = servicestationRepository
+			.findNearestByNameAndQuellSystemAndPosition(
+				servicestationName,
+				ServicestationenQuellSystem.MOBIDATABW,
+				point,
+				MAX_VERSCHIEBUNG_VORHANDENER_STATION
+			);
 		return servicestationOptional.map(Servicestation::toBuilder).orElse(
-				Servicestation.builder()
-					.dokumentListe(new DokumentListe())
-					.quellSystem(ServicestationenQuellSystem.MOBIDATABW)
-					.name(servicestationName))
+			Servicestation.builder()
+				.dokumentListe(new DokumentListe())
+				.quellSystem(ServicestationenQuellSystem.MOBIDATABW)
+				.name(servicestationName))
 			.geometrie(point);
 	}
 
@@ -327,9 +328,10 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 					.filter(part -> !isKreisIndicator(part))
 					.collect(Collectors.joining(" "));
 				if (!operatorName.isBlank()) {
-					passendeVerwaltungseinheiten = verwaltungseinheitRepository.findAllByNameContainingAndOrganisationsArt(
-						operatorName,
-						OrganisationsArt.KREIS);
+					passendeVerwaltungseinheiten = verwaltungseinheitRepository
+						.findAllByNameContainingAndOrganisationsArt(
+							operatorName,
+							OrganisationsArt.KREIS);
 				}
 				// Gemeinde
 			} else if (Arrays.stream(operatorStringParts)
@@ -338,9 +340,10 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 					.filter(part -> !isGemeindeIndicator(part))
 					.collect(Collectors.joining(" "));
 				if (!operatorName.isBlank()) {
-					passendeVerwaltungseinheiten = verwaltungseinheitRepository.findAllByNameContainingAndOrganisationsArt(
-						operatorName,
-						OrganisationsArt.GEMEINDE);
+					passendeVerwaltungseinheiten = verwaltungseinheitRepository
+						.findAllByNameContainingAndOrganisationsArt(
+							operatorName,
+							OrganisationsArt.GEMEINDE);
 				}
 				// 1. operatorString ist Exakter Name , 2. Name enthält den operatorString, 3.operatorString mit Bindestrich -> Name entspricht dem Teil VOR dem Bindestrich
 			} else if (!operatorString.isBlank()) {
@@ -377,10 +380,9 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 	private static Optional<Verwaltungseinheit> findNearestVerwaltungseinheit(Point geometrie,
 		List<Verwaltungseinheit> verwaltungseinheiten) {
 		return verwaltungseinheiten.stream().min(
-			Comparator.comparing(v ->
-				v.getBereich()
-					.map(bereich -> bereich.distance(geometrie))
-					.orElse(Double.MAX_VALUE)));
+			Comparator.comparing(v -> v.getBereich()
+				.map(bereich -> bereich.distance(geometrie))
+				.orElse(Double.MAX_VALUE)));
 	}
 
 	private static boolean isGemeindeIndicator(String str) {

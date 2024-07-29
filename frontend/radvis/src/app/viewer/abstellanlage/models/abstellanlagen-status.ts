@@ -23,19 +23,17 @@ export enum AbstellanlagenStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AbstellanlagenStatus {
-  export const options: EnumOption[] = Object.keys(AbstellanlagenStatus).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case AbstellanlagenStatus.GEPLANT:
-          return { name: k, displayText: 'Geplant' };
-        case AbstellanlagenStatus.AKTIV:
-          return { name: k, displayText: 'Aktiv' };
-        case AbstellanlagenStatus.AUSSER_BETRIEB:
-          return { name: k, displayText: 'Außer Betrieb' };
-      }
-      throw new Error('Beschreibung für enum AbstellanlagenStatus fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(AbstellanlagenStatus).map((k: string): EnumOption => {
+    switch (k) {
+      case AbstellanlagenStatus.GEPLANT:
+        return { name: k, displayText: 'Geplant' };
+      case AbstellanlagenStatus.AKTIV:
+        return { name: k, displayText: 'Aktiv' };
+      case AbstellanlagenStatus.AUSSER_BETRIEB:
+        return { name: k, displayText: 'Außer Betrieb' };
     }
-  );
+    throw new Error('Beschreibung für enum AbstellanlagenStatus fehlt: ' + k);
+  });
 
   export const getDisplayText: (abstellanlagenStatus: AbstellanlagenStatus) => string = (
     abstellanlagenStatus: AbstellanlagenStatus

@@ -197,7 +197,7 @@ public class ImportedFeaturePersistentRepositoryTestIT extends DBIntegrationTest
 
 		List<ImportedFeature> result = repository.getAllByQuelleAndArtAndGeometryType(QuellSystem.RadNETZ, Art.Strecke,
 			ImportedFeaturePersistentRepository.LINESTRING).collect(
-			Collectors.toList());
+				Collectors.toList());
 
 		// Assert
 		assertThat(result).isNotEmpty();

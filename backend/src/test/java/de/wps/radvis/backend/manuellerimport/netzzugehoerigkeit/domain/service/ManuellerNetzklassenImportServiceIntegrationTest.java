@@ -36,7 +36,7 @@ import org.springframework.boot.test.system.OutputCaptureExtension;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
@@ -117,7 +117,7 @@ class ManuellerNetzklassenImportServiceIntegrationTest {
 	@Test
 	void testImportNetzklassen_zipMitKorrekterShapeFile_zipWirdEntpacktUndkorrekteLineStringsWerdenAusgelesen(
 		CapturedOutput output)
-		throws IOException, ZipFileRequiredFilesMissingException {
+		throws IOException, ShapeZipInvalidException {
 		// arrange
 		File testLineStringsFile = new File("src/test/resources/shp/Bodenseekreis_Kreisnetz.zip");
 
@@ -149,7 +149,7 @@ class ManuellerNetzklassenImportServiceIntegrationTest {
 	@Test
 	void testImportNetzklassen_zipEnthaeltStoredEntries_zipWirdEntpacktUndkorrekteLineStringsWerdenAusgelesen(
 		CapturedOutput output)
-		throws IOException, ZipFileRequiredFilesMissingException {
+		throws IOException, ShapeZipInvalidException {
 		// arrange
 		File testLineStringsFile = new File("src/test/resources/shp/test_attribute.zip");
 

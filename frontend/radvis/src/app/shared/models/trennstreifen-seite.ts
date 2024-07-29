@@ -24,18 +24,16 @@ export enum TrennstreifenSeite {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace TrennstreifenSeite {
   const toOptions = (seiten: TrennstreifenSeite[]): EnumOption[] =>
-    seiten.map(
-      (k: string): EnumOption => {
-        switch (k) {
-          case TrennstreifenSeite.A:
-          case TrennstreifenSeite.B:
-          case TrennstreifenSeite.C:
-          case TrennstreifenSeite.D:
-            return { name: k, displayText: 'Sicherheitstrennstreifen ' + k };
-        }
-        throw new Error('Beschreibung für enum TrennstreifenSeite fehlt: ' + k);
+    seiten.map((k: string): EnumOption => {
+      switch (k) {
+        case TrennstreifenSeite.A:
+        case TrennstreifenSeite.B:
+        case TrennstreifenSeite.C:
+        case TrennstreifenSeite.D:
+          return { name: k, displayText: 'Sicherheitstrennstreifen ' + k };
       }
-    );
+      throw new Error('Beschreibung für enum TrennstreifenSeite fehlt: ' + k);
+    });
 
   export const optionsLinks: EnumOption[] = toOptions([TrennstreifenSeite.A, TrennstreifenSeite.B]);
   export const optionsRechts: EnumOption[] = toOptions([TrennstreifenSeite.C, TrennstreifenSeite.D]);

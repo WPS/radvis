@@ -94,7 +94,10 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
   // Serialisierung der Rematching-Requests
   private rematchingRequests$: Subject<Observable<GeoJSONFeature>> = new Subject();
 
-  constructor(private olMapService: OlMapService, private attributeImportService: AttributeImportService) {
+  constructor(
+    private olMapService: OlMapService,
+    private attributeImportService: AttributeImportService
+  ) {
     this.radvisLayer = new VectorImageLayer({
       source: this.radvisVectorSource,
       style: this.getStyleFunctionForRadvisAndModifyLayer(ImportAttributeLayerComponent.GRUNDNETZ_COLOR),

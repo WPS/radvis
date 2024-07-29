@@ -16,21 +16,23 @@ package de.wps.radvis.backend.common.domain.valueObject;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum FehlerprotokollTyp {
-	DLM_REIMPORT_JOB_MASSNAHMEN("DLM-Reimport (Maßnahmen)"),
-	DLM_REIMPORT_JOB_FAHRRADROUTEN("DLM-Reimport (Fahrradrouten)"),
-	TOUBIZ_IMPORT_FAHRRADROUTEN("Toubiz-Routen Import"),
-	TFIS_IMPORT_FAHRRADROUTEN("TFIS-Routen Import"),
-	TFIS_IMPORT_LRFW("Landesradfernwege (Import aus TFIS)"),
-	OSM_ABBILDUNG_RADNETZ("Abbildung vom RadNETZ auf das OSM-Netz"),
-	OSM_ABBILDUNG_KREISNETZ("Abbildung vom Kreisnetz auf das OSM-Netz"),
-	OSM_ABBILDUNG_KOMMUNALNETZ("Abbildung vom Kommunalnetz auf das OSM-Netz"),
-	OSM_ABBILDUNG_SONSTIGE(
-		"Abbildung vom unklassifizierten Netz, Radschnellverbindungen und Radvorrangrouten auf das OSM-Netz");
+	DLM_REIMPORT_JOB_MASSNAHMEN("DLM-Reimport (Maßnahmen)", 11.5),
+	DLM_REIMPORT_JOB_FAHRRADROUTEN("DLM-Reimport (Fahrradrouten)", 11.5),
+	TOUBIZ_IMPORT_FAHRRADROUTEN("Toubiz-Routen Import", 9),
+	TFIS_IMPORT_FAHRRADROUTEN("TFIS-Routen Import", 9),
+	TFIS_IMPORT_LRFW("Landesradfernwege (Import aus TFIS)", 9),
+	OSM_ABBILDUNG_RADNETZ("OSM-Ausleitung (RadNETZ)", 11.5),
+	OSM_ABBILDUNG_KREISNETZ("OSM-Ausleitung (Kreisnetz)", 11.5),
+	OSM_ABBILDUNG_KOMMUNALNETZ("OSM-Ausleitung (Kommunalnetz)", 11.5),
+	OSM_ABBILDUNG_SONSTIGE("OSM-Ausleitung (Sonstige)", 11.5);
 
 	private final String displayText;
+	@Getter
+	private final double minZoom;
 
 	@Override
 	public String toString() {

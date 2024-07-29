@@ -15,16 +15,17 @@
   <div class="import-step-content h-100">
     <div class="legend" *ngIf="!fetching">
       <div class="bulletPoint darkBlue"></div>
-      <div> Kanten nicht in {{ netz$ | async | netzklasse }}</div>
+      <div>Kanten nicht in {{ netz$ | async | netzklasse }}</div>
       <div class="bulletPoint blue"></div>
-      <div> Kanten in {{ netz$ | async | netzklasse }}</div>
+      <div>Kanten in {{ netz$ | async | netzklasse }}</div>
       <div class="bulletPoint green"></div>
-      <div> Kanten zu {{ netz$ | async | netzklasse }} hinzugefügt</div>
+      <div>Kanten zu {{ netz$ | async | netzklasse }} hinzugefügt</div>
       <div class="bulletPoint red"></div>
-      <div> Kanten aus {{ netz$ | async | netzklasse }} entfernt</div>
-      <div class="bulletPoint svg"><img src="assets/AchtungSackgasse.svg" width="19" height="19"
-                                        alt="Achtung Netzklassen-Sackgasse"/></div>
-      <div> Netzlücken</div>
+      <div>Kanten aus {{ netz$ | async | netzklasse }} entfernt</div>
+      <div class="bulletPoint svg">
+        <img src="assets/AchtungSackgasse.svg" width="19" height="19" alt="Achtung Netzklassen-Sackgasse" />
+      </div>
+      <div>Netzlücken</div>
 
       <div class="hinweis">Klicken Sie auf eine Kante, um die Netzzugehörigkeit zu verändern.</div>
     </div>
@@ -41,15 +42,11 @@
     </div>
   </div>
   <div class="import-step-footer-buttons">
-    <button (click)="onAbort()" class="button" color="primary" mat-flat-button>Abbrechen</button>
+    <button (click)="onAbort()" class="button" color="primary" mat-stroked-button>Abbrechen</button>
 
-    <button (click)="onPrevious()" class="button" color="primary" mat-flat-button>
-      Zurück
-    </button>
+    <button (click)="onPrevious()" class="button" color="primary" mat-stroked-button>Zurück</button>
 
-    <button (click)="onStart()" class="button" color="primary" mat-flat-button>
-      Weiter
-    </button>
+    <button (click)="onStart()" class="button" color="primary" mat-flat-button>Weiter</button>
   </div>
 </rad-import-step-layout>
 
@@ -58,6 +55,7 @@
     [alleFeatures]="kantenFuerZustaendigkeitsbereich"
     [kanteIdsMitNetzklasse]="kanteIdsMitNetzklasse"
     (toggleNetzklasse)="onToggleNetzklasse($event)"
-    (featuresWithUnchangedNetzklasseVisible)="onFeaturesWithUnchangedNetzklasseVisible($event)"
-  ></rad-import-abbildung-bearbeiten-layer>
+    (featuresWithUnchangedNetzklasseVisible)="
+      onFeaturesWithUnchangedNetzklasseVisible($event)
+    "></rad-import-abbildung-bearbeiten-layer>
 </ng-container>

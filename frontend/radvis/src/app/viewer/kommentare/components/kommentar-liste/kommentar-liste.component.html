@@ -21,8 +21,7 @@
     *ngFor="let kommentar of kommentarListe"
     [class.align-self-end]="kommentar.fromLoggedInUser"
     class="mx-10 mt-10 kommentar"
-    [class.fremd]="!kommentar.fromLoggedInUser"
-  >
+    [class.fremd]="!kommentar.fromLoggedInUser">
     <mat-card-subtitle *ngIf="!kommentar.fromLoggedInUser">{{ kommentar.benutzer }}</mat-card-subtitle>
     <mat-card-content [innerText]="kommentar.kommentarText" style="overflow-x: auto"></mat-card-content>
     <mat-card-footer class="hinweis">{{ kommentar.datum | date: 'dd.MM.yy HH:mm' }}</mat-card-footer>
@@ -32,5 +31,4 @@
 <rad-kommentar-hinzufuegen
   #kommentarHinzufuegen
   (sendKommentar)="sendKommentar($event)"
-  class="mat-elevation-z8"
-></rad-kommentar-hinzufuegen>
+  class="mat-elevation-z8"></rad-kommentar-hinzufuegen>

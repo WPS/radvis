@@ -25,22 +25,20 @@ export enum Tourenkategorie {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Tourenkategorie {
   export const options: EnumOption[] = Object.keys(Tourenkategorie)
-    .map(
-      (o: string): EnumOption => {
-        switch (o) {
-          case Tourenkategorie.RADFERNWEG:
-            return { name: o, displayText: 'Radfernweg' };
-          case Tourenkategorie.RADTOUR:
-            return { name: o, displayText: 'Radtour' };
-          case Tourenkategorie.GRAVEL_TOUR:
-            return { name: o, displayText: 'Gravel-Tour' };
-          case Tourenkategorie.MTB_TOUR:
-            return { name: o, displayText: 'MTB-Tour' };
-          case Tourenkategorie.RENNRADTOUR:
-            return { name: o, displayText: 'Rennradtour' };
-        }
-        throw new Error('Beschreibung für enum Tourenkategorie fehlt: ' + o);
+    .map((o: string): EnumOption => {
+      switch (o) {
+        case Tourenkategorie.RADFERNWEG:
+          return { name: o, displayText: 'Radfernweg' };
+        case Tourenkategorie.RADTOUR:
+          return { name: o, displayText: 'Radtour' };
+        case Tourenkategorie.GRAVEL_TOUR:
+          return { name: o, displayText: 'Gravel-Tour' };
+        case Tourenkategorie.MTB_TOUR:
+          return { name: o, displayText: 'MTB-Tour' };
+        case Tourenkategorie.RENNRADTOUR:
+          return { name: o, displayText: 'Rennradtour' };
       }
-    )
+      throw new Error('Beschreibung für enum Tourenkategorie fehlt: ' + o);
+    })
     .sort((a, b) => a.displayText.toLowerCase().localeCompare(b.displayText.toLowerCase()));
 }

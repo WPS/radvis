@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.springframework.data.util.Pair;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -38,11 +39,11 @@ import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.exception.CsvImportException;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation.ServicestationBuilder;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
@@ -58,6 +59,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationSta
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Werkzeug;
+import jakarta.persistence.EntityNotFoundException;
 
 public class ServicestationImportService
 	extends AbstractCsvImportService<Servicestation, Servicestation.ServicestationBuilder> {
@@ -89,15 +91,18 @@ public class ServicestationImportService
 				"Sie haben nicht die Berechtigung Servicestationen zu erstellen oder zu bearbeiten.");
 		}
 
+		Verwaltungseinheit obersteVerwaltungseinheit = verwaltungseinheitService.getObersteGebietskoerperschaft()
+			.orElseThrow(EntityNotFoundException::new);
+		PreparedGeometry boundingArea = PreparedGeometryFactory.prepare(obersteVerwaltungseinheit.getBereich().get());
+
 		return super.importCsv(csvData,
-			(servicestationBuilder, row) -> this.mapAttributes(servicestationBuilder, row, benutzer));
+			(servicestationBuilder, row) -> this.mapAttributes(servicestationBuilder, boundingArea, row, benutzer));
 	}
 
-	public Servicestation mapAttributes(ServicestationBuilder servicestationBuilder, Map<String, String> row,
+	public Servicestation mapAttributes(ServicestationBuilder servicestationBuilder, PreparedGeometry boundingArea,
+		Map<String, String> row,
 		Benutzer benutzer)
 		throws ServicestationAttributMappingException {
-
-		PreparedGeometry boundingArea = verwaltungseinheitService.getBundeslandBereichPrepared();
 
 		// QUELLSYSTEM
 		ServicestationenQuellSystem quellSystem;
@@ -108,7 +113,7 @@ public class ServicestationImportService
 			throw new ServicestationAttributMappingException(
 				"Quellsystem (" + row.get(Servicestation.CsvHeader.QUELL_SYSTEM)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(ServicestationenQuellSystem.values())
-					.map(ServicestationenQuellSystem::toString).collect(Collectors.joining(", ")));
+						.map(ServicestationenQuellSystem::toString).collect(Collectors.joining(", ")));
 		}
 		if (quellSystem.equals(ServicestationenQuellSystem.MOBIDATABW)) {
 			throw new ServicestationAttributMappingException(
@@ -122,7 +127,8 @@ public class ServicestationImportService
 			Point point = extractPositionInternal(row);
 			if (!boundingArea.contains(point)) {
 				throw new ServicestationAttributMappingException(
-					"Position " + point + " liegt nicht in Baden-Württemberg. Bitte prüfen Sie die Koordinaten.");
+					"Position " + point
+						+ " liegt nicht im Bereich, der von der Anwendung verwaltet wird. Bitte prüfen Sie die Koordinaten.");
 			}
 			if (!zustaendigkeitsService.istImZustaendigkeitsbereich(point, benutzer)) {
 				throw new AccessDeniedException(
@@ -233,7 +239,7 @@ public class ServicestationImportService
 		}
 
 		verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(nameUndOrganisationsart.getFirst(),
-				nameUndOrganisationsart.getSecond())
+			nameUndOrganisationsart.getSecond())
 			.map(servicestationBuilder::organisation)
 			.orElseThrow(() -> new ServicestationAttributMappingException(
 				String.format("Verwaltungseinheit '%s' konnte nicht gefunden werden", bezeichnung)));
@@ -246,7 +252,7 @@ public class ServicestationImportService
 				"Typ (" + row.get(Servicestation.CsvHeader.TYP)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(ServicestationTyp.values()).map(
 						ServicestationTyp::toString)
-					.collect(Collectors.joining(", ")));
+						.collect(Collectors.joining(", ")));
 		}
 
 		// STATUS
@@ -256,8 +262,8 @@ public class ServicestationImportService
 			throw new ServicestationAttributMappingException(
 				"Status (" + row.get(Servicestation.CsvHeader.STATUS)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(ServicestationStatus.values())
-					.map(ServicestationStatus::toString)
-					.collect(Collectors.joining(", ")));
+						.map(ServicestationStatus::toString)
+						.collect(Collectors.joining(", ")));
 		}
 
 		servicestationBuilder.dokumentListe(new DokumentListe());

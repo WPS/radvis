@@ -50,13 +50,15 @@
   color: #c63461;
 }
 
+.conflict-detail-view-container {
+  margin-left: -$manueller-import-sub-tool-padding;
+  margin-right: -$manueller-import-sub-tool-padding;
+}
+
 .conflict-detail-view {
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  margin-left: -$manueller-import-sub-tool-padding;
-  margin-right: -$manueller-import-sub-tool-padding;
 
   .konflikt-container {
     overflow-y: auto;
@@ -71,13 +73,22 @@
     background: map-get($grayscale, 100);
   }
 
+  .konflikt-property-row:hover {
+    background-color: map-get($grayscale, 50);
+  }
+
+  .konflikt-property-value {
+    white-space: break-spaces;
+  }
+
   table {
     width: 100%;
     table-layout: fixed;
+    border-collapse: collapse;
   }
 
   td {
     word-wrap: break-word;
-    padding: 8px;
+    padding: 9px;
   }
 }

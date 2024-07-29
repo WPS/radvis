@@ -28,29 +28,27 @@ export enum Netzklasse {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Netzklasse {
-  export const options: EnumOption[] = Object.keys(Netzklasse).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Netzklasse.RADSCHNELLVERBINDUNG:
-          return { name: k, displayText: 'Radschnellverbindung' };
-        case Netzklasse.RADVORRANGROUTEN:
-          return { name: k, displayText: 'Radvorrangrouten' };
-        case Netzklasse.RADNETZ_FREIZEIT:
-          return { name: k, displayText: 'Freizeit (RadNETZ)' };
-        case Netzklasse.RADNETZ_ALLTAG:
-          return { name: k, displayText: 'Alltag (RadNETZ)' };
-        case Netzklasse.RADNETZ_ZIELNETZ:
-          return { name: k, displayText: 'Zielnetz (RadNETZ)' };
-        case Netzklasse.KREISNETZ_FREIZEIT:
-          return { name: k, displayText: 'Freizeit (Kreisnetz)' };
-        case Netzklasse.KREISNETZ_ALLTAG:
-          return { name: k, displayText: 'Alltag (Kreisnetz)' };
-        case Netzklasse.KOMMUNALNETZ_FREIZEIT:
-          return { name: k, displayText: 'Freizeit (Kommunalnetz)' };
-        case Netzklasse.KOMMUNALNETZ_ALLTAG:
-          return { name: k, displayText: 'Alltag (Kommunalnetz)' };
-      }
-      throw new Error('Beschreibung für enum Netzklasse fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Netzklasse).map((k: string): EnumOption => {
+    switch (k) {
+      case Netzklasse.RADSCHNELLVERBINDUNG:
+        return { name: k, displayText: 'Radschnellverbindung' };
+      case Netzklasse.RADVORRANGROUTEN:
+        return { name: k, displayText: 'Radvorrangrouten' };
+      case Netzklasse.RADNETZ_FREIZEIT:
+        return { name: k, displayText: 'Freizeit (RadNETZ)' };
+      case Netzklasse.RADNETZ_ALLTAG:
+        return { name: k, displayText: 'Alltag (RadNETZ)' };
+      case Netzklasse.RADNETZ_ZIELNETZ:
+        return { name: k, displayText: 'Zielnetz (RadNETZ)' };
+      case Netzklasse.KREISNETZ_FREIZEIT:
+        return { name: k, displayText: 'Freizeit (Kreisnetz)' };
+      case Netzklasse.KREISNETZ_ALLTAG:
+        return { name: k, displayText: 'Alltag (Kreisnetz)' };
+      case Netzklasse.KOMMUNALNETZ_FREIZEIT:
+        return { name: k, displayText: 'Freizeit (Kommunalnetz)' };
+      case Netzklasse.KOMMUNALNETZ_ALLTAG:
+        return { name: k, displayText: 'Alltag (Kommunalnetz)' };
     }
-  );
+    throw new Error('Beschreibung für enum Netzklasse fehlt: ' + k);
+  });
 }

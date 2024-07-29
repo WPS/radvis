@@ -21,6 +21,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommandTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
 public class CreateMassnahmeCommandTestDataProvider {

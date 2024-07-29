@@ -103,7 +103,7 @@ public class WegweisendeBeschilderung extends VersionierteEntity {
 	 * #isDifferentTo(WegweisendeBeschilderung)} entsprechend {@code true} zurück gibt.
 	 *
 	 * @return Die Beschilderung auf der diese Methode aufgerufen wurde (sprich {@code this}) und deren Attribute
-	 * aktualisiert wurden.
+	 *     aktualisiert wurden.
 	 */
 	public WegweisendeBeschilderung update(WegweisendeBeschilderung ersatz) {
 		this.geometrie = ersatz.geometrie;

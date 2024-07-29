@@ -14,58 +14,43 @@
 
 package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.entity;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.valid4j.Assertive.require;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject.MassnahmenDateianhaengeImportZuordnungStatus;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject.MassnahmenDateianhaengeMappingHinweis;
-import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class MassnahmenDateianhaengeImportZuordnung {
 
-	@Getter
 	private final String ordnerName;
 	@Setter
-	private Massnahme massnahme;
+	private Long massnahmeId;
 
-	@Getter
 	@Setter
 	private MassnahmenDateianhaengeImportZuordnungStatus status;
 
-	@Getter
-	private final List<File> dateien;
-	@Getter
-	private final List<MassnahmenDateianhaengeMappingHinweis> hinweise;
+	@Setter
+	private Map<String, MassnahmenDateianhaengeImportDatei> dateien;
+
+	@Setter
+	private MassnahmenDateianhaengeMappingHinweis hinweis;
 
 	public MassnahmenDateianhaengeImportZuordnung(
 		String ordnerName) {
 		this.ordnerName = ordnerName;
-		this.dateien = new ArrayList<>();
-		this.hinweise = new ArrayList<>();
+		this.dateien = new HashMap<>();
 	}
 
-	public void addDatei(File tempFile) {
-		require(tempFile, notNullValue());
-		this.dateien.add(tempFile);
+	public boolean hasAnySelectedDateien() {
+		return this.dateien.values().stream().anyMatch(MassnahmenDateianhaengeImportDatei::isSelected);
 	}
 
-	public void addAllDateien(List<File> tempFiles) {
-		this.dateien.addAll(tempFiles);
+	public Optional<MassnahmenDateianhaengeMappingHinweis> getHinweis() {
+		return Optional.ofNullable(this.hinweis);
 	}
 
-	public void addHinweis(MassnahmenDateianhaengeMappingHinweis mappingHinweis) {
-		require(mappingHinweis, notNullValue());
-		this.hinweise.add(mappingHinweis);
-	}
-
-	public Optional<Massnahme> getMassnahme() {
-		return Optional.ofNullable(massnahme);
-	}
 }

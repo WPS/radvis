@@ -31,8 +31,8 @@ public class Haendigkeit {
 
 	public static double ERLAUBTE_MAXIMALE_DISTANZ = 30;
 	public static double SOFTMAX_FAKTOR = 3.;
-	public static double NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ =
-		(1 + ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR) / (ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR);
+	public static double NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ = (1 + ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR)
+		/ (ERLAUBTE_MAXIMALE_DISTANZ / SOFTMAX_FAKTOR);
 
 	Orientierung orientierung;
 	double wahrscheinlichkeit;
@@ -53,7 +53,9 @@ public class Haendigkeit {
 	}
 
 	public enum Orientierung {
-		LINKS, RECHTS, UNBESTIMMT;
+		LINKS,
+		RECHTS,
+		UNBESTIMMT;
 	}
 
 	public double getVorzeichenbehafteteWahrscheinlichkeit() {
@@ -97,12 +99,12 @@ public class Haendigkeit {
 			double orthogonaleDistanz = segment.distancePerpendicular(coordinate);
 			// entspricht softsign( richtungsbezug * (distanz / SOFTMAX_FAKTOR))
 			// -> bei einem Wert von SOFTMAX_FAKTOR für die Distanz in Metern haben wir eine 50% confidence
-			sum +=
-				richtungsbezug * ((orthogonaleDistanz / SOFTMAX_FAKTOR) / (1. + (orthogonaleDistanz / SOFTMAX_FAKTOR)));
+			sum += richtungsbezug * ((orthogonaleDistanz / SOFTMAX_FAKTOR) / (1. + (orthogonaleDistanz
+				/ SOFTMAX_FAKTOR)));
 		}
 
-		double averageNormalisiertAufErlaubteDistanz =
-			sum * NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ / vonKanteCoordinates.length;
+		double averageNormalisiertAufErlaubteDistanz = sum * NORMALISIERUNGSFAKTOR_FUER_ERLAUBTE_DISTANZ
+			/ vonKanteCoordinates.length;
 
 		return new Haendigkeit(averageNormalisiertAufErlaubteDistanz);
 	}

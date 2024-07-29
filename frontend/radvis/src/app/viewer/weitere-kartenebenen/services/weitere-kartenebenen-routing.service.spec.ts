@@ -23,6 +23,7 @@ import { LineString } from 'ol/geom';
 import { of } from 'rxjs';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
 import { DetailFeatureTableComponent } from 'src/app/viewer/viewer-shared/components/detail-feauture-table/detail-feature-table.component';
@@ -30,7 +31,7 @@ import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { WeitereKartenebenenDetailViewComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-detail-view/weitere-kartenebenen-detail-view.component';
 import { WeitereWfsKartenebenenComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-wfs-kartenebenen/weitere-wfs-kartenebenen.component';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
-import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitereKartenebeneTyp';
+import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene-typ';
 import { WeitereKartenebenenRoutingService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen-routing.service';
 import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 import { instance, mock, when } from 'ts-mockito';
@@ -77,14 +78,13 @@ describe(WeitereKartenebenenRoutingService.name, () => {
       [10, 10],
     ]);
     const weitereKartenebenenId = 10;
-    const visibleTestAttribut = { key: 'test', linearReferenziert: false, value: 'Testvalue' };
     const feature: RadVisFeature = {
-      attribute: [
-        visibleTestAttribut,
-        { key: WeitereKartenebene.LAYER_ID_KEY, linearReferenziert: false, value: weitereKartenebenenId },
-        { key: 'geometry', linearReferenziert: false, value: geometry },
-        { key: WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, linearReferenziert: false, value: false },
-      ],
+      attributes: toRadVisFeatureAttributesFromMap([
+        ['test', 'TestValue'],
+        [WeitereKartenebene.LAYER_ID_KEY, weitereKartenebenenId],
+        ['geometry', geometry],
+        [WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, false],
+      ]),
       id: 1,
       geometry,
       isKnoten: false,
@@ -128,8 +128,8 @@ describe(WeitereKartenebenenRoutingService.name, () => {
     expect(tableRows.length).toBe(1);
     const tablecells = ngMocks.findAll(tableRows[0], 'td');
     expect(tablecells.length).toBe(2);
-    expect(tablecells[0].nativeElement.innerText).toEqual(visibleTestAttribut.key);
-    expect(tablecells[1].nativeElement.innerText).toEqual(visibleTestAttribut.value);
+    expect(tablecells[0].nativeElement.innerText).toEqual('test');
+    expect(tablecells[1].nativeElement.innerText).toEqual('TestValue');
 
     const header = ngMocks.find(el, 'h2');
     expect(header.nativeElement.innerText).toEqual(layerName);

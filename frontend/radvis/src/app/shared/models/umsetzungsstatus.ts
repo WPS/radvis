@@ -24,21 +24,19 @@ export enum Umsetzungsstatus {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Umsetzungsstatus {
-  export const options: EnumOption[] = Object.keys(Umsetzungsstatus).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Umsetzungsstatus.IDEE:
-          return { name: k, displayText: 'Idee' };
-        case Umsetzungsstatus.PLANUNG:
-          return { name: k, displayText: 'Planung' };
-        case Umsetzungsstatus.UMSETZUNG:
-          return { name: k, displayText: 'Umsetzung' };
-        case Umsetzungsstatus.UMGESETZT:
-          return { name: k, displayText: 'Umgesetzt' };
-        case Umsetzungsstatus.STORNIERT:
-          return { name: k, displayText: 'Storniert' };
-      }
-      throw new Error('Beschreibung für enum Umsetzungsstatus fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Umsetzungsstatus).map((k: string): EnumOption => {
+    switch (k) {
+      case Umsetzungsstatus.IDEE:
+        return { name: k, displayText: 'Idee' };
+      case Umsetzungsstatus.PLANUNG:
+        return { name: k, displayText: 'Planung' };
+      case Umsetzungsstatus.UMSETZUNG:
+        return { name: k, displayText: 'Umsetzung' };
+      case Umsetzungsstatus.UMGESETZT:
+        return { name: k, displayText: 'Umgesetzt' };
+      case Umsetzungsstatus.STORNIERT:
+        return { name: k, displayText: 'Storniert' };
     }
-  );
+    throw new Error('Beschreibung für enum Umsetzungsstatus fehlt: ' + k);
+  });
 }

@@ -161,11 +161,11 @@ public class ZustaendigkeitAttribute extends LinearReferenzierteAttribute {
 		return (!Objects.equals(baulastTraeger, other.baulastTraeger)
 			&& baulastTraeger != null && other.baulastTraeger != null)
 			|| (!Objects.equals(unterhaltsZustaendiger, other.unterhaltsZustaendiger)
-			&& unterhaltsZustaendiger != null && other.unterhaltsZustaendiger != null)
+				&& unterhaltsZustaendiger != null && other.unterhaltsZustaendiger != null)
 			|| (!Objects.equals(erhaltsZustaendiger, other.erhaltsZustaendiger)
-			&& erhaltsZustaendiger != null && other.erhaltsZustaendiger != null)
+				&& erhaltsZustaendiger != null && other.erhaltsZustaendiger != null)
 			|| (!Objects.equals(vereinbarungsKennung, other.vereinbarungsKennung)
-			&& vereinbarungsKennung != null && other.vereinbarungsKennung != null);
+				&& vereinbarungsKennung != null && other.vereinbarungsKennung != null);
 	}
 
 	public boolean sindAttributeGleich(ZustaendigkeitAttribute other) {

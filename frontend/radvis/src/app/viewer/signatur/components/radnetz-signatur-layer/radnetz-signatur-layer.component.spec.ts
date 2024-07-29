@@ -19,7 +19,7 @@ import { instance, mock, when } from 'ts-mockito';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { SignaturService } from 'src/app/viewer/signatur/services/signatur.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { WmsCapabilitiesService } from 'src/app/viewer/signatur/services/wms-capabilities.service';
 import { of } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';

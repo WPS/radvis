@@ -22,17 +22,15 @@ export enum Handlungsverantwortlicher {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Handlungsverantwortlicher {
-  export const options: EnumOption[] = Object.keys(Handlungsverantwortlicher).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Handlungsverantwortlicher.BAULASTTRAEGER:
-          return { name: k, displayText: 'Baulastträger' };
-        case Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK:
-          return { name: k, displayText: 'Verkehrsbehörde/-technik' };
-        case Handlungsverantwortlicher.BAULASTTRAEGER_UND_VERKEHRSBEHORDE_TECHNIK:
-          return { name: k, displayText: 'Baulastträger UND Verkehrsbehörde/-technik' };
-      }
-      throw new Error('Beschreibung für enum Handlungsverantwortlicher fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Handlungsverantwortlicher).map((k: string): EnumOption => {
+    switch (k) {
+      case Handlungsverantwortlicher.BAULASTTRAEGER:
+        return { name: k, displayText: 'Baulastträger' };
+      case Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK:
+        return { name: k, displayText: 'Verkehrsbehörde/-technik' };
+      case Handlungsverantwortlicher.BAULASTTRAEGER_UND_VERKEHRSBEHORDE_TECHNIK:
+        return { name: k, displayText: 'Baulastträger UND Verkehrsbehörde/-technik' };
     }
-  );
+    throw new Error('Beschreibung für enum Handlungsverantwortlicher fehlt: ' + k);
+  });
 }

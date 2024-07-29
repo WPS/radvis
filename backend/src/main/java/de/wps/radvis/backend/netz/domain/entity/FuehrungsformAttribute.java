@@ -459,7 +459,7 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 				trennstreifenForm != TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN;
 			if (hasTrennstreifenForm) {
 				require(!Objects.isNull(trennstreifenBreite) || TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.equals(
-						trennstreifenForm),
+					trennstreifenForm),
 					"Fehlende Trennstreifenbreite nur bei TrennungsForm 'Unbekannt', 'Trennung durch andere Art' oder 'Kein Sicherheitsstreifen vorhanden' erlaubt");
 
 				boolean nurTrennungZumParkenAllowed = trennstreifenNurParkenRadverkehrsfuehrungen.contains(

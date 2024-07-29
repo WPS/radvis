@@ -118,7 +118,7 @@ public abstract class LinearReferenzierteAttribute {
 	public static <T extends LinearReferenzierteAttribute> List<T> defragmentiereLinearReferenzierteAttribute(
 		List<T> attribute, double gesamtLaenge, double mindestLaengeProSegment) {
 		require(LinearReferenzierterAbschnitt.segmentsCoverFullLine(attribute.stream()
-				.map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt).collect(Collectors.toList())),
+			.map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt).collect(Collectors.toList())),
 			"LR-Attribute müssen von 0 bis 1 gehen (=coverFullLine), um defragmentiert werden zu können.");
 
 		attribute.sort(
@@ -178,9 +178,9 @@ public abstract class LinearReferenzierteAttribute {
 				interpoliert.add(nextSeg);
 			} else {
 				// interpolate
-				double lueckenLaenge =
-					nextSeg.getLinearReferenzierterAbschnitt().getVonValue() - seg.getLinearReferenzierterAbschnitt()
-						.getBisValue();
+				double lueckenLaenge = nextSeg.getLinearReferenzierterAbschnitt().getVonValue() - seg
+					.getLinearReferenzierterAbschnitt()
+					.getBisValue();
 				double interpolationspunkt = seg.getLinearReferenzierterAbschnitt().getBisValue() + lueckenLaenge / 2;
 
 				LinearReferenzierterAbschnitt interpoliertSeg = LinearReferenzierterAbschnitt
@@ -235,8 +235,8 @@ public abstract class LinearReferenzierteAttribute {
 	@SuppressWarnings("unchecked")
 	public static <T extends LinearReferenzierteAttribute> List<T> getReversedAttribute(List<T> attribute) {
 		require(LinearReferenzierterAbschnitt.segmentsCoverFullLine(
-				attribute.stream().map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
-					.collect(Collectors.toList())),
+			attribute.stream().map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+				.collect(Collectors.toList())),
 			"Linear referenzierte Attribute müssen eine gesamte Kante abdecken");
 
 		return attribute.stream()
@@ -295,8 +295,7 @@ public abstract class LinearReferenzierteAttribute {
 	// Das subset der LinearReferenzierten Attribute für den Ausschnitt der
 	// lineareReferenz ermitteln und diese normalisieren.
 	@SuppressWarnings("unchecked")
-	public static <T extends
-		LinearReferenzierteAttribute> List<T> projiziereAuschnittLinearReferenzierterAttributeAufLineareReferenz(
+	public static <T extends LinearReferenzierteAttribute> List<T> projiziereAuschnittLinearReferenzierterAttributeAufLineareReferenz(
 		List<T> linearReferenzierteAttribute, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt,
 		boolean muessenAttributeUmgedrehtWerden) {
 
@@ -309,10 +308,10 @@ public abstract class LinearReferenzierteAttribute {
 		// Ermittle Subset der LR Attribute, die lineareReferenzAufQuellnetzKante schneidet
 		List<T> ursprungsAttributeSortiertUndGefiltert = sortiereUndFiltereLineareReferenzen(
 			linearReferenzierteAttribute, linearReferenzierterAbschnitt)
-			// Wir wollen die bestehenden Attribute in diesem Schritt nicht verändern
-			.map(T::copyWithSameValues)
-			.map(t -> (T) t)
-			.collect(Collectors.toList());
+				// Wir wollen die bestehenden Attribute in diesem Schritt nicht verändern
+				.map(T::copyWithSameValues)
+				.map(t -> (T) t)
+				.collect(Collectors.toList());
 
 		ursprungsAttributeSortiertUndGefiltert = schneideAttributeAufLineareReferenzZu(linearReferenzierterAbschnitt,
 			ursprungsAttributeSortiertUndGefiltert);
@@ -341,8 +340,7 @@ public abstract class LinearReferenzierteAttribute {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends
-		LinearReferenzierteAttribute> List<T> normalisiereLineareReferenzierteAttributeAufUeberschneidung(
+	private static <T extends LinearReferenzierteAttribute> List<T> normalisiereLineareReferenzierteAttributeAufUeberschneidung(
 		List<T> ursprungsAttributeSortiertUndGefiltert,
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnittAufQuellnetzKante) {
 		double segementLaenge = linearReferenzierterAbschnittAufQuellnetzKante.getBisValue()
@@ -351,8 +349,8 @@ public abstract class LinearReferenzierteAttribute {
 		return ursprungsAttributeSortiertUndGefiltert.stream().map(t -> {
 			LinearReferenzierterAbschnitt korrigierteLinearReferenzierterAbschnitt = LinearReferenzierterAbschnitt
 				.of((t.getLinearReferenzierterAbschnitt().getVonValue()
-						- linearReferenzierterAbschnittAufQuellnetzKante.getVonValue())
-						/ segementLaenge,
+					- linearReferenzierterAbschnittAufQuellnetzKante.getVonValue())
+					/ segementLaenge,
 					(t.getLinearReferenzierterAbschnitt().getBisValue()
 						- linearReferenzierterAbschnittAufQuellnetzKante.getVonValue())
 						/ segementLaenge);

@@ -39,7 +39,10 @@ export class EditorMenuComponent {
   knotenAktiv$ = new BehaviorSubject<boolean>(false);
   anpassungenAktiv$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private routingService: EditorRoutingService, router: Router) {
+  constructor(
+    private routingService: EditorRoutingService,
+    router: Router
+  ) {
     this.kantenRoute = this.routingService.getKantenRoute();
     this.knotenRoute = this.routingService.getKnotenRoute();
 

@@ -39,4 +39,8 @@ export namespace TrennstreifenTrennungZu {
   export const optionsParken: EnumOption[] = [TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN].map(k =>
     toOption(k)
   );
+
+  export const displayText = (value: TrennstreifenTrennungZu): string => {
+    return TrennstreifenTrennungZu.options.find(opt => opt.name === value)!.displayText;
+  };
 }

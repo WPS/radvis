@@ -32,32 +32,40 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RadVisJobScheduler {
 	private final List<AbstractJob> allJobs;
+	private final List<String> radVisStartupJobSchedule;
+	private final List<String> radVisNaechtlicherJobSchedule;
 
-	public RadVisJobScheduler(List<AbstractJob> allJobs) {
+	public RadVisJobScheduler(
+		List<AbstractJob> allJobs,
+		List<String> radVisStartupJobSchedule,
+		List<String> radVisNaechtlicherJobSchedule
+	) {
 		this.allJobs = allJobs;
+		this.radVisStartupJobSchedule = radVisStartupJobSchedule;
+		this.radVisNaechtlicherJobSchedule = radVisNaechtlicherJobSchedule;
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void runOnStartup() {
-		runSchedule(new RadVisStartupJobSchedule());
+		runSchedule(new RadVisStartupJobSchedule(radVisStartupJobSchedule));
 	}
 
 	@Scheduled(cron = "${radVis.schedule.naechtlich}", zone = "Europe/Berlin")
 	public void runNaechtlich() {
-		runSchedule(new RadVisNaechtlicherJobSchedule());
+		runSchedule(new RadVisNaechtlicherJobSchedule(radVisNaechtlicherJobSchedule));
 	}
 
 	private void runSchedule(RadVisJobSchedule schedule) {
 		StopWatch stopWatch = new StopWatch();
 		log.info("Starte Schedule " + schedule.getClass().getSimpleName() + "...");
 		Map<String, String> failedJobs = new HashMap<>();
-		for (Class<? extends AbstractJob> clazz : schedule.jobsToRun()) {
-			Optional<AbstractJob> jobToRun = allJobs.stream().filter(job -> clazz.isInstance(job)).findAny();
+		for (String jobName : schedule.jobsToRun()) {
+			Optional<AbstractJob> jobToRun = allJobs.stream().filter(job -> jobName.equals(job.getName())).findAny();
 			if (jobToRun.isEmpty()) {
-				log.warn("Job der Klasse " + clazz + " nicht gefunden.");
+				log.warn("Job der Klasse " + jobName + " nicht gefunden.");
 			} else {
-				stopWatch.start(clazz.getSimpleName());
-				log.info("RadVisJobScheduler: Starte run-Methode von Job " + clazz.getSimpleName());
+				stopWatch.start(jobName);
+				log.info("RadVisJobScheduler: Starte run-Methode von Job " + jobName);
 				try {
 					jobToRun.get().run(schedule.forceRun());
 				} catch (Exception | RequireViolation e) {
@@ -66,12 +74,12 @@ public class RadVisJobScheduler {
 					}
 
 					String failureType = e.getClass().getName();
-					log.info("Job " + clazz.getSimpleName() + " fehlgeschlagen durch " + failureType);
-					failedJobs.put(clazz.getSimpleName(), failureType);
+					log.info("Job " + jobName + " fehlgeschlagen durch " + failureType);
+					failedJobs.put(jobName, failureType);
 				}
 
 				stopWatch.stop();
-				log.info("RadVisJobScheduler: Stoppe run-Methode von Job " + clazz.getSimpleName());
+				log.info("RadVisJobScheduler: Stoppe run-Methode von Job " + jobName);
 				log.info("RadVisJobScheduler: Laufzeit der run-Methode: " +
 					stopWatch.lastTaskInfo().getTimeMillis() / 1000 + " seconds");
 			}

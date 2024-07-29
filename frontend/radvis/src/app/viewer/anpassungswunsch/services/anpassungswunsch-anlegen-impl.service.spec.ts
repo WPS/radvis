@@ -41,9 +41,9 @@ describe(AnpassungswunschAnlegenServiceImpl.name, () => {
   });
 
   it('should create correct command', () => {
-    when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve(({
+    when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve({
       id: 1,
-    } as unknown) as Anpassungswunsch);
+    } as unknown as Anpassungswunsch);
 
     service.addAnpassungswunschFuerFehlerprotokoll([0, 10], 'Test Beschreibung', 'konsistenzregel/1');
 
@@ -58,9 +58,9 @@ describe(AnpassungswunschAnlegenServiceImpl.name, () => {
   });
 
   it('should handle too long beschreibung', () => {
-    when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve(({
+    when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve({
       id: 1,
-    } as unknown) as Anpassungswunsch);
+    } as unknown as Anpassungswunsch);
 
     service.addAnpassungswunschFuerFehlerprotokoll([0, 10], text1000Zeichen, 'konsistenzregel/1');
 

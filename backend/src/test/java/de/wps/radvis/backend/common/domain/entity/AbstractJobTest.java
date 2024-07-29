@@ -116,7 +116,7 @@ class AbstractJobTest {
 		job.executionCount.incrementAndGet();
 		when(jobExecutionDescriptionRepository.findFirstByNameEqualsOrderByExecutionStartDesc(
 			any())).thenReturn(Optional.of(defaultJobExecutionDescription
-		));
+			));
 
 		when(jobExecutionDescriptionRepository.save(
 			any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -146,7 +146,7 @@ class AbstractJobTest {
 		job.executionCount.incrementAndGet(); // execution 1
 		when(jobExecutionDescriptionRepository.findFirstByNameEqualsOrderByExecutionStartDesc(
 			TestAbstractJobImplementation.class.getSimpleName())).thenReturn(Optional.of(defaultJobExecutionDescription
-		));
+			));
 
 		when(jobExecutionDescriptionRepository.save(
 			any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));

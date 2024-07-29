@@ -278,6 +278,12 @@
       <nillable>true</nillable>
       <binding>java.lang.Integer</binding>
     </attribute>
+    <attribute>
+      <name>ext_bw_netzklassen</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>0</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>
   <skipNumberMatched>false</skipNumberMatched>

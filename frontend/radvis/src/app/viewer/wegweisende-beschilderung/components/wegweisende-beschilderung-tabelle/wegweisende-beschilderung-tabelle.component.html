@@ -24,13 +24,11 @@
   #sort="matSort"
   [sort]="sort"
   [sortingDataAccessor]="wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey"
-  (changeBreakpointState)="onChangeBreakpointState($event)"
->
+  (changeBreakpointState)="onChangeBreakpointState($event)">
   <button
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    (click)="onFilterReset()"
-  >
+    (click)="onFilterReset()">
     <mat-icon>filter_alt_off</mat-icon>
     Alle Filter zurücksetzen
   </button>

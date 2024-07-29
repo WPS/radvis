@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
@@ -28,6 +29,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -82,6 +85,7 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 	ZustaendigkeitsService zustaendigkeitsService;
 
 	Benutzer adminBenutzer;
+	PreparedGeometry boundingArea;
 
 	@BeforeEach
 	void setup() {
@@ -92,10 +96,12 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		adminBenutzer = BenutzerTestDataProvider
 			.admin(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.build();
+		MultiPolygon boundingAreaPolygon = GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000);
+		boundingArea = PreparedGeometryFactory.prepare(boundingAreaPolygon);
 
-		when(verwaltungseinheitService.getBundeslandBereichPrepared())
-			.thenReturn(
-				PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000)));
+		when(verwaltungseinheitService.getObersteGebietskoerperschaft())
+			.thenReturn(Optional.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().bereich(
+				boundingAreaPolygon).build()));
 		when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
 			true);
 	}

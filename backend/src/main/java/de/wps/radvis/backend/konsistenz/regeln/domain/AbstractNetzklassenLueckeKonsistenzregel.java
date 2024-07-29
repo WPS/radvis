@@ -20,18 +20,18 @@ import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 abstract public class AbstractNetzklassenLueckeKonsistenzregel implements Konsistenzregel {
 
-	private NetzklassenSackgassenService netzklassenSackgassenService;
+	private SackgassenService sackgassenService;
 
 	@Override
 	public List<KonsistenzregelVerletzungsDetails> pruefen() {
-		return netzklassenSackgassenService.bestimmeSackgassenknotenVonKantenFuerNetzklasse(getNetzklassen())
+		return sackgassenService.bestimmeSackgassenknotenVonKantenFuerNetzklasse(getNetzklassen())
 			.stream()
 			.map(this::createVerletzungDetails)
 			.collect(Collectors.toList());

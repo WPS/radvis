@@ -13,18 +13,18 @@
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, UntypedFormArray, UntypedFormGroup } from '@angular/forms';
-import { MassnahmenImportAttribute } from 'src/app/import/massnahmen/models/massnahmen-import-attribute';
-import { MassnahmenImportAttributeAuswaehlenCommand } from 'src/app/import/massnahmen/models/massnahmen-import-attribute-uebernehmen-command';
-import { MassnahmenImportService } from 'src/app/import/massnahmen/services/massnahmen-import.service';
-import { MassnahmenImportRoutingService } from 'src/app/import/massnahmen/services/massnahmen-routing.service';
-import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
-import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
-import { MassnahmenImportSessionView } from 'src/app/import/massnahmen/models/massnahmen-import-session-view';
 import { interval, Subscription } from 'rxjs';
 import { exhaustMap, startWith, take, takeWhile } from 'rxjs/operators';
+import { MassnahmenImportAttribute } from 'src/app/import/massnahmen/models/massnahmen-import-attribute';
+import { MassnahmenImportAttributeAuswaehlenCommand } from 'src/app/import/massnahmen/models/massnahmen-import-attribute-uebernehmen-command';
+import { MassnahmenImportSessionView } from 'src/app/import/massnahmen/models/massnahmen-import-session-view';
+import { MassnahmenImportService } from 'src/app/import/massnahmen/services/massnahmen-import.service';
+import { MassnahmenImportRoutingService } from 'src/app/import/massnahmen/services/massnahmen-routing.service';
+import { Severity } from 'src/app/import/models/import-session-view';
+import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
+import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import invariant from 'tiny-invariant';
-import { Severity } from 'src/app/import/models/import-session-view';
 
 @Component({
   selector: 'rad-import-massnahmen-attribute-auswaehlen',
@@ -36,7 +36,6 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
   private static readonly STEP = 2;
   session: MassnahmenImportSessionView | null = null;
   loading = false;
-  anyBoxChecked = false;
 
   massnahmenImportAlleAttribute = MassnahmenImportAttribute.alleAttribute;
   massnahmenImportPflichtAttributeOptions = MassnahmenImportAttribute.pflichtAttributeOptions;
@@ -45,6 +44,7 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
   formGroup: UntypedFormGroup;
   formControlMap: Map<MassnahmenImportAttribute, FormControl>;
   pollingSubscription: Subscription | undefined;
+  executing: boolean = false;
 
   constructor(
     private massnahmenImportService: MassnahmenImportService,
@@ -69,12 +69,6 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
       ),
     });
 
-    this.formGroup.valueChanges.subscribe(formGroupValue => {
-      this.anyBoxChecked =
-        formGroupValue.pflichtAttribute.some((val: boolean) => val) ||
-        formGroupValue.optionaleAttribute.some((val: boolean) => val);
-    });
-
     this.massnahmenImportService.getImportSession().subscribe(session => {
       this.session = session;
       if (session) {
@@ -95,19 +89,24 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
       .pipe(
         startWith(0),
         take(MassnahmenImportService.MAX_POLLING_CALLS),
-        takeWhile(() => this.validierungRunningOderAbgeschlossen || this.isAttributeValidierenRunning),
+        takeWhile(() => this.isAttributeValidierenRunning),
         exhaustMap(() => this.massnahmenImportService.getImportSession())
       )
       .subscribe({
         next: session => {
           this.session = session as MassnahmenImportSessionView;
-          this.changeDetectorRef.markForCheck();
           if (this.schrittAbgeschlossen) {
             this.navigateToNextStep();
           }
+          if (this.schrittAbgeschlossenOderFehler) {
+            this.executing = false;
+          }
+          this.changeDetectorRef.markForCheck();
         },
         error: () => {
           this.notifyUserService.warn('Fehler bei der Statusabfrage. Wurde der Import abgebrochen?');
+          this.executing = false;
+          this.changeDetectorRef.markForCheck();
         },
       });
   }
@@ -150,6 +149,8 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
       }
     });
 
+    this.executing = true;
+
     this.massnahmenImportService
       .attributeAuswaehlen({
         attribute: attribute,
@@ -160,15 +161,21 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
             this.session.executing = true;
           }
           this.startPolling();
-          this.notifyUserService.inform('Attribute werden validiert.');
         },
         error: err => {
           this.errorHandlingService.handleHttpError(err);
           this.formGroup.enable();
           this.changeDetectorRef.markForCheck();
-          this.loading = false;
+          this.executing = false;
         },
       });
+  }
+
+  get anyAttributSelected(): boolean {
+    return (
+      this.formGroup.value.pflichtAttribute.some((val: boolean) => val) ||
+      this.formGroup.value.optionaleAttribute.some((val: boolean) => val)
+    );
   }
 
   private navigateToNextStep(): void {
@@ -179,8 +186,8 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
     return this.session?.schritt === ImportMassnahmenAttributeAuswaehlenComponent.STEP && this.session?.executing;
   }
 
-  get validierungRunningOderAbgeschlossen(): boolean {
-    return this.isAttributeValidierenRunning || this.schrittAbgeschlossen || this.hasFehler;
+  get schrittAbgeschlossenOderFehler(): boolean {
+    return this.schrittAbgeschlossen || this.hasFehler;
   }
 
   get fehler(): string[] {
@@ -192,7 +199,7 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
   }
 
   openHandbuch(): void {
-    this.manualRoutingService.openUmsetzungsstandsabfragen();
+    this.manualRoutingService.openManualPflichtattribute();
   }
 
   ngOnDestroy(): void {

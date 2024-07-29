@@ -66,7 +66,7 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
   const layerId = 10;
 
   beforeEach(() => {
-    fixture = MockRender(WeitereWmsKartenebenenComponent, ({
+    fixture = MockRender(WeitereWmsKartenebenenComponent, {
       url: testUrl,
       name: 'testName',
       deckkraft: 1,
@@ -74,7 +74,7 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
       zindex: 1000,
       layerId,
       quelle: 'Testquelle',
-    } as unknown) as WeitereWmsKartenebenenComponent);
+    } as unknown as WeitereWmsKartenebenenComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });

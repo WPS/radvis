@@ -115,10 +115,10 @@ class MassnahmeServiceTest {
 			.build();
 
 		Knoten vonKnotenRadNETZ = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(100, 100),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(300L).build();
 		Knoten nachKnotenRadNETZ = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(200, 200),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(400L).build();
 		Kante kanteRadNETZ = KanteTestDataProvider.fromKnoten(vonKnotenRadNETZ, nachKnotenRadNETZ)
 			.id(20L)
@@ -214,9 +214,7 @@ class MassnahmeServiceTest {
 
 	@ParameterizedTest
 	@EnumSource(
-		value = NetzAenderungAusloeser.class,
-		names = { "RADVIS_KANTE_LOESCHEN" },
-		mode = EnumSource.Mode.EXCLUDE)
+		value = NetzAenderungAusloeser.class, names = { "RADVIS_KANTE_LOESCHEN" }, mode = EnumSource.Mode.EXCLUDE)
 	void testOnKanteGeloescht_ausloeserNichtRadVisKanteLoeschen_protokollEintrag(
 		NetzAenderungAusloeser netzAenderungAusloeser) {
 		// arrange
@@ -258,7 +256,8 @@ class MassnahmeServiceTest {
 		assertThat(abschnittsweiseDlm.getNetzbezug().getImmutableKantenAbschnittBezug()).hasSize(1);
 
 		@SuppressWarnings("unchecked")
-		ArgumentCaptor<List<Massnahme>> massnahmenCaptor = ArgumentCaptor.forClass(List.class);
+		ArgumentCaptor<List<Massnahme>> massnahmenCaptor = ArgumentCaptor.forClass(
+			List.class);
 		verify(massnahmeNetzbezugAenderungProtokollierungsService,
 			times(1)).protokolliereNetzBezugAenderungFuerGeloeschteKante(massnahmenCaptor.capture(), any());
 		assertThat(massnahmenCaptor.getValue()).containsExactlyInAnyOrder(abschnittsweiseRadVis,

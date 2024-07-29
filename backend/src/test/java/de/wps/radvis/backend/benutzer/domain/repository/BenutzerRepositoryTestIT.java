@@ -29,6 +29,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
@@ -38,16 +39,17 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @Tag("group4")
 @ContextConfiguration(classes = {
 	BenutzerConfiguration.class,
-	OrganisationConfiguration.class
-})
-@MockBeans({
-	@MockBean(GeoConverterConfiguration.class),
-	@MockBean(VerwaltungseinheitImportRepository.class),
-	@MockBean(MailService.class),
-	@MockBean(CommonConfigurationProperties.class)
+	OrganisationConfiguration.class,
+	GeoConverterConfiguration.class,
 })
 @EnableConfigurationProperties(value = {
-	TechnischerBenutzerConfigurationProperties.class
+	TechnischerBenutzerConfigurationProperties.class,
+	OrganisationConfigurationProperties.class,
+	CommonConfigurationProperties.class,
+})
+@MockBeans({
+	@MockBean(VerwaltungseinheitImportRepository.class),
+	@MockBean(MailService.class),
 })
 class BenutzerRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -101,8 +103,9 @@ class BenutzerRepositoryTestIT extends DBIntegrationTestIT {
 		List<BenutzerDBListView> dbListViewsObereGK = benutzerRepository.findAllDBListViewsInVerwaltungseinheitWithId(
 			obereGebietskoerperschaft.getId());
 
-		List<BenutzerDBListView> dbListViewsMittlereGK = benutzerRepository.findAllDBListViewsInVerwaltungseinheitWithId(
-			mittlereGebietskoerperschaft.getId());
+		List<BenutzerDBListView> dbListViewsMittlereGK = benutzerRepository
+			.findAllDBListViewsInVerwaltungseinheitWithId(
+				mittlereGebietskoerperschaft.getId());
 
 		// assert
 		assertThat(dbListViewsObereGK)

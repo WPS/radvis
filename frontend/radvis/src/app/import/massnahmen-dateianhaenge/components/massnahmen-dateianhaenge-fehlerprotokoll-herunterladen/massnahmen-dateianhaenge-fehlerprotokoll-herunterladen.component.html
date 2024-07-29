@@ -1,0 +1,47 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<rad-import-step-layout>
+  <div class="import-step-content">
+    <p>Die Dateianhänge wurden den entsprechenden Maßnahmen hinzugefügt.</p>
+    <div>
+      Folgende Statistiken ergeben sich:
+      <ul class="protokoll-list">
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlErfolgreichImportierterDateien }}</span> ausgewählte
+          Datei(en) wurden erfolgreich an Maßnahmen gespeichert.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlNichtErfolgreichImportierterDateien }}</span>
+          ausgewählte Datei(en) wurden nicht erfolgreich an Maßnahmen gespeichert.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlIgnorierterDateien }}</span> Datei(en) wurden nicht
+          ausgewählt oder ignoriert.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlFehlerhafterDateien }}</span> Datei(en) konnten aufgrund
+          von Fehlern nicht importiert werden.
+        </li>
+      </ul>
+      <p>Details finden Sie im Fehlerprotokoll:</p>
+      <button mat-stroked-button class="w-100" (click)="onDownloadFehlerProtokoll()">
+        Fehlerprotokoll herunterladen
+      </button>
+    </div>
+  </div>
+  <div class="import-step-footer-buttons">
+    <button mat-flat-button color="primary" (click)="onDone()">Abschließen</button>
+  </div>
+</rad-import-step-layout>

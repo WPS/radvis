@@ -54,9 +54,7 @@ export class OrganisationenService {
   }
 
   markAsQualitaetsgesichert(id: number): Promise<void> {
-    return this.http
-      .post<void>(`${this.url}/markAsQualitaetsgesichert`, { id })
-      .toPromise();
+    return this.http.post<void>(`${this.url}/markAsQualitaetsgesichert`, { id }).toPromise();
   }
 
   getBereichVonOrganisationAlsString(id: number | undefined): Promise<string> {

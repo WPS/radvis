@@ -73,33 +73,33 @@ public class MassnahmeListenView {
 			massnahmeListenDBView.getDurchfuehrungszeitraum(),
 			massnahmeListenDBView.getBaulastId() == null ? null
 				: new VerwaltungseinheitView(
-				massnahmeListenDBView.getBaulastId(),
-				massnahmeListenDBView.getBaulastName(),
-				massnahmeListenDBView.getBaulastOrganisationsArt(),
-				massnahmeListenDBView.getBaulastUebergeordneteOrganisationId(),
-				// Wir setzen aktiv einfach auf true, weil wir die DBView nicht um das aktiv Flag erweitern.
-				true),
+					massnahmeListenDBView.getBaulastId(),
+					massnahmeListenDBView.getBaulastName(),
+					massnahmeListenDBView.getBaulastOrganisationsArt(),
+					massnahmeListenDBView.getBaulastUebergeordneteOrganisationId(),
+					// Wir setzen aktiv einfach auf true, weil wir die DBView nicht um das aktiv Flag erweitern.
+					true),
 			massnahmeListenDBView.getPrioritaet(),
 			massnahmeListenDBView.getNetzklassen(),
 			massnahmeListenDBView.getLetzteAenderung(),
 			massnahmeListenDBView.getBenutzerLetzteAenderungId() == null ? null
 				: new BenutzerView(
-				massnahmeListenDBView.getBenutzerLetzteAenderungVorname(),
-				massnahmeListenDBView.getBenutzerLetzteAenderungNachname()),
+					massnahmeListenDBView.getBenutzerLetzteAenderungVorname(),
+					massnahmeListenDBView.getBenutzerLetzteAenderungNachname()),
 			massnahmeListenDBView.getZustaendigId() == null ? null
 				: new VerwaltungseinheitView(
-				massnahmeListenDBView.getZustaendigId(),
-				massnahmeListenDBView.getZustaendigName(),
-				massnahmeListenDBView.getZustaendigOrganisationsArt(),
-				massnahmeListenDBView.getZustaendigUebergeordneteOrganisationId(),
-				true),
+					massnahmeListenDBView.getZustaendigId(),
+					massnahmeListenDBView.getZustaendigName(),
+					massnahmeListenDBView.getZustaendigOrganisationsArt(),
+					massnahmeListenDBView.getZustaendigUebergeordneteOrganisationId(),
+					true),
 			massnahmeListenDBView.getUnterhaltId() == null ? null
 				: new VerwaltungseinheitView(
-				massnahmeListenDBView.getUnterhaltId(),
-				massnahmeListenDBView.getUnterhaltName(),
-				massnahmeListenDBView.getUnterhaltOrganisationsArt(),
-				massnahmeListenDBView.getUnterhaltUebergeordneteOrganisationId(),
-				true),
+					massnahmeListenDBView.getUnterhaltId(),
+					massnahmeListenDBView.getUnterhaltName(),
+					massnahmeListenDBView.getUnterhaltOrganisationsArt(),
+					massnahmeListenDBView.getUnterhaltUebergeordneteOrganisationId(),
+					true),
 			massnahmeListenDBView.getSollStandard(),
 			massnahmeListenDBView.getHandlungsverantwortlicher(),
 			massnahmeListenDBView.getDisplayGeometry());

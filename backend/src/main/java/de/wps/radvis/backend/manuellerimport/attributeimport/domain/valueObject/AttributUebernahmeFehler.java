@@ -17,6 +17,7 @@ package de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject
 import java.util.Set;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -29,4 +30,11 @@ public class AttributUebernahmeFehler {
 	private final Set<String> nichtUerbenommeneWerte;
 
 	private final LinearReferenzierterAbschnitt linearReferenzierterAbschnitt;
+
+	private final Seitenbezug seitenbezug;
+
+	public AttributUebernahmeFehler(String message, Set<String> nichtUerbenommeneWerte,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		this(message, nichtUerbenommeneWerte, linearReferenzierterAbschnitt, Seitenbezug.BEIDSEITIG);
+	}
 }

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 
 class VerwaltungseinheitTest {
 

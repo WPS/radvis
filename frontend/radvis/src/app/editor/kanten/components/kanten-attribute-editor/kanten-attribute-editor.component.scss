@@ -41,3 +41,10 @@
 .attribute-editor ::ng-deep .form-group {
   height: 1em;
 }
+
+.delete-button {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+}

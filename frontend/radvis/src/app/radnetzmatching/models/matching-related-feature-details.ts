@@ -12,12 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
+import { RadVisFeatureAttributes } from 'src/app/shared/models/rad-vis-feature-attributes';
 
 export interface MatchingRelatedFeatureDetails {
   layername: string;
   layerId: string;
   id: number;
-  attribute: RadVisFeatureAttribut[];
+  attributes: RadVisFeatureAttributes;
   isNetzfehler: boolean;
 }

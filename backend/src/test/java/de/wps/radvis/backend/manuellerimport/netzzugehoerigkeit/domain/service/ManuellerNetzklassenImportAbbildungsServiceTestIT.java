@@ -180,7 +180,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 	@BeforeEach
 	void setup() {
 		CoordinateReferenceSystemConverter coordinateReferenceSystemConverter = new CoordinateReferenceSystemConverter(
-			commonConfigurationProperties.getBadenWuerttembergEnvelope());
+			commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope());
 
 		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager,
 			barriereRepository, kantenRepository);
@@ -223,7 +223,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 
 		// assert
 		List<Kante> expectedKanten = (List<Kante>) entityManager.createQuery(
-				"SELECT kante FROM Kante kante WHERE kante.ursprungsfeatureTechnischeID IN :ids ")
+			"SELECT kante FROM Kante kante WHERE kante.ursprungsfeatureTechnischeID IN :ids ")
 			.setParameter("ids", List.of("34997", "26314"))
 			.getResultList();
 		assertThat(expectedKanten).hasSize(2);
@@ -276,7 +276,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 			"31887",
 			"36211");
 		List<Kante> expectedKanten = (List<Kante>) entityManager.createQuery(
-				"SELECT kante FROM Kante kante WHERE kante.ursprungsfeatureTechnischeID IN :ids ")
+			"SELECT kante FROM Kante kante WHERE kante.ursprungsfeatureTechnischeID IN :ids ")
 			.setParameter("ids", expectedKanteIds)
 			.getResultList();
 		assertThat(expectedKanten).hasSize(expectedKanteIds.size());
@@ -286,8 +286,6 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 				expectedKanten.stream().map(Kante::getId).collect(Collectors.toList()));
 	}
 
-	// aus performance gründen wird dieser test per default disabled
-	@Disabled
 	@Test
 	void generiereWKTFuerNetzklassenAbbildungDerBodenSeeDaten() throws IOException {
 		// arrange

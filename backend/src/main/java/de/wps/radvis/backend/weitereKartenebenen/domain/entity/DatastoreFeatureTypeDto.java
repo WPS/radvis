@@ -26,4 +26,3 @@ public class DatastoreFeatureTypeDto {
 	private String name;
 	private String href;
 }
-

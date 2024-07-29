@@ -21,24 +21,20 @@
       <input #input2 id="nord" type="text" formControlName="nord" placeholder="Nord" matInput />
     </mat-form-field>
     <button
-      [attr.aria-label]="'Eingabe zurücksetzen'"
       matTooltip="Eingabe zurücksetzen"
       type="button"
       [disabled]="!input1.value && !input2.value"
       (click)="onClearClick()"
       mat-icon-button
-      class="mat-icon-button-small"
-    >
+      class="mat-icon-button-small">
       <mat-icon>clear</mat-icon>
     </button>
     <button
-      [attr.aria-label]="'Gehe zu Koordinate'"
       matTooltip="Gehe zu Koordinate"
       type="submit"
       [disabled]="!input1.value || !input2.value"
       mat-icon-button
-      class="mat-icon-button-small"
-    >
+      class="mat-icon-button-small">
       <mat-icon>gps_fixed</mat-icon>
     </button>
   </form>

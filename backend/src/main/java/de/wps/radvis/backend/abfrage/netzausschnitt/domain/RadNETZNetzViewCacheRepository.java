@@ -28,10 +28,10 @@ public class RadNETZNetzViewCacheRepository extends StreckeViewCacheRepository<N
 	@Override
 	public void reloadCache() {
 		final var kantenMapViews = this.streckenVonKanten.stream().map(
-				streckeVonKanten -> new KanteMapView(streckeVonKanten.getKanten().get(0).getId(),
-					TopologyPreservingSimplifier
-						.simplify(streckeVonKanten.getStrecke(), DISTANCE_TOLERANCE),
-					false, true))
+			streckeVonKanten -> new KanteMapView(streckeVonKanten.getKanten().get(0).getId(),
+				TopologyPreservingSimplifier
+					.simplify(streckeVonKanten.getStrecke(), DISTANCE_TOLERANCE),
+				false, true))
 			.collect(Collectors.toSet());
 		this.cache = new NetzMapView(kantenMapViews, new ArrayList<>());
 	}

@@ -25,23 +25,21 @@ export enum StrassenkategorieRIN {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace StrassenkategorieRIN {
-  export const options: EnumOption[] = Object.keys(StrassenkategorieRIN).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case StrassenkategorieRIN.KONTINENTAL:
-          return { name: k, displayText: '  0 - kontinental' };
-        case StrassenkategorieRIN.GROSSRAEUMIG:
-          return { name: k, displayText: '  I - großräumig' };
-        case StrassenkategorieRIN.UEBERREGIONAL:
-          return { name: k, displayText: ' II - überregional' };
-        case StrassenkategorieRIN.REGIONAL:
-          return { name: k, displayText: 'III - regional' };
-        case StrassenkategorieRIN.NAHRAEUMIG:
-          return { name: k, displayText: ' IV - nahräumig' };
-        case StrassenkategorieRIN.KLEINRAEUMIG:
-          return { name: k, displayText: '  V - kleinräumig' };
-      }
-      throw new Error('Beschreibung für enum StrassenkategorieRIN fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(StrassenkategorieRIN).map((k: string): EnumOption => {
+    switch (k) {
+      case StrassenkategorieRIN.KONTINENTAL:
+        return { name: k, displayText: '  0 - kontinental' };
+      case StrassenkategorieRIN.GROSSRAEUMIG:
+        return { name: k, displayText: '  I - großräumig' };
+      case StrassenkategorieRIN.UEBERREGIONAL:
+        return { name: k, displayText: ' II - überregional' };
+      case StrassenkategorieRIN.REGIONAL:
+        return { name: k, displayText: 'III - regional' };
+      case StrassenkategorieRIN.NAHRAEUMIG:
+        return { name: k, displayText: ' IV - nahräumig' };
+      case StrassenkategorieRIN.KLEINRAEUMIG:
+        return { name: k, displayText: '  V - kleinräumig' };
     }
-  );
+    throw new Error('Beschreibung für enum StrassenkategorieRIN fehlt: ' + k);
+  });
 }

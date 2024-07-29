@@ -25,6 +25,8 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.command.MassnahmenImportAttributeAuswaehlenCommand;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.command.MassnahmenImportNetzbezugAktualisierenCommand;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.command.MassnahmenImportMassnahmenAuswaehlenCommand;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.command.StartMassnahmenImportSessionCommand;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 
@@ -68,7 +70,33 @@ public class ManuellerMassnahmenImportGuard {
 	public void attributeAuswaehlen(Authentication authentication,
 		MassnahmenImportAttributeAuswaehlenCommand command) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
 
+	public void netzbezuegeErstellen(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void netzbezugAktualisieren(Authentication authentication,
+		MassnahmenImportNetzbezugAktualisierenCommand command) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void saveMassnahmen(Authentication authentication,
+		MassnahmenImportMassnahmenAuswaehlenCommand command) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void getProtokollStats(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void downloadFehlerprotokoll(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 		authorizeManuellerMassnahmenImport(benutzer);
 	}
 }

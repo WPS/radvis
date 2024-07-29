@@ -64,6 +64,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
@@ -132,7 +133,6 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -272,14 +272,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getHoechstgeschwindigkeit())
-			.isEqualTo(
-				kante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
-					.getHoechstgeschwindigkeit());
+					.isEqualTo(
+						kante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
+							.getHoechstgeschwindigkeit());
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
-			.isEqualTo(kante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
-				.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung());
+					.isEqualTo(kante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
+						.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung());
 
 		assertThat(resultKante.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute()).hasSize(1);
 		final ZustaendigkeitAttribute zustaendigkeitAttribute = resultKante.getZustaendigkeitAttributGruppe()
@@ -475,7 +475,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		Kante imNiemandslandAusRadNetz = kantenRepository
 			.save(KanteTestDataProvider.withCoordinatesAndQuelle(1231209, 102838978,
-					12312309, 10283897, QuellSystem.RadNETZ)
+				12312309, 10283897, QuellSystem.RadNETZ)
 				.kantenAttributGruppe(new KantenAttributGruppe(KantenAttribute.builder()
 					.build(), Set.of(Netzklasse.RADNETZ_ALLTAG), new HashSet<>()))
 				.isGrundnetz(true)
@@ -483,7 +483,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		Kante imNiemandslandOhneNetzklassen = kantenRepository
 			.save(KanteTestDataProvider.withCoordinatesAndQuelle(3231209, 2838978,
-					33312309, 10283897, QuellSystem.DLM)
+				33312309, 10283897, QuellSystem.DLM)
 				.kantenAttributGruppe(new KantenAttributGruppe(KantenAttribute.builder()
 					.build(), new HashSet<>(), new HashSet<>()))
 				.isGrundnetz(true)
@@ -520,20 +520,20 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(kantenInBereichNachRadNetz).containsExactlyInAnyOrder(radNetz, radNetzUndKommunal);
 		assertThat(
 			kantenRepository.findById(radNetz.getId()).get().getKantenAttributGruppe().getNetzklassen()).contains(
-			Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT);
+				Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT);
 
 		assertThat(
 			kantenRepository.findById(radNetzUndKommunal.getId()).get().getKantenAttributGruppe()
 				.getNetzklassen()).contains(
-			Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG);
+					Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG);
 
 		assertThat(kantenInBereichNachRadNetz
 			.stream().map(Kante::getKantenAttributGruppe)
 			.map(KantenAttributGruppe::getNetzklassen)
 			.collect(Collectors.toList()))
-			.containsExactlyInAnyOrder(
-				Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT),
-				Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG));
+				.containsExactlyInAnyOrder(
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT),
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG));
 
 		assertThat(kantenInBereichNachOhneNetzklasse).size().isEqualTo(1);
 		assertThat(kantenInBereichNachOhneNetzklasse).containsExactlyInAnyOrder(keineNetzklasse);
@@ -589,18 +589,18 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(kantenInBereichNachRadNetz).containsExactlyInAnyOrder(radNetz, radNetzUndKommunal);
 		assertThat(
 			kantenRepository.findById(radNetz.getId()).get().getKantenAttributGruppe().getNetzklassen()).contains(
-			Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT);
+				Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT);
 
 		assertThat(
 			kantenRepository.findById(radNetzUndKommunal.getId()).get().getKantenAttributGruppe()
 				.getNetzklassen()).contains(
-			Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG);
+					Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG);
 		assertThat(kantenInBereichNachRadNetz
 			.stream().map(Kante::getKantenAttributGruppe)
 			.map(KantenAttributGruppe::getNetzklassen))
-			.containsExactlyInAnyOrder(
-				Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT),
-				Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG));
+				.containsExactlyInAnyOrder(
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_FREIZEIT),
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.KOMMUNALNETZ_ALLTAG));
 		assertThat(kantenInBereichNachRadNetz).containsExactlyInAnyOrder(radNetz, radNetzUndKommunal);
 
 	}
@@ -901,16 +901,16 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		Kante kante1 = kantenRepository
 			.save(KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM)
 				.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(
-						Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ,
-							Netzklasse.KOMMUNALNETZ_ALLTAG))
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ,
+						Netzklasse.KOMMUNALNETZ_ALLTAG))
 					.build())
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(10, 10), new Coordinate(20, 20)))
 				.build());
 		Kante kante2 = kantenRepository
 			.save(KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM)
 				.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(
-						Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ,
-							Netzklasse.KOMMUNALNETZ_ALLTAG))
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ,
+						Netzklasse.KOMMUNALNETZ_ALLTAG))
 					.build())
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(10, 20), new Coordinate(20, 20)))
 				.build());
@@ -966,10 +966,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	public void testCreateOrRefreshRadVisNetzMaterializedView() throws SQLException {
 		// Arrange
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000010),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000020),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
@@ -1087,11 +1087,11 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				Set<Netzklasse> netzklassen = kante.getKantenAttributGruppe().getNetzklassen();
 				put("netzklassen", netzklassen.isEmpty() ? null
 					: netzklassen.stream().map(Netzklasse::name)
-					.collect(Collectors.joining(";")));
+						.collect(Collectors.joining(";")));
 				Set<IstStandard> istStandards = kante.getKantenAttributGruppe().getIstStandards();
 				put("standards", istStandards.isEmpty() ? null
 					: istStandards.stream().map(IstStandard::name)
-					.collect(Collectors.joining(";")));
+						.collect(Collectors.joining(";")));
 				// fuehrungsform attribute
 
 				put("radverkehrsfuehrung", Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND.name());
@@ -1143,7 +1143,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			Netzklasse.RADSCHNELLVERBINDUNG);
 
 		Kante kante = KanteTestDataProvider.withCoordinates(
-				new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
+			new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
 			.quelle(QuellSystem.DLM)
 			.dlmId(DlmId.of("dlmId"))
 			.kantenAttributGruppe(
@@ -1185,7 +1185,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		);
 
 		Kante kante = KanteTestDataProvider.withCoordinates(
-				new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
+			new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
 			.quelle(QuellSystem.DLM)
 			.dlmId(DlmId.of("dlmId"))
 			.kantenAttributGruppe(
@@ -1222,10 +1222,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	public void testCreateOrRefreshRadVisNetzAbschnitteMaterializedView_kanteZweiseitig() throws SQLException {
 		// Arrange
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000010),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000020),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
@@ -1418,11 +1418,11 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				Set<Netzklasse> netzklassen = kante.getKantenAttributGruppe().getNetzklassen();
 				put("netzklassen", netzklassen.isEmpty() ? null
 					: netzklassen.stream().map(Netzklasse::name)
-					.collect(Collectors.joining(";")));
+						.collect(Collectors.joining(";")));
 				Set<IstStandard> istStandards = kante.getKantenAttributGruppe().getIstStandards();
 				put("standards", istStandards.isEmpty() ? null
 					: istStandards.stream().map(IstStandard::name)
-					.collect(Collectors.joining(";")));
+						.collect(Collectors.joining(";")));
 
 				// fuehrungsform attribute
 				put("radverkehrsfuehrung", Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND.name());
@@ -1468,210 +1468,226 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		PGobject geometry_links_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
 
-		Map<String, Object> expected_links_0__0_3 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_links_0__0_3);
-			put("balm_id", "dlmId_0-0.3");
-			put("seite", "LINKS");
-			put("id", kante.getId() + "_0-0.3_L");
+		Map<String, Object> expected_links_0__0_3 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_links_0__0_3);
+				put("balm_id", "dlmId_0-0.3");
+				put("seite", "LINKS");
+				put("id", kante.getId() + "_0-0.3_L");
 
-			put("belag_art", BelagArt.ASPHALT.name());
+				put("belag_art", BelagArt.ASPHALT.name());
 
-			put("ortslage", KantenOrtslage.INNERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
+				put("ortslage", KantenOrtslage.INNERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
 
-			put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
+				put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_links_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5)));
 
-		Map<String, Object> expected_links_0_3__0_5 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_links_0_3__0_5);
-			put("balm_id", "dlmId_0.3-0.5");
-			put("seite", "LINKS");
-			put("id", kante.getId() + "_0.3-0.5_L");
+		Map<String, Object> expected_links_0_3__0_5 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_links_0_3__0_5);
+				put("balm_id", "dlmId_0.3-0.5");
+				put("seite", "LINKS");
+				put("id", kante.getId() + "_0.3-0.5_L");
 
-			put("belag_art", BelagArt.ASPHALT.name());
+				put("belag_art", BelagArt.ASPHALT.name());
 
-			put("ortslage", KantenOrtslage.INNERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
+				put("ortslage", KantenOrtslage.INNERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
+				put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_links_0_5__0_7 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.7)));
 
-		Map<String, Object> expected_links_0_5__0_7 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_links_0_5__0_7);
-			put("balm_id", "dlmId_0.5-0.7");
-			put("seite", "LINKS");
-			put("id", kante.getId() + "_0.5-0.7_L");
+		Map<String, Object> expected_links_0_5__0_7 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_links_0_5__0_7);
+				put("balm_id", "dlmId_0.5-0.7");
+				put("seite", "LINKS");
+				put("id", kante.getId() + "_0.5-0.7_L");
 
-			put("belag_art", BelagArt.ASPHALT.name());
+				put("belag_art", BelagArt.ASPHALT.name());
 
-			put("ortslage", KantenOrtslage.AUSSERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
+				put("ortslage", KantenOrtslage.AUSSERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
+				put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_links_0_7__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.7, 1)));
 
-		Map<String, Object> expected_links_0_7__1 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_links_0_7__1);
-			put("balm_id", "dlmId_0.7-1");
-			put("seite", "LINKS");
-			put("id", kante.getId() + "_0.7-1_L");
+		Map<String, Object> expected_links_0_7__1 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_links_0_7__1);
+				put("balm_id", "dlmId_0.7-1");
+				put("seite", "LINKS");
+				put("id", kante.getId() + "_0.7-1_L");
 
-			put("belag_art", BelagArt.BETON.name());
+				put("belag_art", BelagArt.BETON.name());
 
-			put("ortslage", KantenOrtslage.AUSSERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
+				put("ortslage", KantenOrtslage.AUSSERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
+				put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_rechts_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
 
-		Map<String, Object> expected_rechts_0__0_3 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_rechts_0__0_3);
-			put("balm_id", "dlmId_0-0.3");
-			put("seite", "RECHTS");
-			put("id", kante.getId() + "_0-0.3_R");
+		Map<String, Object> expected_rechts_0__0_3 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_rechts_0__0_3);
+				put("balm_id", "dlmId_0-0.3");
+				put("seite", "RECHTS");
+				put("id", kante.getId() + "_0-0.3_R");
 
-			put("belag_art", BelagArt.NATURSTEINPFLASTER.name());
+				put("belag_art", BelagArt.NATURSTEINPFLASTER.name());
 
-			put("ortslage", KantenOrtslage.INNERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
+				put("ortslage", KantenOrtslage.INNERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
 
-			put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
+				put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_rechts_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5)));
 
-		Map<String, Object> expected_rechts_0_3__0_5 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_rechts_0_3__0_5);
-			put("balm_id", "dlmId_0.3-0.5");
-			put("seite", "RECHTS");
-			put("id", kante.getId() + "_0.3-0.5_R");
+		Map<String, Object> expected_rechts_0_3__0_5 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_rechts_0_3__0_5);
+				put("balm_id", "dlmId_0.3-0.5");
+				put("seite", "RECHTS");
+				put("id", kante.getId() + "_0.3-0.5_R");
 
-			put("belag_art", BelagArt.NATURSTEINPFLASTER.name());
+				put("belag_art", BelagArt.NATURSTEINPFLASTER.name());
 
-			put("ortslage", KantenOrtslage.INNERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
+				put("ortslage", KantenOrtslage.INNERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
+				put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_rechts_0_5__0_8 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.8)));
 
-		Map<String, Object> expected_rechts_0_5__0_8 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_rechts_0_5__0_8);
-			put("balm_id", "dlmId_0.5-0.8");
-			put("seite", "RECHTS");
-			put("id", kante.getId() + "_0.5-0.8_R");
+		Map<String, Object> expected_rechts_0_5__0_8 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_rechts_0_5__0_8);
+				put("balm_id", "dlmId_0.5-0.8");
+				put("seite", "RECHTS");
+				put("id", kante.getId() + "_0.5-0.8_R");
 
-			put("belag_art", BelagArt.NATURSTEINPFLASTER.name());
+				put("belag_art", BelagArt.NATURSTEINPFLASTER.name());
 
-			put("ortslage", KantenOrtslage.AUSSERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
+				put("ortslage", KantenOrtslage.AUSSERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
+				put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_rechts_0_8__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.8, 1)));
 
-		Map<String, Object> expected_rechts_0_8__1 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_rechts_0_8__1);
-			put("balm_id", "dlmId_0.8-1");
-			put("seite", "RECHTS");
-			put("id", kante.getId() + "_0.8-1_R");
+		Map<String, Object> expected_rechts_0_8__1 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_rechts_0_8__1);
+				put("balm_id", "dlmId_0.8-1");
+				put("seite", "RECHTS");
+				put("id", kante.getId() + "_0.8-1_R");
 
-			put("belag_art", BelagArt.WASSERGEBUNDENE_DECKE.name());
+				put("belag_art", BelagArt.WASSERGEBUNDENE_DECKE.name());
 
-			put("ortslage", KantenOrtslage.AUSSERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
+				put("ortslage", KantenOrtslage.AUSSERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
+				put("fahrtrichtung", Richtung.IN_RICHTUNG.name());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		assertThat(resultList).hasSize(8);
 		assertThat(resultList).contains(expected_links_0__0_3);
@@ -1688,10 +1704,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	public void testCreateOrRefreshRadVisNetzAbschnitteMaterializedView_kanteEinseitig() throws SQLException {
 		// Arrange
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000010),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000020),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
@@ -1842,11 +1858,11 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				Set<Netzklasse> netzklassen = kante.getKantenAttributGruppe().getNetzklassen();
 				put("netzklassen", netzklassen.isEmpty() ? null
 					: netzklassen.stream().map(Netzklasse::name)
-					.collect(Collectors.joining(";")));
+						.collect(Collectors.joining(";")));
 				Set<IstStandard> istStandards = kante.getKantenAttributGruppe().getIstStandards();
 				put("standards", istStandards.isEmpty() ? null
 					: istStandards.stream().map(IstStandard::name)
-					.collect(Collectors.joining(";")));
+						.collect(Collectors.joining(";")));
 
 				// fuehrungsform attribute
 				put("radverkehrsfuehrung", Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND.name());
@@ -1890,99 +1906,107 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		PGobject geometry_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
 
-		Map<String, Object> expected_0__0_3 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_0__0_3);
-			put("balm_id", "dlmId_0-0.3");
-			put("seite", "BEIDSEITIG");
-			put("id", kante.getId() + "_0-0.3");
+		Map<String, Object> expected_0__0_3 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_0__0_3);
+				put("balm_id", "dlmId_0-0.3");
+				put("seite", "BEIDSEITIG");
+				put("id", kante.getId() + "_0-0.3");
 
-			put("belag_art", BelagArt.ASPHALT.name());
+				put("belag_art", BelagArt.ASPHALT.name());
 
-			put("ortslage", KantenOrtslage.INNERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
+				put("ortslage", KantenOrtslage.INNERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("123").getValue());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5)));
 
-		Map<String, Object> expected_0_3__0_5 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_0_3__0_5);
-			put("balm_id", "dlmId_0.3-0.5");
-			put("seite", "BEIDSEITIG");
-			put("id", kante.getId() + "_0.3-0.5");
+		Map<String, Object> expected_0_3__0_5 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_0_3__0_5);
+				put("balm_id", "dlmId_0.3-0.5");
+				put("seite", "BEIDSEITIG");
+				put("id", kante.getId() + "_0.3-0.5");
 
-			put("belag_art", BelagArt.ASPHALT.name());
+				put("belag_art", BelagArt.ASPHALT.name());
 
-			put("ortslage", KantenOrtslage.INNERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
+				put("ortslage", KantenOrtslage.INNERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.MAX_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_0_5__0_7 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.7)));
 
-		Map<String, Object> expected_0_5__0_7 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_0_5__0_7);
-			put("balm_id", "dlmId_0.5-0.7");
-			put("seite", "BEIDSEITIG");
-			put("id", kante.getId() + "_0.5-0.7");
+		Map<String, Object> expected_0_5__0_7 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_0_5__0_7);
+				put("balm_id", "dlmId_0.5-0.7");
+				put("seite", "BEIDSEITIG");
+				put("id", kante.getId() + "_0.5-0.7");
 
-			put("belag_art", BelagArt.ASPHALT.name());
+				put("belag_art", BelagArt.ASPHALT.name());
 
-			put("ortslage", KantenOrtslage.AUSSERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
+				put("ortslage", KantenOrtslage.AUSSERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
-		}};
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+			}
+		};
 
 		PGobject geometry_0_7__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.7, 1)));
 
-		Map<String, Object> expected_0_7__1 = new HashMap<>(expectedCommon) {{
-			put("geometry", geometry_0_7__1);
-			put("balm_id", "dlmId_0.7-1");
-			put("seite", "BEIDSEITIG");
-			put("id", kante.getId() + "_0.7-1");
+		Map<String, Object> expected_0_7__1 = new HashMap<>(expectedCommon) {
+			{
+				put("geometry", geometry_0_7__1);
+				put("balm_id", "dlmId_0.7-1");
+				put("seite", "BEIDSEITIG");
+				put("id", kante.getId() + "_0.7-1");
 
-			put("belag_art", BelagArt.BETON.name());
+				put("belag_art", BelagArt.BETON.name());
 
-			put("ortslage", KantenOrtslage.AUSSERORTS.name());
-			put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
+				put("ortslage", KantenOrtslage.AUSSERORTS.name());
+				put("hoechstgeschwindigkeit", Hoechstgeschwindigkeit.UEBER_100_KMH.name());
 
-			put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
+				put("vereinbarungs_kennung", VereinbarungsKennung.of("456").getValue());
 
-			put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
-			put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
-			put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
-			put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
-			put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
-			put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
+				put("sts_b_l", BigDecimal.valueOf(Laenge.of(2.5).getValue()));
+				put("sts_b_r", BigDecimal.valueOf(Laenge.of(3.5).getValue()));
+				put("sts_f_l", TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.name());
+				put("sts_f_r", TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN.name());
+				put("sts_t_l", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR.name());
+				put("sts_t_r", TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN.name());
 
-		}};
+			}
+		};
 
 		assertThat(resultList).hasSize(4);
 		assertThat(resultList).contains(expected_0__0_3);
@@ -1995,10 +2019,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	public void testGeoserverBalmView_KanteEinseitig() throws SQLException {
 		// Arrange
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000010),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000020),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
@@ -2121,8 +2145,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.build()); // sollte nicht in der view auftauchen, da keine Netzklasse gesetzt ist
 
 		kantenRepository.save(KanteTestDataProvider.withDefaultValues().kantenAttributGruppe(
-				new KantenAttributGruppe(kantenAttribute,
-					new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)), new HashSet<>()))
+			new KantenAttributGruppe(kantenAttribute,
+				new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)), new HashSet<>()))
 			.build()); // sollte nicht in der View auftauchen, da nur RADNETZ_ZIELNETZ
 
 		Kante kanteMitRoutenzugehoerigkeit = kantenRepository.save(KanteTestDataProvider.withDefaultValues().geometry(
@@ -2186,187 +2210,202 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			GeometryTestdataProvider.getAbschnitt(lineString_3d, LinearReferenzierterAbschnitt.of(0, 0.3))
 		);
 
-		Map<String, Object> expected_0__0_3 = new HashMap<>() {{
-			put("StreckenID", "084000005000010084000005000013");
-			put("Quell-ID", "dlmId_0-0.3");
-			put("GeometrieAbschnitt", geometry_0__0_3);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 3);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 0);
-			put("ext_bw_hat_gegenseite", 0);
-		}};
+		Map<String, Object> expected_0__0_3 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000010084000005000013");
+				put("Quell-ID", "dlmId_0-0.3");
+				put("GeometrieAbschnitt", geometry_0__0_3);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 3);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.RADNETZ_ALLTAG.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 0);
+				put("ext_bw_hat_gegenseite", 0);
+			}
+		};
 
 		PGobject geometry_0_3__0_5 = PostGisHelper.getPGobject3D(
 			GeometryTestdataProvider.getAbschnitt(lineString_3d, LinearReferenzierterAbschnitt.of(0.3, 0.5)));
 
-		Map<String, Object> expected_0_3__0_5 = new HashMap<>() {{
-			put("StreckenID", "084000005000013084000005000015");
-			put("Quell-ID", "dlmId_0.3-0.5");
-			put("GeometrieAbschnitt", geometry_0_3__0_5);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 2);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 0);
-			put("ext_bw_hat_gegenseite", 0);
-		}};
+		Map<String, Object> expected_0_3__0_5 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000013084000005000015");
+				put("Quell-ID", "dlmId_0.3-0.5");
+				put("GeometrieAbschnitt", geometry_0_3__0_5);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 2);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.RADNETZ_ALLTAG.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 0);
+				put("ext_bw_hat_gegenseite", 0);
+			}
+		};
 
 		PGobject geometry_0_5__0_7 = PostGisHelper.getPGobject3D(
 			GeometryTestdataProvider.getAbschnitt(lineString_3d, LinearReferenzierterAbschnitt.of(0.5, 0.7)));
 
-		Map<String, Object> expected_0_5__0_7 = new HashMap<>() {{
-			put("StreckenID", "084000005000015084000005000017");
-			put("Quell-ID", "dlmId_0.5-0.7");
-			put("GeometrieAbschnitt", geometry_0_5__0_7);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 2);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 0);
-			put("ext_bw_hat_gegenseite", 0);
-		}};
+		Map<String, Object> expected_0_5__0_7 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000015084000005000017");
+				put("Quell-ID", "dlmId_0.5-0.7");
+				put("GeometrieAbschnitt", geometry_0_5__0_7);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 2);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.RADNETZ_ALLTAG.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 0);
+				put("ext_bw_hat_gegenseite", 0);
+			}
+		};
 
 		PGobject geometry_0_7__1 = PostGisHelper.getPGobject3D(
 			GeometryTestdataProvider.getAbschnitt(lineString_3d, LinearReferenzierterAbschnitt.of(0.7, 1)));
 
-		Map<String, Object> expected_0_7__1 = new HashMap<>() {{
-			put("StreckenID", "084000005000017084000005000020");
-			put("Quell-ID", "dlmId_0.7-1");
-			put("GeometrieAbschnitt", geometry_0_7__1);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "120");
-			put("Laenge", 3);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 0);
-			put("ext_bw_hat_gegenseite", 0);
-		}};
+		Map<String, Object> expected_0_7__1 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000017084000005000020");
+				put("Quell-ID", "dlmId_0.7-1");
+				put("GeometrieAbschnitt", geometry_0_7__1);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "120");
+				put("Laenge", 3);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.RADNETZ_ALLTAG.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 0);
+				put("ext_bw_hat_gegenseite", 0);
+			}
+		};
 
 		PGobject geometry_mitRoutenzugehoerigkeit = PostGisHelper.getPGobject3D(
 			kanteMitRoutenzugehoerigkeit_3dLineString);
 
-		Map<String, Object> expected_mitRoutenzugehoerigkeit = new HashMap<>() {{
-			put("StreckenID", "084500005400000084500305400030");
-			put("Quell-ID", "dlm-id");
-			put("GeometrieAbschnitt", geometry_mitRoutenzugehoerigkeit);
-			put("Fuehrung", "900");
-			put("Richtung", "9");
-			put("Belag", "900");
-			put("Laenge", 42);
-			put("Licht", null);
-			put("Breite", null);
-			put("Lage", null);
-			put("B-Pflicht", null);
-			put("Bewertung", "9");
-			put("Bewert_1", null);
-			put("Baulast", "9");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", null);
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + landesradfernweg.getId());
-			put("Routenname", landesradfernweg.getName().getName());
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 0);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 0);
-			put("ext_bw_hat_gegenseite", 0);
-		}};
+		Map<String, Object> expected_mitRoutenzugehoerigkeit = new HashMap<>() {
+			{
+				put("StreckenID", "084500005400000084500305400030");
+				put("Quell-ID", "dlm-id");
+				put("GeometrieAbschnitt", geometry_mitRoutenzugehoerigkeit);
+				put("Fuehrung", "900");
+				put("Richtung", "9");
+				put("Belag", "900");
+				put("Laenge", 42);
+				put("Licht", null);
+				put("Breite", null);
+				put("Lage", null);
+				put("B-Pflicht", null);
+				put("Bewertung", "9");
+				put("Bewert_1", null);
+				put("Baulast", "9");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", null);
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + landesradfernweg.getId());
+				put("Routenname", landesradfernweg.getName().getName());
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", null);
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 0);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 0);
+				put("ext_bw_hat_gegenseite", 0);
+			}
+		};
 
 		assertThat(resultList).hasSize(5);
 		assertThat(resultList).contains(expected_0__0_3);
@@ -2380,10 +2419,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	public void testGeoserverBalmView_kanteZweiseitig() throws SQLException {
 		// Arrange
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000010),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000020),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
@@ -2580,301 +2619,333 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3))
 				.reverse());
 
-		Map<String, Object> expected_links_0__0_3 = new HashMap<>() {{
-			put("StreckenID", "084000005000013084000005000010");
-			put("Quell-ID", "-dlmId_0-0.3");
-			put("GeometrieAbschnitt", geometry_links_0__0_3);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 3);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0__0_3 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000013084000005000010");
+				put("Quell-ID", "-dlmId_0-0.3");
+				put("GeometrieAbschnitt", geometry_links_0__0_3);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 3);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_links_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5))
 				.reverse());
 
-		Map<String, Object> expected_links_0_3__0_5 = new HashMap<>() {{
-			put("StreckenID", "084000005000015084000005000013");
-			put("Quell-ID", "-dlmId_0.3-0.5");
-			put("GeometrieAbschnitt", geometry_links_0_3__0_5);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 2);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0_3__0_5 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000015084000005000013");
+				put("Quell-ID", "-dlmId_0.3-0.5");
+				put("GeometrieAbschnitt", geometry_links_0_3__0_5);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 2);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_links_0_5__0_7 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.7))
 				.reverse());
 
-		Map<String, Object> expected_links_0_5__0_7 = new HashMap<>() {{
-			put("StreckenID", "084000005000017084000005000015");
-			put("Quell-ID", "-dlmId_0.5-0.7");
-			put("GeometrieAbschnitt", geometry_links_0_5__0_7);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 2);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0_5__0_7 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000017084000005000015");
+				put("Quell-ID", "-dlmId_0.5-0.7");
+				put("GeometrieAbschnitt", geometry_links_0_5__0_7);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 2);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_links_0_7__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.7, 1))
 				.reverse());
 
-		Map<String, Object> expected_links_0_7__1 = new HashMap<>() {{
-			put("StreckenID", "084000005000020084000005000017");
-			put("Quell-ID", "-dlmId_0.7-1");
-			put("GeometrieAbschnitt", geometry_links_0_7__1);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "120");
-			put("Laenge", 3);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0_7__1 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000020084000005000017");
+				put("Quell-ID", "-dlmId_0.7-1");
+				put("GeometrieAbschnitt", geometry_links_0_7__1);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "120");
+				put("Laenge", 3);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
 
-		Map<String, Object> expected_rechts_0__0_3 = new HashMap<>() {{
-			put("StreckenID", "084000005000010084000005000013");
-			put("Quell-ID", "dlmId_0-0.3");
-			put("GeometrieAbschnitt", geometry_rechts_0__0_3);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "132");
-			put("Laenge", 3);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0__0_3 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000010084000005000013");
+				put("Quell-ID", "dlmId_0-0.3");
+				put("GeometrieAbschnitt", geometry_rechts_0__0_3);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "132");
+				put("Laenge", 3);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5)));
 
-		Map<String, Object> expected_rechts_0_3__0_5 = new HashMap<>() {{
-			put("StreckenID", "084000005000013084000005000015");
-			put("Quell-ID", "dlmId_0.3-0.5");
-			put("GeometrieAbschnitt", geometry_rechts_0_3__0_5);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "132");
-			put("Laenge", 2);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0_3__0_5 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000013084000005000015");
+				put("Quell-ID", "dlmId_0.3-0.5");
+				put("GeometrieAbschnitt", geometry_rechts_0_3__0_5);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "132");
+				put("Laenge", 2);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0_5__0_8 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.8)));
 
-		Map<String, Object> expected_rechts_0_5__0_8 = new HashMap<>() {{
-			put("StreckenID", "084000005000015084000005000018");
-			put("Quell-ID", "dlmId_0.5-0.8");
-			put("GeometrieAbschnitt", geometry_rechts_0_5__0_8);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "132");
-			put("Laenge", 3);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0_5__0_8 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000015084000005000018");
+				put("Quell-ID", "dlmId_0.5-0.8");
+				put("GeometrieAbschnitt", geometry_rechts_0_5__0_8);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "132");
+				put("Laenge", 3);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0_8__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.8, 1)));
 
-		Map<String, Object> expected_rechts_0_8__1 = new HashMap<>() {{
-			put("StreckenID", "084000005000018084000005000020");
-			put("Quell-ID", "dlmId_0.8-1");
-			put("GeometrieAbschnitt", geometry_rechts_0_8__1);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "200");
-			put("Laenge", 2);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
-			put("Routenname", "De,Ruhte;LRFW");
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 1);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0_8__1 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000018084000005000020");
+				put("Quell-ID", "dlmId_0.8-1");
+				put("GeometrieAbschnitt", geometry_rechts_0_8__1);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "200");
+				put("Laenge", 2);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", "08-" + routeDRoute.getId() + ";08-" + routeLrfw.getId());
+				put("Routenname", "De,Ruhte;LRFW");
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 1);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		assertThat(resultList).hasSize(8);
 		assertThat(resultList).contains(expected_links_0__0_3);
@@ -2891,10 +2962,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	public void testGeoserverBalmView_kleineAbschnitte() throws SQLException {
 		// Arrange
 		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000010),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(400000, 5000110),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.build();
 
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
@@ -3099,301 +3170,333 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3))
 				.reverse());
 
-		Map<String, Object> expected_links_0__0_3 = new HashMap<>() {{
-			put("StreckenID", "084000005000040084000005000010");
-			put("Quell-ID", "-dlmId_0-0.3");
-			put("GeometrieAbschnitt", geometry_links_0__0_3);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 30);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0__0_3 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000040084000005000010");
+				put("Quell-ID", "-dlmId_0-0.3");
+				put("GeometrieAbschnitt", geometry_links_0__0_3);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 30);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_links_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5))
 				.reverse());
 
-		Map<String, Object> expected_links_0_3__0_5 = new HashMap<>() {{
-			put("StreckenID", "084000005000060084000005000040");
-			put("Quell-ID", "-dlmId_0.3-0.5");
-			put("GeometrieAbschnitt", geometry_links_0_3__0_5);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 20);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0_3__0_5 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000060084000005000040");
+				put("Quell-ID", "-dlmId_0.3-0.5");
+				put("GeometrieAbschnitt", geometry_links_0_3__0_5);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 20);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_links_0_5__0_7 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.7))
 				.reverse());
 
-		Map<String, Object> expected_links_0_5__0_7 = new HashMap<>() {{
-			put("StreckenID", "084000005000080084000005000060");
-			put("Quell-ID", "-dlmId_0.5-0.7");
-			put("GeometrieAbschnitt", geometry_links_0_5__0_7);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "110");
-			put("Laenge", 20);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0_5__0_7 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000080084000005000060");
+				put("Quell-ID", "-dlmId_0.5-0.7");
+				put("GeometrieAbschnitt", geometry_links_0_5__0_7);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "110");
+				put("Laenge", 20);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_links_0_7__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.7, 1))
 				.reverse());
 
-		Map<String, Object> expected_links_0_7__1 = new HashMap<>() {{
-			put("StreckenID", "084000005000110084000005000080");
-			put("Quell-ID", "-dlmId_0.7-1");
-			put("GeometrieAbschnitt", geometry_links_0_7__1);
-			put("Fuehrung", "401");
-			put("Richtung", "1");
-			put("Belag", "120");
-			put("Laenge", 30);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_links_0_7__1 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000110084000005000080");
+				put("Quell-ID", "-dlmId_0.7-1");
+				put("GeometrieAbschnitt", geometry_links_0_7__1);
+				put("Fuehrung", "401");
+				put("Richtung", "1");
+				put("Belag", "120");
+				put("Laenge", 30);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
 
-		Map<String, Object> expected_rechts_0__0_3 = new HashMap<>() {{
-			put("StreckenID", "084000005000010084000005000040");
-			put("Quell-ID", "dlmId_0-0.3");
-			put("GeometrieAbschnitt", geometry_rechts_0__0_3);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "132");
-			put("Laenge", 30);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0__0_3 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000010084000005000040");
+				put("Quell-ID", "dlmId_0-0.3");
+				put("GeometrieAbschnitt", geometry_rechts_0__0_3);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "132");
+				put("Laenge", 30);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0_3__0_5 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.3, 0.5)));
 
-		Map<String, Object> expected_rechts_0_3__0_5 = new HashMap<>() {{
-			put("StreckenID", "084000005000040084000005000060");
-			put("Quell-ID", "dlmId_0.3-0.5");
-			put("GeometrieAbschnitt", geometry_rechts_0_3__0_5);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "132");
-			put("Laenge", 20);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "1");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", 100);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0_3__0_5 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000040084000005000060");
+				put("Quell-ID", "dlmId_0.3-0.5");
+				put("GeometrieAbschnitt", geometry_rechts_0_3__0_5);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "132");
+				put("Laenge", 20);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "1");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", 100);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0_5__0_8 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.5, 0.8)));
 
-		Map<String, Object> expected_rechts_0_5__0_8 = new HashMap<>() {{
-			put("StreckenID", "084000005000060084000005000090");
-			put("Quell-ID", "dlmId_0.5-0.8");
-			put("GeometrieAbschnitt", geometry_rechts_0_5__0_8);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "132");
-			put("Laenge", 30);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0_5__0_8 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000060084000005000090");
+				put("Quell-ID", "dlmId_0.5-0.8");
+				put("GeometrieAbschnitt", geometry_rechts_0_5__0_8);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "132");
+				put("Laenge", 30);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		PGobject geometry_rechts_0_8__1 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0.8, 1)));
 
-		Map<String, Object> expected_rechts_0_8__1 = new HashMap<>() {{
-			put("StreckenID", "084000005000090084000005000110");
-			put("Quell-ID", "dlmId_0.8-1");
-			put("GeometrieAbschnitt", geometry_rechts_0_8__1);
-			put("Fuehrung", "401");
-			put("Richtung", "2");
-			put("Belag", "200");
-			put("Laenge", 20);
-			put("Licht", "1");
-			put("Breite", 100);
-			put("Lage", "2");
-			put("B-Pflicht", 1);
-			put("Bewertung", "4");
-			put("Bewert_1", null);
-			put("Baulast", "3");
-			put("Baulast_3", null);
-			put("Status", "10");
-			put("Status_1", null);
-			put("Status_2", null);
-			put("Tempo", null);
-			put("Str_name", "HHWJ");
-			put("Datum", null);
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-			put("Routen_ID", null);
-			put("Routenname", null);
-			put("ext_bw_EuroVelo", null);
-			put("ext_bw_RadNETZ_D", 0);
-			put("ext_bw_Landesnetz", 1);
-			put("ext_bw_Kreisnetz", 0);
-			put("ext_bw_KommuNetz", 1);
-			put("ext_bw_hat_gegenseite", 1);
-		}};
+		Map<String, Object> expected_rechts_0_8__1 = new HashMap<>() {
+			{
+				put("StreckenID", "084000005000090084000005000110");
+				put("Quell-ID", "dlmId_0.8-1");
+				put("GeometrieAbschnitt", geometry_rechts_0_8__1);
+				put("Fuehrung", "401");
+				put("Richtung", "2");
+				put("Belag", "200");
+				put("Laenge", 20);
+				put("Licht", "1");
+				put("Breite", 100);
+				put("Lage", "2");
+				put("B-Pflicht", 1);
+				put("Bewertung", "4");
+				put("Bewert_1", null);
+				put("Baulast", "3");
+				put("Baulast_3", null);
+				put("Status", "10");
+				put("Status_1", null);
+				put("Status_2", null);
+				put("Tempo", null);
+				put("Str_name", "HHWJ");
+				put("Datum", null);
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+				put("Routen_ID", null);
+				put("Routenname", null);
+				put("ext_bw_EuroVelo", null);
+				put("ext_bw_netzklassen", Netzklasse.KOMMUNALNETZ_FREIZEIT.name() + ";" + Netzklasse.RADNETZ_ALLTAG
+					.name());
+				put("ext_bw_RadNETZ_D", 0);
+				put("ext_bw_Landesnetz", 1);
+				put("ext_bw_Kreisnetz", 0);
+				put("ext_bw_KommuNetz", 1);
+				put("ext_bw_hat_gegenseite", 1);
+			}
+		};
 
 		assertThat(resultList).hasSize(8);
 		assertThat(resultList).contains(expected_links_0__0_3);
@@ -3416,7 +3519,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.quelle(QuellSystem.RadVis)
 			.build();
 		Kante richtungsBasiertAberNichtGrundnetz = KanteTestDataProvider.withFahrtrichtung(100, 100, 200, 200,
-				Richtung.IN_RICHTUNG)
+			Richtung.IN_RICHTUNG)
 			.dlmId(null)
 			.quelle(QuellSystem.RadNETZ).build();
 		Kante beidseitig = KanteTestDataProvider.withFahrtrichtung(40, 40, 50, 50, Richtung.BEIDE_RICHTUNGEN)
@@ -3533,7 +3636,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	@Test
 	void getFuerOsmAbbildungRelevanteKanten_BelagNotDefault_statusFiktiv() {
 		// arrange
-		FuehrungsformAttribute fuehrungsformAttributeLinksRechts = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformAttributeLinksRechts = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.belagArt(BelagArt.BETON)
 			.build();
 
@@ -3742,11 +3846,13 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	void getFuerOsmAbbildungRelevanteKanten_FuehrungsformLR() {
 		// arrange
 		// Erster Abschnitt default
-		FuehrungsformAttribute fuehrungsformAttributeLinksRechts1 = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformAttributeLinksRechts1 = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.5))
 			.build();
 		// Zweiter Abschnitt nicht default
-		FuehrungsformAttribute fuehrungsformAttributeLinksRechts2 = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformAttributeLinksRechts2 = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.belagArt(BelagArt.NATURSTEINPFLASTER)
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1.0))
 			.build();
@@ -3790,7 +3896,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		long osmWayId1 = 123L;
 
-		FuehrungsformAttribute fuehrungsformLinksRechts = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformLinksRechts = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.oberflaechenbeschaffenheit(oberflaeche)
 			.breite(breite)
 			.radverkehrsfuehrung(radverkehrsfuehrung)
@@ -3899,7 +4006,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		Status status = Status.KONZEPTION;
 		Set<Netzklasse> netzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG);
 
-		FuehrungsformAttribute fuehrungsformLinksRechts = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformLinksRechts = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.oberflaechenbeschaffenheit(oberflaeche)
 			.breite(breite)
 			.radverkehrsfuehrung(radverkehrsfuehrung)
@@ -3995,9 +4103,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		Kante kante_mitAllenNetzklassen = kantenRepository
 			.save(KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM)
 				.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(
-						Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ,
-							Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_FREIZEIT, Netzklasse.KREISNETZ_ALLTAG,
-							Netzklasse.KREISNETZ_FREIZEIT, Netzklasse.RADSCHNELLVERBINDUNG, Netzklasse.RADVORRANGROUTEN))
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ,
+						Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_FREIZEIT, Netzklasse.KREISNETZ_ALLTAG,
+						Netzklasse.KREISNETZ_FREIZEIT, Netzklasse.RADSCHNELLVERBINDUNG, Netzklasse.RADVORRANGROUTEN))
 					.build())
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(10, 10), new Coordinate(20, 20)))
 				.build());
@@ -4053,7 +4161,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// act
-		List<KanteElevationView> kanteElevationViews = kantenRepository.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry()
+		List<KanteElevationView> kanteElevationViews = kantenRepository
+			.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry()
 			.stream().toList();
 
 		// assert
@@ -4092,7 +4201,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			)));
 
 		// act
-		List<KanteElevationView> kanteElevationViews = kantenRepository.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry()
+		List<KanteElevationView> kanteElevationViews = kantenRepository
+			.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry()
 			.stream().toList();
 
 		// assert
@@ -4131,7 +4241,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			)));
 
 		// act
-		List<KanteElevationView> kanteElevationViews = kantenRepository.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry()
+		List<KanteElevationView> kanteElevationViews = kantenRepository
+			.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry()
 			.stream().toList();
 
 		// assert

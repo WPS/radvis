@@ -23,19 +23,17 @@ export enum ArtDerAuswertung {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ArtDerAuswertung {
-  export const options: EnumOption[] = Object.keys(ArtDerAuswertung).map(
-    (o: string): EnumOption => {
-      switch (o) {
-        case ArtDerAuswertung.DURCHSCHNITT_PRO_STUNDE:
-          return { name: o, displayText: 'Durchschnitt pro Stunde' };
-        case ArtDerAuswertung.DURCHSCHNITT_PRO_WOCHENTAG:
-          return { name: o, displayText: 'Durchschnitt pro Wochentag' };
-        case ArtDerAuswertung.DURCHSCHNITT_PRO_MONAT:
-          return { name: o, displayText: 'Durchschnitt pro Monat' };
-        case ArtDerAuswertung.SUMME_PRO_JAHR:
-          return { name: o, displayText: 'Summe pro Jahr' };
-      }
-      throw new Error('Beschreibung für enum ArtDerAuswertung fehlt: ' + o);
+  export const options: EnumOption[] = Object.keys(ArtDerAuswertung).map((o: string): EnumOption => {
+    switch (o) {
+      case ArtDerAuswertung.DURCHSCHNITT_PRO_STUNDE:
+        return { name: o, displayText: 'Durchschnitt pro Stunde' };
+      case ArtDerAuswertung.DURCHSCHNITT_PRO_WOCHENTAG:
+        return { name: o, displayText: 'Durchschnitt pro Wochentag' };
+      case ArtDerAuswertung.DURCHSCHNITT_PRO_MONAT:
+        return { name: o, displayText: 'Durchschnitt pro Monat' };
+      case ArtDerAuswertung.SUMME_PRO_JAHR:
+        return { name: o, displayText: 'Summe pro Jahr' };
     }
-  );
+    throw new Error('Beschreibung für enum ArtDerAuswertung fehlt: ' + o);
+  });
 }

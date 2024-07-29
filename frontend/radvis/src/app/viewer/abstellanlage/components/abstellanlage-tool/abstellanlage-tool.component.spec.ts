@@ -76,11 +76,9 @@ describe(AbstellanlageToolComponent.name, () => {
     );
   });
 
-  beforeEach(
-    waitForAsync(() => {
-      when(abstellanlageRoutingService.getIdFromRoute()).thenReturn(3);
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    when(abstellanlageRoutingService.getIdFromRoute()).thenReturn(3);
+  }));
 
   describe('constructor', () => {
     it('should set AbstellanlageToolView from route data and retrieve benachrichtigungsfunktion when another abstellanlage was selected', fakeAsync(() => {

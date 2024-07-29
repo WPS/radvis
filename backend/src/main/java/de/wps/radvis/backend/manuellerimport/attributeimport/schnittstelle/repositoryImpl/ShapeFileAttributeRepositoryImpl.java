@@ -111,14 +111,14 @@ public class ShapeFileAttributeRepositoryImpl implements ShapeFileAttributeRepos
 
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CustomAttributeIterator(dbf, fieldNum),
 			Spliterator.ORDERED), false).onClose(() -> {
-			try {
-				dbf.close();
-				shp.dispose();
-				store.dispose();
-			} catch (IOException e) {
-				log.error("Kann DBF Datei nicht schliessen nach schliessen des Streams.");
-			}
-		});
+				try {
+					dbf.close();
+					shp.dispose();
+					store.dispose();
+				} catch (IOException e) {
+					log.error("Kann DBF Datei nicht schliessen nach schliessen des Streams.");
+				}
+			});
 	}
 
 	private class CustomAttributeIterator implements Iterator<String> {

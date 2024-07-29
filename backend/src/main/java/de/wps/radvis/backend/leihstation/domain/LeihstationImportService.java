@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -46,7 +47,9 @@ import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationStatus;
 import de.wps.radvis.backend.leihstation.domain.valueObject.UrlAdresse;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Betreiber;
+import jakarta.persistence.EntityNotFoundException;
 
 public class LeihstationImportService extends AbstractCsvImportService<Leihstation, Leihstation.LeihstationBuilder> {
 
@@ -77,14 +80,17 @@ public class LeihstationImportService extends AbstractCsvImportService<Leihstati
 				"Sie haben nicht die Berechtigung Leihstationen zu erstellen oder zu bearbeiten.");
 		}
 
+		Verwaltungseinheit obersteVerwaltungseinheit = verwaltungseinheitService.getObersteGebietskoerperschaft()
+			.orElseThrow(EntityNotFoundException::new);
+		PreparedGeometry boundingArea = PreparedGeometryFactory.prepare(obersteVerwaltungseinheit.getBereich().get());
+
 		return super.importCsv(csvData,
-			(leihstationBuilder, row) -> this.mapAttributes(leihstationBuilder, row, benutzer));
+			(leihstationBuilder, row) -> this.mapAttributes(leihstationBuilder, boundingArea, row, benutzer));
 	}
 
-	public Leihstation mapAttributes(LeihstationBuilder leihstationBuilder, Map<String, String> row, Benutzer benutzer)
+	public Leihstation mapAttributes(LeihstationBuilder leihstationBuilder, PreparedGeometry boundingArea,
+		Map<String, String> row, Benutzer benutzer)
 		throws CsvAttributMappingException {
-
-		PreparedGeometry boundingArea = verwaltungseinheitService.getBundeslandBereichPrepared();
 
 		// QUELLSYSTEM
 		LeihstationQuellSystem quellSystem;
@@ -95,7 +101,7 @@ public class LeihstationImportService extends AbstractCsvImportService<Leihstati
 			throw new LeihstationAttributMappingException(
 				"Quellsystem (" + row.get(Leihstation.CsvHeader.QUELLSYSTEM)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(LeihstationQuellSystem.values())
-					.map(LeihstationQuellSystem::toString).collect(Collectors.joining(", ")));
+						.map(LeihstationQuellSystem::toString).collect(Collectors.joining(", ")));
 		}
 		if (quellSystem.equals(LeihstationQuellSystem.MOBIDATABW)) {
 			throw new LeihstationAttributMappingException(
@@ -108,7 +114,8 @@ public class LeihstationImportService extends AbstractCsvImportService<Leihstati
 			Point point = extractPositionInternal(row);
 			if (!boundingArea.contains(point)) {
 				throw new LeihstationAttributMappingException(
-					"Position " + point + " liegt nicht in Baden-Württemberg. Bitte prüfen Sie die Koordinaten.");
+					"Position " + point
+						+ " liegt nicht im Bereich, der von der Anwendung verwaltet wird. Bitte prüfen Sie die Koordinaten.");
 			}
 			if (!zustaendigkeitsService.istImZustaendigkeitsbereich(point, benutzer)) {
 				throw new AccessDeniedException(
@@ -175,15 +182,16 @@ public class LeihstationImportService extends AbstractCsvImportService<Leihstati
 			throw new LeihstationAttributMappingException(
 				"Status (" + row.get(Leihstation.CsvHeader.STATUS)
 					+ ") kann nicht gelesen werden. Erlaubt: " + String.join(", ",
-					Arrays.asList(LeihstationStatus.values()).stream().map(status -> status.toString())
-						.collect(Collectors.toList())));
+						Arrays.asList(LeihstationStatus.values()).stream().map(status -> status.toString())
+							.collect(Collectors.toList())));
 		}
 
 		try {
 			Point point = extractPositionInternal(row);
 			if (!boundingArea.contains(point)) {
 				throw new LeihstationAttributMappingException(
-					"Position " + point + " liegt nicht in Baden-Württemberg. Bitte prüfen Sie die Koordinaten.");
+					"Position " + point
+						+ " liegt nicht im Bereich, der von der Anwendung verwaltet wird. Bitte prüfen Sie die Koordinaten.");
 			}
 			leihstationBuilder.geometrie(point);
 		} catch (Exception exception) {

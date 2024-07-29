@@ -20,6 +20,7 @@ import {
   ConfirmationDialogComponent,
   QuestionYesNo,
 } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { map } from 'rxjs/operators';
 
 export interface DiscardableComponent {
   canDiscard: () => boolean;
@@ -45,5 +46,8 @@ export const discardGuard: CanDeactivateFn<DiscardableComponent> = (
     } as QuestionYesNo,
   });
 
-  return dialogRef.afterClosed();
+  // Ein Klick außerhalb des Dialogbereichs sorgt dafür, dass hier "undefined" zurück kommt. Damit kann der Standard
+  // discard-Mechanismus von Angular nicht umgehen und interpretiert das als "yes"-Aktion, was aber nicht gewollt ist.
+  // Klickt man außerhalb des Dialogs soll das als "no"-Aktion gewertet werden.
+  return dialogRef.afterClosed().pipe(map(yes => Boolean(yes)));
 };

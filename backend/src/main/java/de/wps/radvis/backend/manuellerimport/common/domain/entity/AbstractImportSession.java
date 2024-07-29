@@ -25,8 +25,8 @@ import org.locationtech.jts.geom.MultiPolygon;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportSessionSchritt;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import lombok.Getter;
 import lombok.Setter;
 

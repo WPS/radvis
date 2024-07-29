@@ -15,5 +15,9 @@
 package de.wps.radvis.backend.abfrage.export.domain;
 
 public enum InfrastrukturTyp {
-	MASSNAHME, FAHRRADROUTE, LEIHSTATION, SERVICESTATION, ABSTELLANLAGE
+	MASSNAHME,
+	FAHRRADROUTE,
+	LEIHSTATION,
+	SERVICESTATION,
+	ABSTELLANLAGE
 }

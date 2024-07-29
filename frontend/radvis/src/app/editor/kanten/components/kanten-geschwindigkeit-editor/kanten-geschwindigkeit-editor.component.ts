@@ -54,7 +54,8 @@ export class KantenGeschwindigkeitEditorComponent
     GeschwindigkeitAttribute,
     GeschwindigkeitsAttributGruppe
   >
-  implements DiscardableComponent, OnDestroy, OnInit {
+  implements DiscardableComponent, OnDestroy, OnInit
+{
   public ortslageOptions = KantenOrtslage.options;
   public hoechstgeschwindigkeitOptions = Hoechstgeschwindigkeit.options;
 

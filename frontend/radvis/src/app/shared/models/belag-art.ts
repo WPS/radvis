@@ -27,27 +27,25 @@ export enum BelagArt {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace BelagArt {
-  export const options: EnumOption[] = Object.keys(BelagArt).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case BelagArt.ASPHALT:
-          return { name: k, displayText: 'Asphalt' };
-        case BelagArt.BETON:
-          return { name: k, displayText: 'Beton' };
-        case BelagArt.NATURSTEINPFLASTER:
-          return { name: k, displayText: 'Natursteinpflaster' };
-        case BelagArt.BETONSTEINPFLASTER_PLATTENBELAG:
-          return { name: k, displayText: 'Betonsteinpflaster oder Plattenbelag' };
-        case BelagArt.WASSERGEBUNDENE_DECKE:
-          return { name: k, displayText: 'Wassergebundene Decke' };
-        case BelagArt.UNGEBUNDENE_DECKE:
-          return { name: k, displayText: 'Ungebundene Decke' };
-        case BelagArt.SONSTIGER_BELAG:
-          return { name: k, displayText: 'Sonstiger Belag' };
-        case BelagArt.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum BelagArt fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(BelagArt).map((k: string): EnumOption => {
+    switch (k) {
+      case BelagArt.ASPHALT:
+        return { name: k, displayText: 'Asphalt' };
+      case BelagArt.BETON:
+        return { name: k, displayText: 'Beton' };
+      case BelagArt.NATURSTEINPFLASTER:
+        return { name: k, displayText: 'Natursteinpflaster' };
+      case BelagArt.BETONSTEINPFLASTER_PLATTENBELAG:
+        return { name: k, displayText: 'Betonsteinpflaster oder Plattenbelag' };
+      case BelagArt.WASSERGEBUNDENE_DECKE:
+        return { name: k, displayText: 'Wassergebundene Decke' };
+      case BelagArt.UNGEBUNDENE_DECKE:
+        return { name: k, displayText: 'Ungebundene Decke' };
+      case BelagArt.SONSTIGER_BELAG:
+        return { name: k, displayText: 'Sonstiger Belag' };
+      case BelagArt.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum BelagArt fehlt: ' + k);
+  });
 }

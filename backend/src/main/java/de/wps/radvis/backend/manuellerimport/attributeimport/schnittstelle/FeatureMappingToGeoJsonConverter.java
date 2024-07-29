@@ -20,8 +20,6 @@ import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.locationtech.jts.geom.LineString;
 
-import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
-import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.FeatureMapping;
 
@@ -35,9 +33,7 @@ public class FeatureMappingToGeoJsonConverter {
 
 	public Feature convertFeatureMappingToFeature(FeatureMapping featureMapping) {
 		LineString importedLineString = featureMapping.getImportedLineString();
-		Feature feature = GeoJsonConverter.createFeature(
-			CoordinateReferenceSystemConverterUtility.transformGeometry(importedLineString,
-				KoordinatenReferenzSystem.ETRS89_UTM32_N));
+		Feature feature = GeoJsonConverter.createFeature(importedLineString);
 		feature.setProperty("mappedGrundnetzkanten", featureMapping.getKantenAufDieGemappedWurde());
 		feature.setId(Long.toString(featureMapping.getId()));
 		return feature;

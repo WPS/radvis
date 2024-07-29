@@ -27,6 +27,7 @@ import { FeatureDetailsComponent } from 'src/app/viewer/components/feature-detai
 import { InfrastrukturenMenuComponent } from 'src/app/viewer/components/infrastruktur-auswahl/infrastrukturen-menu.component';
 import { InfrastrukturLayerComponent } from 'src/app/viewer/components/infrastruktur-layer/infrastruktur-layer.component';
 import { InfrastrukturenTabellenComponent } from 'src/app/viewer/components/infrastruktur-tabellen/infrastrukturen-tabellen.component';
+import { InfrastrukturenTabellenContainerComponent } from 'src/app/viewer/components/infrastrukturen-tabellen-container/infrastrukturen-tabellen-container.component';
 import { LocationSelectionLayerComponent } from 'src/app/viewer/components/location-selection-layer/location-selection-layer.component';
 import { MeasureDistanceLayerComponent } from 'src/app/viewer/components/measure-distance-layer/measure-distance-layer.component';
 import { NetzklasseLayerComponent } from 'src/app/viewer/components/radvis-netz-layer/netzklasse-layer/netzklasse-layer.component';
@@ -34,8 +35,8 @@ import { RadvisKnotenLayerComponent } from 'src/app/viewer/components/radvis-net
 import { RadvisNetzLayerComponent } from 'src/app/viewer/components/radvis-netz-layer/radvis-netz-layer.component';
 import { SelectFeatureMenuComponent } from 'src/app/viewer/components/select-feature-menu/select-feature-menu.component';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
-import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
 import { FahrradrouteModule } from 'src/app/viewer/fahrradroute/fahrradroute.module';
+import { FahrradzaehlstelleModule } from 'src/app/viewer/fahrradzaehlstelle/fahrradzaehlstelle.module';
 import { FurtenKreuzungenModule } from 'src/app/viewer/furten-kreuzungen/furten-kreuzungen.module';
 import { ImportprotokolleModule } from 'src/app/viewer/importprotokolle/importprotokolle.module';
 import { LeihstationModule } from 'src/app/viewer/leihstation/leihstation.module';
@@ -47,7 +48,7 @@ import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
 import { ExportButtonComponent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
 import { WegweisendeBeschilderungModule } from 'src/app/viewer/wegweisende-beschilderung/wegweisende-beschilderung.module';
-import { FahrradzaehlstelleModule } from 'src/app/viewer/fahrradzaehlstelle/fahrradzaehlstelle.module';
+import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { FahrradzaehlstelleModule } from 'src/app/viewer/fahrradzaehlstelle/fahr
     NetzklasseLayerComponent,
     LocationSelectionLayerComponent,
     MeasureDistanceLayerComponent,
+    InfrastrukturenTabellenContainerComponent,
   ],
   imports: [
     BrowserModule,

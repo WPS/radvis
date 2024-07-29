@@ -26,6 +26,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
@@ -53,7 +54,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public class MassnahmeTestDataProvider {
 
@@ -98,7 +98,6 @@ public class MassnahmeTestDataProvider {
 			.sollStandard(SollStandard.BASISSTANDARD)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)
-			.umsetzungsstand(null)
 			.kommentarListe(new KommentarListe())
 			.sonstigeKonzeptionsquelle("WAMBO")
 			.zuBenachrichtigendeBenutzer(new HashSet<>())

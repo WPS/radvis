@@ -68,19 +68,19 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 	private final String importGeoJsonUrl;
 	private final GeoJsonImportRepository geoJsonImportRepository;
 	private final WegweisendeBeschilderungRepository wegweisendeBeschilderungRepository;
-	private final Lazy<Gebietskoerperschaft> badenWuerttemberg;
+	private final Lazy<Gebietskoerperschaft> obersteGebietskoerperschaft;
 
 	public WegweisendeBeschilderungImportJob(
 		String wegweisendeBeschilderungImportGeoJsonUrl,
 		GeoJsonImportRepository geoJsonImportRepository,
 		WegweisendeBeschilderungRepository wegweisendeBeschilderungRepository,
-		Lazy<Gebietskoerperschaft> badenWuerttemberg,
+		Lazy<Gebietskoerperschaft> obersteGebietskoerperschaft,
 		JobExecutionDescriptionRepository jobExecutionDescriptionRepository) {
 		super(jobExecutionDescriptionRepository);
 		this.importGeoJsonUrl = wegweisendeBeschilderungImportGeoJsonUrl;
 		this.geoJsonImportRepository = geoJsonImportRepository;
 		this.wegweisendeBeschilderungRepository = wegweisendeBeschilderungRepository;
-		this.badenWuerttemberg = badenWuerttemberg;
+		this.obersteGebietskoerperschaft = obersteGebietskoerperschaft;
 	}
 
 	@Override
@@ -258,7 +258,7 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 			Gemeinde.of(f.getAttribute("GE_Gem").toString()),
 			Kreis.of(f.getAttribute("GE_Kreis").toString()),
 			Land.of(f.getAttribute("GE_Land").toString()),
-			badenWuerttemberg.get());
+			obersteGebietskoerperschaft.get());
 	}
 
 	@NotNull

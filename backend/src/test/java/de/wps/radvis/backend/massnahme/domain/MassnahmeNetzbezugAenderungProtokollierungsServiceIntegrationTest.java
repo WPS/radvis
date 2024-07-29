@@ -41,6 +41,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezugAenderung;
@@ -59,7 +60,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTest {
 
@@ -125,7 +125,7 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTest {
 		List<MassnahmeNetzBezugAenderung> massnahmeNetzBezugAenderung = StreamSupport.stream(
 			captor.getValue().spliterator(), false).collect(Collectors.toList());
 		assertThat(massnahmeNetzBezugAenderung).usingRecursiveFieldByFieldElementComparator(
-				RecursiveComparisonConfiguration.builder().withIgnoredFields("id").build())
+			RecursiveComparisonConfiguration.builder().withIgnoredFields("id").build())
 			.containsExactly(
 				new MassnahmeNetzBezugAenderung(NetzBezugAenderungsArt.KANTE_VERAENDERT, kante1.getId(), massnahme1,
 					testBenutzer, testAenderungsDatum, NetzAenderungAusloeser.DLM_REIMPORT_JOB, alteGeometry));
@@ -160,7 +160,7 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTest {
 		List<MassnahmeNetzBezugAenderung> massnahmeNetzBezugAenderung = StreamSupport.stream(
 			captor.getValue().spliterator(), false).collect(Collectors.toList());
 		assertThat(massnahmeNetzBezugAenderung).usingRecursiveFieldByFieldElementComparator(
-				RecursiveComparisonConfiguration.builder().withIgnoredFields("id").build())
+			RecursiveComparisonConfiguration.builder().withIgnoredFields("id").build())
 			.containsExactly(
 				new MassnahmeNetzBezugAenderung(NetzBezugAenderungsArt.KANTE_GELOESCHT, kante1.getId(), massnahme1,
 					testBenutzer, testAenderungsDatum, NetzAenderungAusloeser.DLM_REIMPORT_JOB, alteGeometry));
@@ -194,7 +194,7 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTest {
 		List<MassnahmeNetzBezugAenderung> massnahmeNetzBezugAenderung = StreamSupport.stream(
 			captor.getValue().spliterator(), false).collect(Collectors.toList());
 		assertThat(massnahmeNetzBezugAenderung).usingRecursiveFieldByFieldElementComparator(
-				RecursiveComparisonConfiguration.builder().withIgnoredFields("id").build())
+			RecursiveComparisonConfiguration.builder().withIgnoredFields("id").build())
 			.containsExactly(
 				new MassnahmeNetzBezugAenderung(NetzBezugAenderungsArt.KNOTEN_GELOESCHT, knoten1.getId(), massnahme1,
 					testBenutzer, testAenderungsDatum, NetzAenderungAusloeser.DLM_REIMPORT_JOB, alteGeometry));

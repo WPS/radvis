@@ -84,7 +84,7 @@ export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnCha
           filter(
             f =>
               f.layer === WeitereKartenebene.LAYER_NAME &&
-              f.attribute.find(attr => attr.key === WeitereKartenebene.LAYER_ID_KEY)?.value === this.layerId
+              f.attributes.get(WeitereKartenebene.LAYER_ID_KEY) === this.layerId
           )
         )
         .subscribe(f => {
@@ -99,7 +99,7 @@ export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnCha
           filter(
             f =>
               f.layer === WeitereKartenebene.LAYER_NAME &&
-              f.attribute.find(attr => attr.key === WeitereKartenebene.LAYER_ID_KEY)?.value === this.layerId
+              f.attributes.get(WeitereKartenebene.LAYER_ID_KEY) === this.layerId
           )
         )
         .subscribe(f => {

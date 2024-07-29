@@ -19,8 +19,8 @@ import java.util.List;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public interface CustomVerwaltungseinheitRepository {
 	List<Verwaltungseinheit> findAllByOrganisationsArtContainingGeometry(OrganisationsArt organisationsArt,

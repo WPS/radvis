@@ -14,14 +14,14 @@
 
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 
 export interface KanteDetailView {
   id: number;
   geometrie: LineStringGeojson;
   attributeAufGanzerLaenge: { [key: string]: string };
   attributeAnPosition: { [key: string]: string };
-  seite?: Seitenbezug;
+  seite?: KantenSeite;
   verlaufLinks?: LineStringGeojson;
   verlaufRechts?: LineStringGeojson;
   trennstreifenAttribute?: { [key: string]: string };

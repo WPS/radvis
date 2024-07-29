@@ -182,18 +182,18 @@ class RadNetzNetzbildungServiceTest {
 
 		assertThat(
 			result.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0).getOrtslage())
-			.contains(KantenOrtslage.AUSSERORTS);
+				.contains(KantenOrtslage.AUSSERORTS);
 		assertThat(result.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 			.getHoechstgeschwindigkeit())
-			.isEqualTo(Hoechstgeschwindigkeit.MAX_50_KMH);
+				.isEqualTo(Hoechstgeschwindigkeit.MAX_50_KMH);
 
 		assertThat(result.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).hasSize(1);
 		assertThat(
 			result.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks().get(0).getBelagArt())
-			.isEqualTo(BelagArt.WASSERGEBUNDENE_DECKE);
+				.isEqualTo(BelagArt.WASSERGEBUNDENE_DECKE);
 		assertThat(result.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks().get(0)
 			.getOberflaechenbeschaffenheit())
-			.isEqualTo(Oberflaechenbeschaffenheit.UNBEKANNT);
+				.isEqualTo(Oberflaechenbeschaffenheit.UNBEKANNT);
 	}
 
 	@Test

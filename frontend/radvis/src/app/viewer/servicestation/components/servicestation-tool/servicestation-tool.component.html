@@ -17,27 +17,18 @@
     <h2 class="flex-grow">Servicestation</h2>
     <button
       *ngIf="servicestation.darfBenutzerBearbeiten"
-      [attr.aria-label]="'Servicestation löschen'"
       matTooltip="Servicestation löschen"
       (click)="onDeleteServicestation()"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon>delete</mat-icon>
     </button>
     <button
-      [attr.aria-label]="'Zur Position der Servicestation springen'"
       matTooltip="Zur Position der Servicestation springen"
       (click)="focusServicestationIntoView()"
-      mat-icon-button
-    >
+      mat-icon-button>
       <mat-icon>my_location</mat-icon>
     </button>
-    <button
-      [attr.aria-label]="'Servicestation-Editor schließen'"
-      matTooltip="Servicestation-Editor schließen"
-      (click)="onClose()"
-      mat-icon-button
-    >
+    <button matTooltip="Servicestation-Editor schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </mat-toolbar>
@@ -51,8 +42,7 @@
       [active]="rlaEigenschaften.isActive"
       routerLinkActive
       #rlaEigenschaften="routerLinkActive"
-      class="nav-bar-item"
-    >
+      class="nav-bar-item">
       Eigenschaften
     </a>
     <a
@@ -63,8 +53,7 @@
       [routerLink]="servicestationDateiRoute"
       [routerLinkActiveOptions]="routerLinkActiveOptions"
       [active]="rlaDateien.isActive"
-      class="nav-bar-item"
-    >
+      class="nav-bar-item">
       Dateien
     </a>
   </nav>

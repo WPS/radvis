@@ -14,8 +14,6 @@
 
 package de.wps.radvis.backend.application;
 
-import static de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt.BUNDESLAND;
-
 import java.io.File;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
@@ -68,11 +66,13 @@ import de.wps.radvis.backend.matching.domain.OsmAbbildungsFehlerRepository;
 import de.wps.radvis.backend.matching.domain.OsmAuszeichnungsJob;
 import de.wps.radvis.backend.matching.domain.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.OsmPbfDownloadJob;
+import de.wps.radvis.backend.matching.schnittstelle.LoadGraphhopperJob;
 import de.wps.radvis.backend.matching.domain.service.DlmPbfErstellungService;
 import de.wps.radvis.backend.matching.domain.service.GraphhopperUpdateService;
 import de.wps.radvis.backend.matching.domain.service.MatchingJobProtokollService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
 import de.wps.radvis.backend.matching.domain.service.OsmAuszeichnungsService;
+import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
@@ -125,6 +125,9 @@ public class JobConfiguration {
 
 	@Autowired
 	private MatchingJobProtokollService osmJobProtokollService;
+
+	@Autowired
+	private DlmMatchedGraphHopperFactory dlmMatchedGraphHopperFactory;
 
 	@Lazy
 	@Autowired
@@ -253,6 +256,10 @@ public class JobConfiguration {
 	@Autowired
 	BenutzerService benutzerService;
 
+	@Autowired
+	@Lazy
+	VerwaltungseinheitImportRepository organisationenImportRepository;
+
 	@Bean
 	public RadNETZQuellImportJob radNetzQuellImportJob() {
 		File radNetzShapeFileRoot = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
@@ -315,13 +322,12 @@ public class JobConfiguration {
 	}
 
 	@Bean
-	public VerwaltungseinheitImportJob organisationenImportJob(
-		VerwaltungseinheitImportRepository organisationenImportRepository) {
-		File verwaltungsgrenzenShapeFileRoot = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
-			jobConfigurationProperties.getVerwaltungsgrenzenShapeFilesPath());
-		return new VerwaltungseinheitImportJob(jobExecutionDescriptionRepository,
-			organisationenImportRepository, organisationRepository,
-			gebietskoerperschaftRepository, verwaltungsgrenzenShapeFileRoot);
+	public VerwaltungseinheitImportJob organisationenImportJob() {
+		return new VerwaltungseinheitImportJob(
+			jobExecutionDescriptionRepository,
+			org.springframework.data.util.Lazy.of(() -> organisationenImportRepository),
+			organisationRepository,
+			gebietskoerperschaftRepository);
 	}
 
 	@Bean
@@ -419,10 +425,13 @@ public class JobConfiguration {
 			wegweisendeBeschilderungConfigurationProperties.getImportGeoJsonUrl(),
 			geoJsonImportRepository, wegweisendeBeschilderungRepository,
 			org.springframework.data.util.Lazy.of(
-				() -> gebietskoerperschaftRepository.findByNameAndOrganisationsArt("Baden-Württemberg", BUNDESLAND)
-					.orElseThrow(() -> {
-						throw new NoSuchElementException(
-							"Gebietskörperschaft \"Baden-Württemberg (Bundesland)\" fehlt.");
+				() -> gebietskoerperschaftRepository.findByNameAndOrganisationsArt(
+					commonConfigurationProperties.getObersteGebietskoerperschaftName(),
+					commonConfigurationProperties.getObersteGebietskoerperschaftOrganisationsArt()).orElseThrow(() -> {
+						throw new NoSuchElementException(String.format(
+							"Verwaltungseinheit \"%s (%s})\" fehlt.",
+							commonConfigurationProperties.getObersteGebietskoerperschaftName(),
+							commonConfigurationProperties.getObersteGebietskoerperschaftOrganisationsArt()));
 					})),
 			jobExecutionDescriptionRepository);
 	}
@@ -471,7 +480,11 @@ public class JobConfiguration {
 		return new SetzeBenutzerInaktivJob(
 			jobExecutionDescriptionRepository,
 			benutzerService,
-			inaktivitaetConfigurationProperties.inaktivitaetsTimeoutInTagen()
-		);
+			inaktivitaetConfigurationProperties.inaktivitaetsTimeoutInTagen());
+	}
+
+	@Bean
+	public LoadGraphhopperJob reloadGraphhopperJob() {
+		return new LoadGraphhopperJob(jobExecutionDescriptionRepository, dlmMatchedGraphHopperFactory);
 	}
 }

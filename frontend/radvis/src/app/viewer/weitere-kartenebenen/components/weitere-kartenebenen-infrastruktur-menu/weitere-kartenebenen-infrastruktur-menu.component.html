@@ -19,8 +19,7 @@
     [attr.aria-label]="(hasLayers$ | async) ? 'Weitere Kartenebenen verwalten' : 'Weitere Kartenebenen hinzufügen'"
     [matTooltip]="(hasLayers$ | async) ? 'Weitere Kartenebenen verwalten' : 'Weitere Kartenebenen hinzufügen'"
     class="mr-5"
-    mat-icon-button
-  >
+    mat-icon-button>
     <mat-icon *ngIf="hasLayers$ | async">settings</mat-icon>
     <mat-icon *ngIf="(hasLayers$ | async) === false">add</mat-icon>
   </button>

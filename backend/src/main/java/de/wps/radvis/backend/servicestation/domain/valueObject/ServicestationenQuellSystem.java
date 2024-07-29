@@ -41,4 +41,3 @@ public enum ServicestationenQuellSystem {
 		throw new RuntimeException("Quellsystem " + displayText + " wurde nicht erkannt.");
 	}
 }
-

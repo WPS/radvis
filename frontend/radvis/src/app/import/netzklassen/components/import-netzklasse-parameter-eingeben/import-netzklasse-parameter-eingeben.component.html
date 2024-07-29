@@ -18,8 +18,7 @@
     <rad-enum-dropdown-control
       [options]="netzklasseOptions"
       class="mat-form-field-full-width"
-      [formControl]="formControl"
-    >
+      [formControl]="formControl">
       Netzklasse
     </rad-enum-dropdown-control>
     <div class="flex-grow"></div>
@@ -29,15 +28,14 @@
     Es existiert bereits eine Import-Session. Brechen Sie diese ab, um eine neue zu starten.
   </div>
   <div class="import-step-footer-buttons">
-    <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
     <button mat-flat-button color="primary" class="button" (click)="onNext()" *ngIf="sessionExists">Weiter</button>
     <rad-action-button
       *ngIf="!sessionExists"
       (action)="onStart()"
       [waiting]="uploading"
-      [disabled]="!formControl.valid"
-    >
+      [disabled]="!formControl.valid">
       Import starten
     </rad-action-button>
   </div>

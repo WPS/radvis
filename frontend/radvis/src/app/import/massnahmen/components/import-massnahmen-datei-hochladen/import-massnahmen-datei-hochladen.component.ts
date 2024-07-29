@@ -14,7 +14,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, UntypedFormGroup } from '@angular/forms';
-import { interval, Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 import { exhaustMap, startWith, take, takeWhile } from 'rxjs/operators';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { MassnahmenImportSessionView } from 'src/app/import/massnahmen/models/massnahmen-import-session-view';
@@ -42,6 +42,9 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
   formGroup: UntypedFormGroup;
 
   pollingSubscription: Subscription | undefined;
+  /**
+   * Ist auch true, wenn es sich um Session eines anderen Typs handelt
+   */
   sessionExists = false;
 
   zuweisbareOrganisationen$: Promise<Verwaltungseinheit[]>;
@@ -53,7 +56,7 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
   sessionCreated: boolean = false;
 
   get massnahmenSessionExists(): boolean {
-    return !!this.session;
+    return Boolean(this.session);
   }
 
   get fehler(): string[] {
@@ -62,6 +65,18 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
 
   get hasFehler(): boolean {
     return this.fehler.length > 0;
+  }
+
+  get isDateiHochladenRunning(): boolean {
+    return this.session?.schritt === ImportMassnahmenDateiHochladenComponent.STEP && this.session?.executing;
+  }
+
+  private get schrittAbgeschlossen(): boolean {
+    return (this.session && this.session.schritt > ImportMassnahmenDateiHochladenComponent.STEP) ?? false;
+  }
+
+  get schrittAbgeschlossenOderFehler(): boolean {
+    return this.schrittAbgeschlossen || this.hasFehler;
   }
 
   constructor(
@@ -144,13 +159,12 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
         next: () => {
           this.startPolling();
           this.sessionCreated = true;
-          this.notifyUserService.inform('Datei wurde erfolgreich hochgeladen und wird nun verarbeitet.');
-          this.uploading = false;
           this.changeDetectorRef.markForCheck();
         },
         error: err => {
           this.errorHandlingService.handleHttpError(err);
           this.sessionCreated = false;
+          this.session = null;
           this.formGroup.enable();
           this.uploading = false;
           this.changeDetectorRef.markForCheck();
@@ -171,20 +185,25 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
       .pipe(
         startWith(0),
         take(MassnahmenImportService.MAX_POLLING_CALLS),
-        takeWhile(() => !this.massnahmenSessionExists || this.isDateiHochladenRunning),
+        takeWhile(() => this.isDateiHochladenRunning),
         exhaustMap(() => this.massnahmenImportService.getImportSession())
       )
       .subscribe({
         next: session => {
           this.session = session as MassnahmenImportSessionView;
           this.sessionExists = true;
-          this.changeDetectorRef.markForCheck();
-          if (this.session && this.session.schritt > ImportMassnahmenDateiHochladenComponent.STEP) {
+          if (this.schrittAbgeschlossen) {
             this.navigateToNextStep();
           }
+          if (this.schrittAbgeschlossenOderFehler) {
+            this.uploading = false;
+          }
+          this.changeDetectorRef.markForCheck();
         },
         error: () => {
+          this.uploading = false;
           this.notifyUserService.warn('Fehler bei der Statusabfrage. Wurde der Import abgebrochen?');
+          this.changeDetectorRef.markForCheck();
         },
       });
   }
@@ -199,10 +218,6 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
       this.pollingSubscription?.unsubscribe();
       this.changeDetectorRef.markForCheck();
     });
-  }
-
-  get isDateiHochladenRunning(): boolean {
-    return this.session?.schritt === ImportMassnahmenDateiHochladenComponent.STEP && this.session?.executing;
   }
 
   ngOnDestroy(): void {

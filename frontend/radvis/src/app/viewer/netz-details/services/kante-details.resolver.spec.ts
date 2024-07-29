@@ -23,7 +23,7 @@ import { take } from 'rxjs/operators';
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { KanteDetailView } from 'src/app/shared/models/kante-detail-view';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { KantenDetailViewComponent } from 'src/app/viewer/netz-details/components/kanten-detail-view/kanten-detail-view.component';
 import { kanteDetailsResolver } from 'src/app/viewer/netz-details/services/kante-details.resolver';
@@ -70,7 +70,7 @@ describe(kanteDetailsResolver.name, () => {
 
     // Now we can initialize navigation.
     if (fixture.ngZone) {
-      fixture.ngZone.run(() => routingService.toKanteDetails(1, [0, 0], Seitenbezug.LINKS));
+      fixture.ngZone.run(() => routingService.toKanteDetails(1, [0, 0], KantenSeite.LINKS));
       tick(); // is needed for rendering of the current route.
     }
 
@@ -85,9 +85,9 @@ describe(kanteDetailsResolver.name, () => {
 
     let counter = 0;
     const expected: KanteDetailView[] = [
-      detailViewFromRoute(1, Seitenbezug.LINKS, NetzdetailRoutingService.buildParams([0, 0]).position),
-      detailViewFromRoute(1, Seitenbezug.RECHTS, NetzdetailRoutingService.buildParams([0, 0]).position),
-      detailViewFromRoute(1, Seitenbezug.RECHTS, NetzdetailRoutingService.buildParams([1, 1]).position),
+      detailViewFromRoute(1, KantenSeite.LINKS, NetzdetailRoutingService.buildParams([0, 0]).position),
+      detailViewFromRoute(1, KantenSeite.RECHTS, NetzdetailRoutingService.buildParams([0, 0]).position),
+      detailViewFromRoute(1, KantenSeite.RECHTS, NetzdetailRoutingService.buildParams([1, 1]).position),
     ];
 
     route.data.pipe(take(3)).subscribe(data => {
@@ -97,18 +97,18 @@ describe(kanteDetailsResolver.name, () => {
 
     // Let's switch to the route with the resolver.
     if (fixture.ngZone) {
-      fixture.ngZone.run(() => routingService.toKanteDetails(1, [0, 0], Seitenbezug.LINKS));
+      fixture.ngZone.run(() => routingService.toKanteDetails(1, [0, 0], KantenSeite.LINKS));
       tick(); // is needed for rendering of the current route.
-      fixture.ngZone.run(() => routingService.toKanteDetails(1, [0, 0], Seitenbezug.RECHTS));
+      fixture.ngZone.run(() => routingService.toKanteDetails(1, [0, 0], KantenSeite.RECHTS));
       tick(); // is needed for rendering of the current route.
-      fixture.ngZone.run(() => routingService.toKanteDetails(1, [1, 1], Seitenbezug.RECHTS));
+      fixture.ngZone.run(() => routingService.toKanteDetails(1, [1, 1], KantenSeite.RECHTS));
       tick();
     }
 
     expect(counter).toBe(3);
   }));
 
-  const detailViewFromRoute = (id: number, seite: Seitenbezug, position: Coordinate): KanteDetailView => {
+  const detailViewFromRoute = (id: number, seite: KantenSeite, position: Coordinate): KanteDetailView => {
     return {
       id,
       geometrie: {

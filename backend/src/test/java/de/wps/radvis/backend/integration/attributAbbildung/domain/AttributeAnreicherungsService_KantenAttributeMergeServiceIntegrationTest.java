@@ -770,7 +770,7 @@ public class AttributeAnreicherungsService_KantenAttributeMergeServiceIntegratio
 		// Arrange
 		List<GeschwindigkeitAttribute> geschwindigkeitAttribute = List.of(
 			GeschwindigkeitAttribute.builder().hoechstgeschwindigkeit(
-					Hoechstgeschwindigkeit.MAX_9_KMH)
+				Hoechstgeschwindigkeit.MAX_9_KMH)
 				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_20_KMH)
 				.build());
 

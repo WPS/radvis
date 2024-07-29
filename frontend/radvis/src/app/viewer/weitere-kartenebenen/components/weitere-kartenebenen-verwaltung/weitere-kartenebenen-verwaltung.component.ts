@@ -26,11 +26,12 @@ import {
   defaultDateiLayerZIndex,
   neueWeitereKartenebenenDefaultZIndex,
 } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
-import { PredefinedWeitereKartenebenen } from 'src/app/viewer/weitere-kartenebenen/models/predefined-weitere-kartenebenen';
+import { PredefinedKartenMenu } from 'src/app/viewer/weitere-kartenebenen/models/predefined-karten-menu';
 import { SaveWeitereKartenebeneCommand } from 'src/app/viewer/weitere-kartenebenen/models/save-weitere-kartenebene-command';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
-import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitereKartenebeneTyp';
+import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene-typ';
 import { DateiLayerService } from 'src/app/viewer/weitere-kartenebenen/services/datei-layer.service';
+import { VordefinierteLayerService } from 'src/app/viewer/weitere-kartenebenen/services/vordefinierte-layer.service';
 import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 
 @Component({
@@ -44,7 +45,6 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
 
   public showLayerAusDateiFeatureToggl: boolean;
 
-  public PredefinedWeitereKartenebenen = PredefinedWeitereKartenebenen;
   public layerTypOptions: EnumOption[] = WeitereKartenebeneTyp.options;
 
   public disableAnimation = true;
@@ -54,6 +54,7 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
   public dateiLayerKartenebenen: SaveWeitereKartenebeneCommand[] = [];
 
   private subscriptions: Subscription[] = [];
+  predefinedMenu: PredefinedKartenMenu[];
 
   constructor(
     private weitereKartenebenenService: WeitereKartenebenenService,
@@ -63,11 +64,14 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
     private notifyUserService: NotifyUserService,
     private httpClient: HttpClient,
     private featureTogglzService: FeatureTogglzService,
-    private manualRoutingService: ManualRoutingService
+    private manualRoutingService: ManualRoutingService,
+    vordefinierteLayerService: VordefinierteLayerService
   ) {
     this.showLayerAusDateiFeatureToggl = this.featureTogglzService.isToggledOn(
       FeatureTogglzService.TOGGLZ_DATEILAYER_HOCHLADEN_ANZEIGEN
     );
+
+    this.predefinedMenu = vordefinierteLayerService.predefinedKartenMenu;
 
     this.weitereKartenebenenFormArray = new UntypedFormArray([]);
     this.subscriptions.push(
@@ -109,6 +113,14 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  public getPredefinedLayerItems(): SaveWeitereKartenebeneCommand[] {
+    return this.predefinedMenu?.filter(m => !m.hasSubMenu()).map(m => <SaveWeitereKartenebeneCommand>m.item) ?? [];
+  }
+
+  public getPredefinedSubMenuItems(): PredefinedKartenMenu[] {
+    return this.predefinedMenu?.filter(m => m.hasSubMenu()) ?? [];
   }
 
   public isWFS(weitereKartenebeneTyp: WeitereKartenebeneTyp | null): boolean {
@@ -186,7 +198,7 @@ export class WeitereKartenebenenVerwaltungComponent implements OnDestroy, AfterV
   }
 
   public openManualAnzeigeordnungLayerViewer(): void {
-    this.manualRoutingService.openAnzeigeordnungViewer();
+    this.manualRoutingService.openManualAnzeigeordnungViewer();
   }
 
   private saveLayers(): void {

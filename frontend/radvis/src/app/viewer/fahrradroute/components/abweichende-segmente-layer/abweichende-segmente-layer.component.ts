@@ -60,7 +60,7 @@ export class AbweichendeSegmenteLayerComponent implements OnDestroy, OnChanges, 
     this.vectorSource.clear();
     if (isMultiLineString(this.geometrie)) {
       this.vectorSource.addFeature(
-        new Feature(new MultiLineString((this.geometrie.coordinates as unknown) as Coordinate[][]))
+        new Feature(new MultiLineString(this.geometrie.coordinates as unknown as Coordinate[][]))
       );
     }
     this.vectorSource.changed();

@@ -15,5 +15,8 @@
 package de.wps.radvis.backend.common.schnittstelle;
 
 public enum ExportFormat {
-	CSV, SHP, GEOJSON, GEOPKG
+	CSV,
+	SHP,
+	GEOJSON,
+	GEOPKG
 }

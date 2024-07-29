@@ -15,5 +15,6 @@
 package de.wps.radvis.backend.weitereKartenebenen.domain.valueobject;
 
 public enum WeitereKartenebeneTyp {
-	WMS, WFS
+	WMS,
+	WFS
 }

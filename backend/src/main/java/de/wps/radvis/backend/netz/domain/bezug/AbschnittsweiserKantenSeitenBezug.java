@@ -101,7 +101,12 @@ public class AbschnittsweiserKantenSeitenBezug extends AbschnittsweiserKantenBez
 		);
 	}
 
-	public static List<AbschnittsweiserKantenSeitenBezug> fasseIntersectionsZusammen(
+	/**
+	 * Merged sich überlappende Bezüge (z.B. [0.2, 0.5] und [0.4, 0.6] -> [0.2, 0.6]). Der Seitenbezug wird hierbei
+	 * mit beachtet, unterschiedliche Seiten können sich entsprechend nicht überlappen. Die Bezüge müssen alle die
+	 * gleiche Kante betreffen.
+	 */
+	public static List<AbschnittsweiserKantenSeitenBezug> fasseUeberlappendeBezuegeZusammen(
 		Collection<AbschnittsweiserKantenSeitenBezug> unsorted) {
 		if (unsorted.isEmpty()) {
 			return new ArrayList<>();
@@ -134,5 +139,21 @@ public class AbschnittsweiserKantenSeitenBezug extends AbschnittsweiserKantenBez
 		zusammengefasst.add(current);
 
 		return zusammengefasst;
+	}
+
+	/**
+	 * Wendet {@link fasseUeberlappendeBezuegeZusammen} pro kante an. Hier können die Bezüge also von unterschiedlichen
+	 * Kanten sein, diese werden hier entsprechend gruppiert betrachtet.
+	 */
+	// TODO RAD-6596: diese Methode mit verschiedenen Seitenbezügen kompatibel machen
+	public static Set<AbschnittsweiserKantenSeitenBezug> fasseUeberlappendeBezuegeProKanteZusammen(
+		Set<AbschnittsweiserKantenSeitenBezug> seitenabschnittsKantenSeitenAbschnitte) {
+		require(seitenabschnittsKantenSeitenAbschnitte.stream()
+			.allMatch(abschnitt -> abschnitt.getSeitenbezug().equals(Seitenbezug.BEIDSEITIG)));
+
+		return AbschnittsweiserKantenSeitenBezug.groupByKante(seitenabschnittsKantenSeitenAbschnitte).values().stream()
+			.map(AbschnittsweiserKantenSeitenBezug::fasseUeberlappendeBezuegeZusammen)
+			.flatMap(List::stream)
+			.collect(Collectors.toSet());
 	}
 }

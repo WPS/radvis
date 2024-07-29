@@ -24,7 +24,7 @@ import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { SignaturService } from 'src/app/viewer/signatur/services/signatur.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import TileLayer from 'ol/layer/Tile';
 import { TileWMS } from 'ol/source';
 import * as olProj from 'ol/proj';

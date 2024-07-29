@@ -19,8 +19,7 @@
   [dirty]="isDirty"
   [fetching]="isFetching"
   class="creator-body"
-  titel="Kante erstellen"
->
+  titel="Kante erstellen">
   <div class="mt-10 mb-5 ml-5 hinweistext">
     Wählen Sie mit einem Linksklick den Knoten A aus und mit Strg+Linksklick den Knoten B. Mit Umschalt+Strg+Linksklick
     kann der Knoten B frei platziert werden.
@@ -48,8 +47,7 @@
   <rad-kanten-creator-knoten-selektion
     #knotenSelektionComponent
     (selectVonKnoten)="onSelectVonKnoten($event)"
-    (selectBisKnoten)="onSelectBisKnoten($event)"
-  ></rad-kanten-creator-knoten-selektion>
+    (selectBisKnoten)="onSelectBisKnoten($event)"></rad-kanten-creator-knoten-selektion>
   <div class="mt-20 mb-5 ml-5 hinweistext-netzklassen">
     Hinweis: Bitte aktivieren Sie alle Netzklassen und stellen auch sicher, dass noch keine nicht-klassifizierten Kanten
     an der Stelle vorhanden sind, an der Sie eine Kante vermissen!

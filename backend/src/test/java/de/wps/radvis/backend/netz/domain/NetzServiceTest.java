@@ -56,6 +56,7 @@ import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.entity.VersionedId;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
@@ -103,7 +104,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.OptimisticLockException;
 
 class NetzServiceTest {
@@ -232,25 +232,25 @@ class NetzServiceTest {
 
 		when(kantenRepositoryMock.getAdjazenteKanten(knoten)).thenReturn(List.of(
 			KanteTestDataProvider.withDefaultValues().geschwindigkeitAttributGruppe(
-					GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
-							List.of(GeschwindigkeitAttribute.builder()
-								.ortslage(KantenOrtslage.INNERORTS)
-								.build()))
-						.build())
+				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
+					List.of(GeschwindigkeitAttribute.builder()
+						.ortslage(KantenOrtslage.INNERORTS)
+						.build()))
+					.build())
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geschwindigkeitAttributGruppe(
-					GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
-							List.of(GeschwindigkeitAttribute.builder()
-								.ortslage(KantenOrtslage.AUSSERORTS)
-								.build()))
-						.build())
+				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
+					List.of(GeschwindigkeitAttribute.builder()
+						.ortslage(KantenOrtslage.AUSSERORTS)
+						.build()))
+					.build())
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geschwindigkeitAttributGruppe(
-					GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
-							List.of(GeschwindigkeitAttribute.builder()
-								.ortslage(KantenOrtslage.INNERORTS)
-								.build()))
-						.build())
+				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
+					List.of(GeschwindigkeitAttribute.builder()
+						.ortslage(KantenOrtslage.INNERORTS)
+						.build()))
+					.build())
 				.build()));
 
 		// act
@@ -327,20 +327,20 @@ class NetzServiceTest {
 
 		when(kantenRepositoryMock.getAdjazenteKanten(knoten)).thenReturn(List.of(
 			KanteTestDataProvider.withDefaultValues().geschwindigkeitAttributGruppe(
-					GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
-							List.of(GeschwindigkeitAttribute.builder()
-								.ortslage(KantenOrtslage.AUSSERORTS)
-								.build()))
-						.build())
+				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
+					List.of(GeschwindigkeitAttribute.builder()
+						.ortslage(KantenOrtslage.AUSSERORTS)
+						.build()))
+					.build())
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geschwindigkeitAttributGruppe(
 				GeschwindigkeitAttributGruppe.builder().build()).build(),
 			KanteTestDataProvider.withDefaultValues().geschwindigkeitAttributGruppe(
-					GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
-							List.of(GeschwindigkeitAttribute.builder()
-								.ortslage(KantenOrtslage.INNERORTS)
-								.build()))
-						.build())
+				GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
+					List.of(GeschwindigkeitAttribute.builder()
+						.ortslage(KantenOrtslage.INNERORTS)
+						.build()))
+					.build())
 				.build()));
 
 		// act
@@ -606,10 +606,10 @@ class NetzServiceTest {
 
 		assertThat(
 			oldAttributGruppeWithBordstein.getImmutableFuehrungsformAttributeLinks().get(0).getBordstein()).isEqualTo(
-			newAttributGruppeWithBordstein.getImmutableFuehrungsformAttributeLinks().get(0).getBordstein());
+				newAttributGruppeWithBordstein.getImmutableFuehrungsformAttributeLinks().get(0).getBordstein());
 		assertThat(
 			oldAttributGruppeWithBordstein.getImmutableFuehrungsformAttributeRechts().get(0).getBordstein()).isEqualTo(
-			newAttributGruppeWithBordstein.getImmutableFuehrungsformAttributeRechts().get(0).getBordstein());
+				newAttributGruppeWithBordstein.getImmutableFuehrungsformAttributeRechts().get(0).getBordstein());
 	}
 
 	@Test
@@ -994,7 +994,7 @@ class NetzServiceTest {
 
 			assertThatThrownBy(() -> netzService.deleteKante(
 				KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).id(1L).build())).isInstanceOf(
-				RequireViolation.class);
+					RequireViolation.class);
 
 			domainPublisherMock.verifyNoInteractions();
 
@@ -1259,8 +1259,8 @@ class NetzServiceTest {
 		assertThatThrownBy(
 			() -> netzService.aktualisiereKnoten(knotenId, knotenVersion, gemeinde, kommentar, zustandsbeschreibung,
 				knotenForm))
-			.isInstanceOf(AccessDeniedException.class)
-			.hasMessage("RadNETZ-Knoten dürfen nicht bearbeitet werden.");
+					.isInstanceOf(AccessDeniedException.class)
+					.hasMessage("RadNETZ-Knoten dürfen nicht bearbeitet werden.");
 
 		assertThat(knoten.getKnotenAttribute().getKnotenForm()).isEmpty();
 		assertThat(knoten.getKnotenAttribute().getKommentar()).isEmpty();

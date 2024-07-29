@@ -16,9 +16,11 @@ import { Routes } from '@angular/router';
 import { MassnahmenDateianhaengeDateiHochladenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-datei-hochladen/massnahmen-dateianhaenge-datei-hochladen.component';
 import { MassnahmenDateianhaengeDuplikateUeberpruefenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-duplikate-ueberpruefen/massnahmen-dateianhaenge-duplikate-ueberpruefen.component';
 import { MassnahmenDateianhaengeFehlerUeberpruefenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-fehler-ueberpruefen/massnahmen-dateianhaenge-fehler-ueberpruefen.component';
+import { MassnahmenDateianhaengeFehlerprotokollHerunterladenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-fehlerprotokoll-herunterladen/massnahmen-dateianhaenge-fehlerprotokoll-herunterladen.component';
 import { MassnahmenDateianhaengeRoutingService } from 'src/app/import/massnahmen-dateianhaenge/services/massnahmen-dateianhaenge-routing.service';
 import { massnahmenDateianhaengeSessionExistsGuard } from 'src/app/import/massnahmen-dateianhaenge/services/massnahmen-dateianhaenge-session-exists.guard';
 import { massnahmenDateianhaengeSessionResolver } from 'src/app/import/massnahmen-dateianhaenge/services/massnahmen-dateianhaenge-session.resolver';
+import { discardGuard } from 'src/app/shared/services/discard.guard';
 
 export class MassnahmenDateianhaengeImportRoutes {
   public static CHILDROUTES: Routes = [
@@ -41,11 +43,13 @@ export class MassnahmenDateianhaengeImportRoutes {
       path: MassnahmenDateianhaengeRoutingService.DUPLIKATE_UEBERPRUEFEN_ROUTE,
       component: MassnahmenDateianhaengeDuplikateUeberpruefenComponent,
       canActivate: [massnahmenDateianhaengeSessionExistsGuard],
+      canDeactivate: [discardGuard],
+      resolve: { session: massnahmenDateianhaengeSessionResolver },
     },
-    // {
-    //   path: MassnahmenDateianhaengeRoutingService.FEHLERPROTOKOLL_HERUNTERLADEN_ROUTE,
-    //   component: undefined,
-    //   canActivate: [massnahmenDateianhaengeSessionExistsGuard],
-    // },
+    {
+      path: MassnahmenDateianhaengeRoutingService.FEHLERPROTOKOLL_HERUNTERLADEN_ROUTE,
+      component: MassnahmenDateianhaengeFehlerprotokollHerunterladenComponent,
+      canActivate: [massnahmenDateianhaengeSessionExistsGuard],
+    },
   ];
 }

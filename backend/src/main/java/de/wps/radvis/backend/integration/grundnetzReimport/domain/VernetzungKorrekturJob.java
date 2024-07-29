@@ -139,7 +139,8 @@ public class VernetzungKorrekturJob extends AbstractJob {
 		entityManager.clear();
 
 		logHeuristikNachNetzkorrektur(vernetzungKorrekturJobStatistik);
-		vernetzungKorrekturJobStatistik.anzahlVernetzungsfehlerNachJobausfuehrung = netzService.countAndLogVernetzungFehlerhaft();
+		vernetzungKorrekturJobStatistik.anzahlVernetzungsfehlerNachJobausfuehrung = netzService
+			.countAndLogVernetzungFehlerhaft();
 
 		if (vernetzungKorrekturJobStatistik.anzahlVernetzungsfehlerNachJobausfuehrung > 0) {
 			throw new RuntimeException(
@@ -154,7 +155,8 @@ public class VernetzungKorrekturJob extends AbstractJob {
 	protected void entferneFalscheVernetzung(VernetzungKorrekturJobStatistik statistik) {
 		List<Knoten> knotenMitAuseinanderLiegendenKantenEnden = getKnotenMitAuseinanderLiegendenKantenEnden();
 
-		statistik.anzahlKnotenMitAuseinanderLiegendenKantenEndenVorEntfernungFalscherVernetzung = knotenMitAuseinanderLiegendenKantenEnden.size();
+		statistik.anzahlKnotenMitAuseinanderLiegendenKantenEndenVorEntfernungFalscherVernetzung = knotenMitAuseinanderLiegendenKantenEnden
+			.size();
 
 		log.info("anzahlKnotenMitAuseinanderLiegendenKantenEndenVorEntfernungFalscherVernetzung: {} \n IDs: {}",
 			statistik.anzahlKnotenMitAuseinanderLiegendenKantenEndenVorEntfernungFalscherVernetzung,
@@ -171,9 +173,8 @@ public class VernetzungKorrekturJob extends AbstractJob {
 			knotenIndex.fuegeEin(knoten);
 			Optional<Point> nearestLineEnding = adjazenteKanten
 				.stream()
-				.map(kante -> kante.getVonKnoten().equals(knoten) ?
-					kante.getGeometry().getStartPoint() :
-					kante.getGeometry().getEndPoint())
+				.map(kante -> kante.getVonKnoten().equals(knoten) ? kante.getGeometry().getStartPoint() : kante
+					.getGeometry().getEndPoint())
 				.min(Comparator.comparing(point -> point.distance(knoten.getPoint())));
 			nearestLineEnding.ifPresent(knoten::updatePoint);
 			knotenIndex.fuegeEin(knoten);
@@ -181,33 +182,25 @@ public class VernetzungKorrekturJob extends AbstractJob {
 				.forEach(kante -> {
 					log.info("aktuelle adjazenteKante: " + kante.getId());
 					boolean isVonKnoten = kante.getVonKnoten().equals(knoten);
-					Point lineEnding = isVonKnoten ?
-						kante.getGeometry().getStartPoint() :
-						kante.getGeometry().getEndPoint();
-					Point otherLineEnding = isVonKnoten ?
-						kante.getGeometry().getEndPoint() :
-						kante.getGeometry().getStartPoint();
-					Knoten otherKnoten = isVonKnoten ? kante.getNachKnoten() :
-						kante.getVonKnoten();
+					Point lineEnding = isVonKnoten ? kante.getGeometry().getStartPoint() : kante.getGeometry()
+						.getEndPoint();
+					Point otherLineEnding = isVonKnoten ? kante.getGeometry().getEndPoint() : kante.getGeometry()
+						.getStartPoint();
+					Knoten otherKnoten = isVonKnoten ? kante.getNachKnoten() : kante.getVonKnoten();
 					if (otherKnoten.getPoint().distance(otherLineEnding) > KnotenIndex.SNAPPING_DISTANCE) {
 						otherKnoten.updatePoint(otherLineEnding);
 						statistik.anzahlKnotenGeometrieDurchEntferneFalscheVernetzungKorrigiert++;
 					}
 					Optional<Knoten> existingKnoten = knotenIndex.finde(lineEnding);
 					existingKnoten.ifPresentOrElse(
-						k ->
-							kante.updateTopologie(isVonKnoten ? k : kante.getVonKnoten(),
-								isVonKnoten ? kante.getNachKnoten() : k),
+						k -> kante.updateTopologie(isVonKnoten ? k : kante.getVonKnoten(),
+							isVonKnoten ? kante.getNachKnoten() : k),
 						() -> {
 							Knoten neu = new Knoten(lineEnding, QuellSystem.DLM);
 							statistik.anzahlKnotenNeuAngelegt++;
 							kante.updateTopologie(
-								isVonKnoten ?
-									neu :
-									kante.getVonKnoten(),
-								isVonKnoten ?
-									kante.getNachKnoten() :
-									neu
+								isVonKnoten ? neu : kante.getVonKnoten(),
+								isVonKnoten ? kante.getNachKnoten() : neu
 							);
 							knotenIndex.fuegeEin(neu);
 							knotenRepository.save(neu);
@@ -249,9 +242,9 @@ public class VernetzungKorrekturJob extends AbstractJob {
 				.forEach(knoten -> {
 					List<Kante> adjazenteKanten = kantenRepository.getAdjazenteKanten(knoten);
 					List<Kante> kantenDieZumLoopWerden = adjazenteKanten.stream()
-						.filter(kante ->
-							(kante.getVonKnoten().equals(knoten) && kante.getNachKnoten().equals(knotenBest))
-								|| (kante.getNachKnoten().equals(knoten) && kante.getVonKnoten().equals(knotenBest)))
+						.filter(kante -> (kante.getVonKnoten().equals(knoten) && kante.getNachKnoten().equals(
+							knotenBest))
+							|| (kante.getNachKnoten().equals(knoten) && kante.getVonKnoten().equals(knotenBest)))
 						.collect(Collectors.toList());
 
 					if (!kantenDieZumLoopWerden.isEmpty()) {
@@ -350,10 +343,9 @@ public class VernetzungKorrekturJob extends AbstractJob {
 				HashMap::new,
 				Collectors.collectingAndThen(
 					Collectors.toList(),
-					(List<Tuple> tuples) ->
-						tuples.stream()
-							.map((Tuple tuple) -> tuple.get("id"))
-							.collect(Collectors.toList()))
+					(List<Tuple> tuples) -> tuples.stream()
+						.map((Tuple tuple) -> tuple.get("id"))
+						.collect(Collectors.toList()))
 			));
 	}
 
@@ -396,11 +388,13 @@ public class VernetzungKorrekturJob extends AbstractJob {
 	}
 
 	private void logHeuristikenVorNetzkorrektur(VernetzungKorrekturJobStatistik vernetzungKorrekturJobStatistik) {
-		vernetzungKorrekturJobStatistik.anzahlVernetzungsfehlerVorJobausfuehrung = netzService.countAndLogVernetzungFehlerhaft();
+		vernetzungKorrekturJobStatistik.anzahlVernetzungsfehlerVorJobausfuehrung = netzService
+			.countAndLogVernetzungFehlerhaft();
 		List<Long> vonDlmKantenVerwaisteKnotenVorher = findVonDlmKantenVerwaisteKnoten();
 		List<Long> komplettVerwaisteKnotenVorher = findKomplettVerwaisteKnoten();
 		List<Long> knotenMitNurRadvisKantenVorher = findKnotenMitNurRadvisKanten();
-		vernetzungKorrekturJobStatistik.anzahlVonDlmKantenVerwaisteKnotenVorher = vonDlmKantenVerwaisteKnotenVorher.size();
+		vernetzungKorrekturJobStatistik.anzahlVonDlmKantenVerwaisteKnotenVorher = vonDlmKantenVerwaisteKnotenVorher
+			.size();
 		vernetzungKorrekturJobStatistik.anzahlKomplettVerwaisterKnotenVorher = komplettVerwaisteKnotenVorher.size();
 		vernetzungKorrekturJobStatistik.anzahlKnotenMitNurRadvisKantenVorher = knotenMitNurRadvisKantenVorher.size();
 		log.info("Von Dlm-Kanten verwaiste Knoten: " + vonDlmKantenVerwaisteKnotenVorher);
@@ -412,7 +406,8 @@ public class VernetzungKorrekturJob extends AbstractJob {
 		List<Long> vonDlmKantenVerwaisteKnotenNachher = findVonDlmKantenVerwaisteKnoten();
 		List<Long> komplettVerwaisteKnotenNachher = findKomplettVerwaisteKnoten();
 		List<Long> knotenMitNurRadvisKantenNachher = findKnotenMitNurRadvisKanten();
-		vernetzungKorrekturJobStatistik.anzahlVonDlmKantenVerwaisteKnotenNachher = vonDlmKantenVerwaisteKnotenNachher.size();
+		vernetzungKorrekturJobStatistik.anzahlVonDlmKantenVerwaisteKnotenNachher = vonDlmKantenVerwaisteKnotenNachher
+			.size();
 		vernetzungKorrekturJobStatistik.anzahlKomplettVerwaisterKnotenNachher = komplettVerwaisteKnotenNachher.size();
 		vernetzungKorrekturJobStatistik.anzahlKnotenMitNurRadvisKantenNachher = knotenMitNurRadvisKantenNachher.size();
 		log.info("Von Dlm-Kanten verwaiste Knoten: " + vonDlmKantenVerwaisteKnotenNachher);

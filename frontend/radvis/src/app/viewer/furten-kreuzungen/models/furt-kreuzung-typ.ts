@@ -22,17 +22,15 @@ export enum FurtKreuzungTyp {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace FurtKreuzungTyp {
-  export const options: EnumOption[] = Object.keys(FurtKreuzungTyp).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case FurtKreuzungTyp.FURT:
-          return { name: k, displayText: 'Furt' };
-        case FurtKreuzungTyp.KREUZUNG:
-          return { name: k, displayText: 'Kreuzung' };
-      }
-      throw new Error('Beschreibung für enum FurtKreuzungTyp fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(FurtKreuzungTyp).map((k: string): EnumOption => {
+    switch (k) {
+      case FurtKreuzungTyp.FURT:
+        return { name: k, displayText: 'Furt' };
+      case FurtKreuzungTyp.KREUZUNG:
+        return { name: k, displayText: 'Kreuzung' };
     }
-  );
+    throw new Error('Beschreibung für enum FurtKreuzungTyp fehlt: ' + k);
+  });
 
   export const displayTextOf: (furtKreuzungTyp: FurtKreuzungTyp) => string = (
     furtKreuzungTyp: FurtKreuzungTyp

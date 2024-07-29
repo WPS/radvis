@@ -14,7 +14,7 @@
 
 <mat-toolbar *ngIf="isCreator">
   <h2 class="flex-grow">Abstellanlage erstellen</h2>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -26,20 +26,15 @@
     (save)="onSave()"
     [dirty]="isDirty"
     [fetching]="isFetching"
-    [showHeader]="false"
-  >
+    [showHeader]="false">
     <rad-position-selektion-control
       *ngIf="!isQuellsystemMobiData"
       formControlName="geometrie"
       class="mt-10"
-      [withInfrastrukturIcon]="iconName"
-    ></rad-position-selektion-control>
-    <div class="hinweis fremdnetz-hinweis" *ngIf="isQuellsystemMobiData">
-      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-      <div class="ml-10">
-        Diese Abstellanlage wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
-      </div>
-    </div>
+      [withInfrastrukturIcon]="iconName"></rad-position-selektion-control>
+    <rad-warnhinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
+      Diese Abstellanlage wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
+    </rad-warnhinweis>
 
     <rad-text-input-control formControlName="betreiber" [errors]="formGroup.get('betreiber')?.errors">
       <div class="label">Betreiber</div>
@@ -53,8 +48,7 @@
       formControlName="quellSystem"
       [options]="abstellanlagenQuellSystemOptions"
       [nullable]="false"
-      [errors]="formGroup.get('quellSystem')?.errors"
-    >
+      [errors]="formGroup.get('quellSystem')?.errors">
       Quellsystem
     </rad-enum-dropdown-control>
 
@@ -76,15 +70,13 @@
 
     <rad-text-input-control
       formControlName="anzahlSchliessfaecher"
-      [errors]="formGroup.get('anzahlSchliessfaecher')?.errors"
-    >
+      [errors]="formGroup.get('anzahlSchliessfaecher')?.errors">
       <div class="label">Anzahl Schließfächer</div>
     </rad-text-input-control>
 
     <rad-text-input-control
       formControlName="anzahlLademoeglichkeiten"
-      [errors]="formGroup.get('anzahlLademoeglichkeiten')?.errors"
-    >
+      [errors]="formGroup.get('anzahlLademoeglichkeiten')?.errors">
       <div class="label">Anzahl Lademöglichkeiten</div>
     </rad-text-input-control>
 
@@ -92,8 +84,7 @@
       formControlName="ueberwacht"
       [options]="ueberwachtOptions"
       [nullable]="false"
-      [errors]="formGroup.get('ueberwacht')?.errors"
-    >
+      [errors]="formGroup.get('ueberwacht')?.errors">
       Überwacht
     </rad-enum-dropdown-control>
 
@@ -101,13 +92,11 @@
       [nullable]="false"
       [options]="abstellanlagenOrtOptions"
       formControlName="abstellanlagenOrt"
-      class="mat-form-field-full-width"
-    >
+      class="mat-form-field-full-width">
       Ort
     </rad-enum-dropdown-control>
     <rad-validation-error-anzeige
-      [errors]="formGroup.get('abstellanlagenOrt')?.errors || null"
-    ></rad-validation-error-anzeige>
+      [errors]="formGroup.get('abstellanlagenOrt')?.errors || null"></rad-validation-error-anzeige>
 
     <rad-enum-dropdown-control
       formControlName="groessenklasse"
@@ -115,8 +104,7 @@
       [nullable]="true"
       matTooltip="Darf nur bei vorhandenem B+R gesetzt sein"
       [matTooltipDisabled]="!formGroup.get('groessenklasse')?.disabled"
-      [errors]="formGroup.get('groessenklasse')?.errors"
-    >
+      [errors]="formGroup.get('groessenklasse')?.errors">
       Größenklasse
     </rad-enum-dropdown-control>
 
@@ -124,8 +112,7 @@
       formControlName="stellplatzart"
       [options]="stellplatzartOptions"
       [nullable]="true"
-      [errors]="formGroup.get('stellplatzart')?.errors"
-    >
+      [errors]="formGroup.get('stellplatzart')?.errors">
       Stellplatzart
     </rad-enum-dropdown-control>
 
@@ -150,8 +137,7 @@
       formControlName="beschreibung"
       asTextArea="true"
       [maxLength]="2000"
-      [errors]="formGroup.get('beschreibung')?.errors"
-    >
+      [errors]="formGroup.get('beschreibung')?.errors">
       <div class="label">Beschreibung</div>
     </rad-text-input-control>
 
@@ -160,8 +146,7 @@
         formControlName="weitereInformation"
         asTextArea="true"
         [maxLength]="2000"
-        [errors]="formGroup.get('weitereInformation')?.errors"
-      >
+        [errors]="formGroup.get('weitereInformation')?.errors">
         <div class="label">Weitere Informationen</div>
       </rad-text-input-control>
     </ng-container>
@@ -174,8 +159,7 @@
       formControlName="status"
       [options]="abstellanlagenStatusOptions"
       [nullable]="true"
-      [errors]="formGroup.get('status')?.errors"
-    >
+      [errors]="formGroup.get('status')?.errors">
       Status
     </rad-enum-dropdown-control>
   </rad-attribute-editor>

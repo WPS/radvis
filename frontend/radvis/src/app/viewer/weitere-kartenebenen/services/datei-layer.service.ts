@@ -15,7 +15,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { CreateDateiLayerCommand } from 'src/app/viewer/weitere-kartenebenen/models/create-datei-layer-command';
 import { DateiLayer } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer';
 
@@ -26,7 +25,7 @@ export class DateiLayerService {
   public static readonly API = '/api/datei-layer';
   private _allDateiLayers: BehaviorSubject<DateiLayer[]> = new BehaviorSubject<DateiLayer[]>([]);
 
-  constructor(private http: HttpClient, private fileHandlingService: FileHandlingService) {}
+  constructor(private http: HttpClient) {}
 
   get allDateiLayers$(): Observable<DateiLayer[]> {
     return this._allDateiLayers.asObservable();

@@ -102,8 +102,8 @@ public class ShapeFileRepositoryImpl implements ShapeFileRepository {
 
 		SimpleFeatureIterator featureIterator = features.features();
 		return StreamSupport.stream(
-				Spliterators.spliteratorUnknownSize(new CustomFeatureIterator(featureIterator), Spliterator.ORDERED),
-				false)
+			Spliterators.spliteratorUnknownSize(new CustomFeatureIterator(featureIterator), Spliterator.ORDERED),
+			false)
 			.onClose(() -> {
 				featureIterator.close();
 				store.dispose();
@@ -182,7 +182,6 @@ public class ShapeFileRepositoryImpl implements ShapeFileRepository {
 
 		// validate Projection
 		validateProjection(simpleFeatureCollection);
-
 	}
 
 	private void validateEncodingIsUTF8(File shpFile) throws ShapeEncodingException {

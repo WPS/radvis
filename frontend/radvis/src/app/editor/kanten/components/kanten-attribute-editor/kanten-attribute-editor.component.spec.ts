@@ -59,11 +59,8 @@ describe(KantenAttributeEditorComponent.name, () => {
 
   // Bitte wieder component.formGroup.value nutzen, wenn RadNETZ-Klassen an Grundnetzkanten gesetzt werden können!
   const getFormValues: () => any = () => {
-    const {
-      laengeBerechnet,
-      landkreis,
-      ...rawValuesWithoutLandkreisUndLaengeBerechnet
-    } = component.formGroup.getRawValue();
+    const { laengeBerechnet, landkreis, ...rawValuesWithoutLandkreisUndLaengeBerechnet } =
+      component.formGroup.getRawValue();
 
     return rawValuesWithoutLandkreisUndLaengeBerechnet;
   };

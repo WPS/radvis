@@ -114,7 +114,8 @@ class DlmMatchingRepositoryImplTest {
 
 		graphhopperFactory = spy(graphhopperServiceConfiguration.dlmMatchedGraphHopperFactory());
 		dlmMatchingRepository = new DlmMatchingRepositoryImpl(graphhopperFactory,
-			new CoordinateReferenceSystemConverter(commonConfigurationProperties.getBadenWuerttembergEnvelope()),
+			new CoordinateReferenceSystemConverter(
+				commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope()),
 			graphhopperDlmConfigurationProperties.getMeasurementErrorSigma());
 
 		testLineString = createLineString(testLineStringInUTM32, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
@@ -202,7 +203,6 @@ class DlmMatchingRepositoryImplTest {
 	void matchGeometry_abhaengigkeitVonMeasurementErrorSigma_match()
 		throws ParseException, KeinMatchGefundenException {
 		// Arrange
-
 		String testLineStringReferenz = "LINESTRING (414467.456862417 5316872.920001071, 414482.8370156474 5316926.615656143)";
 		LineString testLineStringReferenzGeometrie = createLineString(testLineStringReferenz,
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
@@ -210,7 +210,8 @@ class DlmMatchingRepositoryImplTest {
 
 		dlmMatchingRepository = new DlmMatchingRepositoryImpl(
 			graphhopperServiceConfiguration.dlmMatchedGraphHopperFactory(),
-			new CoordinateReferenceSystemConverter(commonConfigurationProperties.getBadenWuerttembergEnvelope()),
+			new CoordinateReferenceSystemConverter(
+				commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope()),
 			measurementErrorSigma);
 
 		// Act
@@ -230,7 +231,8 @@ class DlmMatchingRepositoryImplTest {
 		double measurementErrorSigma = 0.013;
 		dlmMatchingRepository = new DlmMatchingRepositoryImpl(
 			graphhopperServiceConfiguration.dlmMatchedGraphHopperFactory(),
-			new CoordinateReferenceSystemConverter(commonConfigurationProperties.getBadenWuerttembergEnvelope()),
+			new CoordinateReferenceSystemConverter(
+				commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope()),
 			measurementErrorSigma);
 
 		// Act
@@ -272,15 +274,14 @@ class DlmMatchingRepositoryImplTest {
 	@Test
 	void testMatch_inReihenfolgeUndMitDuplikaten() throws ParseException, KeinMatchGefundenException {
 		LineString lineStringTestUTM32 = createLineString(
-			"LINESTRING(414084.906554157845676 5327145.883031556382775,414241.671186204534024 5327352.496770462952554,414326.90781082957983 5327289.282404191792011,414392.229230600700248 5327235.895945344120264,414451.818164336902555 5327195.528266977518797,414560.45589438220486 5327325.274237154982984,414458.099167378502898 5327188.62797656096518,414508.459387594950385 5327140.911447181366384)",
+			"LINESTRING (414442.422 5318831.998, 414519.215 5318823.376, 414527.713 5318897.046, 414559.544 5319012.952, 414527.393 5318895.655, 414519.100 5318822.38057410530746, 414519.258 5318772.414, 414528.316 5318668.562, 414489.227 5318663.359, 414452.187 5318654.735)",
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 		OsmMatchResult matchedForBike = dlmMatchingRepository.matchGeometry(lineStringTestUTM32, "bike");
 		assertThat(matchedForBike.getOsmWayIdsAsOrderedList()).containsExactly(
-			OsmWayId.of(227973492),
-			OsmWayId.of(27086341),
-			OsmWayId.of(28578401),
-			OsmWayId.of(28578401),
-			OsmWayId.of(27086341)
+			OsmWayId.of(4870635),
+			OsmWayId.of(4866201),
+			OsmWayId.of(4866201),
+			OsmWayId.of(4870626)
 		);
 	}
 

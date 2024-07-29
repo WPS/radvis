@@ -4,6 +4,8 @@ radVis:
     externeResourcenBasisPfad: src/test/resources
     anzahl-tage-importprotokolle-vorhalten: 60
     basisUrl: http://localhost:8080 # Beispielwert
+    obersteGebietskoerperschaftName: Baden-Württemberg
+    obersteGebietskoerperschaftOrganisationsArt: Bundesland
   osm:
     # Setzt den Dateinamen zu den OSM-Daten in dem Container. Der Pfad kann über die genannte Umgebungsvariable gesetzt werden. Falls dies nicht gesetzt ist, wird der Standardwert genutzt.
     osmBasisDaten: test.osm.pbf

@@ -30,7 +30,6 @@ import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 
-import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -139,9 +138,7 @@ public class ManuellerAttributeImportAbbildungsService extends AbstractManueller
 		MatchingStatistik matchingStatistik,
 		InMemoryKantenRepository inMemoryMatchingKantenRepository) {
 		Optional<OsmMatchResult> osmMatchResult = simpleMatchingService.matche(
-			(LineString) CoordinateReferenceSystemConverterUtility.transformGeometry(
-				featureMapping.getImportedLineString(),
-				KoordinatenReferenzSystem.ETRS89_UTM32_N), matchingStatistik);
+			featureMapping.getImportedLineString(), matchingStatistik);
 
 		if (osmMatchResult.isPresent()) {
 			List<Kante> matchingKanten = inMemoryMatchingKantenRepository.findKantenById(

@@ -34,7 +34,7 @@ public class MassnahmenDateianhaengeImportSessionView extends AbstractImportSess
 		this.gebietskoerperschaften = session.getGebietskoerperschaftenIds();
 		this.sollStandard = session.getSollStandard();
 		this.konzeptionsquelle = session.getKonzeptionsquelle();
-		this.zuordnungen = session.getZuordnungen().stream()
+		this.zuordnungen = session.getZuordnungen().values().stream()
 			.map(MassnahmenDateianhaengeImportZuordnungView::of)
 			.toList();
 	}

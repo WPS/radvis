@@ -39,24 +39,21 @@
       <rad-text-input-control
         formControlName="vorname"
         [touchOnWrite]="false"
-        [errors]="registrierungForm.get('vorname')?.errors"
-      >
+        [errors]="registrierungForm.get('vorname')?.errors">
         <div class="label">Vorname</div>
       </rad-text-input-control>
 
       <rad-text-input-control
         formControlName="nachname"
         [touchOnWrite]="false"
-        [errors]="registrierungForm.get('nachname')?.errors"
-      >
+        [errors]="registrierungForm.get('nachname')?.errors">
         <div class="label">Nachname</div>
       </rad-text-input-control>
 
       <rad-text-input-control
         formControlName="email"
         [touchOnWrite]="false"
-        [errors]="registrierungForm.get('email')?.errors"
-      >
+        [errors]="registrierungForm.get('email')?.errors">
         <div class="label">E-Mail-Adresse</div>
       </rad-text-input-control>
 
@@ -64,8 +61,7 @@
         formControlName="organisation"
         [options]="alleBenutzerOrganisationen"
         [touchOnWrite]="false"
-        [errors]="registrierungForm.get('organisation')?.errors"
-      >
+        [errors]="registrierungForm.get('organisation')?.errors">
         Organisation
       </rad-organisationen-dropdown-control>
 
@@ -75,8 +71,7 @@
         [nullable]="false"
         [multiple]="true"
         [touchOnWrite]="false"
-        [errors]="registrierungForm.get('rollen')?.errors"
-      >
+        [errors]="registrierungForm.get('rollen')?.errors">
         Rollen
       </rad-enum-dropdown-control>
 
@@ -87,9 +82,9 @@
       <mat-checkbox [checked]="agreedTerms" (change)="toggleAgreedTerms($event.checked)">
         <div style="white-space: break-spaces">
           Ich stimme den
-          <a target="_blank" href="assets/RadVIS Datennutzungsbestimmungen.pdf">Datennutzungsbestimmungen</a>
+          <a target="_blank" href="/resources/Datennutzungsbestimmungen.pdf">Datennutzungsbestimmungen</a>
           und der
-          <a target="_blank" href="assets/RadVIS Datenschutzerklaerung.pdf">Datenschutzerklärung</a>
+          <a target="_blank" href="/resources/Datenschutzerklaerung.pdf">Datenschutzerklärung</a>
           zu.
         </div>
       </mat-checkbox>

@@ -18,7 +18,7 @@
     <div class="display-flex flex-column align-items-center">
       <div class="mb-5">
         Bitte laden Sie eine Shape mit allen Dateien als Zip-Archiv hoch. Weitere Informationen finden Sie im
-        <a href="javascript:void(0);" (click)="openManualEditorTransformation()">Handbuch</a>
+        <a href="javascript:void(0);" (click)="openManualImportTransformation()">Handbuch</a>
         (siehe Abschnitt Transformation).
       </div>
       <rad-file-upload-control formControlName="shpFile" dateiEndung="zip" style="width: 100%">
@@ -26,8 +26,7 @@
       </rad-file-upload-control>
       <rad-validation-error-anzeige
         [errors]="formGroup.get('shpFile')?.errors || null"
-        *ngIf="formGroup.get('shpFile')?.dirty"
-      ></rad-validation-error-anzeige>
+        *ngIf="formGroup.get('shpFile')?.dirty"></rad-validation-error-anzeige>
     </div>
 
     <rad-file-upload-control class="mt-10" formControlName="transformationFile" dateiEndung="csv" style="width: 100%">
@@ -35,8 +34,7 @@
     </rad-file-upload-control>
     <rad-validation-error-anzeige
       *ngIf="formGroup.get('transformationFile')?.dirty"
-      [errors]="formGroup.get('transformationFile')?.errors || null"
-    >
+      [errors]="formGroup.get('transformationFile')?.errors || null">
     </rad-validation-error-anzeige>
   </form>
 </div>

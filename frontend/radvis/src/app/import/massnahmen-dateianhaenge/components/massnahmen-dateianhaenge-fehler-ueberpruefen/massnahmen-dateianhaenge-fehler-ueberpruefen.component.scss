@@ -12,31 +12,28 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+@import 'src/style/colors';
+
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
+.import-step-footer-buttons {
+  margin: 0 2rem;
+}
+
 .zuordnung-table {
   margin: 0 -2rem;
-}
-
-.buttons {
-  gap: 1rem;
-}
-
-.buttons > * {
-  flex-grow: 1;
-  flex-basis: 0;
 }
 
 .mat-mdc-header-row {
   height: 2rem;
 }
 
-.ordner-cell {
-  max-width: 9rem;
+.id-cell {
+  width: 9rem;
   overflow-wrap: break-word;
 }
 
@@ -45,22 +42,33 @@
 }
 
 table {
-  border-top: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
   border-bottom: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
 }
 
 td {
-  padding: 1rem;
   vertical-align: top;
 }
 
-th, td {
+th,
+td {
+  padding: 0.5rem 1rem;
+  border-bottom: none;
+  border-top: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
+
   &:not(:last-child) {
     border-right: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
   }
 }
 
+tr {
+  height: 0.5rem !important;
+}
+
 .hinweis-liste {
   margin: 0;
   padding: 0 0.5rem;
+}
+
+.red {
+  color: map-get($radvis-app-red-palette, 200);
 }

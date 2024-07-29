@@ -26,25 +26,23 @@ export enum TrennstreifenForm {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace TrennstreifenForm {
-  export const options: EnumOption[] = Object.keys(TrennstreifenForm).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case TrennstreifenForm.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-        case TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN:
-          return { name: k, displayText: 'Kein Sicherheitstrennstreifen vorhanden' };
-        case TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM:
-          return { name: k, displayText: 'Trennung durch Fahrzeugrückhaltesystem' };
-        case TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN:
-          return { name: k, displayText: 'Trennung durch Sperrpfosten' };
-        case TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN:
-          return { name: k, displayText: 'Trennung durch Grünstreifen' };
-        case TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG:
-          return { name: k, displayText: 'Trennung durch markierungstechnische oder bauliche Trennung' };
-        case TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART:
-          return { name: k, displayText: 'Trennung durch andere Art' };
-      }
-      throw new Error('Beschreibung für enum TrennstreifenForm fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(TrennstreifenForm).map((k: string): EnumOption => {
+    switch (k) {
+      case TrennstreifenForm.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
+      case TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN:
+        return { name: k, displayText: 'Kein Sicherheitstrennstreifen vorhanden' };
+      case TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM:
+        return { name: k, displayText: 'Trennung durch Fahrzeugrückhaltesystem' };
+      case TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN:
+        return { name: k, displayText: 'Trennung durch Sperrpfosten' };
+      case TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN:
+        return { name: k, displayText: 'Trennung durch Grünstreifen' };
+      case TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG:
+        return { name: k, displayText: 'Trennung durch markierungstechnische oder bauliche Trennung' };
+      case TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART:
+        return { name: k, displayText: 'Trennung durch andere Art' };
     }
-  );
+    throw new Error('Beschreibung für enum TrennstreifenForm fehlt: ' + k);
+  });
 }

@@ -15,12 +15,18 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MassnahmenImportAttributeAuswaehlenCommand } from 'src/app/import/massnahmen/models/massnahmen-import-attribute-uebernehmen-command';
+import { MassnahmenImportMassnahmenAuswaehlenCommand } from 'src/app/import/massnahmen/models/massnahmen-import-massnahmen-auswaehlen-command';
+import { MassnahmenImportNetzbezugAktualisierenCommand } from 'src/app/import/massnahmen/models/massnahmen-import-netzbezug-aktualisieren-command';
+import { MassnahmenImportProtokollStats } from 'src/app/import/massnahmen/models/massnahmen-import-protokoll-stats';
 import { MassnahmenImportSessionView } from 'src/app/import/massnahmen/models/massnahmen-import-session-view';
+import { MassnahmenImportZuordnungAttributfehler } from 'src/app/import/massnahmen/models/massnahmen-import-zuordnung-attributfehler';
+import { MassnahmenImportZuordnungUeberpruefung } from 'src/app/import/massnahmen/models/massnahmen-import-zuordnung-ueberpruefung';
 import { StartMassnahmenImportSessionCommand } from 'src/app/import/massnahmen/models/start-massnahmen-import-session-command';
 import { ImportService } from 'src/app/import/services/import.service';
-import { MassnahmenImportZuordnung } from 'src/app/import/massnahmen/models/massnahmen-import-zuordnung';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class MassnahmenImportService extends ImportService {
   readonly massnahmenImportApi = '/api/import/massnahmen';
 
@@ -28,8 +34,16 @@ export class MassnahmenImportService extends ImportService {
     return this.http.get<MassnahmenImportSessionView | null>(`${this.massnahmenImportApi}/session`);
   }
 
-  public getZuordnungen(): Observable<MassnahmenImportZuordnung[] | null> {
-    return this.http.get<MassnahmenImportZuordnung[] | null>(`${this.massnahmenImportApi}/session/zuordnungen`);
+  public getZuordnungUeberpruefung(): Observable<MassnahmenImportZuordnungUeberpruefung[] | null> {
+    return this.http.get<MassnahmenImportZuordnungUeberpruefung[] | null>(
+      `${this.massnahmenImportApi}/session/zuordnungen-ueberpruefung`
+    );
+  }
+
+  public getZuordnungenAttributfehler(): Observable<MassnahmenImportZuordnungAttributfehler[] | null> {
+    return this.http.get<MassnahmenImportZuordnungAttributfehler[] | null>(
+      `${this.massnahmenImportApi}/session/zuordnungen-attributfehler`
+    );
   }
 
   public createSessionAndStartMassnahmenImport(
@@ -44,5 +58,27 @@ export class MassnahmenImportService extends ImportService {
 
   public attributeAuswaehlen(command: MassnahmenImportAttributeAuswaehlenCommand): Observable<void> {
     return this.http.post<void>(`${this.massnahmenImportApi}/attribute-auswaehlen`, command);
+  }
+
+  public netzbezuegeErstellen(): Observable<void> {
+    return this.http.post<void>(`${this.massnahmenImportApi}/netzbezuege-erstellen`, null);
+  }
+
+  public netzbezugAktualisieren(command: MassnahmenImportNetzbezugAktualisierenCommand): Observable<void> {
+    return this.http.post<void>(`${this.massnahmenImportApi}/netzbezug-aktualisieren`, command);
+  }
+
+  public massnahmenSpeichern(command: MassnahmenImportMassnahmenAuswaehlenCommand): Observable<void> {
+    return this.http.post<void>(`${this.massnahmenImportApi}/save-massnahmen`, command);
+  }
+
+  public getProtokollStats(): Observable<MassnahmenImportProtokollStats> {
+    return this.http.get<MassnahmenImportProtokollStats>(`${this.massnahmenImportApi}/protokoll-stats`);
+  }
+
+  public downloadFehlerprotokoll(): Observable<Blob> {
+    return this.http.get<Blob>(`${this.massnahmenImportApi}/download-fehlerprotokoll`, {
+      responseType: 'blob' as 'json',
+    });
   }
 }

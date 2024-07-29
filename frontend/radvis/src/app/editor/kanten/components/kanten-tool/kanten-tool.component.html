@@ -20,8 +20,7 @@
 
       <rad-fehlerprotokoll-layer
         *ngIf="fehlerprotokolleEnabled"
-        [zIndex]="fehlerprotokollZIndex"
-      ></rad-fehlerprotokoll-layer>
+        [zIndex]="fehlerprotokollZIndex"></rad-fehlerprotokoll-layer>
       <div class="create-button-wrapper">
         <button
           [routerLink]="kantenCreatorRoute"
@@ -31,8 +30,7 @@
           routerLinkActive="activated"
           aria-label="Neue Kante hinzufügen"
           matTooltip="Neue Kante hinzufügen"
-          matTooltipPosition="above"
-        >
+          matTooltipPosition="above">
           <mat-icon>add</mat-icon>
           Neue Kante
         </button>
@@ -43,8 +41,7 @@
         aria-keyshortcuts="Control+Alt+Shift+D"
         class="tool"
         #toolContainer
-        [class.h-100]="kanteSelektiert || (isKantenCreatorAktiv | async)"
-      >
+        [class.h-100]="kanteSelektiert || (isKantenCreatorAktiv | async)">
         <div *ngIf="(isKantenCreatorAktiv | async) === false && kanteSelektiert" class="second-nav-bar">
           <nav mat-tab-nav-bar color="accent" [disableRipple]="true" [tabPanel]="tabPanel">
             <a

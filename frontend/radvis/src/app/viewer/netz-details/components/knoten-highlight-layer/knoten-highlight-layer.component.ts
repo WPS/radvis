@@ -21,7 +21,7 @@ import { isPoint, PointGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { RADVIS_NETZ_LAYER_PREFIX } from 'src/app/viewer/viewer-shared/models/radvis-netz-layer-prefix';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import invariant from 'tiny-invariant';
 
 @Component({
@@ -40,7 +40,10 @@ export class KnotenHighlightLayerComponent implements OnChanges, OnDestroy {
   vectorSource = new VectorSource();
   olLayer: VectorLayer;
 
-  constructor(private olMapService: OlMapService, private netzAusblendenService: NetzAusblendenService) {
+  constructor(
+    private olMapService: OlMapService,
+    private netzAusblendenService: NetzAusblendenService
+  ) {
     this.olLayer = new VectorLayer({
       source: this.vectorSource,
       style: MapStyles.getDefaultHighlightStyle(MapStyles.FEATURE_SELECT_COLOR),

@@ -16,6 +16,7 @@ package de.wps.radvis.backend.massnahme.domain;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -155,7 +156,7 @@ public class UmsetzungsstandImportJob extends AbstractJob {
 		}
 
 		umsetzungsstandCsvZeileMapper.mapKorrigierterBaulastZustaendiger(umsetzungsstandCsvZeile,
-				this.verwaltungseinheiten)
+			this.verwaltungseinheiten)
 			.ifPresent((Verwaltungseinheit neuerBaulastZustaendiger) -> {
 				if (massnahme.getBaulastZustaendiger().isPresent() && massnahme.getBaulastZustaendiger().get()
 					.equals(neuerBaulastZustaendiger)) {
@@ -170,12 +171,16 @@ public class UmsetzungsstandImportJob extends AbstractJob {
 	private List<UmsetzungsstandCsvZeile> leseCsvEin() {
 		try {
 			String path = this.csvFilePath.toString();
-			InputStreamReader reader = new InputStreamReader(new BOMInputStream(new FileInputStream(path)),
-				StandardCharsets.UTF_8);
+			BOMInputStream.Builder inputStreamBuilder = BOMInputStream
+				.builder()
+				.setInputStream(new FileInputStream(path));
+			InputStreamReader reader = new InputStreamReader(inputStreamBuilder.get(), StandardCharsets.UTF_8);
 			return new CsvToBeanBuilder<UmsetzungsstandCsvZeile>(
 				reader).withType(UmsetzungsstandCsvZeile.class).withSeparator(';').withQuoteChar('"').build().parse();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("CSV-Datei an Pfad " + this.csvFilePath + " nicht gefunden", e);
+		} catch (IOException e) {
+			throw new RuntimeException("Einlesen der Datei " + this.csvFilePath + " fehlgeschlagen", e);
 		}
 	}
 

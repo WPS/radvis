@@ -14,10 +14,10 @@
 
 package de.wps.radvis.backend.manuellerimport.attributeimport.domain.service;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -103,7 +103,35 @@ public class LUBWMapper extends AttributeMapper {
 			super.applyRadverkehrsfuehrung(kante, radverkehrsfuehrung, linearReferenzierterAbschnitt);
 			break;
 		case "st":
-			mapTrennstreifenInfo(attributesProperties, linearReferenzierterAbschnitt, kante, null);
+			mapTrennstreifenInfo(attributesProperties, linearReferenzierterAbschnitt, kante, Seitenbezug.BEIDSEITIG);
+			break;
+		default:
+			throw new RuntimeException("LinearReferenziertes LUBW-Attribut '" + attributname + "' unbekannt");
+		}
+	}
+
+	@Override
+	public void applyLinearReferenzierterAbschnittSeitenbezogen(String attributname,
+		MappedAttributesProperties attributesProperties,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt,
+		Seitenbezug seitenbezug,
+		Kante kante) throws AttributUebernahmeException {
+		String attributwert = attributesProperties.getProperty(attributname);
+		switch (attributname.toLowerCase()) {
+		case "belag":
+			BelagArt belagArt = mapBelagArt(attributwert);
+			super.applyBelagArt(kante, belagArt, seitenbezug, linearReferenzierterAbschnitt);
+			break;
+		case "breite":
+			Laenge breite = mapBreite(attributwert);
+			super.applyBreite(kante, breite, seitenbezug, linearReferenzierterAbschnitt);
+			break;
+		case "wegart":
+			Radverkehrsfuehrung radverkehrsfuehrung = mapRadverkehrsfuehrung(attributwert);
+			super.applyRadverkehrsfuehrung(kante, radverkehrsfuehrung, seitenbezug, linearReferenzierterAbschnitt);
+			break;
+		case "st":
+			mapTrennstreifenInfo(attributesProperties, linearReferenzierterAbschnitt, kante, seitenbezug);
 			break;
 		default:
 			throw new RuntimeException("LinearReferenziertes LUBW-Attribut '" + attributname + "' unbekannt");
@@ -113,27 +141,40 @@ public class LUBWMapper extends AttributeMapper {
 	private void mapTrennstreifenInfo(MappedAttributesProperties attributesProperties,
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante, Seitenbezug seitenbezug)
 		throws AttributUebernahmeException {
+		require(seitenbezug, notNullValue());
+
 		TrennstreifenForm trennstreifenForm = mapTrennstreifenForm(attributesProperties);
 		Laenge trennstreifenBreite = mapTrennstreifenBreite(attributesProperties);
 		TrennungZu trennungZu = mapTrennungZu(attributesProperties.getProperty("st"));
+
+		boolean kanteIstVorImportSchonZweiseitig = kante.isZweiseitig();
+		boolean zuImportierendeInformationenSindSeitenbezogen = seitenbezug != Seitenbezug.BEIDSEITIG;
+		boolean kanteIstOderWirdZweiseitig = zuImportierendeInformationenSindSeitenbezogen
+			|| kanteIstVorImportSchonZweiseitig;
 
 		List<Pair<FuehrungsformAttribute, Seitenbezug>> aufLineareReferenzZugeschnitten = new ArrayList<>();
 
 		if (seitenbezug == Seitenbezug.RECHTS) {
 			LinearReferenzierteAttribute.getIntersecting(linearReferenzierterAbschnitt,
-					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
+				kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 				.forEach(fa -> aufLineareReferenzZugeschnitten.add(Pair.of(fa, Seitenbezug.RECHTS)));
 		} else if (seitenbezug == Seitenbezug.LINKS) {
 			LinearReferenzierteAttribute.getIntersecting(linearReferenzierterAbschnitt,
-					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
+				kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 				.forEach(fa -> aufLineareReferenzZugeschnitten.add(Pair.of(fa, Seitenbezug.LINKS)));
-		} else {
+		} else if (kanteIstOderWirdZweiseitig) {
 			LinearReferenzierteAttribute.getIntersecting(linearReferenzierterAbschnitt,
-					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
+				kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts())
 				.forEach(fa -> aufLineareReferenzZugeschnitten.add(Pair.of(fa, Seitenbezug.RECHTS)));
 			LinearReferenzierteAttribute.getIntersecting(linearReferenzierterAbschnitt,
-					kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
+				kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
 				.forEach(fa -> aufLineareReferenzZugeschnitten.add(Pair.of(fa, Seitenbezug.LINKS)));
+		} else {
+			// Kante ist und bleibt einseitig -> STS-Infos beziehen sich auf beide Seiten gleichzeitig
+			// -> Seitenbezug.Beidseitig
+			LinearReferenzierteAttribute.getIntersecting(linearReferenzierterAbschnitt,
+				kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks())
+				.forEach(fa -> aufLineareReferenzZugeschnitten.add(Pair.of(fa, Seitenbezug.BEIDSEITIG)));
 		}
 
 		List<Pair<FuehrungsformAttribute, Seitenbezug>> valideAbschnitte = aufLineareReferenzZugeschnitten.stream()
@@ -149,105 +190,235 @@ public class LUBWMapper extends AttributeMapper {
 			})
 			.toList();
 
+		List<AttributUebernahmeFehler> potentialWrongTrennstreifenSeite = new ArrayList<>();
+
 		if (!valideAbschnitte.isEmpty() && !Objects.isNull(trennstreifenForm)) {
 			valideAbschnitte.forEach(
 				pairFaSeitenbezug -> {
+					// Wenn wir hier auf die linke STS-Seite was schreiben, schreiben wir konsistenterweise auf rechts,
+					// die Info: "Kein Sicherheitstrennstreifen vorhanden", da in den RadNETZ Daten nur ein STS
+					// auf einer Seite vorgesehen ist.
+					TrennstreifenForm trennstreifenFormLokal = trennstreifenForm;
+					TrennstreifenForm trennstreifenFormLokalAndereSeite = TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN;
+
+					FuehrungsformAttribute abschnittFuehrungsformAttribute = pairFaSeitenbezug.getFirst();
+					Seitenbezug abschnittSeitenbezug = pairFaSeitenbezug.getSecond();
 
 					// TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN passt nicht zu Radverkehrsfuehrung.UNBEKANNT
-					// In diesem Fall wollen wir trennstreifenForm = null als STS Info schreiben.
-					TrennstreifenForm trennstreifenFormLokal = trennstreifenForm;
+					// In diesem Fall wollen wir trennstreifenForm = null als STS Info auf beide Seiten schreiben.
 					if (trennstreifenForm == TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN
-						&& pairFaSeitenbezug.getFirst().getRadverkehrsfuehrung() == Radverkehrsfuehrung.UNBEKANNT) {
+						&& abschnittFuehrungsformAttribute.getRadverkehrsfuehrung() == Radverkehrsfuehrung.UNBEKANNT) {
 						trennstreifenFormLokal = null;
+						trennstreifenFormLokalAndereSeite = null;
 					}
 
-					if (!Objects.isNull(seitenbezug) || kante.isZweiseitig()) {
-						Trennstreifenseite trennstreifenseite = mapTrennstreifenseite(pairFaSeitenbezug.getFirst()
-							.getRadverkehrsfuehrung(), attributesProperties.getProperty("st"));
+					if (kanteIstOderWirdZweiseitig) {
+						Trennstreifenseite trennstreifenseite = mapTrennstreifenseite(
+							abschnittFuehrungsformAttribute
+								.getRadverkehrsfuehrung(),
+							attributesProperties.getProperty("st"),
+							trennstreifenFormLokal,
+							attributesProperties.getProperty("ORTSLAGE")
+						);
 
 						if (trennstreifenseite == Trennstreifenseite.UNBEKANNT) {
 							// Bei unbekannt, loggen und auf links schreiben
+							createAttributUebernahmeFehlerFalscheTrennstreifenSeite(kante.getId(),
+								trennstreifenFormLokal, potentialWrongTrennstreifenSeite,
+								trennstreifenBreite, trennungZu,
+								abschnittFuehrungsformAttribute, abschnittSeitenbezug);
 							log.warn(
-								"Trennstreifenseite nicht ermittelbar für Kante mit Id {} auf LRS {}. Schreibe Trennstreifen links",
+								"Zweiseitige Kante oder seitenBezugNotNull: Trennstreifenseite nicht ermittelbar für Kante mit Id {} auf LRS {}; Kante zweiseitig? {}; Seitenbezug: {}. Schreibe Trennstreifen links: {}, {}, {}",
 								kante.getId(),
-								pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt());
-							super.applyTrennstreifenInfoLinks(kante, trennstreifenFormLokal, trennstreifenBreite,
-								trennungZu, pairFaSeitenbezug.getSecond(),
-								pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt());
+								abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt(),
+								kanteIstVorImportSchonZweiseitig,
+								abschnittSeitenbezug,
+								trennstreifenFormLokal,
+								trennstreifenBreite,
+								trennungZu);
+
+							super.applyTrennstreifenInfoLinks(kante,
+								trennstreifenFormLokal,
+								trennstreifenBreite,
+								trennungZu,
+								abschnittSeitenbezug,
+								abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt());
+
+							super.applyTrennstreifenInfoRechts(kante,
+								trennstreifenFormLokalAndereSeite,
+								null,
+								null,
+								abschnittSeitenbezug,
+								abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+							);
 						} else {
-							boolean trennstreifenLinks = isTrennstreifenLinks(pairFaSeitenbezug.getSecond(),
+							// Zuerst bestimmen ob wir, ob wir das technisch linke oder technisch rechte STS Feld beschreiben.
+							// Wenn trennstreifenseite == Trennstreifenseite.BEIDSEITIG, dann schreiben wir die drei
+							// TrennstreifenWerte gleich auf beide Seiten (Das ist nur bei "Kein STS vorhanden" der Fall).
+							boolean trennstreifenLinks = isTrennstreifenLinks(abschnittSeitenbezug,
 								trennstreifenseite);
-							log.info(
+
+							log.debug(
 								"Trennstreifenseite ermittelbar für Kante mit Id {} auf LRS {}. Schreibe Trennstreifen {}",
 								kante.getId(),
-								pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt(),
+								abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt(),
 								trennstreifenLinks ? "links" : "rechts");
-							if (trennstreifenLinks) {
-								super.applyTrennstreifenInfoLinks(kante, trennstreifenFormLokal, trennstreifenBreite,
-									trennungZu, pairFaSeitenbezug.getSecond(),
-									pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt());
-							} else {
-								super.applyTrennstreifenInfoRechts(kante, trennstreifenFormLokal, trennstreifenBreite,
-									trennungZu, pairFaSeitenbezug.getSecond(),
-									pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt());
+
+							if (trennstreifenseite == Trennstreifenseite.BEIDSEITIG) {
+								// Beide Seiten haben die gleichen STS-Infos
+								super.applyTrennstreifenInfoLinksUndRechts(kante,
+									trennstreifenFormLokal,
+									trennstreifenBreite,
+									trennungZu,
+									abschnittSeitenbezug,
+									abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt());
+
+							} else if (trennstreifenLinks) { // Der STS ist nur auf der linken Seite
+								super.applyTrennstreifenInfoLinks(kante,
+									trennstreifenFormLokal,
+									trennstreifenBreite,
+									trennungZu,
+									abschnittSeitenbezug,
+									abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+								);
+								super.applyTrennstreifenInfoRechts(kante,
+									trennstreifenFormLokalAndereSeite,
+									null,
+									null,
+									abschnittSeitenbezug,
+									abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+								);
+
+							} else if (!trennstreifenLinks) { // Der STS ist nur auf der rechten Seite
+								super.applyTrennstreifenInfoRechts(kante,
+									trennstreifenFormLokal,
+									trennstreifenBreite,
+									trennungZu,
+									abschnittSeitenbezug,
+									abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+								);
+								super.applyTrennstreifenInfoLinks(kante,
+									trennstreifenFormLokalAndereSeite,
+									null,
+									null,
+									abschnittSeitenbezug,
+									abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+								);
 							}
 						}
 
 					} else {
+						// Kante ist und bleibt einseitig
+
 						// Bei fehlendem Seitenbezug immer links schreiben und loggen
+						createAttributUebernahmeFehlerFalscheTrennstreifenSeite(kante.getId(), trennstreifenFormLokal,
+							potentialWrongTrennstreifenSeite, trennstreifenBreite, trennungZu,
+							abschnittFuehrungsformAttribute, abschnittSeitenbezug);
 						log.warn(
-							"Trennstreifenseite nicht ermittelbar ohne Seitenbezug für Kante mit Id {} auf LRS {}. Schreibe Trennstreifen links",
+							"EinseitigeKante oder fehlender Seitenbezug: Trennstreifenseite nicht ermittelbar ohne Seitenbezug für Kante mit Id {} auf LRS {}. Schreibe Trennstreifen links: {}, {}, {}",
 							kante.getId(),
-							pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt());
-						super.applyTrennstreifenInfoLinks(kante, trennstreifenFormLokal, trennstreifenBreite,
-							trennungZu, pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt());
+							abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt(),
+							trennstreifenFormLokal,
+							trennstreifenBreite,
+							trennungZu);
+
+						super.applyTrennstreifenInfoLinks(kante,
+							trennstreifenFormLokal,
+							trennstreifenBreite,
+							trennungZu,
+							abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+						);
+
+						// Wenn wir hier auf die linke STS-Seite was schreiben, schreiben wir konsistenterweise auf rechts,
+						// die Info: "Kein Sicherheitstrennstreifen vorhanden", da in den RadNETZ Daten nur ein STS
+						// auf einer Seite vorgesehen ist.
+						super.applyTrennstreifenInfoRechts(kante,
+							trennstreifenFormLokalAndereSeite,
+							null,
+							null,
+							abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt()
+						);
 					}
 				});
 		}
 
-		if (!Objects.isNull(trennstreifenBreite) || !Objects.isNull(trennungZu) || (
-			!Objects.isNull(trennstreifenForm) && trennstreifenForm != TrennstreifenForm.UNBEKANNT)) {
+		if (!Objects.isNull(trennstreifenBreite) || !Objects.isNull(trennungZu) || (!Objects.isNull(trennstreifenForm)
+			&& trennstreifenForm != TrennstreifenForm.UNBEKANNT)) {
 
-			List<Pair<FuehrungsformAttribute, Seitenbezug>> nichtValideAbschnitteGroesser1m = aufLineareReferenzZugeschnitten.stream()
+			List<Pair<FuehrungsformAttribute, Seitenbezug>> nichtValideAbschnitteGroesser1m = aufLineareReferenzZugeschnitten
+				.stream()
 				.filter(
-					pairFaSeitenbezug ->
-						pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt().relativeLaenge()
-							* kante.getLaengeBerechnet().getValue() > 1
-							&& !valideAbschnitte.contains(pairFaSeitenbezug))
+					pairFaSeitenbezug -> pairFaSeitenbezug.getFirst().getLinearReferenzierterAbschnitt()
+						.relativeLaenge()
+						* kante.getLaengeBerechnet().getValue() > 1
+						&& !valideAbschnitte.contains(pairFaSeitenbezug))
 				.toList();
 
-			if (nichtValideAbschnitteGroesser1m.isEmpty()) {
+			if (nichtValideAbschnitteGroesser1m.isEmpty() && potentialWrongTrennstreifenSeite.isEmpty()) {
 				return;
 			}
 
-			Collection<FuehrungsformAttribute> nichtValide;
+			List<AttributUebernahmeFehler> fehler = nichtValideAbschnitteGroesser1m.stream()
+				.map(fASeitenbezugPair -> new AttributUebernahmeFehler(
+					String.format("""
+						Es konnten keine TrennstreifenInformationen geschrieben werden.
+						Radverkehrsführung: %s
+						KanteId: %s""",
+						fASeitenbezugPair.getFirst().getRadverkehrsfuehrung(),
+						kante.getId()
+					),
+					Set.of(
+						"TrennstreifenForm: " + trennstreifenForm,
+						"TrennstreifenBreite: " + trennstreifenBreite,
+						"TrennungZu: " + trennungZu),
+					fASeitenbezugPair.getFirst().getLinearReferenzierterAbschnitt(),
+					fASeitenbezugPair.getSecond()
+				)).collect(Collectors.toList());
 
-			if (!Objects.isNull(seitenbezug) || kante.isZweiseitig()) {
-				nichtValide = nichtValideAbschnitteGroesser1m.stream().map(Pair::getFirst).collect(Collectors.toList());
-			} else {
-				nichtValide = nichtValideAbschnitteGroesser1m.stream().map(Pair::getFirst).collect(Collectors.toSet());
-			}
-
-			List<AttributUebernahmeFehler> fehler = nichtValide.stream()
-				.map(fa ->
-					new AttributUebernahmeFehler(
-						String.format("""
-								Es konnten keine TrennstreifenInformationen geschrieben werden.
-								Radverkehrsführung: %s
-								KanteId: %s""",
-							fa.getRadverkehrsfuehrung(),
-							kante.getId()
-						),
-						Set.of(
-							"TrennstreifenForm: " + trennstreifenForm,
-							"TrennstreifenBreite: " + trennstreifenBreite,
-							"TrennungZu: " + trennungZu),
-						fa.getLinearReferenzierterAbschnitt()
-					))
-				.toList();
+			fehler.addAll(potentialWrongTrennstreifenSeite);
 
 			throw new AttributUebernahmeException(fehler);
+		}
+	}
 
+	private static void createAttributUebernahmeFehlerFalscheTrennstreifenSeite(Long kanteId,
+		TrennstreifenForm trennstreifenFormLokal,
+		List<AttributUebernahmeFehler> potentialWrongTrennstreifenSeite, Laenge trennstreifenBreite,
+		TrennungZu trennungZu, FuehrungsformAttribute abschnittFuehrungsformAttribute,
+		Seitenbezug abschnittSeitenbezug) {
+		if (trennstreifenFormLokal != null
+			&& !trennstreifenFormLokal.equals(
+				TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
+			&& !trennstreifenFormLokal.equals(TrennstreifenForm.UNBEKANNT)) {
+			potentialWrongTrennstreifenSeite.add(
+				new AttributUebernahmeFehler(
+					String.format(
+						"""
+							Es konnte keine Trennstreifenseite ermittelt werden, da unklar ist auf welcher Seite der Straße der Radweg liegt.
+							Die Trennstreifeninformationen
+							------------------------------------------
+							Form: "%s"
+							Breite: "%s"
+							Trennung zu: "%s"
+							------------------------------------------
+							wurden nun auf die linke Seite geschrieben.
+							.
+							Zusatzinformationen:
+							Radverkehrsführung: "%s"
+							KanteId: %s""",
+						trennstreifenFormLokal,
+						trennstreifenBreite,
+						trennungZu,
+						abschnittFuehrungsformAttribute.getRadverkehrsfuehrung(),
+						kanteId
+					),
+					Set.of(
+						String.format(
+							"Bitte Überprüfen Sie insbesondere, ob \"Trennung zu %s\" zu der Lage der Kante passt und passen Sie gegebenenfalls die beschriebene Trennstreifenseite (links (A) oder rechts (B)) an.",
+							trennungZu)),
+					abschnittFuehrungsformAttribute.getLinearReferenzierterAbschnitt(),
+					abschnittSeitenbezug
+				));
 		}
 	}
 
@@ -264,7 +435,14 @@ public class LUBWMapper extends AttributeMapper {
 	}
 
 	private Trennstreifenseite mapTrennstreifenseite(Radverkehrsfuehrung radverkehrsfuehrung,
-		String stProperty) {
+		String stProperty, TrennstreifenForm trennstreifenFormLokal, String ortslage) {
+
+		if (trennstreifenFormLokal == TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN) {
+			return Trennstreifenseite.BEIDSEITIG;
+		} else if (trennstreifenFormLokal == TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART
+			&& ortslage.equals("Außerorts")) {
+			return Trennstreifenseite.FAHRBAHN;
+		}
 
 		switch (stProperty) {
 		case "Sicherheitstrennstreifen innerorts ohne Parken":
@@ -296,12 +474,9 @@ public class LUBWMapper extends AttributeMapper {
 
 	private TrennungZu mapTrennungZu(String stProperty) {
 		return switch (stProperty) {
-			case "Sicherheitstrennstreifen innerorts ohne Parken",
-				"Sicherheitstrennstreifen außerorts" -> TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN;
-			case "Sicherheitstrennstreifen innerorts mit Längsparken",
-				"Sicherheitstrennstreifen innerorts mit Schräg-/Senkrechtparken" ->
-				TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN;
-			default -> null;
+		case "Sicherheitstrennstreifen innerorts ohne Parken", "Sicherheitstrennstreifen außerorts" -> TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN;
+		case "Sicherheitstrennstreifen innerorts mit Längsparken", "Sicherheitstrennstreifen innerorts mit Schräg-/Senkrechtparken" -> TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN;
+		default -> null;
 		};
 	}
 
@@ -323,34 +498,6 @@ public class LUBWMapper extends AttributeMapper {
 
 		}
 		return result;
-	}
-
-	@Override
-	public void applyLinearReferenzierterAbschnittSeitenbezogen(String attributname,
-		MappedAttributesProperties attributesProperties,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt,
-		Seitenbezug seitenbezug,
-		Kante kante) throws AttributUebernahmeException {
-		String attributwert = attributesProperties.getProperty(attributname);
-		switch (attributname.toLowerCase()) {
-		case "belag":
-			BelagArt belagArt = mapBelagArt(attributwert);
-			super.applyBelagArt(kante, belagArt, seitenbezug, linearReferenzierterAbschnitt);
-			break;
-		case "breite":
-			Laenge breite = mapBreite(attributwert);
-			super.applyBreite(kante, breite, seitenbezug, linearReferenzierterAbschnitt);
-			break;
-		case "wegart":
-			Radverkehrsfuehrung radverkehrsfuehrung = mapRadverkehrsfuehrung(attributwert);
-			super.applyRadverkehrsfuehrung(kante, radverkehrsfuehrung, seitenbezug, linearReferenzierterAbschnitt);
-			break;
-		case "st":
-			mapTrennstreifenInfo(attributesProperties, linearReferenzierterAbschnitt, kante, seitenbezug);
-			break;
-		default:
-			throw new RuntimeException("LinearReferenziertes LUBW-Attribut '" + attributname + "' unbekannt");
-		}
 	}
 
 	private TrennstreifenForm mapTrennstreifenForm(MappedAttributesProperties attributesProperties) {
@@ -602,16 +749,16 @@ public class LUBWMapper extends AttributeMapper {
 		"1", "2", "3", "4", "5", "6", "7", "10", "11", "0").collect(Collectors.toSet());
 
 	final Set<String> st = Stream.of(
-			"Kein Sicherheitstrennstreifen vorhanden",
-			"Sicherheitstrennstreifen außerorts",
-			"Sicherheitstrennstreifen innerorts ohne Parken",
-			"Sicherheitstrennstreifen innerorts mit Längsparken",
-			"Sicherheitstrennstreifen innerorts mit Schräg-/Senkrechtparken")
+		"Kein Sicherheitstrennstreifen vorhanden",
+		"Sicherheitstrennstreifen außerorts",
+		"Sicherheitstrennstreifen innerorts ohne Parken",
+		"Sicherheitstrennstreifen innerorts mit Längsparken",
+		"Sicherheitstrennstreifen innerorts mit Schräg-/Senkrechtparken")
 		.collect(Collectors.toSet());
 
 	final Set<String> breitst = Stream.of(
-			"Kein Sicherheitstrennstreifen, aber Bordstein (Hochbord)",
-			"Kein Sicherheitstrennstreifen, aber andere Abgrenzung (z.B. Rinne zw. Fahrbahn und Anlage)")
+		"Kein Sicherheitstrennstreifen, aber Bordstein (Hochbord)",
+		"Kein Sicherheitstrennstreifen, aber andere Abgrenzung (z.B. Rinne zw. Fahrbahn und Anlage)")
 		.collect(Collectors.toSet());
 
 	Laenge mapBreite(String breite) {
@@ -743,6 +890,7 @@ public class LUBWMapper extends AttributeMapper {
 	private enum Trennstreifenseite {
 		FAHRBAHN,
 		GEHWEG,
-		UNBEKANNT
+		UNBEKANNT,
+		BEIDSEITIG
 	}
 }

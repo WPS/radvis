@@ -14,28 +14,34 @@
 
 package de.wps.radvis.backend.application;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import de.wps.radvis.backend.application.metrics.ExecutionTimeRequestInterceptor;
 import de.wps.radvis.backend.application.schnittstelle.RequestLoggingInterceptor;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
 	private final ExecutionTimeRequestInterceptor executionTimeRequestInterceptor;
 	private final RequestLoggingInterceptor requestLoggingInterceptor;
+	private final CommonConfigurationProperties commonConfigurationProperties;
 
 	public WebMvcConfiguration(ExecutionTimeRequestInterceptor executionTimeRequestInterceptor,
-		RequestLoggingInterceptor requestLoggingInterceptor) {
+		RequestLoggingInterceptor requestLoggingInterceptor,
+		CommonConfigurationProperties commonConfigurationProperties) {
 		this.executionTimeRequestInterceptor = executionTimeRequestInterceptor;
 		this.requestLoggingInterceptor = requestLoggingInterceptor;
+		this.commonConfigurationProperties = commonConfigurationProperties;
 	}
 
 	@Override
@@ -50,6 +56,15 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 		registry.addViewController("/manual").setViewName("redirect:/manual/");
 		registry.addViewController("/manual/").setViewName("forward:/manual/index.html");
 		registry.addViewController("/manual/**/{:[^.]+}").setViewName("forward:/manual/index.html");
+	}
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		String resourcesPath = Paths.get(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+			commonConfigurationProperties.getStaticResourcesPath()).toString() + "/";
+		registry.addResourceHandler("/resources/**")
+			.addResourceLocations("file:///" + resourcesPath) // Windows
+			.addResourceLocations("file:" + resourcesPath); // Linux
 	}
 
 	@Override

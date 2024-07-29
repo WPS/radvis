@@ -101,26 +101,26 @@ class GraphhopperRoutingRepositoryImplITTest {
 
 			List<Kante> kanten = List.of(
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineString(new Coordinate(10, 10), new Coordinate(100, 100),
-							new Coordinate(1000, 1000)))
+					GeometryTestdataProvider.createLineString(new Coordinate(10, 10), new Coordinate(100, 100),
+						new Coordinate(1000, 1000)))
 					.id(1L)
 					.build(),
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineString(new Coordinate(10, 10), new Coordinate(10, 100),
-							new Coordinate(10, 1000)))
+					GeometryTestdataProvider.createLineString(new Coordinate(10, 10), new Coordinate(10, 100),
+						new Coordinate(10, 1000)))
 					.id(2L)
 					.build(),
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineString(new Coordinate(10, 1000), new Coordinate(1000, 1000)))
+					GeometryTestdataProvider.createLineString(new Coordinate(10, 1000), new Coordinate(1000, 1000)))
 					.id(3L)
 					.build(),
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineString(new Coordinate(1000, 1000), new Coordinate(10000, 1000),
-							new Coordinate(10000, 10000), new Coordinate(1000, 10000), new Coordinate(1000, 1000))).id(4L)
+					GeometryTestdataProvider.createLineString(new Coordinate(1000, 1000), new Coordinate(10000, 1000),
+						new Coordinate(10000, 10000), new Coordinate(1000, 10000), new Coordinate(1000, 1000))).id(4L)
 					.build(),
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineString(new Coordinate(1000, 1000), new Coordinate(5000, 5000),
-							new Coordinate(10000, 10000))).id(5L)
+					GeometryTestdataProvider.createLineString(new Coordinate(1000, 1000), new Coordinate(5000, 5000),
+						new Coordinate(10000, 10000))).id(5L)
 					.build()
 			);
 
@@ -182,24 +182,22 @@ class GraphhopperRoutingRepositoryImplITTest {
 
 		@Test
 		void testeRouting_KeineKanteIrgendwoInDerNaehe_WirftException() throws KeineRouteGefundenException {
-			assertThatThrownBy(() ->
-				graphhopperRoutingRepository.route(
-					List.of(new Coordinate(8650, 5000), new Coordinate(5000, 5000),
-						new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
-					true)).isInstanceOf(
+			assertThatThrownBy(() -> graphhopperRoutingRepository.route(
+				List.of(new Coordinate(8650, 5000), new Coordinate(5000, 5000),
+					new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
+				true)).isInstanceOf(
 					KeineRouteGefundenException.class)
-				.hasMessageContaining("com.graphhopper.util.exceptions.PointNotFoundException");
+					.hasMessageContaining("com.graphhopper.util.exceptions.PointNotFoundException");
 		}
 
 		@Test
 		void testeRouting_OutOfBounds_WirftException() throws KeineRouteGefundenException {
-			assertThatThrownBy(() ->
-				graphhopperRoutingRepository.route(
-					List.of(new Coordinate(10050, 10050), new Coordinate(5000, 5000),
-						new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
-					true)).isInstanceOf(
+			assertThatThrownBy(() -> graphhopperRoutingRepository.route(
+				List.of(new Coordinate(10050, 10050), new Coordinate(5000, 5000),
+					new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
+				true)).isInstanceOf(
 					KeineRouteGefundenException.class)
-				.hasMessageContaining("com.graphhopper.util.exceptions.PointOutOfBoundsException");
+					.hasMessageContaining("com.graphhopper.util.exceptions.PointOutOfBoundsException");
 		}
 	}
 
@@ -212,29 +210,30 @@ class GraphhopperRoutingRepositoryImplITTest {
 		@BeforeEach
 		void setUp() {
 			PbfErstellungsRepositoryImpl pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(
-				new CoordinateReferenceSystemConverter(commonConfigurationProperties.getBadenWuerttembergEnvelope()),
+				new CoordinateReferenceSystemConverter(
+					commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope()),
 				entityManager, barriereRepository, kantenRepository);
 
 			kanten = List.of(
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-							new Coordinate(10, 0),
-							new Coordinate(10, 10),
-							new Coordinate(10, 20)))
+					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+						new Coordinate(10, 0),
+						new Coordinate(10, 10),
+						new Coordinate(10, 20)))
 					.id(1L)
 					.build(),
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-							new Coordinate(0, 10),
-							new Coordinate(10, 10),
-							new Coordinate(20, 10)))
+					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+						new Coordinate(0, 10),
+						new Coordinate(10, 10),
+						new Coordinate(20, 10)))
 					.id(2L)
 					.build(),
 				KanteTestDataProvider.withDefaultValues().geometry(
-						GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-							new Coordinate(70, 70),
-							new Coordinate(60, 60),
-							new Coordinate(50, 50)))
+					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+						new Coordinate(70, 70),
+						new Coordinate(60, 60),
+						new Coordinate(50, 50)))
 					.id(3L)
 					.build()
 			);
@@ -261,14 +260,16 @@ class GraphhopperRoutingRepositoryImplITTest {
 
 			assertThatThrownBy(
 				() -> graphhopperRoutingRepository.route(pointsToRoute, GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
-					true)).isInstanceOf(KeineRouteGefundenException.class)
-				.hasMessageContaining("ConnectionNotFoundException");
+					true))
+						.isInstanceOf(KeineRouteGefundenException.class)
+						.hasMessageContaining("ConnectionNotFoundException");
 
 			Collections.reverse(pointsToRoute);
 			assertThatThrownBy(
 				() -> graphhopperRoutingRepository.route(pointsToRoute, GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
-					true)).isInstanceOf(KeineRouteGefundenException.class)
-				.hasMessageContaining("ConnectionNotFoundException");
+					true))
+						.isInstanceOf(KeineRouteGefundenException.class)
+						.hasMessageContaining("ConnectionNotFoundException");
 		}
 	}
 }

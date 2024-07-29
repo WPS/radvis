@@ -28,7 +28,7 @@ import { SaveFahrtrichtungAttributGruppeCommand } from 'src/app/editor/kanten/mo
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { KantenFahrtrichtungEditorComponent } from './kanten-fahrtrichtung-editor.component';
 
@@ -117,7 +117,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.GEGEN_RICHTUNG,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
         KantenSelektion.ofSeite(
           {
@@ -129,7 +129,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.GEGEN_RICHTUNG,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.RECHTS
+          KantenSeite.RECHTS
         ),
       ]);
       tick();
@@ -149,7 +149,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.GEGEN_RICHTUNG,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
         KantenSelektion.ofSeite(
           {
@@ -161,7 +161,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.IN_RICHTUNG,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.RECHTS
+          KantenSeite.RECHTS
         ),
       ]);
       tick();
@@ -183,7 +183,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.BEIDE_RICHTUNGEN,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
         KantenSelektion.ofSeite(
           {
@@ -195,7 +195,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.GEGEN_RICHTUNG,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
       ];
       setupSelektion(selektion);
@@ -233,7 +233,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.BEIDE_RICHTUNGEN,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
         KantenSelektion.ofSeite(
           {
@@ -245,7 +245,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.BEIDE_RICHTUNGEN,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
       ];
       setupSelektion(selektion);
@@ -288,7 +288,7 @@ describe('KantenFahrtrichtungEditorComponent', () => {
               fahrtrichtungRechts: Richtung.BEIDE_RICHTUNGEN,
             } as FahrtrichtungAttributGruppe,
           } as Kante,
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
       ]);
 

@@ -14,11 +14,17 @@
 
 package de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.service;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,11 +45,19 @@ import org.springframework.scheduling.annotation.Async;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.wps.radvis.backend.auditing.domain.AuditingContext;
+import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
+import de.wps.radvis.backend.common.domain.valueObject.CsvData;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
+import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity.MassnahmenImportSession;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity.MassnahmenImportZuordnung;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.exception.MassnahmenAttributWertValidierungsException;
@@ -53,6 +67,7 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MassnahmenImportAttribute;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MassnahmenImportZuordnungStatus;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweis;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweisText;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
@@ -68,40 +83,46 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
+import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
+import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ManuellerMassnahmenImportService {
 
-	public static final String NETZ_BEZUG_ATTRIBUTENAME = "NetzBezug";
 	public static final String MASSNAHME_ID_ATTRIBUTENAME = "Massnahme-ID";
 	public static final String GELOESCHT_ATTRIBUTENAME = "geloescht";
 	private final ManuellerImportService manuellerImportService;
+	private final MassnahmeNetzbezugService massnahmeNetzbezugService;
 	private final GeoJsonImportRepository geoJsonImportRepository;
 	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
 	private final MassnahmeRepository massnahmenRepostory;
 	private final EntityManager entityManager;
+	private final CsvRepository csvRepository;
 	private final double minimaleDistanzFuerAbweichungsWarnung;
 
 	public ManuellerMassnahmenImportService(ManuellerImportService manuellerImportService,
+		MassnahmeNetzbezugService massnahmeNetzbezugService,
 		GeoJsonImportRepository geoJsonImportRepository,
 		VerwaltungseinheitRepository verwaltungseinheitRepository,
 		MassnahmeRepository massnahmenRepostory,
 		EntityManager entityManager,
-		double minimaleDistanzFuerAbweichungsWarnung
-	) {
+		CsvRepository csvRepository,
+		double minimaleDistanzFuerAbweichungsWarnung) {
 		this.manuellerImportService = manuellerImportService;
+		this.massnahmeNetzbezugService = massnahmeNetzbezugService;
 		this.geoJsonImportRepository = geoJsonImportRepository;
 		this.verwaltungseinheitRepository = verwaltungseinheitRepository;
 		this.massnahmenRepostory = massnahmenRepostory;
 		this.entityManager = entityManager;
+		this.csvRepository = csvRepository;
 		this.minimaleDistanzFuerAbweichungsWarnung = minimaleDistanzFuerAbweichungsWarnung;
 	}
 
@@ -116,7 +137,9 @@ public class ManuellerMassnahmenImportService {
 	@Async
 	@Transactional
 	public void ladeFeatures(MassnahmenImportSession session, byte[] file) {
-		require(session.getSchritt().equals(MassnahmenImportSession.DATEI_HOCHLADEN) && !session.isExecuting()
+		require(
+			session.getSchritt().equals(MassnahmenImportSession.DATEI_HOCHLADEN)
+				&& !session.isExecuting()
 				&& !session.hatFehler(),
 			"Das Zuordnen der Features kann nur in Schritt 1 und nur einmal passieren.");
 		log.info("Maßnahmenimport für Benutzer {}: Starte Zuordnen der Features", session.getBenutzer().getId());
@@ -151,7 +174,7 @@ public class ManuellerMassnahmenImportService {
 				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
 				.entrySet()
 				.stream()
-				// Duplikate heausfiltern
+				// Duplikate herausfiltern
 				.filter(e -> e.getValue() > 1)
 				// Häufigkeit verwerfen, nur ID aufsammeln
 				.map(Map.Entry::getKey)
@@ -159,11 +182,10 @@ public class ManuellerMassnahmenImportService {
 
 		} catch (ReadGeoJSONException e) {
 			session.addLogEintrag(ImportLogEintrag.ofError(e.getMessage()));
-			log.error(
+			log.warn(
 				"Maßnahmenimport für Benutzer {}: Fehler beim Einlesen der GeoJSON",
 				session.getBenutzer().getId(),
-				e
-			);
+				e);
 			session.setExecuting(false);
 			return;
 		} catch (Exception e) {
@@ -172,8 +194,7 @@ public class ManuellerMassnahmenImportService {
 			log.error(
 				"Maßnahmenimport für Benutzer {}: Unbekannter Fehler beim Einlesen der GeoJSON",
 				session.getBenutzer().getId(),
-				e
-			);
+				e);
 			session.setExecuting(false);
 			return;
 		}
@@ -187,7 +208,17 @@ public class ManuellerMassnahmenImportService {
 			// Zuordnung ermitteln (2. pass)
 			List<MassnahmenImportZuordnung> importZuordnungen = featuresInBereich
 				.stream()
-				.map(simpleFeature -> getMassnahmenZuordnung(session, simpleFeature, doppelteIds))
+				.map(simpleFeature -> {
+					MassnahmenImportZuordnung zuordnung = getMassnahmenZuordnung(
+						session, simpleFeature,
+						doppelteIds);
+
+					if (!zuordnung.hasNetzbezugHinweisFehler() && !zuordnung.hasMappingFehler()) {
+						zuordnung.select();
+					}
+
+					return zuordnung;
+				})
 				.toList();
 
 			session.setZuordnungen(importZuordnungen);
@@ -199,8 +230,7 @@ public class ManuellerMassnahmenImportService {
 			log.error(
 				"Maßnahmenimport für Benutzer {}: Unbekannter Fehler beim Erstellen der Zuordnungen",
 				session.getBenutzer().getId(),
-				e
-			);
+				e);
 		} finally {
 			session.setExecuting(false);
 		}
@@ -213,28 +243,30 @@ public class ManuellerMassnahmenImportService {
 		log.info("Features in Bereich: {}", anzahlFeaturesInBereich);
 	}
 
-	private static void logSummary(MassnahmenImportSession session) {
+	public static void logSummary(MassnahmenImportSession session) {
 		log.info(
-			"Maßnahmenimport für Benutzer {}: Hinweise an der Session (pro Status inkl. Häufigkeit)",
-			session.getBenutzer().getId()
-		);
+			"Maßnahmenimport für Benutzer {}: Fehler an der Session (pro Status inkl. Häufigkeit)",
+			session.getBenutzer().getId());
 
 		List<MassnahmenImportZuordnung> importZuordnungen = session.getZuordnungen();
 		Arrays.stream(MassnahmenImportZuordnungStatus.values()).forEach(status -> {
-			log.info("Zuordnungen {}: {}", status.name(),
-				importZuordnungen.stream().filter(z -> z.getStatus().equals(status))
+			log.info(
+				"Zuordnungen {}: {}", status.name(),
+				importZuordnungen.stream().filter(z -> z.getZuordnungStatus().equals(status))
 					.count());
-			Map<MappingFehler, Long> mappingHinweisFrequencyMap = importZuordnungen.stream()
-				.filter(z -> z.getStatus().equals(status))
+			Map<MappingFehler, Long> mappingFehlerFrequencyMap = importZuordnungen.stream()
+				.filter(z -> z.getZuordnungStatus().equals(status))
 				.flatMap(z -> z.getMappingFehler().stream())
 				.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 			try {
-				log.info("  => Hinweise: {}",
+				log.info(
+					"  => Fehler: {}",
 					new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
-						mappingHinweisFrequencyMap));
+						mappingFehlerFrequencyMap));
 			} catch (JsonProcessingException e) {
-				log.info("  => Hinweise: {}",
-					mappingHinweisFrequencyMap);
+				log.info(
+					"  => Fehler: {}",
+					mappingFehlerFrequencyMap);
 			}
 		});
 	}
@@ -245,7 +277,11 @@ public class ManuellerMassnahmenImportService {
 
 		Object massnahmenKonzeptIDAttribute = simpleFeature.getAttribute(MASSNAHME_ID_ATTRIBUTENAME);
 		// Keine Id am Feature -> Fehler
-		if (Objects.isNull(massnahmenKonzeptIDAttribute) || massnahmenKonzeptIDAttribute.toString().isBlank()) {
+		boolean keineKonzeptIdGefunden = Objects.isNull(massnahmenKonzeptIDAttribute)
+			|| massnahmenKonzeptIDAttribute.toString().isBlank();
+		boolean konzeptIdInvalid = massnahmenKonzeptIDAttribute != null
+			&& !MassnahmeKonzeptID.isValid(massnahmenKonzeptIDAttribute.toString());
+		if (keineKonzeptIdGefunden || konzeptIdInvalid) {
 			MassnahmenImportZuordnung massnahmenImportZuordnung = new MassnahmenImportZuordnung(
 				null,
 				simpleFeature,
@@ -254,17 +290,15 @@ public class ManuellerMassnahmenImportService {
 			massnahmenImportZuordnung.addMappingFehler(
 				MappingFehler.of(
 					MASSNAHME_ID_ATTRIBUTENAME,
-					MappingFehlermeldung.MASSNAHME_KEINE_ID.getText()
-				)
-			);
+					keineKonzeptIdGefunden ? MappingFehlermeldung.MASSNAHME_KEINE_ID.getText()
+						: MappingFehlermeldung.MASSNAHME_ID_INVALID.getText(massnahmenKonzeptIDAttribute.toString())));
 			return massnahmenImportZuordnung;
 		}
 
-		String massnahmenKonzeptIDString = massnahmenKonzeptIDAttribute.toString();
-		MassnahmeKonzeptID massnahmeKonzeptID = MassnahmeKonzeptID.of(massnahmenKonzeptIDString);
+		MassnahmeKonzeptID massnahmeKonzeptID = MassnahmeKonzeptID.of(massnahmenKonzeptIDAttribute.toString());
 
 		// Massnahmen-Id in der Quelle doppelt vorhanden
-		if (doppelteIds.contains(massnahmenKonzeptIDString)) {
+		if (doppelteIds.contains(massnahmenKonzeptIDAttribute.toString())) {
 			MassnahmenImportZuordnung massnahmenImportZuordnung = new MassnahmenImportZuordnung(
 				massnahmeKonzeptID,
 				simpleFeature,
@@ -273,9 +307,7 @@ public class ManuellerMassnahmenImportService {
 			massnahmenImportZuordnung.addMappingFehler(
 				MappingFehler.of(
 					MASSNAHME_ID_ATTRIBUTENAME,
-					MappingFehlermeldung.MASSNAHME_MEHRFACH.getText()
-				)
-			);
+					MappingFehlermeldung.MASSNAHME_MEHRFACH.getText()));
 			return massnahmenImportZuordnung;
 		}
 
@@ -297,13 +329,11 @@ public class ManuellerMassnahmenImportService {
 				massnahmeKonzeptID,
 				simpleFeature,
 				null,
-				geloescht ? MassnahmenImportZuordnungStatus.GELOESCHT : MassnahmenImportZuordnungStatus.GEMAPPT);
+				geloescht ? MassnahmenImportZuordnungStatus.GELOESCHT : MassnahmenImportZuordnungStatus.ZUGEORDNET);
 			massnahmenImportZuordnung.addMappingFehler(
 				MappingFehler.of(
 					MASSNAHME_ID_ATTRIBUTENAME,
-					MappingFehlermeldung.MASSNAHME_NICHT_EINDEUTIG.getText(massnahmen.size())
-				)
-			);
+					MappingFehlermeldung.MASSNAHME_NICHT_EINDEUTIG.getText(massnahmen.size())));
 			return massnahmenImportZuordnung;
 		} else if (massnahmen.isEmpty()) {
 			// Keine Zuordnung
@@ -318,9 +348,7 @@ public class ManuellerMassnahmenImportService {
 				massnahmenImportZuordnung.addMappingFehler(
 					MappingFehler.of(
 						MASSNAHME_ID_ATTRIBUTENAME,
-						MappingFehlermeldung.MASSNAHME_NICHT_GEFUNDEN.getText()
-					)
-				);
+						MappingFehlermeldung.MASSNAHME_NICHT_GEFUNDEN.getText()));
 				return massnahmenImportZuordnung;
 			} else {
 				// Neue Massnahme
@@ -336,22 +364,36 @@ public class ManuellerMassnahmenImportService {
 				return massnahmenImportZuordnungNeu;
 			}
 		} else {
-			// Löschen Oder Update
+			// Löschversuch Oder Update
 			Massnahme massnahme = massnahmen.get(0);
 			if (geloescht) {
-				// LÖSCHEN
-				return new MassnahmenImportZuordnung(
-					massnahmeKonzeptID,
-					simpleFeature,
-					massnahme,
-					MassnahmenImportZuordnungStatus.GELOESCHT);
+				// NICHT LÖSCHEN WENN ES EINE RADNETZ MASSNAHME IST
+				if (massnahme.getKonzeptionsquelle().equals(Konzeptionsquelle.RADNETZ_MASSNAHME)) {
+					MassnahmenImportZuordnung massnahmenImportZuordnung = new MassnahmenImportZuordnung(
+						massnahmeKonzeptID,
+						simpleFeature,
+						null,
+						MassnahmenImportZuordnungStatus.FEHLERHAFT);
+					massnahmenImportZuordnung.addMappingFehler(
+						MappingFehler.of(
+							MASSNAHME_ID_ATTRIBUTENAME,
+							MappingFehlermeldung.LOESCHUNG_QUELLE_RADNETZ_UNGUELTIG.getText()));
+					return massnahmenImportZuordnung;
+				} else {
+					// LÖSCHEN
+					return new MassnahmenImportZuordnung(
+						massnahmeKonzeptID,
+						simpleFeature,
+						massnahme,
+						MassnahmenImportZuordnungStatus.GELOESCHT);
+				}
 			} else {
 				// UPDATE
 				MassnahmenImportZuordnung massnahmenImportZuordnungGemappt = new MassnahmenImportZuordnung(
 					massnahmeKonzeptID,
 					simpleFeature,
 					massnahme,
-					MassnahmenImportZuordnungStatus.GEMAPPT);
+					MassnahmenImportZuordnungStatus.ZUGEORDNET);
 
 				// PRÜFUNG AUF KORREKTEN GEOMTYPE
 				pruefeGeometrieTyp(zuImportierendeGeometrie, massnahmenImportZuordnungGemappt);
@@ -362,23 +404,19 @@ public class ManuellerMassnahmenImportService {
 				return massnahmenImportZuordnungGemappt;
 			}
 		}
-
 	}
 
 	private void pruefeGeometrieTyp(Geometry zuImportierendeGeometrie,
 		MassnahmenImportZuordnung massnahmenImportZuordnung) {
 		if (!isGeometrieTypZulaessig(zuImportierendeGeometrie)) {
 			massnahmenImportZuordnung.addNetzbezugHinweis(
-				NetzbezugHinweis.ofWarnung(
-					MappingFehlermeldung.FALSCHER_GEOMETRIE_TYP.getText(),
-					MappingFehlermeldung.FALSCHER_GEOMETRIE_TYP.getText()
-				)
-			);
+				NetzbezugHinweis.ofError(NetzbezugHinweisText.FALSCHER_GEOMETRIE_TYP));
 		}
 	}
 
 	private boolean isGeometrieTypZulaessig(Geometry zuImportierendeGeometrie) {
-		Set<String> allowedBaseGeometryTypes = Set.of(Geometry.TYPENAME_MULTILINESTRING,
+		Set<String> allowedBaseGeometryTypes = Set.of(
+			Geometry.TYPENAME_MULTILINESTRING,
 			Geometry.TYPENAME_MULTIPOINT, Geometry.TYPENAME_LINESTRING, Geometry.TYPENAME_POINT);
 
 		if (zuImportierendeGeometrie.getGeometryType().equals(Geometry.TYPENAME_GEOMETRYCOLLECTION)) {
@@ -406,23 +444,20 @@ public class ManuellerMassnahmenImportService {
 		GeometryCollection alteGeometrie = massnahme.getNetzbezug().getGeometrie();
 		if (alteGeometrie.distance(zuImportierendeGeometrie) > this.minimaleDistanzFuerAbweichungsWarnung) {
 			massnahmenImportZuordnungGemappt.addNetzbezugHinweis(
-				NetzbezugHinweis.ofWarnung(
-					MappingFehlermeldung.GEOMETRIEN_ABWEICHEND.getText(),
-					MappingFehlermeldung.GEOMETRIEN_ABWEICHEND.getText()
-				)
-			);
+				NetzbezugHinweis.ofWarnung(NetzbezugHinweisText.GEOMETRIEN_ABWEICHEND));
 		}
 	}
 
 	private List<Massnahme> getPassendeMassnahmen(MassnahmenImportSession session,
 		MassnahmeKonzeptID massnahmeKonzeptID) {
-		return session.getSollStandard().isPresent() ?
-			massnahmenRepostory.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndSollStandardAndGeloeschtFalse(
+		return session.getSollStandard().isPresent() ? massnahmenRepostory
+			.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndSollStandardAndGeloeschtFalse(
 				massnahmeKonzeptID,
-				session.getKonzeptionsquelle(), session.getSollStandard().get()) :
-			massnahmenRepostory.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
-				massnahmeKonzeptID,
-				session.getKonzeptionsquelle());
+				session.getKonzeptionsquelle(), session.getSollStandard().get())
+			: massnahmenRepostory
+				.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
+					massnahmeKonzeptID,
+					session.getKonzeptionsquelle());
 	}
 
 	private String getNamen(List<Long> gebietskoerperschaftIds) {
@@ -438,14 +473,17 @@ public class ManuellerMassnahmenImportService {
 		MultiPolygon vereinigterBereich = getVereinigtenBereich(gebietskoerperschaftenIds);
 		String bereichName = getNamen(gebietskoerperschaftenIds);
 
-		return new MassnahmenImportSession(benutzer,
+		return new MassnahmenImportSession(
+			benutzer,
 			vereinigterBereich, bereichName, gebietskoerperschaftenIds, konzeptionsquelle, sollStandard);
 	}
 
 	@Async
 	@Transactional
 	public void attributeValidieren(MassnahmenImportSession session, List<MassnahmenImportAttribute> attribute) {
-		require(session.getSchritt().equals(MassnahmenImportSession.ATTRIBUTE_AUSWAEHLEN) && !session.isExecuting()
+		require(
+			session.getSchritt().equals(MassnahmenImportSession.ATTRIBUTE_AUSWAEHLEN)
+				&& !session.isExecuting()
 				&& !session.hatFehler(),
 			"Das Validieren der Attribute kann nur in Schritt 2 und nur einmal passieren.");
 		log.info("Maßnahmenimport für Benutzer {}: Starte Validieren der Attribute", session.getBenutzer().getId());
@@ -455,9 +493,11 @@ public class ManuellerMassnahmenImportService {
 			session.setAttribute(attribute);
 			session.getZuordnungen().stream()
 				// Bei fehlerhaften und löschenden Zuordnungen müssen die Attribute nicht validiert werden
-				.filter(zuordnung -> zuordnung.getStatus() == MassnahmenImportZuordnungStatus.GEMAPPT ||
-					zuordnung.getStatus() == MassnahmenImportZuordnungStatus.NEU)
-				.forEach(zuordnung -> validiereAttributeDerZuordnung(session, zuordnung));
+				.filter(
+					zuordnung -> zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.NEU
+						|| zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.ZUGEORDNET
+							&& zuordnung.getMassnahme().isPresent())
+				.forEach(zuordnung -> validiereAttributeDerZuordnung(session.getAttribute(), zuordnung));
 			logSummary(session);
 			session.setSchritt(MassnahmenImportSession.ATTRIBUTFEHLER_UEBERPRUEFEN);
 		} catch (Exception e) {
@@ -467,14 +507,19 @@ public class ManuellerMassnahmenImportService {
 			log.error(
 				"Maßnahmenimport für Benutzer {}: Unbekannter Fehler beim Validieren der Attribute",
 				session.getBenutzer().getId(),
-				e
-			);
+				e);
 		} finally {
 			session.setExecuting(false);
 		}
 	}
 
-	private void validiereAttributeDerZuordnung(MassnahmenImportSession session, MassnahmenImportZuordnung zuordnung) {
+	private void validiereAttributeDerZuordnung(List<MassnahmenImportAttribute> attribute,
+		MassnahmenImportZuordnung zuordnung) {
+		require(
+			zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.NEU
+				|| zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.ZUGEORDNET
+					&& zuordnung.getMassnahme().isPresent());
+
 		// Attribute für Quervalidierung
 		Optional<Umsetzungsstatus> umsetzungsstatus = Optional.empty();
 		Set<Massnahmenkategorie> massnahmenkategorien = Collections.emptySet();
@@ -482,8 +527,7 @@ public class ManuellerMassnahmenImportService {
 		Optional<Verwaltungseinheit> baulastZustaendiger = Optional.empty();
 		Optional<Handlungsverantwortlicher> handlungsverantwortlicher = Optional.empty();
 
-		if (zuordnung.getStatus().equals(MassnahmenImportZuordnungStatus.GEMAPPT) &&
-			zuordnung.getMassnahme().isPresent()) {
+		if (zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.ZUGEORDNET) {
 			// Attribute bestehender Maßnahmen sollen unabhängig von den ausgewählten Attributen
 			// für die Quervalidierung genutzt werden können
 			Massnahme massnahme = entityManager.merge(zuordnung.getMassnahme().get());
@@ -494,24 +538,22 @@ public class ManuellerMassnahmenImportService {
 			handlungsverantwortlicher = massnahme.getHandlungsverantwortlicher();
 		} else {
 			// Für neu angelegte Maßnahmen müssen alle Pflichtattribute auswählt sein.
-			List<MassnahmenImportAttribute> nichtAusgewaehltePflichtattribute = MassnahmenImportAttribute.getPflichtAttribute()
+			List<MassnahmenImportAttribute> nichtAusgewaehltePflichtattribute = MassnahmenImportAttribute
+				.getPflichtAttribute()
 				.stream()
-				.filter(pflichtAttribut -> !session.getAttribute().contains(pflichtAttribut))
+				.filter(pflichtAttribut -> !attribute.contains(pflichtAttribut))
 				.toList();
 
 			nichtAusgewaehltePflichtattribute.forEach(
 				pflichtAttribut -> zuordnung.addMappingFehler(
 					MappingFehler.of(
 						pflichtAttribut.toString(),
-						MappingFehlermeldung.PFLICHTATTRIBUT_NICHT_AUSGEWAEHLT.getText()
-					)
-				)
-			);
+						MappingFehlermeldung.PFLICHTATTRIBUT_NICHT_AUSGEWAEHLT.getText())));
 		}
 
 		// Validiere Attribute einzeln
 		// Attribute für die Quervalidierung werden durch die neuen Werte überschrieben
-		for (MassnahmenImportAttribute attribut : session.getAttribute()) {
+		for (MassnahmenImportAttribute attribut : attribute) {
 			String attributName = attribut.toString();
 			Object attributWert = zuordnung.getFeature().getAttribute(attributName);
 			if (Objects.isNull(attributWert)) {
@@ -519,9 +561,7 @@ public class ManuellerMassnahmenImportService {
 					zuordnung.addMappingFehler(
 						MappingFehler.of(
 							attributName,
-							MappingFehlermeldung.PFLICHTATTRIBUT_NICHT_GESETZT.getText(attributName)
-						)
-					);
+							MappingFehlermeldung.PFLICHTATTRIBUT_NICHT_GESETZT.getText(attributName)));
 				}
 			} else {
 				String attributString = attributWert.toString();
@@ -533,8 +573,8 @@ public class ManuellerMassnahmenImportService {
 					case KATEGORIEN -> massnahmenkategorien = mapToMassnahmenkategorien(attributString);
 					case ZUSTAENDIGER -> mapToVerwaltungseinheit(attributString);
 					case SOLL_STANDARD -> mapFromDisplayTextToEnumConstant(SollStandard.class, attributString);
-					case DURCHFUEHRUNGSZEITRAUM ->
-						durchfuehrungszeitraum = Optional.ofNullable(mapToDurchfuehrungszeitraum(attributString));
+					case DURCHFUEHRUNGSZEITRAUM -> durchfuehrungszeitraum = Optional.ofNullable(
+						mapToDurchfuehrungszeitraum(attributString));
 					case BAULASTTRAEGER -> baulastZustaendiger = Optional.ofNullable(
 						mapToVerwaltungseinheitEmptyAllowed(attributString));
 					case HANDLUNGSVERANTWORTLICHER -> handlungsverantwortlicher = Optional.ofNullable(
@@ -555,16 +595,12 @@ public class ManuellerMassnahmenImportService {
 					zuordnung.addMappingFehler(
 						MappingFehler.of(
 							attributName,
-							MappingFehlermeldung.ATTRIBUT_WERT_UNGUELTIG.getText(attributString)
-						)
-					);
+							MappingFehlermeldung.ATTRIBUT_WERT_UNGUELTIG.getText(attributString)));
 				} catch (VerwaltungseinheitNichtGefundenException e) {
 					zuordnung.addMappingFehler(
 						MappingFehler.of(
 							attributName,
-							MappingFehlermeldung.VERWALTUNGSEINHEIT_NICHT_GEFUNDEN.getText(attributString)
-						)
-					);
+							MappingFehlermeldung.VERWALTUNGSEINHEIT_NICHT_GEFUNDEN.getText(attributString)));
 				}
 			}
 		}
@@ -576,30 +612,21 @@ public class ManuellerMassnahmenImportService {
 					MappingFehler.of(
 						MassnahmenImportAttribute.DURCHFUEHRUNGSZEITRAUM.toString(),
 						MappingFehlermeldung.QUERVALIDIERUNG_PFLICHTATTRIBUTE.getText(
-							umsetzungsstatus.get()
-						)
-					)
-				);
+							umsetzungsstatus.get())));
 			}
 			if (baulastZustaendiger.isEmpty()) {
 				zuordnung.addMappingFehler(
 					MappingFehler.of(
 						MassnahmenImportAttribute.BAULASTTRAEGER.toString(),
 						MappingFehlermeldung.QUERVALIDIERUNG_PFLICHTATTRIBUTE.getText(
-							umsetzungsstatus.get()
-						)
-					)
-				);
+							umsetzungsstatus.get())));
 			}
 			if (handlungsverantwortlicher.isEmpty()) {
 				zuordnung.addMappingFehler(
 					MappingFehler.of(
 						MassnahmenImportAttribute.HANDLUNGSVERANTWORTLICHER.toString(),
 						MappingFehlermeldung.QUERVALIDIERUNG_PFLICHTATTRIBUTE.getText(
-							umsetzungsstatus.get()
-						)
-					)
-				);
+							umsetzungsstatus.get())));
 			}
 		}
 
@@ -607,9 +634,7 @@ public class ManuellerMassnahmenImportService {
 			zuordnung.addMappingFehler(
 				MappingFehler.of(
 					MassnahmenImportAttribute.KATEGORIEN.toString(),
-					MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE.getText()
-				)
-			);
+					MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE.getText()));
 		}
 	}
 
@@ -701,7 +726,8 @@ public class ManuellerMassnahmenImportService {
 		} catch (Exception e) {
 			throw new VerwaltungseinheitNichtGefundenException();
 		}
-		return verwaltungseinheitRepository.findByNameAndOrganisationsArt(parsed.getFirst(),
+		return verwaltungseinheitRepository.findByNameAndOrganisationsArt(
+			parsed.getFirst(),
 			parsed.getSecond()).orElseThrow(VerwaltungseinheitNichtGefundenException::new);
 	}
 
@@ -715,9 +741,10 @@ public class ManuellerMassnahmenImportService {
 			throw new MassnahmenAttributWertValidierungsException();
 		}
 
-		return Arrays.stream(split)
-			.map(Netzklasse::valueOf)
-			.collect(Collectors.toSet());
+		return new HashSet<>(
+			Arrays.stream(split)
+				.map(Netzklasse::valueOf)
+				.collect(Collectors.toSet()));
 	}
 
 	private Set<Massnahmenkategorie> mapToMassnahmenkategorien(String s)
@@ -734,5 +761,338 @@ public class ManuellerMassnahmenImportService {
 		return Arrays.stream(split)
 			.map(Massnahmenkategorie::valueOf)
 			.collect(Collectors.toSet());
+	}
+
+	@Async
+	@Transactional
+	public void erstelleNetzbezuege(MassnahmenImportSession session) {
+		require(
+			session.getSchritt().equals(MassnahmenImportSession.ATTRIBUTFEHLER_UEBERPRUEFEN)
+				&& !session.isExecuting()
+				&& !session.hatFehler(),
+			"Das Erstellen der Netzbezüge kann nur in Schritt 3 und nur einmal passieren.");
+		log.info("Maßnahmenimport für Benutzer {}: Starte Erstellen der Netzbezüge", session.getBenutzer().getId());
+		session.setExecuting(true);
+
+		MatchingStatistik matchingStatistik = new MatchingStatistik();
+
+		try {
+			session.getZuordnungen().stream()
+				// Bei löschenden Zuordnungen und solche, die eh nicht gespeichert werden können, müssen keine
+				// Netzbezüge erstellt werden
+				.filter(
+					zuordnung -> zuordnung.getZuordnungStatus() != MassnahmenImportZuordnungStatus.GELOESCHT
+						&& zuordnung
+							.canBeSaved())
+				.forEach(
+					zuordnung -> massnahmeNetzbezugService.bestimmeNetzbezugDerZuordnung(
+						zuordnung, matchingStatistik));
+
+			log.info("Matchingstatistik:");
+			log.info(matchingStatistik.toString());
+			logNetzbezugHinweise(session);
+			session.setSchritt(MassnahmenImportSession.IMPORT_UEBERPRUEFEN_UND_SPEICHERN);
+		} catch (Exception e) {
+			session.addLogEintrag(
+				ImportLogEintrag.ofError(
+					"Es ist ein unbekannter Fehler bei der Erstellung der Netzbezüge aufgetreten."));
+			log.error(
+				"Maßnahmenimport für Benutzer {}: Unbekannter Fehler beim Erstellen der Netzbezüge",
+				session.getBenutzer().getId(),
+				e);
+		} finally {
+			session.setExecuting(false);
+		}
+	}
+
+	private static void logNetzbezugHinweise(MassnahmenImportSession session) {
+		log.info(
+			"Maßnahmenimport für Benutzer {}: Hinweise beim Erstellen der Netzbezüge (pro Hinweis-Typ inkl. Häufigkeit)",
+			session.getBenutzer().getId());
+
+		List<MassnahmenImportZuordnung> zuordnungen = session.getZuordnungen();
+
+		Map<NetzbezugHinweis, Long> netzbezugHinweisFrequencyMap = zuordnungen.stream()
+			.flatMap(z -> z.getNetzbezugHinweise().stream())
+			.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+		try {
+			log.info(
+				"  => Hinweise: {}",
+				new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(netzbezugHinweisFrequencyMap));
+		} catch (JsonProcessingException e) {
+			log.info("  => Hinweise: {}", netzbezugHinweisFrequencyMap);
+		}
+	}
+
+	public void aktualisiereNetzbezug(MassnahmenImportSession session, int zuordnungId, MassnahmeNetzBezug netzbezug) {
+		require(
+			session.getSchritt().equals(MassnahmenImportSession.IMPORT_UEBERPRUEFEN_UND_SPEICHERN)
+				&& !session.isExecuting()
+				&& !session.hatFehler(),
+			"Das Aktualisieren der Netzbezüge kann nur in Schritt 4 passieren.");
+		log.info(
+			"Maßnahmenimport für Benutzer {}: Aktualisiere Netzbezug in Zuordnung {}",
+			session.getBenutzer().getId(), zuordnungId);
+
+		session.getZuordnungen().stream()
+			.filter(z -> z.getId() == zuordnungId)
+			.findAny() // MassnahmenImportZuordnung stellt sicher, dass es keine zwei Zuordnungen mit derselben ID gibt.
+			.orElseThrow(() -> new RuntimeException("Die ID der zu aktualisierenden Zuordnung existiert nicht"))
+			.aktualisiereNetzbezug(netzbezug, true);
+	}
+
+	@Async
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	@WithAuditing(context = AuditingContext.MANUELLER_MASSNAHMEN_IMPORT)
+	public void speichereMassnahmenDerZuordnungen(MassnahmenImportSession session,
+		List<Integer> zuSpeicherndeZuordnungenIds) {
+		require(zuSpeicherndeZuordnungenIds, notNullValue());
+		require(
+			session.getSchritt().equals(MassnahmenImportSession.IMPORT_UEBERPRUEFEN_UND_SPEICHERN)
+				&& !session.isExecuting()
+				&& !session.hatFehler(),
+			"Das Speichern der Maßnahmen kann nur in Schritt "
+				+ MassnahmenImportSession.IMPORT_UEBERPRUEFEN_UND_SPEICHERN + " und nur einmal passieren.");
+		log.info("Maßnahmenimport für Benutzer {}: Starte Speichern der Maßnahmen", session.getBenutzer().getId());
+
+		List<MassnahmenImportZuordnung> zuSpeicherndeZuordnungen = session.getZuordnungen()
+			.stream()
+			.peek(zuordnung -> {
+				if (zuSpeicherndeZuordnungenIds.contains(zuordnung.getId())) {
+					if (zuordnung.canBeSaved()) {
+						zuordnung.select();
+					} else {
+						session.addLogEintrag(
+							ImportLogEintrag.ofError(
+								"Die Zuordnung mit ID " + zuordnung.getId()
+									+ " enthält Fehler und kann nicht gespeichert werden."));
+						log.warn(
+							"Maßnahmenimport für Benutzer {}: Maßnahme {} beim Import geskipped, da fehlerhaft",
+							session.getBenutzer().getId(), zuordnung.getId());
+					}
+				} else {
+					zuordnung.deselect();
+				}
+			})
+			.filter(zuordnung -> zuordnung.isSelected())
+			.toList();
+
+		// 1. Finale Prüfung ob die Maßnahmen soweit korrekt sind
+		require(
+			zuSpeicherndeZuordnungen.stream()
+				.allMatch(zuordnung -> zuordnung.getZuordnungStatus() != MassnahmenImportZuordnungStatus.FEHLERHAFT),
+			"Der Status der Zuordnungen darf nicht '" + MassnahmenImportZuordnungStatus.FEHLERHAFT.name() + "' sein.");
+		require(zuSpeicherndeZuordnungen.stream().allMatch(zuordnung -> {
+			return zuordnung.getMassnahmeKonzeptId().isPresent();
+		}), "MassnahmeKonzeptId muss bei nicht-fehlerhaften Maßnahmen vorhanden sein.");
+		require(
+			zuSpeicherndeZuordnungen.stream().allMatch(zuordnung -> zuordnung.getMappingFehler().isEmpty()),
+			"Zu speicherne Zuordnungen dürfen keine Mapping-Fehler haben.");
+		require(
+			zuSpeicherndeZuordnungen.stream().allMatch(
+				zuordnung -> zuordnung.getNetzbezugHinweise().stream()
+					.allMatch(hinweis -> !hinweis.getSeverity().equals(Severity.ERROR))),
+			"Zu speicherne Zuordnungen dürfen keine Netzbezughinweis-Fehler haben.");
+		require(
+			zuSpeicherndeZuordnungen.stream()
+				.allMatch(zuordnung -> {
+					boolean hasNetzbezug = zuordnung.getNetzbezug().isPresent();
+					boolean geloescht = zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.GELOESCHT;
+					return geloescht && !hasNetzbezug || !geloescht && hasNetzbezug;
+				}),
+			"Ungültiger Netzbezug vorhanden: Bearbeitete/neue Maßnahmen müssen einen Netzbezug haben, gelöschte Maßnahmen dürfen keinen Netzbezug haben.");
+
+		// 2. Übernehmen der Änderungen
+		session.setExecuting(true);
+
+		for (MassnahmenImportZuordnung zuordnung : zuSpeicherndeZuordnungen) {
+			try {
+				switch (zuordnung.getZuordnungStatus()) {
+				case GELOESCHT -> {
+					Massnahme massnahme = zuordnung.getMassnahme().orElseThrow();
+					massnahme.alsGeloeschtMarkieren();
+					massnahmenRepostory.save(massnahme);
+				}
+				case NEU -> {
+					// Default-Werte setzen, da es sein kann, dass nicht alle Attribute aus dem Feature übernommen
+					// werden, aber der Maßnahmen-Konstruktor manche Felder zwingend braucht.
+					Massnahme.MassnahmeBuilder builder = Massnahme.builder()
+						.benutzerLetzteAenderung(session.getBenutzer())
+						.netzbezug(zuordnung.getNetzbezug().orElseThrow())
+						.netzklassen(Set.of())
+						.dokumentListe(new DokumentListe())
+						.kommentarListe(new KommentarListe())
+						.letzteAenderung(LocalDateTime.now())
+						.planungErforderlich(false)
+						.veroeffentlicht(false);
+
+					addAttributesToBuilder(
+						session.getAttribute(), zuordnung.getFeature(),
+						session.getKonzeptionsquelle(), zuordnung.getMassnahmeKonzeptId().orElseThrow(), builder);
+
+					if (session.getKonzeptionsquelle() == Konzeptionsquelle.SONSTIGE) {
+						String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+						builder.sonstigeKonzeptionsquelle("Manueller Import vom " + today);
+					}
+
+					Massnahme massnahme = builder.build();
+					massnahmenRepostory.save(massnahme);
+				}
+				case ZUGEORDNET -> {
+					// Wir machen hier ein .merge() Aufruf, damit die Maßnahme aus der Zuordnung wieder einen
+					// Persistence-Context bekommt. Sonst schlagen manche Operationen an der Enity fehl (z.B. Setzen
+					// der Netzklassen über den Builder, wodurch in den Hibernate Proxy-Objekten eine
+					// LazyInitializationException fliegt), weil der alte Context, als die Entity in einem vorherigen
+					// Schritt aus der DB geholt wurde, bereits geschlossen ist. Mit dem .merge() Aufruf wird der
+					// Context erneuert und Änderungen laufen durch.
+					Massnahme massnahme = entityManager.merge(zuordnung.getMassnahme().get());
+
+					// Builder benutzen um Attribute zu übernehmen. Hier wird der Mechanismus für neue Maßnahmen
+					// wiederverwendet um viele neue setter oder einen umständlichen ".update()"-Call zu vermeiden.
+					Massnahme.MassnahmeBuilder builder = massnahme.toBuilder();
+					addAttributesToBuilder(
+						session.getAttribute(), zuordnung.getFeature(),
+						session.getKonzeptionsquelle(), zuordnung.getMassnahmeKonzeptId().orElseThrow(), builder);
+
+					builder.netzbezug(zuordnung.getNetzbezug().orElseThrow());
+
+					Massnahme massnahmeToSave = builder.build();
+					massnahmenRepostory.save(massnahmeToSave);
+				}
+				}
+			} catch (OptimisticLockException e) {
+				session.addLogEintrag(
+					ImportLogEintrag.ofError(
+						"Die Maßnahme mit ID " + zuordnung.getMassnahme().get().getId()
+							+ " wurde seit dem Start des Imports verändert und kann daher nicht gespeichert werden."));
+				log.error(
+					"Maßnahmenimport für Benutzer {}: Optimistic-Locking für Maßnahme " + zuordnung.getMassnahme()
+						.get().getId(),
+					session.getBenutzer().getId(), e);
+			} catch (Throwable e) {
+				session.addLogEintrag(
+					ImportLogEintrag.ofError(
+						"Es ist ein unbekannter Fehler beim Speichern der Maßnahmen aufgetreten."));
+				log.error(
+					"Maßnahmenimport für Benutzer {}: Unbekannter Fehler beim Speichern der Maßnahmen",
+					session.getBenutzer().getId(), e);
+			}
+		}
+
+		entityManager.flush();
+		entityManager.clear();
+
+		session.setExecuting(false);
+		session.setSchritt(MassnahmenImportSession.FEHLERPROTOKOLL_HERUNTERLADEN);
+	}
+
+	private void addAttributesToBuilder(List<MassnahmenImportAttribute> attribute, SimpleFeature feature,
+		Konzeptionsquelle konzeptionsquelle, MassnahmeKonzeptID massnahmeKonzeptId,
+		Massnahme.MassnahmeBuilder builder) {
+
+		builder.konzeptionsquelle(konzeptionsquelle);
+
+		if (massnahmeKonzeptId != null) {
+			builder.massnahmeKonzeptId(massnahmeKonzeptId);
+		}
+
+		for (MassnahmenImportAttribute attribut : attribute) {
+			String attributName = attribut.toString();
+			Object featureAttribute = feature.getAttribute(attributName);
+			if (featureAttribute == null) {
+				continue;
+			}
+			String attributWert = featureAttribute.toString();
+
+			try {
+				switch (attribut) {
+				case UMSETZUNGSSTATUS -> builder.umsetzungsstatus(
+					mapFromDisplayTextToEnumConstant(
+						Umsetzungsstatus.class, attributWert));
+				case BEZEICHNUNG -> builder.bezeichnung(Bezeichnung.of(attributWert));
+				case KATEGORIEN -> builder.massnahmenkategorien(mapToMassnahmenkategorien(attributWert));
+				case ZUSTAENDIGER -> builder.zustaendiger(mapToVerwaltungseinheit(attributWert));
+				case SOLL_STANDARD -> builder.sollStandard(
+					mapFromDisplayTextToEnumConstant(
+						SollStandard.class,
+						attributWert));
+				case DURCHFUEHRUNGSZEITRAUM -> builder.durchfuehrungszeitraum(
+					mapToDurchfuehrungszeitraum(
+						attributWert));
+				case BAULASTTRAEGER -> builder.baulastZustaendiger(mapToVerwaltungseinheitEmptyAllowed(attributWert));
+				case HANDLUNGSVERANTWORTLICHER -> builder.handlungsverantwortlicher(
+					mapToEnumConstantAllowEmpty(Handlungsverantwortlicher.class, attributWert));
+				case PRIORITAET -> builder.prioritaet(Prioritaet.of(attributWert));
+				case KOSTENANNAHME -> builder.kostenannahme(Kostenannahme.of(attributWert));
+				case UNTERHALTSZUSTAENDIGER -> builder.unterhaltsZustaendiger(
+					mapToVerwaltungseinheitEmptyAllowed(
+						attributWert));
+				case MAVIS_ID -> builder.maViSID(MaViSID.of(attributWert));
+				case VERBA_ID -> builder.verbaID(VerbaID.of(attributWert));
+				case LGVFG_ID -> builder.lgvfgid(LGVFGID.of(attributWert));
+				case REALISIERUNGSHILFE -> builder.realisierungshilfe(
+					mapToEnumConstantAllowEmpty(
+						Realisierungshilfe.class, attributWert));
+				case NETZKLASSEN -> builder.netzklassen(mapToNetzklassen(attributWert));
+				case PLANUNG_ERFORDERLICH -> builder.planungErforderlich(jaNeinToBool(attributWert));
+				case VEROEFFENTLICHT -> builder.veroeffentlicht(jaNeinToBool(attributWert));
+				default -> throw new RuntimeException(
+					String.format("Das MassnahmenImportAttribut '%s' fehlt bei der Speicherung!", attribut));
+				}
+			} catch (MassnahmenAttributWertValidierungsException e) {
+				log.error(
+					"Fehler beim Erstellen einer neuen Maßnahme (Konzept-ID '{}') wegen ungültigem Attribut {} mit Wert {}",
+					massnahmeKonzeptId != null ? massnahmeKonzeptId.getValue() : "", attributName, attributWert);
+				throw new RuntimeException(e);
+			} catch (VerwaltungseinheitNichtGefundenException e) {
+				log.error(
+					"Verwaltungseinheit {} beim Erstellen einer neuen Maßnahme (Konzept-ID '{}') für Attribut {} nicht gefunden",
+					attributWert, massnahmeKonzeptId != null ? massnahmeKonzeptId.getValue() : "", attributName);
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	private Boolean jaNeinToBool(String attributWert) {
+		return "ja".equalsIgnoreCase(attributWert);
+	}
+
+	public byte[] downloadFehlerprotokoll(MassnahmenImportSession session) throws IOException {
+		List<Map<String, String>> rows = session.getZuordnungen().stream()
+			.map(zuordnung -> convertZuordnungToCsvRow(zuordnung))
+			.collect(Collectors.toList());
+		return csvRepository.write(CsvData.of(rows, MassnahmenImportSession.CsvHeader.ALL));
+	}
+
+	private Map<String, String> convertZuordnungToCsvRow(MassnahmenImportZuordnung zuordnung) {
+		Map<String, String> row = new HashMap<>();
+
+		row.put(
+			MassnahmenImportSession.CsvHeader.MASSNAHME_ID, zuordnung.getMassnahmeKonzeptId()
+				.map(id -> id.getValue()).orElse(""));
+		row.put(
+			MassnahmenImportSession.CsvHeader.IMPORTIERT, convertBooleanToCsvRepresentation(
+				zuordnung
+					.isSelected()));
+
+		MassnahmenImportZuordnungStatus status = zuordnung.getZuordnungStatus();
+		if (!zuordnung.canBeSaved()) {
+			status = MassnahmenImportZuordnungStatus.FEHLERHAFT;
+		}
+
+		row.put(MassnahmenImportSession.CsvHeader.STATUS, status.getDisplayText());
+
+		List<String> hinweise = new ArrayList<>();
+		hinweise.addAll(zuordnung.getNetzbezugHinweise().stream().map(hinweis -> hinweis.getDisplayText()).toList());
+		hinweise.addAll(zuordnung.getMappingFehler().stream().map(mappingFehler -> mappingFehler.getText()).toList());
+		String hinweisRowContent = hinweise.stream().distinct().collect(Collectors.joining("\n\n"));
+		row.put(MassnahmenImportSession.CsvHeader.HINWEIS, hinweisRowContent);
+
+		return row;
+	}
+
+	private String convertBooleanToCsvRepresentation(boolean bool) {
+		return bool ? "Ja" : "Nein";
 	}
 }

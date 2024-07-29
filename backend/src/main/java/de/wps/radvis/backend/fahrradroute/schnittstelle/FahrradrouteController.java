@@ -157,14 +157,14 @@ public class FahrradrouteController {
 		@RequestParam(name = "mitFahrtrichtung", required = false, defaultValue = "true") boolean fahrtrichtungBeruecksichtigen
 	) {
 		return fahrradrouteService.createStrecke((LineString) stuetzpunkte, customProfileId,
-				fahrtrichtungBeruecksichtigen)
+			fahrtrichtungBeruecksichtigen)
 			.map(ProfilRoutingResultView::new);
 	}
 
 	private FahrradrouteDetailView getFahrradrouteDetailView(Fahrradroute fahrradroute, Benutzer benutzer) {
 		boolean anyKanteInZustaendigkeitsbereich = fahrradrouteGuard.darfFahrradrouteBearbeiten(benutzer, fahrradroute);
-		boolean darfAttributeBearbeiten =
-			anyKanteInZustaendigkeitsbereich && fahrradroute.getFahrradrouteTyp().equals(FahrradrouteTyp.RADVIS_ROUTE);
+		boolean darfAttributeBearbeiten = anyKanteInZustaendigkeitsbereich && fahrradroute.getFahrradrouteTyp().equals(
+			FahrradrouteTyp.RADVIS_ROUTE);
 		return new FahrradrouteDetailView(fahrradroute, darfAttributeBearbeiten, anyKanteInZustaendigkeitsbereich);
 	}
 }

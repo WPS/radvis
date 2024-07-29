@@ -15,7 +15,7 @@
 import { Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { Coordinate } from 'ol/coordinate';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { VIEWER_ROUTE } from 'src/app/viewer/viewer-shared/models/viewer-routes';
 import invariant from 'tiny-invariant';
 
@@ -28,12 +28,12 @@ export class NetzdetailRoutingService {
 
   constructor(private router: Router) {}
 
-  public static buildParams(clickposition: number[], selektierteSeite?: Seitenbezug | string): Params {
+  public static buildParams(clickposition: number[], selektierteSeite?: KantenSeite | string): Params {
     const queryParams: Params = { position: clickposition.join(',') };
 
     if (selektierteSeite) {
       invariant(
-        selektierteSeite === Seitenbezug.LINKS || selektierteSeite === Seitenbezug.RECHTS,
+        selektierteSeite === KantenSeite.LINKS || selektierteSeite === KantenSeite.RECHTS,
         'Die selektierte Seite kann nur Links oder Rechts sein'
       );
     }
@@ -42,7 +42,7 @@ export class NetzdetailRoutingService {
     return queryParams;
   }
 
-  public toKanteDetails(id: number, clickposition: Coordinate, selektierteSeite?: Seitenbezug): void {
+  public toKanteDetails(id: number, clickposition: Coordinate, selektierteSeite?: KantenSeite): void {
     this.router.navigate([VIEWER_ROUTE, NetzdetailRoutingService.KANTE, id], {
       queryParamsHandling: 'merge',
       queryParams: NetzdetailRoutingService.buildParams(clickposition, selektierteSeite),

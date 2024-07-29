@@ -17,6 +17,7 @@ package de.wps.radvis.backend.netz.schnittstelle.command;
 import org.springframework.validation.annotation.Validated;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
@@ -27,6 +28,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -85,5 +87,13 @@ public class SaveFuehrungsformAttributeCommand {
 
 	public static SaveFuehrungsformAttributeCommand.SaveFuehrungsformAttributeCommandBuilder builder() {
 		return privateBuilder().benutzungspflicht(Benutzungspflicht.UNBEKANNT);
+	}
+
+	@AssertTrue(message = "Trennstreifen passt nicht zur Radverkehrsführung oder enthält fehlerhafte Werte")
+	public boolean isTrennstreifenValid() {
+		return FuehrungsformAttribute.isTrennstreifenCorrect(radverkehrsfuehrung, trennstreifenFormLinks,
+			trennstreifenBreiteLinks, trennstreifenTrennungZuLinks)
+			&& FuehrungsformAttribute.isTrennstreifenCorrect(radverkehrsfuehrung, trennstreifenFormRechts,
+				trennstreifenBreiteRechts, trennstreifenTrennungZuRechts);
 	}
 }

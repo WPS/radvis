@@ -314,7 +314,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 			if (knotenOrtslage.equals(KnotenOrtslage.INNERORTS)
 				&& kantenOrtslage.equals(KantenOrtslage.AUSSERORTS)
 				|| knotenOrtslage.equals(KnotenOrtslage.AUSSERORTS)
-				&& kantenOrtslage.equals(KantenOrtslage.INNERORTS)) {
+					&& kantenOrtslage.equals(KantenOrtslage.INNERORTS)) {
 				return KnotenOrtslage.ORTSEINGANGSBEREICH;
 			}
 		}
@@ -579,7 +579,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 
 		log.warn("Bei folgenden Kanten endet/beginnt der LineString nicht am Knoten: "
 			+ String.join(", ", kantenWhereLinestringEndsAreNotOnKnoten.stream().map(k -> k.getId().toString())
-			.collect(Collectors.toList())));
+				.collect(Collectors.toList())));
 		return kantenWhereLinestringEndsAreNotOnKnoten.size();
 	}
 

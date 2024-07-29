@@ -50,7 +50,8 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 })
 export class AutocorrectingNumberInputControlComponent
   extends AbstractUndeterminedFormControl<number>
-  implements OnChanges {
+  implements OnChanges
+{
   @Input()
   value: number | null = null;
   // Bei direkter Zuweisung des Controls kommt kein neues "enabled" rein, daher binden wir das hier zusätzlich
@@ -73,7 +74,10 @@ export class AutocorrectingNumberInputControlComponent
   readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
   isUndetermined = false;
 
-  constructor(private changeDetector: ChangeDetectorRef, notifyUserService: NotifyUserService) {
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    notifyUserService: NotifyUserService
+  ) {
     super();
     this.formControl = new FormControl<number | null>(null, { updateOn: 'blur' });
     this.formControl.valueChanges.subscribe(value => {

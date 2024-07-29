@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -49,8 +49,8 @@ public class CustomVerwaltungseinheitRepositoryImpl implements CustomVerwaltungs
 		List<Long> ids = this.findAllUntergeordnetIds(verwaltungseinheit.getId());
 
 		return entityManager.createQuery(
-				"Select organisation FROM Verwaltungseinheit organisation WHERE organisation.id IN :ids",
-				Verwaltungseinheit.class)
+			"Select organisation FROM Verwaltungseinheit organisation WHERE organisation.id IN :ids",
+			Verwaltungseinheit.class)
 			.setParameter("ids", ids)
 			.getResultList();
 	}
@@ -62,26 +62,26 @@ public class CustomVerwaltungseinheitRepositoryImpl implements CustomVerwaltungs
 		// und https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
 		@SuppressWarnings("unchecked")
 		List<Long> ids = (List<Long>) entityManager.createNativeQuery("""
-				WITH RECURSIVE untergeordnete_orgas AS (
-				    SELECT
-				        id,
-				        uebergeordnete_organisation_id
-				    FROM
-				        organisation
-				    WHERE
-				            id = :id
-				    UNION
-				    SELECT
-				        o.id,
-				        o.uebergeordnete_organisation_id
-				    FROM
-				        organisation o
-				            INNER JOIN untergeordnete_orgas uo ON uo.id = o.uebergeordnete_organisation_id
-				) SELECT
-				    id
-				FROM
-				    untergeordnete_orgas;
-				""")
+			WITH RECURSIVE untergeordnete_orgas AS (
+			    SELECT
+			        id,
+			        uebergeordnete_organisation_id
+			    FROM
+			        organisation
+			    WHERE
+			            id = :id
+			    UNION
+			    SELECT
+			        o.id,
+			        o.uebergeordnete_organisation_id
+			    FROM
+			        organisation o
+			            INNER JOIN untergeordnete_orgas uo ON uo.id = o.uebergeordnete_organisation_id
+			) SELECT
+			    id
+			FROM
+			    untergeordnete_orgas;
+			""")
 			.setParameter("id", verwaltungseinheitId)
 			.getResultStream()
 			.collect(Collectors.toList());
@@ -93,8 +93,8 @@ public class CustomVerwaltungseinheitRepositoryImpl implements CustomVerwaltungs
 	@Override
 	public MultiPolygon getVereintenBereich(List<Long> verwaltungseinheitIds) {
 		return (MultiPolygon) entityManager.createNativeQuery(
-				"SELECT st_multi(st_union(bereich)) FROM organisation WHERE id IN :ids",
-				MultiPolygon.class)
+			"SELECT st_multi(st_union(bereich)) FROM organisation WHERE id IN :ids",
+			MultiPolygon.class)
 			.setParameter("ids", verwaltungseinheitIds)
 			.getSingleResult();
 	}

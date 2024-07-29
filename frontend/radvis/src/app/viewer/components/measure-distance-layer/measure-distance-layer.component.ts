@@ -24,12 +24,12 @@ import { RegularShape, Stroke, Style } from 'ol/style';
 import CircleStyle from 'ol/style/Circle';
 import Fill from 'ol/style/Fill';
 import TextStyle from 'ol/style/Text';
-import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { messwerkzeugZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 
 @Component({
   selector: 'rad-measure-distance-layer',

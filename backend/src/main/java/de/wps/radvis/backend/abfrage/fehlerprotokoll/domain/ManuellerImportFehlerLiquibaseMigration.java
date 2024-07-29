@@ -77,7 +77,7 @@ public class ManuellerImportFehlerLiquibaseMigration implements CustomTaskChange
 						setToStringAttributeConverter.convertToEntityAttribute(nichtUebernommeneWerte)));
 				}
 			}
-			String beschreibung = ManuellerImportFehler.generateBeschreibung(konflikte, fehlerursache);
+			String beschreibung = ManuellerImportFehler.generateBeschreibung(kanteId, konflikte, fehlerursache);
 			String titel = ManuellerImportFehler.generateTitel(importTyp);
 			String entityLink = ManuellerImportFehler.generateEntityLink(kanteId != 0 ? kanteId : null);
 			String iconPosition = resultSet.getString("icon_position");

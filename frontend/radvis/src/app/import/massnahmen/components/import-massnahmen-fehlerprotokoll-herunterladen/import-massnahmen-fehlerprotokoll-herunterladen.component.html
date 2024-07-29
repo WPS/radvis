@@ -12,9 +12,37 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<p>import-massnahmen-fehlerprotokoll-herunterladen works!</p>
-
-<div class="flex-grow"></div>
-<div class="buttons display-flex p-10">
-  <button mat-flat-button color="primary" class="button" (click)="onNext()">Schließen</button>
-</div>
+<rad-import-step-layout>
+  <div class="import-step-content">
+    <p>Die Maßnahmen wurden gespeichert.</p>
+    <div>
+      Folgende Statistiken ergeben sich:
+      <ul class="protokoll-list">
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlNeuAngelegt }}</span> Maßnahmen wurden neu angelegt.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlBearbeitet }}</span> Maßnahmen wurden bearbeitet.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlGeloescht }}</span> Maßnahmen wurden gelöscht.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlImportNichtMoeglich }}</span> Maßnahmen konnten aufgrund
+          von Fehlern nicht importiert werden.
+        </li>
+        <li>
+          <span class="protokoll-stat">{{ protokollStats?.anzahlNichtFuerImportSelektiert }}</span> Maßnahmen wurden
+          nicht für den Import selektiert.
+        </li>
+      </ul>
+      <p>Details finden Sie im Fehlerprotokoll:</p>
+      <button mat-stroked-button class="w-100" (click)="onDownloadFehlerProtokoll()">
+        Fehlerprotokoll herunterladen
+      </button>
+    </div>
+  </div>
+  <div class="import-step-footer-buttons">
+    <button mat-flat-button color="primary" (click)="onDone()">Abschließen</button>
+  </div>
+</rad-import-step-layout>

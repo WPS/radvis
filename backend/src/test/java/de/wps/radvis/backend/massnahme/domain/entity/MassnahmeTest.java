@@ -42,6 +42,7 @@ import org.valid4j.errors.RequireViolation;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
@@ -64,7 +65,6 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 class MassnahmeTest {
 	private Verwaltungseinheit testOrganisation;
@@ -75,7 +75,8 @@ class MassnahmeTest {
 	void setUp() {
 		testOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(1L)
 			.name("Coole Organisation").organisationsArt(
-				OrganisationsArt.BUNDESLAND).build();
+				OrganisationsArt.BUNDESLAND)
+			.build();
 		domainPublisherMock = mockStatic(RadVisDomainEventPublisher.class);
 	}
 
@@ -92,7 +93,7 @@ class MassnahmeTest {
 			.withDefaultValues()
 			.bezeichnung(null)
 			.build())
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -103,7 +104,7 @@ class MassnahmeTest {
 			.withDefaultValues()
 			.massnahmenkategorien(null)
 			.build())
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -114,7 +115,7 @@ class MassnahmeTest {
 			.withDefaultValues()
 			.netzbezug(null)
 			.build())
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -125,7 +126,7 @@ class MassnahmeTest {
 			.withDefaultValues()
 			.umsetzungsstatus(null)
 			.build())
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -136,7 +137,7 @@ class MassnahmeTest {
 			.withDefaultValues()
 			.veroeffentlicht(null)
 			.build())
-			.isInstanceOf(RequireViolation.class);
+				.isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -147,8 +148,8 @@ class MassnahmeTest {
 			.withDefaultValues()
 			.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(1000))
 			.build())
-			.isInstanceOf(RequireViolation.class)
-			.hasMessageContaining("Jahr ist nicht valide.");
+				.isInstanceOf(RequireViolation.class)
+				.hasMessageContaining("Jahr ist nicht valide.");
 	}
 
 	@Test
@@ -160,8 +161,8 @@ class MassnahmeTest {
 			.withDefaultValues()
 			// .netzbezug(new Netzbezug(new ArrayList<Knoten>(), new ArrayList<KantenSeitenAbschnitt>()))
 			.build())
-			.isInstanceOf(RequireViolation.class)
-			.hasMessageContaining("Knoten und KantenSeitenAbschnitte dürfen nicht gleichzeitig leer sein.");
+				.isInstanceOf(RequireViolation.class)
+				.hasMessageContaining("Knoten und KantenSeitenAbschnitte dürfen nicht gleichzeitig leer sein.");
 	}
 
 	@Test
@@ -176,9 +177,9 @@ class MassnahmeTest {
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
 			.benutzerLetzteAenderung(BenutzerTestDataProvider.admin(testOrganisation).build())
 			.build())
-			.isInstanceOf(RequireViolation.class)
-			.hasMessageContaining(
-				"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
+				.isInstanceOf(RequireViolation.class)
+				.hasMessageContaining(
+					"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
 	}
 
 	@Test
@@ -193,9 +194,9 @@ class MassnahmeTest {
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
 			.benutzerLetzteAenderung(BenutzerTestDataProvider.admin(testOrganisation).build())
 			.build())
-			.isInstanceOf(RequireViolation.class)
-			.hasMessageContaining(
-				"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
+				.isInstanceOf(RequireViolation.class)
+				.hasMessageContaining(
+					"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
 	}
 
 	@Test
@@ -283,7 +284,6 @@ class MassnahmeTest {
 			.sollStandard(SollStandard.BASISSTANDARD)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(null)
 			.build()).isInstanceOf(RequireViolation.class);
 
 	}
@@ -312,9 +312,7 @@ class MassnahmeTest {
 			.netzklassen(null)
 			.sollStandard(SollStandard.BASISSTANDARD)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
-			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(new Umsetzungsstand()));
-
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME));
 	}
 
 	@TestFactory
@@ -331,7 +329,6 @@ class MassnahmeTest {
 					assertDoesNotThrow(() -> MassnahmeTestDataProvider.withDefaultValues()
 						.konzeptionsquelle(konzeptionsquelle)
 						.sonstigeKonzeptionsquelle(konzeptionsquelle == Konzeptionsquelle.SONSTIGE ? "sonstige" : null)
-						.umsetzungsstand(null)
 						.build());
 				}));
 	}
@@ -371,7 +368,6 @@ class MassnahmeTest {
 						.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
 						.konzeptionsquelle(konzeptionsquelle)
 						.sonstigeKonzeptionsquelle(konzeptionsquelle == Konzeptionsquelle.SONSTIGE ? "sonstige" : null)
-						.umsetzungsstand(new Umsetzungsstand())
 						.build()).isInstanceOf(RequireViolation.class);
 				}));
 	}
@@ -379,14 +375,12 @@ class MassnahmeTest {
 	@Test
 	void update_gleicherUmsetzungsstatus_aktualisiertUmsetzungsstandNicht() {
 		// arrange
-		Umsetzungsstand umsetzungsstand = new Umsetzungsstand();
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstatus(Umsetzungsstatus.STORNIERT)
-			.umsetzungsstand(umsetzungsstand)
+			.umsetzungsstatus(Umsetzungsstatus.IDEE)
 			.id(42L)
 			.build();
-		umsetzungsstand.update(true,
+		massnahme.getUmsetzungsstand().orElseThrow().update(true,
 			LocalDateTime.of(2020, 4, 12, 23, 45),
 			BenutzerTestDataProvider.defaultBenutzer().build(),
 			GrundFuerAbweichungZumMassnahmenblatt.SONSTIGER_GRUND,
@@ -440,7 +434,6 @@ class MassnahmeTest {
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.umsetzungsstand(umsetzungsstand)
 			.baulastZustaendiger(organisation)
 			.id(42L)
 			.build();
@@ -490,44 +483,27 @@ class MassnahmeTest {
 	}
 
 	@Test
-	void update_KonzeptionsquelleVorherRadNETZNachherNicht_wirftRequireViolation() {
+	void canUpdateKonzeptionsquelle_RadNETZ() {
 		// arrange
-		Umsetzungsstand umsetzungsstand = new Umsetzungsstand();
-
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(umsetzungsstand)
 			.build();
 
 		// act & assert
-		assertThatThrownBy(
-			() -> massnahme.update(massnahme.getBezeichnung(),
-				massnahme.getMassnahmenkategorien(),
-				massnahme.getNetzbezug(),
-				massnahme.getDurchfuehrungszeitraum().get(),
-				massnahme.getUmsetzungsstatus(),
-				massnahme.getVeroeffentlicht(),
-				massnahme.getPlanungErforderlich(),
-				massnahme.getMaViSID().get(),
-				massnahme.getVerbaID().get(),
-				massnahme.getLGVFGID().get(),
-				massnahme.getPrioritaet().get(),
-				massnahme.getKostenannahme().get(),
-				massnahme.getNetzklassen(),
-				massnahme.getBenutzerLetzteAenderung(),
-				massnahme.getLetzteAenderung(),
-				massnahme.getBaulastZustaendiger().orElse(null),
-				massnahme.getunterhaltsZustaendiger().orElse(null),
-				massnahme.getZustaendiger().orElse(null),
-				massnahme.getMassnahmeKonzeptID().get(),
-				massnahme.getSollStandard(),
-				massnahme.getHandlungsverantwortlicher().get(),
-				Konzeptionsquelle.KREISKONZEPT,
-				null,
-				massnahme.getRealisierungshilfe().get()))
-			.isInstanceOf(RequireViolation.class)
-			.hasMessageContaining("Eine RadNETZ-Maßnahme darf nicht zu einer Non-RadNETZ-Maßnahme werden!");
-		domainPublisherMock.verifyNoInteractions();
+		assertThat(massnahme.canUpdateKonzeptionsquelle(Konzeptionsquelle.KOMMUNALES_KONZEPT)).isFalse();
+		assertThat(massnahme.canUpdateKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)).isTrue();
+	}
+
+	@Test
+	void canUpdateKonzeptionsquelle_RadNETZ_2024() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+			.build();
+
+		// act & assert
+		assertThat(massnahme.canUpdateKonzeptionsquelle(Konzeptionsquelle.KOMMUNALES_KONZEPT)).isFalse();
+		assertThat(massnahme.canUpdateKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)).isTrue();
 	}
 
 	@Test
@@ -579,7 +555,6 @@ class MassnahmeTest {
 
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(umsetzungsstandVorher)
 			.id(42L)
 			.build();
 

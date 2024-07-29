@@ -65,10 +65,7 @@ public abstract class AbstractNetzBezug {
 	protected boolean isValid(Set<AbschnittsweiserKantenSeitenBezug> abschnittsweiserKantenSeitenBezug,
 		Set<PunktuellerKantenSeitenBezug> punktuellerKantenSeitenBezug,
 		Set<Knoten> knotenBezug) {
-		boolean listenVorhanden =
-			abschnittsweiserKantenSeitenBezug != null && punktuellerKantenSeitenBezug != null && knotenBezug != null;
-		return listenVorhanden
-			&& mindestensEinenBezug(abschnittsweiserKantenSeitenBezug, punktuellerKantenSeitenBezug, knotenBezug) &&
+		return mindestensEinenBezug(abschnittsweiserKantenSeitenBezug, punktuellerKantenSeitenBezug, knotenBezug) &&
 			keineUeberlappung(abschnittsweiserKantenSeitenBezug);
 	}
 
@@ -129,9 +126,9 @@ public abstract class AbstractNetzBezug {
 		require(rechts.stream().allMatch(rechterAbschnitt -> rechterAbschnitt.getSeitenbezug() == Seitenbezug.RECHTS));
 
 		return links.stream().filter(
-				linkerAbschnitt -> rechts.stream().map(AbschnittsweiserKantenBezug::getLinearReferenzierterAbschnitt)
-					.anyMatch(
-						rechhteReferenz -> rechhteReferenz.equals(linkerAbschnitt.getLinearReferenzierterAbschnitt())))
+			linkerAbschnitt -> rechts.stream().map(AbschnittsweiserKantenBezug::getLinearReferenzierterAbschnitt)
+				.anyMatch(
+					rechhteReferenz -> rechhteReferenz.equals(linkerAbschnitt.getLinearReferenzierterAbschnitt())))
 			.map(commonAbschnitt -> commonAbschnitt.withSeitenbezug(Seitenbezug.BEIDSEITIG))
 			.collect(Collectors.toSet());
 	}
@@ -172,12 +169,15 @@ public abstract class AbstractNetzBezug {
 		return defragmented;
 	}
 
-	protected static boolean mindestensEinenBezug(
+	public static boolean mindestensEinenBezug(
 		Set<AbschnittsweiserKantenSeitenBezug> abschnittsweiserKantenSeitenBezug,
 		Set<PunktuellerKantenSeitenBezug> punktuellerKantenSeitenBezug,
 		Set<Knoten> knotenBezug) {
-		return !abschnittsweiserKantenSeitenBezug.isEmpty() || !punktuellerKantenSeitenBezug.isEmpty()
-			|| !knotenBezug.isEmpty();
+		boolean listenVorhanden = abschnittsweiserKantenSeitenBezug != null && punktuellerKantenSeitenBezug != null
+			&& knotenBezug != null;
+		return listenVorhanden && (!abschnittsweiserKantenSeitenBezug.isEmpty()
+			|| !punktuellerKantenSeitenBezug.isEmpty()
+			|| !knotenBezug.isEmpty());
 	}
 
 	protected static boolean keineUeberlappung(

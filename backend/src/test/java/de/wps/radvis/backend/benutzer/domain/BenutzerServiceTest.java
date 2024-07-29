@@ -48,10 +48,10 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.domain.MailService;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.OptimisticLockException;
 
 class BenutzerServiceTest {
@@ -101,9 +101,9 @@ class BenutzerServiceTest {
 		// arrange
 
 		Benutzer benutzer = BenutzerTestDataProvider.externerDienstleister(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(103L).name("Gemeinde")
-					.organisationsArt(OrganisationsArt.GEMEINDE)
-					.build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(103L).name("Gemeinde")
+				.organisationsArt(OrganisationsArt.GEMEINDE)
+				.build())
 			.rollen(Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN, Rolle.EXTERNER_DIENSTLEISTER))
 			.build();
 
@@ -133,80 +133,82 @@ class BenutzerServiceTest {
 	void testErmittleVergaberechteFuerRolle_RADVIS_ADMINISTRATOR() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.RADVIS_ADMINISTRATOR))
-			.containsExactlyInAnyOrder(Recht.ALLE_ROLLEN);
+				.containsExactlyInAnyOrder(Recht.ALLE_ROLLEN);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_KREISKOORDINATOREN() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.KREISKOORDINATOREN))
-			.containsExactlyInAnyOrder(
-				Recht.ALLE_ROLLEN,
-				Recht.KREISKOORDINATOREN_RADWEGE_ERFASSERIN_IMPORTE_VERANTWORTLICHER_UND_MASSNAHMEN_VERANTWORLICHER);
+				.containsExactlyInAnyOrder(
+					Recht.ALLE_ROLLEN,
+					Recht.KREISKOORDINATOREN_RADWEGE_ERFASSERIN_IMPORTE_VERANTWORTLICHER_UND_MASSNAHMEN_VERANTWORLICHER);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_RADWEGE_ERFASSERIN_KOMMUNE_KREIS() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.RADWEGE_ERFASSERIN))
-			.containsExactlyInAnyOrder(
-				Recht.ALLE_ROLLEN,
-				Recht.KREISKOORDINATOREN_RADWEGE_ERFASSERIN_IMPORTE_VERANTWORTLICHER_UND_MASSNAHMEN_VERANTWORLICHER);
+				.containsExactlyInAnyOrder(
+					Recht.ALLE_ROLLEN,
+					Recht.KREISKOORDINATOREN_RADWEGE_ERFASSERIN_IMPORTE_VERANTWORTLICHER_UND_MASSNAHMEN_VERANTWORLICHER);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_RADNETZ_ERFASSERIN_REGIERUNGSBEZIRK() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.RADVERKEHRSBEAUFTRAGTER))
-			.containsExactlyInAnyOrder(
-				Recht.ALLE_ROLLEN,
-				Recht.RADVERKEHRSBEAUFTRAGTER);
+				.containsExactlyInAnyOrder(
+					Recht.ALLE_ROLLEN,
+					Recht.RADVERKEHRSBEAUFTRAGTER);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN))
-			.containsExactlyInAnyOrder(
-				Recht.ALLE_ROLLEN,
-				Recht.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN);
+				.containsExactlyInAnyOrder(
+					Recht.ALLE_ROLLEN,
+					Recht.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_RADNETZ_QUALITAETSSICHERIN() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.RADNETZ_QUALITAETSSICHERIN))
-			.containsExactlyInAnyOrder(Recht.ALLE_ROLLEN);
+				.containsExactlyInAnyOrder(Recht.ALLE_ROLLEN);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_BETRACHTERIN() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.RADVIS_BETRACHTER))
-			.containsExactlyInAnyOrder(
-				Recht.ALLE_ROLLEN,
-				Recht.BETRACHTER_EXTERNER_DIENSTLEISTER);
+				.containsExactlyInAnyOrder(
+					Recht.ALLE_ROLLEN,
+					Recht.BETRACHTER_EXTERNER_DIENSTLEISTER);
 	}
 
 	@Test
 	void testErmittleVergaberechteFuerRolle_EXTERNER_DIENSTLEISTER() {
 		assertThat(
 			benutzerService.ermittleVergaberechteFuerRolle(Rolle.EXTERNER_DIENSTLEISTER))
-			.containsExactlyInAnyOrder(
-				Recht.ALLE_ROLLEN,
-				Recht.BETRACHTER_EXTERNER_DIENSTLEISTER);
+				.containsExactlyInAnyOrder(
+					Recht.ALLE_ROLLEN,
+					Recht.BETRACHTER_EXTERNER_DIENSTLEISTER);
 	}
 
 	@Test
 	void testFindeZustaendigeAdmins_inEigenerOrganisation_findetUndBenachrichtigtNurEigene_eskaliertNichtNachOben() {
 		// arrange
-		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(1L).build();
 		Verwaltungseinheit andereLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Andere Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(2L).build();
-		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(3L).uebergeordneteOrganisation(zustaendigeLandesOrganisation)
 			.build();
@@ -214,7 +216,8 @@ class BenutzerServiceTest {
 			.name("Andere Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(4L).uebergeordneteOrganisation(andereLandesOrganisation)
 			.build();
-		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Gemeindeorganisation")
 			.organisationsArt(OrganisationsArt.GEMEINDE).id(5L).uebergeordneteOrganisation(zustaendigeKreisOrganisation)
 			.build();
@@ -262,10 +265,10 @@ class BenutzerServiceTest {
 			.thenReturn(List.of(kreiskoodinator));
 		when(
 			benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation, BenutzerStatus.AKTIV))
-			.thenReturn(List.of(radnetzErfasserInRegierungsbezirk, bearbeiterVMadministration, poweruser));
+				.thenReturn(List.of(radnetzErfasserInRegierungsbezirk, bearbeiterVMadministration, poweruser));
 		when(benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation,
 			BenutzerStatus.INAKTIV))
-			.thenReturn(List.of(lowbobBenutzer));
+				.thenReturn(List.of(lowbobBenutzer));
 		when(benutzerRepository.findByOrganisationAndStatus(andereKreisOrganisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(nichtZustaendigKreiskoodinator));
 		when(benutzerRepository.findByOrganisationAndStatus(andereLandesOrganisation, BenutzerStatus.AKTIV))
@@ -299,13 +302,15 @@ class BenutzerServiceTest {
 	@Test
 	void testFindeZustaendigeAdmins_inEigenerOrganisation_findetNichtUndBenachrichtigtEineEbeneHoeher() {
 		// arrange
-		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(1L).build();
 		Verwaltungseinheit andereLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Andere Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(2L).build();
-		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(3L).uebergeordneteOrganisation(zustaendigeLandesOrganisation)
 			.build();
@@ -313,7 +318,8 @@ class BenutzerServiceTest {
 			.name("Andere Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(4L).uebergeordneteOrganisation(andereLandesOrganisation)
 			.build();
-		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Gemeindeorganisation")
 			.organisationsArt(OrganisationsArt.GEMEINDE).id(5L).uebergeordneteOrganisation(zustaendigeKreisOrganisation)
 			.build();
@@ -352,10 +358,10 @@ class BenutzerServiceTest {
 			.thenReturn(List.of(kreiskoodinator));
 		when(
 			benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation, BenutzerStatus.AKTIV))
-			.thenReturn(List.of(poweruser));
+				.thenReturn(List.of(poweruser));
 		when(benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation,
 			BenutzerStatus.INAKTIV))
-			.thenReturn(List.of(lowbobBenutzer));
+				.thenReturn(List.of(lowbobBenutzer));
 		when(benutzerRepository.findByOrganisationAndStatus(andereKreisOrganisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(nichtZustaendigKreiskoodinator));
 		when(benutzerRepository.findByOrganisationAndStatus(andereLandesOrganisation, BenutzerStatus.AKTIV))
@@ -387,13 +393,15 @@ class BenutzerServiceTest {
 	@Test
 	void testFindeZustaendigeAdmins_inEigenerOrganisation_findetNichtUndBenachrichtigtZeiEbeneHoeher() {
 		// arrange
-		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(1L).build();
 		Verwaltungseinheit andereLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Andere Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(2L).build();
-		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(3L).uebergeordneteOrganisation(zustaendigeLandesOrganisation)
 			.build();
@@ -401,7 +409,8 @@ class BenutzerServiceTest {
 			.name("Andere Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(4L).uebergeordneteOrganisation(andereLandesOrganisation)
 			.build();
-		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Gemeindeorganisation")
 			.organisationsArt(OrganisationsArt.GEMEINDE).id(5L).uebergeordneteOrganisation(zustaendigeKreisOrganisation)
 			.build();
@@ -443,10 +452,10 @@ class BenutzerServiceTest {
 			.thenReturn(List.of(radvisAdmin, landesVMrandetzBearbeiter));
 		when(
 			benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation, BenutzerStatus.AKTIV))
-			.thenReturn(List.of(poweruser));
+				.thenReturn(List.of(poweruser));
 		when(benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation,
 			BenutzerStatus.INAKTIV))
-			.thenReturn(List.of(lowbobBenutzer));
+				.thenReturn(List.of(lowbobBenutzer));
 		when(benutzerRepository.findByOrganisationAndStatus(andereKreisOrganisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(nichtZustaendigKreiskoodinator));
 		when(benutzerRepository.findByOrganisationAndStatus(andereLandesOrganisation, BenutzerStatus.AKTIV))
@@ -479,13 +488,15 @@ class BenutzerServiceTest {
 	@Test
 	void testFindeZustaendigeAdmins_niemandZustaendig_zentraladminWirdBenachrichtigt() {
 		// arrange
-		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(1L).build();
 		Verwaltungseinheit andereLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Andere Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(2L).build();
-		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(3L).uebergeordneteOrganisation(zustaendigeLandesOrganisation)
 			.build();
@@ -493,7 +504,8 @@ class BenutzerServiceTest {
 			.name("Andere Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(4L).uebergeordneteOrganisation(andereLandesOrganisation)
 			.build();
-		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Gemeindeorganisation")
 			.organisationsArt(OrganisationsArt.GEMEINDE).id(5L).uebergeordneteOrganisation(zustaendigeKreisOrganisation)
 			.build();
@@ -525,10 +537,10 @@ class BenutzerServiceTest {
 
 		when(
 			benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation, BenutzerStatus.AKTIV))
-			.thenReturn(List.of(poweruser));
+				.thenReturn(List.of(poweruser));
 		when(benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation,
 			BenutzerStatus.INAKTIV))
-			.thenReturn(List.of(lowbobBenutzer));
+				.thenReturn(List.of(lowbobBenutzer));
 		when(benutzerRepository.findByOrganisationAndStatus(andereKreisOrganisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(nichtZustaendigKreiskoodinator));
 		when(benutzerRepository.findByOrganisationAndStatus(andereLandesOrganisation, BenutzerStatus.AKTIV))
@@ -556,13 +568,15 @@ class BenutzerServiceTest {
 	@Test
 	void testFindeZustaendigeAdmins_neuerZentraladmin() {
 		// arrange
-		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(1L).build();
 		Verwaltungseinheit andereLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Andere Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).id(2L).build();
-		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(3L).uebergeordneteOrganisation(zustaendigeLandesOrganisation)
 			.build();
@@ -570,7 +584,8 @@ class BenutzerServiceTest {
 			.name("Andere Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).id(4L).uebergeordneteOrganisation(andereLandesOrganisation)
 			.build();
-		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Verwaltungseinheit zustaendigeGemeindeOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Gemeindeorganisation")
 			.organisationsArt(OrganisationsArt.GEMEINDE).id(5L).uebergeordneteOrganisation(zustaendigeKreisOrganisation)
 			.build();
@@ -619,7 +634,7 @@ class BenutzerServiceTest {
 			.thenReturn(List.of(radvisAdmin));
 		when(
 			benutzerRepository.findByOrganisationAndStatus(zustaendigeGemeindeOrganisation, BenutzerStatus.AKTIV))
-			.thenReturn(List.of(neuerAdmin, poweruser, radneterfasserRegierungsbezirk, bearbeiterVMadministration));
+				.thenReturn(List.of(neuerAdmin, poweruser, radneterfasserRegierungsbezirk, bearbeiterVMadministration));
 		when(benutzerRepository.findByOrganisationAndStatus(zustaendigeKreisOrganisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(kreiskoodinator));
 		when(benutzerRepository.findByOrganisationAndStatus(andereKreisOrganisation, BenutzerStatus.AKTIV))
@@ -684,9 +699,9 @@ class BenutzerServiceTest {
 			Stream.of(radvisAdmin, andererRadvisAdmin, kreiskoodinator, benutzerEins,
 				benutzerZwei).map(BenutzerTestDataProvider::getDbListView).toList());
 
-		when(benutzerRepository.findAllDBListViewsInVerwaltungseinheitWithId(any())).thenAnswer(invocationOnMock ->
-			Stream.of(radvisAdmin, andererRadvisAdmin, kreiskoodinator, benutzerEins,
-					benutzerZwei).filter(b -> b.getOrganisation().getId().equals(invocationOnMock.getArgument(0)))
+		when(benutzerRepository.findAllDBListViewsInVerwaltungseinheitWithId(any())).thenAnswer(
+			invocationOnMock -> Stream.of(radvisAdmin, andererRadvisAdmin, kreiskoodinator, benutzerEins,
+				benutzerZwei).filter(b -> b.getOrganisation().getId().equals(invocationOnMock.getArgument(0)))
 				.map(BenutzerTestDataProvider::getDbListView).toList());
 
 		when(verwaltungseinheitService.findAllUntergeordnetIds(obersteOrganisation.getId()))
@@ -697,12 +712,15 @@ class BenutzerServiceTest {
 			.thenReturn(List.of(untereOrganisation.getId()));
 
 		// act
-		List<BenutzerDBListView> alleBenutzerByZustaendigerBenutzerFuerRadvisAdmin = benutzerService.getAlleBenutzerByZustaendigerBenutzer(
-			radvisAdmin);
-		List<BenutzerDBListView> alleBenutzerByZustaendigerBenutzerFuerKreiskoordinator = benutzerService.getAlleBenutzerByZustaendigerBenutzer(
-			kreiskoodinator);
-		List<BenutzerDBListView> alleBenutzerByZustaendigerBenutzerFuerBenutzer = benutzerService.getAlleBenutzerByZustaendigerBenutzer(
-			benutzerEins);
+		List<BenutzerDBListView> alleBenutzerByZustaendigerBenutzerFuerRadvisAdmin = benutzerService
+			.getAlleBenutzerByZustaendigerBenutzer(
+				radvisAdmin);
+		List<BenutzerDBListView> alleBenutzerByZustaendigerBenutzerFuerKreiskoordinator = benutzerService
+			.getAlleBenutzerByZustaendigerBenutzer(
+				kreiskoodinator);
+		List<BenutzerDBListView> alleBenutzerByZustaendigerBenutzerFuerBenutzer = benutzerService
+			.getAlleBenutzerByZustaendigerBenutzer(
+				benutzerEins);
 
 		// assert
 		assertThat(alleBenutzerByZustaendigerBenutzerFuerRadvisAdmin)

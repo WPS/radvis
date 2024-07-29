@@ -13,14 +13,12 @@
   -->
 
 <button
-  [attr.aria-label]="'Filtern'"
   matTooltip="Filtern"
   (click)="menuTrigger.openMenu()"
   mat-button
   [class.aktiv]="isAktiv"
   [class.hovered]="hovered"
-  #triggerButton="matButton"
->
+  #triggerButton="matButton">
   <mat-icon class="filter-icon">filter_alt</mat-icon>
 </button>
 <div
@@ -28,8 +26,7 @@
   #menuTrigger="matMenuTrigger"
   [mat-menu-trigger-for]="menu"
   (onMenuClose)="menuClosed()"
-  (onMenuOpen)="menuOpened()"
-></div>
+  (onMenuOpen)="menuOpened()"></div>
 <mat-menu #menu="matMenu" yPosition="below">
   <div class="mat-menu-container">
     <div
@@ -38,8 +35,7 @@
       (keydown.tab)="$event.stopPropagation()"
       (keydown.shift.tab)="$event.stopPropagation()"
       (keydown.escape)="triggerButton.focus()"
-      (click)="$event.stopPropagation()"
-    >
+      (click)="$event.stopPropagation()">
       <mat-form-field class="filter-input-form-field">
         <input
           radAccessabilityTabCircleElement
@@ -48,18 +44,15 @@
           placeholder="Filter"
           matInput
           [formControl]="filterControl"
-          (keydown.enter)="menuTrigger.closeMenu()"
-        />
+          (keydown.enter)="menuTrigger.closeMenu()" />
       </mat-form-field>
       <button
         radAccessabilityTabCircleElement
-        [attr.aria-label]="'Filter zurücksetzen'"
         matTooltip="Filter zurücksetzen"
         [disabled]="!filterInput.value"
         (click)="onFilterClear()"
         mat-icon-button
-        class="ml-3 mat-icon-button-small"
-      >
+        class="ml-3 mat-icon-button-small">
         <mat-icon>clear</mat-icon>
       </button>
     </div>

@@ -32,7 +32,7 @@ public class NetzklassenStreckenSignaturViewRepository
 				(LineString) TopologyPreservingSimplifier
 					.simplify(streckeVonKanten.getStrecke(), DISTANCE_TOLERANCE),
 				streckeVonKanten.getNetzklassen())).collect(
-				Collectors.toList());
+					Collectors.toList());
 	}
 
 	@Override

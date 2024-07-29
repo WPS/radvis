@@ -20,22 +20,27 @@ import java.util.List;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
+import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RequestLoggingInterceptor implements HandlerInterceptor {
-	private final List<String> endpointsToIgnore = List.of(
+	private final List<String> endpointPrefixesToIgnore = List.of(
 		"/api/netzausschnitt",
 		"/api/hintergrundkarte",
 		"/api/ortssuche",
 		"/api/fahrradroute/routing"
 	);
+	private final List<String> endpointSuffixesToIgnore = List.of(
+		"/session"
+	);
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-		if (endpointsToIgnore.stream().anyMatch(endpoint -> request.getRequestURI().startsWith(endpoint))) {
+		if (endpointPrefixesToIgnore.stream().anyMatch(endpoint -> request.getRequestURI().startsWith(endpoint))
+			|| endpointSuffixesToIgnore.stream().anyMatch(endpoint -> request.getRequestURI().endsWith(endpoint))) {
 			return true;
 		}
 
@@ -43,7 +48,8 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
 
 		String userId = "UNKNOWN";
 		if (userPrincipal instanceof RadVisAuthentication) {
-			userId = ((RadVisAuthentication) userPrincipal).getBenutzer().getId().toString();
+			Benutzer benutzer = ((RadVisAuthentication) userPrincipal).getBenutzer();
+			userId = benutzer != null ? benutzer.getId().toString() : "UNKNOWN";
 		}
 
 		log.debug("Request from user {}: {} {}", userId, request.getMethod(), request.getRequestURI());

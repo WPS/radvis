@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
@@ -80,8 +82,9 @@ public class KonsistenzregelVerletzung extends AbstractEntity implements Fehlerp
 	}
 
 	@Override
-	public Geometry getIconPosition() {
-		return konsistenzregelVerletzungsDetails.getPosition();
+	public MultiPoint getIconPosition() {
+		return new MultiPoint(new Point[] { konsistenzregelVerletzungsDetails.getPosition() },
+			konsistenzregelVerletzungsDetails.getPosition().getFactory());
 	}
 
 	@Override

@@ -12,32 +12,33 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
+import { Coordinate } from 'ol/coordinate';
 import { Extent } from 'ol/extent';
-import { LineString, MultiLineString, Point } from 'ol/geom';
+import { MultiPoint } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
 import VectorSource from 'ol/source/Vector';
 import { Icon, Style } from 'ol/style';
 import IconOrigin from 'ol/style/IconOrigin';
 import { Subscription } from 'rxjs';
+import { FehlerprotokollDetailViewComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-detail-view/fehlerprotokoll-detail-view.component';
 import { FehlerprotokollView } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-view';
 import { FehlerprotokollSelectionService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll-selection.service';
-import {
-  Geojson,
-  LineStringGeojson,
-  MultiLineStringGeojson,
-  PointGeojson,
-  isLineString,
-  isMultiLineString,
-  isPoint,
-} from 'src/app/shared/models/geojson-geometrie';
+import { Geojson, geojsonGeometryToFeatureGeometry } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import invariant from 'tiny-invariant';
 
@@ -48,17 +49,19 @@ import invariant from 'tiny-invariant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
-  public static readonly MIN_ZOOM = 11.5;
   public static readonly LAYER_ID = 'fehlerprotokoll';
+  public static readonly HIGHLIGHTED_PROPERTY_NAME = 'highlighted';
   private static readonly PROTOKOLL_ID_PROPERTYNAME = 'protokollIdentifier';
   private static readonly ORIGINAL_GEOMETRY_PROPERTYNAME = 'originalGeometry';
-  private static readonly HIGHLIGHTED_PROPERTY_NAME = 'highlighted';
 
   @Input()
   canCreateAnpassungswunsch = false;
 
   @Input()
   zIndex!: number;
+
+  @ViewChild(FehlerprotokollDetailViewComponent)
+  detailView: FehlerprotokollDetailViewComponent | undefined;
 
   public selectedFeature: RadVisFeature | null = null;
 
@@ -76,25 +79,11 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
     this.iconVectorSource = new VectorSource({ strategy: bbox });
     this.geometryVectorSource = new VectorSource();
 
-    this.subscriptions.push(
-      this.fehlerprotokollSelectionService.fehlerprotokollLoader$.subscribe(fehlerprotokollLoader => {
-        this.iconVectorSource.setLoader((extent: Extent) => {
-          fehlerprotokollLoader(extent).subscribe(fVs => this.showFehlerprotokollIcons(fVs));
-        });
-        this.iconVectorSource.clear(true);
-        this.iconVectorSource.refresh();
-      }),
-      this.olMapService
-        .locationSelected$()
-        .subscribe(locationSelectedEvent => this.onLocationSelected(locationSelectedEvent))
-    );
-
     this.iconLayer = new VectorLayer({
       source: this.iconVectorSource,
       // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
       style: this.iconStyleFct,
-      minZoom: FehlerprotokollLayerComponent.MIN_ZOOM,
     });
 
     this.geometryLayer = new VectorLayer({
@@ -107,14 +96,23 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
     this.iconLayer.set(OlMapService.LAYER_ID, FehlerprotokollLayerComponent.LAYER_ID);
     this.olMapService.addLayer(this.iconLayer);
     this.olMapService.addLayer(this.geometryLayer);
-  }
 
-  public static extractProtokollId(radVisFeatureAttribute: RadVisFeatureAttribut[]): string {
-    const protokollId = radVisFeatureAttribute.find(
-      a => a.key === FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME
-    )?.value;
-    invariant(protokollId, 'Id von Protokollfehler fehlt im Feature');
-    return protokollId;
+    this.subscriptions.push(
+      this.fehlerprotokollSelectionService.fehlerprotokollLoader$.subscribe(fehlerprotokollLoader => {
+        this.iconVectorSource.setLoader((extent: Extent) => {
+          fehlerprotokollLoader(extent).subscribe(fVs => this.showFehlerprotokollIcons(fVs));
+        });
+        this.iconVectorSource.clear(true);
+        this.iconVectorSource.refresh();
+      }),
+      this.fehlerprotokollSelectionService.minZoom$.subscribe(minZoom => {
+        this.iconLayer.setMinZoom(minZoom);
+        this.iconLayer.changed();
+      }),
+      this.olMapService
+        .locationSelected$()
+        .subscribe(locationSelectedEvent => this.onLocationSelected(locationSelectedEvent))
+    );
   }
 
   ngOnInit(): void {
@@ -129,10 +127,10 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
     this.olMapService.removeLayer(this.geometryLayer);
   }
 
-  public onSelect(feature: RadVisFeature): void {
+  public onSelect(feature: RadVisFeature, clickedCoordinate: Coordinate): void {
     invariant(feature.layer === FehlerprotokollLayerComponent.LAYER_ID);
     this.clearSelection();
-    this.select(feature);
+    this.select(feature, clickedCoordinate);
     this.changeDetectorRef.markForCheck();
   }
 
@@ -174,7 +172,8 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
   };
 
   private convertToFeature(fehlerprotokoll: FehlerprotokollView): Feature {
-    const feature = new Feature(new Point(fehlerprotokoll.iconPosition.coordinates));
+    const feature = geojsonGeometryToFeatureGeometry(fehlerprotokoll.iconPosition);
+    invariant(feature);
     const id = `${fehlerprotokoll.fehlerprotokollKlasse}/${fehlerprotokoll.id}`;
     feature.setId(id);
     feature.set(FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME, id);
@@ -183,28 +182,43 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
     feature.set('beschreibung', fehlerprotokoll.beschreibung);
     feature.set('entityLink', fehlerprotokoll.entityLink);
     feature.set('datum', fehlerprotokoll.datum);
+    feature.set(
+      FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME,
+      this.selectedFeature?.attributes.get(FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME) === id ?? false
+    );
     return feature;
   }
 
-  private select(feature: RadVisFeature): void {
+  private select(selectedFeature: RadVisFeature, clickedCoordinate: Coordinate): void {
     const selectedOLFeature = this.iconVectorSource
       .getFeatures()
-      .find(
-        f =>
-          f.getId() ===
-          feature.attribute.find(a => a.key === FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME)?.value
-      );
+      .find(f => f.getId() === selectedFeature.attributes.get(FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME));
 
     if (selectedOLFeature) {
       selectedOLFeature.set(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME, true);
       selectedOLFeature.changed();
     }
 
-    this.selectedFeature = feature;
+    this.selectedFeature = selectedFeature;
 
     this.showFehlerprotokollGeometry(
-      this.selectedFeature?.attribute.find(a => a.key === FehlerprotokollLayerComponent.ORIGINAL_GEOMETRY_PROPERTYNAME)
-        ?.value
+      this.selectedFeature?.attributes.get(FehlerprotokollLayerComponent.ORIGINAL_GEOMETRY_PROPERTYNAME)
+    );
+
+    this.showDetailView(selectedFeature, clickedCoordinate);
+  }
+
+  private showDetailView(selectedFeature: RadVisFeature, clickedCoordinate: Coordinate): void {
+    invariant(this.detailView);
+    const location = (selectedFeature.geometry as MultiPoint).getClosestPoint(clickedCoordinate);
+
+    this.detailView.showFehlerprotokoll(
+      location,
+      selectedFeature.attributes.get(FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME),
+      selectedFeature.attributes.get('titel'),
+      selectedFeature.attributes.get('beschreibung'),
+      selectedFeature.attributes.get('entityLink'),
+      selectedFeature.attributes.get('datum')
     );
   }
 
@@ -220,23 +234,10 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
   }
 
   private showFehlerprotokollGeometry(geojson: Geojson): void {
-    const feature = this.convertToFeatureGeometry(geojson);
+    const feature = geojsonGeometryToFeatureGeometry(geojson);
     if (feature) {
       this.geometryVectorSource.addFeature(feature);
     }
-  }
-
-  private convertToFeatureGeometry(geojson: Geojson): Feature | null {
-    if (isLineString(geojson)) {
-      return new Feature(new LineString((geojson as LineStringGeojson).coordinates));
-    }
-    if (isMultiLineString(geojson)) {
-      return new Feature(new MultiLineString((geojson as MultiLineStringGeojson).coordinates));
-    }
-    if (isPoint(geojson)) {
-      return new Feature(new Point((geojson as PointGeojson).coordinates));
-    }
-    return null;
   }
 
   private onLocationSelected(locationSelectEvent: LocationSelectEvent): void {
@@ -244,7 +245,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
       locationSelectEvent.selectedFeatures.length > 0 &&
       locationSelectEvent.selectedFeatures[0].layer === FehlerprotokollLayerComponent.LAYER_ID
     ) {
-      this.onSelect(locationSelectEvent.selectedFeatures[0]);
+      this.onSelect(locationSelectEvent.selectedFeatures[0], locationSelectEvent.coordinate);
     }
   }
 }

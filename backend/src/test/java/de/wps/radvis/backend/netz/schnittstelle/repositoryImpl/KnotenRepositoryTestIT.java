@@ -52,6 +52,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
@@ -79,7 +80,6 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.constraints.NotNull;
@@ -214,7 +214,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 			.isGrundnetz(true)
 			.build();
 		Kante radnetzKanteDieSichKnotenMitKante1Teilt = KanteTestDataProvider.withDefaultValuesAndQuelle(
-				QuellSystem.RadNETZ)
+			QuellSystem.RadNETZ)
 			.nachKnoten(kommunalUndRadNetzKante.getVonKnoten())
 			.vonKnoten(
 				KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(3., 4.), QuellSystem.RadNETZ).build())
@@ -864,14 +864,16 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 
 	@NotNull
 	private static HashMap<String, Object> getBalmAttribute(String knotenId, Point knotenPoint) throws SQLException {
-		return new HashMap<>() {{
-			put("Quell-ID", knotenId);
-			put("Knoten-ID", "08" + Math.round(knotenPoint.getX()) + Math.round(
-				knotenPoint.getY()));
-			put("Datum", null);
-			put("GeometrieKnoten", PostGisHelper.getPGobject(knotenPoint));
-			put("lebenszeitIntervallAnfang", null);
-			put("lebenszeitIntervallEnde", null);
-		}};
+		return new HashMap<>() {
+			{
+				put("Quell-ID", knotenId);
+				put("Knoten-ID", "08" + Math.round(knotenPoint.getX()) + Math.round(
+					knotenPoint.getY()));
+				put("Datum", null);
+				put("GeometrieKnoten", PostGisHelper.getPGobject(knotenPoint));
+				put("lebenszeitIntervallAnfang", null);
+				put("lebenszeitIntervallEnde", null);
+			}
+		};
 	}
 }

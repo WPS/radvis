@@ -29,15 +29,16 @@ public class MappingService {
 	public void map(AttributeMapper mapper, String attribut, KantenMapping kantenMapping,
 		KantenKonfliktProtokoll kantenKonfliktProtokoll) {
 		boolean istAttributSeitenbezogen = mapper.isAttributSeitenbezogen(attribut);
+		boolean habenFeaturesSeitenbezug = kantenMapping.habenFeaturesSeitenbezug();
 
 		if (!mapper.isLinearReferenziert(attribut)) {
-			if (!istAttributSeitenbezogen || !kantenMapping.habenFeaturesSeitenbezug()) {
+			if (!istAttributSeitenbezogen || !habenFeaturesSeitenbezug) {
 				mapSimple(mapper, attribut, kantenMapping, kantenKonfliktProtokoll);
 			} else {
 				mapSeitenbezogen(mapper, attribut, kantenMapping, kantenKonfliktProtokoll);
 			}
 		} else {
-			if (!istAttributSeitenbezogen || !kantenMapping.habenFeaturesSeitenbezug()) {
+			if (!istAttributSeitenbezogen || !habenFeaturesSeitenbezug) {
 				mapLinearReferenziert(mapper, attribut, kantenMapping, kantenKonfliktProtokoll);
 			} else {
 				mapLinearReferenziertUndSeitenbezogen(mapper, attribut, kantenMapping, kantenKonfliktProtokoll);
@@ -72,9 +73,17 @@ public class MappingService {
 	private static void writeFehlerToKantenKonfliktProtokoll(String attribut,
 		KantenKonfliktProtokoll kantenKonfliktProtokoll,
 		AttributUebernahmeException e, String additionalMessage) {
-		e.getFehler().forEach(f -> kantenKonfliktProtokoll.add(
-			new Konflikt(f.getLinearReferenzierterAbschnitt(), attribut, f.getMessage() + additionalMessage,
-				f.getNichtUerbenommeneWerte())));
+		e.getFehler().forEach(f -> {
+			StringBuilder bemerkung = new StringBuilder(f.getMessage());
+			if (!additionalMessage.isEmpty()) {
+				bemerkung.append("\n").append(additionalMessage);
+			}
+			kantenKonfliktProtokoll.add(
+				new Konflikt(f.getLinearReferenzierterAbschnitt(), f.getSeitenbezug(), attribut, "",
+					f.getNichtUerbenommeneWerte(), bemerkung.toString())
+			);
+		}
+		);
 	}
 
 	private static void writeFehlerToKantenKonfliktProtokoll(String attribut,
@@ -119,12 +128,10 @@ public class MappingService {
 	private void mapLinearReferenziert(AttributeMapper mapper, String attribut, KantenMapping kantenMapping,
 		KantenKonfliktProtokoll kantenKonfliktProtokoll) {
 		List<MappedAttributes> normalizedMappedAttributes = kantenMapping.getNormalizedMappedAttributes();
-		List<MappedAttributes> mappedAttributesList = mapper.shouldFilterNullValues(attribut) ?
-			filterNullValues(normalizedMappedAttributes, attribut) :
-			normalizedMappedAttributes;
+		List<MappedAttributes> mappedAttributesList = mapper.shouldFilterNullValues(attribut) ? filterNullValues(
+			normalizedMappedAttributes, attribut) : normalizedMappedAttributes;
 		MappedAttributes.loeseUeberschneidungenAuf(mappedAttributesList, attribut, kantenKonfliktProtokoll)
-			.forEach(mappedAttributes ->
-			{
+			.forEach(mappedAttributes -> {
 				try {
 					mapper.applyLinearReferenzierterAbschnitt(attribut, mappedAttributes.getAttributeProperties(),
 						mappedAttributes.getLinearReferenzierterAbschnitt(),
@@ -138,12 +145,10 @@ public class MappingService {
 	private void mapLinearReferenziertUndSeitenbezogen(AttributeMapper mapper, String attribut,
 		KantenMapping kantenMapping, KantenKonfliktProtokoll kantenKonfliktProtokoll) {
 		List<MappedAttributes> normalizedMappedAttributesLinks = kantenMapping.getNormalizedMappedAttributesLinks();
-		List<MappedAttributes> mappedAttributesListLinks = mapper.shouldFilterNullValues(attribut) ?
-			filterNullValues(normalizedMappedAttributesLinks, attribut) :
-			normalizedMappedAttributesLinks;
+		List<MappedAttributes> mappedAttributesListLinks = mapper.shouldFilterNullValues(attribut) ? filterNullValues(
+			normalizedMappedAttributesLinks, attribut) : normalizedMappedAttributesLinks;
 		MappedAttributes.loeseUeberschneidungenAuf(mappedAttributesListLinks, attribut, kantenKonfliktProtokoll)
-			.forEach(mappedAttributes ->
-			{
+			.forEach(mappedAttributes -> {
 				try {
 					mapper.applyLinearReferenzierterAbschnittSeitenbezogen(
 						attribut,
@@ -156,12 +161,10 @@ public class MappingService {
 				}
 			});
 		List<MappedAttributes> normalizedMappedAttributesRechts = kantenMapping.getNormalizedMappedAttributesRechts();
-		List<MappedAttributes> mappedAttributesListRechts = mapper.shouldFilterNullValues(attribut) ?
-			filterNullValues(normalizedMappedAttributesRechts, attribut) :
-			normalizedMappedAttributesRechts;
+		List<MappedAttributes> mappedAttributesListRechts = mapper.shouldFilterNullValues(attribut) ? filterNullValues(
+			normalizedMappedAttributesRechts, attribut) : normalizedMappedAttributesRechts;
 		MappedAttributes.loeseUeberschneidungenAuf(mappedAttributesListRechts, attribut, kantenKonfliktProtokoll)
-			.forEach(mappedAttributes ->
-			{
+			.forEach(mappedAttributes -> {
 				try {
 					mapper.applyLinearReferenzierterAbschnittSeitenbezogen(
 						attribut,

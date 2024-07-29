@@ -29,14 +29,15 @@ export class WeitereKartenebenenRoutingService {
 
   public currentFeature: RadVisFeature | null = null;
 
-  constructor(private router: Router, private notifyUserService: NotifyUserService) {}
+  constructor(
+    private router: Router,
+    private notifyUserService: NotifyUserService
+  ) {}
 
   public routeToFeature(feature: RadVisFeature): void {
     this.currentFeature = feature;
-    const layerId = feature.attribute.find(attr => attr.key === WeitereKartenebene.LAYER_ID_KEY)?.value;
-    const id =
-      feature.id ||
-      feature.attribute.find(attr => attr.key === WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME)?.value;
+    const layerId = feature.attributes.get(WeitereKartenebene.LAYER_ID_KEY);
+    const id = feature.id || feature.attributes.get(WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME);
     this.router.navigate(
       [
         VIEWER_ROUTE,

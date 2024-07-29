@@ -17,7 +17,6 @@ import { NgModule } from '@angular/core';
 import { register } from 'ol/proj/proj4';
 import proj4 from 'proj4';
 import { FehlerprotokollModule } from 'src/app/fehlerprotokoll/fehlerprotokoll.module';
-import { BedienhinweisComponent } from 'src/app/karte/components/bedienhinweis/bedienhinweis.component';
 import { HintergrundAuswahlComponent } from 'src/app/karte/components/hintergrund-auswahl/hintergrund-auswahl.component';
 import { HintergrundLayerComponent } from 'src/app/karte/components/hintergrund-layer/hintergrund-layer.component';
 import { KarteButtonComponent } from 'src/app/karte/components/karte-button/karte-button.component';
@@ -40,11 +39,10 @@ register(proj4);
     KarteMenuItemComponent,
     HintergrundAuswahlComponent,
     HintergrundLayerComponent,
-    BedienhinweisComponent,
     KarteButtonComponent,
     LegendeComponent,
   ],
   imports: [CommonModule, SharedModule, FehlerprotokollModule],
-  exports: [OlMapComponent, BedienhinweisComponent, KarteButtonComponent, KarteMenuItemComponent],
+  exports: [OlMapComponent, KarteButtonComponent, KarteMenuItemComponent],
 })
 export class KarteModule {}

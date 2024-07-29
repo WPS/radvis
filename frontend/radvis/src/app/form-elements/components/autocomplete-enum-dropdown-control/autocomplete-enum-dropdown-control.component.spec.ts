@@ -37,9 +37,9 @@ describe('AutocompleteEnumDropdownControlComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = MockRender(AutocompleteEnumDropdownControlComponent, ({
+    fixture = MockRender(AutocompleteEnumDropdownControlComponent, {
       options: [],
-    } as unknown) as AutocompleteEnumDropdownControlComponent);
+    } as unknown as AutocompleteEnumDropdownControlComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });

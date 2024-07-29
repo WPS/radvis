@@ -23,7 +23,6 @@ import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -80,12 +79,6 @@ public class FahrradroutenTfisUpdateJob extends AbstractTFISRadroutenImportJob {
 
 	@Override
 	protected Optional<JobStatistik> doRun() {
-		if (!FeatureTogglz.FAHRRADROUTE_JOBS.isActive()) {
-			log.info(
-				"Kein Import, da Fahrradrouten-Jobs über das FeatureToggle deaktiviert sind.");
-			return Optional.empty();
-		}
-
 		LandesradfernwegeTFISImportStatistik importStatistik = new FahrradroutenTfisUpdateStatistik();
 		importFromTfis(importStatistik);
 
@@ -97,21 +90,17 @@ public class FahrradroutenTfisUpdateJob extends AbstractTFISRadroutenImportJob {
 		// damit wir an die gesetzten Werte kommen, es muss kein LRFW sein, aber für den werden alle Attribute im
 		// AbstractJob gesetzt
 		Fahrradroute newFahrradroute = builder.buildLandesradfernweg();
-		if (newFahrradroute.getNetzbezugLineString().isPresent()) {
-			// Wir überschreiben den alten nur, wenn wir eine Verbesserung erreicht haben
-			Fahrradroute existingFahrradroute = fahrradrouteRepository.findByTfisId(newFahrradroute.getTfisId())
-				.orElseThrow();
-			existingFahrradroute.updateNetzbezug(
-				newFahrradroute.getNetzbezugLineString().get(),
-				newFahrradroute.getAbschnittsweiserKantenBezug(),
-				newFahrradroute.getLinearReferenzierteProfilEigenschaften(),
-				newFahrradroute.getOriginalGeometrie());
-			log.info("Der Netzbezug wurde geupdated (AbschnittsweiserKantenBezug, NetzbezugLineString, Stuetzpunkte).");
-			return fahrradrouteRepository.save(existingFahrradroute);
-		} else {
-			log.info("Die Fahrradroute wurde NICHT verändert, da kein NetzbezugLineString erstellt werden konnte.");
-		}
-		return newFahrradroute;
+		Fahrradroute existingFahrradroute = fahrradrouteRepository.findByTfisId(newFahrradroute.getTfisId())
+			.orElseThrow();
+		// Wir können hier nichts verschlechtern, da wir nur TFIS-Routen ohne NetzbezugLineString betrachten ->
+		// s.filterFeaturesToImport
+		existingFahrradroute.updateNetzbezug(
+			newFahrradroute.getNetzbezugLineString(),
+			newFahrradroute.getAbschnittsweiserKantenBezug(),
+			newFahrradroute.getLinearReferenzierteProfilEigenschaften(),
+			newFahrradroute.getOriginalGeometrie());
+		log.info("Der Netzbezug wurde geupdated (AbschnittsweiserKantenBezug, NetzbezugLineString, Stuetzpunkte).");
+		return fahrradrouteRepository.save(existingFahrradroute);
 	}
 
 	@Override

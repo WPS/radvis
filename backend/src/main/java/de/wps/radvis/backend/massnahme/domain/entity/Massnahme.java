@@ -32,6 +32,8 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Geometry;
 
+import com.google.common.base.Objects;
+
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
@@ -202,7 +204,7 @@ public class Massnahme extends VersionierteEntity {
 		Verwaltungseinheit zustaendiger,
 		MassnahmeKonzeptID massnahmeKonzeptId, SollStandard sollStandard,
 		Handlungsverantwortlicher handlungsverantwortlicher,
-		Konzeptionsquelle konzeptionsquelle, String sonstigeKonzeptionsquelle, Umsetzungsstand umsetzungsstand,
+		Konzeptionsquelle konzeptionsquelle, String sonstigeKonzeptionsquelle,
 		Geometry originalRadNETZGeometrie, MassnahmenPaketId massnahmenPaketId,
 		Set<Benutzer> zuBenachrichtigendeBenutzer, boolean geloescht, Realisierungshilfe realisierungshilfe) {
 		super(id, version);
@@ -221,15 +223,13 @@ public class Massnahme extends VersionierteEntity {
 		require(letzteAenderung, notNullValue());
 		require(benutzerLetzteAenderung, notNullValue());
 		require(pflichtFelderAbPlanung(umsetzungsstatus, baulastZustaendiger, durchfuehrungszeitraum,
-				handlungsverantwortlicher),
+			handlungsverantwortlicher),
 			"Durchführungszeitraum, Baulastträger und Handlungsverantwortlicher sind ab Status 'Planung' Pflichtfelder.");
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
-				sonstigeKonzeptionsquelle),
+			sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
 		require(umsetzungsstandNurFuerRadNETZMassnahmenVorhanden(umsetzungsstand, konzeptionsquelle),
 			"Nur Massnahmen mit Konzeptionsquelle 'RadNETZ-Maßnahme' können einen Umsetzungsstand haben");
-
-		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
 
 		this.bezeichnung = bezeichnung;
 		this.massnahmenkategorien = new HashSet<>(massnahmenkategorien);
@@ -254,16 +254,20 @@ public class Massnahme extends VersionierteEntity {
 		this.sollStandard = sollStandard;
 		this.handlungsverantwortlicher = handlungsverantwortlicher;
 		this.sonstigeKonzeptionsquelle = sonstigeKonzeptionsquelle;
-		this.umsetzungsstand = umsetzungsstand;
 		this.originalRadNETZGeometrie = originalRadNETZGeometrie;
 		this.massnahmenPaketId = massnahmenPaketId;
 		this.zuBenachrichtigendeBenutzer = zuBenachrichtigendeBenutzer;
+		if (this.zuBenachrichtigendeBenutzer == null) {
+			this.zuBenachrichtigendeBenutzer = new HashSet<>();
+		}
 		this.geloescht = geloescht;
 		this.realisierungshilfe = realisierungshilfe;
+
+		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
 	}
 
 	/**
-	 * Dieser fachliche Konstruktor ist für die Erstellung der MAssnahmen aus dem FE heraus gedacht. Nix anderes.
+	 * Dieser fachliche Konstruktor ist für die Erstellung der Massnahmen aus dem FE heraus gedacht. Nix anderes.
 	 */
 	public Massnahme(Bezeichnung bezeichnung,
 		Set<Massnahmenkategorie> massnahmenkategorien,
@@ -285,9 +289,11 @@ public class Massnahme extends VersionierteEntity {
 			null, null, new HashSet<>(), benutzerLetzteAenderung,
 			letzteAenderung,
 			baulastZustaendiger, null, zustaendiger, null, sollStandard, handlungsverantwortlicher, konzeptionsquelle,
-			sonstigeKonzeptionsquelle,
-			konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME ? new Umsetzungsstand() : null, null, null,
+			sonstigeKonzeptionsquelle, null, null,
 			new HashSet<>(), false, null);
+
+		require(!konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME), "Für Konzeptionsquelle "
+			+ Konzeptionsquelle.RADNETZ_MASSNAHME + " dürfen keine neuen Maßnahmen angelegt werden.");
 	}
 
 	public static MassnahmeBuilder builder() {
@@ -317,14 +323,11 @@ public class Massnahme extends VersionierteEntity {
 		require(letzteAenderung, notNullValue());
 		require(benutzerLetzteAenderung, notNullValue());
 		require(pflichtFelderAbPlanung(umsetzungsstatus, baulastZustaendiger, durchfuehrungszeitraum,
-				handlungsverantwortlicher),
+			handlungsverantwortlicher),
 			"Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.");
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
-				sonstigeKonzeptionsquelle),
+			sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
-		require(this.konzeptionsquelle != Konzeptionsquelle.RADNETZ_MASSNAHME
-				|| konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME,
-			"Eine RadNETZ-Maßnahme darf nicht zu einer Non-RadNETZ-Maßnahme werden!");
 
 		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
 
@@ -355,6 +358,8 @@ public class Massnahme extends VersionierteEntity {
 
 	private void aktualisiereKonzeptionsquelleUndUmsetzungsstand(Konzeptionsquelle konzeptionsquelle,
 		Umsetzungsstatus neuerUmsetzungsstatus) {
+		require(canUpdateKonzeptionsquelle(konzeptionsquelle));
+
 		this.passeUmsetzungsstandAnNeueKonzeptionsquelleAn(konzeptionsquelle);
 
 		this.getUmsetzungsstand().ifPresent(umsetzungsstand -> {
@@ -367,6 +372,18 @@ public class Massnahme extends VersionierteEntity {
 
 		this.umsetzungsstatus = neuerUmsetzungsstatus;
 		this.konzeptionsquelle = konzeptionsquelle;
+	}
+
+	public boolean canUpdateKonzeptionsquelle(Konzeptionsquelle neueKonzeptionsquelle) {
+		if (Objects.equal(this.konzeptionsquelle, Konzeptionsquelle.RADNETZ_MASSNAHME)) {
+			return neueKonzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME);
+		}
+
+		if (Objects.equal(this.konzeptionsquelle, Konzeptionsquelle.RADNETZ_MASSNAHME_2024)) {
+			return neueKonzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME_2024);
+		}
+
+		return true;
 	}
 
 	public Optional<Durchfuehrungszeitraum> getDurchfuehrungszeitraum() {
@@ -458,7 +475,8 @@ public class Massnahme extends VersionierteEntity {
 
 	public static boolean sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(
 		Konzeptionsquelle konzeptionsquelle, String sonstigeKonzeptionsquelle) {
-		return konzeptionsquelle != Konzeptionsquelle.SONSTIGE || !sonstigeKonzeptionsquelle.isEmpty();
+		return konzeptionsquelle != Konzeptionsquelle.SONSTIGE
+			|| (sonstigeKonzeptionsquelle != null && !sonstigeKonzeptionsquelle.isEmpty());
 	}
 
 	public static boolean hatNurEineMassnahmenkategorieProOberkategorie(Set<Massnahmenkategorie> massnahmenkategorien) {

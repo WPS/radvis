@@ -114,8 +114,9 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		when(kantenRepository.findById(1L)).thenReturn(Optional.of(kante));
 
 		// act
-		Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(
-			lineString, fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, true);
+		Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService
+			.getFahrradrouteNetzbezugResult(
+				lineString, fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, true);
 
 		// assert
 		Set<AbschnittsweiserKantenBezug> expectedKantenBezug = Set
@@ -125,7 +126,8 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 			.usingRecursiveFieldByFieldElementComparator()
 			.containsExactlyInAnyOrderElementsOf(expectedKantenBezug);
 
-		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroutenMatchingAndRoutingInformationBuilder.build();
+		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroutenMatchingAndRoutingInformationBuilder
+			.build();
 		assertThat(fahrradroutenMatchingAndRoutingInformation.getAbbildungDurchRouting()).contains(false);
 	}
 
@@ -141,10 +143,10 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		// routing klappt -> geroutete geometrie entspricht exakt der originalgeometrie
 		when(graphhopperRoutingRepository.route(any(), eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID),
 			eq(true))).thenReturn(
-			new RoutingResult(List.of(1L),
-				lineString,
-				Hoehenunterschied.of(12.3),
-				Hoehenunterschied.of(23.4)));
+				new RoutingResult(List.of(1L),
+					lineString,
+					Hoehenunterschied.of(12.3),
+					Hoehenunterschied.of(23.4)));
 		when(dlmMatchingRepository.matchGeometryUndDetails(any(LineString.class), eq("bike")))
 			.thenReturn(new ProfilMatchResult(
 				lineString,
@@ -156,8 +158,9 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		when(kantenRepository.findById(1L)).thenReturn(Optional.of(kante));
 
 		// act
-		Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(
-			lineString, fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, true);
+		Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService
+			.getFahrradrouteNetzbezugResult(
+				lineString, fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, true);
 
 		// assert
 		verify(dlmMatchingRepository, times(1)).matchGeometryUndDetails(any(), eq("bike"));
@@ -168,7 +171,8 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 			.usingRecursiveFieldByFieldElementComparator()
 			.containsExactlyInAnyOrderElementsOf(expectedKantenBezug);
 
-		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroutenMatchingAndRoutingInformationBuilder.build();
+		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroutenMatchingAndRoutingInformationBuilder
+			.build();
 		assertThat(fahrradroutenMatchingAndRoutingInformation.getAbbildungDurchRouting()).contains(true);
 		assertThat(fahrradroutenMatchingAndRoutingInformation.getAbweichendeSegmente()).isEmpty();
 	}
@@ -183,18 +187,20 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 			.thenThrow(new KeinMatchGefundenException("oh no", new Throwable()));
 		when(graphhopperRoutingRepository.route(any(), eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID),
 			eq(true))).thenThrow(
-			new KeineRouteGefundenException("oh no"));
+				new KeineRouteGefundenException("oh no"));
 		when(verwaltungseinheitService.getBundeslandBereichPrepared()).thenReturn(
 			PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 25, 25)));
 
 		// act
-		Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(
-			lineString, fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, true);
+		Optional<FahrradrouteNetzbezugResult> fahrradrouteNetzbezugResult = fahrradroutenMatchingService
+			.getFahrradrouteNetzbezugResult(
+				lineString, fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, true);
 
 		// assert
 		assertThat(fahrradrouteNetzbezugResult).isEmpty();
 
-		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroutenMatchingAndRoutingInformationBuilder.build();
+		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation = fahrradroutenMatchingAndRoutingInformationBuilder
+			.build();
 		assertThat(fahrradroutenMatchingAndRoutingInformation.getAbbildungDurchRouting()).contains(false);
 	}
 
@@ -217,7 +223,7 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		ArgumentCaptor<List<Coordinate>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
 		when(graphhopperRoutingRepository.route(listArgumentCaptor.capture(),
 			eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), eq(true)))
-			.thenThrow(new KeineRouteGefundenException("oh no"));
+				.thenThrow(new KeineRouteGefundenException("oh no"));
 
 		// act
 		fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(lineString, fahrradrouteMatchingStatistik,
@@ -254,7 +260,7 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		ArgumentCaptor<List<Coordinate>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
 		when(graphhopperRoutingRepository.route(listArgumentCaptor.capture(),
 			eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), eq(true)))
-			.thenThrow(new KeineRouteGefundenException("oh no"));
+				.thenThrow(new KeineRouteGefundenException("oh no"));
 
 		// act
 		fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(lineString, fahrradrouteMatchingStatistik,
@@ -293,7 +299,7 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		ArgumentCaptor<List<Coordinate>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
 		when(graphhopperRoutingRepository.route(listArgumentCaptor.capture(),
 			eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), eq(true)))
-			.thenThrow(new KeineRouteGefundenException("oh no"));
+				.thenThrow(new KeineRouteGefundenException("oh no"));
 
 		// act
 		fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(lineString, fahrradrouteMatchingStatistik,
@@ -336,7 +342,7 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		ArgumentCaptor<List<Coordinate>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
 		when(graphhopperRoutingRepository.route(listArgumentCaptor.capture(),
 			eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), eq(true)))
-			.thenThrow(new KeineRouteGefundenException("oh no"));
+				.thenThrow(new KeineRouteGefundenException("oh no"));
 
 		// act
 		fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(lineString, fahrradrouteMatchingStatistik,
@@ -373,7 +379,7 @@ class FahrradroutenMatchingServiceTest implements RadVisDomainEventPublisherSens
 		ArgumentCaptor<List<Coordinate>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
 		when(graphhopperRoutingRepository.route(listArgumentCaptor.capture(),
 			eq(GraphhopperRoutingRepository.DEFAULT_PROFILE_ID), eq(true)))
-			.thenThrow(new KeineRouteGefundenException("oh no"));
+				.thenThrow(new KeineRouteGefundenException("oh no"));
 
 		// act
 		fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(lineString, fahrradrouteMatchingStatistik,

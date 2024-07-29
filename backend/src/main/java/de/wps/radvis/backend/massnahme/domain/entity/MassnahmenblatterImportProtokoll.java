@@ -94,8 +94,7 @@ public class MassnahmenblatterImportProtokoll {
 		log.info("Es wurden {}% der Blätter ohne Fehler importiert", 100. *
 			(Double.valueOf(erfolgreicheZuordnung.get()) /
 				(Double.valueOf(massnahmenblaetterGesammt)
-					+ dokublaetterGesammt
-				)));
+					+ dokublaetterGesammt)));
 
 		log.info("Import Fehler Details, gruppiert nach MASSN_P-Id:\n {}",
 			getMapVonIdAufFehler());

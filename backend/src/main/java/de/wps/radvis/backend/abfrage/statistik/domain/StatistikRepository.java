@@ -26,7 +26,7 @@ public class StatistikRepository {
 	public double getDlmMatchingQuote(QuellSystem quelle) {
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT count(kante.aufDlmAbgebildeteGeometry) * 1.0 / count(kante) FROM Kante kante")
+			"SELECT count(kante.aufDlmAbgebildeteGeometry) * 1.0 / count(kante) FROM Kante kante")
 			.append(" WHERE kante.quelle = :quelle");
 
 		return entityManager.createQuery(hqlStringBuilder.toString(), Double.class)

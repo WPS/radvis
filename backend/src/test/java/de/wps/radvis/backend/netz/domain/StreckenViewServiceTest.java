@@ -525,9 +525,9 @@ class StreckenViewServiceTest {
 		assertThat(streckenEinerPartition.unvollstaendig).hasSize(0);
 		assertThat(streckenEinerPartition.vollstaendig).hasSize(1);
 
-		List<Kante> gesamteStreckeAlsKanten =
-			Stream.concat(Stream.concat(anfang.stream(), mitte.stream()), ende.stream())
-				.collect(Collectors.toList());
+		List<Kante> gesamteStreckeAlsKanten = Stream.concat(Stream.concat(anfang.stream(), mitte.stream()), ende
+			.stream())
+			.collect(Collectors.toList());
 		assertEqualInOrderOrReverseOrder(gesamteStreckeAlsKanten,
 			streckenEinerPartition.vollstaendig.get(0).getKanten());
 		assertEqualGeometryInOrderOrReverseOrder(gesamteStreckeAlsKanten, streckenEinerPartition.vollstaendig);
@@ -653,8 +653,7 @@ class StreckenViewServiceTest {
 
 	private void assertEqualInOrderOrReverseOrder(List<Kante> expected, List<Kante> actual) {
 		assertThat(actual)
-			.satisfiesAnyOf(s ->
-				assertThat(s).isEqualTo(expected), s -> {
+			.satisfiesAnyOf(s -> assertThat(s).isEqualTo(expected), s -> {
 				List<Kante> reversed = new ArrayList<>(expected);
 				Collections.reverse(reversed);
 				assertThat(s).isEqualTo(reversed);

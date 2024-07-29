@@ -30,6 +30,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommandTestDataProvider;
 
 public class SaveMassnahmeCommandTestDataProvider {
 	public static SaveMassnahmeCommand.SaveMassnahmeCommandBuilder defaultValue() {

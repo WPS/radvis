@@ -12,6 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 
@@ -21,7 +22,7 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   handleError(error: any): void {
     // skip HttpErrors
-    if (!error.rejection) {
+    if (!(error instanceof HttpErrorResponse) && !error.rejection) {
       this.errorHandlingService.handleError(error);
     }
   }

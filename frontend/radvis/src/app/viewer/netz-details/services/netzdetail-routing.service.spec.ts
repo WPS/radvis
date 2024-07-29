@@ -13,15 +13,15 @@
  */
 
 import { NetzdetailRoutingService } from 'src/app/viewer/netz-details/services/netzdetail-routing.service';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 
 describe(NetzdetailRoutingService.name, () => {
   describe('Params', () => {
     it('should handle Seitenbezug', () => {
-      expect(NetzdetailRoutingService.buildParams([1, 4], 'links').seite).toBe('links');
-      expect(NetzdetailRoutingService.buildParams([1, 4], 'rechts').seite).toBe('rechts');
-      expect(NetzdetailRoutingService.buildParams([1, 4], Seitenbezug.LINKS).seite).toBe('links');
-      expect(NetzdetailRoutingService.buildParams([1, 4], Seitenbezug.RECHTS).seite).toBe('rechts');
+      expect(NetzdetailRoutingService.buildParams([1, 4], 'LINKS').seite).toBe('LINKS');
+      expect(NetzdetailRoutingService.buildParams([1, 4], 'RECHTS').seite).toBe('RECHTS');
+      expect(NetzdetailRoutingService.buildParams([1, 4], KantenSeite.LINKS).seite).toBe('LINKS');
+      expect(NetzdetailRoutingService.buildParams([1, 4], KantenSeite.RECHTS).seite).toBe('RECHTS');
       expect(NetzdetailRoutingService.buildParams([1, 4]).seite).toBe(undefined);
       expect(() => NetzdetailRoutingService.buildParams([1, 4], 'oben')).toThrow();
     });

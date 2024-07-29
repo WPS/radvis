@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,9 +97,9 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 			.admin(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.build();
 
-		when(verwaltungseinheitService.getBundeslandBereichPrepared())
-			.thenReturn(
-				PreparedGeometryFactory.prepare(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000)));
+		when(verwaltungseinheitService.getObersteGebietskoerperschaft())
+			.thenReturn(Optional.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().bereich(
+				GeometryTestdataProvider.createQuadratischerBereich(0, 0, 1000, 1000)).build()));
 		when(zustaendigkeitsService.istImZustaendigkeitsbereich(any(Geometry.class), eq(adminBenutzer))).thenReturn(
 			true);
 	}

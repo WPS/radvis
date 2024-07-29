@@ -32,37 +32,35 @@ export enum Hoechstgeschwindigkeit {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Hoechstgeschwindigkeit {
-  export const options: EnumOption[] = Object.keys(Hoechstgeschwindigkeit).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN:
-          return { name: k, displayText: 'Kfz nicht zugelassen' };
-        case Hoechstgeschwindigkeit.MAX_9_KMH:
-          return { name: k, displayText: '9 km/h' };
-        case Hoechstgeschwindigkeit.MAX_20_KMH:
-          return { name: k, displayText: '20 km/h' };
-        case Hoechstgeschwindigkeit.MAX_30_KMH:
-          return { name: k, displayText: '30 km/h' };
-        case Hoechstgeschwindigkeit.MAX_40_KMH:
-          return { name: k, displayText: '40 km/h' };
-        case Hoechstgeschwindigkeit.MAX_50_KMH:
-          return { name: k, displayText: '50 km/h' };
-        case Hoechstgeschwindigkeit.MAX_60_KMH:
-          return { name: k, displayText: '60 km/h' };
-        case Hoechstgeschwindigkeit.MAX_70_KMH:
-          return { name: k, displayText: '70 km/h' };
-        case Hoechstgeschwindigkeit.MAX_80_KMH:
-          return { name: k, displayText: '80 km/h' };
-        case Hoechstgeschwindigkeit.MAX_90_KMH:
-          return { name: k, displayText: '90 km/h' };
-        case Hoechstgeschwindigkeit.MAX_100_KMH:
-          return { name: k, displayText: '100 km/h' };
-        case Hoechstgeschwindigkeit.UEBER_100_KMH:
-          return { name: k, displayText: '> 100 km/h' };
-        case Hoechstgeschwindigkeit.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Hoechstgeschwindigkeit fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Hoechstgeschwindigkeit).map((k: string): EnumOption => {
+    switch (k) {
+      case Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN:
+        return { name: k, displayText: 'Kfz nicht zugelassen' };
+      case Hoechstgeschwindigkeit.MAX_9_KMH:
+        return { name: k, displayText: '9 km/h' };
+      case Hoechstgeschwindigkeit.MAX_20_KMH:
+        return { name: k, displayText: '20 km/h' };
+      case Hoechstgeschwindigkeit.MAX_30_KMH:
+        return { name: k, displayText: '30 km/h' };
+      case Hoechstgeschwindigkeit.MAX_40_KMH:
+        return { name: k, displayText: '40 km/h' };
+      case Hoechstgeschwindigkeit.MAX_50_KMH:
+        return { name: k, displayText: '50 km/h' };
+      case Hoechstgeschwindigkeit.MAX_60_KMH:
+        return { name: k, displayText: '60 km/h' };
+      case Hoechstgeschwindigkeit.MAX_70_KMH:
+        return { name: k, displayText: '70 km/h' };
+      case Hoechstgeschwindigkeit.MAX_80_KMH:
+        return { name: k, displayText: '80 km/h' };
+      case Hoechstgeschwindigkeit.MAX_90_KMH:
+        return { name: k, displayText: '90 km/h' };
+      case Hoechstgeschwindigkeit.MAX_100_KMH:
+        return { name: k, displayText: '100 km/h' };
+      case Hoechstgeschwindigkeit.UEBER_100_KMH:
+        return { name: k, displayText: '> 100 km/h' };
+      case Hoechstgeschwindigkeit.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Hoechstgeschwindigkeit fehlt: ' + k);
+  });
 }

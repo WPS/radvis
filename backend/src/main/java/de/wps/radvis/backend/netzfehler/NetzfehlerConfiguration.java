@@ -27,7 +27,6 @@ import de.wps.radvis.backend.netzfehler.domain.AnpassungswunschService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerService;
 import de.wps.radvis.backend.netzfehler.schnittstelle.AnpassungswunschGuard;
-import de.wps.radvis.backend.netzfehler.schnittstelle.AnpassungswunschToGeoJsonConverter;
 import de.wps.radvis.backend.netzfehler.schnittstelle.NetzfehlerGuard;
 import de.wps.radvis.backend.netzfehler.schnittstelle.SaveAnpassungswunschCommandConverter;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
@@ -64,11 +63,6 @@ public class NetzfehlerConfiguration {
 	@Bean
 	public AnpassungswunschService anpassungswunschService() {
 		return new AnpassungswunschService(anpassungswunschRepository, konsistenzregelVerletzungsRepository);
-	}
-
-	@Bean
-	public AnpassungswunschToGeoJsonConverter anpassungswunschToGeoJsonConverter() {
-		return new AnpassungswunschToGeoJsonConverter();
 	}
 
 	@Bean

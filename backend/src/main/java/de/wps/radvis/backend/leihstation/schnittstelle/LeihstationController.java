@@ -47,12 +47,14 @@ import de.wps.radvis.backend.leihstation.domain.entity.Leihstation;
 import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationQuellSystem;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/leihstation")
 @AllArgsConstructor
+@Transactional
 public class LeihstationController {
 	private final LeihstationRepository repository;
 	private final LeihstationService service;

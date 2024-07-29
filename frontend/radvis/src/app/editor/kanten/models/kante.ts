@@ -19,7 +19,7 @@ import { GeschwindigkeitsAttributGruppe } from 'src/app/editor/kanten/models/ges
 import { KantenAttributGruppe } from 'src/app/editor/kanten/models/kanten-attribut-gruppe';
 import { ZustaendigkeitAttributGruppe } from 'src/app/editor/kanten/models/zustaendigkeit-attribut-gruppe';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import invariant from 'tiny-invariant';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 
@@ -50,13 +50,13 @@ export namespace Kante {
   export const getAnzahlSegmente = (
     attributGruppe: AttributGruppe,
     kante: Kante,
-    seitenbezug?: Seitenbezug
+    kantenSeite?: KantenSeite
   ): number => {
     if (attributGruppe === AttributGruppe.FUEHRUNGSFORM) {
-      invariant(seitenbezug, 'Seitenbezug muss bei Führungsform angegeben werden');
-      if (seitenbezug === Seitenbezug.LINKS) {
+      invariant(kantenSeite, 'Seitenbezug muss bei Führungsform angegeben werden');
+      if (kantenSeite === KantenSeite.LINKS) {
         return kante.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks.length;
-      } else if (seitenbezug === Seitenbezug.RECHTS) {
+      } else if (kantenSeite === KantenSeite.RECHTS) {
         return kante.fuehrungsformAttributGruppe.fuehrungsformAttributeRechts.length;
       }
     } else if (attributGruppe === AttributGruppe.ZUSTAENDIGKEIT) {

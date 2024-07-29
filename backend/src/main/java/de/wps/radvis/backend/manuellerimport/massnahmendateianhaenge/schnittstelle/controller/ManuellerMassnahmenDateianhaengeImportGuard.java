@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
+import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.schnittstelle.command.SaveMassnahmenDateianhaengeCommand;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.schnittstelle.command.StartMassnahmenDateianhaengeImportSessionCommand;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import lombok.AllArgsConstructor;
@@ -55,6 +56,22 @@ public class ManuellerMassnahmenDateianhaengeImportGuard {
 	}
 
 	public void continueAfterFehlerUeberpruefen(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void saveSelectedDateianhaengeToMassnahme(Authentication authentication,
+		List<SaveMassnahmenDateianhaengeCommand> command) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void getProtokollStats(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		authorizeManuellerMassnahmenImport(benutzer);
+	}
+
+	public void downloadFehlerprotokoll(Authentication authentication) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 		authorizeManuellerMassnahmenImport(benutzer);
 	}

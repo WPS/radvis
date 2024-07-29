@@ -24,21 +24,19 @@ export enum IstStandard {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace IstStandard {
-  export const options: EnumOption[] = Object.keys(IstStandard).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case IstStandard.RADSCHNELLVERBINDUNG:
-          return { name: k, displayText: 'Radschnellverbindung' };
-        case IstStandard.STARTSTANDARD_RADNETZ:
-          return { name: k, displayText: 'RadNETZ-Startstandard' };
-        case IstStandard.ZIELSTANDARD_RADNETZ:
-          return { name: k, displayText: 'RadNETZ-Zielstandard' };
-        case IstStandard.BASISSTANDARD:
-          return { name: k, displayText: 'Basisstandard' };
-        case IstStandard.RADVORRANGROUTEN:
-          return { name: k, displayText: 'Radvorrangrouten' };
-      }
-      throw new Error('Beschreibung für enum IstStandard fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(IstStandard).map((k: string): EnumOption => {
+    switch (k) {
+      case IstStandard.RADSCHNELLVERBINDUNG:
+        return { name: k, displayText: 'Radschnellverbindung' };
+      case IstStandard.STARTSTANDARD_RADNETZ:
+        return { name: k, displayText: 'RadNETZ-Startstandard' };
+      case IstStandard.ZIELSTANDARD_RADNETZ:
+        return { name: k, displayText: 'RadNETZ-Zielstandard' };
+      case IstStandard.BASISSTANDARD:
+        return { name: k, displayText: 'Basisstandard' };
+      case IstStandard.RADVORRANGROUTEN:
+        return { name: k, displayText: 'Radvorrangrouten' };
     }
-  );
+    throw new Error('Beschreibung für enum IstStandard fehlt: ' + k);
+  });
 }

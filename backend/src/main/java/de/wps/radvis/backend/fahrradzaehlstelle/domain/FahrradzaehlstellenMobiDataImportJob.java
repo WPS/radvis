@@ -159,7 +159,7 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 				log.info("Fertig mit einlesen der Csv. Jetzt werden die einzelnen Zeilen in Java Objekte gemapped.");
 
 			} catch (IOException | CsvReadException e) {
-				log.error("Die Datei mit der Url: " + url + " konnte aus folgendem Grund nicht eingelesen werden: ", e);
+				log.error("Die Datei mit der URL {} konnte aus folgendem Grund nicht eingelesen werden: ", url, e);
 				statistik.anzahlUrlsOderDateiFehlerhaft++;
 				continue;
 			}

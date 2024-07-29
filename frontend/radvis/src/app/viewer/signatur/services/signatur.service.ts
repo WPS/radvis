@@ -19,6 +19,7 @@ import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { Observable } from 'rxjs';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { Signatur } from 'src/app/shared/models/signatur';
+import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
 import invariant from 'tiny-invariant';
 
 @Injectable({
@@ -26,8 +27,18 @@ import invariant from 'tiny-invariant';
 })
 export class SignaturService {
   private readonly signaturApi = '/api/signaturen';
+  signaturen: Signatur[] = [];
 
   constructor(private http: HttpClient) {}
+
+  initSignaturen(): Promise<void> {
+    return this.http
+      .get<Signatur[]>(`${this.signaturApi}`)
+      .toPromise()
+      .then(signaturen => {
+        this.signaturen = signaturen;
+      });
+  }
 
   getStylingForSignatur(signatur: Signatur): Promise<string> {
     invariant(signatur, 'Signatur muss gesetzt sein');
@@ -62,7 +73,7 @@ export class SignaturService {
     });
   }
 
-  getSignaturen(): Observable<Signatur[]> {
-    return this.http.get<Signatur[]>(`${this.signaturApi}`);
+  getSignaturen(forTypen?: SignaturTyp[]): Signatur[] {
+    return this.signaturen.filter(s => forTypen?.includes(s.typ) ?? true);
   }
 }

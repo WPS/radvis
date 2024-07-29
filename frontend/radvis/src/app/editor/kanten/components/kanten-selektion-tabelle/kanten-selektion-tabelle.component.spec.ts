@@ -22,7 +22,7 @@ import { defaultKante } from 'src/app/editor/kanten/models/kante-test-data-provi
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { KantenSelektionHoverService } from 'src/app/editor/kanten/services/kanten-selektion-hover.service';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 describe('KantenSelektionTabelleComponent', () => {
@@ -37,7 +37,7 @@ describe('KantenSelektionTabelleComponent', () => {
     when(kantenSelektionHoverService.hoverKante$).thenReturn(
       of({
         kanteId: 1,
-        seitenbezug: Seitenbezug.LINKS,
+        kantenSeite: KantenSeite.LINKS,
       })
     );
     when(kantenSelektionHoverService.unhoverKante$).thenReturn(of());
@@ -57,19 +57,19 @@ describe('KantenSelektionTabelleComponent', () => {
       it('should deselect Seite when Seite already selected', () => {
         component.selektion = [KantenSelektion.ofGesamteKante(defaultKante)];
 
-        component.onSelect(1, Seitenbezug.LINKS);
+        component.onSelect(1, KantenSeite.LINKS);
 
         verify(kantenSelektionService.deselect(anything(), anything())).called();
-        expect(capture(kantenSelektionService.deselect).last()).toEqual([1, Seitenbezug.LINKS]);
+        expect(capture(kantenSelektionService.deselect).last()).toEqual([1, KantenSeite.LINKS]);
         verify(kantenSelektionService.select(anything(), anything(), anything(), anything())).never();
       });
 
       it('should select Seite when Seite not already selected', () => {
-        component.selektion = [KantenSelektion.ofSeite(defaultKante, Seitenbezug.RECHTS)];
+        component.selektion = [KantenSelektion.ofSeite(defaultKante, KantenSeite.RECHTS)];
 
-        component.onSelect(1, Seitenbezug.LINKS);
+        component.onSelect(1, KantenSeite.LINKS);
 
-        verify(kantenSelektionService.select(1, true, Seitenbezug.LINKS)).called();
+        verify(kantenSelektionService.select(1, true, KantenSeite.LINKS)).called();
         verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
         expect().nothing();
       });

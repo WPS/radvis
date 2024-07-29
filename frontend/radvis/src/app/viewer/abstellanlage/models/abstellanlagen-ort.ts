@@ -27,27 +27,25 @@ export enum AbstellanlagenOrt {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AbstellanlagenOrt {
-  export const options: EnumOption[] = Object.keys(AbstellanlagenOrt).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case AbstellanlagenOrt.SCHULE:
-          return { name: k, displayText: 'Schule' };
-        case AbstellanlagenOrt.OEFFENTLICHE_EINRICHTUNG:
-          return { name: k, displayText: 'Öffentliche Einrichtung' };
-        case AbstellanlagenOrt.BILDUNGSEINRICHTUNG:
-          return { name: k, displayText: 'Bildungseinrichtung' };
-        case AbstellanlagenOrt.BIKE_AND_RIDE:
-          return { name: k, displayText: 'B+R' };
-        case AbstellanlagenOrt.STRASSENRAUM:
-          return { name: k, displayText: 'Straßenraum' };
-        case AbstellanlagenOrt.SONSTIGES:
-          return { name: k, displayText: 'Sonstiges' };
-        case AbstellanlagenOrt.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum AbstellanlagenOrt fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(AbstellanlagenOrt).map((k: string): EnumOption => {
+    switch (k) {
+      case AbstellanlagenOrt.SCHULE:
+        return { name: k, displayText: 'Schule' };
+      case AbstellanlagenOrt.OEFFENTLICHE_EINRICHTUNG:
+        return { name: k, displayText: 'Öffentliche Einrichtung' };
+      case AbstellanlagenOrt.BILDUNGSEINRICHTUNG:
+        return { name: k, displayText: 'Bildungseinrichtung' };
+      case AbstellanlagenOrt.BIKE_AND_RIDE:
+        return { name: k, displayText: 'B+R' };
+      case AbstellanlagenOrt.STRASSENRAUM:
+        return { name: k, displayText: 'Straßenraum' };
+      case AbstellanlagenOrt.SONSTIGES:
+        return { name: k, displayText: 'Sonstiges' };
+      case AbstellanlagenOrt.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum AbstellanlagenOrt fehlt: ' + k);
+  });
 
   export const getDisplayText: (abstellanlagenOrt: AbstellanlagenOrt) => string = (
     abstellanlagenOrt: AbstellanlagenOrt

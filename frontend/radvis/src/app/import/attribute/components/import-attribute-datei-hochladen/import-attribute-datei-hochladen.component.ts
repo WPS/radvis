@@ -24,6 +24,7 @@ import { AttributeRoutingService } from 'src/app/import/attribute/services/attri
 import { DateiUploadInfo } from 'src/app/import/models/datei-upload-info';
 import { ImportTyp } from 'src/app/import/models/import-typ';
 import { CreateSessionStateService } from 'src/app/import/services/create-session.state.service';
+import { ImportService } from 'src/app/import/services/import.service';
 import { Organisation } from 'src/app/shared/models/organisation-edit-view';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
@@ -56,7 +57,8 @@ export class ImportAttributeDateiHochladenComponent {
     private createSessionStateService: CreateSessionStateService,
     private organisationenService: OrganisationenService,
     private olMapService: OlMapService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    importService: ImportService
   ) {
     this.organisationen$ = organisationenService.getOrganisationen().then(orgs => {
       return orgs.filter(
@@ -67,7 +69,9 @@ export class ImportAttributeDateiHochladenComponent {
     this.formGroup = new UntypedFormGroup({
       attributeImportFormat: new UntypedFormControl(AttributeImportFormat.RADVIS),
       organisation: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-      file: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+      file: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty, c =>
+        importService.validateShapefile(c).finally(() => changeDetectorRef.markForCheck())
+      ),
     });
 
     this.formGroup

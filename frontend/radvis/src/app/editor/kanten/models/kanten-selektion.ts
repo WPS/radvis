@@ -14,7 +14,7 @@
 
 import { Kante } from 'src/app/editor/kanten/models/kante';
 import { LinearReferenzierteAttribute } from 'src/app/editor/kanten/models/linear-referenzierte-attribute';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import invariant from 'tiny-invariant';
 
 export class KantenSelektion {
@@ -22,17 +22,21 @@ export class KantenSelektion {
   private readonly _selektionRechtsAlsArray: number[];
   private readonly _kante: Kante;
 
-  private constructor(kante: Kante, private _selektionLinks: Set<number>, private _selektionRechts: Set<number>) {
+  private constructor(
+    kante: Kante,
+    private _selektionLinks: Set<number>,
+    private _selektionRechts: Set<number>
+  ) {
     this._kante = KantenSelektion.kanteMitSortierteLinearReferenzierteAttributen(kante);
     this._selektionLinksAlsArray = Array.from(this._selektionLinks);
     this._selektionRechtsAlsArray = Array.from(this._selektionRechts);
   }
 
-  public static ofSeite(kante: Kante, seitenbezug: Seitenbezug, segmentAnzahl: number = 1): KantenSelektion {
+  public static ofSeite(kante: Kante, kantenSeite: KantenSeite, segmentAnzahl: number = 1): KantenSelektion {
     const selektion = KantenSelektion.buildArrayOfAscendingNumbers(segmentAnzahl);
-    if (seitenbezug === Seitenbezug.LINKS) {
+    if (kantenSeite === KantenSeite.LINKS) {
       return new KantenSelektion(kante, selektion, new Set());
-    } else if (seitenbezug === Seitenbezug.RECHTS) {
+    } else if (kantenSeite === KantenSeite.RECHTS) {
       return new KantenSelektion(kante, new Set(), selektion);
     } else {
       throw Error('Kein valider Seitenbezug');
@@ -115,11 +119,11 @@ export class KantenSelektion {
     return result;
   }
 
-  public getSelectedSegmentIndices(seitenbezug?: Seitenbezug): number[] {
-    if (seitenbezug) {
-      if (seitenbezug === Seitenbezug.LINKS) {
+  public getSelectedSegmentIndices(kantenSeite?: KantenSeite): number[] {
+    if (kantenSeite) {
+      if (kantenSeite === KantenSeite.LINKS) {
         return this._selektionLinksAlsArray;
-      } else if (seitenbezug === Seitenbezug.RECHTS) {
+      } else if (kantenSeite === KantenSeite.RECHTS) {
         return this._selektionRechtsAlsArray;
       } else {
         throw Error('Kein valider Seitenbezug');
@@ -128,23 +132,23 @@ export class KantenSelektion {
     return this._selektionLinksAlsArray;
   }
 
-  public selectSeite(seitenbezug: Seitenbezug, segmentAnzahl: number, additiv = false): KantenSelektion {
+  public selectSeite(kantenSeite: KantenSeite, segmentAnzahl: number, additiv = false): KantenSelektion {
     const selektion = KantenSelektion.buildArrayOfAscendingNumbers(segmentAnzahl);
-    if (seitenbezug === Seitenbezug.LINKS) {
+    if (kantenSeite === KantenSeite.LINKS) {
       return new KantenSelektion(this._kante, selektion, additiv ? this._selektionRechts : new Set());
     } else {
       return new KantenSelektion(this._kante, additiv ? this._selektionLinks : new Set(), selektion);
     }
   }
 
-  public selectSegment(segmentIndex: number, seitenbezug?: Seitenbezug, additiv = false): KantenSelektion {
+  public selectSegment(segmentIndex: number, kantenSeite?: KantenSeite, additiv = false): KantenSelektion {
     invariant(segmentIndex >= 0, 'Segmentindex ' + segmentIndex + ' ungültig');
-    if (seitenbezug) {
-      if (seitenbezug === Seitenbezug.LINKS) {
+    if (kantenSeite) {
+      if (kantenSeite === KantenSeite.LINKS) {
         const newSelektion: Set<number> = additiv ? this._selektionLinks : new Set();
         newSelektion.add(segmentIndex);
         return new KantenSelektion(this._kante, newSelektion, additiv ? this._selektionRechts : new Set());
-      } else if (seitenbezug === Seitenbezug.RECHTS) {
+      } else if (kantenSeite === KantenSeite.RECHTS) {
         const newSelektion: Set<number> = additiv ? this._selektionRechts : new Set();
         newSelektion.add(segmentIndex);
         return new KantenSelektion(this._kante, additiv ? this._selektionLinks : new Set(), newSelektion);
@@ -184,13 +188,13 @@ export class KantenSelektion {
     return new KantenSelektion(this._kante, reducedSegmentsLinks, reducedSegmentsRechts);
   }
 
-  public insertSegment(segmentIndex: number, seitenbezug?: Seitenbezug): KantenSelektion {
+  public insertSegment(segmentIndex: number, kantenSeite?: KantenSeite): KantenSelektion {
     invariant(segmentIndex >= 0, 'Segmentindex ' + segmentIndex + ' ungültig');
-    if (seitenbezug) {
-      if (seitenbezug === Seitenbezug.LINKS) {
+    if (kantenSeite) {
+      if (kantenSeite === KantenSeite.LINKS) {
         const adjustedArray = KantenSelektion.insertAndIncrementInArray(segmentIndex, this._selektionLinks);
         return new KantenSelektion(this._kante, adjustedArray, this._selektionRechts);
-      } else if (seitenbezug === Seitenbezug.RECHTS) {
+      } else if (kantenSeite === KantenSeite.RECHTS) {
         const adjustedArray = KantenSelektion.insertAndIncrementInArray(segmentIndex, this._selektionRechts);
         return new KantenSelektion(this._kante, this._selektionLinks, adjustedArray);
       } else {
@@ -203,10 +207,10 @@ export class KantenSelektion {
     }
   }
 
-  public deleteSegment(segmentIndex: number, seitenbezug?: Seitenbezug): KantenSelektion {
+  public deleteSegment(segmentIndex: number, kantenSeite?: KantenSeite): KantenSelektion {
     invariant(segmentIndex >= 0, 'Segmentindex ' + segmentIndex + ' ungültig');
-    if (seitenbezug) {
-      if (seitenbezug === Seitenbezug.LINKS) {
+    if (kantenSeite) {
+      if (kantenSeite === KantenSeite.LINKS) {
         const adjustedArray = KantenSelektion.deleteAndDecrementInArray(segmentIndex, this._selektionLinks);
         if (adjustedArray.size === 0) {
           adjustedArray.add(0);
@@ -232,22 +236,22 @@ export class KantenSelektion {
     }
   }
 
-  public deselectSeite(seitenbezug: Seitenbezug): KantenSelektion {
-    if (seitenbezug === Seitenbezug.LINKS) {
+  public deselectSeite(kantenSeite: KantenSeite): KantenSelektion {
+    if (kantenSeite === KantenSeite.LINKS) {
       return new KantenSelektion(this._kante, new Set(), this._selektionRechts);
     } else {
       return new KantenSelektion(this._kante, this._selektionLinks, new Set());
     }
   }
 
-  public deselectSegment(segmentIndex: number, seitenbezug?: Seitenbezug): KantenSelektion {
+  public deselectSegment(segmentIndex: number, kantenSeite?: KantenSeite): KantenSelektion {
     invariant(segmentIndex >= 0, 'Segmentindex ' + segmentIndex + ' ungültig');
     const selektionLinks = this._selektionLinks;
     const selektionRechts = this._selektionRechts;
-    if (seitenbezug === Seitenbezug.LINKS || seitenbezug === undefined) {
+    if (kantenSeite === KantenSeite.LINKS || kantenSeite === undefined) {
       selektionLinks.delete(segmentIndex);
     }
-    if (seitenbezug === Seitenbezug.RECHTS || seitenbezug === undefined) {
+    if (kantenSeite === KantenSeite.RECHTS || kantenSeite === undefined) {
       selektionRechts.delete(segmentIndex);
     }
     return new KantenSelektion(this._kante, selektionLinks, selektionRechts);
@@ -268,19 +272,19 @@ export class KantenSelektion {
   }
 
   istBeidseitigSelektiert(): boolean {
-    return this.istSeiteSelektiert(Seitenbezug.LINKS) && this.istSeiteSelektiert(Seitenbezug.RECHTS);
+    return this.istSeiteSelektiert(KantenSeite.LINKS) && this.istSeiteSelektiert(KantenSeite.RECHTS);
   }
 
-  istSeiteSelektiert(seitenbezug: Seitenbezug): boolean {
-    if (seitenbezug === Seitenbezug.LINKS) {
+  istSeiteSelektiert(kantenSeite: KantenSeite): boolean {
+    if (kantenSeite === KantenSeite.LINKS) {
       return this._selektionLinks.size > 0;
     } else {
       return this._selektionRechts.size > 0;
     }
   }
 
-  istSegmentSelektiert(segmentIndex: number, seitenbezug?: Seitenbezug): boolean {
+  istSegmentSelektiert(segmentIndex: number, kantenSeite?: KantenSeite): boolean {
     invariant(segmentIndex >= 0, 'Segmentindex ' + segmentIndex + ' ungültig');
-    return this.getSelectedSegmentIndices(seitenbezug).includes(segmentIndex);
+    return this.getSelectedSegmentIndices(kantenSeite).includes(segmentIndex);
   }
 }

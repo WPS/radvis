@@ -22,20 +22,18 @@ export enum Markierung {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Markierung {
-  export const options: EnumOption[] = Object.keys(Markierung).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Markierung.UNMARKIERTE_ABSPERRANLAGE:
-          return { name: Markierung.UNMARKIERTE_ABSPERRANLAGE, displayText: 'Unmarkierte Absperranlage' };
-        case Markierung.ROTWEISS_RETROREFLEKTIERENDE_MARKIERUNG:
-          return {
-            name: Markierung.ROTWEISS_RETROREFLEKTIERENDE_MARKIERUNG,
-            displayText: 'Rot-Weiß retroreflektierende Markierung vorhanden',
-          };
-      }
-      throw new Error('Beschreibung für enum Markierung fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Markierung).map((k: string): EnumOption => {
+    switch (k) {
+      case Markierung.UNMARKIERTE_ABSPERRANLAGE:
+        return { name: Markierung.UNMARKIERTE_ABSPERRANLAGE, displayText: 'Unmarkierte Absperranlage' };
+      case Markierung.ROTWEISS_RETROREFLEKTIERENDE_MARKIERUNG:
+        return {
+          name: Markierung.ROTWEISS_RETROREFLEKTIERENDE_MARKIERUNG,
+          displayText: 'Rot-Weiß retroreflektierende Markierung vorhanden',
+        };
     }
-  );
+    throw new Error('Beschreibung für enum Markierung fehlt: ' + k);
+  });
 
   export const getDisplayText: (markierung: Markierung) => string = (markierung: Markierung): string => {
     const enumOption = options.find(({ name }) => name === markierung);

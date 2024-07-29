@@ -12,9 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Color } from 'ol/color';
-import { Coordinate } from 'ol/coordinate';
 import { FeatureLike } from 'ol/Feature';
+import { Color } from 'ol/color';
+import { ColorLike } from 'ol/colorlike';
+import { Coordinate } from 'ol/coordinate';
 import { Point } from 'ol/geom';
 import GeometryType from 'ol/geom/GeometryType';
 import { Icon } from 'ol/style';
@@ -35,6 +36,7 @@ export class MapStyles {
   public static LINE_WIDTH_THIN = 1;
   public static LINE_WIDTH_MEDIUM = 3;
   public static LINE_WIDTH_THICK = 5;
+  public static LINE_WIDTH_VERY_THICK = 13;
 
   public static LINE_WIDTH_FOR_DOUBLE_LINE = 4;
   public static LINE_GAP_FOR_DOUBLE_LINE = 4;
@@ -45,6 +47,7 @@ export class MapStyles {
   public static FEATURE_HOVER_COLOR: Color = [234, 131, 169, 1];
   public static FEATURE_SELECT_COLOR: Color = [216, 27, 96, 1];
   public static FEATURE_SELECT_COLOR_TRANSPARENT: Color = [216, 27, 96, 0.4];
+  public static ORIGINALGEOMETRIE_TRANSPARENT: Color = [255, 158, 13, 0.6];
   public static FEATURE_MODIFY_COLOR: Color = [0, 153, 255, 1];
   public static HOEHENPROFIL_HOVER_COLOR: Color = [0, 153, 255, 1];
   public static VALID_INPUT_COLOR: Color = [0, 128, 0, 1];
@@ -60,7 +63,7 @@ export class MapStyles {
   public static INFRASTRUKTUR_ICON_COLOR: Color = [126, 0, 69, 1];
 
   public static getDefaultNetzStyleFunction(
-    color: Color = MapStyles.FEATURE_COLOR
+    color: Color | ColorLike = MapStyles.FEATURE_COLOR
   ): (feature: FeatureLike, resolution: number) => Style | Style[] {
     return (feature: FeatureLike, resolution: number): Style => {
       if (resolution < MapStyles.RESOLUTION_SMALL) {
@@ -84,30 +87,33 @@ export class MapStyles {
     };
   }
 
-  public static circleWithFill(radius: number, color: Color = MapStyles.FEATURE_COLOR): Circle {
+  public static circleWithFill(radius: number, color: Color | ColorLike = MapStyles.FEATURE_COLOR): Circle {
     return new Circle({
       radius,
-      stroke: MapStyles.strokeMedium(color),
+      stroke: MapStyles.circleStroke(color),
       fill: new Fill({ color }),
     });
   }
 
-  public static circleWithFillWithoutOutline(radius: number, color: Color = MapStyles.FEATURE_COLOR): Circle {
+  public static circleWithFillWithoutOutline(
+    radius: number,
+    color: Color | ColorLike = MapStyles.FEATURE_COLOR
+  ): Circle {
     return new Circle({
       radius,
       fill: new Fill({ color }),
     });
   }
 
-  public static circle(radius: number, color: Color = MapStyles.FEATURE_COLOR): Circle {
+  public static circle(radius: number, color: Color | ColorLike = MapStyles.FEATURE_COLOR): Circle {
     return new Circle({
       radius,
-      stroke: MapStyles.strokeMedium(color),
+      stroke: MapStyles.circleStroke(color),
       fill: undefined,
     });
   }
 
-  public static createArrowBegleitend(coordinates: Coordinate[], color: number[]): Style {
+  public static createArrowBegleitend(coordinates: Coordinate[], color: Color | ColorLike): Style {
     if (coordinates.length > 2) {
       coordinates = coordinates.slice(0, 2);
     }
@@ -133,7 +139,7 @@ export class MapStyles {
   }
 
   public static getDefaultHighlightStyle(
-    color: Color = MapStyles.FEATURE_HOVER_COLOR,
+    color: Color | ColorLike = MapStyles.FEATURE_HOVER_COLOR,
     withArrow: boolean = false,
     coordinates?: Coordinate[]
   ): Style[] {
@@ -158,13 +164,14 @@ export class MapStyles {
     return styles;
   }
 
-  public static getDefaultTransparentStyle(color: Color = MapStyles.FEATURE_SELECT_COLOR_TRANSPARENT): Style[] {
+  public static getOriginalgeometrieStyle(): Style[] {
+    const color: Color | ColorLike = MapStyles.ORIGINALGEOMETRIE_TRANSPARENT;
     const styles: Style[] = [];
 
     styles.push(
       new Style({
-        stroke: MapStyles.strokeThick(color),
-        image: MapStyles.circleWithFillWithoutOutline(8, color),
+        stroke: MapStyles.strokeVeryThick(color),
+        image: MapStyles.circleWithFillWithoutOutline(13, color),
         zIndex: 5,
       })
     );
@@ -224,7 +231,7 @@ export class MapStyles {
       }),
       new Style({
         image: new Icon({
-          anchor: [-0.05, -0.2],
+          anchor: [-0.08, -0.205],
           src: `./assets/${iconFileName}`,
           scale: 0.85,
           color: [255, 255, 255, 1],
@@ -235,27 +242,42 @@ export class MapStyles {
     ];
   }
 
-  public static defaultPointStyleLarge(color: number[]): Style {
+  public static defaultPointStyleLarge(color: Color | ColorLike): Style {
     return new Style({
       image: MapStyles.circleWithFill(5, color),
     });
   }
 
-  private static strokeThick(color: number[]): Stroke {
+  private static strokeVeryThick(color: Color | ColorLike): Stroke {
+    return new Stroke({
+      width: MapStyles.LINE_WIDTH_VERY_THICK,
+      color,
+    });
+  }
+
+  private static strokeThick(color: Color | ColorLike): Stroke {
     return new Stroke({
       width: MapStyles.LINE_WIDTH_THICK,
       color,
     });
   }
 
-  private static strokeMedium(color: number[]): Stroke {
+  private static circleStroke(color: Color | ColorLike): Stroke {
+    return new Stroke({
+      width: MapStyles.LINE_WIDTH_MEDIUM,
+      lineCap: 'square',
+      color,
+    });
+  }
+
+  private static strokeMedium(color: Color | ColorLike): Stroke {
     return new Stroke({
       width: MapStyles.LINE_WIDTH_MEDIUM,
       color,
     });
   }
 
-  private static strokeThin(color: number[]): Stroke {
+  private static strokeThin(color: Color | ColorLike): Stroke {
     return new Stroke({
       width: MapStyles.LINE_WIDTH_THIN,
       color,

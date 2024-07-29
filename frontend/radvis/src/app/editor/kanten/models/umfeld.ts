@@ -24,21 +24,19 @@ export enum Umfeld {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Umfeld {
-  export const options: EnumOption[] = Object.keys(Umfeld).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Umfeld.GESCHAEFTSSTRASSE:
-          return { name: k, displayText: 'Geschäftsstraße' };
-        case Umfeld.STRASSE_MIT_HOHER_WOHNDICHTE_MISCHNUTZUNG:
-          return { name: k, displayText: 'Straße mit hoher Wohndichte / Mischnutzung' };
-        case Umfeld.STRASSE_MIT_GERINGER_BIS_MITTLERER_WOHNDICHTE:
-          return { name: k, displayText: 'Straße mit geringer bis mittlerer Wohndichte' };
-        case Umfeld.GEWERBEGEBIET:
-          return { name: k, displayText: 'Gewerbegebiet' };
-        case Umfeld.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Umfeld fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Umfeld).map((k: string): EnumOption => {
+    switch (k) {
+      case Umfeld.GESCHAEFTSSTRASSE:
+        return { name: k, displayText: 'Geschäftsstraße' };
+      case Umfeld.STRASSE_MIT_HOHER_WOHNDICHTE_MISCHNUTZUNG:
+        return { name: k, displayText: 'Straße mit hoher Wohndichte / Mischnutzung' };
+      case Umfeld.STRASSE_MIT_GERINGER_BIS_MITTLERER_WOHNDICHTE:
+        return { name: k, displayText: 'Straße mit geringer bis mittlerer Wohndichte' };
+      case Umfeld.GEWERBEGEBIET:
+        return { name: k, displayText: 'Gewerbegebiet' };
+      case Umfeld.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Umfeld fehlt: ' + k);
+  });
 }

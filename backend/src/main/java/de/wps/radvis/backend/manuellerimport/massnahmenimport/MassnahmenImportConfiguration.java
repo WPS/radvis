@@ -19,12 +19,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.MassnahmenImportConfigurationProperties;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.service.ManuellerMassnahmenImportService;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.service.MassnahmeNetzbezugService;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.MassnahmenImportNetzbezugAktualisierenCommandConverter;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.controller.ManuellerMassnahmenImportGuard;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
+import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import jakarta.persistence.EntityManager;
@@ -35,6 +40,12 @@ public class MassnahmenImportConfiguration {
 
 	@Autowired
 	ManuellerImportService manuellerImportService;
+
+	@Autowired
+	SimpleMatchingService simpleMatchingService;
+
+	@Autowired
+	NetzService netzService;
 
 	@Autowired
 	GeoJsonImportRepository geoJsonImportRepository;
@@ -51,6 +62,9 @@ public class MassnahmenImportConfiguration {
 	@Autowired
 	MassnahmeRepository massnahmenRepostory;
 
+	@Autowired
+	CsvRepository csvRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -65,15 +79,31 @@ public class MassnahmenImportConfiguration {
 	public ManuellerMassnahmenImportService manuellerMassnahmenImportService() {
 		return new ManuellerMassnahmenImportService(
 			manuellerImportService,
+			massnahmeNetzbezugService(),
 			geoJsonImportRepository,
 			verwaltungseinheitRepository,
 			massnahmenRepostory,
 			entityManager,
-			massnahmenImportConfigurationProperties.getMinimaleDistanzFuerAbweichungsWarnung());
+			csvRepository,
+			massnahmenImportConfigurationProperties.getMinimaleDistanzFuerAbweichungsWarnung()
+		);
+	}
+
+	@Bean
+	public MassnahmeNetzbezugService massnahmeNetzbezugService() {
+		return new MassnahmeNetzbezugService(
+			simpleMatchingService,
+			netzService
+		);
 	}
 
 	@Bean
 	public ManuellerMassnahmenImportGuard manuellerMassnahmenImportGuard() {
 		return new ManuellerMassnahmenImportGuard(benutzerResolver, verwaltungseinheitService);
+	}
+
+	@Bean
+	public MassnahmenImportNetzbezugAktualisierenCommandConverter massnahmenImportNetzbezugAktualisierenCommandConverter() {
+		return new MassnahmenImportNetzbezugAktualisierenCommandConverter(netzService, netzService);
 	}
 }

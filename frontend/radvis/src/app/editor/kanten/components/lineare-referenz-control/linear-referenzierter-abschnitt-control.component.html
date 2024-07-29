@@ -22,8 +22,7 @@
         (hover)="onHoverSegment($event, i)"
         *ngIf="!last"
         [class.hovered]="hoveredSegmentIndex !== null && hoveredSegmentIndex === i"
-        class="display-flex"
-      >
+        class="display-flex">
         <div class="display-flex justify-content-center" style="width: 100%">
           <mat-checkbox (click)="onSelectFromTabelle(i)" [checked]="selectedIndices.includes(i)"></mat-checkbox>
 
@@ -32,28 +31,23 @@
             [isDisabled]="getBisControl(i).disabled"
             [value]="getBisControl(i).value"
             [resetToPreviousValueOnEmpty]="true"
-            class="lineare-referenz-input ml-5 mr-5"
-          >
+            class="lineare-referenz-input ml-5 mr-5">
             <div class="label">Bis</div>
             <div class="einheit">m</div>
           </rad-autocorrecting-number-input-control>
 
           <button
-            [attr.aria-label]="'Segment schneiden'"
             matTooltip="Segment schneiden"
             [disabled]="isDisabled"
             (click)="onCutSegment(i, $event)"
-            mat-icon-button
-          >
+            mat-icon-button>
             <mat-icon>content_cut</mat-icon>
           </button>
           <button
-            [attr.aria-label]="'Segment löschen'"
             matTooltip="Segment löschen"
             [disabled]="i === 0 || isDisabled"
             (click)="onDeleteSegment(i, $event)"
-            mat-icon-button
-          >
+            mat-icon-button>
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -69,9 +63,8 @@
   [hoveredSegmentIndex]="hoveredSegmentIndex"
   [originalGeometry]="lineString"
   [segmentierung]="relativeSegmentPoints"
-  [seitenbezug]="seitenbezug"
+  [kantenSeite]="kantenSeite"
   [selectedIndices]="selectedIndices"
   [modificationDisabled]="isDisabled"
   [layerFilter]="layerFilter"
-  [zIndex]="lineareReferenzierungZIndex"
-></rad-lineare-referenzierung-layer>
+  [zIndex]="lineareReferenzierungZIndex"></rad-lineare-referenzierung-layer>

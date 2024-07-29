@@ -52,14 +52,17 @@ public class CsvRepositoryImpl implements CsvRepository {
 	}
 
 	@Override
-	public CsvData read(byte[] csvFile, List<String> requiredHeaders, char delimiter, boolean ignoreQuotations)
+	public CsvData read(byte[] csvFileData, List<String> requiredHeaders, char delimiter, boolean ignoreQuotations)
 		throws CsvReadException {
 		List<String[]> lines;
 
-		Charset charset = findCharset(csvFile);
+		Charset charset = findCharset(csvFileData);
 
-		try (InputStreamReader reader = new InputStreamReader(new BOMInputStream(new ByteArrayInputStream(csvFile)),
-			charset);
+		BOMInputStream.Builder inputStreamBuilder = BOMInputStream
+			.builder()
+			.setInputStream(new ByteArrayInputStream(csvFileData));
+
+		try (InputStreamReader reader = new InputStreamReader(inputStreamBuilder.get(), charset);
 			CSVReader csvReader = new CSVReaderBuilder(reader)
 				.withCSVParser(
 					new CSVParserBuilder()
@@ -93,7 +96,7 @@ public class CsvRepositoryImpl implements CsvRepository {
 			if (row.length != headersFromFile.size()) {
 				log.warn("Zeile " + i
 					+ " hat nicht die gleiche Anzahl Spalten wie die Headerzeile. Zeile wird uebersprungen.");
-				log.warn("CsvZeile: " + row);
+				log.warn("CsvZeile: " + row.toString());
 				anzahlUebersprungenerZeilen++;
 				continue;
 			}
@@ -135,8 +138,11 @@ public class CsvRepositoryImpl implements CsvRepository {
 		}
 	}
 
-	private static BufferedReader createBufferedReader(byte[] data, Charset charset) {
-		return new BufferedReader(new InputStreamReader(new BOMInputStream(new ByteArrayInputStream(data)), charset));
+	private static BufferedReader createBufferedReader(byte[] data, Charset charset) throws IOException {
+		BOMInputStream.Builder inputStreamBuilder = BOMInputStream
+			.builder()
+			.setInputStream(new ByteArrayInputStream(data));
+		return new BufferedReader(new InputStreamReader(inputStreamBuilder.get(), charset));
 	}
 
 	private Charset findCharset(byte[] data) throws CsvReadException {

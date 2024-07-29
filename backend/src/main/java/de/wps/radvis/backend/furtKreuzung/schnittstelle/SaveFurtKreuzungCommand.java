@@ -26,6 +26,7 @@ import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenKom
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenTyp;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.LichtsignalAnlageEigenschaften;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ import lombok.ToString;
 public class SaveFurtKreuzungCommand {
 
 	@NotNull
-	private FurtKreuzungNetzBezugCommand netzbezug;
+	private NetzbezugCommand netzbezug;
 	@NotNull
 	private Long verantwortlicheOrganisation;
 	@NotNull

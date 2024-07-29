@@ -23,21 +23,19 @@ export enum BenutzerStatus {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace BenutzerStatus {
-  export const options: EnumOption[] = Object.keys(BenutzerStatus).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case BenutzerStatus.AKTIV:
-          return { name: k, displayText: 'Aktiv' };
-        case BenutzerStatus.INAKTIV:
-          return { name: k, displayText: 'Inaktiv' };
-        case BenutzerStatus.WARTE_AUF_FREISCHALTUNG:
-          return { name: k, displayText: 'Warte auf Freischaltung' };
-        case BenutzerStatus.ABGELEHNT:
-          return { name: k, displayText: 'Abgelehnt' };
-      }
-      throw new Error('Beschreibung für enum BenutzerStatus fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(BenutzerStatus).map((k: string): EnumOption => {
+    switch (k) {
+      case BenutzerStatus.AKTIV:
+        return { name: k, displayText: 'Aktiv' };
+      case BenutzerStatus.INAKTIV:
+        return { name: k, displayText: 'Inaktiv' };
+      case BenutzerStatus.WARTE_AUF_FREISCHALTUNG:
+        return { name: k, displayText: 'Warte auf Freischaltung' };
+      case BenutzerStatus.ABGELEHNT:
+        return { name: k, displayText: 'Abgelehnt' };
     }
-  );
+    throw new Error('Beschreibung für enum BenutzerStatus fehlt: ' + k);
+  });
 
   export const getDisplayName = (status: BenutzerStatus): string => {
     return options.find(o => o.name === status)?.displayText ?? status;

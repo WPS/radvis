@@ -16,7 +16,7 @@ package de.wps.radvis.backend.konsistenz.regeln.domain;
 
 import java.util.Set;
 
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 
 public class KreisNetzLueckeKonsistenzregel extends AbstractNetzklassenLueckeKonsistenzregel {
@@ -24,8 +24,8 @@ public class KreisNetzLueckeKonsistenzregel extends AbstractNetzklassenLueckeKon
 	public static String VERLETZUNGS_TYP = "KREISNETZ_LUECKE";
 
 	public KreisNetzLueckeKonsistenzregel(
-		NetzklassenSackgassenService netzklassenSackgassenService) {
-		super(netzklassenSackgassenService);
+		SackgassenService sackgassenService) {
+		super(sackgassenService);
 	}
 
 	@Override

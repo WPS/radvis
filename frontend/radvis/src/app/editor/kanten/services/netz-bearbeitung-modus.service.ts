@@ -25,7 +25,10 @@ import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
 export class NetzBearbeitungModusService {
   route$: BehaviorSubject<string>;
 
-  constructor(router: Router, private routingService: EditorRoutingService) {
+  constructor(
+    router: Router,
+    private routingService: EditorRoutingService
+  ) {
     this.route$ = new BehaviorSubject(router.url.toString());
     router.events
       .pipe(

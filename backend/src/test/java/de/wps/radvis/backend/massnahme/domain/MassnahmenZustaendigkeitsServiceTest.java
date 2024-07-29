@@ -33,7 +33,6 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
@@ -70,13 +69,13 @@ class MassnahmenZustaendigkeitsServiceTest {
 			.id(1L)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.umsetzungsstatus(Umsetzungsstatus.IDEE)
-			.umsetzungsstand(new Umsetzungsstand())
 			.zustaendiger(organisation)
 			.build();
 
 		// act
-		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
-			betroffeneMassnahme1);
+		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
+			.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
+				betroffeneMassnahme1);
 
 		// assert
 		assertThat(zustaendigeBearbeiter).containsExactlyInAnyOrder(radwegeErfasserIn, kreiskoordinator,
@@ -98,8 +97,9 @@ class MassnahmenZustaendigkeitsServiceTest {
 			.build();
 
 		// act
-		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
-			massnahme);
+		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
+			.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
+				massnahme);
 
 		// assert
 		assertThat(zustaendigeBearbeiter).containsExactly(benutzer);
@@ -129,8 +129,9 @@ class MassnahmenZustaendigkeitsServiceTest {
 			.build();
 
 		// act
-		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
-			massnahme);
+		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
+			.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
+				massnahme);
 
 		// assert
 		assertThat(zustaendigeBearbeiter).containsExactly(benutzer1, benutzer2);
@@ -152,8 +153,9 @@ class MassnahmenZustaendigkeitsServiceTest {
 			.build();
 
 		// act
-		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
-			massnahme);
+		List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
+			.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
+				massnahme);
 
 		// assert
 		assertThat(zustaendigeBearbeiter).isEmpty();

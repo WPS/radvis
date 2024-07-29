@@ -32,8 +32,3 @@ public enum GruenAnforderung {
 		return displayText;
 	}
 }
-
-
-
-
-

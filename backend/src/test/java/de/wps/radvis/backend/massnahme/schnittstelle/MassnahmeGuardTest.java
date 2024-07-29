@@ -48,7 +48,6 @@ import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
 import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -206,7 +205,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahme)).isFalse();
@@ -224,7 +222,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThrows(AccessDeniedException.class,
@@ -388,7 +385,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahme)).isTrue();
@@ -406,7 +402,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertDoesNotThrow(() -> massnahmeGuard.deleteMassnahme(authentication, massnahme));
@@ -534,7 +529,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahme)).isTrue();
@@ -552,7 +546,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertDoesNotThrow(() -> massnahmeGuard.deleteMassnahme(authentication,
@@ -787,7 +780,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahme)).isFalse();
@@ -805,7 +797,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThrows(AccessDeniedException.class,
@@ -935,7 +926,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahme)).isTrue();
@@ -954,7 +944,6 @@ public class MassnahmeGuardTest {
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-				.umsetzungsstand(new Umsetzungsstand())
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertDoesNotThrow(() -> massnahmeGuard.deleteMassnahme(authentication, massnahme));

@@ -49,7 +49,9 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
   public alleOrganisationenOptions: Observable<AutoCompleteOption[]>;
   public sollStandardOptions = SollStandard.options;
   public handlungsverantwortlicherOptions = Handlungsverantwortlicher.options;
-  public konzeptionsquelleOptions = Konzeptionsquelle.options;
+  public konzeptionsquelleOptions = Konzeptionsquelle.options.filter(
+    o => o.name !== Konzeptionsquelle.RADNETZ_MASSNAHME
+  );
 
   public isFetching = false;
 

@@ -17,6 +17,7 @@ package de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObjec
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -32,25 +33,25 @@ public class NetzbezugHinweis {
 
 	private final Severity severity;
 
-	private NetzbezugHinweis(String text, String tooltip, Severity severity) {
-		require(text, notNullValue());
-		require(tooltip, notNullValue());
+	private NetzbezugHinweis(NetzbezugHinweisText hinweisText, Severity severity) {
+		require(hinweisText, notNullValue());
 		require(severity, notNullValue());
 
-		this.text = text;
-		this.tooltip = tooltip;
+		this.text = hinweisText.getText();
+		this.tooltip = hinweisText.getTooltip();
 		this.severity = severity;
 	}
 
-	public static NetzbezugHinweis ofError(String text, String tooltip) {
-		return new NetzbezugHinweis(text, tooltip, Severity.ERROR);
+	public static NetzbezugHinweis ofError(NetzbezugHinweisText hinweisText) {
+		return new NetzbezugHinweis(hinweisText, Severity.ERROR);
 	}
 
-	public static NetzbezugHinweis ofWarnung(String text, String tooltip) {
-		return new NetzbezugHinweis(text, tooltip, Severity.WARN);
+	public static NetzbezugHinweis ofWarnung(NetzbezugHinweisText hinweisText) {
+		return new NetzbezugHinweis(hinweisText, Severity.WARN);
 	}
 
-	public enum Severity {
-		ERROR, WARN
+	public String getDisplayText() {
+		return severity.getDisplayText() + ": " + getText();
 	}
+
 }

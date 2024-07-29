@@ -13,8 +13,8 @@
  */
 
 export enum RadVisLayerTyp {
-  GEO_JSON,
-  TILE,
-  WMSTILE,
-  WMTS_UTM32_TILE,
+  GEO_JSON = 'GEO_JSON',
+  TILE = 'TILE',
+  WMSTILE = 'WMSTILE',
+  WMTS_UTM32_TILE = 'WMTS_UTM32_TILE',
 }

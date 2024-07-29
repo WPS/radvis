@@ -13,18 +13,16 @@
   -->
 
 <ng-container *ngIf="hasKanten$ | async">
-  <div *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis hinweis">
-    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-    <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
-  </div>
+  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis"
+    >{{ NICHT_BEARBEITBAR_HINWEIS }}
+  </rad-warnhinweis>
   <rad-kanten-attribute-editor-mit-subauswahl
     [disabled]="!editingAllowed"
     [dirty]="!pristine"
     [fetching]="isFetching"
     (save)="onSave()"
     (dismiss)="onClose()"
-    (resetForm)="onReset()"
-  >
+    (resetForm)="onReset()">
     <div [formGroup]="displayedAttributeformGroup" class="group attribute">
       <rad-enum-dropdown-control formControlName="belagArt" [options]="belagartOptions" [nullable]="false">
         Belagart
@@ -33,8 +31,7 @@
       <rad-enum-dropdown-control
         formControlName="oberflaechenbeschaffenheit"
         [options]="oberflaechenbeschaffenheitOptions"
-        [nullable]="false"
-      >
+        [nullable]="false">
         Oberflaechenbeschaffenheit
       </rad-enum-dropdown-control>
 
@@ -45,8 +42,7 @@
       <rad-grouped-enum-dropdown-control
         formControlName="radverkehrsfuehrung"
         [groupedOptions]="radverkehrsfuehrungOptions"
-        [nullable]="false"
-      >
+        [nullable]="false">
         Radverkehrsführung
       </rad-grouped-enum-dropdown-control>
 
@@ -58,7 +54,7 @@
         Kfz-Parken-Form
       </rad-enum-dropdown-control>
 
-      <rad-enum-dropdown-control formControlName="parkenTyp" [options]="parkenTypOptions">
+      <rad-enum-dropdown-control formControlName="parkenTyp" [options]="parkenTypOptions" [nullable]="false">
         Kfz-Parken-Typ
       </rad-enum-dropdown-control>
 
@@ -87,16 +83,16 @@
           [trennstreifenRichtungLinks]="trennstreifenRichtungLinks"
           [trennstreifenRichtungRechts]="trennstreifenRichtungRechts"
           [trennstreifenSeiteSelected]="trennstreifenSeiteSelected"
-          [trennstreifenBearbeiteteSeiten]="trennstreifenBearbeiteteSeiten"
-        ></rad-sicherheitstrennstreifen-anzeige-komplett>
+          [trennstreifenBearbeiteteSeiten]="
+            trennstreifenBearbeiteteSeiten
+          "></rad-sicherheitstrennstreifen-anzeige-komplett>
 
         <mat-form-field>
           <mat-label>Sicherheitstrennstreifen</mat-label>
           <mat-select
             class="mat-form-field-full-width"
             (selectionChange)="onTrennstreifenSeiteSelectionChanged($event.value)"
-            [value]="trennstreifenSeiteSelected"
-          >
+            [value]="trennstreifenSeiteSelected">
             <mat-option *ngFor="let opt of trennstreifenSeiteOptions" [value]="opt.name" [matTooltip]="opt.displayText"
               >{{ opt.displayText }}
             </mat-option>
@@ -109,22 +105,30 @@
             formControlName="trennstreifenFormLinks"
             [options]="trennstreifenFormOptions"
             [nullable]="false"
-            [errors]="trennstreifenFormGroupLinks.get('trennstreifenFormLinks')?.errors"
-          >
+            [errors]="
+              trennstreifenFormGroupLinks.dirty
+                ? trennstreifenFormGroupLinks.get('trennstreifenFormLinks')?.errors
+                : null
+            ">
             Form des Trennstreifens
           </rad-enum-dropdown-control>
 
           <rad-enum-dropdown-control
             formControlName="trennstreifenTrennungZuLinks"
-            [options]="trennstreifenTrennungZuOptions"
-          >
+            [options]="trennstreifenTrennungZuOptions">
             Trennung zu
           </rad-enum-dropdown-control>
+          <rad-validation-error-anzeige
+            [errors]="trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.errors">
+          </rad-validation-error-anzeige>
 
           <rad-number-input-control
             formControlName="trennstreifenBreiteLinks"
-            [errors]="trennstreifenFormGroupLinks.get('trennstreifenBreiteLinks')?.errors"
-          >
+            [errors]="
+              trennstreifenFormGroupLinks.dirty
+                ? trennstreifenFormGroupLinks.get('trennstreifenBreiteLinks')?.errors
+                : null
+            ">
             <div class="label">Breite des Trennstreifens</div>
             <div class="einheit">m</div>
           </rad-number-input-control>
@@ -136,22 +140,30 @@
             formControlName="trennstreifenFormRechts"
             [options]="trennstreifenFormOptions"
             [nullable]="false"
-            [errors]="trennstreifenFormGroupRechts.get('trennstreifenFormRechts')?.errors"
-          >
+            [errors]="
+              trennstreifenFormGroupRechts.dirty
+                ? trennstreifenFormGroupRechts.get('trennstreifenFormRechts')?.errors
+                : null
+            ">
             Form des Trennstreifens
           </rad-enum-dropdown-control>
 
           <rad-enum-dropdown-control
             formControlName="trennstreifenTrennungZuRechts"
-            [options]="trennstreifenTrennungZuOptions"
-          >
+            [options]="trennstreifenTrennungZuOptions">
             Trennung zu
           </rad-enum-dropdown-control>
+          <rad-validation-error-anzeige
+            [errors]="trennstreifenFormGroupRechts.controls.trennstreifenTrennungZuRechts.errors">
+          </rad-validation-error-anzeige>
 
           <rad-number-input-control
             formControlName="trennstreifenBreiteRechts"
-            [errors]="trennstreifenFormGroupRechts.get('trennstreifenBreiteRechts')?.errors"
-          >
+            [errors]="
+              trennstreifenFormGroupRechts.dirty
+                ? trennstreifenFormGroupRechts.get('trennstreifenBreiteRechts')?.errors
+                : null
+            ">
             <div class="label">Breite des Trennstreifens</div>
             <div class="einheit">m</div>
           </rad-number-input-control>
@@ -171,8 +183,9 @@
                 (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id)"
                 [formControl]="getLineareReferenzenFormControlAt(i)"
                 [geometrie]="kantenSelektion.kante.geometry"
-                [selectedIndices]="kantenSelektion.getSelectedSegmentIndices(LINKS)"
-              ></rad-linear-referenzierter-abschnitt-control>
+                [selectedIndices]="
+                  kantenSelektion.getSelectedSegmentIndices(LINKS)
+                "></rad-linear-referenzierter-abschnitt-control>
             </td>
             <td *ngIf="kantenSelektion.kante.zweiseitig">
               <rad-linear-referenzierter-abschnitt-control
@@ -182,9 +195,10 @@
                 (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id, LINKS)"
                 [formControl]="getLineareReferenzenLinksFormControlAt(i)"
                 [geometrie]="kantenSelektion.kante.geometry"
-                [seitenbezug]="LINKS"
-                [selectedIndices]="kantenSelektion.getSelectedSegmentIndices(LINKS)"
-              ></rad-linear-referenzierter-abschnitt-control>
+                [kantenSeite]="LINKS"
+                [selectedIndices]="
+                  kantenSelektion.getSelectedSegmentIndices(LINKS)
+                "></rad-linear-referenzierter-abschnitt-control>
             </td>
             <td *ngIf="kantenSelektion.kante.zweiseitig">
               <rad-linear-referenzierter-abschnitt-control
@@ -194,9 +208,10 @@
                 (selectElement)="onSelectLinearesSegment($event, kantenSelektion.kante.id, RECHTS)"
                 [formControl]="getLineareReferenzenRechtsFormControlAt(i)"
                 [geometrie]="kantenSelektion.kante.geometry"
-                [seitenbezug]="RECHTS"
-                [selectedIndices]="kantenSelektion.getSelectedSegmentIndices(RECHTS)"
-              ></rad-linear-referenzierter-abschnitt-control>
+                [kantenSeite]="RECHTS"
+                [selectedIndices]="
+                  kantenSelektion.getSelectedSegmentIndices(RECHTS)
+                "></rad-linear-referenzierter-abschnitt-control>
             </td>
           </tr>
         </ng-container>

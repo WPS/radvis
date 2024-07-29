@@ -63,8 +63,8 @@ public class BenutzerGuard {
 			throw new AccessDeniedException(
 				"Sie haben nicht die Berechtigung Benutzer mit folgenden Rollen zu ändern:"
 					+ rollenDieDerAktiveBenutzerNichtAendernDarf.stream()
-					.map(Rolle::toString)
-					.collect(Collectors.joining("', '", " '", "'")));
+						.map(Rolle::toString)
+						.collect(Collectors.joining("', '", " '", "'")));
 		}
 
 		if (!pruefeBearbeiterIstAutorisiertFuerBenutzer(aktiverBenutzer, zuBearbeitenderBenutzer)) {
@@ -109,8 +109,8 @@ public class BenutzerGuard {
 			throw new AccessDeniedException(
 				"Sie sind nicht dazu autorisiert diese Rollen zu vergeben oder zu entnehmen:"
 					+ rollenDieDerAktiveBenutzerNichtAendernDarf.stream()
-					.map(Rolle::toString)
-					.collect(Collectors.joining("', '", " '", "'")));
+						.map(Rolle::toString)
+						.collect(Collectors.joining("', '", " '", "'")));
 		}
 	}
 

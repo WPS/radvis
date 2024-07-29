@@ -41,4 +41,3 @@ public enum AbstellanlagenQuellSystem {
 		throw new RuntimeException("Quellsystem " + displayText + " wurde nicht erkannt.");
 	}
 }
-

@@ -263,7 +263,7 @@ public class BenutzerService {
 	 * darf
 	 *
 	 * @param rolle
-	 * 	für die die Vergaberechte ermittelt werden sollen
+	 *     für die die Vergaberechte ermittelt werden sollen
 	 * @return Alle Rechte, mit der man die Rolle vergeben darf
 	 */
 	public List<Recht> ermittleVergaberechteFuerRolle(Rolle rolle) {
@@ -330,7 +330,7 @@ public class BenutzerService {
 	 * Ermittelt die freigeschalteten Benutzer (ohne Admins), die sich länger als spezifiziert nicht eingeloggt haben
 	 *
 	 * @param dauerInTagen
-	 * 	Anzahl an Tagen (exklusive), bis Benutzer als inaktiv angesehen werden
+	 *     Anzahl an Tagen (exklusive), bis Benutzer als inaktiv angesehen werden
 	 * @return Alle Rechte, mit der man die Rolle vergeben darf
 	 */
 	public List<Benutzer> ermittleAktiveBenutzerInaktivLaengerAls(Integer dauerInTagen) {

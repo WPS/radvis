@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import org.locationtech.jts.geom.MultiPolygon;
 
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
@@ -68,4 +68,9 @@ public class Gebietskoerperschaft extends Verwaltungseinheit {
 		return Optional.ofNullable(bereich);
 	}
 
+	@Override
+	public String toString() {
+		return "Gebietskoerperschaft [fachId=" + fachId + ", name=" + name + ", organisationsArt=" + organisationsArt
+			+ ", aktiv=" + aktiv + ", id=" + id + "]";
+	}
 }

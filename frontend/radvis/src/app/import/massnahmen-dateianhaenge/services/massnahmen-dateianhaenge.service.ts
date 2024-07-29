@@ -14,7 +14,9 @@
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { MassnahmenDateianhaengeImportProtokollStats } from 'src/app/import/massnahmen-dateianhaenge/models/massnahmen-dateianhaenge-import-protokoll-stats';
 import { MassnahmenDateianhaengeImportSessionView } from 'src/app/import/massnahmen-dateianhaenge/models/massnahmen-dateianhaenge-import-session-view';
+import { SaveMassnahmenDateianhaengeCommand } from 'src/app/import/massnahmen-dateianhaenge/models/save-massnahmen-dateianhaenge-command';
 import { StartMassnahmenDateianhaengeImportSessionCommand } from 'src/app/import/massnahmen-dateianhaenge/models/start-massnahmen-dateianhaenge-import-session-command';
 import { ImportService } from 'src/app/import/services/import.service';
 
@@ -40,5 +42,21 @@ export class MassnahmenDateianhaengeService extends ImportService {
 
   public continueAfterFehlerUeberpruefen(): Observable<void> {
     return this.http.post<void>(`${this.massnahmenDateianhaengeImportApi}/continue-checked-errors`, {});
+  }
+
+  public saveSelectedDateianhaengeCommand(commands: SaveMassnahmenDateianhaengeCommand[]): Observable<void> {
+    return this.http.post<void>(`${this.massnahmenDateianhaengeImportApi}/save-selected-dateianhaenge`, commands);
+  }
+
+  public getProtokollStats(): Observable<MassnahmenDateianhaengeImportProtokollStats> {
+    return this.http.get<MassnahmenDateianhaengeImportProtokollStats>(
+      `${this.massnahmenDateianhaengeImportApi}/protokoll-stats`
+    );
+  }
+
+  public downloadFehlerprotokoll(): Observable<Blob> {
+    return this.http.get<Blob>(`${this.massnahmenDateianhaengeImportApi}/download-fehlerprotokoll`, {
+      responseType: 'blob' as 'json',
+    });
   }
 }

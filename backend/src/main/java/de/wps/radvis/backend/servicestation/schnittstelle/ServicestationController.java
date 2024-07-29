@@ -52,12 +52,14 @@ import de.wps.radvis.backend.servicestation.domain.ServicestationService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/servicestation")
 @AllArgsConstructor
+@Transactional
 public class ServicestationController {
 	private final ServicestationRepository repository;
 	private final ServicestationService service;

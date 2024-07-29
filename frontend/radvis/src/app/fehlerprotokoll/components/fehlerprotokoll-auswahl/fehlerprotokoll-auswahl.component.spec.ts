@@ -15,7 +15,10 @@
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { of } from 'rxjs';
 import { skip } from 'rxjs/operators';
-import { FehlerprotokollTyp } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-typ';
+import {
+  DLM_REIMPORT_JOB_FAHRRADROUTEN_FEHLERPROTOKOLL,
+  TFIS_IMPORT_FAHRRADROUTEN_FEHLERPROTOKOLL,
+} from 'src/app/fehlerprotokoll/models/fehlerpotokoll-typ-test-data-provider.spec';
 import { FehlerprotokollView } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-view';
 import { FehlerprotokollSelectionService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll-selection.service';
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
@@ -109,9 +112,9 @@ describe(FehlerprotokollAuswahlComponent.name, () => {
 
       selectionService.selectedOrganisation = defaultOrganisation;
       selectionService.netzklassenImportSelected = true;
-      selectionService.selectedKonsistenzregelVerletzungsTypen = [radNETZVerletzungsTyp];
+      selectionService.selectKonsistenzregel({ verletzungsTyp: radNETZVerletzungsTyp, regelGruppe: '', titel: '' });
       selectionService.attributeImportSelected = false;
-      selectionService.selectedFehlerprotokollTypen = [FehlerprotokollTyp.TFIS_IMPORT_FAHRRADROUTEN];
+      selectionService.selectFehlerprotokoll(TFIS_IMPORT_FAHRRADROUTEN_FEHLERPROTOKOLL);
 
       selectionService.fehlerprotokollLoader$.pipe(skip(1)).subscribe(loader => {
         loader([0, 0, 0, 0]).subscribe(fP => {
@@ -120,12 +123,12 @@ describe(FehlerprotokollAuswahlComponent.name, () => {
         });
       });
 
-      component.onFehlerprotokollClicked(FehlerprotokollTyp.DLM_REIMPORT_JOB_FAHRRADROUTEN);
+      component.onFehlerprotokollClicked(DLM_REIMPORT_JOB_FAHRRADROUTEN_FEHLERPROTOKOLL);
 
       verify(fehlerprotokollService.getFehlerprotokolle(anything(), anything())).once();
       expect(capture(fehlerprotokollService.getFehlerprotokolle).last()[0]).toEqual([
-        FehlerprotokollTyp.TFIS_IMPORT_FAHRRADROUTEN,
-        FehlerprotokollTyp.DLM_REIMPORT_JOB_FAHRRADROUTEN,
+        TFIS_IMPORT_FAHRRADROUTEN_FEHLERPROTOKOLL,
+        DLM_REIMPORT_JOB_FAHRRADROUTEN_FEHLERPROTOKOLL,
       ]);
       verify(
         fehlerprotokollService.getFehlerFromManuellerImport(anything(), anything(), anything(), anything())
@@ -143,12 +146,12 @@ describe(FehlerprotokollAuswahlComponent.name, () => {
       selectionService.selectedOrganisation = null;
       selectionService.netzklassenImportSelected = true;
 
-      component.onFehlerprotokollClicked(FehlerprotokollTyp.DLM_REIMPORT_JOB_FAHRRADROUTEN);
+      component.onFehlerprotokollClicked(DLM_REIMPORT_JOB_FAHRRADROUTEN_FEHLERPROTOKOLL);
 
       triggerLoader();
       verify(fehlerprotokollService.getFehlerprotokolle(anything(), anything())).once();
       expect(capture(fehlerprotokollService.getFehlerprotokolle).last()[0]).toEqual([
-        FehlerprotokollTyp.DLM_REIMPORT_JOB_FAHRRADROUTEN,
+        DLM_REIMPORT_JOB_FAHRRADROUTEN_FEHLERPROTOKOLL,
       ]);
       verify(
         fehlerprotokollService.getFehlerFromManuellerImport(anything(), anything(), anything(), anything())
@@ -180,11 +183,21 @@ describe(FehlerprotokollAuswahlComponent.name, () => {
   });
 
   describe('selected KonsistenzregelVerletzungen', () => {
+    it('should toggle selection', () => {
+      const regel = { regelGruppe: '', titel: '', verletzungsTyp: 'Verletzung' };
+      component.onRegelClicked(regel);
+
+      expect(selectionService.selectedKonsistenzregelVerletzungen).toEqual([regel.verletzungsTyp]);
+
+      component.onRegelClicked(regel);
+
+      expect(selectionService.selectedKonsistenzregelVerletzungen).toEqual([]);
+    });
+
     it('should trigger reload on change', () => {
       selectionService.selectedOrganisation = defaultOrganisation;
       selectionService.attributeImportSelected = false;
       selectionService.netzklassenImportSelected = false;
-      selectionService.selectedKonsistenzregelVerletzungsTypen = [];
       const fehlerprotokolle3: FehlerprotokollView[] = [{ ...defaultFehlerprotokoll, id: 1234 }];
       when(konsistenzregelService.getAlleVerletzungenForTypen(deepEqual([radNETZVerletzungsTyp]))).thenReturn(
         of(fehlerprotokolle3)
@@ -194,7 +207,7 @@ describe(FehlerprotokollAuswahlComponent.name, () => {
 
       triggerLoader();
 
-      expect(selectionService.selectedKonsistenzregelVerletzungsTypen).toContain(radNETZVerletzungsTyp);
+      expect(selectionService.selectedKonsistenzregelVerletzungen).toContain(radNETZVerletzungsTyp);
 
       verify(konsistenzregelService.getAlleVerletzungenForTypen(deepEqual([radNETZVerletzungsTyp]), anything())).once();
     });
@@ -272,7 +285,7 @@ const defaultFehlerprotokoll: FehlerprotokollView = {
   datum: new Date().toISOString(),
   entityLink: '',
   fehlerprotokollKlasse: 'Blubb',
-  iconPosition: { coordinates: [0, 0], type: 'Point' },
+  iconPosition: { coordinates: [[0, 0]], type: 'Point' },
   id: 2,
   originalGeometry: { coordinates: [0, 0], type: 'Point' } as PointGeojson,
   titel: 'Titel eines Fehlerprotokolls',

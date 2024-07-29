@@ -19,16 +19,17 @@ import { ActionButtonComponent } from 'src/app/form-elements/components/action-b
 import { AttributeEditorComponent } from 'src/app/form-elements/components/attribute-editor/attribute-editor.component';
 import { AutocompleteDropdownComponent } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
 import { AutocompleteEnumDropdownControlComponent } from 'src/app/form-elements/components/autocomplete-enum-dropdown-control/autocomplete-enum-dropdown-control.component';
+import { ButtonAccessibilityDirective } from 'src/app/form-elements/components/button-accessibility.dircetive';
 import { EnumDropdownControlComponent } from 'src/app/form-elements/components/enum-dropdown-control/enum-dropdown-control.component';
 import { FileUploadControlComponent } from 'src/app/form-elements/components/file-upload-control/file-upload-control.component';
 import { FloatInputControlComponent } from 'src/app/form-elements/components/float-input-control/float-input-control.component';
 import { GroupedEnumDropdownControlComponent } from 'src/app/form-elements/components/grouped-enum-dropdown-control/grouped-enum-dropdown-control.component';
+import { MultiOrganisationenDropdownControlComponent } from 'src/app/form-elements/components/multi-organisationen-dropdown-control/multi-organisationen-dropdown-control.component';
 import { NumberInputControlComponent } from 'src/app/form-elements/components/number-input-control/number-input-control.component';
+import { OrganisationPipe } from 'src/app/form-elements/components/organisation.pipe';
 import { TextInputControlComponent } from 'src/app/form-elements/components/text-input-control/text-input-control.component';
 import { ValidationErrorAnzeigeComponent } from 'src/app/form-elements/components/validation-error-anzeige/validation-error-anzeige.component';
 import { MaterialDesignModule } from 'src/app/material-design.module';
-import { MultiOrganisationenDropdownControlComponent } from 'src/app/form-elements/components/multi-organisationen-dropdown-control/multi-organisationen-dropdown-control.component';
-import { OrganisationPipe } from 'src/app/form-elements/components/organisation.pipe';
 
 const allDeclarations = [
   ValidationErrorAnzeigeComponent,
@@ -44,6 +45,7 @@ const allDeclarations = [
   ActionButtonComponent,
   MultiOrganisationenDropdownControlComponent,
   OrganisationPipe,
+  ButtonAccessibilityDirective,
 ];
 
 @NgModule({

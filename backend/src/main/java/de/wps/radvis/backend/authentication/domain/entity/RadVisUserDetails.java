@@ -19,14 +19,18 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import lombok.Getter;
 
-public class RadVisUserDetails extends User {
+public class RadVisUserDetails extends User implements Saml2AuthenticatedPrincipal {
 
 	private static final long serialVersionUID = 3940764147762591350L;
+
+	private final String relyingPartyRegistrationId;
+	private final List<String> sessionIndex;
 
 	@Getter
 	private ServiceBwId serviceBwId;
@@ -38,15 +42,42 @@ public class RadVisUserDetails extends User {
 	private Benutzer benutzer;
 
 	public RadVisUserDetails(Benutzer benutzer, List<GrantedAuthority> grantedAuthorities) {
+		this(benutzer, grantedAuthorities, "", Collections.emptyList());
+	}
+
+	public RadVisUserDetails(Benutzer benutzer, List<GrantedAuthority> grantedAuthorities,
+		String relyingPartyRegistrationId, List<String> sessionIndex) {
 		super(benutzer.getServiceBwId().toString(), "{noop}", grantedAuthorities);
 		this.benutzer = benutzer;
+		this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+		this.sessionIndex = sessionIndex;
 		this.isRegistered = true;
 	}
 
 	public RadVisUserDetails(ServiceBwId serviceBwId) {
+		this(serviceBwId, "", Collections.emptyList());
+	}
+
+	public RadVisUserDetails(ServiceBwId serviceBwId, String relyingPartyRegistrationId, List<String> sessionIndex) {
 		super(serviceBwId.toString(), "{noop}", Collections.emptyList());
 		this.serviceBwId = serviceBwId;
+		this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+		this.sessionIndex = sessionIndex;
 		this.isRegistered = false;
 	}
 
+	@Override
+	public String getRelyingPartyRegistrationId() {
+		return this.relyingPartyRegistrationId;
+	}
+
+	@Override
+	public List<String> getSessionIndexes() {
+		return this.sessionIndex;
+	}
+
+	@Override
+	public String getName() {
+		return benutzer.getVollerName();
+	}
 }

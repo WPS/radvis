@@ -26,6 +26,8 @@ import lombok.Getter;
 @Getter
 public class OsmPbfConfigurationProperties {
 
+	private final String osmBasisnetzDaten;
+
 	private final String osmBasisDaten;
 
 	private final String osmBasisDatenDownloadLink;
@@ -36,12 +38,14 @@ public class OsmPbfConfigurationProperties {
 
 	@ConstructorBinding
 	public OsmPbfConfigurationProperties(String osmAngereichertDaten,
-		String osmBasisDaten, String osmBasisDatenDownloadLink, Double minOsmWayCoverageForRadNETZ) {
+		String osmBasisnetzDaten, String osmBasisDaten, String osmBasisDatenDownloadLink,
+		Double minOsmWayCoverageForRadNETZ) {
 		require(osmBasisDaten, notNullValue());
 		require(osmBasisDatenDownloadLink, notNullValue());
 		require(osmAngereichertDaten, notNullValue());
 		require(minOsmWayCoverageForRadNETZ, notNullValue());
 
+		this.osmBasisnetzDaten = osmBasisnetzDaten;
 		this.minOsmWayCoverageForRadNETZ = minOsmWayCoverageForRadNETZ;
 		this.osmBasisDatenDownloadLink = osmBasisDatenDownloadLink;
 		this.osmAngereichertDaten = osmAngereichertDaten;

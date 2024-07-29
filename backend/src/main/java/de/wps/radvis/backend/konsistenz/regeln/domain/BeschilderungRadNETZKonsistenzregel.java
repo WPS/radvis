@@ -43,13 +43,12 @@ public class BeschilderungRadNETZKonsistenzregel implements Konsistenzregel {
 
 	@Override
 	public List<KonsistenzregelVerletzungsDetails> pruefen() {
-		String sqlString =
-			"SELECT st_collect(k.geometry) AS geom FROM kante k"
-				+ "    WHERE kanten_attributgruppe_id IN ("
-				+ "        SELECT kagn.kanten_attribut_gruppe_id FROM kanten_attribut_gruppe_netzklassen kagn"
-				+ "        WHERE kagn.netzklasse = 'RADNETZ_ALLTAG' OR kagn.netzklasse = 'RADNETZ_FREIZEIT'"
-				+ "    )"
-				+ "    AND (quelle='DLM' OR quelle='RadVis');";
+		String sqlString = "SELECT st_collect(k.geometry) AS geom FROM kante k"
+			+ "    WHERE kanten_attributgruppe_id IN ("
+			+ "        SELECT kagn.kanten_attribut_gruppe_id FROM kanten_attribut_gruppe_netzklassen kagn"
+			+ "        WHERE kagn.netzklasse = 'RADNETZ_ALLTAG' OR kagn.netzklasse = 'RADNETZ_FREIZEIT'"
+			+ "    )"
+			+ "    AND (quelle='DLM' OR quelle='RadVis');";
 
 		Geometry collectedRadNetzKantenGeom = (Geometry) entityManager.createNativeQuery(sqlString)
 			.unwrap(NativeQuery.class)
@@ -64,12 +63,11 @@ public class BeschilderungRadNETZKonsistenzregel implements Konsistenzregel {
 		return entityManager.createQuery("SELECT wb FROM WegweisendeBeschilderung wb", WegweisendeBeschilderung.class)
 			.getResultStream()
 			.filter(wegweisendeBeschilderung -> !radnetzMitBuffer.intersects(wegweisendeBeschilderung.getGeometrie()))
-			.map(wegweisendeBeschilderung ->
-				new KonsistenzregelVerletzungsDetails(
-					(Point) wegweisendeBeschilderung.getGeometrie(),
-					"Die Beschilderung liegt weiter als " + beschilderungMaxEntfernungVonRoute
-						+ "m vom RadNETZ entfernt",
-					wegweisendeBeschilderung.getId().toString()))
+			.map(wegweisendeBeschilderung -> new KonsistenzregelVerletzungsDetails(
+				(Point) wegweisendeBeschilderung.getGeometrie(),
+				"Die Beschilderung liegt weiter als " + beschilderungMaxEntfernungVonRoute
+					+ "m vom RadNETZ entfernt",
+				wegweisendeBeschilderung.getId().toString()))
 			.collect(Collectors.toList());
 	}
 

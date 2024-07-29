@@ -55,14 +55,12 @@
   justify-content: space-between;
 }
 
+.editing-not-allowed-hinweis {
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid map-get($grayscale, 100);
+}
+
 .attribute-editor {
   flex-grow: 1;
   overflow-y: auto;
-}
-
-.editing-not-allowed-hinweis {
-  display: flex;
-  align-items: center;
-  padding: 1rem 0.5rem;
-  border-bottom: 1px solid map-get($grayscale, 100);
 }

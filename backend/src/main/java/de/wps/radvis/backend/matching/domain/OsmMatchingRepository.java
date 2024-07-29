@@ -16,25 +16,27 @@ package de.wps.radvis.backend.matching.domain;
 
 import org.locationtech.jts.geom.LineString;
 
+import com.graphhopper.matching.MatchResult;
+
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
 import de.wps.radvis.backend.matching.domain.valueObject.LinearReferenziertesOsmMatchResult;
 
 public interface OsmMatchingRepository {
-	LineString matchGeometry(LineString geometrie, String profile) throws KeinMatchGefundenException;
+	public static final double LINE_STRING_EQUAL_TOLERANCE = 0.00001;
 
 	/**
 	 * @param geometrie
-	 * 	Bei Kreis-Geometrien und Geometrien mit Kehrtwenden können die ermittelten lin. Referenzen u.U. ungenau oder falsch sein.
-	 * @param profile
-	 * 	"bike"|"car"|"foot"
+	 *     Bei Kreis-Geometrien und Geometrien mit Kehrtwenden können die ermittelten lin. Referenzen u.U. ungenau oder falsch sein.
 	 * @return das MatchResult enthält
-	 * <ul>
+	 *     <ul>
 	 *     <li>die gemachte Geometrie inkl.(!!!) etwaiger Kehrtwenden (Matching-Artefakte)</li>
 	 *     <li>die lin. Referenzen der gemachten Geometrie auf OsmWays exkl. (!!!) derjenigen, die auf Kehrtwenden in der gemachten Geometrie zurückzuführen.</li>
-	 * </ul>
-	 * @throws KeinMatchGefundenException
-	 * 	Falls kein oder kein hinreichend gutes Match gefunden wurde
+	 *     </ul>
 	 */
-	LinearReferenziertesOsmMatchResult matchGeometryLinearReferenziert(LineString geometrie, String profile)
+	LinearReferenziertesOsmMatchResult extrahiereLineareReferenzierung(MatchResult matchResult)
 		throws KeinMatchGefundenException;
+
+	MatchResult matchGeometry(LineString lineStringInUtm) throws KeinMatchGefundenException;
+
+	LineString extrahiereLineString(MatchResult matchResult);
 }

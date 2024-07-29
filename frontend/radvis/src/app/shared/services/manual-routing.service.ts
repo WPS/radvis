@@ -25,7 +25,7 @@ export class ManualRoutingService {
   static readonly MANUAL_BENUTZERVERWALTUNG_URL: string = '/manual/docs/benutzerverwaltung';
   static readonly MANUAL_INTRO_URL: string = '/manual/docs/intro';
   static readonly MANUAL_DATENSCHNITTSTELLEN_URL: string = '/manual/docs/datenschnittstellen';
-  static readonly MANUAL_UMSETZUNGSSTANDSABFRAGEN_URL: string = '/manual/docs/viewer';
+  static readonly MANUAL_IMPORT_URL: string = '/manual/docs/import';
 
   constructor(private router: Router) {}
 
@@ -34,9 +34,9 @@ export class ManualRoutingService {
     window.open(url, '_blank');
   }
 
-  openManualEditorTransformation(): void {
+  openManualImportTransformation(): void {
     const url = this.router.serializeUrl(
-      this.router.createUrlTree([ManualRoutingService.MANUAL_EDITOR_URL], { fragment: 'transformation' })
+      this.router.createUrlTree([ManualRoutingService.MANUAL_IMPORT_URL], { fragment: 'transformation' })
     );
     window.open(url, '_blank');
   }
@@ -78,7 +78,7 @@ export class ManualRoutingService {
     window.open(url, '_blank');
   }
 
-  openAnzeigeordnungViewer(): void {
+  openManualAnzeigeordnungViewer(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_VIEWER_URL], {
         fragment: 'anzeigeordnung-der-kartenebenen',
@@ -87,7 +87,7 @@ export class ManualRoutingService {
     window.open(url, '_blank');
   }
 
-  openRoutingProfile(): void {
+  openManualRoutingProfile(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_VIEWER_URL], {
         fragment: 'verwalten-von-routing-profilen',
@@ -96,17 +96,17 @@ export class ManualRoutingService {
     window.open(url, '_blank');
   }
 
-  openWmsWfsSchnittstelle(): void {
+  openManualWmsWfsSchnittstelle(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_DATENSCHNITTSTELLEN_URL])
     );
     window.open(url, '_blank');
   }
 
-  openUmsetzungsstandsabfragen(): void {
+  openManualPflichtattribute(): void {
     const url = this.router.serializeUrl(
-      this.router.createUrlTree([ManualRoutingService.MANUAL_UMSETZUNGSSTANDSABFRAGEN_URL], {
-        fragment: 'umsetzungsstandsabfragen',
+      this.router.createUrlTree([ManualRoutingService.MANUAL_IMPORT_URL], {
+        fragment: 'pflichtattribute',
       })
     );
     window.open(url, '_blank');

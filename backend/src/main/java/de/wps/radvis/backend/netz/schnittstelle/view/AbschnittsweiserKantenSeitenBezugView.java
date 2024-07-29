@@ -25,15 +25,14 @@ public class AbschnittsweiserKantenSeitenBezugView {
 
 	private final Long kanteId;
 	private final LineString geometrie;
-	private final Seitenbezug seitenbezug;
+	private final Seitenbezug kantenSeite;
 	private final LinearReferenzierterAbschnitt linearReferenzierterAbschnitt;
 
 	protected AbschnittsweiserKantenSeitenBezugView(Long kanteId, LineString lineStringGanzeKante,
-		Seitenbezug seitenbezug,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		Seitenbezug seitenbezug, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
 		this.kanteId = kanteId;
 		this.geometrie = lineStringGanzeKante;
-		this.seitenbezug = seitenbezug;
+		this.kantenSeite = seitenbezug;
 		this.linearReferenzierterAbschnitt = linearReferenzierterAbschnitt;
 	}
 }

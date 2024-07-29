@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-// !!! ACHUTNG !!!
+// !!! ACHTUNG !!!
 // Folgende ZIndizes sind auch nochmal im Handbuch dokumentiert. Bitte bei Aenderung auch das Handbuch Kapitel
 // "Anzeigeordnung der Kartenebenen" anpassen.
 
@@ -25,21 +25,14 @@ export const predefinedWeitereKartenebenenBaseZIndex = 1300; // Wird fuer die ei
 // Kann bei der Einbindung als WeitereKartenebene pro Benutzer:in noch angepasst werden
 export const defaultDateiLayerZIndex = 1000;
 
-export const lineareReferenzierungLayerZIndex = 805;
-export const puntuelleKantenBezuegeVectorLayerZIndex = lineareReferenzierungLayerZIndex + 6;
-export const knotenNetzVectorlayerZIndex = lineareReferenzierungLayerZIndex + 5;
-export const kantenNetzVectorlayerZIndex = lineareReferenzierungLayerZIndex - 5;
-
 export const kanteHighlightLayerZIndex = 700;
 
 export const anpassungswunschLayerZIndex = 600;
 export const importProtokollLayerZIndex = 500;
 
-export const originalGeometrieLayerZIndex = 402;
 export const fahrradroutenMatchingFehlerGeometriesLayerZIndex = 401;
 export const fehlerprotokollLayerZIndex = 400;
 
-export const infrastrukturHighlightLayerZIndex = 301;
 export const infrastrukturLayerZIndex = 300;
 
 export const signaturNetzklasseLayerZIndex = 201;

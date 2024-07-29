@@ -24,8 +24,11 @@ export interface Verwaltungseinheit {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Verwaltungseinheit {
-  export const isLandesweit = (organisation: Verwaltungseinheit): boolean => {
-    return organisation.organisationsArt === OrganisationsArt.BUNDESLAND;
+  export const isLandesOderBundesweit = (organisation: Verwaltungseinheit): boolean => {
+    return (
+      organisation.organisationsArt === OrganisationsArt.BUNDESLAND ||
+      organisation.organisationsArt === OrganisationsArt.STAAT
+    );
   };
 
   export const getSortingValueForKey = (organisation: Verwaltungseinheit, key: string): string => {

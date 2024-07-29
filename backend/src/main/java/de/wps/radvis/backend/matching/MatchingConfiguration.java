@@ -26,9 +26,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.util.BikeFlagEncoder;
-import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.util.CustomModel;
 
@@ -170,22 +167,16 @@ public class MatchingConfiguration {
 		graphHopper.setOSMFile(osmPbfConfigurationProperties.getOsmBasisDaten());
 		graphHopper.setGraphHopperLocation(graphhopperOsmConfigurationProperties.getCacheVerzeichnis());
 
-		graphHopper.getEncodingManagerBuilder().add(new BikeFlagEncoder());
-		graphHopper.getEncodingManagerBuilder().add(new CarFlagEncoder());
-		graphHopper.getEncodingManagerBuilder().add(new FootFlagEncoder());
-
 		File directory = new File(graphhopperOsmConfigurationProperties.getMappingCacheVerzeichnis());
 		if (!directory.exists()) {
 			directory.mkdirs();
 		}
 
-		Profile profile = new Profile("bike").setVehicle("bike").setWeighting("fastest").setTurnCosts(false);
-		Profile profileCar = new Profile("car").setVehicle("car").setWeighting("fastest").setTurnCosts(false);
-		Profile profileFoot = new Profile("foot").setVehicle("foot").setWeighting("fastest").setTurnCosts(false);
-		graphHopper.setProfiles(profile, profileCar, profileFoot);
+		Profile profile = new Profile("bike").setVehicle("bike").setWeighting("shortest").setTurnCosts(false);
+		graphHopper.setProfiles(profile);
 		graphHopper.importOrLoad();
 
-		log.info("Osm-Graphopper ist initialisiert.");
+		log.info("OSM-GraphHopper ist initialisiert.");
 		return graphHopper;
 	}
 

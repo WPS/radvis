@@ -127,7 +127,7 @@ public class FahrradrouteVariante extends AbstractEntity {
 		this.tfisId = tfisId;
 		this.stuetzpunkte = geometrie != null && geometrie.getGeometryType().equals("LineString")
 			? FahrradrouteVariante.createDefaultStuetzpunkte(abschnittsweiserKantenBezug,
-			(LineString) geometrie)
+				(LineString) geometrie)
 			: null;
 	}
 

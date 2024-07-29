@@ -59,8 +59,9 @@ describe(AuswertungComponent.name, () => {
     component = fixture.point.componentInstance;
     fixture.detectChanges();
     checkboxUseNetzklassen = fixture.debugElement.query(By.css('[formControlName="useNetzklassen"]')).componentInstance;
-    checkboxUseIstStandards = fixture.debugElement.query(By.css('[formControlName="useIstStandards"]'))
-      .componentInstance;
+    checkboxUseIstStandards = fixture.debugElement.query(
+      By.css('[formControlName="useIstStandards"]')
+    ).componentInstance;
   });
 
   describe('getAuswertung', () => {

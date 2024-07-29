@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +43,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.metadata.OpenSamlMetadataResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -62,7 +62,6 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
-import de.wps.radvis.backend.authentication.schnittstelle.RadVisAuthenticationProvider;
 import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetailsService;
 import de.wps.radvis.backend.basicAuthentication.domain.BasicAuthBenutzerRepository;
 import de.wps.radvis.backend.basicAuthentication.domain.BasicAuthPasswortService;
@@ -93,62 +92,6 @@ public class SecurityConfiguration {
 		BASIC_AUTH_GEOSERVER_MATCHER);
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.security.disableSAML", havingValue = "true")
-	@Order(11)
-	public static class ApplicationLocalSecurityConfiguration {
-
-		@Autowired
-		private SecurityConfigurationProperties securityConfigurationProperties;
-
-		@Autowired
-		private BenutzerService benutzerService;
-
-		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den
-		// statischen Nutzern der externen
-		// APIs interferiert.
-		public RadVisUserDetailsService userDetailsService() {
-			return new RadVisUserDetailsService(benutzerService);
-		}
-
-		@Bean
-		public SecurityFilterChain localFilterChain(HttpSecurity http) throws Exception {
-			CsrfTokenRequestAttributeHandler delegate = new CsrfTokenRequestAttributeHandler();
-			delegate.setCsrfRequestAttributeName(null);
-
-			RadVisUserDetailsService userDetailsService = userDetailsService();
-
-			http.sessionManagement(session -> session.maximumSessions(-1).sessionRegistry(sessionRegistry()))
-				.securityMatcher(NOT_API_MATCHER)
-				.authenticationProvider(new RadVisAuthenticationProvider(userDetailsService))
-				.authorizeHttpRequests(authorizer -> authorizer
-					.requestMatchers("/actuator/health").permitAll()
-					.requestMatchers("/actuator/prometheus")
-					.access((authentication, c) -> new AuthorizationDecision(
-						new IpAddressMatcher(securityConfigurationProperties.getPrometheusWhitelistIP())
-							.matches(c.getRequest())))
-					.requestMatchers("/manual/**").permitAll()
-					.requestMatchers("/").authenticated()
-					.requestMatchers("/control.html").hasAuthority(Recht.JOBS_AUSFUEHREN.name())
-					.requestMatchers("/logs/**").hasAuthority(Recht.LOGS_EINSEHEN.name())
-					.requestMatchers("/**").hasAuthority(BenutzerStatus.AKTIV.name()))
-				.httpBasic(Customizer.withDefaults())
-				.csrf(configurer -> configurer
-					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-					.csrfTokenRequestHandler(delegate)
-					.ignoringRequestMatchers("/logs/**"))
-				.logout(Customizer.withDefaults());
-
-			return http.build();
-		}
-
-		@Bean
-		public SessionRegistry sessionRegistry() {
-			return new SessionRegistryImpl();
-		}
-	}
-
-	@Configuration
-	@ConditionalOnProperty(name = "spring.security.disableSAML", havingValue = "false")
 	@Order(11)
 	public static class ApplicationSamlSecurityConfiguration {
 		@Autowired
@@ -180,7 +123,8 @@ public class SecurityConfiguration {
 					.createDefaultResponseAuthenticationConverter()
 					.convert(responseToken);
 				String serviceBWID = getAktuellerBenutzerServiceBwId(authentication);
-				UserDetails userDetails = userDetailsService.loadUserByUsername(serviceBWID);
+				UserDetails userDetails = userDetailsService.loadUserByUsername(serviceBWID,
+					((Saml2AuthenticatedPrincipal) authentication.getPrincipal()));
 				return new RadVisAuthentication(userDetails);
 			});
 
@@ -189,7 +133,6 @@ public class SecurityConfiguration {
 
 			http.sessionManagement(session -> session.maximumSessions(-1).sessionRegistry(sessionRegistry()))
 				.securityMatcher(NOT_API_MATCHER)
-				.authenticationProvider(new RadVisAuthenticationProvider(userDetailsService))
 				.authorizeHttpRequests(authorizer -> authorizer
 					.requestMatchers("/actuator/health").permitAll()
 					.requestMatchers("/actuator/prometheus")
@@ -197,7 +140,14 @@ public class SecurityConfiguration {
 						new IpAddressMatcher(securityConfigurationProperties.getPrometheusWhitelistIP())
 							.matches(c.getRequest())))
 					.requestMatchers("/manual/**").permitAll()
+					.requestMatchers("/resources/**").permitAll()
+					.requestMatchers("/favicon.ico").permitAll()
+					.requestMatchers("/favicon-16x16.png").permitAll()
+					.requestMatchers("/favicon-32x32.png").permitAll()
 					.requestMatchers("/").authenticated()
+					.requestMatchers("/app/favicon.ico").permitAll()
+					.requestMatchers("/app/favicon-16x16.png").permitAll()
+					.requestMatchers("/app/favicon-32x32.png").permitAll()
 					.requestMatchers("/app/**").authenticated()
 					.requestMatchers("/control.html").hasAuthority(Recht.JOBS_AUSFUEHREN.name())
 					.requestMatchers("/logs/**").hasAuthority(Recht.LOGS_EINSEHEN.name())
@@ -205,7 +155,8 @@ public class SecurityConfiguration {
 				.csrf(configurer -> configurer
 					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 					.csrfTokenRequestHandler(delegate)
-					.ignoringRequestMatchers("/logs/**"))
+					.ignoringRequestMatchers("/logs/**")
+					.ignoringRequestMatchers("/logout"))
 				// Muss NACH csrf-Config erfolgen
 				.requestCache(configurer -> configurer.requestCache(new HttpSessionRequestCache()))
 				.saml2Login(saml2 -> {
@@ -214,7 +165,11 @@ public class SecurityConfiguration {
 						new DefaultAuthenticationEventPublisher(applicationEventPublisher));
 					saml2.authenticationManager(providerManager);
 					saml2.loginProcessingUrl(securityConfigurationProperties.getACS());
+					if (securityConfigurationProperties.isLocalAuthSetup()) {
+						saml2.defaultSuccessUrl(securityConfigurationProperties.getLocalAuthSuccessUrl(), true);
+					}
 				})
+				.saml2Logout(Customizer.withDefaults())
 				.addFilterBefore(createSaml2MetadataFilter(), Saml2WebSsoAuthenticationFilter.class)
 				.logout(logout -> logout
 					.permitAll()
@@ -261,54 +216,37 @@ public class SecurityConfiguration {
 	@Order(12)
 	public static class InternalApiSamlSecurityConfiguration {
 
-		public static final String CQL_FILTER_KEY = "CQL_FILTER";
-		@Autowired
-		private SecurityConfigurationProperties securityConfigurationProperties;
-
-		@Autowired
-		private BenutzerService benutzerService;
-
-		// Nicht als @Bean bereitgestellt, damit der UserDetailsService nicht mit den
-		// statischen Nutzern der externen
-		// APIs interferiert.
-		public RadVisUserDetailsService userDetailsService() {
-			return new RadVisUserDetailsService(benutzerService);
-		}
-
 		@Bean
 		public SecurityFilterChain internalApiFilterChain(HttpSecurity http) throws Exception {
 			CsrfTokenRequestAttributeHandler delegate = new CsrfTokenRequestAttributeHandler();
 			delegate.setCsrfRequestAttributeName(null);
 
-			RadVisUserDetailsService userDetailsService = userDetailsService();
-
 			http.securityMatcher(
-					new AndRequestMatcher(API_MATCHER, NOT_API_EXTERN_MATCHER, NOT_REVERSEPROXY_GEOSERVER_MATCHER,
-						NOT_BASIC_AUTH_GEOSERVER_MATCHER))
+				new AndRequestMatcher(API_MATCHER, NOT_API_EXTERN_MATCHER, NOT_REVERSEPROXY_GEOSERVER_MATCHER,
+					NOT_BASIC_AUTH_GEOSERVER_MATCHER))
 				.authorizeHttpRequests(authorizer -> authorizer
 					.requestMatchers("/api/organisationen/all").authenticated()
 					.requestMatchers("/api/benutzer/registriere-benutzer").authenticated()
 					.requestMatchers("/api/benutzerdetails").authenticated()
 					.requestMatchers("/api/benutzer/reaktivierung/beantrage-reaktivierung").authenticated()
 					.requestMatchers("/api/togglz").authenticated()
+					.requestMatchers("/api/fehlerprotokoll/types").authenticated()
+					.requestMatchers("/api/hintergrundkarte/layers").authenticated()
+					.requestMatchers("/api/signaturen").authenticated()
+					.requestMatchers("/api/weitere-kartenebenen/vordefiniert").authenticated()
 					.requestMatchers("/api/weitere-kartenebenen/list").authenticated()
 					.requestMatchers("/api/custom-routing-profile/list").authenticated()
-					.requestMatchers("/api/**").hasAuthority(BenutzerStatus.AKTIV.name()))
-				.authenticationProvider(new RadVisAuthenticationProvider(userDetailsService));
+					.requestMatchers("/api/**").hasAuthority(BenutzerStatus.AKTIV.name()));
 
-			if (securityConfigurationProperties.isDisableSAML()) {
-				http.httpBasic(Customizer.withDefaults());
-			} else {
-				http
-					// Anonymous-Authentifizierung ausschalten, da sonst nicht der EntryPoint (s.u.) aufgerufen wird.
-					// Stattdessen würde eine AccessDeniedException fliegen, da der Anonymous-Nutzer natürlich nichts
-					// darf. So wird aber der EntryPoint (s.u.) aufgerufen, der dann einen 401er ans Frontend gibt,
-					// wodurch auf z.B. eine abgelaufene Session korrekt reagiert werden kann.
-					.anonymous(configurer -> configurer.disable())
-					.exceptionHandling(configurer -> configurer.authenticationEntryPoint((req, res, ex) -> {
-						res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					}));
-			}
+			http
+				// Anonymous-Authentifizierung ausschalten, da sonst nicht der EntryPoint (s.u.) aufgerufen wird.
+				// Stattdessen würde eine AccessDeniedException fliegen, da der Anonymous-Nutzer natürlich nichts
+				// darf. So wird aber der EntryPoint (s.u.) aufgerufen, der dann einen 401er ans Frontend gibt,
+				// wodurch auf z.B. eine abgelaufene Session korrekt reagiert werden kann.
+				.anonymous(configurer -> configurer.disable())
+				.exceptionHandling(configurer -> configurer.authenticationEntryPoint((req, res, ex) -> {
+					res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				}));
 
 			http.csrf(configurer -> configurer
 				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -336,10 +274,7 @@ public class SecurityConfiguration {
 			http.securityMatcher(API_EXTERN_MATCHER)
 				.authenticationProvider(externAuthenticationProviderExternalApi())
 				.authorizeHttpRequests(authorizer -> authorizer
-					.requestMatchers(API_EXTERN_MATCHER)
-					.access((authentication, c) -> new AuthorizationDecision(
-						new IpAddressMatcher(securityConfigurationProperties.getRadRoutenplanerIP())
-							.matches(c.getRequest()))))
+					.requestMatchers(API_EXTERN_MATCHER).authenticated())
 				.httpBasic(configurer -> {
 					// hier wird der status auf 401 gesetzt, statt sendError aufzurufen, da
 					// sendError mit BasicAuth zu einem Redirect zum Saml-Login führt.

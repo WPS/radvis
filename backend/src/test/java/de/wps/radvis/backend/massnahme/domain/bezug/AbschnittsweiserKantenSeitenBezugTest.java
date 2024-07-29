@@ -14,11 +14,12 @@
 
 package de.wps.radvis.backend.massnahme.domain.bezug;
 
-import static de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug.fasseIntersectionsZusammen;
+import static de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug.fasseUeberlappendeBezuegeZusammen;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -185,7 +186,7 @@ class AbschnittsweiserKantenSeitenBezugTest {
 			AbschnittsweiserKantenSeitenBezug three = new AbschnittsweiserKantenSeitenBezug(
 				KanteTestDataProvider.withDefaultValues().id(1L).build(),
 				LinearReferenzierterAbschnitt.of(0.1, 1), Seitenbezug.BEIDSEITIG);
-			assertThat(fasseIntersectionsZusammen(List.of(one, two, three))).containsExactly(
+			assertThat(fasseUeberlappendeBezuegeZusammen(List.of(one, two, three))).containsExactly(
 				one.copyWithLR(LinearReferenzierterAbschnitt.of(0.1, 1)));
 		}
 
@@ -197,9 +198,9 @@ class AbschnittsweiserKantenSeitenBezugTest {
 			AbschnittsweiserKantenSeitenBezug two = new AbschnittsweiserKantenSeitenBezug(
 				KanteTestDataProvider.withDefaultValues().id(1L).build(),
 				LinearReferenzierterAbschnitt.of(0.4, 0.8), Seitenbezug.BEIDSEITIG);
-			assertThat(fasseIntersectionsZusammen(List.of(one, two))).containsExactly(
+			assertThat(fasseUeberlappendeBezuegeZusammen(List.of(one, two))).containsExactly(
 				one.copyWithLR(LinearReferenzierterAbschnitt.of(0.2, 0.8)));
-			assertThat(fasseIntersectionsZusammen(List.of(two, one))).containsExactly(
+			assertThat(fasseUeberlappendeBezuegeZusammen(List.of(two, one))).containsExactly(
 				one.copyWithLR(LinearReferenzierterAbschnitt.of(0.2, 0.8)));
 		}
 
@@ -211,9 +212,9 @@ class AbschnittsweiserKantenSeitenBezugTest {
 			AbschnittsweiserKantenSeitenBezug two = new AbschnittsweiserKantenSeitenBezug(
 				KanteTestDataProvider.withDefaultValues().id(1L).build(),
 				LinearReferenzierterAbschnitt.of(0.4, 0.8), Seitenbezug.BEIDSEITIG);
-			assertThatThrownBy(() -> fasseIntersectionsZusammen(List.of(one, two))).isInstanceOf(
+			assertThatThrownBy(() -> fasseUeberlappendeBezuegeZusammen(List.of(one, two))).isInstanceOf(
 				RequireViolation.class);
-			assertThatThrownBy(() -> fasseIntersectionsZusammen(List.of(two, one))).isInstanceOf(
+			assertThatThrownBy(() -> fasseUeberlappendeBezuegeZusammen(List.of(two, one))).isInstanceOf(
 				RequireViolation.class);
 		}
 
@@ -225,10 +226,77 @@ class AbschnittsweiserKantenSeitenBezugTest {
 			AbschnittsweiserKantenSeitenBezug two = new AbschnittsweiserKantenSeitenBezug(
 				KanteTestDataProvider.withDefaultValues().id(2L).build(),
 				LinearReferenzierterAbschnitt.of(0.4, 0.8), Seitenbezug.LINKS);
-			assertThatThrownBy(() -> fasseIntersectionsZusammen(List.of(one, two))).isInstanceOf(
+			assertThatThrownBy(() -> fasseUeberlappendeBezuegeZusammen(List.of(one, two))).isInstanceOf(
 				RequireViolation.class);
-			assertThatThrownBy(() -> fasseIntersectionsZusammen(List.of(two, one))).isInstanceOf(
+			assertThatThrownBy(() -> fasseUeberlappendeBezuegeZusammen(List.of(two, one))).isInstanceOf(
 				RequireViolation.class);
+		}
+	}
+
+	@Nested
+	class FiltereUeberlappungen {
+		// TODO RAD-6596: andere Seitenbezüge testen bspw. mit  
+		// 		@ParameterizedTest
+		//		@EnumSource(value = Seitenbezug.class)
+		//		void ueberlappungenVorhanden_filtert(Seitenbezug seitenbezug) {
+		@Test
+		void ueberlappungenVorhanden_filtert() {
+			// Arrange
+			AbschnittsweiserKantenSeitenBezug one = new AbschnittsweiserKantenSeitenBezug(
+				KanteTestDataProvider.withDefaultValues().id(1L).build(),
+				LinearReferenzierterAbschnitt.of(0.2, 0.6), Seitenbezug.BEIDSEITIG);
+			AbschnittsweiserKantenSeitenBezug two = new AbschnittsweiserKantenSeitenBezug(
+				KanteTestDataProvider.withDefaultValues().id(1L).build(),
+				LinearReferenzierterAbschnitt.of(0.4, 0.8), Seitenbezug.BEIDSEITIG);
+
+			// Act
+			Set<AbschnittsweiserKantenSeitenBezug> actual = AbschnittsweiserKantenSeitenBezug
+				.fasseUeberlappendeBezuegeProKanteZusammen(
+					Set.of(one, two)
+				);
+
+			// Assert
+			assertThat(actual).containsExactly(one.copyWithLR(LinearReferenzierterAbschnitt.of(0.2, 0.8)));
+		}
+
+		@Test
+		void keineUeberlappungenVorhanden_filtertNicht() {
+			// Arrange
+			AbschnittsweiserKantenSeitenBezug one = new AbschnittsweiserKantenSeitenBezug(
+				KanteTestDataProvider.withDefaultValues().id(1L).build(),
+				LinearReferenzierterAbschnitt.of(0.2, 0.4), Seitenbezug.BEIDSEITIG);
+			AbschnittsweiserKantenSeitenBezug two = new AbschnittsweiserKantenSeitenBezug(
+				KanteTestDataProvider.withDefaultValues().id(1L).build(),
+				LinearReferenzierterAbschnitt.of(0.5, 0.8), Seitenbezug.BEIDSEITIG);
+
+			// Act
+			Set<AbschnittsweiserKantenSeitenBezug> actual = AbschnittsweiserKantenSeitenBezug
+				.fasseUeberlappendeBezuegeProKanteZusammen(
+					Set.of(one, two)
+				);
+
+			// Assert
+			assertThat(actual).containsExactlyInAnyOrder(one, two);
+		}
+
+		@Test
+		void verschiedeneIDs_filtertNicht() {
+			// Arrange
+			AbschnittsweiserKantenSeitenBezug one = new AbschnittsweiserKantenSeitenBezug(
+				KanteTestDataProvider.withDefaultValues().id(1L).build(),
+				LinearReferenzierterAbschnitt.of(0.2, 0.6), Seitenbezug.BEIDSEITIG);
+			AbschnittsweiserKantenSeitenBezug two = new AbschnittsweiserKantenSeitenBezug(
+				KanteTestDataProvider.withDefaultValues().id(2L).build(),
+				LinearReferenzierterAbschnitt.of(0.4, 0.8), Seitenbezug.BEIDSEITIG);
+
+			// Act
+			Set<AbschnittsweiserKantenSeitenBezug> actual = AbschnittsweiserKantenSeitenBezug
+				.fasseUeberlappendeBezuegeProKanteZusammen(
+					Set.of(one, two)
+				);
+
+			// Assert
+			assertThat(actual).containsExactlyInAnyOrder(one, two);
 		}
 	}
 }

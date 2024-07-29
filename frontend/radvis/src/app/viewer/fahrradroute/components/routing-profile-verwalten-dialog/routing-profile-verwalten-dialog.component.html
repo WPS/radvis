@@ -15,7 +15,7 @@
 <div mat-dialog-title>
   <div class="display-flex justify-content-space-between">
     <div>Routing-Profile verwalten</div>
-    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" mat-dialog-close="true" mat-icon-button>
+    <button matTooltip="Schließen" mat-dialog-close="true" mat-icon-button>
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -24,21 +24,14 @@
   <div class="accordion-container">
     <mat-accordion
       *ngFor="let formGroup of formArrayAsFormGroupArray; let index = index"
-      [@.disabled]="disableAnimation"
-    >
+      [@.disabled]="disableAnimation">
       <!-- keine id bedeutet es handelt sich um einen neuen Layer-->
       <mat-expansion-panel [expanded]="!formGroup.get('id')?.value">
         <mat-expansion-panel-header>
           <mat-panel-title>{{ formGroup.get('name')?.value }}</mat-panel-title>
           <mat-panel-description *ngIf="formGroup.invalid">(enthält Fehler)</mat-panel-description>
           <div class="display-flex justify-content-flex-end delete-button">
-            <button
-              (click)="onDeleteProfile(index)"
-              [attr.aria-label]="'Profil entfernen'"
-              mat-icon-button
-              matTooltip="Profil entfernen"
-              type="button"
-            >
+            <button (click)="onDeleteProfile(index)" mat-icon-button matTooltip="Profil entfernen" type="button">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -55,18 +48,15 @@
             <div class="suffix">
               <button
                 (click)="prettyPrint(index)"
-                [attr.aria-label]="'JSON-Definition formatieren'"
                 [disabled]="!formGroup.get('profilJson')?.valid"
                 mat-icon-button
-                matTooltip="JSON-Definition formatieren"
-              >
+                matTooltip="JSON-Definition formatieren">
                 <mat-icon>format_color_text</mat-icon>
               </button>
             </div>
           </rad-text-input-control>
           <rad-validation-error-anzeige
-            [errors]="formGroup.get('profilJson')?.errors || null"
-          ></rad-validation-error-anzeige>
+            [errors]="formGroup.get('profilJson')?.errors || null"></rad-validation-error-anzeige>
         </form>
       </mat-expansion-panel>
     </mat-accordion>

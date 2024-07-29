@@ -23,22 +23,19 @@
   matSort
   #sort="matSort"
   [sort]="sort"
-  (changeBreakpointState)="onChangeBreakpointState($event)"
->
+  (changeBreakpointState)="onChangeBreakpointState($event)">
   <rad-export-button
     (export)="onExport($event)"
     [exporting]="exporting"
     [exportFormate]="exportFormate"
     class="action-buttons"
-    [isMenuItem]="isSmallViewport"
-  >
+    [isMenuItem]="isSmallViewport">
   </rad-export-button>
 
   <button
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    (click)="onCreate()"
-  >
+    (click)="onCreate()">
     <mat-icon>add</mat-icon>
     Neu anlegen
   </button>
@@ -47,8 +44,7 @@
     *ngIf="csvImportFeatureToggl"
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    (click)="onOpenCsvImportDialog()"
-  >
+    (click)="onOpenCsvImportDialog()">
     <mat-icon>upload</mat-icon>
     CSV-Datei importieren
   </button>
@@ -56,8 +52,7 @@
   <button
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    (click)="onFilterReset()"
-  >
+    (click)="onFilterReset()">
     <mat-icon>filter_alt_off</mat-icon>
     Alle Filter zurücksetzen
   </button>

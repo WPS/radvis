@@ -17,6 +17,7 @@ package de.wps.radvis.backend.abfrage.fehlerprotokoll.schnittstelle.view;
 import java.time.LocalDateTime;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
 
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import lombok.Getter;
@@ -25,7 +26,7 @@ import lombok.Getter;
 public class FehlerprotokollView {
 	private final Long id;
 	private final String fehlerprotokollKlasse;
-	private final Geometry iconPosition;
+	private final MultiPoint iconPosition;
 	private final Geometry originalGeometry;
 	private final LocalDateTime datum;
 	private final String titel;

@@ -64,20 +64,10 @@ public class SimpleFeatureTestDataProvider {
 		Coordinate... coordinates) {
 		GeometryFactory geomFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
-		MultiLineString geometry1 = geomFactory.createMultiLineString(new LineString[] {
+		MultiLineString geometry = geomFactory.createMultiLineString(new LineString[] {
 			GeometryTestdataProvider.createLineString(coordinates) });
 
-		SimpleFeatureTypeBuilder typeBuilder = typeWithGeometry(MultiLineString.class);
-		attributes.keySet().forEach(key -> {
-			typeBuilder.add(key, String.class);
-		});
-
-		SimpleFeatureBuilder f1 = new SimpleFeatureBuilder(typeBuilder.buildFeatureType());
-		f1.add(geometry1);
-		attributes.keySet().forEach(key -> {
-			f1.add(attributes.get(key));
-		});
-		return f1.buildFeature("id");
+		return withGeometryAndAttributes(attributes, geometry);
 	}
 
 	public static SimpleFeature withGeometryAndAttributes(Map<String, String> attributes,

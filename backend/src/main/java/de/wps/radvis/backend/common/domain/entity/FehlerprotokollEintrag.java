@@ -17,11 +17,12 @@ package de.wps.radvis.backend.common.domain.entity;
 import java.time.LocalDateTime;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
 
 public interface FehlerprotokollEintrag {
 	Long getId();
 
-	Geometry getIconPosition();
+	MultiPoint getIconPosition();
 
 	Geometry getOriginalGeometry();
 

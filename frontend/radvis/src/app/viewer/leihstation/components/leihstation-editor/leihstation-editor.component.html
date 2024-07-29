@@ -16,23 +16,15 @@
   <h2 class="flex-grow">Leihstation <span *ngIf="isCreator">erstellen</span></h2>
   <button
     *ngIf="canEdit && !isCreator"
-    [attr.aria-label]="'Leihstation löschen'"
     matTooltip="Leihstation löschen"
     (click)="onDeleteLeihstation()"
-    mat-icon-button
-  >
+    mat-icon-button>
     <mat-icon>delete</mat-icon>
   </button>
-  <button
-    *ngIf="!isCreator"
-    [attr.aria-label]="'Zur Leihstation springen'"
-    matTooltip="Zur Leihstation springen"
-    (click)="focusLeihstationIntoView()"
-    mat-icon-button
-  >
+  <button *ngIf="!isCreator" matTooltip="Zur Leihstation springen" (click)="focusLeihstationIntoView()" mat-icon-button>
     <mat-icon>my_location</mat-icon>
   </button>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
     <mat-icon>clear</mat-icon>
   </button>
 </mat-toolbar>
@@ -44,20 +36,15 @@
     (save)="onSave()"
     [dirty]="isDirty"
     [fetching]="isFetching"
-    [showHeader]="false"
-  >
+    [showHeader]="false">
     <rad-position-selektion-control
       *ngIf="!isQuellsystemMobiData"
       formControlName="geometrie"
       class="mt-10"
-      [withInfrastrukturIcon]="iconName"
-    ></rad-position-selektion-control>
-    <div class="hinweis fremdnetz-hinweis" *ngIf="isQuellsystemMobiData">
-      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-      <div class="ml-10">
-        Diese Leihstation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
-      </div>
-    </div>
+      [withInfrastrukturIcon]="iconName"></rad-position-selektion-control>
+    <rad-warnhinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
+      Diese Leihstation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
+    </rad-warnhinweis>
 
     <rad-text-input-control formControlName="betreiber" [errors]="formGroup.get('betreiber')?.errors">
       <div class="label">Betreiber</div>
@@ -66,8 +53,7 @@
     <rad-enum-dropdown-control
       formControlName="quellSystem"
       [options]="leihstationQuellSystemOptions"
-      [nullable]="false"
-    >
+      [nullable]="false">
       Quellsystem
     </rad-enum-dropdown-control>
     <a *ngIf="isQuellsystemMobiData" class="quelle-label" [href]="MOBIDATA_DATENSATZ_URL" target="_blank"
@@ -78,8 +64,7 @@
       formControlName="status"
       [options]="leihstationStatusOptions"
       [nullable]="false"
-      [errors]="formGroup.get('status')?.errors"
-    >
+      [errors]="formGroup.get('status')?.errors">
       Status
     </rad-enum-dropdown-control>
 
@@ -93,8 +78,7 @@
 
     <rad-number-input-control
       formControlName="anzahlAbstellmoeglichkeiten"
-      [errors]="formGroup.get('anzahlAbstellmoeglichkeiten')?.errors"
-    >
+      [errors]="formGroup.get('anzahlAbstellmoeglichkeiten')?.errors">
       <div class="label">Anzahl Abstellmöglichkeiten</div>
     </rad-number-input-control>
 

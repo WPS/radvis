@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.konsistenz.regeln;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +35,7 @@ import de.wps.radvis.backend.konsistenz.regeln.domain.RadNetzMassnahmenNetzklass
 import de.wps.radvis.backend.konsistenz.regeln.domain.StartstandardRadNETZKonsistenzregel;
 import de.wps.radvis.backend.konsistenz.regeln.domain.ZielstandardRadNETZKonsistenzregel;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -42,6 +43,7 @@ import jakarta.persistence.PersistenceContext;
 @EnableJpaRepositories
 @EntityScan
 public class KonsistenzregelnConfiguration {
+	public static final String CONFIG_PREFIX = "radvis.konsistenzregeln.regeln-mit-explizitem-status";
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -50,7 +52,7 @@ public class KonsistenzregelnConfiguration {
 	private KonsistenzregelnConfigurationProperties konsistenzregelnConfigurationProperties;
 
 	@Autowired
-	private NetzklassenSackgassenService netzklassenSackgassenService;
+	private SackgassenService sackgassenService;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -59,57 +61,68 @@ public class KonsistenzregelnConfiguration {
 	private KantenRepository kantenRepository;
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "radnetz-luecke", havingValue = "true", matchIfMissing = true)
 	public RadNETZLueckeKonsistenzregel radNETZLueckeKonsistenzregel() {
-		return new RadNETZLueckeKonsistenzregel(netzklassenSackgassenService);
+		return new RadNETZLueckeKonsistenzregel(sackgassenService);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "kommunal-netz-luecke", havingValue = "true", matchIfMissing = true)
 	public KommunalNetzLueckeKonsistenzregel kommunalNetzLueckeKonsistenzregel() {
-		return new KommunalNetzLueckeKonsistenzregel(netzklassenSackgassenService);
+		return new KommunalNetzLueckeKonsistenzregel(sackgassenService);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "kreis-netz-luecke", havingValue = "true", matchIfMissing = true)
 	public KreisNetzLueckeKonsistenzregel kreisNetzLueckeKonsistenzregel() {
-		return new KreisNetzLueckeKonsistenzregel(netzklassenSackgassenService);
+		return new KreisNetzLueckeKonsistenzregel(sackgassenService);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "kurze-dlm-kanten", havingValue = "true", matchIfMissing = true)
 	public KurzeDlmKantenKonsistenzregel kurzeDlmKantenKonsistenzregel() {
 		return new KurzeDlmKantenKonsistenzregel(kantenRepository);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "fehlende-vernetzung", havingValue = "true", matchIfMissing = true)
 	public FehlendeVernetzungKonsistenzregel fehlendeVernetzungKonsistenzregel() {
 		return new FehlendeVernetzungKonsistenzregel(jdbcTemplate);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "fahrtrichtung", havingValue = "true", matchIfMissing = true)
 	public FahrtrichtungKonsistenzregel fahrtrichtungKonsistenzregel() {
 		return new FahrtrichtungKonsistenzregel(kantenRepository);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "netz-massnahmen-netzklasse", havingValue = "true", matchIfMissing = true)
 	public RadNetzMassnahmenNetzklasseKonsistenzregel netzMassnahmenNetzklasseKonsistenzregel() {
 		return new RadNetzMassnahmenNetzklasseKonsistenzregel(jdbcTemplate);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "mindestbreite", havingValue = "true", matchIfMissing = true)
 	public MindestbreiteKonsistenzregel mindestbreiteKonsistenzregel() {
 		return new MindestbreiteKonsistenzregel(jdbcTemplate);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "beschilderung-routenverlauf", havingValue = "true", matchIfMissing = true)
 	public BeschilderungRadNETZKonsistenzregel beschilderungRoutenverlaufKonsistenzregel() {
 		return new BeschilderungRadNETZKonsistenzregel(entityManager,
 			konsistenzregelnConfigurationProperties.getBeschilderungMaxEntfernungVonRoute());
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "startstandard-radnetz", havingValue = "true", matchIfMissing = true)
 	public StartstandardRadNETZKonsistenzregel startstandardRadNETZKonsistenzregel() {
 		return new StartstandardRadNETZKonsistenzregel(jdbcTemplate);
 	}
 
 	@Bean
+	@ConditionalOnProperty(prefix = CONFIG_PREFIX, name = "zielstandard-radnetz", havingValue = "true", matchIfMissing = true)
 	public ZielstandardRadNETZKonsistenzregel zielstandardRadNETZKonsistenzregel() {
 		return new ZielstandardRadNETZKonsistenzregel(jdbcTemplate);
 	}

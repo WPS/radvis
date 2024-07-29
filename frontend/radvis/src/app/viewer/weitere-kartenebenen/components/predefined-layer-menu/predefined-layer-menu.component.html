@@ -1,0 +1,18 @@
+<mat-menu #kartenMenu="matMenu">
+  <ng-template [ngForOf]="getLayerItems()" [ngForTemplate]="weitereKartenebenenItem" ngFor></ng-template>
+  <ng-container *ngFor="let item of getSubMenuItems()">
+    <button mat-menu-item [matMenuTriggerFor]="nestedMenu.kartenMenu">
+      {{ item.item }}
+    </button>
+    <rad-predefined-layer-menu
+      #nestedMenu
+      [menu]="item.children"
+      (add)="onAddPredefinedWeitereKartenebenen($event)"></rad-predefined-layer-menu>
+  </ng-container>
+</mat-menu>
+
+<ng-template #weitereKartenebenenItem let-predefinedLayer>
+  <button (click)="onAddPredefinedWeitereKartenebenen(predefinedLayer)" mat-menu-item>
+    {{ predefinedLayer.name }}
+  </button>
+</ng-template>

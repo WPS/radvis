@@ -16,8 +16,7 @@
   <div
     *ngFor="let schritt of automatischeImportschritte; let i = index"
     class="display-flex flex-row align-items-center"
-    [class.grey]="getAktuellerImportSchrittNumber() < i"
-  >
+    [class.grey]="getAktuellerImportSchrittNumber() < i">
     <mat-icon *ngIf="getAktuellerImportSchrittNumber() > i" radAccessabilityText="Erledigt:">check</mat-icon>
 
     <mat-icon
@@ -38,51 +37,22 @@
     Automatische Abbildung abgeschlossen
   </div>
 </div>
-<mat-accordion [multi]="true">
-  <mat-expansion-panel *ngIf="hasFehler" [expanded]="true">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <div class="display-flex">
-          <mat-icon class="error">report</mat-icon>
-          <div class="ml-3">Fehler</div>
-          <div class="ml-3 hinweis">({{ fehler.length }})</div>
-        </div>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    <div class="log-eintrag-wrapper">
-      <div *ngFor="let f of fehler">{{ f }}</div>
-    </div>
-  </mat-expansion-panel>
-  <mat-expansion-panel *ngIf="hasWarnung">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <div class="display-flex">
-          <mat-icon class="warning">warning</mat-icon>
-          <div class="ml-3">Warnungen</div>
-          <div class="hinweis ml-3">({{ warnungen.length }})</div>
-        </div>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    <div class="log-eintrag-wrapper">
-      <div *ngFor="let w of warnungen">{{ w }}</div>
-    </div>
-  </mat-expansion-panel>
-</mat-accordion>
+
+<rad-info-panel [fehler]="fehler" [warnungen]="warnungen"></rad-info-panel>
 
 <div class="display-flex flex-grow align-self-center flex-column my-5">
   <mat-spinner *ngIf="isAutomatischeAbbildungRunning"></mat-spinner>
 </div>
 
 <div class="buttons display-flex p-10">
-  <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
-  <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+  <button mat-stroked-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+  <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
   <button
     [disabled]="isAutomatischeAbbildungRunning || hasFehler"
     mat-flat-button
     color="primary"
     class="button"
-    (click)="onNext()"
-  >
+    (click)="onNext()">
     Weiter
   </button>
 </div>

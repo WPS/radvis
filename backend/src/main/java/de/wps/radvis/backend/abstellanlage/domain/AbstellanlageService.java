@@ -27,9 +27,7 @@ import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntitySer
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
-@Transactional
 public class AbstellanlageService extends AbstractVersionierteEntityService<Abstellanlage> {
 
 	private final BenutzerResolver benutzerResolver;

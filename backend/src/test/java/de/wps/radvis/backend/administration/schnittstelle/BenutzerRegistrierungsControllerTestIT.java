@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import de.wps.radvis.backend.application.JacksonConfiguration;
 import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
+import de.wps.radvis.backend.authentication.domain.exception.BenutzerNotAuthenticatedException;
 import de.wps.radvis.backend.authentication.schnittstelle.BenutzerRegistrierungsController;
 import de.wps.radvis.backend.authentication.schnittstelle.RegistriereBenutzerCommand;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
@@ -57,13 +58,13 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -152,24 +153,26 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		RegistriereBenutzerCommand saveBenutzerCommand = mapper.readValue(json, RegistriereBenutzerCommand.class);
 		assertThatThrownBy(
 			() -> benutzerRegistrierungsController.registriereBenutzer(authentication, saveBenutzerCommand))
-			.isInstanceOf(BenutzerExistiertBereitsException.class);
+				.isInstanceOf(BenutzerExistiertBereitsException.class);
 	}
 
 	@Test
 	void testRegistrierung_neuerBenutzer_BenutzerWirdAngelegt()
-		throws BenutzerExistiertBereitsException, JsonProcessingException {
+		throws BenutzerExistiertBereitsException, JsonProcessingException, BenutzerNotAuthenticatedException {
 		// arrange
 		RadVisUserDetails userDetails = new RadVisUserDetails(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"));
 		Authentication authentication = Mockito.mock(Authentication.class);
 		when(authentication.getPrincipal()).thenReturn(userDetails);
 
-		Gebietskoerperschaft zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft zustaendigeLandesOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).build();
 		Gebietskoerperschaft andereLandesOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Andere Landesorganisation")
 			.organisationsArt(OrganisationsArt.BUNDESLAND).build();
-		Gebietskoerperschaft zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft zustaendigeKreisOrganisation = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("Zuständige Kreisorganisation")
 			.organisationsArt(OrganisationsArt.KREIS).uebergeordneteOrganisation(zustaendigeLandesOrganisation).build();
 		Gebietskoerperschaft andereKreisOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
@@ -249,7 +252,7 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 
 	@Test
 	void testRegistrierung_neuerBenutzer_MailNurAnAdminsDieFreischaltenKoennen()
-		throws BenutzerExistiertBereitsException, JsonProcessingException {
+		throws BenutzerExistiertBereitsException, JsonProcessingException, BenutzerNotAuthenticatedException {
 		// arrange
 		RadVisUserDetails userDetails = new RadVisUserDetails(ServiceBwId.of("69194c6a-0bf0-11ec-9a03-0242ac130003"));
 		Authentication authentication = Mockito.mock(Authentication.class);

@@ -25,23 +25,21 @@ export enum SollStandard {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace SollStandard {
-  export const options: EnumOption[] = Object.keys(SollStandard).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case SollStandard.RADSCHNELLVERBINDUNG:
-          return { name: k, displayText: 'Radschnellverbindung' };
-        case SollStandard.STARTSTANDARD_RADNETZ:
-          return { name: k, displayText: 'RadNETZ-Startstandard' };
-        case SollStandard.ZIELSTANDARD_RADNETZ:
-          return { name: k, displayText: 'RadNETZ-Zielstandard' };
-        case SollStandard.BASISSTANDARD:
-          return { name: k, displayText: 'Basisstandard' };
-        case SollStandard.RADVORRANGROUTEN:
-          return { name: k, displayText: 'Radvorrangrouten' };
-        case SollStandard.KEIN_STANDARD_ERFUELLT:
-          return { name: k, displayText: 'Kein Standard erfüllt' };
-      }
-      throw new Error('Beschreibung für enum SollStandard fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(SollStandard).map((k: string): EnumOption => {
+    switch (k) {
+      case SollStandard.RADSCHNELLVERBINDUNG:
+        return { name: k, displayText: 'Radschnellverbindung' };
+      case SollStandard.STARTSTANDARD_RADNETZ:
+        return { name: k, displayText: 'RadNETZ-Startstandard' };
+      case SollStandard.ZIELSTANDARD_RADNETZ:
+        return { name: k, displayText: 'RadNETZ-Zielstandard' };
+      case SollStandard.BASISSTANDARD:
+        return { name: k, displayText: 'Basisstandard' };
+      case SollStandard.RADVORRANGROUTEN:
+        return { name: k, displayText: 'Radvorrangrouten' };
+      case SollStandard.KEIN_STANDARD_ERFUELLT:
+        return { name: k, displayText: 'Kein Standard erfüllt' };
     }
-  );
+    throw new Error('Beschreibung für enum SollStandard fehlt: ' + k);
+  });
 }

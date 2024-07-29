@@ -157,8 +157,8 @@ class WeitereKartenebenenRepositoryTestIT extends DBIntegrationTestIT {
 	void getAllSortiert() {
 		// arrange
 		Benutzer user = BenutzerTestDataProvider.defaultBenutzer().organisation(
-				gebietskoerperschaftRepository.save(
-					VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()))
+			gebietskoerperschaftRepository.save(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()))
 			.build();
 		benutzerRepository.save(user);
 

@@ -26,6 +26,7 @@ import org.locationtech.jts.geom.GeometryCollection;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -41,7 +42,6 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -120,8 +120,8 @@ public class MassnahmeListenDbView {
 	public Set<Netzklasse> getNetzklassen() {
 		return netzklassen == null ? Collections.emptySet()
 			: Stream.of(netzklassen.split(";"))
-			.map(Netzklasse::valueOf)
-			.collect(Collectors.toSet());
+				.map(Netzklasse::valueOf)
+				.collect(Collectors.toSet());
 	}
 
 	public String getNetzklassenString() {

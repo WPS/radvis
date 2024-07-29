@@ -48,9 +48,7 @@ export class AnpassungswunschService {
   ): Promise<AnpassungswunschListenView[]> {
     let params = new HttpParams();
     params = params.set('abgeschlosseneAusblenden', abgeschlosseneAnpassungswuenscheAusblenden);
-    return this.http
-      .get<AnpassungswunschListenView[]>(`${this.api}/list`, { params })
-      .toPromise();
+    return this.http.get<AnpassungswunschListenView[]>(`${this.api}/list`, { params }).toPromise();
   }
 
   updateAnpassungswunsch(id: number, command: SaveAnpassungswunschCommand): Promise<Anpassungswunsch> {

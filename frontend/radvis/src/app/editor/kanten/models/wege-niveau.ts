@@ -21,15 +21,13 @@ export enum WegeNiveau {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace WegeNiveau {
-  export const options: EnumOption[] = Object.keys(WegeNiveau).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case WegeNiveau.FAHRBAHN:
-          return { name: k, displayText: 'Fahrbahn' };
-        case WegeNiveau.GEHWEG:
-          return { name: k, displayText: 'Gehweg' };
-      }
-      throw new Error('Beschreibung für enum WegeNiveau fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(WegeNiveau).map((k: string): EnumOption => {
+    switch (k) {
+      case WegeNiveau.FAHRBAHN:
+        return { name: k, displayText: 'Fahrbahn' };
+      case WegeNiveau.GEHWEG:
+        return { name: k, displayText: 'Gehweg' };
     }
-  );
+    throw new Error('Beschreibung für enum WegeNiveau fehlt: ' + k);
+  });
 }

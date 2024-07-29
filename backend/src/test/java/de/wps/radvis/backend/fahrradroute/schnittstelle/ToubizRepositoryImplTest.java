@@ -205,7 +205,7 @@ class ToubizRepositoryImplTest {
 
 		when(mockedRestTemplate.getForObject(Mockito.contains(testId1),
 			Mockito.eq(ToubizFahrradrouteTagsErgebnisDto.class)))
-			.thenReturn(tagsErgebnisDto);
+				.thenReturn(tagsErgebnisDto);
 
 		// Ergebnisse der Seite 2
 		String testId2 = "TestId2";
@@ -224,7 +224,7 @@ class ToubizRepositoryImplTest {
 
 		when(mockedRestTemplate.getForObject(Mockito.contains(testId2),
 			Mockito.eq(ToubizFahrradrouteTagsErgebnisDto.class)))
-			.thenReturn(tagsErgebnisDto2);
+				.thenReturn(tagsErgebnisDto2);
 
 		// Koordinaten in UTM32_N
 		Geometry originalGeometrie1 = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
@@ -247,11 +247,10 @@ class ToubizRepositoryImplTest {
 		assertThat(importedToubizRoutes).filteredOn(ImportedToubizRoute::isLandesradfernweg)
 			.extracting(ImportedToubizRoute::getToubizId)
 			.containsExactly(ToubizId.of(testId2));
-
 	}
 
 	@Test
-	void importRouten_OriginalGeometrieCannotBeNull() {
+	void importRouten_OriginalGeometrieCanBeNull() {
 		// arrange
 		ToubizFahrradrouteErgebnisDto ergebnisDto = getToubizFahrradrouteErgebnisDto(
 			"TestId",
@@ -276,7 +275,7 @@ class ToubizRepositoryImplTest {
 		List<ImportedToubizRoute> importedToubizRoutes = toubizRepository.importRouten();
 
 		// assert
-		assertThat(importedToubizRoutes).hasSize(0);
+		assertThat(importedToubizRoutes).hasSize(1);
 	}
 
 	private ToubizFahrradrouteErgebnisDto getToubizFahrradrouteErgebnisDto(String fahrradrouteId,

@@ -87,11 +87,11 @@ public abstract class AbstractTFISRadroutenImportJob extends AbstractJob {
 
 			Map<String, List<SimpleFeature>> groupedByObjid = filterFeaturesToImport(simpleFeatureStream
 				.peek(simpleFeature -> importStatistik.anzahlFeaturesInShapefile++), importStatistik)
-				.peek(simpleFeature -> importStatistik.anzahlDavonZuImportierendeFeatures++)
-				.filter(tfisImportService::isNotStichwegOrAlternativStrecke)
-				.peek(simpleFeature -> importStatistik.anzahlDavonHauptstreckenFeaturesInShapefile++)
-				.map(shapeFileRepository::transformGeometryToUTM32)
-				.collect(TfisImportService.groupingByObjid());
+					.peek(simpleFeature -> importStatistik.anzahlDavonZuImportierendeFeatures++)
+					.filter(tfisImportService::isNotStichwegOrAlternativStrecke)
+					.peek(simpleFeature -> importStatistik.anzahlDavonHauptstreckenFeaturesInShapefile++)
+					.map(shapeFileRepository::transformGeometryToUTM32)
+					.collect(TfisImportService.groupingByObjid());
 			importStatistik.anzahlDavonZuImportierendeFeatures = groupedByObjid.size();
 
 			log.info("Started With: {}", importStatistik.toString());

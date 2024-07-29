@@ -71,7 +71,7 @@ class FuehrungsformAttributeTest {
 		assertThat(
 			LinearReferenzierterAbschnitt.fractionEqual(union1.get().getLinearReferenzierterAbschnitt(),
 				union2.get().getLinearReferenzierterAbschnitt()))
-			.isTrue();
+					.isTrue();
 		assertThat(union1.get().getBordstein()).isEqualTo(Bordstein.KEINE_ABSENKUNG);
 		assertThat(union1.get().getBelagArt()).isEqualTo(BelagArt.BETON);
 		assertThat(union1.get().getOberflaechenbeschaffenheit()).isEqualTo(Oberflaechenbeschaffenheit.NEUWERTIG);

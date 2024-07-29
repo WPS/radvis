@@ -38,3 +38,8 @@
   align-items: center;
   gap: 1rem;
 }
+
+rad-file-upload-control + rad-validation-error-anzeige {
+  margin-top: -1rem;
+  padding-left: 16px;
+}

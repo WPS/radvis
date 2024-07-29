@@ -14,40 +14,18 @@
 
 package de.wps.radvis.backend.application.schnittstelle;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.GeoserverFehlerprotokolleUpdateJob;
-import de.wps.radvis.backend.abfrage.netzausschnitt.domain.BuildNetzklassenStreckenSignaturViewJob;
-import de.wps.radvis.backend.abfrage.netzausschnitt.domain.BuildRadNETZNetzViewCacheJob;
-import de.wps.radvis.backend.benutzer.domain.InitialBenutzerImportJob;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
-import de.wps.radvis.backend.common.domain.entity.AbstractJob;
-import de.wps.radvis.backend.fahrradroute.domain.RecreateFahrradrouteImportDiffViewJob;
-import de.wps.radvis.backend.matching.domain.DlmPbfErstellungsJob;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitImportJob;
-
 public class RadVisStartupJobSchedule implements RadVisJobSchedule {
+	private final List<String> radVisStartupJobSchedule;
+
+	public RadVisStartupJobSchedule(List<String> radVisStartupJobSchedule) {
+		this.radVisStartupJobSchedule = radVisStartupJobSchedule;
+	}
 
 	@Override
-	public List<Class<? extends AbstractJob>> jobsToRun() {
-		List<Class<? extends AbstractJob>> startupJobs = new ArrayList<>();
-
-		if (FeatureTogglz.RUN_DLM_PBF_ON_STARTUP.isActive()) {
-			startupJobs.add(DlmPbfErstellungsJob.class);
-		}
-		startupJobs.add(VerwaltungseinheitImportJob.class);
-		startupJobs.add(InitialBenutzerImportJob.class);
-
-		if (FeatureTogglz.RADNETZ_STRECKEN.isActive()) {
-			startupJobs.add(GeoserverFehlerprotokolleUpdateJob.class);
-			startupJobs.add(BuildRadNETZNetzViewCacheJob.class);
-			startupJobs.add(BuildNetzklassenStreckenSignaturViewJob.class);
-		}
-
-		startupJobs.add(RecreateFahrradrouteImportDiffViewJob.class);
-
-		return startupJobs;
+	public List<String> jobsToRun() {
+		return radVisStartupJobSchedule;
 	}
 
 	@Override

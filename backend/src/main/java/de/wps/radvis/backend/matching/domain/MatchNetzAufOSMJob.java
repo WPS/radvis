@@ -28,6 +28,8 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.data.util.Lazy;
 
+import com.graphhopper.matching.MatchResult;
+
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
@@ -128,8 +130,6 @@ public class MatchNetzAufOSMJob extends AbstractJob {
 
 		netzfehlerRepository.deleteAllByjobZuordnung(getName());
 
-		String[] additionalProfiles = { "foot", "car" };
-
 		List<Envelope> partitionen = getPartitionen(config.getExtentProperty(), config.getPartitionenX());
 
 		Set<Long> bereitsAbgearbeitet = new HashSet<>();
@@ -149,27 +149,44 @@ public class MatchNetzAufOSMJob extends AbstractJob {
 			List<KanteOsmWayIdsInsert> inserts = new ArrayList<>();
 			for (KanteGeometryView kante : kanten) {
 				boolean hatZuSchlechtesOsmMatchBekommen = false;
-				LineString match = null;
+
+				MatchResult match = null;
+				LineString originalMatchLineString = null;
+				LineString fixedMatchLineString = null;
+
+				// Durch Korrekturen an den Matches kann es sein, dass man neu aufs OSM-Netz matchen muss, da sich durch
+				// die Korrektur (z.B. Entfernung einer Sackgasse) die Geometrie geändert hat. Das hat dann Auswirkungen
+				// darauf, welche OSM-Ways im Match enthalten sind, weswegen man die korrigierte Geometrie neu matchen muss.
+				boolean needsRematch = false;
+
 				if (bereitsAbgearbeitet.add(kante.getId())) {
 					try {
-						match = osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike");
+						match = osmMatchingRepository.matchGeometry(kante.getGeometry());
+						originalMatchLineString = osmMatchingRepository.extrahiereLineString(match);
 
 						try {
-							match = korrekturService
-								.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
-									match,
-									statistik);
+							fixedMatchLineString = korrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(
+								kante.getId(), kante.getGeometry(), originalMatchLineString, statistik);
+							needsRematch = !originalMatchLineString.equalsExact(fixedMatchLineString,
+								OsmMatchingRepository.LINE_STRING_EQUAL_TOLERANCE);
 						} catch (MatchingFehlerException eIntern) {
-							// Nochmal probieren mit umgedrehter Geometrie.
-							// Hilft bei vielen Einbahnstraßen wo die Orientierung falsch ist.
-							match = osmMatchingRepository.matchGeometry(kante.getGeometry().reverse(), "bike");
-							match = korrekturService
-								.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
-									match,
-									statistik);
+							// Wenn hier eine Exception fliegt ist damit garantiert, dass im weiteren Verlauf (nach den
+							// catches) keine Werte von den oberen Berechnungen weiterhin gespeichert sind.
+							originalMatchLineString = null;
+							fixedMatchLineString = null;
+
+							// Nochmal probieren mit umgedrehter Geometrie. Hilft bei Kanten, deren
+							// Stationierungsrichtung entgegen der OSM-Way Richtung ist und der OSM-Way gleichzeitig
+							// eine Einbahnstraße ist oder andere tags trägt (z.B. "cycleway:right=..."), die ein
+							// Matching verhindern.
+							match = osmMatchingRepository.matchGeometry(kante.getGeometry().reverse());
+							originalMatchLineString = osmMatchingRepository.extrahiereLineString(match);
+							fixedMatchLineString = korrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(
+								kante.getId(), kante.getGeometry(), originalMatchLineString, statistik);
+							needsRematch = !originalMatchLineString.equalsExact(fixedMatchLineString,
+								OsmMatchingRepository.LINE_STRING_EQUAL_TOLERANCE);
 							statistik.anzahlUmdrehenHatGeholfen++;
 						}
-
 					} catch (KeinMatchGefundenException e) {
 						statistik.anzahlOhneMatch++;
 						osmJobProtokollService.handle(
@@ -190,44 +207,6 @@ public class MatchNetzAufOSMJob extends AbstractJob {
 						hatZuSchlechtesOsmMatchBekommen = true;
 					}
 
-					if (match == null || hatZuSchlechtesOsmMatchBekommen) {
-						for (String profile : additionalProfiles) {
-							try {
-								match = osmMatchingRepository.matchGeometry(kante.getGeometry(), profile);
-
-								try {
-									match = korrekturService
-										.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(),
-											kante.getGeometry(),
-											match, statistik,
-											MatchingKorrekturService.FLAT_LENGTH_DIFFERENCE_ERROR / 3, 1.4,
-											MatchingKorrekturService.MAX_DISTANCE_TO_MATCHED_GEOMETRY / 4);
-								} catch (MatchingFehlerException eIntern) {
-									// Nochmal probieren mit umgedrehter Geometrie.
-									// Hilft bei vielen Einbahnstraßen wo die Orientierung falsch ist.
-									match = osmMatchingRepository.matchGeometry(kante.getGeometry().reverse(), profile);
-									match = korrekturService
-										.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(),
-											kante.getGeometry(),
-											match, statistik,
-											MatchingKorrekturService.FLAT_LENGTH_DIFFERENCE_ERROR / 3, 1.4,
-											MatchingKorrekturService.MAX_DISTANCE_TO_MATCHED_GEOMETRY / 4);
-								}
-								if (profile.equals("foot")) {
-									statistik.anzahlMatchesMitFoot++;
-								} else if (profile.equals("car")) {
-									statistik.anzahlMatchesMitCar++;
-								}
-								hatZuSchlechtesOsmMatchBekommen = false;
-								break;
-							} catch (MatchingFehlerException e) {
-								log.debug("Zu schlechtes Match gefunden für profile '" + profile + "'");
-							} catch (KeinMatchGefundenException e) {
-								log.debug("Kein Match gefunden für profile '" + profile + "'");
-							}
-						}
-					}
-
 					if (match == null) {
 						statistik.anzahlKantenOhneGraphhopperMatch++;
 						osmAbbildungsFehlerList.add(createOsmAbbildungsFehler(startTimeJob, kante));
@@ -242,7 +221,10 @@ public class MatchNetzAufOSMJob extends AbstractJob {
 					List<LinearReferenzierteOsmWayId> osmWayIds;
 					try {
 						log.debug("Kante {} / {}", kante.getId(), kante.getGeometry());
-						osmWayIds = osmMatchingRepository.matchGeometryLinearReferenziert(match, "foot")
+						if (needsRematch) {
+							match = osmMatchingRepository.matchGeometry(fixedMatchLineString);
+						}
+						osmWayIds = osmMatchingRepository.extrahiereLineareReferenzierung(match)
 							.getLinearReferenzierteOsmWayIds();
 					} catch (KeinMatchGefundenException e) {
 						statistik.anzahlKantenOhneGraphhopperMatch++;
@@ -259,8 +241,8 @@ public class MatchNetzAufOSMJob extends AbstractJob {
 					}
 				}
 			}
-			netzService.insertOsmWayIds(inserts);
 
+			netzService.insertOsmWayIds(inserts);
 		}
 
 		// Wir wollen alle Osm Abbildungsfehler vom vorherigen Durchlauf loeschen, sodass nur die aktuellen in der Table stehen

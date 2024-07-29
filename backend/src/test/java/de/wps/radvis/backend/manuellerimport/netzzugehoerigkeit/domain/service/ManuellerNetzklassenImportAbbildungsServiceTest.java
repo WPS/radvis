@@ -101,7 +101,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTest {
 
 		when(inMemoryKantenRepository.findKantenById(
 			Set.of(0L))).thenReturn(
-			List.of(KanteTestDataProvider.withDefaultValues().id(0L).geometry(match1).build()));
+				List.of(KanteTestDataProvider.withDefaultValues().id(0L).geometry(match1).build()));
 		when(inMemoryKantenRepository.findKantenById(Set.of(1L, 2L))).thenReturn(
 			List.of(
 				KanteTestDataProvider.withDefaultValues().id(1L).geometry(GeometryTestdataProvider.getAbschnitt(match2,
@@ -163,7 +163,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTest {
 			.build(), null).collect(Collectors.toList());  // kein Match innerhalb von Organisation
 		when(inMemoryKantenRepository.findKantenById(
 			Set.of(3L, 4L))).thenReturn(
-			listMitNullMatch);
+				listMitNullMatch);
 
 		// act
 		Set<Long> result = manuellerNetzklassenImportAbbildungsService.findKantenFromLineStrings(linestrings,

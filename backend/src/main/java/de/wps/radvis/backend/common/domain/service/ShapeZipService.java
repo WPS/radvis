@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -35,7 +36,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 import org.apache.commons.io.FileUtils;
 
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,7 +46,8 @@ public class ShapeZipService {
 		".sbn", ".sbx");
 	private static final Set<String> REQUIRED_FILEENDINGS = Set.of(".shp", ".dbf", ".prj", ".shx");
 
-	public File unzip(byte[] zipfileContent) throws IOException, ZipFileRequiredFilesMissingException {
+	public File unzip(byte[] zipfileContent)
+		throws IOException, ShapeZipInvalidException {
 		File shpDirectory = Files
 			.createTempDirectory("manueller_import")
 			.toFile();
@@ -68,16 +70,20 @@ public class ShapeZipService {
 			log.info("Das temporäre Verzeichnis {} wurde gelöscht", destShpDirectory.getAbsolutePath());
 		} catch (Exception e) {
 			if (destShpDirectory != null) {
-				log.error("Das Temp Verzeichnis {} konnte nicht gelöscht werden:\n{}",
-					destShpDirectory.getAbsolutePath(), e);
+				log.error("Das Temp Verzeichnis {} konnte nicht gelöscht werden", destShpDirectory.getAbsolutePath(),
+					e);
 			} else {
 				log.error("Das Temp Verzeichnis konnte nicht gelöscht werden, weil es nicht existiert");
 			}
 		}
 	}
 
-	public void unzip(byte[] zipfileContent, File destShpDirectory) throws IOException {
-		try (ZipFile zipFile = new ZipFile(new SeekableInMemoryByteChannel(zipfileContent))) {
+	public void unzip(byte[] zipfileContent, File destShpDirectory) throws IOException, ShapeZipInvalidException {
+		ZipFile.Builder zipFileBuilder = ZipFile
+			.builder()
+			.setSeekableByteChannel(new SeekableInMemoryByteChannel(zipfileContent));
+
+		try (ZipFile zipFile = zipFileBuilder.get()) {
 			Enumeration<ZipArchiveEntry> enumeration = zipFile.getEntries();
 			while (enumeration.hasMoreElements()) {
 				ZipArchiveEntry zipEntry = enumeration.nextElement();
@@ -89,6 +95,11 @@ public class ShapeZipService {
 				if (!shouldExtractZipEntry(zipEntry.getName())) {
 					// Dateien ohne Shapefile-Bezug werden ignoriert
 					continue;
+				}
+
+				if (zipEntry.getName().contains("?")) {
+					throw new ShapeZipInvalidException(
+						"Dateinamen innerhalb des Zip-Archivs dürfen keine Umlaute oder Sonderzeichen enthalten.");
 				}
 
 				File newFile = newFile(destShpDirectory, zipEntry);
@@ -115,13 +126,12 @@ public class ShapeZipService {
 	}
 
 	private void validateDirectoryHasRequiredFiles(File shpDirectory)
-		throws ZipFileRequiredFilesMissingException, IOException {
+		throws ShapeZipInvalidException, IOException {
 
 		long anzahlDateien = Files.list(Paths.get(shpDirectory.getAbsolutePath())).count();
 		if (anzahlDateien == 0) {
-			throw new ZipFileRequiredFilesMissingException(REQUIRED_FILEENDINGS,
-				"Es ist entweder keine dieser Dateien vorhanden, oder sie befinden sich fälschlicherweise in einem Unterordner."
-			);
+			throw new ShapeZipInvalidException(REQUIRED_FILEENDINGS,
+				"Es ist entweder keine dieser Dateien vorhanden, oder sie befinden sich fälschlicherweise in einem Unterordner.");
 		}
 
 		List<String> missingFiles = new ArrayList<>();
@@ -135,15 +145,27 @@ public class ShapeZipService {
 			}
 		}
 		if (missingFiles.size() > 0) {
-			throw new ZipFileRequiredFilesMissingException(REQUIRED_FILEENDINGS,
-				"Es fehlen: '" + String.join(", ", missingFiles) + "'"
-			);
+			throw new ShapeZipInvalidException(REQUIRED_FILEENDINGS,
+				"Es fehlen folgende Dateien: '" + String.join(", ", missingFiles) + "'");
 		}
 
 		if (multibleFiles.size() > 0) {
-			throw new ZipFileRequiredFilesMissingException(REQUIRED_FILEENDINGS,
-				"Es sind mehrfach vorhanden: '" + String.join(", ", multibleFiles) + "'"
-			);
+			throw new ShapeZipInvalidException(REQUIRED_FILEENDINGS,
+				"Folgende Dateien sind mehrfach vorhanden: '" + String.join(", ", multibleFiles) + "'");
+		}
+
+		List<Path> shapefileComponents = Files.list(Paths.get(shpDirectory.getAbsolutePath())).filter(
+			fileName -> {
+				return SUPPORTED_FILEENDINGS.stream()
+					.anyMatch(supportedEnding -> fileName.toString().endsWith(supportedEnding));
+			})
+			.collect(Collectors.toList());
+
+		String shpName = shapefileComponents.get(0).getFileName().toString().split("\\.")[0];
+		if (!shapefileComponents.stream().allMatch(fileName -> {
+			return fileName.getFileName().toString().split("\\.")[0].equals(shpName);
+		})) {
+			throw new ShapeZipInvalidException("Alle Komponenten des Shapefiles müssen den gleichen Dateinamen haben.");
 		}
 	}
 

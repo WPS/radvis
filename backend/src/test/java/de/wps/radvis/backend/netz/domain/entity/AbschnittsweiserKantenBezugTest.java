@@ -98,7 +98,7 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(90, 0), QuellSystem.DLM)
@@ -156,7 +156,7 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(90, 0), QuellSystem.DLM)
@@ -186,7 +186,7 @@ class AbschnittsweiserKantenBezugTest {
 			kantenId);
 
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezugs = List.of(streckeUeberCoordinates.get(2),
-				streckeUeberCoordinates.get(0), streckeUeberCoordinates.get(3), streckeUeberCoordinates.get(1))
+			streckeUeberCoordinates.get(0), streckeUeberCoordinates.get(3), streckeUeberCoordinates.get(1))
 			.stream().map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1)))
 			.collect(Collectors.toList());
 
@@ -351,11 +351,11 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten mittelKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(20, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(10, 10), QuellSystem.DLM)
@@ -391,7 +391,7 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(3);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(100.0, 100.0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(500.0, 350.0), QuellSystem.DLM)
@@ -442,7 +442,7 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(90, 0), QuellSystem.DLM)
@@ -496,9 +496,9 @@ class AbschnittsweiserKantenBezugTest {
 			kantenId);
 
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezugs = Stream.concat(Stream.concat(
-					streckeUeberCoordinates1.stream(),
-					streckeUeberCoordinatesLoop.stream()),
-				streckeUeberCoordinates2.stream())
+			streckeUeberCoordinates1.stream(),
+			streckeUeberCoordinatesLoop.stream()),
+			streckeUeberCoordinates2.stream())
 			.map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1)))
 			.collect(Collectors.toList());
 
@@ -531,7 +531,7 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(90, 0), QuellSystem.DLM)
@@ -541,7 +541,7 @@ class AbschnittsweiserKantenBezugTest {
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnotenWurmfortsatz1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(30, 20),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 
@@ -585,9 +585,9 @@ class AbschnittsweiserKantenBezugTest {
 			kantenId);
 
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezugs = Stream.concat(Stream.concat(
-					streckeUeberCoordinates1.stream(),
-					streckeUeberCoordinatesWurmfortsatz.stream()),
-				streckeUeberCoordinates2.stream())
+			streckeUeberCoordinates1.stream(),
+			streckeUeberCoordinatesWurmfortsatz.stream()),
+			streckeUeberCoordinates2.stream())
 			.map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1)))
 			.collect(Collectors.toList());
 
@@ -622,14 +622,14 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten mittelKnotenWurm = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(50, 0), QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnotenWurmfortsatz1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(50, 20),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(90, 0), QuellSystem.DLM)
@@ -695,10 +695,10 @@ class AbschnittsweiserKantenBezugTest {
 			kantenId);
 
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezugs = Stream.concat(Stream.concat(Stream.concat(
-						streckeUeberCoordinates1.stream(),
-						streckeUeberCoordinatesWurmfortsatz.stream()),
-					streckeUeberCoordinatesLoop.stream()),
-				streckeUeberCoordinates2.stream())
+			streckeUeberCoordinates1.stream(),
+			streckeUeberCoordinatesWurmfortsatz.stream()),
+			streckeUeberCoordinatesLoop.stream()),
+			streckeUeberCoordinates2.stream())
 			.map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1)))
 			.collect(Collectors.toList());
 
@@ -740,21 +740,21 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten mittelKnoten1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(30, 0), QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnotenWurmfortsatz1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(30, 20),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten mittelKnoten2 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(50, 0), QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnotenWurmfortsatz2 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(50, 20),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten endKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(90, 0), QuellSystem.DLM)
@@ -822,12 +822,12 @@ class AbschnittsweiserKantenBezugTest {
 			kantenId);
 
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezugs = Stream.concat(
-				Stream.concat(Stream.concat(Stream.concat(
-							streckeUeberCoordinates1.stream(),
-							streckeUeberCoordinatesWurmfortsatz1.stream()),
-						streckeUeberCoordinates2.stream()),
-					streckeUeberCoordinatesWurmfortsatz2.stream()),
-				streckeUeberCoordinates3.stream())
+			Stream.concat(Stream.concat(Stream.concat(
+				streckeUeberCoordinates1.stream(),
+				streckeUeberCoordinatesWurmfortsatz1.stream()),
+				streckeUeberCoordinates2.stream()),
+				streckeUeberCoordinatesWurmfortsatz2.stream()),
+			streckeUeberCoordinates3.stream())
 			.map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1)))
 			.collect(Collectors.toList());
 
@@ -871,7 +871,7 @@ class AbschnittsweiserKantenBezugTest {
 		AtomicLong kantenId = new AtomicLong(100);
 		AtomicLong knotenId = new AtomicLong(10);
 		Knoten startKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.id(knotenId.getAndIncrement())
 			.build();
 		Knoten mittelKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(50, 0), QuellSystem.DLM)
@@ -909,8 +909,8 @@ class AbschnittsweiserKantenBezugTest {
 			kantenId);
 
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezugs = Stream.concat(
-				streckeUeberCoordinates1.stream(),
-				streckeUeberCoordinatesLoop.stream())
+			streckeUeberCoordinates1.stream(),
+			streckeUeberCoordinatesLoop.stream())
 			.map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1)))
 			.collect(Collectors.toList());
 

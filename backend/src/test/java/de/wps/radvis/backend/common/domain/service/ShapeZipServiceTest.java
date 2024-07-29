@@ -31,7 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 
 public class ShapeZipServiceTest {
 
@@ -55,7 +55,7 @@ public class ShapeZipServiceTest {
 	}
 
 	@Test
-	public void testUnzipAndZip() throws IOException, ZipFileRequiredFilesMissingException {
+	public void testUnzipAndZip() throws IOException, ShapeZipInvalidException {
 		// arrange
 		ClassPathResource zipFile = new ClassPathResource("shp/radwegedb_bodenseekreis.zip");
 		byte[] bytes = Files.readAllBytes(zipFile.getFile().toPath());

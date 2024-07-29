@@ -35,7 +35,10 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 @Component({
   selector: 'rad-kanten-verlauf-editor',
   templateUrl: './kanten-verlauf-editor.component.html',
-  styleUrls: ['./kanten-verlauf-editor.component.scss', '../../../../form-elements/components/attribute-editor/attribut-editor.scss'],
+  styleUrls: [
+    './kanten-verlauf-editor.component.scss',
+    '../../../../form-elements/components/attribute-editor/attribut-editor.scss',
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor implements OnInit {
@@ -194,15 +197,24 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
     (this.formGroup.get('verlauefeRechts') as UntypedFormArray).clear({ emitEvent: false });
     (this.formGroup.get('verlaeufeEinseitig') as UntypedFormArray).clear({ emitEvent: false });
     selektion.forEach(kantenSelektion => {
-      (this.formGroup.get('geometries') as UntypedFormArray).push(new UntypedFormControl(kantenSelektion.kante.geometry), {
-        emitEvent: false,
-      });
-      (this.formGroup.get('verlaeufeLinks') as UntypedFormArray).push(new UntypedFormControl(kantenSelektion.kante.verlaufLinks), {
-        emitEvent: false,
-      });
-      (this.formGroup.get('verlauefeRechts') as UntypedFormArray).push(new UntypedFormControl(kantenSelektion.kante.verlaufRechts), {
-        emitEvent: false,
-      });
+      (this.formGroup.get('geometries') as UntypedFormArray).push(
+        new UntypedFormControl(kantenSelektion.kante.geometry),
+        {
+          emitEvent: false,
+        }
+      );
+      (this.formGroup.get('verlaeufeLinks') as UntypedFormArray).push(
+        new UntypedFormControl(kantenSelektion.kante.verlaufLinks),
+        {
+          emitEvent: false,
+        }
+      );
+      (this.formGroup.get('verlauefeRechts') as UntypedFormArray).push(
+        new UntypedFormControl(kantenSelektion.kante.verlaufRechts),
+        {
+          emitEvent: false,
+        }
+      );
       (this.formGroup.get('verlaeufeEinseitig') as UntypedFormArray).push(
         new UntypedFormControl(kantenSelektion.kante.verlaufLinks),
         {
@@ -241,7 +253,10 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
     });
   }
 
-  private updateVerlaufControls(promises: Promise<LineStringGeojson | null>[], formControls: UntypedFormControl[]): void {
+  private updateVerlaufControls(
+    promises: Promise<LineStringGeojson | null>[],
+    formControls: UntypedFormControl[]
+  ): void {
     Promise.all(promises).then(verlaeufe => {
       verlaeufe.forEach((verlauf, index) => {
         if (!formControls[index].value) {

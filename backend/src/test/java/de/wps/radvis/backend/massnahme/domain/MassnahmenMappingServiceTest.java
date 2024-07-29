@@ -217,7 +217,7 @@ class MassnahmenMappingServiceTest {
 		assertThat(result.get(0).getBezeichnung().getValue()).isEqualTo(
 			Massnahmenkategorie.FURTEN_ERNEUERN + " (" + kante2.getKantenAttributGruppe().getKantenAttribute()
 				.getStrassenName().get() + ", " + kante1.getKantenAttributGruppe().getKantenAttribute()
-				.getStrassenName().get() + ")");
+					.getStrassenName().get() + ")");
 	}
 
 	@Test

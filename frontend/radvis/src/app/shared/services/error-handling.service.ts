@@ -43,7 +43,7 @@ export class ErrorHandlingService {
       case 403:
       case 400:
       case 503:
-        return error?.error?.message;
+        return error?.error?.message ?? error.error.detail;
       default:
         return ErrorHandlingService.DEFAULT_SERVER_MESSAGE;
     }

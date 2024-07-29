@@ -32,11 +32,9 @@ class MassnahmeKonzeptIDTest {
 
 	@Test
 	void testeCarriageReturnAndLineFeed() {
-		assertThatThrownBy(() ->
-			MassnahmeKonzeptID.of("BC_027.1" + (char) 13)
+		assertThatThrownBy(() -> MassnahmeKonzeptID.of("BC_027.1" + (char) 13)
 		).isInstanceOf(RequireViolation.class);
-		assertThatThrownBy(() ->
-			MassnahmeKonzeptID.of("BC 027.1" + (char) 10)
+		assertThatThrownBy(() -> MassnahmeKonzeptID.of("BC 027.1" + (char) 10)
 		).isInstanceOf(RequireViolation.class);
 	}
 }

@@ -33,6 +33,8 @@ public class GeoConverterConfiguration {
 
 	@Bean
 	public CoordinateReferenceSystemConverter coordinateReferenceSystemConverter() {
-		return new CoordinateReferenceSystemConverter(commonConfigurationProperties.getBadenWuerttembergEnvelope());
+		return new CoordinateReferenceSystemConverter(
+			commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope()
+		);
 	}
 }

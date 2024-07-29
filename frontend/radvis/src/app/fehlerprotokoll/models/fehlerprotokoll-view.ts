@@ -12,12 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Geojson, PointGeojson } from 'src/app/shared/models/geojson-geometrie';
+import { Geojson, MultiPointGeojson } from 'src/app/shared/models/geojson-geometrie';
 
 export interface FehlerprotokollView {
   id: number;
   fehlerprotokollKlasse: string;
-  iconPosition: PointGeojson;
+  iconPosition: MultiPointGeojson;
   originalGeometry: Geojson;
   datum: string;
   titel: string;

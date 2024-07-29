@@ -61,7 +61,7 @@ public abstract class StreckenViewAbstractService<StreckenTyp extends StreckeVon
 	 * geupdatet wird.
 	 *
 	 * @param unvollstaendig
-	 * 	Strecken, die noch nicht von Endpunkt zu Endpunkt gehen
+	 *     Strecken, die noch nicht von Endpunkt zu Endpunkt gehen
 	 */
 	public StreckenEinerPartition<StreckenTyp> mergeUnvollstaendigeStrecken(List<StreckenTyp> unvollstaendig) {
 		Map<Knoten, List<StreckenTyp>> topologischeMap = new HashMap<>();
@@ -123,15 +123,15 @@ public abstract class StreckenViewAbstractService<StreckenTyp extends StreckeVon
 
 	/**
 	 * @param kantenAusGroesseremAusschnitt
-	 * 	Wir brauchen die Kanten aus einem größeren Ausschnitt, um den tatsächlichen
-	 * 	Grad aller Knoten von Kanten, die die Partition schneiden, zu ermitteln.
+	 *     Wir brauchen die Kanten aus einem größeren Ausschnitt, um den tatsächlichen
+	 *     Grad aller Knoten von Kanten, die die Partition schneiden, zu ermitteln.
 	 * @param ausschnittAusDemStreckenErstelltWerdenSollen
-	 * 	Da wir Strecken aber nur aus Kanten erstellen wollen, die die
-	 * 	Partition schneiden, brauchen wir diese als Filterkriterium.
+	 *     Da wir Strecken aber nur aus Kanten erstellen wollen, die die
+	 *     Partition schneiden, brauchen wir diese als Filterkriterium.
 	 * @param bereitsEingeordnet
-	 * 	Jede Kante soll nur einmal besucht werden. Deshalb brauchen wir das Set, was die IDs
-	 * 	von bereits besuchten Kanten hält, um zu vermeiden, dass wir Kanten, die mehrere
-	 * 	Partitionen schneiden, mehrfach zu besuchen (und in Strecken zu packen).
+	 *     Jede Kante soll nur einmal besucht werden. Deshalb brauchen wir das Set, was die IDs
+	 *     von bereits besuchten Kanten hält, um zu vermeiden, dass wir Kanten, die mehrere
+	 *     Partitionen schneiden, mehrfach zu besuchen (und in Strecken zu packen).
 	 * @return Vollständige und nicht Vollständige Strecken. Vollständig bedeutet von Endpunkt zu Endpunkt.
 	 */
 	public StreckenEinerPartition<StreckenTyp> createStreckenEinerPartition(List<Kante> kantenAusGroesseremAusschnitt,
@@ -151,7 +151,7 @@ public abstract class StreckenViewAbstractService<StreckenTyp extends StreckeVon
 				// die wir in dem Suchprozess abarbeiten wollen
 				if (kante.getGeometry().getEnvelopeInternal()
 					.intersects(ausschnittAusDemStreckenErstelltWerdenSollen) && !bereitsEingeordnet
-					.contains(kante.getId())) {
+						.contains(kante.getId())) {
 					topologieInnerhalbVonAusschnitt
 						.merge(von, new ArrayList<>(List.of(kante)), (existingList, newList) -> {
 							existingList.addAll(newList);
@@ -166,7 +166,7 @@ public abstract class StreckenViewAbstractService<StreckenTyp extends StreckeVon
 			});
 
 		Iterator<Kante> kantenNochNichtAbgearbeitet = kantenAusGroesseremAusschnitt.stream().filter(
-				kante -> kante.getGeometry().getEnvelopeInternal().intersects(ausschnittAusDemStreckenErstelltWerdenSollen))
+			kante -> kante.getGeometry().getEnvelopeInternal().intersects(ausschnittAusDemStreckenErstelltWerdenSollen))
 			.filter(kante -> !bereitsEingeordnet.contains(kante.getId()))
 			.iterator();
 

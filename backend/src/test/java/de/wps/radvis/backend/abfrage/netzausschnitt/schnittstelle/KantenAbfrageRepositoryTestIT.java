@@ -143,9 +143,9 @@ class KantenAbfrageRepositoryTestIT extends DBIntegrationTestIT {
 			createKante(new Coordinate(31, 31), new Coordinate(40, 40), true, true));
 		Kante radNetzNetzklasseInnerhalb = kantenRepository.save(
 			KanteTestDataProvider.withDefaultValues().kantenAttributGruppe(
-					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(
-							Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ))
-						.build())
+				KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(
+					Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ))
+					.build())
 				.isGrundnetz(true)
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(5, 5), new Coordinate(10, 5)))
 				.build());
@@ -651,26 +651,26 @@ class KantenAbfrageRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(viewsGeschwindigkeit).hasSize(2);
 		assertThat(viewsGeschwindigkeit.stream().filter(view -> view.getId().equals(kante1.getId())).findFirst().get()
 			.getNetzklassen())
-			.containsExactlyInAnyOrderElementsOf(kante1.getKantenAttributGruppe().getNetzklassen());
+				.containsExactlyInAnyOrderElementsOf(kante1.getKantenAttributGruppe().getNetzklassen());
 		assertThat(viewsGeschwindigkeit.stream().filter(view -> view.getId().equals(kante2.getId())).findFirst().get()
 			.getNetzklassen())
-			.containsExactlyInAnyOrderElementsOf(kante2.getKantenAttributGruppe().getNetzklassen());
+				.containsExactlyInAnyOrderElementsOf(kante2.getKantenAttributGruppe().getNetzklassen());
 
 		assertThat(viewsFuehrungsform).hasSize(2);
 		assertThat(viewsFuehrungsform.stream().filter(view -> view.getId().equals(kante1.getId())).findFirst().get()
 			.getNetzklassen())
-			.containsExactlyInAnyOrderElementsOf(kante1.getKantenAttributGruppe().getNetzklassen());
+				.containsExactlyInAnyOrderElementsOf(kante1.getKantenAttributGruppe().getNetzklassen());
 		assertThat(viewsFuehrungsform.stream().filter(view -> view.getId().equals(kante2.getId())).findFirst().get()
 			.getNetzklassen())
-			.containsExactlyInAnyOrderElementsOf(kante2.getKantenAttributGruppe().getNetzklassen());
+				.containsExactlyInAnyOrderElementsOf(kante2.getKantenAttributGruppe().getNetzklassen());
 
 		assertThat(viewsZustaendigkeit).hasSize(2);
 		assertThat(viewsZustaendigkeit.stream().filter(view -> view.getId().equals(kante1.getId())).findFirst().get()
 			.getNetzklassen())
-			.containsExactlyInAnyOrderElementsOf(kante1.getKantenAttributGruppe().getNetzklassen());
+				.containsExactlyInAnyOrderElementsOf(kante1.getKantenAttributGruppe().getNetzklassen());
 		assertThat(viewsZustaendigkeit.stream().filter(view -> view.getId().equals(kante2.getId())).findFirst().get()
 			.getNetzklassen())
-			.containsExactlyInAnyOrderElementsOf(kante2.getKantenAttributGruppe().getNetzklassen());
+				.containsExactlyInAnyOrderElementsOf(kante2.getKantenAttributGruppe().getNetzklassen());
 	}
 
 	private Kante createKante(Coordinate vonKoordinate, Coordinate nachKoordinate, boolean isZweiseitig,

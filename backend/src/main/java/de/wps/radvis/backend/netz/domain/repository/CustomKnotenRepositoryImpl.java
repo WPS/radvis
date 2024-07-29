@@ -58,15 +58,15 @@ public class CustomKnotenRepositoryImpl implements CustomKnotenRepository {
 	public void buildIndex() {
 
 		entityManager.createNativeQuery(
-				"CREATE INDEX knoten_idx_tmp ON knoten USING GIST (point, quelle)")
+			"CREATE INDEX knoten_idx_tmp ON knoten USING GIST (point, quelle)")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-				"DROP INDEX IF EXISTS knoten_idx")
+			"DROP INDEX IF EXISTS knoten_idx")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-				"ALTER INDEX knoten_idx_tmp RENAME TO knoten_idx")
+			"ALTER INDEX knoten_idx_tmp RENAME TO knoten_idx")
 			.executeUpdate();
 
 	}
@@ -136,8 +136,8 @@ public class CustomKnotenRepositoryImpl implements CustomKnotenRepository {
 	@Override
 	public int deleteVerwaisteDLMKnoten() {
 		return entityManager.createQuery(
-				"delete from Knoten knoten where " + IS_VERWAISTER_DLM_KNOTEN_CLAUSE
-					+ "	 and knoten.quelle = :dlmQuelle")
+			"delete from Knoten knoten where " + IS_VERWAISTER_DLM_KNOTEN_CLAUSE
+				+ "	 and knoten.quelle = :dlmQuelle")
 			.setParameter("dlmQuelle", QuellSystem.DLM)
 			.setParameter("radvisQuelle", QuellSystem.RadVis)
 			.executeUpdate();
@@ -146,9 +146,9 @@ public class CustomKnotenRepositoryImpl implements CustomKnotenRepository {
 	@Override
 	public List<Knoten> findVerwaisteDLMKnoten() {
 		return entityManager.createQuery(
-				"SELECT knoten from Knoten knoten where " + IS_VERWAISTER_DLM_KNOTEN_CLAUSE
-					+ "	 and knoten.quelle = :dlmQuelle",
-				Knoten.class).setParameter("dlmQuelle", QuellSystem.DLM)
+			"SELECT knoten from Knoten knoten where " + IS_VERWAISTER_DLM_KNOTEN_CLAUSE
+				+ "	 and knoten.quelle = :dlmQuelle",
+			Knoten.class).setParameter("dlmQuelle", QuellSystem.DLM)
 			.setParameter("radvisQuelle", QuellSystem.RadVis)
 			.getResultList();
 	}

@@ -13,12 +13,9 @@
   -->
 
 <form [formGroup]="knotenFormGroup" class="form-group">
-  <div class="editing-not-allowed-hinweis hinweis" *ngIf="!editingAllowed">
-    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-    <div class="ml-10 mat-small hinweis-text">
-      Knoten kann nicht bearbeitet werden: RadNETZ oder fehlende Berechtigung
-    </div>
-  </div>
+  <rad-warnhinweis *ngIf="!editingAllowed" class="editing-not-allowed-hinweis">
+    Knoten kann nicht bearbeitet werden: RadNETZ oder fehlende Berechtigung
+  </rad-warnhinweis>
   <rad-attribute-editor
     (dismiss)="onClose()"
     (resetForm)="onReset()"
@@ -26,8 +23,7 @@
     [disabled]="!editingAllowed"
     [dirty]="knotenFormGroup.dirty"
     [fetching]="isFetching"
-    titel="Knoten-Attribute bearbeiten"
-  >
+    titel="Knoten-Attribute bearbeiten">
     <rad-text-input-control formControlName="ortslage">
       <div class="label">Ortslage (aus Kanten abgeleitet)</div>
     </rad-text-input-control>
@@ -49,8 +45,7 @@
       [asTextarea]="true"
       [rows]="1"
       [maxLength]="kommentarMaxLength"
-      [errors]="knotenFormGroup.get('kommentar')?.errors"
-    >
+      [errors]="knotenFormGroup.get('kommentar')?.errors">
       <div class="label">Kommentar</div>
     </rad-text-input-control>
 
@@ -59,8 +54,7 @@
       [asTextarea]="true"
       [rows]="1"
       [maxLength]="zustandMaxLength"
-      [errors]="knotenFormGroup.get('zustandsbeschreibung')?.errors"
-    >
+      [errors]="knotenFormGroup.get('zustandsbeschreibung')?.errors">
       <div class="label">Zustandsbeschreibung</div>
     </rad-text-input-control>
   </rad-attribute-editor>

@@ -114,7 +114,7 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 		List<String> zustaendigkeitsAttribute = getFieldsOfTableExcept(
 			"zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute",
 			Set.of("id", "zustaendigkeit_attribut_gruppe_id", "von", "bis"))
-			.stream().map(name -> name.replace("_id", "")).collect(Collectors.toList());
+				.stream().map(name -> name.replace("_id", "")).collect(Collectors.toList());
 		int anzahlAttributeFuerZustaendigenOrganisationsArt = 3;
 		List<String> fahrtrichtungsAttribute = getFieldsOfTableExcept("fahrtrichtung_attribut_gruppe",
 			Set.of("id", "version"));
@@ -426,9 +426,9 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 
 	private List<String> getFieldsOfTableExcept(String tableName, Set<String> except) {
 		return jdbcTemplate.queryForList(
-				"select column_name "
-					+ "from INFORMATION_SCHEMA.COLUMNS "
-					+ "where TABLE_NAME='" + tableName + "'")
+			"select column_name "
+				+ "from INFORMATION_SCHEMA.COLUMNS "
+				+ "where TABLE_NAME='" + tableName + "'")
 			.stream()
 			.map(map -> (String) map.get("column_name"))
 			.filter(columnName -> !except.contains(columnName))

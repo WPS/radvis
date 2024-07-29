@@ -35,7 +35,8 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 })
 export class FurtenKreuzungenLayerComponent
   extends AbstractInfrastrukturLayerComponent<FurtKreuzungListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private olLayer: VectorLayer;
 
   constructor(
@@ -62,7 +63,7 @@ export class FurtenKreuzungenLayerComponent
       throw new Error('Icongeometrie ist nicht vorhanden oder kein Punkt');
     }
 
-    const feature = new Feature(new Point((infrastruktur.iconPosition.coordinates as unknown) as Coordinate));
+    const feature = new Feature(new Point(infrastruktur.iconPosition.coordinates as unknown as Coordinate));
     feature.setId(infrastruktur.id);
     feature.set(AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME, 'Furt/Kreuzung');
     return [feature];

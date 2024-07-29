@@ -56,7 +56,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -73,10 +73,10 @@ import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImpo
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AttributeImportFormat;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AutomatischerImportSchritt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag.Severity;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Konflikt;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ManuellerImportFehlerursache;
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -142,7 +142,7 @@ class ManuellerAttributeImportServiceTest {
 
 	@Test
 	void testRunAutomatischeAbbildung_noFeatures_warn()
-		throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+		throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		when(shapeZipServiceMock.unzip(any())).thenReturn(new File(""));
 		when(shapeZipServiceMock.getShapeFileFromDirectory(any())).thenReturn(Optional.of(new File("")));
@@ -162,7 +162,7 @@ class ManuellerAttributeImportServiceTest {
 
 	@Test
 	void testRunAutomatischeAbbildung_noFeaturesInBereich_warn()
-		throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+		throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		when(shapeZipServiceMock.unzip(any())).thenReturn(new File(""));
 		when(shapeZipServiceMock.getShapeFileFromDirectory(any())).thenReturn(Optional.of(new File("")));
@@ -188,7 +188,7 @@ class ManuellerAttributeImportServiceTest {
 
 	@Test
 	void testRunAutomatischeAbbildung_filterZustaendigkeitsbereich()
-		throws IOException, ZipFileRequiredFilesMissingException, ShapeProjectionException {
+		throws IOException, ShapeZipInvalidException, ShapeProjectionException {
 		// arrange
 		when(shapeZipServiceMock.unzip(any())).thenReturn(new File(""));
 		when(shapeZipServiceMock.getShapeFileFromDirectory(any())).thenReturn(Optional.of(new File("")));
@@ -314,7 +314,7 @@ class ManuellerAttributeImportServiceTest {
 
 		// act
 		assertThatThrownBy(() -> this.manuellerAttributeImportService.runUpdate(session)).isInstanceOf(
-				OptimisticLockException.class)
+			OptimisticLockException.class)
 			.hasMessage("Kanten in der Organisation wurden während des Speicherns aus einer anderen Quelle verändert."
 				+ " Bitte versuchen Sie es erneut.");
 		// assert
@@ -337,7 +337,7 @@ class ManuellerAttributeImportServiceTest {
 
 		// act
 		assertThatThrownBy(() -> this.manuellerAttributeImportService.runUpdate(session)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessageContaining("Die Session wird bereits ausgeführt");
 		// assert
 		assertThat(session.getSchritt()).isEqualTo(AttributeImportSession.IMPORT_ABSCHLIESSEN);
@@ -359,7 +359,7 @@ class ManuellerAttributeImportServiceTest {
 
 		// act
 		assertThatThrownBy(() -> this.manuellerAttributeImportService.runUpdate(session)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessage("Oh no!");
 
 		// assert
@@ -377,7 +377,7 @@ class ManuellerAttributeImportServiceTest {
 		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
 		doThrow(new RuntimeException()).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(),
-			any());
+				any());
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
@@ -400,7 +400,7 @@ class ManuellerAttributeImportServiceTest {
 		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
 		doThrow(new RuntimeException()).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(),
-			any());
+				any());
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
@@ -468,7 +468,7 @@ class ManuellerAttributeImportServiceTest {
 	}
 
 	@Test
-	public void validateAttribute_filterAttribute() throws IOException, ZipFileRequiredFilesMissingException {
+	public void validateAttribute_filterAttribute() throws IOException, ShapeZipInvalidException {
 		LUBWMapper mapper = mock(LUBWMapper.class);
 		when(mapperFactory.createMapper(any())).thenReturn(mapper);
 		String validAttributName = "validAttributName";
@@ -501,7 +501,7 @@ class ManuellerAttributeImportServiceTest {
 	}
 
 	@Test
-	public void validateAttribute_invalidAttributWerte() throws IOException, ZipFileRequiredFilesMissingException {
+	public void validateAttribute_invalidAttributWerte() throws IOException, ShapeZipInvalidException {
 		LUBWMapper mapper = mock(LUBWMapper.class);
 		when(mapperFactory.createMapper(any())).thenReturn(mapper);
 		String validAttributName = "validAttributName";
@@ -532,7 +532,7 @@ class ManuellerAttributeImportServiceTest {
 	}
 
 	@Test
-	public void validateAttribute_multiple_invalidAndValid() throws IOException, ZipFileRequiredFilesMissingException {
+	public void validateAttribute_multiple_invalidAndValid() throws IOException, ShapeZipInvalidException {
 		LUBWMapper mapper = mock(LUBWMapper.class);
 		when(mapperFactory.createMapper(any())).thenReturn(mapper);
 		String attributName1 = "attributName1";
@@ -572,13 +572,13 @@ class ManuellerAttributeImportServiceTest {
 
 		assertThat(validateAttribute)
 			.containsExactlyInAnyOrder(ImportierbaresAttribut.of(attributName1, radvisAttribut1, attributName1, false,
-					Set.of(invalidAttributWertName1)),
+				Set.of(invalidAttributWertName1)),
 				ImportierbaresAttribut.of(attributName2, radvisAttribut2, attributName2, true, Collections.emptySet()));
 	}
 
 	@Test
 	public void validateAttribute_invalidAndValid_groupsInvalidValues()
-		throws IOException, ZipFileRequiredFilesMissingException {
+		throws IOException, ShapeZipInvalidException {
 		LUBWMapper mapper = mock(LUBWMapper.class);
 		when(mapperFactory.createMapper(any())).thenReturn(mapper);
 		String attributName1 = "attributName1";
@@ -709,7 +709,8 @@ class ManuellerAttributeImportServiceTest {
 			.saveAll(
 				featureMappings.stream()
 					.filter(fm -> fm.getKantenAufDieGemappedWurde().isEmpty())
-					.map(fm -> new ManuellerImportFehler(fm.getImportedLineString(), ImportTyp.ATTRIBUTE_UEBERNEHMEN,
+					.map(fm -> new ManuellerImportFehler(fm.getImportedLineString(),
+						ImportTyp.ATTRIBUTE_UEBERNEHMEN,
 						startTime, benutzer, organisation))
 					.collect(Collectors.toList()));
 
@@ -779,8 +780,8 @@ class ManuellerAttributeImportServiceTest {
 					.filter(kKP -> kantenRepository.findById(kKP.getKanteId()).isPresent())
 					.map(kantenKonfliktProtokoll -> kantenRepository.findById(
 						kantenKonfliktProtokoll.getKanteId()).map(
-						k -> new ManuellerImportFehler(k, startTime, benutzer, organisation,
-							kantenKonfliktProtokoll.getKonflikte())))
+							k -> new ManuellerImportFehler(k, startTime, benutzer, organisation,
+								kantenKonfliktProtokoll.getKonflikte())))
 					.filter(Optional::isPresent)
 					.map(Optional::get)
 					.collect(Collectors.toList()));
@@ -811,7 +812,7 @@ class ManuellerAttributeImportServiceTest {
 			.stream()
 			.map(ManuellerImportFehler::getKonflikte)
 			.map(Optional::get))
-			.containsExactly(Set.of(konflikt), Set.of(konflikt), Set.of(konflikt));
+				.containsExactly(Set.of(konflikt), Set.of(konflikt), Set.of(konflikt));
 
 		assertThat(importMitUneindeutigerAttributzuordnungFehler)
 			.extracting(ManuellerImportFehler::getOriginalGeometrie)

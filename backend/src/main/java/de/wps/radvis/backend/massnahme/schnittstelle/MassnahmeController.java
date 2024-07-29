@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.joda.time.LocalDate;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.opencsv.CSVWriter;
 
@@ -166,6 +168,10 @@ public class MassnahmeController {
 		@RequestPart AddDokumentCommand command,
 		@RequestPart MultipartFile file,
 		Authentication authentication) throws IOException {
+		byte[] bytes = file.getBytes();
+		if (!Dokument.isValid(bytes)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Die maximale Dateigröße ist überschritten.");
+		}
 
 		massnahmeGuard.uploadDatei(massnahmeId, command, file, authentication);
 
@@ -176,9 +182,8 @@ public class MassnahmeController {
 			new Dokument(
 				command.getFilename(),
 				benutzer,
-				file.getBytes(),
-				LocalDateTime.now())
-		);
+				bytes,
+				LocalDateTime.now()));
 	}
 
 	@GetMapping("{massnahmeId}/dokument/{dokumentId}")

@@ -14,13 +14,7 @@
 
 <div *ngIf="showHeader" class="display-flex justify-content-space-between mb-10">
   <div class="ml-10 titel">{{ titel }}</div>
-  <button
-    [attr.aria-label]="'Schließen'"
-    matTooltip="Schließen"
-    (click)="onClose()"
-    mat-icon-button
-    class="align-self-end"
-  >
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button class="align-self-end">
     <mat-icon>clear</mat-icon>
   </button>
 </div>
@@ -30,24 +24,10 @@
 </div>
 
 <div class="buttons display-flex p-10" *ngIf="canEdit">
+  <button [disabled]="disabled" (click)="onReset()" mat-stroked-button color="primary" type="button">
+    Zurücksetzen
+  </button>
   <div>
-    <button
-      *ngIf="canDelete"
-      [disabled]="disabled"
-      (click)="onDelete()"
-      mat-stroked-button
-      class="border-primary delete-button"
-      type="button"
-    >
-      Kante löschen
-    </button>
-  </div>
-
-  <div class="buttons display-flex flex-row">
-    <button [disabled]="disabled" (click)="onReset()" mat-stroked-button class="border-primary p-0" type="button">
-      Zurücksetzen
-    </button>
-
     <rad-action-button [disabled]="disabled" [dirty]="dirty" [waiting]="fetching" (action)="onSave()">
       Speichern
     </rad-action-button>

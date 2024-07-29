@@ -14,6 +14,8 @@
 
 package de.wps.radvis.backend.integration.grundnetzReimport.domain;
 
+import static org.valid4j.Assertive.require;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +43,7 @@ import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.common.domain.valueObject.BasisnetzImportSource;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingRepository;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.entity.DLMReimportJobStatistik;
@@ -79,14 +82,19 @@ public class DLMReimportJob extends AbstractJob {
 	private final EntityManager entityManager;
 	private final VernetzungService vernetzungService;
 	private final KanteUpdateElevationService kanteUpdateElevationService;
+	private final BasisnetzImportSource basisnetzImportSource;
 
 	public DLMReimportJob(JobExecutionDescriptionRepository jobExecutionDescriptionRepository,
-		DLMWFSImportRepository dlmWfsImportRepository, NetzService netzService,
+		DLMWFSImportRepository dlmWfsImportRepository,
+		NetzService netzService,
 		UpdateKantenService updateKantenService,
-		CreateKantenService createKantenService, ExecuteTopologischeUpdatesService executeTopologischeUpdatesService,
+		CreateKantenService createKantenService,
+		ExecuteTopologischeUpdatesService executeTopologischeUpdatesService,
 		KantenMappingRepository kantenMappingRepository,
-		EntityManager entityManager, VernetzungService vernetzungService,
-		KanteUpdateElevationService kanteUpdateElevationService) {
+		EntityManager entityManager,
+		VernetzungService vernetzungService,
+		KanteUpdateElevationService kanteUpdateElevationService,
+		BasisnetzImportSource basisnetzImportSource) {
 		super(jobExecutionDescriptionRepository);
 
 		this.dlmWfsImportRepository = dlmWfsImportRepository;
@@ -98,6 +106,7 @@ public class DLMReimportJob extends AbstractJob {
 		this.entityManager = entityManager;
 		this.vernetzungService = vernetzungService;
 		this.kanteUpdateElevationService = kanteUpdateElevationService;
+		this.basisnetzImportSource = basisnetzImportSource;
 	}
 
 	@Override
@@ -119,6 +128,7 @@ public class DLMReimportJob extends AbstractJob {
 	@Override
 	@Transactional
 	protected Optional<JobStatistik> doRun() {
+		require(basisnetzImportSource == BasisnetzImportSource.DLM, "Die Basisnetzquelle muss 'DLM' sein");
 		if (netzService.getAnzahlKanten() == 0) {
 			throw new RuntimeException(
 				"Es sind noch keine Kanten importiert - bitte den DLMInitialImportJob für einen initialen Import verwenden");
@@ -146,7 +156,8 @@ public class DLMReimportJob extends AbstractJob {
 			vernetzeRadvisKantenNeu(dlmReimportJobStatistik);
 			entityManager.flush();
 			entityManager.clear();
-			dlmReimportJobStatistik.anzahlVernetzungsfehlerNachJobausfuehrung = netzService.countAndLogVernetzungFehlerhaft();
+			dlmReimportJobStatistik.anzahlVernetzungsfehlerNachJobausfuehrung = netzService
+				.countAndLogVernetzungFehlerhaft();
 			if (dlmReimportJobStatistik.anzahlVernetzungsfehlerNachJobausfuehrung > 0) {
 				throw new RuntimeException("Vernetzung wurde kompromittiert! Rollback ...\n"
 					+ dlmReimportJobStatistik.toString());

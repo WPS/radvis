@@ -35,7 +35,7 @@ import {
   highlightNetzklasseLayerZIndex,
 } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 
 @Component({
   selector: 'rad-radvis-knoten-layer',

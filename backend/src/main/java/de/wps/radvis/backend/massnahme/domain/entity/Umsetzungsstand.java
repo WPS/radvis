@@ -91,7 +91,7 @@ public class Umsetzungsstand extends VersionierteEntity {
 		require(benutzerLetzteAenderung, notNullValue());
 		require(pruefungQualitaetsstandardsErfolgt, notNullValue());
 		require(grundFuerNichtUmsetzungGesetztWennInBestimmtenZustand(this.umsetzungsstandStatus,
-				grundFuerNichtUmsetzungDerMassnahme, umsetzungsstatusDerMassnahme),
+			grundFuerNichtUmsetzungDerMassnahme, umsetzungsstatusDerMassnahme),
 			"Grund für Nicht-Umsetzung ist nicht gesetzt, obwohl die Maßnahme in Zustand Idee oder storniert ist und die Aktualisierung angefordert ist");
 
 		this.umsetzungsstandStatus = UmsetzungsstandStatus.AKTUALISIERT;

@@ -81,14 +81,18 @@ export class MassnahmenTabelleComponent {
     organisationenService: OrganisationenService
   ) {
     this.isBenutzerBerechtigtMassnahmenZuErstellen = benutzerDetailsService.canCreateMassnahmen();
-    this.isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten = benutzerDetailsService.canStartUmsetzungsstandsabfragen();
-    this.isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten = benutzerDetailsService.canEvaluateUmsetzungsstandsabfragen();
+    this.isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten =
+      benutzerDetailsService.canStartUmsetzungsstandsabfragen();
+    this.isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten =
+      benutzerDetailsService.canEvaluateUmsetzungsstandsabfragen();
     this.massnahmenCreatorRoute = this.massnahmenRoutingService.getCreatorRoute();
     this.selectedMassnahmeID$ = this.massnahmenRoutingService.selectedInfrastrukturId$;
     this.data$ = this.massnahmeFilterService.filteredList$;
     this.alleNonBundeslandOrganisationenOptions = organisationenService
       .getOrganisationen()
-      .then(organisationen => organisationen.filter(organisation => !Verwaltungseinheit.isLandesweit(organisation)));
+      .then(organisationen =>
+        organisationen.filter(organisation => !Verwaltungseinheit.isLandesOderBundesweit(organisation))
+      );
 
     this.organisationControl = new UntypedFormControl(
       this.massnahmeFilterService.organisation,

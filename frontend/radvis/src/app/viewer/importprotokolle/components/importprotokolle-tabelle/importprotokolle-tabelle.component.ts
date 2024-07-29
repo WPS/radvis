@@ -35,7 +35,8 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
 })
 export class ImportprotokolleTabelleComponent
   extends AbstractInfrastrukturenFilterService<ImportprotokollListView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   displayedColumns: string[];
 
   public selectedImportprotokollId$: Observable<number | null>;

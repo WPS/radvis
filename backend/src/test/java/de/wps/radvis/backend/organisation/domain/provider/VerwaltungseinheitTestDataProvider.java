@@ -17,10 +17,10 @@ package de.wps.radvis.backend.organisation.domain.provider;
 import java.util.Set;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft.GebietskoerperschaftBuilder;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public class VerwaltungseinheitTestDataProvider {
 	public static GebietskoerperschaftBuilder defaultGebietskoerperschaft() {

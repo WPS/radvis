@@ -19,14 +19,12 @@
   class="invisible-trigger"
   #menuTrigger="matMenuTrigger"
   [matMenuTriggerFor]="menu"
-  (menuOpened)="onMenuOpen()"
-></div>
+  (menuOpened)="onMenuOpen()"></div>
 <mat-menu #menu="matMenu" yPosition="below" xPosition="after" (closed)="onMenuClosed($event)" class="karte-menu">
   <div
     class="mat-menu-container"
     (keydown.tab)="$event.stopPropagation()"
-    (keydown.shift.tab)="$event.stopPropagation()"
-  >
+    (keydown.shift.tab)="$event.stopPropagation()">
     <mat-toolbar>
       {{ headline }}
     </mat-toolbar>

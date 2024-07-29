@@ -118,17 +118,17 @@ public class CreateFahrradrouteCommandConverterTest implements RadVisDomainEvent
 		assertThat(fahrradroute.getAbschnittsweiserKantenBezug().get(0).getKante()).isEqualTo(kante1);
 		assertThat(
 			fahrradroute.getAbschnittsweiserKantenBezug().get(0).getLinearReferenzierterAbschnitt().getVonValue())
-			.isEqualTo(0);
+				.isEqualTo(0);
 		assertThat(
 			fahrradroute.getAbschnittsweiserKantenBezug().get(0).getLinearReferenzierterAbschnitt().getBisValue())
-			.isEqualTo(1);
+				.isEqualTo(1);
 		assertThat(fahrradroute.getAbschnittsweiserKantenBezug().get(1).getKante()).isEqualTo(kante2);
 		assertThat(
 			fahrradroute.getAbschnittsweiserKantenBezug().get(1).getLinearReferenzierterAbschnitt().getVonValue())
-			.isEqualTo(0);
+				.isEqualTo(0);
 		assertThat(
 			fahrradroute.getAbschnittsweiserKantenBezug().get(1).getLinearReferenzierterAbschnitt().getBisValue())
-			.isEqualTo(1);
+				.isEqualTo(1);
 		assertThat(fahrradroute.getNetzbezugLineString()).contains(stuetzpunkteGeometry);
 		assertThat(fahrradroute.getLinearReferenzierteProfilEigenschaften()).containsExactly(
 			new LinearReferenzierteProfilEigenschaften(

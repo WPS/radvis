@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.organisation.domain;
 
+import static de.wps.radvis.backend.common.domain.Validators.isValidDateipfad;
 import static org.valid4j.Assertive.require;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -26,16 +27,20 @@ import lombok.Getter;
 public class OrganisationConfigurationProperties {
 	private final int zustaendigkeitBufferInMeter;
 	private final int zustaendigkeitSimplificationToleranceInMeter;
+	private final String verwaltungsgrenzenShapeFilesPath;
 
 	@ConstructorBinding
 	public OrganisationConfigurationProperties(int zustaendigkeitBufferInMeter,
-		int zustaendigkeitSimplificationToleranceInMeter) {
+		int zustaendigkeitSimplificationToleranceInMeter, String verwaltungsgrenzenShapeFilesPath) {
 		require(zustaendigkeitBufferInMeter >= 0,
 			"Der Zuständigkeits-Puffer in Metern muss größer oder gleich 0 sein.");
 		require(zustaendigkeitSimplificationToleranceInMeter >= 0,
 			"Simplification-tolerance in Metern muss größer oder gleich 0 sein.");
+		require(isValidDateipfad(verwaltungsgrenzenShapeFilesPath),
+			"verwaltungsgrenzenShapeFilesPath muss Dateipfadstruktur haben");
 
 		this.zustaendigkeitBufferInMeter = zustaendigkeitBufferInMeter;
 		this.zustaendigkeitSimplificationToleranceInMeter = zustaendigkeitSimplificationToleranceInMeter;
+		this.verwaltungsgrenzenShapeFilesPath = verwaltungsgrenzenShapeFilesPath;
 	}
 }

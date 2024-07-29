@@ -80,9 +80,9 @@ public class CommonQueryLibrary {
 			//@formatter:off
 			hqlBuilder
 				.append(" (")
-					.append("kante.quelle = ").append("'").append(QuellSystem.DLM.toString()).append("'")
+				.append("kante.quelle = ").append("'").append(QuellSystem.DLM.toString()).append("'")
 				.append(" OR ")
-				.	append(" kante.quelle = ").append("'").append(QuellSystem.RadVis.toString()).append("'")
+				.append(" kante.quelle = ").append("'").append(QuellSystem.RadVis.toString()).append("'")
 				.append(")");
 		} else {
 			//@formatter:off

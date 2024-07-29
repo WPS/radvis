@@ -39,7 +39,7 @@ import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { MIN_STRECKEN_RESOLUTION } from 'src/app/shared/models/min-strecken-resolution';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { shiftFeature } from 'src/app/shared/models/radvis-netz-style';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { IS_SELECTABLE_LAYER } from 'src/app/shared/models/selectable-layer-property';
 import { StreckenNetzVectorlayer } from 'src/app/shared/models/strecken-netz-vectorlayer';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
@@ -63,7 +63,7 @@ export class KantenSelektionComponent implements OnDestroy {
   private netzklassen: Netzklassefilter[] = [];
   private activeAttributGruppe: AttributGruppe | null = null;
   private active = false;
-  private hoveredKante: { kanteId: number; seitenbezug?: Seitenbezug } | null = null;
+  private hoveredKante: { kanteId: number; kantenSeite?: KantenSeite } | null = null;
 
   private subscriptions: Subscription[] = [];
 
@@ -94,8 +94,8 @@ export class KantenSelektionComponent implements OnDestroy {
               AttributGruppe.isSeitenbezogen(this.activeAttributGruppe) &&
               feature.get(FeatureProperties.ZWEISEITIG_PROPERTY_NAME)
             ) {
-              features.push(this.cloneFeatureForSeitenbezug(feature, Seitenbezug.LINKS));
-              features.push(this.cloneFeatureForSeitenbezug(feature, Seitenbezug.RECHTS));
+              features.push(this.cloneFeatureForSeitenbezug(feature, KantenSeite.LINKS));
+              features.push(this.cloneFeatureForSeitenbezug(feature, KantenSeite.RECHTS));
             } else {
               feature.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, Number(feature.getId()));
               features.push(feature);
@@ -279,7 +279,7 @@ export class KantenSelektionComponent implements OnDestroy {
       const kanteId = this.getKanteIdFromFeature(hoveredFeature);
       const seitenbezug = hoveredFeature.get(FeatureProperties.SEITE_PROPERTY_NAME);
       if (this.kantenSelektionService.isSelektiert(kanteId)) {
-        this.kantenSelektionHoverService.notifyHover({ kanteId, seitenbezug });
+        this.kantenSelektionHoverService.notifyHover({ kanteId, kantenSeite: seitenbezug });
       } else {
         this.kantenSelektionHoverService.notifyUnhover();
       }
@@ -287,15 +287,15 @@ export class KantenSelektionComponent implements OnDestroy {
   }
 
   private onHover(event: KantenHoverEvent): void {
-    if (this.hoveredKante?.kanteId !== event.kanteId || this.hoveredKante?.seitenbezug !== event.seitenbezug) {
+    if (this.hoveredKante?.kanteId !== event.kanteId || this.hoveredKante?.kantenSeite !== event.kantenSeite) {
       this.onUnhover();
       this.setColorForKante(
         event.kanteId,
-        event.seitenbezug,
+        event.kantenSeite,
         MapStyles.FEATURE_HOVER_COLOR,
         MapStyles.FEATURE_HOVER_COLOR
       );
-      this.hoveredKante = { kanteId: event.kanteId, seitenbezug: event.seitenbezug };
+      this.hoveredKante = { kanteId: event.kanteId, kantenSeite: event.kantenSeite };
     }
   }
 
@@ -303,7 +303,7 @@ export class KantenSelektionComponent implements OnDestroy {
     if (this.hoveredKante) {
       this.setColorForKante(
         this.hoveredKante.kanteId,
-        this.hoveredKante.seitenbezug,
+        this.hoveredKante.kantenSeite,
         MapStyles.FEATURE_COLOR,
         MapStyles.FEATURE_SELECT_COLOR
       );
@@ -313,13 +313,13 @@ export class KantenSelektionComponent implements OnDestroy {
 
   private setColorForKante(
     kanteId: number,
-    seitenbezug: Seitenbezug | undefined,
+    kantenSeite: KantenSeite | undefined,
     kantenLayerColor: Color,
     selektionLayerColor: Color
   ): void {
     const condition = (feature: Feature): boolean =>
       this.getKanteIdFromFeature(feature) === kanteId &&
-      feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === seitenbezug;
+      feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === kantenSeite;
     const featuresOnKantenLayer: Feature<Geometry>[] = [];
     this.kantenLayers.forEach(kl => {
       const feature = kl.getSource().getFeatures().find(condition);
@@ -343,12 +343,12 @@ export class KantenSelektionComponent implements OnDestroy {
       selectedFeature.setId(kantenSelektion.kante.id);
       selectedFeature.set(FeatureProperties.ZWEISEITIG_PROPERTY_NAME, kantenSelektion.kante.zweiseitig);
       if (kantenSelektion.kante.zweiseitig && AttributGruppe.isSeitenbezogen(this.activeAttributGruppe)) {
-        if (kantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)) {
-          const clonedFeature = this.cloneFeatureForSeitenbezug(selectedFeature, Seitenbezug.LINKS);
+        if (kantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)) {
+          const clonedFeature = this.cloneFeatureForSeitenbezug(selectedFeature, KantenSeite.LINKS);
           this.selektionLayer.getSource().addFeature(clonedFeature);
         }
-        if (kantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)) {
-          const clonedFeature = this.cloneFeatureForSeitenbezug(selectedFeature, Seitenbezug.RECHTS);
+        if (kantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)) {
+          const clonedFeature = this.cloneFeatureForSeitenbezug(selectedFeature, KantenSeite.RECHTS);
           this.selektionLayer.getSource().addFeature(clonedFeature);
         }
       } else {
@@ -357,11 +357,11 @@ export class KantenSelektionComponent implements OnDestroy {
     });
   };
 
-  private cloneFeatureForSeitenbezug(feature: Feature<Geometry>, seitenbezug: Seitenbezug): Feature<Geometry> {
+  private cloneFeatureForSeitenbezug(feature: Feature<Geometry>, kantenSeite: KantenSeite): Feature<Geometry> {
     const clonedFeature = feature.clone();
     clonedFeature.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, Number(feature.getId()));
-    clonedFeature.set(FeatureProperties.SEITE_PROPERTY_NAME, seitenbezug);
-    clonedFeature.setId(feature.getId() + seitenbezug);
+    clonedFeature.set(FeatureProperties.SEITE_PROPERTY_NAME, kantenSeite);
+    clonedFeature.setId(feature.getId() + kantenSeite);
     return clonedFeature;
   }
 

@@ -29,7 +29,7 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
-import de.wps.radvis.backend.netz.domain.service.NetzklassenSackgassenService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.service.NetzklassenStreckenViewService;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
@@ -117,8 +117,8 @@ public class NetzConfiguration {
 	}
 
 	@Bean
-	public NetzklassenSackgassenService netzklassenSackgassenService() {
-		return new NetzklassenSackgassenService(netzService(), kantenRepository);
+	public SackgassenService sackgassenService() {
+		return new SackgassenService(netzService(), kantenRepository);
 	}
 
 }

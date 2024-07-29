@@ -62,6 +62,7 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.ExtentProperty;
 import de.wps.radvis.backend.common.domain.MailService;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -73,7 +74,6 @@ import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitView;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
@@ -111,7 +111,13 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 
 		private final ExtentProperty extent = new ExtentProperty(492846.960, 500021.252, 5400410.543, 5418644.476);
 		private final CommonConfigurationProperties commonConfigurationProperties = new CommonConfigurationProperties(
-			"src/test/resources", 60, extent, null, "test", "https://radvis-dev.landbw.de/");
+			"src/test/resources",
+			60,
+			extent,
+			null,
+			"test",
+			"https://radvis-dev.landbw.de/",
+			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources");
 
 		@Bean
 		public BenutzerVerwaltungController benutzerController() {
@@ -119,7 +125,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 			Mockito.when(benutzerResolver.fromAuthentication(Mockito.any()))
 				.thenReturn(
 					BenutzerTestDataProvider.admin(
-							VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
 			return new BenutzerVerwaltungController(benutzerService, verwaltungseinheitService,
 				saveBenutzerCommandConverter, mailservice, benutzerResolver,
@@ -454,7 +460,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 
 		// assert
 		assertThat(benutzerController.getBenutzerOrganisationen(authentication)).extracting(
-				VerwaltungseinheitView::getId)
+			VerwaltungseinheitView::getId)
 			.containsExactlyInAnyOrder(gespeicherterGebietskoerperschaft.getId(), gespiecherteOrganisation.getId());
 	}
 
@@ -724,7 +730,7 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		final long benutzerId = benutzer1.getId();
 		assertThatThrownBy(
 			() -> benutzerController.benutzerStatusAendern(authentication, benutzerId, alteVersion, "INAKTIV"))
-			.isInstanceOf(OptimisticLockException.class);
+				.isInstanceOf(OptimisticLockException.class);
 	}
 
 	@Test
@@ -741,9 +747,9 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 				.build());
 
 		final long id = benutzerRepository.save(
-				BenutzerTestDataProvider.bearbeiterinVmRadnetzAdminInaktiv(laEntenhausen)
-					.version(10L)
-					.build())
+			BenutzerTestDataProvider.bearbeiterinVmRadnetzAdminInaktiv(laEntenhausen)
+				.version(10L)
+				.build())
 			.getId();
 
 		entityManager.flush();

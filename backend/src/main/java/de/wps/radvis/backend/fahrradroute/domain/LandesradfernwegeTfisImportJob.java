@@ -22,7 +22,6 @@ import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -72,12 +71,6 @@ public class LandesradfernwegeTfisImportJob extends AbstractTFISRadroutenImportJ
 
 	@Override
 	protected Optional<JobStatistik> doRun() {
-		if (!FeatureTogglz.FAHRRADROUTE_JOBS.isActive()) {
-			log.info(
-				"Kein Import, da Fahrradrouten-Jobs über das FeatureToggle deaktiviert sind.");
-			return Optional.empty();
-		}
-
 		LandesradfernwegeTFISImportStatistik importStatistik = new LandesradfernwegeTFISImportStatistik();
 		importFromTfis(importStatistik);
 

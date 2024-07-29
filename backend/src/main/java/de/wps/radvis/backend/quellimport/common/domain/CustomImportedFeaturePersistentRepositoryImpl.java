@@ -45,12 +45,11 @@ public class CustomImportedFeaturePersistentRepositoryImpl implements CustomImpo
 		Polygon bereichAlsPolygon = EnvelopeAdapter
 			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 
-		String hql =
-			"SELECT new de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeatureMapView(importedFeature.id, importedFeature.geometrie, importedFeature.anteilProjiziert) "
-				+ "FROM ImportedFeature importedFeature "
-				+ "WHERE importedFeature.quelle = :quelle "
-				+ "AND importedFeature.art = :art "
-				+ "AND intersects(CAST(importedFeature.geometrie AS org.locationtech.jts.geom.Geometry), CAST(:bereich as org.locationtech.jts.geom.Geometry)) = true";
+		String hql = "SELECT new de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeatureMapView(importedFeature.id, importedFeature.geometrie, importedFeature.anteilProjiziert) "
+			+ "FROM ImportedFeature importedFeature "
+			+ "WHERE importedFeature.quelle = :quelle "
+			+ "AND importedFeature.art = :art "
+			+ "AND intersects(CAST(importedFeature.geometrie AS org.locationtech.jts.geom.Geometry), CAST(:bereich as org.locationtech.jts.geom.Geometry)) = true";
 
 		return entityManager
 			.createQuery(hql, de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeatureMapView.class)
@@ -65,15 +64,15 @@ public class CustomImportedFeaturePersistentRepositoryImpl implements CustomImpo
 	public void buildIndex() {
 
 		entityManager.createNativeQuery(
-				"CREATE INDEX test_idx_tmp ON imported_feature USING GIST (geometrie, quelle, art)")
+			"CREATE INDEX test_idx_tmp ON imported_feature USING GIST (geometrie, quelle, art)")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-				"DROP INDEX IF EXISTS test_idx")
+			"DROP INDEX IF EXISTS test_idx")
 			.executeUpdate();
 
 		entityManager.createNativeQuery(
-				"ALTER INDEX test_idx_tmp RENAME TO test_idx")
+			"ALTER INDEX test_idx_tmp RENAME TO test_idx")
 			.executeUpdate();
 
 	}

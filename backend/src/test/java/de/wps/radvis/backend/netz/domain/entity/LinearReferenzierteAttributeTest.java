@@ -160,8 +160,9 @@ class LinearReferenzierteAttributeTest {
 		attribute.add(ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(0.68, 1.)
 			.vereinbarungsKennung(VereinbarungsKennung.of("456")).build());
 
-		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attribute, 10, 1);
+		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute
+			.defragmentiereLinearReferenzierteAttribute(
+				attribute, 10, 1);
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
@@ -173,7 +174,7 @@ class LinearReferenzierteAttributeTest {
 
 		assertThat(defragmentiert.stream().map(ZustaendigkeitAttribute::getVereinbarungsKennung)
 			.map(Optional::get).collect(Collectors.toList()))
-			.containsExactly(VereinbarungsKennung.of("123"), VereinbarungsKennung.of("456"));
+				.containsExactly(VereinbarungsKennung.of("123"), VereinbarungsKennung.of("456"));
 	}
 
 	@Test
@@ -189,8 +190,9 @@ class LinearReferenzierteAttributeTest {
 		attribute.add(ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(0.95, 1.)
 			.vereinbarungsKennung(VereinbarungsKennung.of("456")).build());
 
-		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attribute, 10, 1);
+		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute
+			.defragmentiereLinearReferenzierteAttribute(
+				attribute, 10, 1);
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
@@ -201,7 +203,7 @@ class LinearReferenzierteAttributeTest {
 
 		assertThat(defragmentiert.stream().map(ZustaendigkeitAttribute::getVereinbarungsKennung)
 			.map(Optional::get).collect(Collectors.toList()))
-			.containsExactly(VereinbarungsKennung.of("123"));
+				.containsExactly(VereinbarungsKennung.of("123"));
 	}
 
 	@Test
@@ -217,8 +219,9 @@ class LinearReferenzierteAttributeTest {
 		attribute.add(ZustaendigkeitAttributGruppeTestDataProvider.withLineareReferenz(0.55, 1.)
 			.vereinbarungsKennung(VereinbarungsKennung.of("456")).build());
 
-		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attribute, 10, 1);
+		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute
+			.defragmentiereLinearReferenzierteAttribute(
+				attribute, 10, 1);
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
@@ -229,7 +232,7 @@ class LinearReferenzierteAttributeTest {
 
 		assertThat(defragmentiert.stream().map(ZustaendigkeitAttribute::getVereinbarungsKennung)
 			.map(Optional::get).collect(Collectors.toList()))
-			.containsExactly(VereinbarungsKennung.of("456"));
+				.containsExactly(VereinbarungsKennung.of("456"));
 	}
 
 	@Test
@@ -254,8 +257,9 @@ class LinearReferenzierteAttributeTest {
 		attribute.add(FuehrungsformAttributGruppeTestDataProvider.withLineareReferenz(0.68, 1.)
 			.belagArt(BelagArt.ASPHALT).build());
 
-		List<FuehrungsformAttribute> defragmentiert = LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attribute, 10, 1);
+		List<FuehrungsformAttribute> defragmentiert = LinearReferenzierteAttribute
+			.defragmentiereLinearReferenzierteAttribute(
+				attribute, 10, 1);
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)

@@ -12,68 +12,119 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<rad-import-step-layout>
-  <div *ngIf="loading"
-       class="import-step-content display-flex flex-column align-self-center justify-content-center h-100">
+<rad-import-step-layout class="zuordnung-table">
+  <div
+    *ngIf="loading"
+    class="import-step-content display-flex flex-column align-self-center justify-content-center h-100">
     <mat-spinner></mat-spinner>
     <div class="mt-10">Zuordnungs- und Attributfehler werden geladen und geprüft...</div>
   </div>
-  <table *ngIf="!loading" mat-table [dataSource]="dataSource" class="import-step-content zuordnung-table">
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef class="status-cell">Art</th>
-      <td
-        mat-cell
-        *matCellDef="let element"
-        class="status-cell"
-        [attr.rowspan]="element.rowspan"
-        [style.display]="element.first ? 'table-cell' : 'none' "
-        [ngSwitch]="element.status"
-      >
-        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.GEMAPPT"
-                  svgIcon="massnahmeZuordnungGemappt"></mat-icon>
-        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.NEU" svgIcon="massnahmeZuordnungNeu"></mat-icon>
-        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.GELOESCHT"
-                  svgIcon="massnahmeZuordnungGeloescht"></mat-icon>
-        <mat-icon *ngSwitchCase="MassnahmenImportZuordnungStatus.FEHLERHAFT"
-                  svgIcon="massnahmeZuordnungFehlerhaft"></mat-icon>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef class="id-cell">Massnahmen-ID</th>
-      <td
-        mat-cell
-        *matCellDef="let element"
-        class="id-cell"
-        [attr.rowspan]="element.rowspan"
-        [style.display]="element.first ? 'table-cell' : 'none' "
-      >
-        {{ element.id }}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="attribut">
-      <th mat-header-cell *matHeaderCellDef>Attribute</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.attribut }}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="hinweis">
-      <th mat-header-cell *matHeaderCellDef>Fehler</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.hinweis }}
-      </td>
-    </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="hinweis-row"></tr>
-  </table>
+  <div *ngIf="!loading" class="import-step-content">
+    <div class="display-flex m-20 hinweis">
+      <div class="flex-grow">
+        Es wurden <b>{{ anzahlMassnahmen }} Maßnahmen</b> zum Importieren gefunden, davon sind
+        <span [class.bold]="anzahlFehlerhafterMassnahmen && anzahlFehlerhafterMassnahmen > 0"
+          >{{ anzahlFehlerhafterMassnahmen }} fehlerhaft</span
+        >.
+      </div>
+    </div>
+    <ng-container *ngIf="dataSource.data.length">
+      <mat-label class="p-5">Folgende Datensätze sind fehlerhaft und werden nicht importiert:</mat-label>
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="status-cell">Art</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            class="status-cell centered"
+            [attr.rowspan]="element.rowspan"
+            [style.display]="element.first ? 'table-cell' : 'none'"
+            [ngSwitch]="element.status">
+            <mat-icon
+              *ngSwitchCase="MassnahmenImportZuordnungStatus.ZUGEORDNET"
+              svgIcon="massnahmeZuordnungZugeordnet"
+              matTooltip="Zu aktualisierende Maßnahme"></mat-icon>
+            <mat-icon
+              *ngSwitchCase="MassnahmenImportZuordnungStatus.NEU"
+              svgIcon="massnahmeZuordnungNeu"
+              matTooltip="Zu erstellende Maßnahme"></mat-icon>
+            <mat-icon
+              *ngSwitchCase="MassnahmenImportZuordnungStatus.GELOESCHT"
+              svgIcon="massnahmeZuordnungGeloescht"
+              matTooltip="Zu löschende Maßnahme"></mat-icon>
+            <mat-icon
+              *ngSwitchCase="MassnahmenImportZuordnungStatus.FEHLERHAFT"
+              svgIcon="massnahmeZuordnungFehlerhaft"
+              matTooltip="Zuordnungsfehler - Maßnahme wird nicht importiert"></mat-icon>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef class="id-cell">Massnahmen-ID</th>
+          <td
+            mat-cell
+            *matCellDef="let element"
+            class="id-cell"
+            [attr.rowspan]="element.rowspan"
+            [style.display]="element.first ? 'table-cell' : 'none'">
+            {{ element.id }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="attribut">
+          <th mat-header-cell *matHeaderCellDef>Attribute</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.attribut }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="hinweis">
+          <th mat-header-cell *matHeaderCellDef>Fehler</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.hinweis }}
+          </td>
+        </ng-container>
 
-  <div class="import-step-footer-message hinweis pt-10 pl-9 footer-shadow">
-    Maßnahmen mit Fehlern können nicht importiert werden
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="hinweis-row"></tr>
+      </table>
+    </ng-container>
   </div>
 
+  <div
+    *ngIf="dataSource.data.length && !schrittAbgeschlossenOderHasFehler"
+    class="import-step-footer-message hinweis mx-20">
+    @if (hasValideMassnahme) {
+      Bitte passen Sie fehlerhafte Datensätze an, bevor Sie fortfahren. In den folgenden Schritten werden diese nicht
+      mehr angezeigt.
+    } @else {
+      <rad-warnhinweis>
+        Es wurde keine valide Maßnahme zum Importieren gefunden, bitte korrigieren Sie den Datensatz.
+      </rad-warnhinweis>
+    }
+  </div>
+
+  <rad-warnhinweis *ngIf="anzahlMassnahmen === 0" class="import-step-footer-message hinweis mx-20">
+    Es wurde keine Maßnahme zum Importieren im angegebenen Bereich gefunden. Bitte überprüfen Sie die Eingabedaten.
+  </rad-warnhinweis>
+
+  <rad-info-panel class="import-step-footer-message mx-20 my-10" [fehler]="fehler"></rad-info-panel>
+
   <div class="import-step-footer-buttons">
-    <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
-    <button mat-flat-button color="primary" class="button" (click)="onNext()">Weiter</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onNext()"
+      *ngIf="schrittAbgeschlossenOderHasFehler"
+      [disabled]="hasFehler">
+      Weiter
+    </button>
+    <rad-action-button
+      *ngIf="!schrittAbgeschlossenOderHasFehler"
+      (action)="onStart()"
+      [waiting]="executing || isNetzbezugErstellungRunning"
+      [disabled]="loading || !hasValideMassnahme">
+      Abbildung starten
+    </rad-action-button>
   </div>
 </rad-import-step-layout>

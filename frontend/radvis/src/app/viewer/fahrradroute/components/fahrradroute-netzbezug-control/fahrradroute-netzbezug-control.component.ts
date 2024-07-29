@@ -22,7 +22,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { UntypedFormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, UntypedFormControl, ValidationErrors, Validator } from '@angular/forms';
 import { asString } from 'ol/color';
 import { Coordinate } from 'ol/coordinate';
 import Feature, { FeatureLike } from 'ol/Feature';
@@ -40,7 +40,7 @@ import Fill from 'ol/style/Fill';
 import Text from 'ol/style/Text';
 import { Subscription } from 'rxjs';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
-import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LineStringOperations } from 'src/app/shared/models/line-string-operations';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -48,12 +48,12 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
 import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
-import { infrastrukturHighlightLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import invariant from 'tiny-invariant';
 import { CustomRoutingProfile, DEFAULT_PROFILE_ID } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
 import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 
 @Component({
   selector: 'rad-fahrradroute-netzbezug-control',
@@ -71,7 +71,8 @@ import { distinctUntilChanged } from 'rxjs/operators';
 })
 export class FahrradrouteNetzbezugControlComponent
   extends AbstractFormControl<FahrradrouteNetzbezug>
-  implements Validator, OnDestroy, OnInit {
+  implements Validator, OnDestroy, OnInit
+{
   @Output()
   loading = new EventEmitter<boolean>();
 

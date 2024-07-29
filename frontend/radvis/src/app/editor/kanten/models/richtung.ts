@@ -23,19 +23,17 @@ export enum Richtung {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Richtung {
-  export const options: EnumOption[] = Object.keys(Richtung).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Richtung.IN_RICHTUNG:
-          return { name: k, displayText: 'In Stationierungsrichtung' };
-        case Richtung.GEGEN_RICHTUNG:
-          return { name: k, displayText: 'Gegen Stationierungsrichtung' };
-        case Richtung.BEIDE_RICHTUNGEN:
-          return { name: k, displayText: 'Beide Richtungen' };
-        case Richtung.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Richtung fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Richtung).map((k: string): EnumOption => {
+    switch (k) {
+      case Richtung.IN_RICHTUNG:
+        return { name: k, displayText: 'In Stationierungsrichtung' };
+      case Richtung.GEGEN_RICHTUNG:
+        return { name: k, displayText: 'Gegen Stationierungsrichtung' };
+      case Richtung.BEIDE_RICHTUNGEN:
+        return { name: k, displayText: 'Beide Richtungen' };
+      case Richtung.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Richtung fehlt: ' + k);
+  });
 }

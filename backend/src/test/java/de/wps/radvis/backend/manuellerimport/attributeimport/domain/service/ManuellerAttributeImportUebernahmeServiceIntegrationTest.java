@@ -39,6 +39,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.AttributeImportKonfliktProtokoll;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.AttributeImportSession;
@@ -96,7 +97,6 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.NotNull;
 
@@ -192,7 +192,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks());
 		assertThat(kante.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse(); // => links prüfen reicht
 		assertThat(fuehrungsformAttributesLinks).extracting(
-				LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+			LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 			.usingElementComparator(LineareReferenzTestProvider.lenientComparator)
 			.containsExactly(LinearReferenzierterAbschnitt.of(0, 0.4), LinearReferenzierterAbschnitt.of(0.4, 1));
 		assertThat(fuehrungsformAttributesLinks.get(0).getBelagArt()).isEqualTo(BelagArt.ASPHALT);
@@ -250,7 +250,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -267,7 +267,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 				kante1.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks());
 			assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
 			assertThat(fuehrungsformAttributesLinks).extracting(
-					LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+				LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 				.usingElementComparator(LineareReferenzTestProvider.lenientComparator)
 				.containsExactly(LinearReferenzierterAbschnitt.of(0, 0.2), LinearReferenzierterAbschnitt.of(0.2, 1));
 			assertThat(fuehrungsformAttributesLinks.get(0).getBelagArt()).isEqualTo(BelagArt.UNBEKANNT);
@@ -277,7 +277,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 				kante1.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute());
 			assertThat(zustaendigkeitAttribute).hasSize(2);
 			assertThat(zustaendigkeitAttribute).extracting(
-					LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+				LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 				.usingElementComparator(LineareReferenzTestProvider.lenientComparator)
 				.containsExactly(LinearReferenzierterAbschnitt.of(0, 0.2), LinearReferenzierterAbschnitt.of(0.2, 1.));
 			assertThat(zustaendigkeitAttribute.get(0).getVereinbarungsKennung()).isEmpty();
@@ -298,7 +298,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 				kante2.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks());
 			assertThat(kante2.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
 			assertThat(fuehrungsformAttributesLinks).extracting(
-					LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+				LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 				.usingElementComparator(LineareReferenzTestProvider.lenientComparator)
 				.containsExactly(LinearReferenzierterAbschnitt.of(0, 0.8), LinearReferenzierterAbschnitt.of(0.8, 1));
 			assertThat(fuehrungsformAttributesLinks.get(0).getBelagArt()).isEqualTo(BelagArt.ASPHALT);
@@ -307,7 +307,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			List<ZustaendigkeitAttribute> zustaendigkeitAttribute = sortByLineareReferenz(
 				kante2.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute());
 			assertThat(zustaendigkeitAttribute).extracting(
-					LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+				LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 				.usingElementComparator(LineareReferenzTestProvider.lenientComparator)
 				.containsExactly(LinearReferenzierterAbschnitt.of(0, 0.8), LinearReferenzierterAbschnitt.of(0.8, 1.));
 			assertThat(zustaendigkeitAttribute.get(0).getVereinbarungsKennung()).contains(
@@ -387,7 +387,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -398,20 +398,22 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(faLinks).hasSize(1);
 		assertThat(faLinks.get(0).getTrennstreifenBreiteLinks()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenBreiteRechts()).contains(Laenge.of(1.5));
-		assertThat(faLinks.get(0).getTrennstreifenFormLinks()).isEmpty();
-		assertThat(faLinks.get(0).getTrennstreifenFormRechts()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG);
+		assertThat(faLinks.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
+		assertThat(faLinks.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG);
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuLinks()).isEmpty();
-		assertThat(faLinks.get(0).getTrennstreifenTrennungZuRechts()).contains(
-			TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN);
+		assertThat(faLinks.get(0).getTrennstreifenTrennungZuRechts())
+			.contains(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN);
 
 		final List<FuehrungsformAttribute> faRechts = fag.getImmutableFuehrungsformAttributeRechts();
 		assertThat(faRechts).hasSize(1);
 		assertThat(faRechts.get(0).getTrennstreifenBreiteLinks()).contains(Laenge.of(0.6));
 		assertThat(faRechts.get(0).getTrennstreifenBreiteRechts()).isEmpty();
-		assertThat(faRechts.get(0).getTrennstreifenFormLinks()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART);
-		assertThat(faRechts.get(0).getTrennstreifenFormRechts()).isEmpty();
+		assertThat(faRechts.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART);
+		assertThat(faRechts.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
 		assertThat(faRechts.get(0).getTrennstreifenTrennungZuLinks()).isEmpty();
 		assertThat(faRechts.get(0).getTrennstreifenTrennungZuRechts()).isEmpty();
 	}
@@ -487,7 +489,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -498,9 +500,10 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(faLinks).hasSize(1);
 		assertThat(faLinks.get(0).getTrennstreifenBreiteRechts()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenBreiteLinks()).contains(Laenge.of(1.5));
-		assertThat(faLinks.get(0).getTrennstreifenFormRechts()).isEmpty();
-		assertThat(faLinks.get(0).getTrennstreifenFormLinks()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG);
+		assertThat(faLinks.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
+		assertThat(faLinks.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG);
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuRechts()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuLinks()).contains(
 			TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN);
@@ -509,16 +512,17 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(faRechts).hasSize(1);
 		assertThat(faRechts.get(0).getTrennstreifenBreiteRechts()).contains(Laenge.of(1.1));
 		assertThat(faRechts.get(0).getTrennstreifenBreiteLinks()).isEmpty();
-		assertThat(faRechts.get(0).getTrennstreifenFormRechts()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG);
-		assertThat(faRechts.get(0).getTrennstreifenFormLinks()).isEmpty();
+		assertThat(faRechts.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG);
+		assertThat(faRechts.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
 		assertThat(faRechts.get(0).getTrennstreifenTrennungZuRechts()).contains(
 			TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN);
 		assertThat(faRechts.get(0).getTrennstreifenTrennungZuLinks()).isEmpty();
 	}
 
 	@Test
-	void testAttributeUebernehmen_LUBW_zweiseitigeKante_zweiFeaturesAusserorts() {
+	void testAttributeUebernehmen_LUBW_zweiseitigeKante_zweiFeaturesAusserorts_TrennstreifenSeiteMapping_korrektGemappt() {
 		// Arrange
 		LineString linestring1 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(119.1, 230.2), new Coordinate(200.3, 330.2) });
@@ -589,7 +593,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -600,9 +604,10 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(faLinks).hasSize(1);
 		assertThat(faLinks.get(0).getTrennstreifenBreiteLinks()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenBreiteRechts()).isEmpty();
-		assertThat(faLinks.get(0).getTrennstreifenFormLinks()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART);
-		assertThat(faLinks.get(0).getTrennstreifenFormRechts()).isEmpty();
+		assertThat(faLinks.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
+		assertThat(faLinks.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART);
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuLinks()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuRechts()).isEmpty();
 
@@ -610,9 +615,10 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(faRechts).hasSize(1);
 		assertThat(faRechts.get(0).getTrennstreifenBreiteLinks()).contains(Laenge.of(0.80));
 		assertThat(faRechts.get(0).getTrennstreifenBreiteRechts()).isEmpty();
-		assertThat(faRechts.get(0).getTrennstreifenFormLinks()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN);
-		assertThat(faRechts.get(0).getTrennstreifenFormRechts()).isEmpty();
+		assertThat(faRechts.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN);
+		assertThat(faRechts.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
 		assertThat(faRechts.get(0).getTrennstreifenTrennungZuLinks()).contains(
 			TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN);
 		assertThat(faRechts.get(0).getTrennstreifenTrennungZuRechts()).isEmpty();
@@ -621,28 +627,30 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 	@Test
 	void testAttributeUebernehmen_LUBW_zweiseitigeKante_zweiFeaturesAusserorts_RadverkehrsfuehrungPasstNicht() {
 		// Arrange
-		LineString linestring1 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+		LineString linestringLinksVonKante = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(119.1, 230.2), new Coordinate(200.3, 330.2) });
-		Map<String, Object> attribute = new HashMap<>();
-		attribute.put("ST", "Kein Sicherheitstrennstreifen vorhanden");
-		attribute.put("BREITST",
+		Map<String, Object> attributeLinks = new HashMap<>();
+		// Diese Attribute sollten zu "TrennstreifenForm: Trennung durch andere Art" in RadVIS gemappt werden
+		attributeLinks.put("ST", "Kein Sicherheitstrennstreifen vorhanden");
+		attributeLinks.put("BREITST",
 			"Kein Sicherheitstrennstreifen, aber andere Abgrenzung (z.B. Rinne zw. Fahrbahn und Anlage)");
-		attribute.put("BREITST2", null);
-		attribute.put("ORTSLAGE", "Außerorts");
-		FeatureMapping featureMapping1 = new FeatureMapping(0L, attribute, linestring1);
+		attributeLinks.put("BREITST2", null);
+		attributeLinks.put("ORTSLAGE", "Außerorts");
+		FeatureMapping featureMappingLinks = new FeatureMapping(0L, attributeLinks, linestringLinksVonKante);
 
-		LineString linestring2 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+		LineString linestringRechtsVonKante = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(120.1, 230.2), new Coordinate(201.1, 309.2) });
-		Map<String, Object> attribute2 = new HashMap<>();
-		attribute2.put("ST", "Sicherheitstrennstreifen außerorts");
-		attribute2.put("BREITST", "< 1,00 m");
-		attribute2.put("BREITST2", "80");
-		attribute2.put("ORTSLAGE", "Außerorts");
-		FeatureMapping featureMapping2 = new FeatureMapping(1L, attribute2, linestring2);
+		Map<String, Object> attributeRechts = new HashMap<>();
+		attributeRechts.put("ST", "Sicherheitstrennstreifen außerorts");
+		attributeRechts.put("BREITST", "< 1,00 m");
+		attributeRechts.put("BREITST2", "80");
+		attributeRechts.put("ORTSLAGE", "Außerorts");
+		FeatureMapping featureMappingRechts = new FeatureMapping(1L, attributeRechts, linestringRechtsVonKante);
 
-		LineString featureMatchedLineString1 = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
+		// Die durch den graphhopper gematchten LineStrings liegen wieder exakt auf der Kante
+		LineString featureMatchedLineStringLinks = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
 			new Coordinate(200, 310));
-		LineString featureMatchedLineString2 = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
+		LineString featureMatchedLineStringRechts = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
 			new Coordinate(200, 310));
 
 		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(120, 230, 200, 310, QuellSystem.DLM)
@@ -650,11 +658,13 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			.fuehrungsformAttributGruppe(FuehrungsformAttributGruppe.builder()
 				.fuehrungsformAttributeLinks(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+						// Hier ist ein STS vorgesehen
 						.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
 						.build())
 				)
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+						// Diese Fuehrungsform erlaubt keinen STS
 						.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
 						.build())
 				)
@@ -666,12 +676,14 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			.id(1L)
 			.build();
 
-		featureMapping1.add(new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineString1));
-		featureMapping2.add(new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineString2));
+		featureMappingLinks.add(
+			new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineStringLinks));
+		featureMappingRechts.add(
+			new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineStringRechts));
 
 		List<FeatureMapping> featureMappings = List.of(
-			featureMapping1,
-			featureMapping2);
+			featureMappingLinks,
+			featureMappingRechts);
 
 		final List<String> attributliste = List.of("st");
 		final AttributeImportSession session = new AttributeImportSession(
@@ -691,7 +703,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			protokoll);
 
 		// Assert
@@ -702,9 +714,10 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(faLinks).hasSize(1);
 		assertThat(faLinks.get(0).getTrennstreifenBreiteLinks()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenBreiteRechts()).isEmpty();
-		assertThat(faLinks.get(0).getTrennstreifenFormLinks()).contains(
-			TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART);
-		assertThat(faLinks.get(0).getTrennstreifenFormRechts()).isEmpty();
+		assertThat(faLinks.get(0).getTrennstreifenFormLinks())
+			.contains(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN);
+		assertThat(faLinks.get(0).getTrennstreifenFormRechts())
+			.contains(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART);
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuLinks()).isEmpty();
 		assertThat(faLinks.get(0).getTrennstreifenTrennungZuRechts()).isEmpty();
 
@@ -724,9 +737,10 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 
 		Konflikt konflikt = kantenKonfliktProtokoll.getKonflikte().stream().findFirst().get();
 		assertThat(konflikt.getAttributName()).isEqualToIgnoringCase("ST");
-		assertThat(konflikt.getUebernommenerWert()).startsWith(
+		assertThat(konflikt.getUebernommenerWert()).isEqualTo("");
+		assertThat(konflikt.getBemerkung()).startsWith(
 			"Es konnten keine TrennstreifenInformationen geschrieben werden");
-		assertThat(konflikt.getUebernommenerWert()).contains(
+		assertThat(konflikt.getBemerkung()).contains(
 			"Radverkehrsführung: " + Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN);
 		assertThat(konflikt.getNichtUebernommeneWerte()).contains(
 			"TrennstreifenForm: " + TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
@@ -865,16 +879,16 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			.thenReturn(Optional.of(oetigheim));
 		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Stuttgart",
 			OrganisationsArt.REGIERUNGSBEZIRK))
-			.thenReturn(Optional.of(stuttgart));
+				.thenReturn(Optional.of(stuttgart));
 		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Toubiz",
 			OrganisationsArt.SONSTIGES))
-			.thenReturn(Optional.of(toubiz));
+				.thenReturn(Optional.of(toubiz));
 
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -986,7 +1000,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -1070,7 +1084,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -1167,7 +1181,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -1212,7 +1226,8 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		LineString featureMatchedLineString1 = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
 			new Coordinate(200, 310));
 
-		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
 			// Keine Trennstreifen -> Sollen via Import ergänzt werden
 			.build();
@@ -1257,7 +1272,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -1295,7 +1310,8 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		LineString featureMatchedLineString1 = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
 			new Coordinate(200, 310));
 
-		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(1.23))
@@ -1345,7 +1361,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert
@@ -1377,7 +1393,8 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		LineString featureMatchedLineString1 = GeometryTestdataProvider.createLineString(new Coordinate(120, 230),
 			new Coordinate(200, 310));
 
-		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(1.23))
@@ -1421,7 +1438,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
 				verwaltungseinheitService).createMapper(
-				session.getAttributeImportFormat()),
+					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
 		// Assert

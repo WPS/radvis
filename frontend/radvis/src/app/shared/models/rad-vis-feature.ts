@@ -15,12 +15,12 @@
 import Geometry from 'ol/geom/Geometry';
 import GeometryType from 'ol/geom/GeometryType';
 import { LayerId } from 'src/app/shared/models/layers/rad-vis-layer';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
+import { RadVisFeatureAttributes } from 'src/app/shared/models/rad-vis-feature-attributes';
 
 export class RadVisFeature {
   constructor(
     public id: number | null,
-    public attribute: RadVisFeatureAttribut[],
+    public attributes: RadVisFeatureAttributes,
     public layer: LayerId,
     public geometry: Geometry,
     public istStrecke: boolean = false,
@@ -33,17 +33,9 @@ export class RadVisFeature {
     layer: LayerId,
     geometry: Geometry
   ): RadVisFeature {
-    const convertedAttributes: RadVisFeatureAttribut[] = [];
-    Object.keys(attributes).forEach(key => {
-      convertedAttributes.push({
-        key,
-        value: attributes[key],
-        linearReferenziert: false,
-      });
-    });
     return new RadVisFeature(
       id,
-      convertedAttributes,
+      new RadVisFeatureAttributes(attributes),
       layer,
       geometry,
       attributes.istStrecke || false,

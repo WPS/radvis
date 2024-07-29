@@ -76,24 +76,24 @@ class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 	void test_update_cleansCache() throws KeineRouteGefundenException {
 		List<Kante> kanten = List.of(
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineString(new Coordinate(417700, 5288700),
-						new Coordinate(417720, 5288700)))
+				GeometryTestdataProvider.createLineString(new Coordinate(417700, 5288700),
+					new Coordinate(417720, 5288700)))
 				.id(1L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineString(new Coordinate(417720, 5288700),
-						new Coordinate(417720, 5288710),
-						new Coordinate(417720, 5288720), new Coordinate(417720, 5288720), new Coordinate(417730, 5288700)))
+				GeometryTestdataProvider.createLineString(new Coordinate(417720, 5288700),
+					new Coordinate(417720, 5288710),
+					new Coordinate(417720, 5288720), new Coordinate(417720, 5288720), new Coordinate(417730, 5288700)))
 				.id(2L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineString(new Coordinate(417730, 5288700),
-						new Coordinate(417740, 5288700)))
+				GeometryTestdataProvider.createLineString(new Coordinate(417730, 5288700),
+					new Coordinate(417740, 5288700)))
 				.id(3L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineString(new Coordinate(417720, 5288700),
-						new Coordinate(417730, 5288700)))
+				GeometryTestdataProvider.createLineString(new Coordinate(417720, 5288700),
+					new Coordinate(417730, 5288700)))
 				.id(4L)
 				.build()
 		);
@@ -102,9 +102,10 @@ class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 		pbfErstellungsRepository.writePbf(PbfErstellungsTestDataProvider.getEnvelopeToKantenStreamMap(List.of(kanten)),
 			pbfFile);
 
-		DlmMatchedGraphHopperFactory dlmMatchedGraphHopperFactory = DlmMatchedGraphhopperTestdataProvider.initializeFactoryForPBFFile(
-			pbfFile.getAbsolutePath(),
-			temp.getAbsolutePath());
+		DlmMatchedGraphHopperFactory dlmMatchedGraphHopperFactory = DlmMatchedGraphhopperTestdataProvider
+			.initializeFactoryForPBFFile(
+				pbfFile.getAbsolutePath(),
+				temp.getAbsolutePath());
 
 		GraphhopperRoutingRepository graphhopperRoutingRepository = new GraphhopperRoutingRepositoryImpl(
 			dlmMatchedGraphHopperFactory,

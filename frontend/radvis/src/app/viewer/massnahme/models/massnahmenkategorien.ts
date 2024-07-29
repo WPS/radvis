@@ -51,8 +51,7 @@ export const MASSNAHMENKATEGORIEN: MassnahmenkategorieOptionGroup[] = [
               'Benutzungspflicht für den Radverkehr aufheben, Reduzierung der vorgeschriebenen Höchstgeschwindigkeit',
           },
           {
-            name:
-              'BENUTZUNGSPFLICHT_RADVERKEHR_AUFHEBEN_RADFAHRER_FREI_REDUZIERUNG_HOECHSTGESCHWINDIGKEIT_RADFAHRER_FREI',
+            name: 'BENUTZUNGSPFLICHT_RADVERKEHR_AUFHEBEN_RADFAHRER_FREI_REDUZIERUNG_HOECHSTGESCHWINDIGKEIT_RADFAHRER_FREI',
             displayText:
               'Benutzungspflicht für den Radverkehr aufheben, Reduzierung der vorgeschriebenen Höchstgeschwindigkeit, Radfahrer frei',
           },

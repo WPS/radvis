@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.abfrage.netzausschnitt.domain;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.exception.StreckenViewCacheNotInitializedException;
 import de.wps.radvis.backend.netz.domain.entity.StreckeVonKanten;
@@ -24,6 +25,10 @@ public abstract class StreckeViewCacheRepository<Cache, StreckenTyp extends Stre
 
 	protected Cache cache;
 	protected Collection<StreckenTyp> streckenVonKanten;
+
+	public boolean hasCache() {
+		return Objects.nonNull(cache);
+	}
 
 	Cache getCache() {
 		if (this.cache == null) {

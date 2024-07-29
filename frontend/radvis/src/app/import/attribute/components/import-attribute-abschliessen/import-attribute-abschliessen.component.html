@@ -65,8 +65,8 @@
   </div>
 
   <div *ngIf="isExecutable && !netzFetching" class="import-step-footer-buttons">
-    <button [disabled]="isExecuting" mat-flat-button color="primary" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+    <button [disabled]="isExecuting" mat-stroked-button color="primary" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
     <button [disabled]="isExecuting" mat-flat-button color="primary" (click)="onExecute()" class="weiter-button">
       Übernehmen
     </button>
@@ -79,10 +79,10 @@
   </div>
 </rad-import-step-layout>
 
-<rad-import-step-layout *ngIf="konflikteAusgewaehlt">
+<rad-import-step-layout class="conflict-detail-view-container" *ngIf="konflikteAusgewaehlt">
   <div class="import-step-content conflict-detail-view">
     <mat-toolbar class="display-flex" color="accent">
-      <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onCloseKonflikte()" mat-icon-button>
+      <button matTooltip="Schließen" (click)="onCloseKonflikte()" mat-icon-button>
         <mat-icon>keyboard_backspace</mat-icon>
       </button>
       <div class="ml-3">Zurück zur Übersicht</div>
@@ -92,9 +92,9 @@
         <div class="konflikt-detail-header">Konflikt {{ index + 1 }}</div>
         <table>
           <ng-container *ngFor="let attribut of konflikt">
-            <tr *ngIf="attribut.value">
+            <tr *ngIf="attribut.value" class="konflikt-property-row">
               <td>{{ attribut.key }}</td>
-              <td>{{ attribut.value }}</td>
+              <td class="konflikt-property-value">{{ attribut.value }}</td>
             </tr>
           </ng-container>
         </table>
@@ -109,8 +109,7 @@
       *ngIf="session"
       [radvisFeatures]="radvisFeatures"
       [featureMappings]="featureMappings"
-      (loaded)="onLoaded()"
-    >
+      (loaded)="onLoaded()">
     </rad-import-attribute-abschliessen-layer>
   </ng-container>
 </ng-container>

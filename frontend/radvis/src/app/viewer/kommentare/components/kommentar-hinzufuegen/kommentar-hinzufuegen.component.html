@@ -20,16 +20,9 @@
     </mat-form-field>
     <rad-validation-error-anzeige
       [errors]="formGroup.get('kommentarText')?.errors || null"
-      *ngIf="formGroup.get('kommentarText')?.dirty"
-    ></rad-validation-error-anzeige>
+      *ngIf="formGroup.get('kommentarText')?.dirty"></rad-validation-error-anzeige>
   </div>
-  <button
-    [attr.aria-label]="'Kommentar absenden'"
-    matTooltip="Kommentar absenden"
-    (click)="send()"
-    mat-icon-button
-    color="primary"
-  >
+  <button matTooltip="Kommentar absenden" (click)="send()" mat-icon-button color="primary">
     <mat-icon>send</mat-icon>
   </button>
 </form>

@@ -25,6 +25,11 @@
 
 .feature-table {
   overflow-y: auto;
+
+  rad-detail-feature-table {
+    overflow-y: visible;
+    height: unset;
+  }
 }
 
 .sicherheitstrennstreifen {

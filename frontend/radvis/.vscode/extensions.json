@@ -4,6 +4,7 @@
     "angular.ng-template",
     "johnpapa.angular2",
     "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "doi.fileheadercomment"
   ]
 }

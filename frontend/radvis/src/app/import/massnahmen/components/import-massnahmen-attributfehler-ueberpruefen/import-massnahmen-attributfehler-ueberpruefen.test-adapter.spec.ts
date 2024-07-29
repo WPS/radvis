@@ -19,7 +19,7 @@ export class ImportMassnahmenAttributfehlerUeberpruefenTestAdapter {
   constructor(private component: DebugElement) {}
 
   get numberOfRows(): number {
-    return this.component.queryAll(By.css('tr')).length - 1;
+    return Math.max(this.component.queryAll(By.css('tr')).length - 1, 0);
   }
 
   get attributes(): string[] {

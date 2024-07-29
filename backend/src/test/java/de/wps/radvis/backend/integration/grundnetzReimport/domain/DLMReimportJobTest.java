@@ -43,6 +43,7 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.RadVisDomainEvent;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
+import de.wps.radvis.backend.common.domain.valueObject.BasisnetzImportSource;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingRepository;
 import de.wps.radvis.backend.integration.grundnetz.domain.DLMAttributMapper;
@@ -109,7 +110,8 @@ class DLMReimportJobTest {
 			jobExecutionDescriptionRepository,
 			dlmImportRepository, netzService, updateKantenService,
 			createKantenService, executeTopologischeUpdatesService, kantenMappingRepository, entityManager,
-			new VernetzungService(kantenRepository, knotenRepository, netzService), kanteUpdateElevationService);
+			new VernetzungService(kantenRepository, knotenRepository, netzService), kanteUpdateElevationService,
+			BasisnetzImportSource.DLM);
 
 		domainPublisherMock = mockStatic(RadVisDomainEventPublisher.class);
 	}
@@ -163,8 +165,8 @@ class DLMReimportJobTest {
 
 		when(netzService
 			.getKantenInBereichNachQuelleEagerFetchKantenAttribute(groessererBereichFuerDLM, QuellSystem.DLM))
-			.thenReturn(
-				bestehendeKanten.stream());
+				.thenReturn(
+					bestehendeKanten.stream());
 
 		Stream<ImportedFeature> importedFeatureStream = Stream.of(
 			ImportedFeatureTestDataProvider.defaultWFSObject()
@@ -178,7 +180,8 @@ class DLMReimportJobTest {
 		when(dlmImportRepository.readStrassenFeatures(bereich)).thenReturn(importedFeatureStream);
 
 		@SuppressWarnings("unchecked")
-		ArgumentCaptor<Collection<Kante>> captor = ArgumentCaptor.forClass(Collection.class);
+		ArgumentCaptor<Collection<Kante>> captor = ArgumentCaptor.forClass(
+			Collection.class);
 		doNothing().when(netzService).deleteAll(captor.capture());
 		Kante bestehendeKante1 = bestehendeKanten.get(1);
 		when(entityManager.merge(bestehendeKante1)).thenReturn(bestehendeKante1);
@@ -237,13 +240,13 @@ class DLMReimportJobTest {
 
 		when(netzService
 			.getKantenInBereichNachQuelleEagerFetchKantenAttribute(groessererBereichFuerDLM1, QuellSystem.DLM))
-			.thenReturn(
-				bestehendeKantenBereich1.stream());
+				.thenReturn(
+					bestehendeKantenBereich1.stream());
 
 		when(netzService
 			.getKantenInBereichNachQuelleEagerFetchKantenAttribute(groessererBereichFuerDLM2, QuellSystem.DLM))
-			.thenReturn(
-				Stream.empty());
+				.thenReturn(
+					Stream.empty());
 		doNothing().when(netzService).deleteAll(any());
 		when(entityManager.merge(any())).then(invocationOnMock -> invocationOnMock.getArgument(0));
 
@@ -270,7 +273,8 @@ class DLMReimportJobTest {
 
 		// assert
 		@SuppressWarnings("unchecked")
-		ArgumentCaptor<Collection<Kante>> kantenCaptor = ArgumentCaptor.forClass(Collection.class);
+		ArgumentCaptor<Collection<Kante>> kantenCaptor = ArgumentCaptor.forClass(
+			Collection.class);
 		verify(netzService, times(1)).deleteAll(kantenCaptor.capture());
 		assertThat(kantenCaptor.getValue()).isEmpty();
 
@@ -310,13 +314,13 @@ class DLMReimportJobTest {
 
 		when(netzService
 			.getKantenInBereichNachQuelleEagerFetchKantenAttribute(groessererBereichFuerDLM1, QuellSystem.DLM))
-			.thenReturn(
-				bestehendeKantenBereich1.stream());
+				.thenReturn(
+					bestehendeKantenBereich1.stream());
 
 		when(netzService
 			.getKantenInBereichNachQuelleEagerFetchKantenAttribute(groessererBereichFuerDLM2, QuellSystem.DLM))
-			.thenReturn(
-				Stream.empty());
+				.thenReturn(
+					Stream.empty());
 
 		Stream<ImportedFeature> importedFeatureStreamBereich1 = Stream.of(
 			ImportedFeatureTestDataProvider.defaultWFSObject()
@@ -342,7 +346,8 @@ class DLMReimportJobTest {
 
 		// assert
 		@SuppressWarnings("unchecked")
-		ArgumentCaptor<Collection<Kante>> toDeleteInPersistenceContext = ArgumentCaptor.forClass(Collection.class);
+		ArgumentCaptor<Collection<Kante>> toDeleteInPersistenceContext = ArgumentCaptor
+			.forClass(Collection.class);
 		verify(netzService, times(1)).deleteAll(
 			toDeleteInPersistenceContext.capture());
 

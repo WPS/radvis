@@ -20,7 +20,7 @@ import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { SignaturService } from 'src/app/viewer/signatur/services/signatur.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { instance, mock, when } from 'ts-mockito';
 import { SignaturNetzklasseLayerComponent } from './signatur-netzklasse-layer.component';
 

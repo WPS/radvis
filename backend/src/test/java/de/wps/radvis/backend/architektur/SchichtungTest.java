@@ -105,6 +105,7 @@ public class SchichtungTest {
 			.or(simpleNameIncludingGeneratedInnerClasses("DLMImportedFeatureXMLIterator"))
 			.or(simpleNameIncludingGeneratedInnerClasses("LeihstationWFSXMLIterator"))
 			.or(JavaClass.Predicates.simpleNameContaining("RepositoryImpl"))
+			.or(JavaClass.Predicates.simpleNameContaining("RepositoryFactory"))
 			.or(JavaClass.Predicates.resideInAPackage("..repository.."))
 			.or(JavaClass.Predicates.resideInAPackage("..repositoryImpl..")))
 		.layer("entity")
@@ -131,8 +132,10 @@ public class SchichtungTest {
 		.layer("event").definedBy(JavaClass.Predicates.resideInAnyPackage("..event.."))
 		.layer("liquibaseMigration").definedBy(simpleNameEndingWithIncludingGeneratedInnerClasses("LiquibaseMigration"))
 		.layer("encodedValues").definedBy(JavaClass.Predicates.resideInAnyPackage("..encodedValues.."))
+		.layer("configurationProperties")
+		.definedBy(simpleNameEndingWithIncludingGeneratedInnerClasses("ConfigurationProperties"))
 		.whereLayer("config").mayNotBeAccessedByAnyLayer()
-		.whereLayer("controller").mayNotBeAccessedByAnyLayer()
+		.whereLayer("controller").mayOnlyBeAccessedByLayers("config")
 		.whereLayer("guard").mayOnlyBeAccessedByLayers("controller", "config")
 		.whereLayer("service").mayOnlyBeAccessedByLayers("controller", "config", "guard", "exportConverter")
 		.whereLayer("encodedValues")
@@ -157,7 +160,9 @@ public class SchichtungTest {
 		.whereLayer("valueObject")
 		.mayOnlyBeAccessedByLayers("config", "service", "controller", "exportConverter", "entity", "bezug",
 			"repository", "view", "converter", "command", "exception", "repository", "guard", "dbView", "event",
-			"liquibaseMigration", "encodedValues")
+			"liquibaseMigration", "encodedValues", "configurationProperties")
+		.whereLayer("configurationProperties")
+		.mayOnlyBeAccessedByLayers("config", "service", "controller", "view", "repository")
 		.whereLayer("event").mayOnlyBeAccessedByLayers("service", "entity")
 		.whereLayer("dbView")
 		.mayOnlyBeAccessedByLayers("repository", "service", "controller", "view", "guard", "entity")
@@ -195,7 +200,6 @@ public class SchichtungTest {
 		.layer("AbfrageNetzausschnitt").definedBy("..abfrage.netzausschnitt..")
 		.layer("AbfrageStatistik").definedBy("..abfrage.statistik..")
 		.layer("AbfrageAuswertung").definedBy("..abfrage.auswertung..")
-		.layer("AbfrageExtern").definedBy("..abfrage.extern..")
 		.layer("AbfrageFehlerprotokoll").definedBy("..abfrage.fehlerprotokoll..")
 		.layer("AbfrageExport").definedBy("..abfrage.export..")
 		.layer("Authentication").definedBy("..authentication..")
@@ -266,10 +270,9 @@ public class SchichtungTest {
 			"IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport", "Application")
 		.whereLayer("Matching")
 		.mayOnlyBeAccessedByLayers("IntegrationNetzbildung", "IntegrationAttributAbbildung", "IntegrationRadnetz",
-			"IntegrationRadwegeDB", "ManuellerImportNetzzugehoerigkeit", "ManuellerImportAttributeImport",
-			"IntegrationGrundnetzReimport", "Massnahme",
-			"IntegrationGrundnetz", "Application", "Fahrradroute",
-			"AbfrageFehlerprotokoll")
+			"IntegrationRadwegeDB", "ManuellerImportMassnahmenImport", "ManuellerImportNetzzugehoerigkeit",
+			"ManuellerImportAttributeImport", "IntegrationGrundnetzReimport", "Massnahme", "IntegrationGrundnetz",
+			"Application", "Fahrradroute", "AbfrageFehlerprotokoll")
 		.whereLayer("Netz")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationNetzbildung", "IntegrationAttributAbbildung",
 			"IntegrationRadnetz", "IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport",
@@ -280,7 +283,7 @@ public class SchichtungTest {
 		.whereLayer("Netzfehler")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationNetzbildung", "IntegrationAttributAbbildung",
 			"IntegrationRadnetz", "IntegrationRadwegeDB", "IntegrationGrundnetz", "AbfrageNetzausschnitt",
-			"AbfrageExtern", "Application")
+			"Application")
 		.whereLayer("ImportGrundnetz")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationAttributAbbildung", "IntegrationRadnetz",
 			"IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport", "AbfrageNetzausschnitt",
@@ -317,14 +320,14 @@ public class SchichtungTest {
 			"Abstellanlage", "Leihstation", "Matching")
 		.whereLayer("Ortssuche").mayNotBeAccessedByAnyLayer()
 		.whereLayer("Karte").mayNotBeAccessedByAnyLayer()
-		.whereLayer("Kommentar").mayOnlyBeAccessedByLayers("Massnahme", "Netzfehler")
-		.whereLayer("Dokument").mayOnlyBeAccessedByLayers("Massnahme", "Servicestation", "Abstellanlage")
+		.whereLayer("Kommentar").mayOnlyBeAccessedByLayers("Massnahme", "ManuellerImportMassnahmenImport", "Netzfehler")
+		.whereLayer("Dokument").mayOnlyBeAccessedByLayers("Massnahme", "ManuellerImportMassnahmenImport",
+			"Servicestation", "Abstellanlage")
 		.whereLayer("Barriere").mayOnlyBeAccessedByLayers("Matching")
 		.whereLayer("FurtKreuzung").mayNotBeAccessedByAnyLayer()
 		.whereLayer("WegweisendeBeschilderung").mayOnlyBeAccessedByLayers("Application", "Konsistenzregeln")
 		.whereLayer("AbfrageStatistik").mayNotBeAccessedByAnyLayer()
 		.whereLayer("AbfrageAuswertung").mayNotBeAccessedByAnyLayer()
-		.whereLayer("AbfrageExtern").mayNotBeAccessedByAnyLayer()
 		.whereLayer("AbfrageFehlerprotokoll").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("WeitereKartenebenen").mayNotBeAccessedByAnyLayer()
 		.whereLayer("Leihstation").mayOnlyBeAccessedByLayers("AbfrageExport", "Application")

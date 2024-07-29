@@ -14,9 +14,7 @@
 
 package de.wps.radvis.backend.furtKreuzung.schnittstelle;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzung;
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzungNetzBezug;
@@ -25,19 +23,16 @@ import de.wps.radvis.backend.netz.domain.KnotenResolver;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
-import de.wps.radvis.backend.netz.schnittstelle.command.KnotenNetzbezugCommand;
-import de.wps.radvis.backend.netz.schnittstelle.command.SaveNetzBezugCommandConverter;
+import de.wps.radvis.backend.netz.schnittstelle.NetzbezugCommandConverter;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 
-public class SaveFurtKreuzungCommandConverter extends SaveNetzBezugCommandConverter {
+public class SaveFurtKreuzungCommandConverter extends NetzbezugCommandConverter<FurtKreuzungNetzBezug> {
 
-	private final KnotenResolver knotenResolver;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 
 	public SaveFurtKreuzungCommandConverter(KanteResolver kantenResolver, KnotenResolver knotenResolver,
 		VerwaltungseinheitResolver verwaltungseinheitResolver) {
-		super(kantenResolver);
-		this.knotenResolver = knotenResolver;
+		super(kantenResolver, knotenResolver);
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 	}
 
@@ -55,17 +50,9 @@ public class SaveFurtKreuzungCommandConverter extends SaveNetzBezugCommandConver
 			command.getFurtKreuzungMusterloesung(), command.getLichtsignalAnlageEigenschaften());
 	}
 
-	private FurtKreuzungNetzBezug createNetzbezug(FurtKreuzungNetzBezugCommand netzbezugCommand) {
-		final Set<AbschnittsweiserKantenSeitenBezug> kantenSeitenAbschnitte = netzbezugCommand.getKantenBezug()
-			.stream().map(this::createKantenSeitenAbschnitt)
-			.collect(Collectors.toSet());
-		final Set<PunktuellerKantenSeitenBezug> kantenSeitenPunkte = netzbezugCommand.getPunktuellerKantenBezug()
-			.stream().map(this::createPunktuellerKantenSeitenBezug)
-			.collect(Collectors.toSet());
-		final HashSet<Knoten> knoten = new HashSet<>(knotenResolver.getKnoten(
-			netzbezugCommand.getKnotenBezug().stream().map(KnotenNetzbezugCommand::getKnotenId).collect(
-				Collectors.toSet())));
-		return new FurtKreuzungNetzBezug(kantenSeitenAbschnitte, kantenSeitenPunkte, knoten);
+	@Override
+	protected FurtKreuzungNetzBezug buildNetzbezug(Set<AbschnittsweiserKantenSeitenBezug> abschnitte,
+		Set<PunktuellerKantenSeitenBezug> punkte, Set<Knoten> knoten) {
+		return new FurtKreuzungNetzBezug(abschnitte, punkte, knoten);
 	}
-
 }

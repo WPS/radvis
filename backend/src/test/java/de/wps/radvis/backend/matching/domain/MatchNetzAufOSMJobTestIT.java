@@ -16,7 +16,8 @@ package de.wps.radvis.backend.matching.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.data.util.Lazy;
 import org.springframework.test.context.ContextConfiguration;
+
+import com.graphhopper.matching.MatchResult;
 
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -134,15 +137,10 @@ class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
 	@Test
 	void doRun_erzeugtAbbildungsfehler_keinMatch_keineNetzklassen() throws KeinMatchGefundenException {
 		// arrange
-
 		KanteGeometryView kante = new KanteGeometryView(1, GeometryTestdataProvider.createLineString());
 		when(netzService.getFuerOsmAbbildungRelevanteKanten(any())).thenReturn(List.of(kante));
 		when(netzService.getNetzklassenVonKante(kante.getId())).thenReturn(Optional.empty());
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike"))
-			.thenThrow(KeinMatchGefundenException.class);
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "foot"))
-			.thenThrow(KeinMatchGefundenException.class);
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "car"))
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry()))
 			.thenThrow(KeinMatchGefundenException.class);
 
 		// act
@@ -161,17 +159,12 @@ class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
 	@Test
 	void doRun_erzeugtAbbildungsfehler_richtigeNetzklassen_AlleNetzklassen() throws KeinMatchGefundenException {
 		// arrange
-
 		KanteGeometryView kante = new KanteGeometryView(1, GeometryTestdataProvider.createLineString());
 		when(netzService.getFuerOsmAbbildungRelevanteKanten(any())).thenReturn(List.of(kante));
 		when(netzService.getNetzklassenVonKante(kante.getId())).thenReturn(Optional.of(
 			"RADNETZ_ALLTAG;KOMMUNALNETZ_ALLTAG;KREISNETZ_FREIZEIT"
 		));
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike"))
-			.thenThrow(KeinMatchGefundenException.class);
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "foot"))
-			.thenThrow(KeinMatchGefundenException.class);
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "car"))
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry()))
 			.thenThrow(KeinMatchGefundenException.class);
 
 		// act
@@ -190,15 +183,10 @@ class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
 	@Test
 	void doRun_erzeugtAbbildungsfehler_richtigeNetzklassen_RadNETZ() throws KeinMatchGefundenException {
 		// arrange
-
 		KanteGeometryView kante = new KanteGeometryView(1, GeometryTestdataProvider.createLineString());
 		when(netzService.getFuerOsmAbbildungRelevanteKanten(any())).thenReturn(List.of(kante));
 		when(netzService.getNetzklassenVonKante(kante.getId())).thenReturn(Optional.of("RADNETZ_ZIELNETZ"));
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike"))
-			.thenThrow(KeinMatchGefundenException.class);
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "foot"))
-			.thenThrow(KeinMatchGefundenException.class);
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "car"))
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry()))
 			.thenThrow(KeinMatchGefundenException.class);
 
 		// act
@@ -221,30 +209,16 @@ class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
 		KanteGeometryView kante = new KanteGeometryView(1, GeometryTestdataProvider.createLineString());
 
 		when(netzService.getFuerOsmAbbildungRelevanteKanten(any())).thenReturn(List.of(kante));
-
-		// Erster Matching-Versuch
 		when(korrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(any(), any(), any(), any()))
 			.thenThrow(GeometryLaengeMismatchException.class);
 
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike"))
-			.thenReturn(kante.getGeometry());
+		// Erster Matching-Versuch
+		MatchResult matchResult1Mock = mock(MatchResult.class);
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry())).thenReturn(matchResult1Mock);
+		when(osmMatchingRepository.extrahiereLineString(eq(matchResult1Mock))).thenReturn(kante.getGeometry());
+
 		// Matching-Versuch mit umgekehrter Geometrie
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry().reverse(), "bike"))
-			.thenThrow(KeinMatchGefundenException.class);
-
-		// Das gleiche nochmal mit den Profilen foot und car
-		when(korrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(
-			any(), any(), any(), any(), anyDouble(), anyDouble(), anyDouble()))
-			.thenThrow(GeometryLaengeMismatchException.class);
-
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "foot"))
-			.thenReturn(kante.getGeometry());
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry().reverse(), "foot"))
-			.thenThrow(KeinMatchGefundenException.class);
-
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "car"))
-			.thenReturn(kante.getGeometry());
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry().reverse(), "car"))
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry().reverse()))
 			.thenThrow(KeinMatchGefundenException.class);
 
 		// act
@@ -268,21 +242,21 @@ class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
 		when(netzService.getFuerOsmAbbildungRelevanteKanten(any())).thenReturn(List.of(kante));
 
 		// Erster Matching-Versuch klappt direkt und ist auch richtig
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike"))
-			.thenReturn(kante.getGeometry());
+		MatchResult matchResult1Mock = mock(MatchResult.class);
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry())).thenReturn(matchResult1Mock);
+		when(osmMatchingRepository.extrahiereLineString(eq(matchResult1Mock))).thenReturn(kante.getGeometry());
 		when(korrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(any(), any(), any(), any()))
 			.thenReturn(kante.getGeometry());
 
 		// matching mit Linearen Referenzen schlaegt fehl
-		when(osmMatchingRepository.matchGeometryLinearReferenziert(kante.getGeometry(), "foot"))
+		when(osmMatchingRepository.extrahiereLineareReferenzierung(matchResult1Mock))
 			.thenThrow(KeinMatchGefundenException.class);
 
 		// act
 		MatchingJobStatistik jobStatistik = (MatchingJobStatistik) matchNetzAufOSMJob.doRun().get();
 
 		// assert
-		verify(osmMatchingRepository, times(1))
-			.matchGeometryLinearReferenziert(kante.getGeometry(), "foot");
+		verify(osmMatchingRepository, times(1)).extrahiereLineareReferenzierung(matchResult1Mock);
 
 		OsmAbbildungsFehler abbildungsFehler = osmAbbildungsFehlerRepository.findAll().iterator().next();
 		assertThat(abbildungsFehler.getKanteId()).isEqualTo(kante.getId());
@@ -306,15 +280,16 @@ class MatchNetzAufOSMJobTestIT extends DBIntegrationTestIT {
 		when(netzService.getFuerOsmAbbildungRelevanteKanten(any())).thenReturn(List.of(kante));
 
 		// Erster Matching-Versuch klappt direkt und ist auch richtig
-		when(osmMatchingRepository.matchGeometry(kante.getGeometry(), "bike"))
-			.thenReturn(kante.getGeometry());
+		MatchResult matchResult1Mock = mock(MatchResult.class);
+		when(osmMatchingRepository.matchGeometry(kante.getGeometry())).thenReturn(matchResult1Mock);
+		when(osmMatchingRepository.extrahiereLineString(eq(matchResult1Mock))).thenReturn(kante.getGeometry());
 		when(korrekturService.checkMatchingGeometrieAufFehlerUndKorrigiere(any(), any(), any(), any()))
 			.thenReturn(kante.getGeometry());
 
 		// matching mit Linearen Referenzen
 		LinearReferenzierteOsmWayId lrOsmWayId = LinearReferenzierteOsmWayId.of(123,
 			LinearReferenzierterAbschnitt.of(0.0, 0.5));
-		when(osmMatchingRepository.matchGeometryLinearReferenziert(kante.getGeometry(), "foot"))
+		when(osmMatchingRepository.extrahiereLineareReferenzierung(matchResult1Mock))
 			.thenReturn(new LinearReferenziertesOsmMatchResult(kante.getGeometry(),
 				List.of(lrOsmWayId)));
 

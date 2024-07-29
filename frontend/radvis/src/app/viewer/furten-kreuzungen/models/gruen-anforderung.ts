@@ -22,17 +22,15 @@ export enum GruenAnforderung {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GruenAnforderung {
-  export const options: EnumOption[] = Object.keys(GruenAnforderung).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case GruenAnforderung.NEIN:
-          return { name: k, displayText: 'Nein' };
-        case GruenAnforderung.MANUELL:
-          return { name: k, displayText: 'Manuell' };
-        case GruenAnforderung.AUTOMATISCH:
-          return { name: k, displayText: 'Automatisch' };
-      }
-      throw new Error('Beschreibung für enum GruenAnforderung fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(GruenAnforderung).map((k: string): EnumOption => {
+    switch (k) {
+      case GruenAnforderung.NEIN:
+        return { name: k, displayText: 'Nein' };
+      case GruenAnforderung.MANUELL:
+        return { name: k, displayText: 'Manuell' };
+      case GruenAnforderung.AUTOMATISCH:
+        return { name: k, displayText: 'Automatisch' };
     }
-  );
+    throw new Error('Beschreibung für enum GruenAnforderung fehlt: ' + k);
+  });
 }

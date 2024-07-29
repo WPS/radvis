@@ -23,9 +23,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import { isArray } from 'rxjs/internal-compatibility';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import invariant from 'tiny-invariant';
-import { isArray } from 'rxjs/internal-compatibility';
 
 @Component({
   selector: 'rad-file-upload-control',
@@ -51,8 +51,7 @@ export class FileUploadControlComponent extends AbstractFormControl<File> implem
   touchOnWrite = true;
 
   @Input()
-  errors?: ValidationErrors | null = null;
-  errorMessages: string[] = [];
+  validating = false;
 
   formControl: FormControl<string>;
 
@@ -76,10 +75,6 @@ export class FileUploadControlComponent extends AbstractFormControl<File> implem
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.dateiEndung && !changes.dateiEndung.firstChange) {
       invariant('Erlaubte Datei-Endung darf nachträglich nicht geändert werden.');
-    }
-    if (changes.errors !== undefined) {
-      this.formControl.setErrors(this.errors || null);
-      this.errorMessages = this.errors ? Object.values<string>(this.errors) : [];
     }
   }
 
@@ -124,32 +119,31 @@ export class FileUploadControlComponent extends AbstractFormControl<File> implem
   }
 
   public validate(): ValidationErrors | null {
-    let fileNameMismatch;
-    let fileSizeTooLarge;
+    const errors: ValidationErrors = {};
 
     const value = this.formControl.value;
     if (value) {
       if (isArray(this.dateiEndung) && this.dateiEndung.length && !this.dateiEndung.some(dE => value.endsWith(dE))) {
-        fileNameMismatch = `Unerlaubter Dateityp: ${value}. Erlaubt sind ${this.dateiEndung.join(', ')}`;
+        errors.fileNameMismatch = `Unerlaubter Dateityp: ${value}. Erlaubt sind ${this.dateiEndung.join(', ')}`;
       } else if (!isArray(this.dateiEndung) && !value.endsWith(this.dateiEndung)) {
-        fileNameMismatch = `Unerlaubter Dateityp: ${value}. Erlaubt ist ${this.dateiEndung}`;
+        errors.fileNameMismatch = `Unerlaubter Dateityp: ${value}. Erlaubt ist ${this.dateiEndung}`;
       }
       if (value.length > 255) {
-        fileNameMismatch = 'Dateiname zu lang, erlaubt sind maximal 255 Zeichen';
+        errors.fileNameMismatch = 'Dateiname zu lang, erlaubt sind maximal 255 Zeichen';
       }
     }
 
     if (this.maxFileSizeInMB !== null && this.fileSizeInMB !== null) {
       if (this.fileSizeInMB > this.maxFileSizeInMB) {
-        fileSizeTooLarge = 'Dateigröße ist zu groß. Es sind maximal ' + this.maxFileSizeInMB + 'MB erlaubt.';
+        errors.fileSizeTooLarge = 'Dateigröße ist zu groß. Es sind maximal ' + this.maxFileSizeInMB + 'MB erlaubt.';
       }
     }
 
-    if (!fileNameMismatch && !fileSizeTooLarge) {
-      return null;
+    if (Object.keys(errors).length > 0) {
+      return errors;
     }
 
-    return { fileNameMismatch, fileSizeTooLarge };
+    return null;
   }
 
   private convertByteToMB(size: number): number {

@@ -113,7 +113,8 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 		when(jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportStartDate()).thenReturn("202205");
 
 		// act
-		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob.doRun()
+		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob
+			.doRun()
 			.get();
 
 		// assert
@@ -123,8 +124,9 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 
 		assertThat(alleZaehlstellen).hasSize(2);
 
-		List<Fahrradzaehlstelle> alleZaehlstellenMitId100003358 = fahrradzaehlstelleRepository.findAllByBetreiberEigeneIdIn(
-			Set.of(BetreiberEigeneId.of(100003358L)));
+		List<Fahrradzaehlstelle> alleZaehlstellenMitId100003358 = fahrradzaehlstelleRepository
+			.findAllByBetreiberEigeneIdIn(
+				Set.of(BetreiberEigeneId.of(100003358L)));
 		assertThat(alleZaehlstellenMitId100003358).hasSize(1);
 		Fahrradzaehlstelle fahrradzaehlstelle1 = alleZaehlstellenMitId100003358.get(0);
 		assertThat(fahrradzaehlstelle1.getSeriennummer().get()).isEqualTo(Seriennummer.of("YTG13063794"));
@@ -164,8 +166,9 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 			new FahrradzaehlDatenEintrag(Zaehlstand.of(44L), Zaehlstatus.of(0)));
 		assertThat(zaehlstelle1Channel2.get().getFahrradzaehlDaten()).isEqualTo(expectedFahrradzaehlDaten12);
 
-		List<Fahrradzaehlstelle> alleZaehlstellenMitId100003359 = fahrradzaehlstelleRepository.findAllByBetreiberEigeneIdIn(
-			Set.of(BetreiberEigeneId.of(100003359L)));
+		List<Fahrradzaehlstelle> alleZaehlstellenMitId100003359 = fahrradzaehlstelleRepository
+			.findAllByBetreiberEigeneIdIn(
+				Set.of(BetreiberEigeneId.of(100003359L)));
 		assertThat(alleZaehlstellenMitId100003359).hasSize(1);
 		Fahrradzaehlstelle fahrradzaehlstelle2 = alleZaehlstellenMitId100003359.get(0);
 		assertThat(fahrradzaehlstelle2.getSeriennummer().get()).isEqualTo(Seriennummer.of("Y2H17123962"));
@@ -203,7 +206,8 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 		when(jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportStartDate()).thenReturn("202205");
 
 		// act
-		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob.doRun()
+		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob
+			.doRun()
 			.get();
 
 		// assert
@@ -249,7 +253,8 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 		when(jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportStartDate()).thenReturn("202205");
 
 		// act
-		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob.doRun()
+		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob
+			.doRun()
 			.get();
 
 		entityManager.flush();
@@ -304,7 +309,8 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 		when(jobConfigurationProperties.getFahrradzaehlstellenMobiDataImportStartDate()).thenReturn("202103");
 
 		// act
-		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob.doRun()
+		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob
+			.doRun()
 			.get();
 
 		entityManager.flush();
@@ -360,9 +366,9 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 					Channel.builder()
 						.channelId(ChannelId.of(456L))
 						.fahrradzaehlDaten(Map.of(
-								importDatum,
-								FahrradzaehlDatenEintrag.builder().zaehlstand(Zaehlstand.of(25L)).build()
-							)
+							importDatum,
+							FahrradzaehlDatenEintrag.builder().zaehlstand(Zaehlstand.of(25L)).build()
+						)
 						).build()
 				)).build()
 		);
@@ -377,7 +383,8 @@ class FahrradzaehlstellenMobiDataImportJobTestIT extends DBIntegrationTestIT {
 		entityManager.clear();
 
 		// act
-		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob.doRun()
+		FahrradzaehlstellenMobiDataImportStatistik jobStatistik = (FahrradzaehlstellenMobiDataImportStatistik) fahrradzaehlstellenMobiDataImportJob
+			.doRun()
 			.get();
 
 		entityManager.flush();

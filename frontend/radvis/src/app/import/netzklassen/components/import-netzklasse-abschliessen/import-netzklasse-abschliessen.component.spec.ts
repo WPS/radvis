@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 import { DebugElement } from '@angular/core';
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -35,10 +35,12 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { anything, instance, mock, when } from 'ts-mockito';
+import { MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
+import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 
 describe(ImportNetzklasseAbschliessenComponent.name, () => {
   let component: ImportNetzklasseAbschliessenComponent;
-  let fixture: ComponentFixture<ImportNetzklasseAbschliessenComponent>;
+  let fixture: MockedComponentFixture<ImportNetzklasseAbschliessenComponent>;
   let netzklassenImportService: NetzklassenImportService;
   let radVisNetzFeatureService: NetzausschnittService;
   let notifyUserService: NotifyUserService;
@@ -54,7 +56,9 @@ describe(ImportNetzklasseAbschliessenComponent.name, () => {
     anzahlFeaturesOhneMatch: null,
   };
 
-  beforeEach(async () => {
+  ngMocks.faster();
+
+  beforeEach(() => {
     netzklassenImportService = mock(NetzklassenImportService);
     radVisNetzFeatureService = mock(NetzausschnittService);
     notifyUserService = mock(NotifyUserService);
@@ -68,9 +72,9 @@ describe(ImportNetzklasseAbschliessenComponent.name, () => {
     when(netzklassenImportService.getKanteIdsMitNetzklasse()).thenResolve([]);
     when(organisationenService.getOrganisation(anything())).thenResolve(defaultOrganisation);
 
-    await TestBed.configureTestingModule({
+    return TestBed.configureTestingModule({
       declarations: [ImportNetzklasseAbschliessenComponent],
-      imports: [MatIconModule, RouterModule, MatProgressSpinnerModule, MatFormFieldModule],
+      imports: [MatIconModule, ImportSharedModule, RouterModule, MatProgressSpinnerModule, MatFormFieldModule],
       providers: [
         { provide: NetzklassenImportService, useValue: instance(netzklassenImportService) },
         { provide: NetzklassenRoutingService, useValue: instance(mock(NetzklassenRoutingService)) },
@@ -83,8 +87,8 @@ describe(ImportNetzklasseAbschliessenComponent.name, () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ImportNetzklasseAbschliessenComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(ImportNetzklasseAbschliessenComponent);
+    component = fixture.point.componentInstance;
     component.fetchingFeatures = true;
     fixture.detectChanges();
   });
@@ -106,8 +110,8 @@ describe(ImportNetzklasseAbschliessenComponent.name, () => {
 
       when(netzklassenImportService.getImportSession()).thenReturn(of(updateDoneNetzklassenImportSessionView));
 
-      fixture = TestBed.createComponent(ImportNetzklasseAbschliessenComponent);
-      component = fixture.componentInstance;
+      fixture = MockRender(ImportNetzklasseAbschliessenComponent);
+      component = fixture.point.componentInstance;
       component.fetchingFeatures = false;
 
       tick();
@@ -136,8 +140,8 @@ describe(ImportNetzklasseAbschliessenComponent.name, () => {
 
       when(netzklassenImportService.getImportSession()).thenReturn(of(updateExecutingNetzklassenImportSessionView));
 
-      fixture = TestBed.createComponent(ImportNetzklasseAbschliessenComponent);
-      component = fixture.componentInstance;
+      fixture = MockRender(ImportNetzklasseAbschliessenComponent);
+      component = fixture.point.componentInstance;
       component.fetchingFeatures = false;
 
       tick();

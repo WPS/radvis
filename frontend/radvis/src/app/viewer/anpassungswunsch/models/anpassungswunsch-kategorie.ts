@@ -26,25 +26,23 @@ export enum AnpassungswunschKategorie {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AnpassungswunschKategorie {
-  export const options: EnumOption[] = Object.keys(AnpassungswunschKategorie).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case AnpassungswunschKategorie.DLM:
-          return { name: k, displayText: 'DLM' };
-        case AnpassungswunschKategorie.TOUBIZ:
-          return { name: k, displayText: 'Toubiz' };
-        case AnpassungswunschKategorie.RADVIS:
-          return { name: k, displayText: 'RadVIS' };
-        case AnpassungswunschKategorie.OSM:
-          return { name: k, displayText: 'OSM' };
-        case AnpassungswunschKategorie.TT_SIB:
-          return { name: k, displayText: 'TT-SIB' };
-        case AnpassungswunschKategorie.WEGWEISUNGSSYSTEM:
-          return { name: k, displayText: 'Wegweisungssystem' };
-      }
-      throw new Error('Beschreibung für enum AnpassungswunschKategorie fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(AnpassungswunschKategorie).map((k: string): EnumOption => {
+    switch (k) {
+      case AnpassungswunschKategorie.DLM:
+        return { name: k, displayText: 'DLM' };
+      case AnpassungswunschKategorie.TOUBIZ:
+        return { name: k, displayText: 'Toubiz' };
+      case AnpassungswunschKategorie.RADVIS:
+        return { name: k, displayText: 'RadVIS' };
+      case AnpassungswunschKategorie.OSM:
+        return { name: k, displayText: 'OSM' };
+      case AnpassungswunschKategorie.TT_SIB:
+        return { name: k, displayText: 'TT-SIB' };
+      case AnpassungswunschKategorie.WEGWEISUNGSSYSTEM:
+        return { name: k, displayText: 'Wegweisungssystem' };
     }
-  );
+    throw new Error('Beschreibung für enum AnpassungswunschKategorie fehlt: ' + k);
+  });
 
   export const displayTextOf: (AnpassungswunschKategorie: AnpassungswunschKategorie) => string = (
     anpassungswunschKategorie: AnpassungswunschKategorie

@@ -31,7 +31,10 @@ export class WeitereKartenebenenInfrastrukturMenuComponent {
 
   public hasLayers$: Observable<boolean>;
 
-  constructor(private dialog: MatDialog, weitereKartenebenenService: WeitereKartenebenenService) {
+  constructor(
+    private dialog: MatDialog,
+    weitereKartenebenenService: WeitereKartenebenenService
+  ) {
     this.hasLayers$ = weitereKartenebenenService.weitereKartenebenen$.pipe(map(l => l.length > 0));
   }
 

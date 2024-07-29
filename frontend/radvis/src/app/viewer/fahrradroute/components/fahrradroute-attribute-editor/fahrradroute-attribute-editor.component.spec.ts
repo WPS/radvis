@@ -170,27 +170,24 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       .keep(BreakpointObserver);
   });
 
-  it(
-    'should show "keine Route berechenbar" message',
-    waitForAsync(() => {
-      const expectedFahrradroute: FahrradrouteDetailView = {
-        ...defaultFahrradroute,
-        geometrie: undefined,
-        stuetzpunkte: undefined,
-        varianten: [],
-      };
-      const dataBehaviorSubject = new BehaviorSubject<Data>({
-        fahrradrouteDetailView: expectedFahrradroute,
-      });
-      when(activatedRoute.data).thenReturn(dataBehaviorSubject.asObservable());
+  it('should show "keine Route berechenbar" message', waitForAsync(() => {
+    const expectedFahrradroute: FahrradrouteDetailView = {
+      ...defaultFahrradroute,
+      geometrie: undefined,
+      stuetzpunkte: undefined,
+      varianten: [],
+    };
+    const dataBehaviorSubject = new BehaviorSubject<Data>({
+      fahrradrouteDetailView: expectedFahrradroute,
+    });
+    when(activatedRoute.data).thenReturn(dataBehaviorSubject.asObservable());
 
-      // Konstruktor der Komponente ausfuehren
-      fixture = TestBed.createComponent(FahrradrouteAttributeEditorComponent);
+    // Konstruktor der Komponente ausfuehren
+    fixture = TestBed.createComponent(FahrradrouteAttributeEditorComponent);
 
-      verify(notifyUserService.warn(anything())).once();
-      expect().nothing();
-    })
-  );
+    verify(notifyUserService.warn(anything())).once();
+    expect().nothing();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(FahrradrouteAttributeEditorComponent);

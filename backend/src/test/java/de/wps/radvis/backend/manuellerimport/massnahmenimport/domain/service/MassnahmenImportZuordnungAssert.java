@@ -93,7 +93,7 @@ public class MassnahmenImportZuordnungAssert
 	public MassnahmenImportZuordnungAssert hasFehlerSize(int amount) {
 		isNotNull();
 		if (actual.getMappingFehler().size() != amount) {
-			failWithMessage("Expected MassnahmenImportZuordnung to have %s Fehler but only found %s: %s",
+			failWithMessage("Expected MassnahmenImportZuordnung to have %s MappingFehler but only found %s: %s",
 				amount, actual.getMappingFehler().size(), actual.getMappingFehler());
 		}
 		return this;
@@ -102,7 +102,16 @@ public class MassnahmenImportZuordnungAssert
 	public MassnahmenImportZuordnungAssert doesNotHaveAnyFehler() {
 		isNotNull();
 		if (!actual.getMappingFehler().isEmpty()) {
-			failWithMessage("Expected MassnahmenImportZuordnung to have not have any Fehler but found %s",
+			failWithMessage("Expected MassnahmenImportZuordnung to have not have any MappingFehler but found %s",
+				actual.getMappingFehler());
+		}
+		return this;
+	}
+
+	public MassnahmenImportZuordnungAssert doesNotHaveAnyHinweis() {
+		isNotNull();
+		if (!actual.getNetzbezugHinweise().isEmpty()) {
+			failWithMessage("Expected MassnahmenImportZuordnung to have not have any NetzbezugHinweis but found %s",
 				actual.getMappingFehler());
 		}
 		return this;
@@ -110,9 +119,9 @@ public class MassnahmenImportZuordnungAssert
 
 	public MassnahmenImportZuordnungAssert hasStatus(@NonNull MassnahmenImportZuordnungStatus status) {
 		isNotNull();
-		if (!actual.getStatus().equals(status)) {
+		if (!actual.getZuordnungStatus().equals(status)) {
 			failWithMessage("Expected MassnahmenImportZuordnung to have Status %s but was %s",
-				status, actual.getStatus());
+				status, actual.getZuordnungStatus());
 		}
 		return this;
 	}
@@ -141,21 +150,21 @@ public class MassnahmenImportZuordnungAssert
 
 	public MassnahmenImportZuordnungAssert hasMassnahmeId(MassnahmeKonzeptID massnahmeID) {
 		isNotNull();
-		if (actual.getId().isEmpty()) {
+		if (actual.getMassnahmeKonzeptId().isEmpty()) {
 			failWithMessage("Expected MassnahmenImportZuordnung to have MassnahmeID %s but was empty",
-				actual.getId());
-		} else if (!actual.getId().get().equals(massnahmeID)) {
+				actual.getMassnahmeKonzeptId());
+		} else if (!actual.getMassnahmeKonzeptId().get().equals(massnahmeID)) {
 			failWithMessage("Expected MassnahmenImportZuordnung to have MassnahmeID %s but was %s",
-				massnahmeID, actual.getId().get());
+				massnahmeID, actual.getMassnahmeKonzeptId().get());
 		}
 		return this;
 	}
 
 	public MassnahmenImportZuordnungAssert doesNotHaveAnyMassnahmeID() {
 		isNotNull();
-		if (actual.getId().isPresent()) {
+		if (actual.getMassnahmeKonzeptId().isPresent()) {
 			failWithMessage("Expected MassnahmenImportZuordnung to not have any MassnahmeID but was %s",
-				actual.getId().get());
+				actual.getMassnahmeKonzeptId().get());
 		}
 		return this;
 	}

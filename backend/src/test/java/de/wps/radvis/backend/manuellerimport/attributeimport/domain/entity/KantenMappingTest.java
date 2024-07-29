@@ -114,8 +114,8 @@ class KantenMappingTest {
 		LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 74),
 			new Coordinate(101.1, 104));
 		MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_links,
-				Map.of("belag", "20"))
+			lineString1_links,
+			Map.of("belag", "20"))
 			.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 			.build();
@@ -123,8 +123,8 @@ class KantenMappingTest {
 		LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 104),
 			new Coordinate(120.2, 124));
 		MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_links,
-				Map.of("belag", "40"))
+			lineString2_links,
+			Map.of("belag", "40"))
 			.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 			.build();
@@ -133,8 +133,8 @@ class KantenMappingTest {
 			new Coordinate(100.1, 96));
 
 		MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString1_rechts,
-				Map.of("belag", "10"))
+			lineString1_rechts,
+			Map.of("belag", "10"))
 			.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 			.build();
@@ -143,8 +143,8 @@ class KantenMappingTest {
 			new Coordinate(120.2, 116));
 
 		MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-				lineString2_rechts,
-				Map.of("belag", "30"))
+			lineString2_rechts,
+			Map.of("belag", "30"))
 			.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 			.build();
@@ -214,8 +214,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 74),
 				new Coordinate(101.1, 104));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -223,8 +223,8 @@ class KantenMappingTest {
 			LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 104),
 				new Coordinate(120.2, 124));
 			MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_links,
-					Map.of("belag", "40"))
+				lineString2_links,
+				Map.of("belag", "40"))
 				.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 				.build();
@@ -233,8 +233,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 96));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -243,8 +243,8 @@ class KantenMappingTest {
 				new Coordinate(120.2, 116));
 
 			MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_rechts,
-					Map.of("belag", "30"))
+				lineString2_rechts,
+				Map.of("belag", "30"))
 				.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 				.build();
@@ -269,8 +269,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 74),
 				new Coordinate(101.1, 104));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -279,8 +279,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 96));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -303,8 +303,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 73),
 				new Coordinate(101.1, 103));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -313,8 +313,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 97));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -337,8 +337,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 73),
 				new Coordinate(101.1, 103));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -346,8 +346,8 @@ class KantenMappingTest {
 			LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 103),
 				new Coordinate(120.2, 123));
 			MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_links,
-					Map.of("belag", "40"))
+				lineString2_links,
+				Map.of("belag", "40"))
 				.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 				.build();
@@ -356,8 +356,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 97));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -366,8 +366,8 @@ class KantenMappingTest {
 				new Coordinate(120.2, 117));
 
 			MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_rechts,
-					Map.of("belag", "30"))
+				lineString2_rechts,
+				Map.of("belag", "30"))
 				.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 				.build();
@@ -392,8 +392,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 71.5),
 				new Coordinate(101.1, 101.5));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -401,8 +401,8 @@ class KantenMappingTest {
 			LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 101.5),
 				new Coordinate(120.2, 121.5));
 			MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_links,
-					Map.of("belag", "40"))
+				lineString2_links,
+				Map.of("belag", "40"))
 				.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 				.build();
@@ -411,8 +411,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 98.5));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -421,8 +421,8 @@ class KantenMappingTest {
 				new Coordinate(120.2, 118.5));
 
 			MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_rechts,
-					Map.of("belag", "30"))
+				lineString2_rechts,
+				Map.of("belag", "30"))
 				.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 				.build();
@@ -446,8 +446,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 78),
 				new Coordinate(101.1, 108));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -455,8 +455,8 @@ class KantenMappingTest {
 			LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 108),
 				new Coordinate(120.2, 128));
 			MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_links,
-					Map.of("belag", "40"))
+				lineString2_links,
+				Map.of("belag", "40"))
 				.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 				.build();
@@ -465,8 +465,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 101));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -475,8 +475,8 @@ class KantenMappingTest {
 				new Coordinate(120.2, 121));
 
 			MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_rechts,
-					Map.of("belag", "30"))
+				lineString2_rechts,
+				Map.of("belag", "30"))
 				.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 				.build();
@@ -500,8 +500,8 @@ class KantenMappingTest {
 			LineString lineString1_links = GeometryTestdataProvider.createLineString(new Coordinate(70, 82),
 				new Coordinate(101.1, 112));
 			MappedFeature mappedFeature1_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_links,
-					Map.of("belag", "20"))
+				lineString1_links,
+				Map.of("belag", "20"))
 				.haendigkeit(Haendigkeit.of(lineString1_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -509,8 +509,8 @@ class KantenMappingTest {
 			LineString lineString2_links = GeometryTestdataProvider.createLineString(new Coordinate(101.1, 112),
 				new Coordinate(120.2, 132));
 			MappedFeature mappedFeature2_links = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_links,
-					Map.of("belag", "40"))
+				lineString2_links,
+				Map.of("belag", "40"))
 				.haendigkeit(Haendigkeit.of(lineString2_links, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.45, 1))
 				.build();
@@ -519,8 +519,8 @@ class KantenMappingTest {
 				new Coordinate(100.1, 106));
 
 			MappedFeature mappedFeature1_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString1_rechts,
-					Map.of("belag", "10"))
+				lineString1_rechts,
+				Map.of("belag", "10"))
 				.haendigkeit(Haendigkeit.of(lineString1_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 0.55))
 				.build();
@@ -529,8 +529,8 @@ class KantenMappingTest {
 				new Coordinate(120.2, 126));
 
 			MappedFeature mappedFeature2_rechts = MappedFeatureTestDataProvider.withLineStringAndProperties(
-					lineString2_rechts,
-					Map.of("belag", "30"))
+				lineString2_rechts,
+				Map.of("belag", "30"))
 				.haendigkeit(Haendigkeit.of(lineString2_rechts, kante1.getGeometry()))
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 				.build();

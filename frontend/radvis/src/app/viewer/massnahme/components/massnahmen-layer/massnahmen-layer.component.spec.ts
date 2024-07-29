@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
-import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
+import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Coordinate } from 'ol/coordinate';
 import { LineString, MultiLineString, Point } from 'ol/geom';
 import VectorSource from 'ol/source/Vector';
@@ -45,6 +45,7 @@ import { SignaturStyleProviderService } from 'src/app/viewer/signatur/services/s
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 
 describe(MassnahmenLayerComponent.name, () => {
   let component: MassnahmenLayerComponent;
@@ -179,8 +180,18 @@ describe(MassnahmenLayerComponent.name, () => {
   describe('highlight from highlightService', () => {
     it('should set feature properties correctly when highlightService triggers', () => {
       // arrange
-      const radVisFeature1 = new RadVisFeature(1, [], MASSNAHMEN.name, new Point([1, 2]));
-      const radVisFeature2 = new RadVisFeature(2, [], MASSNAHMEN.name, new Point([1, 2]));
+      const radVisFeature1 = new RadVisFeature(
+        1,
+        toRadVisFeatureAttributesFromMap(),
+        MASSNAHMEN.name,
+        new Point([1, 2])
+      );
+      const radVisFeature2 = new RadVisFeature(
+        2,
+        toRadVisFeatureAttributesFromMap(),
+        MASSNAHMEN.name,
+        new Point([1, 2])
+      );
 
       expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeFalsy();
       expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
@@ -204,8 +215,18 @@ describe(MassnahmenLayerComponent.name, () => {
     it('should not unhighlight selectedFeature', () => {
       // arrange
       selectedMassnahmenIdTestSubject.next(1);
-      const radVisFeature1 = new RadVisFeature(1, [], MASSNAHMEN.name, new Point([1, 2]));
-      const radVisFeature2 = new RadVisFeature(2, [], MASSNAHMEN.name, new Point([1, 2]));
+      const radVisFeature1 = new RadVisFeature(
+        1,
+        toRadVisFeatureAttributesFromMap(),
+        MASSNAHMEN.name,
+        new Point([1, 2])
+      );
+      const radVisFeature2 = new RadVisFeature(
+        2,
+        toRadVisFeatureAttributesFromMap(),
+        MASSNAHMEN.name,
+        new Point([1, 2])
+      );
 
       expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTruthy();
       expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();

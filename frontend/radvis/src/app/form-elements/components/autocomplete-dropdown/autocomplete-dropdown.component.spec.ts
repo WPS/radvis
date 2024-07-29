@@ -26,9 +26,9 @@ describe(AutocompleteDropdownComponent.name, () => {
   });
 
   beforeEach(() => {
-    fixture = MockRender(AutocompleteDropdownComponent, ({
+    fixture = MockRender(AutocompleteDropdownComponent, {
       options: [],
-    } as unknown) as AutocompleteDropdownComponent);
+    } as unknown as AutocompleteDropdownComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });

@@ -136,9 +136,9 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 			LinearReferenzierterAbschnitt.of(0, 1));
 
 		Fahrradroute fahrradroute = FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-				List.of(abschnittsweiserKantenBezug),
-				abschnittsweiserKantenBezug.getKante().getGeometry(),
-				originalGeometrie)
+			List.of(abschnittsweiserKantenBezug),
+			abschnittsweiserKantenBezug.getKante().getGeometry(),
+			originalGeometrie)
 			.iconLocation(originalGeometrie.getStartPoint())
 			.build();
 
@@ -170,9 +170,9 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 	void findAllAsView_mehrereKantenNetzbezug() {
 		// arrange
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezug = List.of(new AbschnittsweiserKantenBezug(
-				KanteTestDataProvider.withCoordinatesAndQuelle(417704.57, 5288712.62, 417919.10, 5288811.05,
-					QuellSystem.RadNETZ).build(),
-				LinearReferenzierterAbschnitt.of(0, 1)),
+			KanteTestDataProvider.withCoordinatesAndQuelle(417704.57, 5288712.62, 417919.10, 5288811.05,
+				QuellSystem.RadNETZ).build(),
+			LinearReferenzierterAbschnitt.of(0, 1)),
 			new AbschnittsweiserKantenBezug(
 				KanteTestDataProvider.withCoordinatesAndQuelle(417919.10, 5288811.05, 417857.16, 5289062.56,
 					QuellSystem.RadNETZ).build(),
@@ -191,9 +191,9 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 			new Coordinate(417857.16, 5289062.56));
 
 		Fahrradroute fahrradroute = FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-				abschnittsweiserKantenBezugList,
-				netzbezugLineString,
-				netzbezugLineString)
+			abschnittsweiserKantenBezugList,
+			netzbezugLineString,
+			netzbezugLineString)
 			.build();
 
 		gebietskoerperschaftRepository.save((Gebietskoerperschaft) fahrradroute.getVerantwortlich().get());
@@ -217,9 +217,9 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 	void findAllAsView_mehrereKanten_mitLineareRef() {
 		// arrange
 		List<AbschnittsweiserKantenBezug> abschnittsweiserKantenBezug = List.of(new AbschnittsweiserKantenBezug(
-				KanteTestDataProvider.withCoordinatesAndQuelle(417704.57, 5288712.62, 417919.10, 5288811.05,
-					QuellSystem.RadNETZ).build(),
-				LinearReferenzierterAbschnitt.of(0.5, 1)),
+			KanteTestDataProvider.withCoordinatesAndQuelle(417704.57, 5288712.62, 417919.10, 5288811.05,
+				QuellSystem.RadNETZ).build(),
+			LinearReferenzierterAbschnitt.of(0.5, 1)),
 			new AbschnittsweiserKantenBezug(
 				KanteTestDataProvider.withCoordinatesAndQuelle(417919.10, 5288811.05, 417857.16, 5289062.56,
 					QuellSystem.RadNETZ).build(),
@@ -238,9 +238,9 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 			new Coordinate(417888.13, 5288936.805));
 
 		Fahrradroute fahrradroute = FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-				abschnittsweiserKantenBezugList,
-				netzbezugLineString,
-				netzbezugLineString)
+			abschnittsweiserKantenBezugList,
+			netzbezugLineString,
+			netzbezugLineString)
 			.build();
 
 		gebietskoerperschaftRepository.save((Gebietskoerperschaft) fahrradroute.getVerantwortlich().get());
@@ -308,7 +308,7 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 			new Coordinate(100.0, 100.0));
 
 		Fahrradroute mitNetzbezugLineString = FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-				List.of(abschnittsweiserKantenBezug), netzbezugLineString, originalGeometrie)
+			List.of(abschnittsweiserKantenBezug), netzbezugLineString, originalGeometrie)
 			.name(FahrradrouteName.of("mitNetzbezugLineString"))
 			.build();
 
@@ -343,7 +343,7 @@ class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
 			new Coordinate(100.0, 100.0));
 
 		Fahrradroute ohneNetzbezugLineString = FahrradrouteTestDataProvider.defaultWithCustomNetzbezug(
-				List.of(abschnittsweiserKantenBezug), null, originalGeometrie)
+			List.of(abschnittsweiserKantenBezug), null, originalGeometrie)
 			.name(FahrradrouteName.of("ohneNetzbezugLineString"))
 			.build();
 

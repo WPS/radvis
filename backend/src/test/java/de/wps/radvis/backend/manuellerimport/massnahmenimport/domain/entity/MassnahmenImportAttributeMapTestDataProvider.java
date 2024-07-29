@@ -1,12 +1,15 @@
 package de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MassnahmenImportAttribute;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 
 public class MassnahmenImportAttributeMapTestDataProvider {
 	public static Map<String, String> fromMassnahme(Massnahme massnahme) {
@@ -98,6 +101,22 @@ public class MassnahmenImportAttributeMapTestDataProvider {
 		attribute.put(MassnahmenImportAttribute.MAVIS_ID.toString(), stringOverMaxLength);
 		attribute.put(MassnahmenImportAttribute.VERBA_ID.toString(), stringOverMaxLength);
 		attribute.put(MassnahmenImportAttribute.LGVFG_ID.toString(), stringOverMaxLength);
+		return attribute;
+	}
+
+	public static Map<String, String> dummyPflichtattribute() {
+		Map<String, String> attribute = new HashMap<>();
+
+		attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(), Umsetzungsstatus.IDEE.toString());
+		attribute.put(MassnahmenImportAttribute.BEZEICHNUNG.toString(), "Bezeichnende Bezeichnung");
+		attribute.put(MassnahmenImportAttribute.KATEGORIEN.toString(),
+			List.of(Massnahmenkategorie.FURTEN_ERNEUERN.name(), Massnahmenkategorie.EINRICHTUNG_FAHRRADSTRASSE.name())
+				.stream()
+				.collect(Collectors.joining(";")));
+		attribute.put(MassnahmenImportAttribute.ZUSTAENDIGER.toString(), "Großoberkleinmitteluntenbach (Gemeinde)");
+		attribute.put(MassnahmenImportAttribute.SOLL_STANDARD.toString(),
+			SollStandard.STARTSTANDARD_RADNETZ.toString());
+
 		return attribute;
 	}
 }

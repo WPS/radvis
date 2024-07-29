@@ -36,7 +36,6 @@ import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.GeometrienVerl
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteNetzklasseMapView;
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.NetzMapView;
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.NetzNetzklasseMapView;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
 import de.wps.radvis.backend.common.schnittstelle.RadvisViewController;
@@ -62,17 +61,19 @@ public class NetzausschnittController {
 	private final NetzausschnittService netzausschnittService;
 	private final KantenMappingService kantenMappingService;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
-
 	private final NetzausschnittGuard netzausschnittGuard;
 
-	public NetzausschnittController(@NonNull NetzToGeoJsonConverter netzToGeoJsonConverter,
+	public NetzausschnittController(
+		@NonNull NetzToGeoJsonConverter netzToGeoJsonConverter,
 		@NonNull NetzService netzService,
-		@NonNull NetzausschnittService netzausschnittService, @NonNull KantenMappingService kantenMappingService,
+		@NonNull NetzausschnittService netzausschnittService,
+		@NonNull KantenMappingService kantenMappingService,
 		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
-		@NonNull NetzausschnittGuard netzausschnittGuard) {
+		@NonNull NetzausschnittGuard netzausschnittGuard
+	) {
 		super();
-		this.netzausschnittService = netzausschnittService;
 		this.netzToGeoJsonConverter = netzToGeoJsonConverter;
+		this.netzausschnittService = netzausschnittService;
 		this.netzService = netzService;
 		this.kantenMappingService = kantenMappingService;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
@@ -113,8 +114,7 @@ public class NetzausschnittController {
 
 	@GetMapping("alleRadNETZStrecken")
 	public FeatureCollection getStreckenGeoJson(@RequestParam boolean mitVerlauf) {
-		if (!FeatureTogglz.RADNETZ_STRECKEN.isActive()) {
-			// Wenn dieses featureToggle nicht aktiviert ist, wurde kein RadNETZ Strecken Cache erstellt
+		if (!this.netzausschnittService.hasCachedNetzMapView()) {
 			return GeoJsonConverter.createFeatureCollection();
 		}
 		NetzMapView netzAusschnitt = this.netzausschnittService.getCachedNetzMapView();

@@ -17,7 +17,7 @@ import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
-import { Netzbezug } from 'src/app/viewer/viewer-shared/models/netzbezug';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface CreateMassnahmeCommand {
   bezeichnung: string;

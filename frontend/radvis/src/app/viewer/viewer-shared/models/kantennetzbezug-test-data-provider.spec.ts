@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { KantenNetzbezug } from 'src/app/viewer/viewer-shared/models/kanten-netzbezug';
+import { KantenNetzbezug } from 'src/app/shared/models/kanten-netzbezug';
 
 export const defaultKantenbezug: KantenNetzbezug[] = [
   {

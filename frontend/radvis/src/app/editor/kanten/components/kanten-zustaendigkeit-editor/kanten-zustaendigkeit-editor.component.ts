@@ -15,14 +15,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
-import {
-  AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor
-} from 'src/app/editor/kanten/components/abstract-linear-referenzierte-attribut-gruppe-ohne-seitenbezug-editor';
+import { AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor } from 'src/app/editor/kanten/components/abstract-linear-referenzierte-attribut-gruppe-ohne-seitenbezug-editor';
 import { Kante } from 'src/app/editor/kanten/models/kante';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
-import {
-  SaveZustaendigkeitAttributGruppeCommand
-} from 'src/app/editor/kanten/models/save-zustaendigkeit-attribut-gruppe-command';
+import { SaveZustaendigkeitAttributGruppeCommand } from 'src/app/editor/kanten/models/save-zustaendigkeit-attribut-gruppe-command';
 import { SaveZustaendigkeitAttributeCommand } from 'src/app/editor/kanten/models/save-zustaendigkeit-attribute-command';
 import { ZustaendigkeitAttributGruppe } from 'src/app/editor/kanten/models/zustaendigkeit-attribut-gruppe';
 import { ZustaendigkeitAttribute } from 'src/app/editor/kanten/models/zustaendigkeit-attribute';
@@ -49,9 +45,12 @@ import invariant from 'tiny-invariant';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KantenZustaendigkeitEditorComponent
-  extends AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor<ZustaendigkeitAttribute,
-    ZustaendigkeitAttributGruppe>
-  implements DiscardableComponent, OnDestroy, OnInit {
+  extends AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor<
+    ZustaendigkeitAttribute,
+    ZustaendigkeitAttributGruppe
+  >
+  implements DiscardableComponent, OnDestroy, OnInit
+{
   alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
 
   private readonly vereinbarungsKennungMaxLength = 255;
@@ -62,7 +61,7 @@ export class KantenZustaendigkeitEditorComponent
     notifyUserService: NotifyUserService,
     kantenSelektionService: KantenSelektionService,
     organisationenService: OrganisationenService,
-    benutzerDetailsService: BenutzerDetailsService,
+    benutzerDetailsService: BenutzerDetailsService
   ) {
     super(changeDetectorRef, notifyUserService, kantenSelektionService, benutzerDetailsService);
     this.alleOrganisationenOptions = organisationenService.getOrganisationen();
@@ -73,8 +72,8 @@ export class KantenZustaendigkeitEditorComponent
     this.displayedAttributeformGroup.get('vereinbarungsKennung')?.valueChanges.subscribe((value: string) => {
       if (value.length > this.vereinbarungsKennungMaxLength) {
         this.displayedAttributeformGroup
-        .get('vereinbarungsKennung')
-        ?.setValue(value.substr(0, this.vereinbarungsKennungMaxLength));
+          .get('vereinbarungsKennung')
+          ?.setValue(value.substr(0, this.vereinbarungsKennungMaxLength));
         this.displayedAttributeformGroup.get('vereinbarungsKennung')?.updateValueAndValidity({ emitEvent: false });
         this.notifyUserService.inform('Vereinbarungskennung wurde auf maximal erlaubte Länge gekürzt.');
       }
@@ -99,10 +98,10 @@ export class KantenZustaendigkeitEditorComponent
   protected saveAttributgruppe(attributgruppen: ZustaendigkeitAttributGruppe[]): Promise<Kante[]> {
     const commands = attributgruppen.map(attributgruppe => {
       const attributeCommand = attributgruppe.zustaendigkeitAttribute.map(attribute =>
-        this.convertAttributeToAttributeCommand(attribute),
+        this.convertAttributeToAttributeCommand(attribute)
       );
       const associatedKantenSelektion = this.currentSelektion?.find(
-        kantenSelektion => this.getAttributGruppeFrom(kantenSelektion.kante).id === attributgruppe.id,
+        kantenSelektion => this.getAttributGruppeFrom(kantenSelektion.kante).id === attributgruppe.id
       ) as KantenSelektion;
       return {
         gruppenID: attributgruppe.id,
@@ -133,18 +132,18 @@ export class KantenZustaendigkeitEditorComponent
         {
           baulastTraeger: this.determineValueOrUndeterminedForOrganisation(
             'baulastTraeger',
-            selectedZustaendigkeitAttributeArray,
+            selectedZustaendigkeitAttributeArray
           ),
           unterhaltsZustaendiger: this.determineValueOrUndeterminedForOrganisation(
             'unterhaltsZustaendiger',
-            selectedZustaendigkeitAttributeArray,
+            selectedZustaendigkeitAttributeArray
           ),
           erhaltsZustaendiger: this.determineValueOrUndeterminedForOrganisation(
             'erhaltsZustaendiger',
-            selectedZustaendigkeitAttributeArray,
+            selectedZustaendigkeitAttributeArray
           ),
         },
-        { emitEvent: false },
+        { emitEvent: false }
       );
     }
   }
@@ -157,7 +156,9 @@ export class KantenZustaendigkeitEditorComponent
     return kante.zustaendigkeitAttributGruppe;
   }
 
-  protected updateCurrentAttributgruppenWithLineareReferenzen(newLineareReferenzenArrays: LinearReferenzierterAbschnitt[][]): void {
+  protected updateCurrentAttributgruppenWithLineareReferenzen(
+    newLineareReferenzenArrays: LinearReferenzierterAbschnitt[][]
+  ): void {
     newLineareReferenzenArrays.forEach((lineareReferenzen, kantenIndex) => {
       lineareReferenzen.forEach((lineareReferenz, segmentIndex) => {
         this.currentAttributgruppen[kantenIndex].zustaendigkeitAttribute[segmentIndex].linearReferenzierterAbschnitt =
@@ -169,7 +170,7 @@ export class KantenZustaendigkeitEditorComponent
   protected updateCurrentAttributgruppenWithAttribute(changedAttributePartial: { [id: string]: any }): void {
     this.currentSelektion?.forEach(kantenSelektion => {
       const attributgruppeToChange = this.currentAttributgruppen.find(
-        gruppe => gruppe.id === kantenSelektion.kante.zustaendigkeitAttributGruppe.id,
+        gruppe => gruppe.id === kantenSelektion.kante.zustaendigkeitAttributGruppe.id
       );
       invariant(attributgruppeToChange);
       kantenSelektion.getSelectedSegmentIndices().forEach(selectedSegmentIndex => {
@@ -188,7 +189,9 @@ export class KantenZustaendigkeitEditorComponent
   }
 
   private extractLineareReferenzenFromKante(kante: Kante): LinearReferenzierterAbschnitt[] {
-    return kante.zustaendigkeitAttributGruppe.zustaendigkeitAttribute.map(attribute => attribute.linearReferenzierterAbschnitt);
+    return kante.zustaendigkeitAttributGruppe.zustaendigkeitAttribute.map(
+      attribute => attribute.linearReferenzierterAbschnitt
+    );
   }
 
   private convertAttributeToAttributeCommand(attribute: ZustaendigkeitAttribute): SaveZustaendigkeitAttributeCommand {
@@ -203,10 +206,11 @@ export class KantenZustaendigkeitEditorComponent
 
   private determineValueOrUndeterminedForOrganisation(
     key: keyof ZustaendigkeitAttribute,
-    zustaendigkeitAttributeArray: ZustaendigkeitAttribute[],
+    zustaendigkeitAttributeArray: ZustaendigkeitAttribute[]
   ): any {
     return zustaendigkeitAttributeArray.every(
-      attribute => (attribute[key] as Verwaltungseinheit)?.id === (zustaendigkeitAttributeArray[0][key] as Verwaltungseinheit)?.id,
+      attribute =>
+        (attribute[key] as Verwaltungseinheit)?.id === (zustaendigkeitAttributeArray[0][key] as Verwaltungseinheit)?.id
     )
       ? zustaendigkeitAttributeArray[0][key]
       : new UndeterminedValue();

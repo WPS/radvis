@@ -66,7 +66,7 @@ class JobRestControllerTest {
 		// act + assert
 		assertThatThrownBy(
 			() -> jobController.describe())
-			.isInstanceOf(ResponseStatusException.class)
-			.hasMessage("403 FORBIDDEN \"Jobs können nur im Job-Modus ausgeführt werden.\"");
+				.isInstanceOf(ResponseStatusException.class)
+				.hasMessage("403 FORBIDDEN \"Jobs können nur im Job-Modus ausgeführt werden.\"");
 	}
 }

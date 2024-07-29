@@ -16,21 +16,14 @@
   <div class="accordion-container">
     <mat-accordion
       *ngFor="let formGroup of formArrayAsFormGroupArray; let index = index"
-      [@.disabled]="disableAnimation"
-    >
+      [@.disabled]="disableAnimation">
       <!-- keine id bedeutet es handelt sich um einen neuen Layer-->
       <mat-expansion-panel [expanded]="!formGroup.get('id')?.value">
         <mat-expansion-panel-header>
           <mat-panel-title>{{ formGroup.get('name')?.value }}</mat-panel-title>
           <mat-panel-description *ngIf="formGroup.invalid">(enthält Fehler)</mat-panel-description>
           <div class="display-flex justify-content-flex-end delete-button">
-            <button
-              (click)="onDeleteLayer(index)"
-              [attr.aria-label]="'Layer entfernen'"
-              mat-icon-button
-              matTooltip="Layer entfernen"
-              type="button"
-            >
+            <button (click)="onDeleteLayer(index)" mat-icon-button matTooltip="Layer entfernen" type="button">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -48,8 +41,7 @@
           <rad-enum-dropdown-control
             [nullable]="false"
             [options]="layerTypOptions"
-            formControlName="weitereKartenebeneTyp"
-          >
+            formControlName="weitereKartenebeneTyp">
             Layertyp
           </rad-enum-dropdown-control>
 
@@ -57,17 +49,14 @@
             formControlName="quellangabe"
             [asTextarea]="true"
             [maxLength]="QUELLANGABE_MAX_LENGTH"
-            [errors]="formGroup.get('quellangabe')?.errors"
-          >
+            [errors]="formGroup.get('quellangabe')?.errors">
             <div class="label">Quelle/Lizenzbedingungen</div>
             <div class="suffix">
               <button
                 (click)="onGenerateQuellangabe(formGroup, index)"
-                [attr.aria-label]="'Quellangabe aus Layer auslesen'"
                 [disabled]="!formGroup.get('url')?.valid"
                 mat-icon-button
-                matTooltip="Quellangabe aus Layer auslesen"
-              >
+                matTooltip="Quellangabe aus Layer auslesen">
                 <mat-icon *ngIf="parsingQuellangabeForLayerIndex !== index">auto_fix_high</mat-icon>
                 <mat-spinner *ngIf="index === parsingQuellangabeForLayerIndex" diameter="16"></mat-spinner>
               </button>
@@ -87,8 +76,7 @@
               class="zindex-eingabe-feld"
               [value]="formGroup.get('zindex')?.value"
               [anzahlNachkommastellen]="0"
-              formControlName="zindex"
-            >
+              formControlName="zindex">
               <div class="label">Anzeigeordnung</div>
             </rad-float-input-control>
             <mat-icon
@@ -104,8 +92,7 @@
             </span>
           </div>
           <rad-validation-error-anzeige
-            [errors]="formGroup.get('zindex')?.errors || null"
-          ></rad-validation-error-anzeige>
+            [errors]="formGroup.get('zindex')?.errors || null"></rad-validation-error-anzeige>
         </form>
       </mat-expansion-panel>
     </mat-accordion>
@@ -121,8 +108,7 @@
         class="save-button"
         (action)="onSave()"
         [dirty]="weitereKartenebenenFormArray.dirty"
-        [waiting]="saving"
-      >
+        [waiting]="saving">
         Speichern
       </rad-action-button>
     </div>
@@ -131,70 +117,26 @@
 
 <mat-menu #menu="matMenu" yPosition="above">
   <button (click)="onAddWeitereKartenebenen()" mat-menu-item>Eigenen Layer konfigurieren</button>
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.allgemein"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
-  <button [matMenuTriggerFor]="ttsib" mat-menu-item>TT-SIB</button>
-  <button [matMenuTriggerFor]="unfall" mat-menu-item>Unfallzahlen</button>
-  <button [matMenuTriggerFor]="verwaltungsgrenzen" mat-menu-item>Verwaltungsgrenzen</button>
-  <button [matMenuTriggerFor]="bis" mat-menu-item>Arbeitsstellen BEMaS</button>
-  <button [matMenuTriggerFor]="orthofotos" mat-menu-item>Aktualität Orthofotos</button>
+  <ng-template [ngForOf]="getPredefinedLayerItems()" [ngForTemplate]="weitereKartenebenenItem" ngFor></ng-template>
+  <ng-container *ngFor="let item of getPredefinedSubMenuItems()">
+    <button mat-menu-item [matMenuTriggerFor]="nestedMenu.kartenMenu">
+      {{ item.item }}
+    </button>
+    <rad-predefined-layer-menu
+      #nestedMenu
+      [menu]="item.children"
+      (add)="onAddPredefinedWeitereKartenebenen($event)"></rad-predefined-layer-menu>
+  </ng-container>
+
   <button *ngIf="showLayerAusDateiFeatureToggl" [matMenuTriggerFor]="dateilayer" mat-menu-item>Sonstige Layer</button>
 </mat-menu>
 
-<mat-menu #ttsib="matMenu" yPosition="above">
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.ttSib"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
-</mat-menu>
-
-<mat-menu #unfall="matMenu" yPosition="above">
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.unfallzahlen"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
-</mat-menu>
-
-<mat-menu #verwaltungsgrenzen="matMenu" yPosition="above">
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.verwaltungsgrenzen"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
-</mat-menu>
-
-<mat-menu #bis>
-  <button [matMenuTriggerFor]="biswfs" mat-menu-item>WFS</button>
-  <button [matMenuTriggerFor]="biswms" mat-menu-item>WMS</button>
-</mat-menu>
-
-<mat-menu #biswfs="matMenu" yPosition="above">
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.bisWfs"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
-</mat-menu>
-
-<mat-menu #biswms="matMenu" yPosition="above">
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.bisWms"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
-</mat-menu>
-
-<mat-menu #orthofotos="matMenu" yPosition="above">
-  <ng-template
-    [ngForOf]="PredefinedWeitereKartenebenen.orthofotos"
-    [ngForTemplate]="weitereKartenebenenItem"
-    ngFor
-  ></ng-template>
+<mat-menu #kartenMenu="matMenu">
+  <ng-template matMenuContent let-menuConfig="menuConfig">
+    <rad-predefined-layer-menu
+      [menu]="menuConfig"
+      (add)="onAddPredefinedWeitereKartenebenen($event)"></rad-predefined-layer-menu>
+  </ng-template>
 </mat-menu>
 
 <mat-menu #dateilayer="matMenu" yPosition="above">

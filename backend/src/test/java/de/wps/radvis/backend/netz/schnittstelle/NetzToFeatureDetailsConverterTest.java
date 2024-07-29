@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.view.AttributeView;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
@@ -62,7 +63,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.schnittstelle.view.KanteDetailView;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 @SuppressWarnings("deprecation")
 public class NetzToFeatureDetailsConverterTest {
@@ -148,9 +148,9 @@ public class NetzToFeatureDetailsConverterTest {
 
 		// act
 		KanteDetailView kanteDetailViewLinks = netzToFeatureDetailsConverter.convertKantetoKanteDetailView(kante,
-			kante.getGeometry().getStartPoint().getCoordinate(), "links");
+			kante.getGeometry().getStartPoint().getCoordinate(), "LINKS");
 		KanteDetailView kanteDetailViewRechts = netzToFeatureDetailsConverter.convertKantetoKanteDetailView(kante,
-			kante.getGeometry().getStartPoint().getCoordinate(), "rechts");
+			kante.getGeometry().getStartPoint().getCoordinate(), "RECHTS");
 		// assert
 
 		assertThat(kanteDetailViewRechts).isEqualTo(kanteDetailViewLinks);
@@ -285,15 +285,15 @@ public class NetzToFeatureDetailsConverterTest {
 
 		// act
 		KanteDetailView kanteDetailViewLinks = netzToFeatureDetailsConverter.convertKantetoKanteDetailView(kante,
-			kante.getGeometry().getStartPoint().getCoordinate(), "links");
+			kante.getGeometry().getStartPoint().getCoordinate(), "LINKS");
 		KanteDetailView kanteDetailViewRechts = netzToFeatureDetailsConverter.convertKantetoKanteDetailView(kante,
-			kante.getGeometry().getStartPoint().getCoordinate(), "rechts");
+			kante.getGeometry().getStartPoint().getCoordinate(), "RECHTS");
 
 		// assert
 		assertThat(kanteDetailViewRechts).isNotEqualTo(kanteDetailViewLinks);
 
-		assertThat(kanteDetailViewLinks.getSeite()).isEqualTo("links");
-		assertThat(kanteDetailViewRechts.getSeite()).isEqualTo("rechts");
+		assertThat(kanteDetailViewLinks.getSeite()).isEqualTo("LINKS");
+		assertThat(kanteDetailViewRechts.getSeite()).isEqualTo("RECHTS");
 
 		for (KanteDetailView kanteDetailView : List.of(kanteDetailViewLinks, kanteDetailViewRechts)) {
 			assertThat(kanteDetailView.getAttributeAnPosition())

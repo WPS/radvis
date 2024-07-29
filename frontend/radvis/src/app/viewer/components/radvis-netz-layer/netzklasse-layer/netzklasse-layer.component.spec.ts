@@ -22,15 +22,15 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { NetzklasseLayerComponent } from 'src/app/viewer/components/radvis-netz-layer/netzklasse-layer/netzklasse-layer.component';
 import { RADVIS_NETZ_LAYER_PREFIX } from 'src/app/viewer/viewer-shared/models/radvis-netz-layer-prefix';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, instance, mock, when } from 'ts-mockito';
 
@@ -169,85 +169,51 @@ describe(NetzklasseLayerComponent.name, () => {
   describe('highlight from highlightService for RADNETZ Layer', () => {
     it('should set feature properties correctly when highlightService triggers', () => {
       const isFeatureHighlighted = (radVisFeature: RadVisFeature): boolean => {
-        const id =
-          radVisFeature.id ||
-          radVisFeature.attribute.find(hf => hf.key === FeatureProperties.KANTE_ID_PROPERTY_NAME)?.value;
-        const seite = radVisFeature.attribute.find(hf => hf.key === FeatureProperties.SEITE_PROPERTY_NAME)?.value;
+        const id = radVisFeature.id || radVisFeature.attributes.get(FeatureProperties.KANTE_ID_PROPERTY_NAME);
+        const seite = radVisFeature.attributes.get(FeatureProperties.SEITE_PROPERTY_NAME);
 
         return component['getFeaturesByIdsAndSeitenbezug'](id, seite)[0].get('highlighted') === true;
       };
 
       const feature1 = new RadVisFeature(
         1,
-        [{ key: FeatureProperties.KANTE_ID_PROPERTY_NAME, value: 1, linearReferenziert: false }],
+        toRadVisFeatureAttributesFromMap([[FeatureProperties.KANTE_ID_PROPERTY_NAME, 1]]),
         `${RADVIS_NETZ_LAYER_PREFIX}${Netzklassefilter.RADNETZ}`,
         new LineString([])
       );
       const feature2Links = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.KANTE_ID_PROPERTY_NAME,
-            value: 2,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-          {
-            key: FeatureProperties.SEITE_PROPERTY_NAME,
-            value: Seitenbezug.LINKS,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([
+          [FeatureProperties.KANTE_ID_PROPERTY_NAME, 2],
+          [FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.LINKS],
+        ]),
         `${RADVIS_NETZ_LAYER_PREFIX}${Netzklassefilter.RADNETZ}`,
         new LineString([])
       );
       const feature2Rechts = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.KANTE_ID_PROPERTY_NAME,
-            value: 2,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-          {
-            key: FeatureProperties.SEITE_PROPERTY_NAME,
-            value: Seitenbezug.RECHTS,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([
+          [FeatureProperties.KANTE_ID_PROPERTY_NAME, 2],
+          [FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.RECHTS],
+        ]),
         `${RADVIS_NETZ_LAYER_PREFIX}${Netzklassefilter.RADNETZ}`,
         new LineString([])
       );
       const feature3Links = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.KANTE_ID_PROPERTY_NAME,
-            value: 3,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-          {
-            key: FeatureProperties.SEITE_PROPERTY_NAME,
-            value: Seitenbezug.LINKS,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([
+          [FeatureProperties.KANTE_ID_PROPERTY_NAME, 3],
+          [FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.LINKS],
+        ]),
         `${RADVIS_NETZ_LAYER_PREFIX}${Netzklassefilter.RADNETZ}`,
         new MultiLineString([])
       );
       const feature3Rechts = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.KANTE_ID_PROPERTY_NAME,
-            value: 3,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-          {
-            key: FeatureProperties.SEITE_PROPERTY_NAME,
-            value: Seitenbezug.RECHTS,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ],
+        toRadVisFeatureAttributesFromMap([
+          [FeatureProperties.KANTE_ID_PROPERTY_NAME, 3],
+          [FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.RECHTS],
+        ]),
         `${RADVIS_NETZ_LAYER_PREFIX}${Netzklassefilter.RADNETZ}`,
         new MultiLineString([])
       );
@@ -356,10 +322,10 @@ describe(NetzklasseLayerComponent.name, () => {
 
     it('Should set Seitenbezug split left and right', () => {
       expect(feature1.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(undefined);
-      expect(feature2Links.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(Seitenbezug.LINKS);
-      expect(feature2Rechts.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(Seitenbezug.RECHTS);
-      expect(feature3Links.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(Seitenbezug.LINKS);
-      expect(feature3Rechts.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(Seitenbezug.RECHTS);
+      expect(feature2Links.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(KantenSeite.LINKS);
+      expect(feature2Rechts.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(KantenSeite.RECHTS);
+      expect(feature3Links.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(KantenSeite.LINKS);
+      expect(feature3Rechts.get(FeatureProperties.SEITE_PROPERTY_NAME)).toEqual(KantenSeite.RECHTS);
     });
 
     it('Should set geometries and split MultiLineString', () => {

@@ -21,11 +21,11 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { NetzDetailSelektion } from 'src/app/shared/models/netzdetail-selektion';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { NetzDetailsModule } from 'src/app/viewer/netz-details/netz-details.module';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { anything, capture, instance, mock, reset, verify, when } from 'ts-mockito';
 import { KantenHighlightLayerComponent } from './kanten-highlight-layer.component';
 
@@ -232,7 +232,7 @@ describe('KantenHighlightLayerComponent', () => {
           coordinates: currentLinestring,
           type: 'LineString',
         },
-        seite: Seitenbezug.LINKS,
+        seite: KantenSeite.LINKS,
         id: currentKantenId,
       };
       fixture.detectChanges();
@@ -246,11 +246,11 @@ describe('KantenHighlightLayerComponent', () => {
       const linkesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.LINKS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.RECHTS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
       expect(rechtesFeature.getGeometry()?.getCoordinates()).toEqual(currentLinestring);
@@ -268,7 +268,7 @@ describe('KantenHighlightLayerComponent', () => {
           coordinates: currentLinestring,
           type: 'LineString',
         },
-        seite: Seitenbezug.RECHTS,
+        seite: KantenSeite.RECHTS,
         id: currentKantenId,
       };
       fixture.detectChanges();
@@ -282,11 +282,11 @@ describe('KantenHighlightLayerComponent', () => {
       const linkesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.LINKS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.RECHTS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
       expect(rechtesFeature.getGeometry()?.getCoordinates()).toEqual(currentLinestring);
@@ -344,7 +344,7 @@ describe('KantenHighlightLayerComponent', () => {
           type: 'LineString',
         },
         id: currentKantenId,
-        seite: Seitenbezug.LINKS,
+        seite: KantenSeite.LINKS,
       };
       fixture.detectChanges();
     });
@@ -357,11 +357,11 @@ describe('KantenHighlightLayerComponent', () => {
       const linkesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.LINKS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.RECHTS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
       expect(rechtesFeature.getGeometry()?.getCoordinates()).toEqual(currentLinestring);
@@ -383,11 +383,11 @@ describe('KantenHighlightLayerComponent', () => {
       const linkesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.LINKS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
         .getFeatures()
-        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === Seitenbezug.RECHTS) as Feature<LineString>;
+        .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
       expect(rechtesFeature.getGeometry()?.getCoordinates()).toEqual(verlaufRechts);

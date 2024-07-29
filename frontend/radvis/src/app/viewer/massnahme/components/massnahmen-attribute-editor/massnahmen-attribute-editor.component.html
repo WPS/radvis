@@ -21,14 +21,12 @@
     [fetching]="isFetching"
     [canEdit]="currentMassnahme?.canEdit || false"
     [showHeader]="false"
-    class="attribute-editor"
-  >
+    class="attribute-editor">
     <rad-netzbezug-selektion-control
       [selectedId]="currentMassnahme!.id"
       [layerId]="MASSNAHMEN.name"
       formControlName="netzbezug"
-      class="mt-10 mb-10"
-    ></rad-netzbezug-selektion-control>
+      class="mt-10 mb-10"></rad-netzbezug-selektion-control>
 
     <rad-text-input-control formControlName="massnahmeKonzeptID" [errors]="formGroup.get('massnahmeKonzeptID')?.errors">
       <div class="label">Maßnahmen-ID aus Konzept</div>
@@ -37,8 +35,7 @@
     <rad-enum-dropdown-control
       formControlName="umsetzungsstatus"
       [options]="umsetzungsstatusOptions"
-      [nullable]="false"
-    >
+      [nullable]="false">
       Umsetzungsstatus
     </rad-enum-dropdown-control>
 
@@ -50,8 +47,7 @@
       Kategorien
     </rad-massnahmenkategorien-dropdown-control>
     <rad-validation-error-anzeige
-      [errors]="formGroup.get('massnahmenkategorien')?.errors || null"
-    ></rad-validation-error-anzeige>
+      [errors]="formGroup.get('massnahmenkategorien')?.errors || null"></rad-validation-error-anzeige>
 
     <mat-checkbox
       formControlName="veroeffentlicht"
@@ -66,15 +62,13 @@
     <rad-autocomplete-dropdown
       formControlName="baulastZustaendiger"
       [options]="(alleOrganisationenOptions | async) || []"
-      [errors]="formGroup.get('baulastZustaendiger')?.errors"
-    >
+      [errors]="formGroup.get('baulastZustaendiger')?.errors">
       Baulastträger
     </rad-autocomplete-dropdown>
 
     <rad-text-input-control
       formControlName="durchfuehrungszeitraum"
-      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors"
-    >
+      [errors]="formGroup.get('durchfuehrungszeitraum')?.errors">
       <div class="label">Durchführungszeitraum</div>
     </rad-text-input-control>
 
@@ -91,15 +85,13 @@
       formControlName="zustaendiger"
       [nullable]="false"
       [options]="(alleOrganisationenOptions | async) || []"
-      [errors]="formGroup.get('zustaendiger')?.errors"
-    >
+      [errors]="formGroup.get('zustaendiger')?.errors">
       Zuständige/r
     </rad-autocomplete-dropdown>
 
     <rad-autocomplete-dropdown
       formControlName="unterhaltsZustaendiger"
-      [options]="(alleOrganisationenOptions | async) || []"
-    >
+      [options]="(alleOrganisationenOptions | async) || []">
       Unterhaltszuständige/r
     </rad-autocomplete-dropdown>
 
@@ -135,8 +127,7 @@
       formControlName="handlungsverantwortlicher"
       [options]="handlungsverantwortlicherOptions"
       [nullable]="umsetzungsstatusAbPlanung()"
-      [errors]="formGroup.get('handlungsverantwortlicher')?.errors"
-    >
+      [errors]="formGroup.get('handlungsverantwortlicher')?.errors">
       Wer soll tätig werden?
     </rad-enum-dropdown-control>
 
@@ -147,16 +138,14 @@
       matTooltip="Die Konzeptionsquelle von RadNETZ-Maßnahmen kann nicht geändert werden."
       [matTooltipDisabled]="!isRadNETZMassnahme"
       matTooltipPosition="left"
-      [errors]="formGroup.get('konzeptionsquelle')?.errors"
-    >
+      [errors]="formGroup.get('konzeptionsquelle')?.errors">
       Quelle
     </rad-enum-dropdown-control>
 
     <rad-text-input-control
       *ngIf="sonstigeKonzeptionsquelle()"
       formControlName="sonstigeKonzeptionsquelle"
-      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors"
-    >
+      [errors]="formGroup.get('sonstigeKonzeptionsquelle')?.errors">
       <div class="label">Sonstige Quelle</div>
     </rad-text-input-control>
 

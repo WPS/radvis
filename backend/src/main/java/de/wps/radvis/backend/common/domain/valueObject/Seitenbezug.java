@@ -16,6 +16,8 @@ package de.wps.radvis.backend.common.domain.valueObject;
 
 public enum Seitenbezug {
 
-	RECHTS, LINKS, BEIDSEITIG;
+	RECHTS,
+	LINKS,
+	BEIDSEITIG;
 
 }

@@ -15,8 +15,7 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { fakeAsync, tick } from '@angular/core/testing';
-import { ActivatedRoute, ActivatedRouteSnapshot, Router, RouterState, RouterStateSnapshot } from '@angular/router';
-import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
+import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Feature, MapBrowserEvent, Overlay } from 'ol';
 import { FeatureLike } from 'ol/Feature';
 import { Coordinate } from 'ol/coordinate';
@@ -26,7 +25,7 @@ import BaseLayer from 'ol/layer/Base';
 import Layer from 'ol/layer/Layer';
 import { Pixel } from 'ol/pixel';
 import Source from 'ol/source/Source';
-import { Observable, Subject, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { KantenFuehrungsformEditorComponent } from 'src/app/editor/kanten/components/kanten-fuehrungsform-editor/kanten-fuehrungsform-editor.component';
@@ -48,7 +47,7 @@ import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
 import { WMSLegende } from 'src/app/shared/models/wms-legende';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
@@ -56,7 +55,8 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
 import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
+import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
 
 /* eslint-disable no-unused-vars */
 class TestOlMapService extends OlMapService {
@@ -146,19 +146,19 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
   let fixture: MockedComponentFixture<KantenFuehrungsformEditorComponent>;
   let netzService: NetzService;
   let kantenSelektionService: KantenSelektionService;
+  let discardGuardService: DiscardGuardService;
   let kantenSubject$: Subject<Kante[]>;
   let kantenSelektionSubject$: Subject<KantenSelektion[]>;
   let benutzerDetails: BenutzerDetailsService;
   let olMapService: OlMapService;
-  let route: ActivatedRoute;
-  let router: Router;
 
   beforeEach(() => {
     netzService = mock(NetzService);
     benutzerDetails = mock(BenutzerDetailsService);
     olMapService = mock(TestOlMapService);
-    route = mock(ActivatedRoute);
-    router = mock(Router);
+
+    discardGuardService = mock(DiscardGuardService);
+    when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
 
     kantenSelektionService = mock(KantenSelektionService);
     kantenSubject$ = new Subject();
@@ -180,16 +180,12 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
         useValue: instance(olMapService),
       })
       .provide({
-        provide: ActivatedRoute,
-        useValue: instance(route),
-      })
-      .provide({
-        provide: Router,
-        useValue: instance(router),
-      })
-      .provide({
         provide: KantenSelektionService,
         useValue: instance(kantenSelektionService),
+      })
+      .provide({
+        provide: DiscardGuardService,
+        useValue: instance(discardGuardService),
       })
       .keep(BreakpointObserver);
   });
@@ -246,7 +242,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
               ],
             },
           },
-          Seitenbezug.LINKS,
+          KantenSeite.LINKS,
           2
         ),
       ]);
@@ -280,7 +276,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
               ],
             },
           },
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
         KantenSelektion.ofSeite(
           {
@@ -296,7 +292,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
               ],
             },
           },
-          Seitenbezug.RECHTS
+          KantenSeite.RECHTS
         ),
       ]);
       tick();
@@ -411,7 +407,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
               ],
             },
           },
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
         KantenSelektion.ofSeite(
           {
@@ -432,7 +428,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
               ],
             },
           },
-          Seitenbezug.LINKS
+          KantenSeite.LINKS
         ),
       ];
       setupSelektion(selektion);
@@ -560,7 +556,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
               ],
             },
           },
-          Seitenbezug.LINKS,
+          KantenSeite.LINKS,
           2
         ),
       ];
@@ -839,8 +835,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
   let netzService: NetzService;
   let benutzerDetailsService: BenutzerDetailsService;
   let olMapService: OlMapService;
-  let route: ActivatedRoute;
-  let router: Router;
+  let discardGuardService: DiscardGuardService;
 
   beforeEach(() => {
     const netzbearbeitungsModusService = mock(NetzBearbeitungModusService);
@@ -852,13 +847,9 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     when(netzService.saveKanteFuehrungsform(anything())).thenResolve([]);
 
     olMapService = mock(TestOlMapService);
-    route = mock(ActivatedRoute);
-    router = mock(Router);
 
-    when(route.snapshot).thenReturn(instance(mock(ActivatedRouteSnapshot)));
-    const routerState = mock(RouterState);
-    when(routerState.snapshot).thenReturn(instance(mock(RouterStateSnapshot)));
-    when(router.routerState).thenReturn(instance(routerState));
+    discardGuardService = mock(DiscardGuardService);
+    when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
 
     return MockBuilder(KantenFuehrungsformEditorComponent, EditorModule)
       .keep(KantenSelektionService)
@@ -869,8 +860,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       .provide({ provide: NetzBearbeitungModusService, useValue: instance(netzbearbeitungsModusService) })
       .provide({ provide: BenutzerDetailsService, useValue: instance(benutzerDetailsService) })
       .provide({ provide: OlMapService, useValue: instance(olMapService) })
-      .provide({ provide: ActivatedRoute, useValue: instance(route) })
-      .provide({ provide: Router, useValue: instance(router) })
+      .provide({ provide: DiscardGuardService, useValue: instance(discardGuardService) })
       .keep(BreakpointObserver);
   });
 
@@ -900,14 +890,14 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     };
     setupKanten([kante]);
 
-    kantenSelektionService.select(kante.id, true, Seitenbezug.LINKS, undefined);
+    kantenSelektionService.select(kante.id, true, KantenSeite.LINKS, undefined);
     tick();
 
     const clearRechtsSpy = spyOn(component.lineareReferenzenRechtsFormArray, 'clear');
     const clearLinksSpy = spyOn(component.lineareReferenzenLinksFormArray, 'clear');
     const clearEinseitigSpy = spyOn(component.lineareReferenzenFormArray, 'clear');
 
-    kantenSelektionService.deselect(kante.id, Seitenbezug.LINKS, 0);
+    kantenSelektionService.deselect(kante.id, KantenSeite.LINKS, 0);
     tick();
 
     expect(clearEinseitigSpy).not.toHaveBeenCalled();
@@ -932,15 +922,15 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     });
 
     it('should select segment without discard guard', fakeAsync(() => {
-      kantenSelektionService.select(kante.id, true, Seitenbezug.LINKS);
+      kantenSelektionService.select(kante.id, true, KantenSeite.LINKS);
+      tick();
+      resetCalls(discardGuardService);
+
+      component.onSelectLinearesSegment({ additiv: true, index: 0 }, kante.id, KantenSeite.RECHTS);
       tick();
 
-      component.onSelectLinearesSegment({ additiv: true, index: 0 }, kante.id, Seitenbezug.RECHTS);
-      tick();
-
-      // FIXME:
-      // verify(discardGuardService.canDeactivate(anything())).never();
-      expect(kantenSelektionService.isSelektiert(kante.id, Seitenbezug.RECHTS)).toBeTrue();
+      verify(discardGuardService.canDeactivate(anything())).never();
+      expect(kantenSelektionService.isSelektiert(kante.id, KantenSeite.RECHTS)).toBeTrue();
     }));
 
     it('should select both segments when no seitenbezug', fakeAsync(() => {
@@ -967,13 +957,13 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
 
       component.onDeselectLinearesSegment(0, kante.id);
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([1]);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([1]);
 
       component.onSelectLinearesSegment({ additiv: true, index: 0 }, kante.id);
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.RECHTS).sort()).toEqual([0, 1]);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.RECHTS).sort()).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([0, 1]);
     }));
   });
 
@@ -994,14 +984,14 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     });
 
     it('should remove kante from selection if it is last selected element', fakeAsync(() => {
-      kantenSelektionService.select(kante.id, true, Seitenbezug.LINKS);
+      kantenSelektionService.select(kante.id, true, KantenSeite.LINKS);
+      tick();
+      resetCalls(discardGuardService);
+
+      component.onDeselectLinearesSegment(0, kante.id, KantenSeite.LINKS);
       tick();
 
-      component.onDeselectLinearesSegment(0, kante.id, Seitenbezug.LINKS);
-      tick();
-
-      // FIXME:
-      // verify(discardGuardService.canDeactivate(anything())).once();
+      verify(discardGuardService.canDeactivate(anything())).once();
       expect(kantenSelektionService.isSelektiert(kante.id)).toBeFalse();
     }));
 
@@ -1010,24 +1000,24 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
 
       kantenSelektionService.select(kante.id, true);
       tick();
+      resetCalls(discardGuardService);
 
       component.onDeselectLinearesSegment(0, kante.id);
       tick();
 
-      // FIXME:
-      // verify(discardGuardService.canDeactivate(anything())).once();
+      verify(discardGuardService.canDeactivate(anything())).once();
       expect(kantenSelektionService.isSelektiert(kante.id)).toBeFalse();
     }));
 
     it('should not remove kante from selection if other seite also selected', fakeAsync(() => {
       kantenSelektionService.select(kante.id, true);
       tick();
+      resetCalls(discardGuardService);
 
-      component.onDeselectLinearesSegment(0, kante.id, Seitenbezug.LINKS);
+      component.onDeselectLinearesSegment(0, kante.id, KantenSeite.LINKS);
       tick();
 
-      // FIXME:
-      // verify(discardGuardService.canDeactivate(anything())).never();
+      verify(discardGuardService.canDeactivate(anything())).never();
       expect(kantenSelektionService.isSelektiert(kante.id)).toBeTrue();
     }));
   });
@@ -1050,7 +1040,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
 
       kantenSelektionService.select(kante.id, true, undefined, undefined);
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0, 1]);
 
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.76 },
@@ -1060,7 +1050,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       component.onReset();
       tick();
 
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0, 1]);
       expect(component.lineareReferenzenLinksFormArray.value).toEqual([
         [
           { von: 0, bis: 0.5 },
@@ -1104,9 +1094,9 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       };
 
       setupKanten([kante1, kante2]);
-      kantenSelektionService.select(kante1.id, true, Seitenbezug.LINKS, undefined);
+      kantenSelektionService.select(kante1.id, true, KantenSeite.LINKS, undefined);
       tick();
-      kantenSelektionService.select(kante2.id, true, Seitenbezug.LINKS, undefined);
+      kantenSelektionService.select(kante2.id, true, KantenSeite.LINKS, undefined);
       tick();
 
       component.displayedAttributeformGroup.patchValue({
@@ -1158,7 +1148,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     it('should insert and select new Segment with old values', fakeAsync(() => {
       kantenSelektionService.select(kante.id, true, undefined, undefined);
       tick();
-      component.onInsertAtIndex(0, 1, Seitenbezug.LINKS);
+      component.onInsertAtIndex(0, 1, KantenSeite.LINKS);
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.5 },
         { von: 0.5, bis: 0.75 },
@@ -1189,7 +1179,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     it('should change Selection to first element after reset', fakeAsync(() => {
       kantenSelektionService.select(kante.id, true, undefined, undefined);
       tick();
-      component.onInsertAtIndex(0, 1, Seitenbezug.LINKS);
+      component.onInsertAtIndex(0, 1, KantenSeite.LINKS);
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.5 },
         { von: 0.5, bis: 0.75 },
@@ -1234,15 +1224,11 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       component.lineareReferenzenRechtsFormArray.markAsDirty();
 
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([
-        0,
-        1,
-        2,
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([
+        0, 1, 2,
       ]);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.RECHTS).sort()).toEqual([
-        0,
-        1,
-        2,
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.RECHTS).sort()).toEqual([
+        0, 1, 2,
       ]);
 
       component.onSave();
@@ -1300,16 +1286,14 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     });
 
     it('should delete segment and update undetermined state', fakeAsync(() => {
-      kantenSelektionService.select(kante.id, true, Seitenbezug.LINKS, undefined);
+      kantenSelektionService.select(kante.id, true, KantenSeite.LINKS, undefined);
       tick();
       expect(component.displayedAttributeformGroup.value.bordstein).toBeInstanceOf(UndeterminedValue);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([
-        0,
-        1,
-        2,
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([
+        0, 1, 2,
       ]);
 
-      component.onDeleteAtIndex(0, 1, Seitenbezug.LINKS);
+      component.onDeleteAtIndex(0, 1, KantenSeite.LINKS);
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.5 },
         { von: 0.5, bis: 1 },
@@ -1317,7 +1301,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       component.lineareReferenzenRechtsFormArray.markAsDirty();
 
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([0, 1]);
       expect(component.displayedAttributeformGroup.value.bordstein).toEqual(Bordstein.KEINE_ABSENKUNG);
 
       component.onSave();
@@ -1345,12 +1329,12 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     }));
 
     it('should change selection to first element if the only selected element is deleted', fakeAsync(() => {
-      kantenSelektionService.select(kante.id, true, Seitenbezug.LINKS, undefined);
+      kantenSelektionService.select(kante.id, true, KantenSeite.LINKS, undefined);
       tick();
-      kantenSelektionService.select(kante.id, false, Seitenbezug.LINKS, 1);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([1]);
+      kantenSelektionService.select(kante.id, false, KantenSeite.LINKS, 1);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([1]);
 
-      component.onDeleteAtIndex(0, 1, Seitenbezug.LINKS);
+      component.onDeleteAtIndex(0, 1, KantenSeite.LINKS);
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.5 },
         { von: 0.5, bis: 1 },
@@ -1358,19 +1342,17 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       component.lineareReferenzenRechtsFormArray.markAsDirty();
       tick();
 
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([0]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([0]);
     }));
 
     it('should change Selection to first element after reset', fakeAsync(() => {
-      kantenSelektionService.select(kante.id, true, Seitenbezug.LINKS, undefined);
+      kantenSelektionService.select(kante.id, true, KantenSeite.LINKS, undefined);
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([
-        0,
-        1,
-        2,
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([
+        0, 1, 2,
       ]);
 
-      component.onDeleteAtIndex(0, 1, Seitenbezug.LINKS);
+      component.onDeleteAtIndex(0, 1, KantenSeite.LINKS);
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.5 },
         { von: 0.5, bis: 1 },
@@ -1381,7 +1363,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       component.onReset();
       tick();
 
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([0, 1]);
     }));
 
     it('should work einseitig', fakeAsync(() => {
@@ -1425,15 +1407,11 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
 
       kantenSelektionService.select(kante.id, true, undefined, undefined);
       tick();
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([
-        0,
-        1,
-        2,
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([
+        0, 1, 2,
       ]);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.RECHTS).sort()).toEqual([
-        0,
-        1,
-        2,
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.RECHTS).sort()).toEqual([
+        0, 1, 2,
       ]);
 
       component.onDeleteAtIndex(0, 1);
@@ -1444,8 +1422,8 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
       component.lineareReferenzenFormArray.markAsDirty();
       tick();
 
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.LINKS).sort()).toEqual([0, 1]);
-      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(Seitenbezug.RECHTS).sort()).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.LINKS).sort()).toEqual([0, 1]);
+      expect(kantenSelektionService.selektion[0].getSelectedSegmentIndices(KantenSeite.RECHTS).sort()).toEqual([0, 1]);
 
       component.onSave();
       verify(netzService.saveKanteFuehrungsform(anything())).once();

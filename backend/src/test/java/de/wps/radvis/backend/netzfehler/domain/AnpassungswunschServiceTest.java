@@ -86,15 +86,17 @@ class AnpassungswunschServiceTest {
 	@Test
 	void getUrsaechlicheKonsistenzregelVerletzung() {
 		// Arrange
-		KonsistenzregelVerletzung expectedKonsistenzregelVerletzung = KonsistenzregelVerletzungTestdataProvider.defaultVerletzung()
+		KonsistenzregelVerletzung expectedKonsistenzregelVerletzung = KonsistenzregelVerletzungTestdataProvider
+			.defaultVerletzung()
 			.build();
 		when(konsistenzregelVerletzungsRepository.findByTypAndIdentity(
 			"Toller Typ", "123")).thenReturn(Optional.of(
-			expectedKonsistenzregelVerletzung));
+				expectedKonsistenzregelVerletzung));
 
 		// Act
-		KonsistenzregelVerletzung actualKonsistenzregelVerletzung = anpassungswunschService.getUrsaechlicheKonsistenzregelVerletzung(
-			KonsistenzregelVerletzungReferenz.of("123", "Toller Typ"));
+		KonsistenzregelVerletzung actualKonsistenzregelVerletzung = anpassungswunschService
+			.getUrsaechlicheKonsistenzregelVerletzung(
+				KonsistenzregelVerletzungReferenz.of("123", "Toller Typ"));
 
 		// Assert
 		assertThat(actualKonsistenzregelVerletzung).isEqualTo(expectedKonsistenzregelVerletzung);
@@ -103,8 +105,9 @@ class AnpassungswunschServiceTest {
 	@Test
 	void getUrsaechlicheKonsistenzregelVerletzung_null_wennKeineReferenz() {
 		// Act
-		KonsistenzregelVerletzung actualKonsistenzregelVerletzung = anpassungswunschService.getUrsaechlicheKonsistenzregelVerletzung(
-			null);
+		KonsistenzregelVerletzung actualKonsistenzregelVerletzung = anpassungswunschService
+			.getUrsaechlicheKonsistenzregelVerletzung(
+				null);
 
 		// Assert
 		assertThat(actualKonsistenzregelVerletzung).isNull();

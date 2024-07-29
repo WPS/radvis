@@ -60,22 +60,23 @@ public class KanteUpdateElevationServiceImpl implements KanteUpdateElevationServ
 			// Immer die ersten 10 000 Kanten holen, die diese Bedingung in der Query erfüllen.
 			// Am Ende werden sie Angepasst und abgespeichert -> erfüllen dann nicht mehr die Bedingung
 			// Und andere 10 000 Kanten werden zurückgegeben.
-			Slice<KanteElevationView> kantenOutdatedOrNo3dGeometry = kantenRepository.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry();
+			Slice<KanteElevationView> kantenOutdatedOrNo3dGeometry = kantenRepository
+				.findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry();
 			if (kantenOutdatedOrNo3dGeometry.isEmpty()) {
 				log.info("In dieser Page sind keine Kanten mit veralteter oder nicht vorhandener 3d Geometrie");
 				continue;
 			}
 			Slice<KanteElevationUpdate> kanteElevationInserts = kantenOutdatedOrNo3dGeometry.map(kanteElevationView -> {
-					PositionSequence<C2D> positions = kanteElevationView.getGeometry().getPositions();
-					LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
-						.createLineString(positions.stream()
-							.map(
-								coordinate -> new Coordinate(coordinate.getX(), coordinate.getY(),
-									repository.getEle(new Coordinate(coordinate.getX(), coordinate.getY()))))
-							.toArray(Coordinate[]::new));
+				PositionSequence<C2D> positions = kanteElevationView.getGeometry().getPositions();
+				LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+					.createLineString(positions.stream()
+						.map(
+							coordinate -> new Coordinate(coordinate.getX(), coordinate.getY(),
+								repository.getEle(new Coordinate(coordinate.getX(), coordinate.getY()))))
+						.toArray(Coordinate[]::new));
 
-					return new KanteElevationUpdate(kanteElevationView.getId(), lineString);
-				}
+				return new KanteElevationUpdate(kanteElevationView.getId(), lineString);
+			}
 			);
 			kantenRepository.updateKanteElevation(kanteElevationInserts);
 			numKantenVerarbeitet += kanteElevationInserts.getNumberOfElements();

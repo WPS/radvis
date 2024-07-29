@@ -23,25 +23,25 @@ import {
 } from 'src/app/editor/kanten/models/kante-test-data-provider.spec';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { ZustaendigkeitAttribute } from 'src/app/editor/kanten/models/zustaendigkeit-attribute';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 
 describe('KantenSelektion', () => {
   describe('of-creation', () => {
     describe('ofSeite', () => {
       it('should create Selektion of Seite', () => {
-        const newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS);
+        const newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeFalse();
       });
 
       it('should create Selektion of Seite with Segmenten', () => {
-        const newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS, 5);
+        const newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS, 5);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeFalse();
-        expect(newKantenSelektion.istSegmentSelektiert(3, Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(3, Seitenbezug.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSegmentSelektiert(3, KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(3, KantenSeite.RECHTS)).toBeFalse();
       });
     });
 
@@ -49,17 +49,17 @@ describe('KantenSelektion', () => {
       it('should create Selektion of both Seiten', () => {
         const newKantenSelektion = KantenSelektion.ofGesamteKante(defaultKante);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeTrue();
       });
 
       it('should create Selektion of Seite with Segmenten', () => {
         const newKantenSelektion = KantenSelektion.ofGesamteKante(defaultKante, 2, 5);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(1, Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(2, Seitenbezug.RECHTS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(1, KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(2, KantenSeite.RECHTS)).toBeTrue();
       });
 
       it('should correctly order segmented attributes', () => {
@@ -174,13 +174,13 @@ describe('KantenSelektion', () => {
       });
 
       it('should create Selektion of Segment with Seitenbezug', () => {
-        const newKantenSelektion = createSelektionOfSegment(defaultKante, 2, Seitenbezug.LINKS);
+        const newKantenSelektion = createSelektionOfSegment(defaultKante, 2, KantenSeite.LINKS);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeFalse();
-        expect(newKantenSelektion.istSegmentSelektiert(2, Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(1, Seitenbezug.LINKS)).toBeFalse();
-        expect(newKantenSelektion.istSegmentSelektiert(2, Seitenbezug.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSegmentSelektiert(2, KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(1, KantenSeite.LINKS)).toBeFalse();
+        expect(newKantenSelektion.istSegmentSelektiert(2, KantenSeite.RECHTS)).toBeFalse();
       });
     });
   });
@@ -188,23 +188,23 @@ describe('KantenSelektion', () => {
   describe('with-creation', () => {
     describe('withSeiteSelektiert', () => {
       it('should select seite and deselect the other', () => {
-        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS);
+        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS);
 
-        newKantenSelektion = newKantenSelektion.selectSeite(Seitenbezug.RECHTS, 3);
+        newKantenSelektion = newKantenSelektion.selectSeite(KantenSeite.RECHTS, 3);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeFalse();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeFalse();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeTrue();
       });
     });
 
     describe('withZusaetzlicherSeiteSelektiert', () => {
       it('should select zusaetzliche seite', () => {
-        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS);
+        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS);
 
-        newKantenSelektion = newKantenSelektion.selectSeite(Seitenbezug.RECHTS, 3, true);
+        newKantenSelektion = newKantenSelektion.selectSeite(KantenSeite.RECHTS, 3, true);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeTrue();
       });
     });
 
@@ -219,14 +219,14 @@ describe('KantenSelektion', () => {
       });
 
       it('should select segment and deselect the all other with seitenbezug', () => {
-        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, Seitenbezug.LINKS);
-        newKantenSelektion = newKantenSelektion.selectSegment(0, Seitenbezug.RECHTS, true);
+        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, KantenSeite.LINKS);
+        newKantenSelektion = newKantenSelektion.selectSegment(0, KantenSeite.RECHTS, true);
 
-        newKantenSelektion = newKantenSelektion.selectSegment(0, Seitenbezug.LINKS);
+        newKantenSelektion = newKantenSelektion.selectSegment(0, KantenSeite.LINKS);
 
-        expect(newKantenSelektion.istSegmentSelektiert(2, Seitenbezug.LINKS)).toBeFalse();
-        expect(newKantenSelektion.istSegmentSelektiert(0, Seitenbezug.RECHTS)).toBeFalse();
-        expect(newKantenSelektion.istSegmentSelektiert(0, Seitenbezug.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(2, KantenSeite.LINKS)).toBeFalse();
+        expect(newKantenSelektion.istSegmentSelektiert(0, KantenSeite.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSegmentSelektiert(0, KantenSeite.LINKS)).toBeTrue();
       });
     });
 
@@ -241,14 +241,14 @@ describe('KantenSelektion', () => {
       });
 
       it('should select additional segment with seitenbezug', () => {
-        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, Seitenbezug.LINKS);
-        newKantenSelektion = newKantenSelektion.selectSegment(0, Seitenbezug.RECHTS, true);
+        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, KantenSeite.LINKS);
+        newKantenSelektion = newKantenSelektion.selectSegment(0, KantenSeite.RECHTS, true);
 
-        newKantenSelektion = newKantenSelektion.selectSegment(0, Seitenbezug.LINKS, true);
+        newKantenSelektion = newKantenSelektion.selectSegment(0, KantenSeite.LINKS, true);
 
-        expect(newKantenSelektion.istSegmentSelektiert(2, Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(0, Seitenbezug.RECHTS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(0, Seitenbezug.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(2, KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(0, KantenSeite.RECHTS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(0, KantenSeite.LINKS)).toBeTrue();
       });
     });
 
@@ -258,8 +258,8 @@ describe('KantenSelektion', () => {
 
         newKantenSelektion = newKantenSelektion.reduceSegmentAnzahl(3);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0, 1, 2]);
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([0, 1, 2]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0, 1, 2]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([0, 1, 2]);
       });
 
       it('should cap selected indices above maximum seitenbezogen', () => {
@@ -267,8 +267,8 @@ describe('KantenSelektion', () => {
 
         newKantenSelektion = newKantenSelektion.reduceSegmentAnzahl(2, 4);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0, 1]);
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([0, 1, 2, 3]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0, 1]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([0, 1, 2, 3]);
       });
 
       it('should let at least one element selected', () => {
@@ -276,17 +276,17 @@ describe('KantenSelektion', () => {
 
         newKantenSelektion = newKantenSelektion.reduceSegmentAnzahl(2);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0]);
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([0]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([0]);
       });
 
       it('should let at least one element selected seitenbezogen', () => {
-        let newKantenSelektion = createSelektionOfSegment(defaultKante, 3, Seitenbezug.LINKS);
+        let newKantenSelektion = createSelektionOfSegment(defaultKante, 3, KantenSeite.LINKS);
 
         newKantenSelektion = newKantenSelektion.reduceSegmentAnzahl(1, 2);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0]);
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([]);
       });
     });
 
@@ -308,19 +308,19 @@ describe('KantenSelektion', () => {
       });
 
       it('should shift indices correctly when original segment was selected with seitenbezug', () => {
-        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.RECHTS, 3);
+        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.RECHTS, 3);
 
-        newKantenSelektion = newKantenSelektion.insertSegment(1, Seitenbezug.RECHTS);
+        newKantenSelektion = newKantenSelektion.insertSegment(1, KantenSeite.RECHTS);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([1, 0, 2, 3]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([1, 0, 2, 3]);
       });
 
       it('should shift indices correctly when original segment was not selected with seitenbezug', () => {
-        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, Seitenbezug.LINKS);
+        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, KantenSeite.LINKS);
 
-        newKantenSelektion = newKantenSelektion.insertSegment(1, Seitenbezug.LINKS);
+        newKantenSelektion = newKantenSelektion.insertSegment(1, KantenSeite.LINKS);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([3]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([3]);
       });
     });
 
@@ -342,19 +342,19 @@ describe('KantenSelektion', () => {
       });
 
       it('should shift indices correctly when original segment was selected with seitenbezug', () => {
-        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.RECHTS, 3);
+        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.RECHTS, 3);
 
-        newKantenSelektion = newKantenSelektion.deleteSegment(1, Seitenbezug.RECHTS);
+        newKantenSelektion = newKantenSelektion.deleteSegment(1, KantenSeite.RECHTS);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([0, 1]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([0, 1]);
       });
 
       it('should shift indices correctly when original segment was not selected with seitenbezug', () => {
-        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, Seitenbezug.LINKS);
+        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, KantenSeite.LINKS);
 
-        newKantenSelektion = newKantenSelektion.deleteSegment(1, Seitenbezug.LINKS);
+        newKantenSelektion = newKantenSelektion.deleteSegment(1, KantenSeite.LINKS);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([1]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([1]);
       });
     });
 
@@ -362,10 +362,10 @@ describe('KantenSelektion', () => {
       it('should deselect Seite', () => {
         let newKantenSelektion = KantenSelektion.ofGesamteKante(defaultKante);
 
-        newKantenSelektion = newKantenSelektion.deselectSeite(Seitenbezug.RECHTS);
+        newKantenSelektion = newKantenSelektion.deselectSeite(KantenSeite.RECHTS);
 
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeFalse();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeFalse();
       });
     });
 
@@ -381,13 +381,13 @@ describe('KantenSelektion', () => {
       });
 
       it('should deselect Segment with Seitenbezug', () => {
-        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS, 3);
+        let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS, 3);
 
-        newKantenSelektion = newKantenSelektion.deselectSegment(1, Seitenbezug.LINKS);
+        newKantenSelektion = newKantenSelektion.deselectSegment(1, KantenSeite.LINKS);
 
-        expect(newKantenSelektion.istSegmentSelektiert(0, Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(2, Seitenbezug.LINKS)).toBeTrue();
-        expect(newKantenSelektion.istSegmentSelektiert(1, Seitenbezug.LINKS)).toBeFalse();
+        expect(newKantenSelektion.istSegmentSelektiert(0, KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(2, KantenSeite.LINKS)).toBeTrue();
+        expect(newKantenSelektion.istSegmentSelektiert(1, KantenSeite.LINKS)).toBeFalse();
       });
     });
 
@@ -404,22 +404,22 @@ describe('KantenSelektion', () => {
 
     describe('withGesamteKanteSelektiert', () => {
       it('should select gesamte Kante', () => {
-        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, Seitenbezug.LINKS);
+        let newKantenSelektion = createSelektionOfSegment(defaultKante, 2, KantenSeite.LINKS);
 
         newKantenSelektion = newKantenSelektion.selectGesamteKante(2, 3);
 
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0, 1]);
-        expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([0, 1, 2]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0, 1]);
+        expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([0, 1, 2]);
       });
     });
   });
 
   describe('getter', () => {
     it('should get correct information', () => {
-      const newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS);
+      const newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS);
 
-      expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)).toBeTrue();
-      expect(newKantenSelektion.istSeiteSelektiert(Seitenbezug.RECHTS)).toBeFalse();
+      expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)).toBeTrue();
+      expect(newKantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)).toBeFalse();
       expect(newKantenSelektion.istBeidseitigSelektiert()).toBeFalse();
     });
 
@@ -431,17 +431,17 @@ describe('KantenSelektion', () => {
     });
 
     it('getSelectedSegmentIndices should get selected indices with Seitenbezug', () => {
-      let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, Seitenbezug.LINKS, 3);
-      newKantenSelektion = newKantenSelektion.selectSegment(2, Seitenbezug.RECHTS, true);
+      let newKantenSelektion = KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS, 3);
+      newKantenSelektion = newKantenSelektion.selectSegment(2, KantenSeite.RECHTS, true);
 
-      expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS)).toEqual([0, 1, 2]);
-      expect(newKantenSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS)).toEqual([2]);
+      expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS)).toEqual([0, 1, 2]);
+      expect(newKantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS)).toEqual([2]);
     });
   });
 });
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
-function createSelektionOfSegment(kante: Kante, segmentIndex: number, seitenbezug?: Seitenbezug): KantenSelektion {
+function createSelektionOfSegment(kante: Kante, segmentIndex: number, kantenSeite?: KantenSeite): KantenSelektion {
   const basicSelektion = KantenSelektion.ofGesamteKante(kante);
-  return basicSelektion.selectSegment(segmentIndex, seitenbezug);
+  return basicSelektion.selectSegment(segmentIndex, kantenSeite);
 }

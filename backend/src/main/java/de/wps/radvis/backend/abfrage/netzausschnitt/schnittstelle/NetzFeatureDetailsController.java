@@ -14,7 +14,8 @@
 
 package de.wps.radvis.backend.abfrage.netzausschnitt.schnittstelle;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.wps.radvis.backend.common.schnittstelle.view.AttributeView;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.schnittstelle.NetzToFeatureDetailsConverter;
 import lombok.NonNull;
@@ -47,10 +47,12 @@ public class NetzFeatureDetailsController {
 	 */
 	@GetMapping("kante-feature-details/{id}")
 	@Deprecated
-	public List<AttributeView> getKantenFeatureDetailsByKantenId(@PathVariable("id") Long id,
+	public Map<String, String> getKantenFeatureDetailsByKantenId(@PathVariable("id") Long id,
 		@RequestParam("position") Double[] coordinatesParam) {
 		return netzToFeatureDetailsConverter.convertKanteToFeatureDetails(
 			netzService.getKante(id),
-			new Coordinate(coordinatesParam[0], coordinatesParam[1]));
+			new Coordinate(coordinatesParam[0], coordinatesParam[1]))
+			.stream()
+			.collect(HashMap::new, (m, v) -> m.put(v.getKey(), v.getValue()), HashMap::putAll);
 	}
 }

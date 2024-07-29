@@ -238,9 +238,8 @@ public class AbschnittsweiserKantenBezug {
 
 			// Achtung, nach dem aussortieren aequivalenter Kanten kann es wieder Knoten vom Grad 2 geben
 			// -> diese Strecken zusammenfuegen und nochmal nach aequivalenten Strecken suchen
-			teilstreckenVeraendert =
-				StreckeVonKanten.mergeTeilstreckenAnKnotenMitGrad2(teilstrecken, topologischeMap)
-					|| teilstreckenVeraendert;
+			teilstreckenVeraendert = StreckeVonKanten.mergeTeilstreckenAnKnotenMitGrad2(teilstrecken, topologischeMap)
+				|| teilstreckenVeraendert;
 		}
 		topologischeMap = Topologie.erstelleTopologieMapAusStrecken(teilstrecken);
 		Topologie.updateStreckenEndenStatus(teilstrecken, topologischeMap);
@@ -393,9 +392,8 @@ public class AbschnittsweiserKantenBezug {
 			.filter(streckeVonKanten -> streckeVonKanten.isVonKnotenEndpunkt()
 				|| streckeVonKanten.isNachKnotenEndpunkt())
 			.forEach(wurmfortsatz -> {
-				Knoten endeDesWurmfortsatzes = wurmfortsatz.isVonKnotenEndpunkt() ?
-					wurmfortsatz.getVonKnoten() :
-					wurmfortsatz.getNachKnoten();
+				Knoten endeDesWurmfortsatzes = wurmfortsatz.isVonKnotenEndpunkt() ? wurmfortsatz.getVonKnoten()
+					: wurmfortsatz.getNachKnoten();
 
 				// wenn der Wurmfortsatz zu einem Loop werden soll hat er keine Endstuecke mehr
 				wurmfortsatz.setVonKnotenEndpunkt(false);

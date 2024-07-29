@@ -13,11 +13,11 @@
  */
 
 /* eslint-disable @typescript-eslint/dot-notation */
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { of, Subscription } from 'rxjs';
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
@@ -29,6 +29,7 @@ import { AttributeImportSessionView } from 'src/app/import/attribute/models/attr
 import { Property } from 'src/app/import/attribute/models/property';
 import { AttributeImportService } from 'src/app/import/attribute/services/attribute-import.service';
 import { AttributeRoutingService } from 'src/app/import/attribute/services/attribute-routing.service';
+import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 import { AutomatischerImportSchritt } from 'src/app/import/models/automatischer-import-schritt';
 import { ImportLogEintrag, Severity } from 'src/app/import/models/import-session-view';
 import { MaterialDesignModule } from 'src/app/material-design.module';
@@ -40,7 +41,7 @@ import { anything, instance, mock, when } from 'ts-mockito';
 
 describe(ImportAttributeAbschliessenComponent.name, () => {
   let component: ImportAttributeAbschliessenComponent;
-  let fixture: ComponentFixture<ImportAttributeAbschliessenComponent>;
+  let fixture: MockedComponentFixture<ImportAttributeAbschliessenComponent>;
   let attributeImportService: AttributeImportService;
   let radVisNetzFeatureService: NetzausschnittService;
   let adapter: ImportAttributeAbschliessenTestAdapter;
@@ -58,7 +59,9 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
     attributeImportFormat: AttributeImportFormat.LUBW,
   };
 
-  beforeEach(async () => {
+  ngMocks.faster();
+
+  beforeEach(() => {
     attributeImportService = mock(AttributeImportService);
     radVisNetzFeatureService = mock(NetzausschnittService);
     organisationenService = mock(OrganisationenService);
@@ -70,9 +73,9 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
     } as GeoJSONFeatureCollection);
     when(organisationenService.getOrganisation(anything())).thenResolve(defaultOrganisation);
 
-    await TestBed.configureTestingModule({
+    return TestBed.configureTestingModule({
       declarations: [ImportAttributeAbschliessenComponent, MockComponent(ImportAttributeKonflikteLayerComponent)],
-      imports: [MatIconModule, MatProgressSpinnerModule, MatFormFieldModule, MaterialDesignModule],
+      imports: [MatIconModule, ImportSharedModule, MatProgressSpinnerModule, MatFormFieldModule, MaterialDesignModule],
       providers: [
         { provide: AttributeImportService, useValue: instance(attributeImportService) },
         { provide: AttributeRoutingService, useValue: instance(mock(AttributeRoutingService)) },
@@ -85,8 +88,8 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ImportAttributeAbschliessenComponent);
-    component = fixture.componentInstance;
+    fixture = MockRender(ImportAttributeAbschliessenComponent);
+    component = fixture.point.componentInstance;
     component.netzFetching = true;
     fixture.detectChanges();
   });
@@ -113,8 +116,8 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
 
       when(attributeImportService.getImportSession()).thenReturn(of(updateDoneAttributeImportSessionView));
 
-      fixture = TestBed.createComponent(ImportAttributeAbschliessenComponent);
-      component = fixture.componentInstance;
+      fixture = MockRender(ImportAttributeAbschliessenComponent);
+      component = fixture.point.componentInstance;
       component.netzFetching = false;
 
       adapter = new ImportAttributeAbschliessenTestAdapter(fixture.debugElement);
@@ -144,8 +147,8 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
 
       when(attributeImportService.getImportSession()).thenReturn(of(updateExecutingAttributeImportSessionView));
 
-      fixture = TestBed.createComponent(ImportAttributeAbschliessenComponent);
-      component = fixture.componentInstance;
+      fixture = MockRender(ImportAttributeAbschliessenComponent);
+      component = fixture.point.componentInstance;
       component.netzFetching = false;
 
       adapter = new ImportAttributeAbschliessenTestAdapter(fixture.debugElement);

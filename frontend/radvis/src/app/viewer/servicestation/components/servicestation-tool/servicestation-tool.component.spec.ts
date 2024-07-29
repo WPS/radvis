@@ -76,11 +76,9 @@ describe('ServicestationToolComponent', () => {
     );
   });
 
-  beforeEach(
-    waitForAsync(() => {
-      when(servicestationRoutingService.getIdFromRoute()).thenReturn(3);
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    when(servicestationRoutingService.getIdFromRoute()).thenReturn(3);
+  }));
 
   describe('constructor', () => {
     it('should set ServicestationToolView from route data and retrieve benachrichtigungsfunktion when another servicestation was selected', fakeAsync(() => {

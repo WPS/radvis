@@ -23,11 +23,8 @@
       [accept]="acceptedFormat"
       [disabled]="disabled"
       (change)="onFileSelected($event)"
-      #fileUpload
-    />
-    <mat-error>
-      <div *ngFor="let msg of errorMessages">{{ msg }}</div>
-    </mat-error>
+      #fileUpload />
+    <mat-hint *ngIf="validating">Eingabe wird geprüft...</mat-hint>
   </mat-form-field>
   <button mat-stroked-button color="primary" [disabled]="disabled" (click)="fileUpload.click()">
     <ng-content></ng-content>

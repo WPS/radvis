@@ -23,19 +23,17 @@ export enum PruefungQualitaetsstandardsErfolgt {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace PruefungQualitaetsstandardsErfolgt {
-  export const options: EnumOption[] = Object.keys(PruefungQualitaetsstandardsErfolgt).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case PruefungQualitaetsstandardsErfolgt.JA_STANDARDS_EINGEHALTEN:
-          return { name: k, displayText: 'Ja, Standards werden eingehalten' };
-        case PruefungQualitaetsstandardsErfolgt.JA_STANDARDS_NICHT_EINGEHALTEN:
-          return { name: k, displayText: 'Ja, aber Standards werden nicht eingehalten' };
-        case PruefungQualitaetsstandardsErfolgt.NEIN_ERFOLGT_NOCH:
-          return { name: k, displayText: 'Nein, erfolgt noch' };
-        case PruefungQualitaetsstandardsErfolgt.NEIN:
-          return { name: k, displayText: 'Nein' };
-      }
-      throw new Error('Beschreibung für enum PruefungQualitaetsstandardsErfolgt fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(PruefungQualitaetsstandardsErfolgt).map((k: string): EnumOption => {
+    switch (k) {
+      case PruefungQualitaetsstandardsErfolgt.JA_STANDARDS_EINGEHALTEN:
+        return { name: k, displayText: 'Ja, Standards werden eingehalten' };
+      case PruefungQualitaetsstandardsErfolgt.JA_STANDARDS_NICHT_EINGEHALTEN:
+        return { name: k, displayText: 'Ja, aber Standards werden nicht eingehalten' };
+      case PruefungQualitaetsstandardsErfolgt.NEIN_ERFOLGT_NOCH:
+        return { name: k, displayText: 'Nein, erfolgt noch' };
+      case PruefungQualitaetsstandardsErfolgt.NEIN:
+        return { name: k, displayText: 'Nein' };
     }
-  );
+    throw new Error('Beschreibung für enum PruefungQualitaetsstandardsErfolgt fehlt: ' + k);
+  });
 }

@@ -17,10 +17,16 @@ package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.ser
 import static org.valid4j.Assertive.require;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.MultiPolygon;
@@ -28,9 +34,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.service.ZipService;
+import de.wps.radvis.backend.common.domain.valueObject.CsvData;
+import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
+import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.entity.MassnahmenDateianhaengeImportDatei;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.entity.MassnahmenDateianhaengeImportSession;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.entity.MassnahmenDateianhaengeImportZuordnung;
 import de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject.MassnahmenDateianhaengeImportZuordnungStatus;
@@ -53,6 +63,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 	private final ManuellerImportService manuellerImportService;
 
 	private final ZipService zipService;
+	private final CsvRepository csvRepository;
 
 	private final MassnahmeRepository massnahmenRepostory;
 	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
@@ -94,7 +105,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 				throw new Exception("Das hochgeladene ZIP-Archiv enthält keine Maßnahmen");
 			}
 
-			List<MassnahmenDateianhaengeImportZuordnung> zuordnungen = massnahmenDirs.stream()
+			Map<String, MassnahmenDateianhaengeImportZuordnung> zuordnungen = massnahmenDirs.stream()
 				.map(
 					massnahmenDir -> this.getMassnahmenDateianhaengeZuordnung(
 						massnahmenDir,
@@ -102,7 +113,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 						session.getKonzeptionsquelle(),
 						session.getSollStandard()
 					)
-				).toList();
+				).collect(Collectors.toMap(MassnahmenDateianhaengeImportZuordnung::getOrdnerName, Function.identity()));
 
 			session.setZuordnungen(zuordnungen);
 			session.setSchritt(MassnahmenDateianhaengeImportSession.FEHLER_UEBERPRUEFEN);
@@ -126,12 +137,13 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 		MassnahmenDateianhaengeImportZuordnung zuordnung = new MassnahmenDateianhaengeImportZuordnung(
 			directoryName);
 		List<File> dateien = this.getFilesInFolder(massnahmenDirectory);
-		zuordnung.addAllDateien(dateien);
+		zuordnung.setDateien(dateien.stream().map(MassnahmenDateianhaengeImportDatei::new)
+			.collect(Collectors.toMap(MassnahmenDateianhaengeImportDatei::getDateiname, Function.identity())));
 
 		if (!MassnahmeKonzeptID.isValid(directoryName)) {
 			// Ungültige KonzeptId
 			zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.IGNORIERT);
-			zuordnung.addHinweis(
+			zuordnung.setHinweis(
 				MassnahmenDateianhaengeMappingHinweis.ofError("Ordnername ist keine gültige Maßnahmen-ID"));
 			return zuordnung;
 		}
@@ -139,7 +151,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 		if (dateien.isEmpty()) {
 			// Ordner ist leer
 			zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.IGNORIERT);
-			zuordnung.addHinweis(
+			zuordnung.setHinweis(
 				MassnahmenDateianhaengeMappingHinweis.ofError("Ordner ist leer"));
 			return zuordnung;
 		}
@@ -155,7 +167,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 		if (massnahmen.isEmpty()) {
 			// Keine passende Massnahme gefunden
 			zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.FEHLERHAFT);
-			zuordnung.addHinweis(
+			zuordnung.setHinweis(
 				MassnahmenDateianhaengeMappingHinweis.ofError("Maßnahme '" + directoryName + "' wurde nicht gefunden"));
 			return zuordnung;
 		}
@@ -163,7 +175,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 		if (massnahmen.size() > 1) {
 			// Keine eindeutige Zuordnung möglich
 			zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.FEHLERHAFT);
-			zuordnung.addHinweis(
+			zuordnung.setHinweis(
 				MassnahmenDateianhaengeMappingHinweis.ofError(
 					"Keine eindeutige Zuordnung möglich, da " + massnahmen.size()
 						+ " potentielle Maßnahmen gefunden wurden"));
@@ -174,23 +186,34 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 		if (!massnahme.getNetzbezug().getGeometrie().intersects(bereich)) {
 			// Liegt nicht im ausgewählten Bereich
 			zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.FEHLERHAFT);
-			zuordnung.addHinweis(
+			zuordnung.setHinweis(
 				MassnahmenDateianhaengeMappingHinweis.ofError("Liegt nicht im gewählten Bereich"));
 			return zuordnung;
 		}
 
-		zuordnung.setMassnahme(massnahme);
-		zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.GEMAPPT);
+		this.markPotentialDuplicateFiles(massnahme, zuordnung);
+
+		zuordnung.setMassnahmeId(massnahme.getId());
+		zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.ZUGEORDNET);
 		return zuordnung;
 	}
 
 	private List<File> getFilesInFolder(File directory) {
 		File[] files = directory.listFiles();
-		return files != null ?
-			Arrays.stream(files)
-				.filter(File::isFile)
-				.toList() :
-			new ArrayList<>();
+		return files != null ? Arrays.stream(files)
+			.filter(File::isFile)
+			.toList() : new ArrayList<>();
+	}
+
+	private void markPotentialDuplicateFiles(Massnahme massnahme, MassnahmenDateianhaengeImportZuordnung zuordnung) {
+		zuordnung.getDateien().values().forEach(datei -> {
+			if (massnahme.getDokumentListe().getDokumente().stream()
+				.anyMatch(dokument -> dokument.getDateiname().equalsIgnoreCase(datei.getDatei().getName()))) {
+				datei.markAsDuplicate();
+			} else {
+				datei.setSelected(true);
+			}
+		});
 	}
 
 	private String getNamen(List<Long> gebietskoerperschaftIds) {
@@ -198,6 +221,41 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 			.stream()
 			.map(v -> Verwaltungseinheit.combineNameAndArt(v.getName(), v.getOrganisationsArt()))
 			.collect(Collectors.joining(","));
+	}
+
+	@Async
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public void saveSelectedDateianhaengeToMassnahme(MassnahmenDateianhaengeImportSession session, Benutzer benutzer) {
+		List<MassnahmenDateianhaengeImportZuordnung> filteredZuordnungen = session.getZuordnungen()
+			.values().stream()
+			.filter(zuordnung -> zuordnung.getStatus().equals(MassnahmenDateianhaengeImportZuordnungStatus.ZUGEORDNET)
+				&& zuordnung.hasAnySelectedDateien())
+			.toList();
+
+		filteredZuordnungen.forEach(zuordnung -> {
+			massnahmenRepostory.findById(zuordnung.getMassnahmeId()).ifPresentOrElse(
+				massnahme -> zuordnung.getDateien().values().stream()
+					.filter(MassnahmenDateianhaengeImportDatei::isSelected)
+					.forEach(datei -> {
+						try {
+							byte[] fileBytes = Files.readAllBytes(datei.getDatei().toPath());
+							massnahme.getDokumentListe()
+								.addOrReplaceDokumentWithEqualDateiname(
+									new Dokument(datei.getDateiname(), benutzer, fileBytes, LocalDateTime.now()),
+									datei.isDuplicate());
+							datei.setApplied(true);
+						} catch (IOException e) {
+							zuordnung.setHinweis(MassnahmenDateianhaengeMappingHinweis.ofError(
+								"Dateien konnten nicht gelesen werden, bitte starten Sie den Import erneut"));
+						}
+					}
+					),
+				() -> zuordnung.setHinweis(MassnahmenDateianhaengeMappingHinweis.ofError(
+					"Dateien konnten nicht geschrieben werden, da die Maßnahme zwischenzeitlich gelöscht wurde")));
+
+		});
+		session.setSchritt(MassnahmenDateianhaengeImportSession.FEHLERPROTOKOLL_HERUNTERLADEN);
+		session.setExecuting(false);
 	}
 
 	public MassnahmenDateianhaengeImportSession createSession(Benutzer benutzer, List<Long> gebietskoerperschaftenIds,
@@ -213,5 +271,55 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 			gebietskoerperschaftenIds,
 			konzeptionsquelle,
 			sollStandard);
+	}
+
+	public byte[] downloadFehlerprotokoll(MassnahmenDateianhaengeImportSession session) throws IOException {
+		List<Map<String, String>> rows = new ArrayList<>();
+		session.getZuordnungen().values().forEach(zuordnung -> rows.addAll(
+			zuordnung.getDateien().isEmpty() ? List.of(convertZuordnungDateiToCsvRow(zuordnung, Optional.empty()))
+				: zuordnung.getDateien().values().stream()
+					.map(datei -> convertZuordnungDateiToCsvRow(zuordnung, Optional.of(datei))).toList()
+		)
+		);
+		return csvRepository.write(CsvData.of(rows, MassnahmenDateianhaengeImportSession.CsvHeader.ALL));
+	}
+
+	private Map<String, String> convertZuordnungDateiToCsvRow(
+		MassnahmenDateianhaengeImportZuordnung zuordnung,
+		Optional<MassnahmenDateianhaengeImportDatei> datei) {
+		Map<String, String> row = new HashMap<>();
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.ORDNERNAME, zuordnung.getOrdnerName());
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.ORDNERSTATUS, zuordnung.getStatus().toString());
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.HINWEIS, zuordnung.getHinweis()
+			.map(MassnahmenDateianhaengeMappingHinweis::text)
+			.orElse(""));
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.DATEINAME,
+			datei.map(MassnahmenDateianhaengeImportDatei::getDateiname)
+				.orElse(""));
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.DATEI_DUPLIKAT,
+			datei.map(MassnahmenDateianhaengeImportDatei::isDuplicate)
+				.map(this::convertBooleanToCsvRepresentation)
+				.orElse(""));
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.DATEI_AUSGEWAEHLT,
+			datei.map(MassnahmenDateianhaengeImportDatei::isSelected)
+				.map(this::convertBooleanToCsvRepresentation)
+				.orElse(""));
+
+		row.put(MassnahmenDateianhaengeImportSession.CsvHeader.DATEI_IMPORTIERT,
+			datei.map(MassnahmenDateianhaengeImportDatei::isApplied)
+				.map(this::convertBooleanToCsvRepresentation)
+				.orElse(""));
+
+		return row;
+	}
+
+	private String convertBooleanToCsvRepresentation(boolean bool) {
+		return bool ? "Ja" : "Nein";
 	}
 }

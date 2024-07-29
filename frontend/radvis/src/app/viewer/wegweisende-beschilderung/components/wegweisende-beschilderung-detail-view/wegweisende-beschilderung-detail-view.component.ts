@@ -23,10 +23,10 @@ import { map } from 'rxjs/operators';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { NetzDetailFeatureTableLink } from 'src/app/viewer/viewer-shared/models/netzdetail-feature-table-link';
-import { infrastrukturHighlightLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { WegweisendeBeschilderungListenView } from 'src/app/viewer/wegweisende-beschilderung/models/wegweisende-beschilderung-listen-view';
 import { WEGWEISENDE_BESCHILDERUNG } from 'src/app/viewer/wegweisende-beschilderung/models/wegweisende-beschilderung.infrastruktur';
+import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 
 @Component({
   selector: 'rad-wegweisende-beschilderung-detail-view',

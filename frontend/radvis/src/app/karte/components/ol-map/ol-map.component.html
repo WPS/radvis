@@ -29,30 +29,26 @@
           icon="search"
           aria-label="Ortssuche"
           headline="Ortssuche"
-          (menuOpen)="ortsSuche.setFocus()"
-        >
+          (menuOpen)="ortsSuche.setFocus()">
           <rad-orts-suche
             (ortAusgewaehlt)="ortssucheKarteMenuItem.close(); onSelectCenter($event)"
-            #ortsSuche
-          ></rad-orts-suche>
+            #ortsSuche></rad-orts-suche>
         </rad-karte-menu-item>
         <rad-karte-menu-item
           icon="layers"
           aria-label="Hintergrund"
           headline="Hintergrund"
-          (menuOpen)="hintergrundAuswahl.setFocusOnSelectedButton()"
-        >
+          (menuOpen)="hintergrundAuswahl.setFocusOnSelectedButton()">
           <rad-hintergrund-auswahl #hintergrundAuswahl></rad-hintergrund-auswahl>
         </rad-karte-menu-item>
         <rad-karte-menu-item icon="filter_alt" aria-label="Netzklassen-Filter" headline="Netzklasse-Filter">
-          <rad-netzklassen-auswahl [zoom]="zoom"></rad-netzklassen-auswahl>
+          <rad-netzklassen-auswahl [zoom]="zoom" [selectedSignatur]="selectedSignatur"></rad-netzklassen-auswahl>
         </rad-karte-menu-item>
         <rad-karte-menu-item
           *ngIf="featureTogglzService.fehlerprotokoll"
           icon="warning"
           aria-label="Fehlerprotokolle"
-          headline="Fehlerprotokolle"
-        >
+          headline="Fehlerprotokolle">
           <rad-fehlerprotokoll-auswahl [zoom]="zoom"></rad-fehlerprotokoll-auswahl>
         </rad-karte-menu-item>
         <ng-content select=".karte-button"></ng-content>
@@ -78,8 +74,7 @@
           class="screen-only quellenangaben-button"
           #quellangabenMenu
           (menuOpen)="quellangabenMenu.setFocus()"
-          (keydown.escape)="quellangabenMenu.close()"
-        >
+          (keydown.escape)="quellangabenMenu.close()">
           <ng-container *ngTemplateOutlet="quellangabe"></ng-container>
         </rad-karte-menu-item>
         <div class="print-only mb-5">

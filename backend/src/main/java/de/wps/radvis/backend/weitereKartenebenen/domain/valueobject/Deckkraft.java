@@ -47,7 +47,7 @@ public class Deckkraft {
 		return new Deckkraft((double) value);
 	}
 
-	private static boolean isValid(Double value) {
+	public static boolean isValid(Double value) {
 		return value != null && value >= 0 && value <= 1.0;
 	}
 

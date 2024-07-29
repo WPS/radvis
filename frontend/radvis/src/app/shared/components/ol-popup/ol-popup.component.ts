@@ -44,7 +44,10 @@ export class OlPopupComponent implements OnDestroy, OnChanges {
 
   private readonly popup: Overlay;
 
-  constructor(private olMapService: OlMapService, host: ElementRef) {
+  constructor(
+    private olMapService: OlMapService,
+    host: ElementRef
+  ) {
     this.popup = new Overlay({
       element: host.nativeElement,
       positioning: OverlayPositioning.BOTTOM_CENTER,

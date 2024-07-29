@@ -29,6 +29,7 @@ import { LayerRegistryService } from 'src/app/viewer/services/layer-registry.ser
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 
 describe(SelectFeatureMenuComponent.name, () => {
   let component: SelectFeatureMenuComponent;
@@ -41,9 +42,19 @@ describe(SelectFeatureMenuComponent.name, () => {
   let olMapService: OlMapService;
 
   // Testdata, die von vielen Tests benoetigt wird:
-  const radVisFeature1 = new RadVisFeature(13, [], MASSNAHMEN.name, new Point([1, 1]));
-  const radVisFeature2 = new RadVisFeature(14, [], FAHRRADROUTE.name, new Point([3, 4]));
-  const radVisFeature3 = new RadVisFeature(14, [], FAHRRADROUTE.name, new Point([3, 4]));
+  const radVisFeature1 = new RadVisFeature(13, toRadVisFeatureAttributesFromMap(), MASSNAHMEN.name, new Point([1, 1]));
+  const radVisFeature2 = new RadVisFeature(
+    14,
+    toRadVisFeatureAttributesFromMap(),
+    FAHRRADROUTE.name,
+    new Point([3, 4])
+  );
+  const radVisFeature3 = new RadVisFeature(
+    14,
+    toRadVisFeatureAttributesFromMap(),
+    FAHRRADROUTE.name,
+    new Point([3, 4])
+  );
 
   beforeEach(() => {
     layerRegistryService = mock(LayerRegistryService);

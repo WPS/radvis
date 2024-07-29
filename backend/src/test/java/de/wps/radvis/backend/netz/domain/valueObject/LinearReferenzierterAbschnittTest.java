@@ -36,7 +36,8 @@ import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTes
 
 class LinearReferenzierterAbschnittTest {
 
-	private static final Comparator<LinearReferenzierterAbschnitt> lineareReferenzComparatorMitToleranz = (LR1, LR2) -> {
+	private static final Comparator<LinearReferenzierterAbschnitt> lineareReferenzComparatorMitToleranz = (LR1,
+		LR2) -> {
 		if (Math.abs(LR1.getVonValue() - LR2.getVonValue()) + Math.abs(LR1.getBisValue() - LR2.getBisValue()) < 0.002) {
 			return 0;
 		} else {
@@ -295,7 +296,7 @@ class LinearReferenzierterAbschnittTest {
 			new Coordinate(100, 150));
 
 		assertThatThrownBy(() -> LinearReferenzierterAbschnitt.of(base, orthogonaleSchneidend)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessage("Lineare Referenz darf nicht Punktförmig sein");
 	}
 
@@ -344,7 +345,7 @@ class LinearReferenzierterAbschnittTest {
 			new Coordinate(270, 150), new Coordinate(230, 170));
 
 		assertThatThrownBy(() -> LinearReferenzierterAbschnitt.of(base, ganzWoanders)).isInstanceOf(
-				RequireViolation.class)
+			RequireViolation.class)
 			.hasMessage("Lineare Referenz darf nicht Punktförmig sein");
 	}
 
@@ -361,4 +362,43 @@ class LinearReferenzierterAbschnittTest {
 			LineareReferenzTestProvider.lenientComparator).isEqualTo(LinearReferenzierterAbschnitt.of(0.2, 0.7));
 	}
 
+	@Test
+	void snappeAufEndpunkte_beideSnapped() {
+		// Arrange & Act
+		LinearReferenzierterAbschnitt beidePunkteSnapped = LinearReferenzierterAbschnitt
+			.snappeAufEndpunkte(LinearReferenzierterAbschnitt.of(0.09, 0.91), 10.0, 1.0);
+
+		// Assert
+		assertThat(beidePunkteSnapped).isEqualTo(LinearReferenzierterAbschnitt.of(0, 1));
+	}
+
+	@Test
+	void snappeAufEndpunkte_vonSnapped() {
+		// Arrange & Act
+		LinearReferenzierterAbschnitt beidePunkteSnapped = LinearReferenzierterAbschnitt
+			.snappeAufEndpunkte(LinearReferenzierterAbschnitt.of(0.09, 0.9), 10.0, 1.0);
+
+		// Assert
+		assertThat(beidePunkteSnapped).isEqualTo(LinearReferenzierterAbschnitt.of(0, 0.9));
+	}
+
+	@Test
+	void snappeAufEndpunkte_bisSnapped() {
+		// Arrange & Act
+		LinearReferenzierterAbschnitt beidePunkteSnapped = LinearReferenzierterAbschnitt
+			.snappeAufEndpunkte(LinearReferenzierterAbschnitt.of(0.1, 0.91), 10.0, 1.0);
+
+		// Assert
+		assertThat(beidePunkteSnapped).isEqualTo(LinearReferenzierterAbschnitt.of(0.1, 1));
+	}
+
+	@Test
+	void snappeAufEndpunkte_keinerSnapped() {
+		// Arrange & Act
+		LinearReferenzierterAbschnitt beidePunkteSnapped = LinearReferenzierterAbschnitt
+			.snappeAufEndpunkte(LinearReferenzierterAbschnitt.of(0.09, 0.91), 10.0, 0.85);
+
+		// Assert
+		assertThat(beidePunkteSnapped).isEqualTo(LinearReferenzierterAbschnitt.of(0.09, 0.91));
+	}
 }

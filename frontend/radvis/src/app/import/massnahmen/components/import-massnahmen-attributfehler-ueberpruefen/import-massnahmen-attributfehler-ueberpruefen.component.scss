@@ -20,9 +20,12 @@
   margin-left: -2rem;
 }
 
+.import-step-footer-buttons {
+  margin: 0px 2rem;
+}
+
 .status-cell {
   width: 4rem;
-  max-width: 4rem;
 }
 
 .id-cell {
@@ -35,13 +38,19 @@
   height: 2rem;
 }
 
+table {
+  border-bottom: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
+}
+
 td {
   vertical-align: top;
 }
 
 th,
 td {
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: none;
+  border-top: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
 
   &:not(:last-child) {
     border-right: var(--mat-table-row-item-outline-width) solid var(--mat-table-row-item-outline-color);
@@ -54,4 +63,9 @@ tr {
 
 .footer-shadow {
   box-shadow: 0rem -0.5rem 0.5rem -0.5rem gray;
+}
+
+td.centered {
+  text-align: center;
+  vertical-align: middle;
 }

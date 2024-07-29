@@ -24,8 +24,7 @@
   [sortingDataAccessor]="sortingDataAccessor"
   matSort
   #sort="matSort"
-  (changeBreakpointState)="onChangeBreakpointState($event)"
->
+  (changeBreakpointState)="onChangeBreakpointState($event)">
   <rad-massnahme-umsetzungsstand-button-menu
     class="action-buttons"
     *ngIf="
@@ -33,8 +32,7 @@
     "
     [isMenuItem]="isSmallViewport"
     [canStartAbfrage]="isBenutzerBerechtigtUmsetzungsstandsabfragenZuStarten"
-    [canEvaluateAbfragen]="isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten"
-  >
+    [canEvaluateAbfragen]="isBenutzerBerechtigtUmsetzungsstandsabfragenAuszuwerten">
   </rad-massnahme-umsetzungsstand-button-menu>
 
   <rad-export-button
@@ -42,8 +40,7 @@
     [exporting]="exporting"
     [exportFormate]="exportFormate"
     class="action-buttons"
-    [isMenuItem]="isSmallViewport"
-  >
+    [isMenuItem]="isSmallViewport">
   </rad-export-button>
 
   <button
@@ -51,8 +48,7 @@
     class="create-button action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     queryParamsHandling="merge"
-    *ngIf="isBenutzerBerechtigtMassnahmenZuErstellen"
-  >
+    *ngIf="isBenutzerBerechtigtMassnahmenZuErstellen">
     <mat-icon>add</mat-icon>
     Neu anlegen
   </button>
@@ -60,21 +56,16 @@
   <button
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
-    (click)="onFilterReset()"
-  >
+    (click)="onFilterReset()">
     <mat-icon>filter_alt_off</mat-icon>
     Alle Filter zurücksetzen
   </button>
 
-  <div
-    class="action-search display-flex flex-row align-self-end bereich-filter"
-    [class.bereich-filter-breit]="!isSmallViewport"
-  >
+  <div class="action-search display-flex flex-row align-self-end bereich-filter">
     <rad-organisationen-dropdown-control
       class="w-100 mat-form-field-full-width"
       [formControl]="organisationControl"
-      [options]="(alleNonBundeslandOrganisationenOptions | async) || []"
-    >
+      [options]="(alleNonBundeslandOrganisationenOptions | async) || []">
       Nur innerhalb Verwaltungseinheit
     </rad-organisationen-dropdown-control>
   </div>

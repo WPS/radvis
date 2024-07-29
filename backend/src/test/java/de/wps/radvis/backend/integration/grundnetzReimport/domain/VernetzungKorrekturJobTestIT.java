@@ -332,10 +332,10 @@ public class VernetzungKorrekturJobTestIT extends DBIntegrationTestIT {
 			.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenGeometrieKorrigiert)
-			.isEqualTo(1);
+				.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenVerwaistOderMitAnderenRadVisKantenVerbunden)
-			.isEqualTo(0);
+				.isEqualTo(0);
 
 		assertThat(applicationEvents.stream(KnotenDeletedEvent.class).collect(Collectors.toList()))
 			.isEmpty();
@@ -396,10 +396,10 @@ public class VernetzungKorrekturJobTestIT extends DBIntegrationTestIT {
 			.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenGeometrieKorrigiert)
-			.isEqualTo(1);
+				.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenVerwaistOderMitAnderenRadVisKantenVerbunden)
-			.isEqualTo(0);
+				.isEqualTo(0);
 	}
 
 	// Dieser Fall kann im Grunde nur entstanden sein, wenn durch den DLM-Reimport der Knoten mehrfach innerhalb der
@@ -476,10 +476,10 @@ public class VernetzungKorrekturJobTestIT extends DBIntegrationTestIT {
 			.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenGeometrieKorrigiert)
-			.isEqualTo(1);
+				.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenVerwaistOderMitAnderenRadVisKantenVerbunden)
-			.isEqualTo(0);
+				.isEqualTo(0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -594,10 +594,10 @@ public class VernetzungKorrekturJobTestIT extends DBIntegrationTestIT {
 			.isEqualTo(1);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenGeometrieKorrigiert)
-			.isEqualTo(0);
+				.isEqualTo(0);
 		assertThat(
 			vernetzungKorrekturJobStatistik.radvisKantenVernetzungStatistik.anzahlRadVisKantenVerwaistOderMitAnderenRadVisKantenVerbunden)
-			.isEqualTo(0);
+				.isEqualTo(0);
 	}
 
 	@Test

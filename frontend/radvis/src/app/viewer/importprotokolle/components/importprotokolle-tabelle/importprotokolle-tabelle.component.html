@@ -22,8 +22,7 @@
   [data]="data"
   [sort]="sort"
   matSort
-  #sort="matSort"
->
+  #sort="matSort">
   <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
     <th mat-header-cell *matHeaderCellDef [mat-sort-header]="column">
       <span rad-filter-header>{{ getHeader(column) }}</span>

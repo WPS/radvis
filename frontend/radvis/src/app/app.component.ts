@@ -99,8 +99,10 @@ export class AppComponent {
     this.isBenutzerRegistriert = this.benutzerDetailsService.istAktuellerBenutzerRegistriert();
     this.isBenutzerAktiv = this.benutzerDetailsService.istAktuellerBenutzerAktiv();
     this.isBenutzerOrgaUndNutzerVerwalter = this.benutzerDetailsService.istAktuellerBenutzerOrgaUndNutzerVerwalter();
-    this.canBenutzerEditBereicheOfOrganisation = this.benutzerDetailsService.canEditZustaendigkeitsBereichOfOrganisation();
-    this.isBenutzerRadNETZQualitaetsSicherIn = this.benutzerDetailsService.istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin();
+    this.canBenutzerEditBereicheOfOrganisation =
+      this.benutzerDetailsService.canEditZustaendigkeitsBereichOfOrganisation();
+    this.isBenutzerRadNETZQualitaetsSicherIn =
+      this.benutzerDetailsService.istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin();
     this.benutzerName = benutzerDetailsService.aktuellerBenutzerNachname();
     this.benutzerVorname = benutzerDetailsService.aktuellerBenutzerVorname();
     this.benutzerOrganisation = benutzerDetailsService.aktuellerBenutzerOrganisationName();
@@ -121,7 +123,7 @@ export class AppComponent {
   }
 
   get isOrganisationenBearbeitenToggleOn(): boolean {
-    return this.featureTogglzService.isToggledOn(FeatureTogglzService.ORGANISATIONEN_ERSTELLEN_UND_BEARBEITEN);
+    return this.featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_ORGANISATIONEN_ERSTELLEN_UND_BEARBEITEN);
   }
 
   get isVordefinierteExporteToggleOn(): boolean {
@@ -130,13 +132,6 @@ export class AppComponent {
 
   get isBasicAuthZugangsdatenVerwaltenToggleOn(): boolean {
     return this.featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_BASIC_AUTH_VERWALTEN_ANZEIGEN);
-  }
-
-  logout(): void {
-    this.http
-      .post('/logout', {})
-      .toPromise()
-      .then(() => window.location.replace(window.location.origin));
   }
 
   openInfoDialog(): void {

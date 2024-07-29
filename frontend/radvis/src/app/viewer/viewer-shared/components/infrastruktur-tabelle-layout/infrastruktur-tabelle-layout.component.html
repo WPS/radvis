@@ -36,16 +36,8 @@
     <ng-container matColumnDef="bearbeiten">
       <th mat-header-cell *matHeaderCellDef class="anzeigen-cell"></th>
       <td *matCellDef="let row" mat-cell class="anzeigen-cell">
-        <button
-          [attr.aria-label]="
-            titleColumnPrefix + ' ' + row[displayedColumns[titleColumnIndex]] + ' in der rechten Seitenleiste anzeigen'
-          "
-          aria-description="Sprung zur rechten Seitenleiste mit den geöffneten Details ist mittels Strg+Alt+Shift+D möglich."
-          mat-flat-button
-          color="primary"
-          class="anzeigen-button"
-        >
-          {{ 'Öffnen' }}
+        <button mat-icon-button matTooltip="Details anzeigen" class="anzeigen-button" color="primary">
+          <mat-icon>reply</mat-icon>
         </button>
       </td>
     </ng-container>
@@ -54,16 +46,14 @@
       aria-keyshortcuts="Control+Alt+Shift+F"
       mat-header-row
       #filterBereich
-      *matHeaderRowDef="displayedColumnsWithEdit; sticky: true"
-    ></tr>
+      *matHeaderRowDef="displayedColumnsWithEdit; sticky: true"></tr>
     <tr
       aria-keyshortcuts="Control+Alt+Shift+I"
       mat-row
       #tabellenInhalt
       *matRowDef="let row; columns: displayedColumnsWithEdit"
       (click)="onSelectRecord(row)"
-      [class.highlighted]="row.id === selectedId"
-    ></tr>
+      [class.highlighted]="row.id === selectedId"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" [attr.colspan]="displayedColumnsWithEdit.length">
         <div *ngIf="fetching" class="display-flex align-items-center p-10">
@@ -81,6 +71,5 @@
   <mat-paginator
     [pageSizeOptions]="[10, 20, 50]"
     showFirstLastButtons
-    [attr.aria-label]="'Seite wählen'"
-  ></mat-paginator>
+    [attr.aria-label]="'Seite wählen'"></mat-paginator>
 </div>

@@ -31,6 +31,7 @@ import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import stringMatching = jasmine.stringMatching;
 
 describe(FahrradrouteLayerComponent.name, () => {
@@ -130,25 +131,13 @@ describe(FahrradrouteLayerComponent.name, () => {
       // arrange
       const radVisFeature1 = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME,
-            value: 1,
-            linearReferenziert: false,
-          },
-        ],
+        toRadVisFeatureAttributesFromMap([[FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, 1]]),
         FAHRRADROUTE.name,
         new Point([1, 2])
       );
       const radVisFeature2 = new RadVisFeature(
         null,
-        [
-          {
-            key: FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME,
-            value: 2,
-            linearReferenziert: false,
-          },
-        ],
+        toRadVisFeatureAttributesFromMap([[FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, 2]]),
         FAHRRADROUTE.name,
         new Point([1, 2])
       );

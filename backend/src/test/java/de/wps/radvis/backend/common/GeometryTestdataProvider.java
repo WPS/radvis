@@ -39,8 +39,8 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 
 public class GeometryTestdataProvider {
-	public static final Comparator<Coordinate> LENIENT_COORDINATE_COMPARATOR = (Coordinate c1, Coordinate c2) ->
-		Math.abs(c1.x - c2.x) < 1.1 && Math.abs(c1.y - c2.y) < 1.1 ? 0 : -1;
+	public static final Comparator<Coordinate> LENIENT_COORDINATE_COMPARATOR = (Coordinate c1, Coordinate c2) -> Math
+		.abs(c1.x - c2.x) < 1.1 && Math.abs(c1.y - c2.y) < 1.1 ? 0 : -1;
 
 	private static final GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
@@ -68,7 +68,7 @@ public class GeometryTestdataProvider {
 
 	public static Coordinate moveToValidBounds(Coordinate coordinate) {
 		require(coordinate.x >= -100000 && coordinate.x <= 100000 && coordinate.y >= -100000
-				&& coordinate.y <= 100000,
+			&& coordinate.y <= 100000,
 			"Test-Koordinate muss vor dem Verschieben im Bereich von (-100000,-100000,100000,10000) liegen");
 		return new Coordinate(coordinate.x + 450000, coordinate.y + 5400000);
 	}
@@ -122,10 +122,6 @@ public class GeometryTestdataProvider {
 		LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(lineString);
 		return (LineString) lengthIndexedLine.extractLine(of.getVonValue() * lineString.getLength(),
 			of.getBisValue() * lineString.getLength());
-	}
-
-	public static Geometry creatGeometryCollection() {
-		return GEO_FACTORY.createGeometryCollection();
 	}
 
 	public static GeometryCollection creatGeometryCollection(Geometry... geometry) {

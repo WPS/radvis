@@ -41,7 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StreckeVonKanten {
-	private static final GeometryFactory GEOMETRY_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
+	private static final GeometryFactory GEOMETRY_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N
+		.getGeometryFactory();
 
 	@Getter
 	@NonNull
@@ -156,7 +157,7 @@ public class StreckeVonKanten {
 		return (vonKnoten.equals(neuVon) || vonKnoten.equals(neuNach)
 			&& !vonKnotenEndpunkt)
 			|| (nachKnoten.equals(neuVon) || nachKnoten.equals(neuNach)
-			&& !nachKnotenEndpunkt);
+				&& !nachKnotenEndpunkt);
 	}
 
 	public void merge(StreckeVonKanten other) {
@@ -185,13 +186,13 @@ public class StreckeVonKanten {
 		if (vorneVorhaengen) {
 			kanten = Stream.concat(otherStream, this.kanten.stream()).collect(Collectors.toList());
 
-			vonKnotenEndpunkt = hatUnterschiedlicheStationierungsrichtung(other.vonKnoten, other.nachKnoten) ?
-				other.nachKnotenEndpunkt : other.vonKnotenEndpunkt;
+			vonKnotenEndpunkt = hatUnterschiedlicheStationierungsrichtung(other.vonKnoten, other.nachKnoten)
+				? other.nachKnotenEndpunkt : other.vonKnotenEndpunkt;
 		} else {
 			kanten = Stream.concat(this.kanten.stream(), otherStream).collect(Collectors.toList());
 
-			nachKnotenEndpunkt = hatUnterschiedlicheStationierungsrichtung(other.vonKnoten, other.nachKnoten) ?
-				other.vonKnotenEndpunkt : other.nachKnotenEndpunkt;
+			nachKnotenEndpunkt = hatUnterschiedlicheStationierungsrichtung(other.vonKnoten, other.nachKnoten)
+				? other.vonKnotenEndpunkt : other.nachKnotenEndpunkt;
 		}
 
 		mergeTopologieUndGeometrie(other.vonKnoten, other.nachKnoten, neueGeometry, vorneVorhaengen);
@@ -364,10 +365,9 @@ public class StreckeVonKanten {
 
 		// topologischeMap aktualisieren
 		// ausgehendeStrecke aus map entfernen
-		Knoten andererKnotenDerAusgehendenStrecke =
-			connectingKnoten == ausgehendeStrecke.getVonKnoten() ?
-				ausgehendeStrecke.getNachKnoten() :
-				ausgehendeStrecke.getVonKnoten();
+		Knoten andererKnotenDerAusgehendenStrecke = connectingKnoten == ausgehendeStrecke.getVonKnoten()
+			? ausgehendeStrecke.getNachKnoten() : ausgehendeStrecke
+				.getVonKnoten();
 		topologischeMap.get(andererKnotenDerAusgehendenStrecke).remove(ausgehendeStrecke);
 		// eingehendeStrecke zu dem anderen Knoten der ausgehendeStrecke hinzufuegen
 		topologischeMap.get(andererKnotenDerAusgehendenStrecke).add(eingehendeStrecke);
@@ -377,4 +377,3 @@ public class StreckeVonKanten {
 		return Netzklasse.isRadNETZ(kante.getKantenAttributGruppe().getNetzklassen());
 	}
 }
-

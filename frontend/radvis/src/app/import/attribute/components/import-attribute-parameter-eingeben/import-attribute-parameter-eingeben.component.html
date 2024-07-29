@@ -23,6 +23,24 @@
         <span *ngIf="sessionExists"> Folgende Attribute werden importiert: </span>
         <span *ngIf="!sessionExists">Bitte wählen Sie zu importierende Attribute</span>
       </h4>
+      <div *ngIf="!sessionExists" class="display-flex buttons p-10">
+        <button
+          mat-stroked-button
+          class="buttons"
+          (click)="onAlleAttributeAbwaehlen()"
+          [disabled]="formArray.disabled"
+          type="button">
+          Alle abwählen
+        </button>
+        <button
+          mat-stroked-button
+          class="buttons"
+          type="button"
+          (click)="onAlleAttributeAuswaehlen()"
+          [disabled]="formArray.disabled">
+          Alle auswählen
+        </button>
+      </div>
       <ng-container *ngIf="sessionExists">
         <ul>
           <li *ngFor="let attribut of attribute">"{{ attribut }}"</li>
@@ -55,22 +73,15 @@
 
   <rad-validation-error-anzeige class="mt-5" [errors]="attributHinweisTexte"></rad-validation-error-anzeige>
 
-  <div *ngIf="!sessionExists && !uploading" class="display-flex  buttons p-10">
-    <button mat-flat-button color="primary" class="buttons" (click)="onAlleAttributeAbwaehlen()">Alle abwählen</button>
-    <button mat-flat-button color="primary" class="buttons" (click)="onAlleAttributeAuswaehlen()">
-      Alle auswählen
-    </button>
-  </div>
   <div class="display-flex buttons p-10">
-    <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
     <button mat-flat-button color="primary" class="button" (click)="onNext()" *ngIf="sessionExists">Weiter</button>
     <rad-action-button
       (action)="onStart()"
       [waiting]="uploading"
       *ngIf="!sessionExists"
-      [disabled]="attributeGroups.length === 0 || !isSelektionValid"
-    >
+      [disabled]="attributeGroups.length === 0 || !isSelektionValid">
       Import starten
     </rad-action-button>
   </div>

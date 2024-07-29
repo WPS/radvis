@@ -1,0 +1,13 @@
+<div *ngIf="asDialog" matDialogTitle>
+  <div class="w-100 display-flex justify-content-space-between">
+    Infrastrukturen
+    <button
+      [attr.aria-label]="'Schließen'"
+      matTooltip="Schließen"
+      (click)="onCloseDialog()"
+      mat-icon-button
+      class="align-self-end">
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+</div>

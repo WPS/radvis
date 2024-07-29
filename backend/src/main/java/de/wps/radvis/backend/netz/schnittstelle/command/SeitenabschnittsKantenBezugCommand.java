@@ -19,18 +19,15 @@ import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class SeitenabschnittsKantenBezugCommand {
 
 	@NotNull
 	private Long kanteId;
-	@NonNull
+	@NotNull
 	private LinearReferenzierterAbschnitt linearReferenzierterAbschnitt;
-	@NonNull
-	private Seitenbezug seitenbezug;
+	@NotNull
+	private Seitenbezug kantenSeite;
 }

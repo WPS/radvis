@@ -17,6 +17,8 @@ package de.wps.radvis.backend.weitereKartenebenen.domain;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
 
@@ -31,20 +33,23 @@ public class WeitereKartenebenenConfigurationProperties {
 	private final String geoserverDateiLayerPassword;
 	private final String geoserverDateiLayerWorkspace;
 	private final DataSize maxSldFileSize;
+	private final List<VordefinierteLayerConfigurationProperties> vordefinierteLayer;
 
 	public WeitereKartenebenenConfigurationProperties(String geoserverDateiLayerHost,
 		String geoserverDateiLayerUsername, String geoserverDateiLayerPassword, String geoserverDateiLayerWorkspace,
-		DataSize maxSldFileSize) {
+		DataSize maxSldFileSize, List<VordefinierteLayerConfigurationProperties> vordefinierteLayer) {
 		require(geoserverDateiLayerHost, notNullValue());
 		require(geoserverDateiLayerUsername, notNullValue());
 		require(geoserverDateiLayerPassword, notNullValue());
 		require(geoserverDateiLayerWorkspace, notNullValue());
 		require(maxSldFileSize, notNullValue());
+		require(vordefinierteLayer, notNullValue());
 
 		this.geoserverDateiLayerHost = geoserverDateiLayerHost;
 		this.geoserverDateiLayerUsername = geoserverDateiLayerUsername;
 		this.geoserverDateiLayerPassword = geoserverDateiLayerPassword;
 		this.geoserverDateiLayerWorkspace = geoserverDateiLayerWorkspace;
 		this.maxSldFileSize = maxSldFileSize;
+		this.vordefinierteLayer = vordefinierteLayer;
 	}
 }

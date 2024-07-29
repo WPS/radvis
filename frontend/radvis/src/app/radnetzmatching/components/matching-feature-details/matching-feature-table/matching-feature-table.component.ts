@@ -33,7 +33,11 @@ import { MatchingRelatedFeatureDetails } from 'src/app/radnetzmatching/models/ma
 import { PrimarySelectionService } from 'src/app/radnetzmatching/services/primary-selection.service';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
+
+interface MatchingFeatureTableData {
+  key: string;
+  value: string;
+}
 
 @Component({
   selector: 'rad-matching-feature-table',
@@ -69,7 +73,7 @@ export class MatchingFeatureTableComponent implements OnChanges, AfterViewInit, 
   public netzfehlerErledigt = new EventEmitter<void>();
 
   public RadNetzMatchingState = RadNetzMatchingState;
-  public attributeForTable = new MatTableDataSource<RadVisFeatureAttribut>();
+  public attributeForTable = new MatTableDataSource<MatchingFeatureTableData>();
   public displayedColumns = ['key', 'value'];
 
   public nurLeereAttributeHinweisVisible = false;
@@ -93,11 +97,21 @@ export class MatchingFeatureTableComponent implements OnChanges, AfterViewInit, 
     return this.featureLayerName === QuellSystem.DLM;
   }
 
-  constructor(private primarySelectionService: PrimarySelectionService, private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(
+    private primarySelectionService: PrimarySelectionService,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {}
 
   ngOnChanges(): void {
-    this.attributeForTable.data = this.feature.attribute.filter(this.getFilterAttribut(this.leereAttributeVisible));
-    this.nurLeereAttributeHinweisVisible = this.feature.attribute.filter(this.getFilterAttribut(false)).length === 0;
+    this.attributeForTable.data = [...this.feature.attributes.keys()]
+      .filter(key => this.getFilterAttribut(this.leereAttributeVisible)(key, this.feature.attributes.get(key)))
+      .map(key => {
+        return { key: key, value: this.feature.attributes.get(key) } as MatchingFeatureTableData;
+      });
+    this.nurLeereAttributeHinweisVisible =
+      [...this.feature.attributes.keys()].filter(key =>
+        this.getFilterAttribut(false)(key, this.feature.attributes.get(key))
+      ).length === 0;
   }
 
   ngAfterViewInit(): void {
@@ -117,7 +131,11 @@ export class MatchingFeatureTableComponent implements OnChanges, AfterViewInit, 
 
   public onToggleLeereAttribute(): void {
     this.leereAttributeVisible = !this.leereAttributeVisible;
-    this.attributeForTable.data = this.feature.attribute.filter(this.getFilterAttribut(this.leereAttributeVisible));
+    this.attributeForTable.data = [...this.feature.attributes.keys()]
+      .filter(key => this.getFilterAttribut(this.leereAttributeVisible)(key, this.feature.attributes.get(key)))
+      .map(key => {
+        return { key: key, value: this.feature.attributes.get(key) } as MatchingFeatureTableData;
+      });
   }
 
   public onZuordnen(): void {
@@ -144,17 +162,13 @@ export class MatchingFeatureTableComponent implements OnChanges, AfterViewInit, 
     return 'Leere Attribute ' + (this.leereAttributeVisible ? 'ausblenden' : 'einblenden');
   }
 
-  private getFilterAttribut(considerLeereAttribute: boolean): (attribute: RadVisFeatureAttribut) => boolean {
-    return (attribute: RadVisFeatureAttribut): boolean => {
-      if (
-        attribute.key === 'geometry' ||
-        attribute.key === 'the_geom' ||
-        attribute.key === FeatureProperties.SEITE_PROPERTY_NAME
-      ) {
+  private getFilterAttribut(considerLeereAttribute: boolean): (key: string, value: any) => boolean {
+    return (key: string, value: any): boolean => {
+      if (key === 'geometry' || key === 'the_geom' || key === FeatureProperties.SEITE_PROPERTY_NAME) {
         return false;
       }
       if (!considerLeereAttribute) {
-        return attribute.value !== '' && attribute.value !== null && attribute.value !== 'Unbekannt';
+        return value !== '' && value !== null && value !== 'Unbekannt';
       }
       return true;
     };

@@ -16,7 +16,6 @@
   [attr.aria-label]="'Benachrichtigungen ' + (aktiv ? 'ausschalten' : 'einschalten')"
   [matTooltip]="'Benachrichtigungen ' + (aktiv ? 'ausschalten' : 'einschalten')"
   (click)="onClick(!aktiv)"
-  mat-icon-button
->
+  mat-icon-button>
   <mat-icon>{{ aktiv ? 'notifications' : 'notifications_off' }}</mat-icon>
 </button>

@@ -14,18 +14,16 @@
 
 <ng-container *ngIf="hasKanten$ | async">
   <form [formGroup]="formGroup" class="form-group">
-    <div *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis hinweis">
-      <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-      <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
-    </div>
+    <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+      NICHT_BEARBEITBAR_HINWEIS
+    }}</rad-warnhinweis>
     <rad-attribute-editor
       (dismiss)="onClose()"
       (resetForm)="onReset()"
       (save)="onSave()"
       [disabled]="formGroup.disabled"
       [dirty]="formGroup.dirty"
-      [fetching]="isFetching"
-    >
+      [fetching]="isFetching">
       <div class="display-flex justify-content-space-between">
         <div class="legende">
           <div>
@@ -61,8 +59,7 @@
             [disabled]="formGroup.disabled"
             (click)="verlaeufeHinzufuegen()"
             mat-mini-fab
-            color="primary"
-          >
+            color="primary">
             <mat-icon>add</mat-icon>
           </button>
           <button
@@ -74,8 +71,7 @@
             [disabled]="formGroup.disabled"
             (click)="verlaeufeLoeschen()"
             mat-mini-fab
-            color="accent"
-          >
+            color="accent">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -86,34 +82,29 @@
         *ngIf="kante.geometrieAenderungErlaubt"
         [color]="colorUrsprungsGeometrie"
         [formControl]="geometryFormControls[i]"
-        [withDirectionalArrows]="true"
-      ></rad-kante-geometry-control>
+        [withDirectionalArrows]="true"></rad-kante-geometry-control>
 
       <!-- Stellt die Ursprungsgeometrie dar -->
       <rad-kante-grundgeometrie-layer
         *ngIf="!kante.geometrieAenderungErlaubt"
         [geometry]="getGeometryAtIndex(i)"
         [kanteId]="kante.id"
-        (deselected)="onKanteDeselected(kante)"
-      ></rad-kante-grundgeometrie-layer>
+        (deselected)="onKanteDeselected(kante)"></rad-kante-grundgeometrie-layer>
       <rad-kante-geometry-control
         *ngIf="!kante.zweiseitig && verlaufEinseitigFormControls[i].value"
         [color]="colorBaseGeometry"
         [formControl]="verlaufEinseitigFormControls[i]"
-        [withDirectionalArrows]="false"
-      ></rad-kante-geometry-control>
+        [withDirectionalArrows]="false"></rad-kante-geometry-control>
       <rad-kante-geometry-control
         *ngIf="kante.zweiseitig && verlaufLinksFormControls[i].value"
         [color]="colorVerlaufLinks"
         [formControl]="verlaufLinksFormControls[i]"
-        [withDirectionalArrows]="false"
-      ></rad-kante-geometry-control>
+        [withDirectionalArrows]="false"></rad-kante-geometry-control>
       <rad-kante-geometry-control
         *ngIf="kante.zweiseitig && verlaufRechtsFormControls[i].value"
         [color]="colorVerlaufRechts"
         [formControl]="verlaufRechtsFormControls[i]"
-        [withDirectionalArrows]="false"
-      ></rad-kante-geometry-control>
+        [withDirectionalArrows]="false"></rad-kante-geometry-control>
     </ng-container>
   </form>
 </ng-container>

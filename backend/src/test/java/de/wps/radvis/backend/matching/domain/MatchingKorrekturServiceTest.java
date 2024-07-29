@@ -72,7 +72,7 @@ class MatchingKorrekturServiceTest {
 		assertThatThrownBy(
 			() -> service.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
 				osmGeometrie, reporter))
-			.isInstanceOf(GeometryLaengeMismatchException.class);
+					.isInstanceOf(GeometryLaengeMismatchException.class);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ class MatchingKorrekturServiceTest {
 		assertThatThrownBy(
 			() -> service.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
 				osmGeometrie, reporter))
-			.isInstanceOf(GeometryLaengeMismatchException.class);
+					.isInstanceOf(GeometryLaengeMismatchException.class);
 	}
 
 	@Test
@@ -124,7 +124,7 @@ class MatchingKorrekturServiceTest {
 		assertThatThrownBy(
 			() -> service.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
 				osmGeometrie, reporter))
-			.isInstanceOf(GeometryLaengeMismatchException.class);
+					.isInstanceOf(GeometryLaengeMismatchException.class);
 	}
 
 	@Test
@@ -150,7 +150,7 @@ class MatchingKorrekturServiceTest {
 		assertThatThrownBy(
 			() -> service.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
 				osmGeometrie, reporter))
-			.isInstanceOf(GeometryLaengeMismatchException.class);
+					.isInstanceOf(GeometryLaengeMismatchException.class);
 	}
 
 	@Test
@@ -177,7 +177,7 @@ class MatchingKorrekturServiceTest {
 		assertThatThrownBy(
 			() -> service.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
 				osmGeometrie, reporter))
-			.isInstanceOf(GeometryZuWeitEntferntException.class);
+					.isInstanceOf(GeometryZuWeitEntferntException.class);
 	}
 
 	@Test
@@ -201,7 +201,7 @@ class MatchingKorrekturServiceTest {
 		assertThatThrownBy(
 			() -> service.checkMatchingGeometrieAufFehlerUndKorrigiere(kante.getId(), kante.getGeometry(),
 				osmGeometrie, reporter))
-			.isInstanceOf(GeometryLaengeMismatchException.class);
+					.isInstanceOf(GeometryLaengeMismatchException.class);
 	}
 
 	@Test

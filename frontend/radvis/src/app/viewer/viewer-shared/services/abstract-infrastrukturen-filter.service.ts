@@ -28,7 +28,7 @@ export abstract class AbstractInfrastrukturenFilterService<T> {
   protected fetchSubscription: Subscription | undefined;
   private fetchDataSubscription: Subscription = new Subscription();
 
-  constructor(
+  protected constructor(
     private infrastrukturenSelektionService: InfrastrukturenSelektionService,
     private infrastrukturArt: Infrastruktur,
     private filterQueryParamsService: FilterQueryParamsService

@@ -23,19 +23,17 @@ export enum ServicestationTyp {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ServicestationTyp {
-  export const options: EnumOption[] = Object.keys(ServicestationTyp).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case ServicestationTyp.RADSERVICE_PUNKT_KLEIN:
-          return { name: k, displayText: 'RadSERVICE-Punkt (klein)' };
-        case ServicestationTyp.RADSERVICE_PUNKT_GROSS:
-          return { name: k, displayText: 'RadSERVICE-Punkt (groß)' };
-        case ServicestationTyp.SONSTIGER:
-          return { name: k, displayText: 'Sonstiger' };
-      }
-      throw new Error('Beschreibung für enum ServicestationTyp fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(ServicestationTyp).map((k: string): EnumOption => {
+    switch (k) {
+      case ServicestationTyp.RADSERVICE_PUNKT_KLEIN:
+        return { name: k, displayText: 'RadSERVICE-Punkt (klein)' };
+      case ServicestationTyp.RADSERVICE_PUNKT_GROSS:
+        return { name: k, displayText: 'RadSERVICE-Punkt (groß)' };
+      case ServicestationTyp.SONSTIGER:
+        return { name: k, displayText: 'Sonstiger' };
     }
-  );
+    throw new Error('Beschreibung für enum ServicestationTyp fehlt: ' + k);
+  });
 
   export const getDisplayText: (servicestationTyp: ServicestationTyp) => string = (
     servicestationTyp: ServicestationTyp

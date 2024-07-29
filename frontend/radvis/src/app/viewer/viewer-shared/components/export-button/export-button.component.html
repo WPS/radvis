@@ -17,8 +17,7 @@
   *ngIf="!isMenuItem"
   [matMenuTriggerFor]="exportierenMenu"
   [disabled]="exporting"
-  class="action-buttons export-button"
->
+  class="action-buttons export-button">
   <ng-container *ngIf="exporting; else exportText">
     <mat-spinner class="ml-5" color="accent" diameter="24"></mat-spinner>
   </ng-container>

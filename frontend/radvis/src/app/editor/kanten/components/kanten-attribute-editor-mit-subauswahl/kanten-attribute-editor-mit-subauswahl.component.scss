@@ -24,7 +24,7 @@
 
 .buttons > * {
   flex-grow: 1;
-  flex-basis: 0;
+  flex-shrink: 0;
 }
 
 .mat-tab-wrapper {

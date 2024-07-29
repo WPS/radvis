@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
@@ -59,8 +61,8 @@ public class OsmAbbildungsFehlerProtokollEintrag implements FehlerprotokollEintr
 	}
 
 	@Override
-	public Geometry getIconPosition() {
-		return this.originalGeometry.getCentroid();
+	public MultiPoint getIconPosition() {
+		return new MultiPoint(new Point[] { this.originalGeometry.getCentroid() }, this.originalGeometry.getFactory());
 	}
 
 	@Override
@@ -89,4 +91,3 @@ public class OsmAbbildungsFehlerProtokollEintrag implements FehlerprotokollEintr
 		return FrontendLinks.kanteDetailView(kanteId);
 	}
 }
-  

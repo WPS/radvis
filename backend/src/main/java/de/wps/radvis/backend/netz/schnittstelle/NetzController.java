@@ -186,9 +186,9 @@ public class NetzController {
 		checkKeineRadnetzQuelle(kanteIds);
 
 		final var zweiseitigkeitMap = commands.stream().map(command -> {
-				VersionedId versionedId = new VersionedId(command.getId(), command.getVersion());
-				return new AbstractMap.SimpleEntry<>(versionedId, command.isZweiseitig());
-			})
+			VersionedId versionedId = new VersionedId(command.getId(), command.getVersion());
+			return new AbstractMap.SimpleEntry<>(versionedId, command.isZweiseitig());
+		})
 			.collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
 		netzService.aktualisiereKantenZweiseitig(zweiseitigkeitMap);

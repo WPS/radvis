@@ -12,26 +12,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import TileLayer from 'ol/layer/Tile';
 import * as olProj from 'ol/proj';
 import { TileWMS, XYZ } from 'ol/source';
 import TileSource from 'ol/source/Tile';
 import TileGrid from 'ol/tilegrid/TileGrid';
-import { Observable } from 'rxjs';
+import { NEVER, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { HintergrundLayerConfiguration } from 'src/app/karte/models/hintergrund-layer-configuration';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { LayerAuswahl } from 'src/app/shared/models/layer-auswahl';
 import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
-import { BaseMapBackgroundLayer } from 'src/app/shared/models/layers/basemap-background-layer';
-import { BasiskarteBackgroundLayer } from 'src/app/shared/models/layers/basiskarte-background-layer';
-import { CyclosmBackgroundLayer } from 'src/app/shared/models/layers/cyclosm-background-layer';
-import { OrthoFoto10BackgroundLayer } from 'src/app/shared/models/layers/ortho-foto10-background-layer';
-import { OrthoFoto20BackgroundLayer } from 'src/app/shared/models/layers/ortho-foto20-background-layer';
-import { OsmBackgroundLayer } from 'src/app/shared/models/layers/osm-background-layer';
+import { LayerTypes } from 'src/app/shared/models/layers/layer-types';
 import { LayerId, RadVisLayer } from 'src/app/shared/models/layers/rad-vis-layer';
 import { RadVisLayerTyp } from 'src/app/shared/models/layers/rad-vis-layer-typ';
-import { TopplusBackgroundLayer } from 'src/app/shared/models/layers/topplus-background-layer';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import invariant from 'tiny-invariant';
 
@@ -40,46 +36,59 @@ import invariant from 'tiny-invariant';
 })
 export class HintergrundLayerService {
   private static readonly UTM32_STANDARD_RESOLUTIONS = [
-    4891.969810251279,
-    2445.9849051256397,
-    1222.9924525628198,
-    611.4962262814099,
-    305.74811314070496,
-    152.87405657035296,
-    76.43702828517628,
-    38.21851414258809,
-    19.109257071294095,
-    9.55462853564703,
-    4.777314267823519,
-    2.3886571339117597,
-    1.1943285669558799,
-    0.5971642834779389,
+    4891.969810251279, 2445.9849051256397, 1222.9924525628198, 611.4962262814099, 305.74811314070496,
+    152.87405657035296, 76.43702828517628, 38.21851414258809, 19.109257071294095, 9.55462853564703, 4.777314267823519,
+    2.3886571339117597, 1.1943285669558799, 0.5971642834779389,
   ];
 
-  public allLayerAuswahl: LayerAuswahl[];
+  public allLayerAuswahl: LayerAuswahl[] = [];
 
-  currentAuswahl$: Observable<LayerId>;
+  currentAuswahl$: Observable<LayerId> = NEVER;
 
-  private allHintergrundLayers: RadVisLayer[] = [
-    new TopplusBackgroundLayer(),
-    new BaseMapBackgroundLayer(),
-    new BasiskarteBackgroundLayer(),
-    new OrthoFoto10BackgroundLayer(),
-    new OrthoFoto20BackgroundLayer(),
-    new OsmBackgroundLayer(),
-    new CyclosmBackgroundLayer(),
-  ];
+  private allHintergrundLayers: RadVisLayer[] = [];
 
-  constructor(private mapQueryParamService: MapQueryParamsService) {
-    this.allLayerAuswahl = this.allHintergrundLayers.map(l => {
-      return {
-        id: l.id,
-        bezeichnung: l.bezeichnung,
-      };
-    });
-    this.currentAuswahl$ = this.mapQueryParamService.hintergrund$.pipe(
-      map(hintergrundLayer => hintergrundLayer ?? this.allHintergrundLayers[0].id)
-    );
+  constructor(
+    private mapQueryParamService: MapQueryParamsService,
+    private http: HttpClient
+  ) {}
+
+  public initLayers(): Promise<void> {
+    return this.http
+      .get<HintergrundLayerConfiguration[]>('/api/hintergrundkarte/layers')
+      .toPromise()
+      .then(layers => {
+        this.allHintergrundLayers = layers
+          .map(l => {
+            const center: [number, number] | undefined = l.centerX ? [l.centerX, l.centerY!] : undefined;
+            return new RadVisLayer(
+              l.id,
+              l.name,
+              l.url,
+              l.typ,
+              undefined,
+              undefined,
+              LayerTypes.HINTERGRUND,
+              undefined,
+              l.maxZoom ?? undefined,
+              center,
+              l.quelle
+            );
+          })
+          .sort((l1, l2) => l1.bezeichnung.localeCompare(l2.bezeichnung));
+        this.allLayerAuswahl = this.allHintergrundLayers.map(l => {
+          return {
+            id: l.id,
+            bezeichnung: l.bezeichnung,
+          };
+        });
+        this.currentAuswahl$ = this.mapQueryParamService.hintergrund$.pipe(
+          map(hintergrundLayer => {
+            const defaultLayer = layers.find(l => l.defaultKarte)?.id ?? this.allHintergrundLayers[0].id;
+            // Wir schauen erst, ob es den Layer wirklich gibt, falls die LayerConfig im Backend geändert wurde und der Link älter ist
+            return this.allHintergrundLayers.find(l => l.id === hintergrundLayer)?.id ?? defaultLayer;
+          })
+        );
+      });
   }
 
   public getQuelle(id: LayerId): LayerQuelle {

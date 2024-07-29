@@ -13,8 +13,10 @@
   -->
 
 <div radAccessabilityTabCircleGroup class="auswahl-container">
-  <div *ngIf="isAnythingSelected && !areFehlerprotokolleVisibleOnZoomlevel">
-    <span class="mat-small zoomstufen-hinweis">Auf aktueller Zoomstufe sind Fehlerprotokolle nicht sichtbar!</span>
+  <div class="zoomstufen-hinweis">
+    <ng-container *ngIf="isAnythingSelected && !areFehlerprotokolleVisibleOnZoomlevel">
+      Auf aktueller Zoomstufe nicht sichtbar
+    </ng-container>
   </div>
   <mat-checkbox
     radAccessabilityTabCircleElement
@@ -29,8 +31,7 @@
     radAccessabilityTabCircleElement
     [options]="(alleOrganisationenOptions | async) || []"
     [formControl]="organisationControl"
-    class="mat-form-field-full-width"
-  >
+    class="mat-form-field-full-width">
     Für Bereich
   </rad-organisationen-dropdown-control>
   <rad-validation-error-anzeige [errors]="organisationControl.errors"></rad-validation-error-anzeige>
@@ -49,10 +50,9 @@
     mat-stroked-button
     #matMenuTrigger="matMenuTrigger"
     [matMenuTriggerFor]="konsistenzregelMenu"
-    *ngIf="isKonsistenzregelnToggleOn"
-  >
-    <div class="display-flex" [class.italic]="selectedKonsistenzregelVerletzungsTypen.length > 0">
-      Konsistenzregeln&nbsp;<span class="grey">({{ selectedKonsistenzregelVerletzungsTypen.length }})</span>
+    *ngIf="isKonsistenzregelnToggleOn">
+    <div class="display-flex" [class.italic]="selectedKonsistenzregelVerletzungen.length > 0">
+      Konsistenzregeln&nbsp;<span class="grey">({{ selectedKonsistenzregelVerletzungen.length }})</span>
       <mat-icon style="margin-left: auto">arrow_drop_down</mat-icon>
     </div>
   </button>
@@ -63,8 +63,7 @@
       (keydown.tab)="$event.stopPropagation()"
       (keydown.shift.tab)="$event.stopPropagation()"
       (keydown.escape)="closeMenu()"
-      class="display-flex flex-column align-items-start mat-menu-container"
-    >
+      class="display-flex flex-column align-items-start mat-menu-container">
       <ng-container *ngFor="let regelGruppe of alleRegelGruppen | keyvalue; let i = index">
         <div class="mb-3 bold" [class.mt-5]="i > 0">{{ regelGruppe.key }}</div>
         <mat-checkbox
@@ -74,7 +73,7 @@
           *ngFor="let regel of regelGruppe.value"
           (change)="onRegelClicked(regel)"
           class="konsistenzregel-selektion"
-          [checked]="selectedKonsistenzregelVerletzungsTypen.includes(regel.verletzungsTyp)"
+          [checked]="selectedKonsistenzregelVerletzungen.includes(regel.verletzungsTyp)"
           >{{ regel.titel }}
         </mat-checkbox>
       </ng-container>

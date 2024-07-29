@@ -12,108 +12,88 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<form [formGroup]="formGroup" class="form-group">
-  <rad-multi-organisationen-dropdown-control
-    formControlName="gebietskoerperschaften"
-    [options]="(zuweisbareOrganisationen$ | async) ?? []"
-    [errors]="formGroup.get('gebietskoerperschaften')?.errors"
-  >
-    <div class="ueberschrift">Gebietskörperschaften</div>
-    <div class="beschreibung">
-      {{
-        formGroup.get('gebietskoerperschaften')?.value?.length
-          ? 'Weitere Gebietskörperschaften...'
-          : 'Gebietskörperschaften'
-      }}
+<rad-import-step-layout header="Maßnahmen-Dateianhänge-Import">
+  <form [formGroup]="formGroup" class="form-group import-step-content">
+    <rad-enum-dropdown-control
+      formControlName="konzeptionsquelle"
+      [options]="konzeptionsquelleOptions"
+      [nullable]="false"
+      [touchOnWrite]="false"
+      [errors]="formGroup.get('konzeptionsquelle')?.errors">
+      Quelle
+    </rad-enum-dropdown-control>
+
+    <rad-multi-organisationen-dropdown-control
+      formControlName="gebietskoerperschaften"
+      [options]="(zuweisbareOrganisationen$ | async) ?? []"
+      [errors]="formGroup.get('gebietskoerperschaften')?.errors">
+      Zu importierende Bereiche
+    </rad-multi-organisationen-dropdown-control>
+
+    <div class="hinweis">
+      Es werden nur die Dateianhänge von Maßnahmen des angegebenen Soll-Standards importiert; das erleichtert die
+      Aktualisierung bestehender Maßnahmen.
     </div>
-  </rad-multi-organisationen-dropdown-control>
+    <div class="hinweis">
+      Wird kein Soll-Standard angegeben, werden die Dateianhänge der Maßnahmen unabhängig vom Soll-Standard importiert.
+    </div>
+    <rad-enum-dropdown-control
+      formControlName="sollStandard"
+      [options]="sollStandardOptions"
+      [nullable]="true"
+      [touchOnWrite]="false"
+      [errors]="formGroup.get('sollStandard')?.errors">
+      Soll-Standard (optional)
+    </rad-enum-dropdown-control>
 
-  <rad-enum-dropdown-control
-    formControlName="konzeptionsquelle"
-    [options]="konzeptionsquelleOptions"
-    [nullable]="false"
-    [touchOnWrite]="false"
-    [errors]="formGroup.get('konzeptionsquelle')?.errors"
-  >
-    Quelle auswählen
-  </rad-enum-dropdown-control>
+    <div class="hinweis">Bitte laden Sie ein ZIP-Archiv hoch (max. Dateigröße 300MB).</div>
+    <rad-file-upload-control
+      formControlName="file"
+      class="w-100"
+      dateiEndung="zip"
+      [maxFileSizeInMB]="300"
+      [touchOnWrite]="false">
+      ZIP-Archiv auswählen
+    </rad-file-upload-control>
+    <rad-validation-error-anzeige
+      class="text-small align-self-start"
+      [errors]="formGroup.get('file')?.errors || null"
+      *ngIf="formGroup.get('file')?.dirty"></rad-validation-error-anzeige>
+  </form>
 
-  <div class="hinweis">
-    Durch die Auswahl eines Soll-Standards wird eine eindeutigere Zuordnung zu den bestehenden Maßnahmen ermöglicht.
-  </div>
-  <rad-enum-dropdown-control
-    formControlName="sollStandard"
-    [options]="sollStandardOptions"
-    [nullable]="true"
-    [touchOnWrite]="false"
-    [errors]="formGroup.get('sollStandard')?.errors"
-  >
-    Soll-Standard
-  </rad-enum-dropdown-control>
-
-  <div class="hinweis">Bitte laden Sie ein ZIP-Archiv hoch (max. Dateigröße 300MB).</div>
-  <rad-file-upload-control
-    formControlName="file"
-    class="w-100"
-    dateiEndung="zip"
-    [maxFileSizeInMB]="300"
-    [touchOnWrite]="false"
-    [errors]="formGroup.get('file')?.errors"
-  >
-    ZIP-Archiv auswählen
-  </rad-file-upload-control>
-
-  <div *ngIf="sessionExists && !sessionCreated" class="hinweis red flex-grow mt-10">
+  <div *ngIf="sessionExists && !sessionCreated" class="import-step-footer-message hinweis red flex-grow mt-10">
     Es existiert bereits eine Import-Session
     <span *ngIf="!massnahmenDateianhaengeSessionExists"> eines anderen Typs</span>. Brechen Sie diese ab, um eine neue
     zu starten.
   </div>
 
-  <div class="flex-grow"></div>
-  <mat-accordion [multi]="true">
-    <mat-expansion-panel *ngIf="hasFehler" [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <div class="display-flex">
-            <mat-icon class="error">report</mat-icon>
-            <div class="ml-3">Fehler</div>
-            <div class="ml-3 hinweis">({{ fehler.length }})</div>
-          </div>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="log-eintrag-wrapper">
-        <div *ngFor="let f of fehler">{{ f }}</div>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-  <div class="display-flex flex-row buttons p-10">
+  <rad-info-panel class="import-step-footer-message" [fehler]="fehler"></rad-info-panel>
+
+  <div class="import-step-footer-buttons">
     <button
       [disabled]="!massnahmenDateianhaengeSessionExists && formGroup.pristine"
-      mat-flat-button
+      mat-stroked-button
       color="primary"
       class="abbrechen-button"
-      (click)="onAbort()"
-    >
+      (click)="onAbort()">
       Abbrechen
     </button>
+    <button [disabled]="true" mat-stroked-button color="primary">Zurück</button>
     <button
       mat-flat-button
       color="primary"
       class="button"
       (click)="onNext()"
-      *ngIf="massnahmenDateianhaengeSessionExists"
-      [disabled]="executing || hasFehler"
-    >
-      <ng-container *ngIf="!executing"> Weiter </ng-container>
-      <mat-spinner color="accent" *ngIf="executing" diameter="28"></mat-spinner>
+      *ngIf="schrittAbgeschlossenOderHasFehler"
+      [disabled]="hasFehler">
+      Weiter
     </button>
     <rad-action-button
-      *ngIf="!massnahmenDateianhaengeSessionExists"
+      *ngIf="!schrittAbgeschlossenOderHasFehler"
       (action)="onStart()"
-      [waiting]="uploading || executing"
-      [disabled]="sessionExists || formGroup.invalid || hasFehler"
-    >
+      [waiting]="uploading || isDateiHochladenRunning"
+      [disabled]="(sessionExists && !massnahmenDateianhaengeSessionExists) || formGroup.invalid">
       Import starten
     </rad-action-button>
   </div>
-</form>
+</rad-import-step-layout>

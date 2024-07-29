@@ -13,23 +13,21 @@
   -->
 
 <form [formGroup]="formGroup" class="form-group" *ngIf="hasKanten$ | async">
-  <div class="editing-not-allowed-hinweis hinweis" *ngIf="showRadNetzHinweis">
-    <mat-icon color="warn" radAccessabilityText="Warnung:">warning</mat-icon>
-    <div class="ml-10 mat-small hinweis-text">{{ NICHT_BEARBEITBAR_HINWEIS }}</div>
-  </div>
+  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+    NICHT_BEARBEITBAR_HINWEIS
+  }}</rad-warnhinweis>
   <div class="display-flex ml-10">
     <mat-slide-toggle
       [class.indeterminate]="seitenbezogenUndetermined"
       (toggleChange)="onSeitenbezugChange()"
       [disabled]="formGroup.dirty || formGroup.disabled"
       [checked]="seitenbezogen"
-      aria-label="Radweg auf zwei Seiten"
-    >
+      aria-label="Radweg auf zwei Seiten">
       Radwege auf zwei Seiten
     </mat-slide-toggle>
     <mat-spinner *ngIf="changeSeitenbezug" diameter="16"></mat-spinner>
     <div class="flex-grow"></div>
-    <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button>
+    <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </div>
@@ -40,13 +38,10 @@
     (dismiss)="onClose()"
     (resetForm)="onReset()"
     (save)="onSave()"
-    (delete)="onDelete()"
     [disabled]="formGroup.disabled"
     [dirty]="formGroup.dirty"
     [fetching]="isFetching"
-    [canDelete]="canDelete"
-    class="attribute-editor"
-  >
+    class="attribute-editor">
     <rad-enum-dropdown-control formControlName="wegeNiveau" [options]="wegeniveauOptions">
       Wegeniveau
     </rad-enum-dropdown-control>
@@ -66,8 +61,7 @@
     <rad-enum-dropdown-control
       formControlName="strassenquerschnittRASt06"
       [options]="strassenquerschnittRASt06Options"
-      [nullable]="false"
-    >
+      [nullable]="false">
       Straßenquerschnitte nach RASt 06
     </rad-enum-dropdown-control>
 
@@ -80,8 +74,7 @@
       formControlName="laengeManuellErfasst"
       [value]="formGroup.get('laengeManuellErfasst')?.value"
       [isDisabled]="formGroup.get('laengeManuellErfasst')?.disabled || false"
-      [errors]="formGroup.get('laengeManuellErfasst')?.errors"
-    >
+      [errors]="formGroup.get('laengeManuellErfasst')?.errors">
       <div class="label">Länge (manuell)</div>
       <div class="einheit">m</div>
     </rad-float-input-control>
@@ -118,8 +111,7 @@
       formControlName="kommentar"
       [asTextarea]="true"
       [maxLength]="kommentarMaxLength"
-      [errors]="formGroup.get('kommentar')?.errors"
-    >
+      [errors]="formGroup.get('kommentar')?.errors">
       <div class="label">Kommentar</div>
     </rad-text-input-control>
 
@@ -198,5 +190,15 @@
         </rad-undetermined-checkbox-control>
       </div>
     </div>
+
+    <button
+      *ngIf="canDelete"
+      [disabled]="formGroup.disabled"
+      (click)="onDelete()"
+      mat-stroked-button
+      type="button"
+      class="delete-button">
+      Kante löschen
+    </button>
   </rad-attribute-editor>
 </form>

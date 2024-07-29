@@ -42,7 +42,6 @@ import com.slimjars.dist.gnu.trove.list.TLongList;
 import com.slimjars.dist.gnu.trove.list.array.TLongArrayList;
 
 import de.topobyte.osm4j.core.access.OsmOutputStream;
-import de.topobyte.osm4j.core.model.impl.Entity;
 import de.topobyte.osm4j.core.model.impl.Node;
 import de.topobyte.osm4j.core.model.impl.Tag;
 import de.topobyte.osm4j.core.model.impl.Way;
@@ -88,13 +87,13 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 
 	/**
 	 * @param partitionToKantenMap
-	 * 	Jeder Stream der Liste beinhaltet die Kanten einer Spalte des in Spalten partitionierten Bereichs.
-	 * 	Dies ist nötig um bei großen Datenmengen keinen OutOfMemory zu erhalten. Es wird spaltenweise
-	 * 	partioniert, um die Handhabung der Indexe möglichst einfach zu gestalten. Für Jede Kante wird genau 1
-	 * 	Way in die PBF geschrieben. Wenn sich zwei Kanten eine Node teilen, dann ist dies eine topologische
-	 * 	Verbindung.
+	 *     Jeder Stream der Liste beinhaltet die Kanten einer Spalte des in Spalten partitionierten Bereichs.
+	 *     Dies ist nötig um bei großen Datenmengen keinen OutOfMemory zu erhalten. Es wird spaltenweise
+	 *     partioniert, um die Handhabung der Indexe möglichst einfach zu gestalten. Für Jede Kante wird genau 1
+	 *     Way in die PBF geschrieben. Wenn sich zwei Kanten eine Node teilen, dann ist dies eine topologische
+	 *     Verbindung.
 	 * @param outputFile
-	 * 	Zieldatei
+	 *     Zieldatei
 	 */
 	@Override
 	public void writePbf(Map<Envelope, Stream<Kante>> partitionToKantenMap, File outputFile) {
@@ -102,15 +101,12 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 		require(outputFile, notNullValue());
 
 		try (OutputStream output = new FileOutputStream(outputFile)) {
-			OsmOutputStream osmOutput = new PbfWriter(output, true);
+			PbfWriter osmOutput = new PbfWriter(output, true);
+			osmOutput.setBatchLimit(100_000);
 
 			Set<Long> dlmKantenBereitsAbgearbeitet = new HashSet<>();
 
 			NodeIndex nodeIndex = new NodeIndex();
-			// Die hier gesetzte Precision beträgt ca. 0,02mm(!). Die Koordinaten müssen für ein
-			// erfolgreiches Snapping also fast identisch sein. Dies ist im DLM generell der Fall
-			// TODO: magic number anpassen? Muss/Sollte das zu PRECISION an Knotenindex korrespondieren?
-			nodeIndex.setPrecision(0.0000000001);
 
 			AtomicLong i = new AtomicLong(0);
 			AtomicLong entityId = new AtomicLong(0);
@@ -120,7 +116,7 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 
 			double maxX = sortedMapEntries.get(sortedMapEntries.size() - 1).getKey().getMaxX();
 
-			Map<Kante, Set<Barriere>> kanteToBarrieren = getBarrierenForKanten();
+			Map<Long, Set<Barriere>> kanteToBarrieren = getBarrierenForKanten();
 
 			for (Map.Entry<Envelope, Stream<Kante>> spalte : sortedMapEntries) {
 				Envelope envelope = spalte.getKey();
@@ -136,18 +132,15 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 					KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84);
 
 				log.info("Schreibe Pbf für Partition {}", envelope);
-				nodeIndex = nodeIndex.getIndexForCoordinatesIn(envelopeWGS84);
-				NodeIndex finalNodeIndex = nodeIndex;
 				Stream<Kante> kanten = spalte.getValue();
 				kanten.forEach(kante -> {
 					if (!dlmKantenBereitsAbgearbeitet.contains(kante.getId())) {
 						dlmKantenBereitsAbgearbeitet.add(kante.getId());
 
 						try {
-							List<Long> newNodeIds = buildNodes(kante, entityId, finalNodeIndex, osmOutput)
-								.stream().map(Entity::getId).collect(Collectors.toList());
+							List<Long> newNodeIds = buildNodes(kante, entityId, nodeIndex, osmOutput);
 							Way way = buildWay(newNodeIds, kante.getId());
-							addTags(way, kante, kanteToBarrieren.getOrDefault(kante, new HashSet<>()));
+							addTags(way, kante, kanteToBarrieren.getOrDefault(kante.getId(), new HashSet<>()));
 							osmOutput.write(way);
 						} catch (IOException e) {
 							log.error(e.getMessage(), e);
@@ -160,8 +153,10 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 				this.entityManager.flush();
 				this.entityManager.clear();
 
+				System.gc();
 				RamUsageUtility.logCurrentRamUsage(
 					String.format("Nach envelope %s in %s", envelope, this.getClass().getSimpleName()));
+
 			}
 
 			osmOutput.complete();
@@ -172,8 +167,8 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 		}
 	}
 
-	private Map<Kante, Set<Barriere>> getBarrierenForKanten() {
-		HashMap<Kante, Set<Barriere>> result = new HashMap<>();
+	private Map<Long, Set<Barriere>> getBarrierenForKanten() {
+		HashMap<Long, Set<Barriere>> result = new HashMap<>();
 
 		barriereRepository.findAll().forEach(barriere -> {
 			Set<Kante> kanten = new HashSet<>();
@@ -208,10 +203,10 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 			);
 
 			kanten.forEach(kante -> {
-				if (!result.containsKey(kante)) {
-					result.put(kante, new HashSet<>());
+				if (!result.containsKey(kante.getId())) {
+					result.put(kante.getId(), new HashSet<>());
 				}
-				result.get(kante).add(barriere);
+				result.get(kante.getId()).add(barriere);
 			});
 
 		});
@@ -248,9 +243,9 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 		// 1. Ermittle Barriere-Form aus Knoten-Barrieren, an die die übergebene Kante startet oder endet.
 		Optional<Barriere> adjazenteBarriere = barrieren.stream()
 			.filter(barriere -> {
-					Set<Knoten> netzbezug = barriere.getNetzbezug().getImmutableKnotenBezug();
-					return netzbezug.contains(kante.getVonKnoten()) || netzbezug.contains(kante.getNachKnoten());
-				}
+				Set<Knoten> netzbezug = barriere.getNetzbezug().getImmutableKnotenBezug();
+				return netzbezug.contains(kante.getVonKnoten()) || netzbezug.contains(kante.getNachKnoten());
+			}
 			)
 			.findFirst();
 		if (adjazenteBarriere.isPresent()) {
@@ -301,9 +296,9 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 				.getImmutableKantenPunktBezug()
 				.stream()
 				.anyMatch(netzbezug ->
-					// Beidseitig mit betrachten, da ja eine beidseitige Barriere auch für die Seite "seitenbezug" gilt.
-					(netzbezug.getSeitenbezug() == Seitenbezug.BEIDSEITIG || netzbezug.getSeitenbezug() == seitenbezug)
-						&& netzbezug.getKante().getId().equals(kante.getId()))
+				// Beidseitig mit betrachten, da ja eine beidseitige Barriere auch für die Seite "seitenbezug" gilt.
+				(netzbezug.getSeitenbezug() == Seitenbezug.BEIDSEITIG || netzbezug.getSeitenbezug() == seitenbezug)
+					&& netzbezug.getKante().getId().equals(kante.getId()))
 			)
 			.findFirst();
 	}
@@ -316,33 +311,32 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 			.filter(barriere -> barriere.getNetzbezug()
 				.getImmutableKantenAbschnittBezug()
 				.stream()
-				.anyMatch(n ->
-					n.getKante().getId().equals(kante.getId()) &&
-						// Beidseitig mit betrachten, da ja eine beidseitige Barriere auch für die Seite "seitenbezug" gilt.
-						(n.getSeitenbezug() == Seitenbezug.BEIDSEITIG || n.getSeitenbezug() == seitenbezug)
+				.anyMatch(n -> n.getKante().getId().equals(kante.getId()) &&
+				// Beidseitig mit betrachten, da ja eine beidseitige Barriere auch für die Seite "seitenbezug" gilt.
+					(n.getSeitenbezug() == Seitenbezug.BEIDSEITIG || n.getSeitenbezug() == seitenbezug)
 				)
 			)
 			.max((barriere1, barriere2) -> {
-					Optional<Double> laengeVomLaengstenAbschnitt1 = barriere1.getNetzbezug()
-						.getImmutableKantenAbschnittBezug()
-						.stream()
-						.map(n -> n.getLinearReferenzierterAbschnitt().relativeLaenge())
-						.max(Double::compare);
-					if (laengeVomLaengstenAbschnitt1.isEmpty()) {
-						return -1;
-					}
-
-					Optional<Double> laengeVomLaengstenAbschnitt2 = barriere2.getNetzbezug()
-						.getImmutableKantenAbschnittBezug()
-						.stream()
-						.map(n -> n.getLinearReferenzierterAbschnitt().relativeLaenge())
-						.max(Double::compare);
-					if (laengeVomLaengstenAbschnitt2.isEmpty()) {
-						return 1;
-					}
-
-					return Double.compare(laengeVomLaengstenAbschnitt1.get(), laengeVomLaengstenAbschnitt2.get());
+				Optional<Double> laengeVomLaengstenAbschnitt1 = barriere1.getNetzbezug()
+					.getImmutableKantenAbschnittBezug()
+					.stream()
+					.map(n -> n.getLinearReferenzierterAbschnitt().relativeLaenge())
+					.max(Double::compare);
+				if (laengeVomLaengstenAbschnitt1.isEmpty()) {
+					return -1;
 				}
+
+				Optional<Double> laengeVomLaengstenAbschnitt2 = barriere2.getNetzbezug()
+					.getImmutableKantenAbschnittBezug()
+					.stream()
+					.map(n -> n.getLinearReferenzierterAbschnitt().relativeLaenge())
+					.max(Double::compare);
+				if (laengeVomLaengstenAbschnitt2.isEmpty()) {
+					return 1;
+				}
+
+				return Double.compare(laengeVomLaengstenAbschnitt1.get(), laengeVomLaengstenAbschnitt2.get());
+			}
 			);
 	}
 
@@ -453,12 +447,12 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 		return tags;
 	}
 
-	private List<Node> buildNodes(Kante kante, AtomicLong entityId, NodeIndex nodeIndex,
+	private List<Long> buildNodes(Kante kante, AtomicLong entityId, NodeIndex nodeIndex,
 		OsmOutputStream osmOutputStream)
 		throws IOException {
 		List<Node> nodesOfKante = getNodes(kante, entityId);
 
-		List<Node> topologischIntegrierteNodes = new ArrayList<>();
+		List<Long> topologischIntegrierteNodes = new ArrayList<>();
 
 		Node startNode = nodesOfKante.get(0);
 		topologischIntegrierteNodes.add(
@@ -467,7 +461,7 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 		// Unser Kantenmodell bildet Topologie nur am Anfang und Ende der Kante ab, deshalb schreiben wir für
 		// alle anderen Nodes immer neue Nodes, da an diesen Stellen nie eine topologische Verbindung existieren sollte
 		for (Node node : nodesOfKante.subList(1, nodesOfKante.size() - 1)) {
-			topologischIntegrierteNodes.add(node);
+			topologischIntegrierteNodes.add(node.getId());
 			osmOutputStream.write(node);
 		}
 
@@ -478,15 +472,15 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 		return topologischIntegrierteNodes;
 	}
 
-	private Node findExistingNodeOrWrite(Node node, NodeIndex nodeIndex, OsmOutputStream osmOutputStream)
+	private Long findExistingNodeOrWrite(Node node, NodeIndex nodeIndex, OsmOutputStream osmOutputStream)
 		throws IOException {
-		Optional<Node> existingNode = nodeIndex.finde(node);
+		Optional<Long> existingNode = nodeIndex.finde(node);
 		if (existingNode.isPresent()) {
 			return existingNode.get();
 		} else {
 			nodeIndex.fuegeEin(node);
 			osmOutputStream.write(node);
-			return node;
+			return node.getId();
 		}
 	}
 

@@ -32,6 +32,7 @@ import { NetzdetailRoutingService } from 'src/app/viewer/netz-details/services/n
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { instance, mock, when } from 'ts-mockito';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 
 describe(ViewerComponent.name, () => {
   let mapQueryParams$: Subject<MapQueryParams>;
@@ -149,7 +150,12 @@ describe(ViewerComponent.name, () => {
       component.startNetzbezugAuswahl();
       const coordinate = [99, 10];
       const menuSpy = spyOn(component.selectFeatureMenuComponent as SelectFeatureMenuComponent, 'onLocationSelect');
-      const selectedFeature = new RadVisFeature(1, [], FehlerprotokollLayerComponent.LAYER_ID, new Point(coordinate));
+      const selectedFeature = new RadVisFeature(
+        1,
+        toRadVisFeatureAttributesFromMap(),
+        FehlerprotokollLayerComponent.LAYER_ID,
+        new Point(coordinate)
+      );
       const selectEvent = {
         coordinate,
         selectedFeatures: [selectedFeature],

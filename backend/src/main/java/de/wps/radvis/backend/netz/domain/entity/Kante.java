@@ -310,8 +310,8 @@ public class Kante extends VersionierteEntity {
 		double percentageOfPoint = distanceFromStart / this.geometry.getLength();
 
 		return list.stream().filter(
-				attr -> attr.getLinearReferenzierterAbschnitt().getVonValue() <= percentageOfPoint
-					&& attr.getLinearReferenzierterAbschnitt().getBisValue() >= percentageOfPoint)
+			attr -> attr.getLinearReferenzierterAbschnitt().getVonValue() <= percentageOfPoint
+				&& attr.getLinearReferenzierterAbschnitt().getBisValue() >= percentageOfPoint)
 			.min(Comparator.comparing(attribut -> attribut.getLinearReferenzierterAbschnitt().getVonValue()))
 			.get();
 	}
@@ -545,7 +545,7 @@ public class Kante extends VersionierteEntity {
 			neueGeometry.getStartPoint().getCoordinate()
 				.distance(vonKnoten.getPoint().getCoordinate()) <= KnotenIndex.SNAPPING_DISTANCE
 			&& neueGeometry.getEndPoint().getCoordinate()
-			.distance(nachKnoten.getPoint().getCoordinate()) <= KnotenIndex.SNAPPING_DISTANCE;
+				.distance(nachKnoten.getPoint().getCoordinate()) <= KnotenIndex.SNAPPING_DISTANCE;
 	}
 
 	/**

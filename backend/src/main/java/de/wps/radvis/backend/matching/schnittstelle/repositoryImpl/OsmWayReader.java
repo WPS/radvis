@@ -603,7 +603,7 @@ public class OsmWayReader implements TurnCostParser.ExternalInternalMap {
 
 	/**
 	 * @return OSM way ID from specified edgeId. Only previously stored OSM-way-IDs are returned in
-	 * order to reduce memory overhead.
+	 *     order to reduce memory overhead.
 	 */
 	@Override
 	public long getOsmIdOfInternalEdge(int edgeId) {

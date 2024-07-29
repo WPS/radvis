@@ -19,7 +19,8 @@ import lombok.NonNull;
 
 @AllArgsConstructor
 public enum Konzeptionsquelle {
-	RADNETZ_MASSNAHME("RadNETZ-Maßnahme"),
+	RADNETZ_MASSNAHME("RadNETZ-Maßnahme (2016)"),
+	RADNETZ_MASSNAHME_2024("RadNETZ-Maßnahme (2024)"),
 	KOMMUNALES_KONZEPT("Kommunales Konzept"),
 	KREISKONZEPT("Kreiskonzept"),
 	SONSTIGE("Sonstige");

@@ -16,6 +16,7 @@ package de.wps.radvis.backend.manuellerimport.attributeimport.domain.service;
 
 import static org.valid4j.Assertive.require;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.exception.AttributUebernahmeException;
+import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.AttributUebernahmeFehler;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.MappedAttributes;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.MappedAttributesProperties;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
@@ -239,9 +241,69 @@ abstract public class AttributeMapper {
 	}
 
 	protected void applyRadverkehrsfuehrung(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) throws AttributUebernahmeException {
+		ArrayList<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
+
 		applyFuehrungsformAttributgruppeLinearReferenziert(kante, linearReferenzierterAbschnitt,
-			attribute -> attribute.toBuilder().radverkehrsfuehrung(radverkehrsfuehrung).build());
+			attribute -> {
+				boolean trennstreifenAreCorrect = verifyTrennstreifenCorrectness(kante, radverkehrsfuehrung,
+					linearReferenzierterAbschnitt, attribute, attributUebernahmeFehler);
+
+				if (trennstreifenAreCorrect) {
+					attribute = attribute.toBuilder().radverkehrsfuehrung(radverkehrsfuehrung).build();
+				}
+
+				return attribute;
+			});
+
+		if (!attributUebernahmeFehler.isEmpty()) {
+			throw new AttributUebernahmeException(attributUebernahmeFehler);
+		}
+	}
+
+	private static boolean verifyTrennstreifenCorrectness(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, FuehrungsformAttribute attribute,
+		ArrayList<AttributUebernahmeFehler> attributUebernahmeFehler) {
+
+		TrennstreifenForm trennstreifenFormLinks = attribute.getTrennstreifenFormLinks().orElse(null);
+		Laenge trennstreifenBreiteLinks = attribute.getTrennstreifenBreiteLinks().orElse(null);
+		TrennungZu trennstreifenTrennungZuLinks = attribute.getTrennstreifenTrennungZuLinks().orElse(null);
+		boolean trennstreifenLinksCorrect = FuehrungsformAttribute.isTrennstreifenCorrect(radverkehrsfuehrung,
+			trennstreifenFormLinks, trennstreifenBreiteLinks, trennstreifenTrennungZuLinks);
+
+		if (!trennstreifenLinksCorrect) {
+			String message = String.format(
+				"Neue Radverkehrsführung %s (derzeit: %s) auf Kante %d führt zu inkompatiblen Attributen des linken Sicherheitstrennstreifens (derzeit: Form = %s, Trennung zu = %s, Breite = %s).",
+				radverkehrsfuehrung.toString(),
+				attribute.getRadverkehrsfuehrung().toString(),
+				kante.getId(),
+				trennstreifenFormLinks != null ? trennstreifenFormLinks.toString() : "-",
+				trennstreifenTrennungZuLinks != null ? trennstreifenTrennungZuLinks.toString() : "-",
+				trennstreifenBreiteLinks != null ? trennstreifenBreiteLinks.toString() : "-");
+			attributUebernahmeFehler.add(new AttributUebernahmeFehler(message, Set.of(radverkehrsfuehrung
+				.toString()), linearReferenzierterAbschnitt));
+		}
+
+		TrennstreifenForm trennstreifenFormRechts = attribute.getTrennstreifenFormRechts().orElse(null);
+		Laenge trennstreifenBreiteRechts = attribute.getTrennstreifenBreiteRechts().orElse(null);
+		TrennungZu trennstreifenTrennungZuRechts = attribute.getTrennstreifenTrennungZuRechts().orElse(null);
+		boolean trennstreifenRechtsCorrect = FuehrungsformAttribute.isTrennstreifenCorrect(radverkehrsfuehrung,
+			trennstreifenFormRechts, trennstreifenBreiteRechts, trennstreifenTrennungZuRechts);
+
+		if (!trennstreifenRechtsCorrect) {
+			String message = String.format(
+				"Neue Radverkehrsführung %s (derzeit: %s) auf Kante %d führt zu inkompatiblen Attributen des rechten Sicherheitstrennstreifens (derzeit: Form = %s, Trennung zu = %s, Breite = %s).",
+				radverkehrsfuehrung.toString(),
+				attribute.getRadverkehrsfuehrung().toString(),
+				kante.getId(),
+				trennstreifenFormRechts != null ? trennstreifenFormRechts.toString() : "-",
+				trennstreifenTrennungZuRechts != null ? trennstreifenTrennungZuRechts.toString() : "-",
+				trennstreifenBreiteRechts != null ? trennstreifenBreiteRechts.toString() : "-");
+			attributUebernahmeFehler.add(new AttributUebernahmeFehler(message, Set.of(radverkehrsfuehrung
+				.toString()), linearReferenzierterAbschnitt));
+		}
+
+		return trennstreifenLinksCorrect && trennstreifenRechtsCorrect;
 	}
 
 	protected void applyRadverkehrsfuehrungUndTrennstreifen(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
@@ -305,6 +367,16 @@ abstract public class AttributeMapper {
 		);
 	}
 
+	protected void applyTrennstreifenInfoLinksUndRechts(Kante kante, TrennstreifenForm trennstreifenForm,
+		Laenge trennstreifenBreite, TrennungZu trennungZu, Seitenbezug seitenbezug,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+
+		applyTrennstreifenInfoLinks(kante, trennstreifenForm, trennstreifenBreite, trennungZu, seitenbezug,
+			linearReferenzierterAbschnitt);
+		applyTrennstreifenInfoRechts(kante, trennstreifenForm, trennstreifenBreite, trennungZu, seitenbezug,
+			linearReferenzierterAbschnitt);
+	}
+
 	protected void applyTrennstreifenInfoLinks(Kante kante, TrennstreifenForm trennstreifenForm,
 		Laenge trennstreifenBreite, TrennungZu trennungZu, Seitenbezug seitenbezug,
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
@@ -315,6 +387,20 @@ abstract public class AttributeMapper {
 				.trennstreifenFormLinks(trennstreifenForm)
 				.trennstreifenBreiteLinks(trennstreifenBreite)
 				.trennstreifenTrennungZuLinks(trennungZu)
+				.build()
+		);
+	}
+
+	protected void applyTrennstreifenInfoRechts(Kante kante, TrennstreifenForm trennstreifenForm,
+		Laenge trennstreifenBreite, TrennungZu trennungZu,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+
+		applyFuehrungsformAttributgruppeLinearReferenziert(kante,
+			linearReferenzierterAbschnitt,
+			attribute -> attribute.toBuilder()
+				.trennstreifenFormRechts(trennstreifenForm)
+				.trennstreifenBreiteRechts(trennstreifenBreite)
+				.trennstreifenTrennungZuRechts(trennungZu)
 				.build()
 		);
 	}
@@ -446,9 +532,8 @@ abstract public class AttributeMapper {
 
 		FuehrungsformAttributGruppe attributgruppe = kante.getFuehrungsformAttributGruppe();
 
-		List<FuehrungsformAttribute> fuerSeitenbezug = seitenbezug.equals(Seitenbezug.LINKS) ?
-			attributgruppe.getImmutableFuehrungsformAttributeLinks() :
-			attributgruppe.getImmutableFuehrungsformAttributeRechts();
+		List<FuehrungsformAttribute> fuerSeitenbezug = seitenbezug.equals(Seitenbezug.LINKS) ? attributgruppe
+			.getImmutableFuehrungsformAttributeLinks() : attributgruppe.getImmutableFuehrungsformAttributeRechts();
 
 		List<FuehrungsformAttribute> neueAttribute = updateLinearReferenzierteAttribute(fuerSeitenbezug,
 			linearReferenzierterAbschnitt, updateFunction);

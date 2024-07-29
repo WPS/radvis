@@ -14,11 +14,11 @@
 
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 
 export interface KantenHoverEvent {
   kanteId: number;
-  seitenbezug?: Seitenbezug;
+  kantenSeite?: KantenSeite;
 }
 
 @Injectable({

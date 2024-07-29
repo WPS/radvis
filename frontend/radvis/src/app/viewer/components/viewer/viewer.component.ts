@@ -31,11 +31,11 @@ import { LocationSelectEvent } from 'src/app/shared/models/location-select-event
 import { Signatur } from 'src/app/shared/models/signatur';
 import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import { SelectFeatureMenuComponent } from 'src/app/viewer/components/select-feature-menu/select-feature-menu.component';
 import { fehlerprotokollLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { NetzAusblendenService } from 'src/app/viewer/viewer-shared/services/netz-ausblenden.service';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
 
 @Component({
   selector: 'rad-viewer',
@@ -122,8 +122,8 @@ export class ViewerComponent implements NetzbezugAuswahlModusService {
     this.updateMitVerlaufInRoute(visible);
   }
 
-  public onSelectRadVisSignatur(signatur: Signatur): void {
-    this.mapQueryParamsService.update({ signatur });
+  public onSelectRadVisSignatur(signatur: Signatur | null): void {
+    this.mapQueryParamsService.update({ signatur: signatur ?? undefined });
   }
 
   public onMeasureClicked(): void {

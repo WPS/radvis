@@ -133,7 +133,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 
 		// assert
 		List<Abstellanlage> abstellanlagen = StreamSupport.stream(abstellanlageRepository.findAll().spliterator(),
-				false)
+			false)
 			.collect(Collectors.toList());
 		assertThat(abstellanlagen).hasSize(1);
 		assertThat(abstellanlagen.get(0))
@@ -146,7 +146,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 		assertThat(abstellanlagen.get(0).getDokumentListe().getDokumente()).isEmpty();
 		assertThat(abstellanlagen.get(0).getGeometrie().getCoordinate()
 			.distance(anlageMitAttributenAusCsv.getGeometrie().getCoordinate()))
-			.isLessThan(0.1);
+				.isLessThan(0.1);
 
 		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
 			.get();
@@ -176,7 +176,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			.isEqualTo(anlageMitAttributenAusCsv);
 		assertThat(abstellanlagen.get(0).getGeometrie().getCoordinate()
 			.distance(anlageMitAttributenAusCsv.getGeometrie().getCoordinate()))
-			.isLessThan(0.1);
+				.isLessThan(0.1);
 		assertThat(abstellanlagen.get(0).getId()).isEqualTo(mobiDataMitExtIdInCsv.getId());
 
 		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
@@ -228,7 +228,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			+ "</ul>";
 
 		List<Abstellanlage> abstellanlagen = StreamSupport.stream(abstellanlageRepository.findAll().spliterator(),
-				false)
+			false)
 			.collect(Collectors.toList());
 		assertThat(abstellanlagen.get(0).getWeitereInformation()).isPresent();
 		assertThat(abstellanlagen.get(0).getWeitereInformation().get()).isEqualTo(
@@ -247,7 +247,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 
 		// assert
 		List<Abstellanlage> abstellanlagen = StreamSupport.stream(abstellanlageRepository.findAll().spliterator(),
-				false)
+			false)
 			.collect(Collectors.toList());
 		assertThat(abstellanlagen).hasSize(1);
 		assertThat(abstellanlagen.get(0))
@@ -260,7 +260,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 		assertThat(abstellanlagen.get(0).getDokumentListe().getDokumente()).isEmpty();
 		assertThat(abstellanlagen.get(0).getGeometrie().getCoordinate()
 			.distance(anlageMitAttributenAusCsv.getGeometrie().getCoordinate()))
-			.isLessThan(0.1);
+				.isLessThan(0.1);
 
 		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
 			.get();
@@ -331,7 +331,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 			new DokumentListe());
 
 		List<Abstellanlage> abstellanlagen = StreamSupport.stream(abstellanlageRepository.findAll().spliterator(),
-				false)
+			false)
 			.collect(Collectors.toList());
 		assertThat(abstellanlagen).hasSize(1);
 		assertThat(abstellanlagen.get(0))
@@ -344,7 +344,7 @@ class AbstellanlageBRImportJobTestIT extends DBIntegrationTestIT {
 		assertThat(abstellanlagen.get(0).getDokumentListe().getDokumente()).isEmpty();
 		assertThat(abstellanlagen.get(0).getGeometrie().getCoordinate()
 			.distance(expectedAbstellanlage.getGeometrie().getCoordinate()))
-			.isLessThan(0.1);
+				.isLessThan(0.1);
 
 		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = (AbstellanlageBRImportStatistik) jobStatistik
 			.get();

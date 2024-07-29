@@ -48,43 +48,40 @@ class TransformationsKonfigurationsRepositoryTest {
 
 	@TestFactory
 	public Stream<DynamicTest> readCsv() {
-		return delimiters.flatMap(delimiter ->
-			charsets.stream().flatMap(charset ->
-				withOuotes.stream().map(quotes -> {
-					String quote = quotes ? "\"" : "";
-					return DynamicTest.dynamicTest(
-						"Read csv (encoding: " + charset.displayName() + ") with delimiter '" + delimiter + "' and with"
-							+ (quotes ? "" : "out") + " quotes",
-						() -> {
-							String csv =
-								quote + String.join(quote + delimiter + quote,
-									TransformationsKonfigurationsRepositoryImpl.HEADER)
-									+ quote + "\n" +
-									quote + String.join(quote + delimiter + quote, "ä", "b", "c", "d") + quote + "\n"
-									+
-									quote + String.join(quote + delimiter + quote, "ä", "b", "e", "f") + quote + "\n";
+		return delimiters.flatMap(delimiter -> charsets.stream().flatMap(charset -> withOuotes.stream().map(quotes -> {
+			String quote = quotes ? "\"" : "";
+			return DynamicTest.dynamicTest(
+				"Read csv (encoding: " + charset.displayName() + ") with delimiter '" + delimiter + "' and with"
+					+ (quotes ? "" : "out") + " quotes",
+				() -> {
+					String csv = quote + String.join(quote + delimiter + quote,
+						TransformationsKonfigurationsRepositoryImpl.HEADER)
+						+ quote + "\n" +
+						quote + String.join(quote + delimiter + quote, "ä", "b", "c", "d") + quote + "\n"
+						+
+						quote + String.join(quote + delimiter + quote, "ä", "b", "e", "f") + quote + "\n";
 
-							// act
+					// act
 
-							TransformationsKonfiguration konfiguration = transformationsKonfigurationsRepositoryImpl
-								.readKonfigurationFromCsv(csv.getBytes(charset));
+					TransformationsKonfiguration konfiguration = transformationsKonfigurationsRepositoryImpl
+						.readKonfigurationFromCsv(csv.getBytes(charset));
 
-							// assert
-							assertThat(
-								konfiguration.hasQuellAttributName(
-									TransformationsKonfigurationsRepositoryImpl.HEADER[0]))
+					// assert
+					assertThat(
+						konfiguration.hasQuellAttributName(
+							TransformationsKonfigurationsRepositoryImpl.HEADER[0]))
 								.isFalse();
 
-							assertThat(konfiguration.hasQuellAttributName("ä")).isTrue();
-							assertThat(konfiguration.getZielAttributName("ä")).isEqualTo("b");
+					assertThat(konfiguration.hasQuellAttributName("ä")).isTrue();
+					assertThat(konfiguration.getZielAttributName("ä")).isEqualTo("b");
 
-							assertThat(konfiguration.hasQuellAttributWert("ä", "c")).isTrue();
-							assertThat(konfiguration.getZielAttributWert("ä", "c")).isEqualTo("d");
+					assertThat(konfiguration.hasQuellAttributWert("ä", "c")).isTrue();
+					assertThat(konfiguration.getZielAttributWert("ä", "c")).isEqualTo("d");
 
-							assertThat(konfiguration.hasQuellAttributWert("ä", "e")).isTrue();
-							assertThat(konfiguration.getZielAttributWert("ä", "e")).isEqualTo("f");
-						});
-				})));
+					assertThat(konfiguration.hasQuellAttributWert("ä", "e")).isTrue();
+					assertThat(konfiguration.getZielAttributWert("ä", "e")).isEqualTo("f");
+				});
+		})));
 	}
 
 	@Test

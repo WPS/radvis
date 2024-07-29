@@ -21,13 +21,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.common.domain.exception.CsvAttributMappingException;
 import de.wps.radvis.backend.common.domain.exception.CsvImportException;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class AbstractCsvImportService<ENTITY, BUILDER> {
 	public static final List<String> PROTOKOLL_HEADER = List.of("Aktion", "URL", "Fehler");
 
@@ -48,6 +51,8 @@ public abstract class AbstractCsvImportService<ENTITY, BUILDER> {
 		}
 
 		List<Map<String, String>> protokollEintraege = new ArrayList<>();
+
+		AtomicInteger fortschritt = new AtomicInteger(0);
 
 		csvData.getRows().forEach(row -> {
 			Map<String, String> protokollEintrag = new HashMap<>();
@@ -89,10 +94,14 @@ public abstract class AbstractCsvImportService<ENTITY, BUILDER> {
 				protokollEintrag.put("URL", "");
 			}
 
+			if (fortschritt.incrementAndGet() % 1000 == 0) {
+				log.info("Es wurden {} CSV Zeilen verarbeitet", fortschritt.get());
+			}
 			protokollEintrag.putAll(row);
 			protokollEintraege.add(protokollEintrag);
 		});
 
+		log.info("Verarbeitung von {} CSV Zeilen abgeschlossen", fortschritt.get());
 		List<String> exportHeader = new ArrayList<>(requiredHeaders);
 		exportHeader.addAll(PROTOKOLL_HEADER);
 

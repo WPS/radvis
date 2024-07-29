@@ -32,7 +32,8 @@ import { FAHRRADZAEHLSTELLE } from 'src/app/viewer/fahrradzaehlstelle/models/fah
 })
 export class FahrradzaehlstelleLayerComponent
   extends AbstractInfrastrukturLayerComponent<FahrradzaehlstelleListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private layer: VectorLayer;
 
   constructor(

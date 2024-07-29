@@ -20,7 +20,7 @@ import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
 import { Kante } from 'src/app/editor/kanten/models/kante';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service';
@@ -61,56 +61,56 @@ export class KantenSelektionService {
     this.discardableComponent = discardableComponent;
   }
 
-  public select(kanteId: number, additiv: boolean, seitenbezug?: Seitenbezug, segmentIndex?: number): void {
+  public select(kanteId: number, additiv: boolean, kantenSeite?: KantenSeite, segmentIndex?: number): void {
     if (segmentIndex !== undefined) {
-      this.selectSegment(kanteId, segmentIndex, additiv, seitenbezug);
+      this.selectSegment(kanteId, segmentIndex, additiv, kantenSeite);
     } else {
-      if (seitenbezug) {
-        this.selectKantenseite(kanteId, additiv, seitenbezug);
+      if (kantenSeite) {
+        this.selectKantenseite(kanteId, additiv, kantenSeite);
       } else {
         this.selectGesamteKante(kanteId, additiv);
       }
     }
   }
 
-  public deselect(kanteId: number, seitenbezug?: Seitenbezug, segmentIndex?: number): void {
+  public deselect(kanteId: number, kantenSeite?: KantenSeite, segmentIndex?: number): void {
     invariant(this.isKanteSelektiert(kanteId), 'Deselect für nicht selektierte Kante nicht möglich');
     if (segmentIndex !== undefined) {
-      invariant(this.isKantenelementSelektiert(kanteId, segmentIndex, seitenbezug));
+      invariant(this.isKantenelementSelektiert(kanteId, segmentIndex, kantenSeite));
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (this.isLastSelectedElement(kanteId, seitenbezug)) {
+      if (this.isLastSelectedElement(kanteId, kantenSeite)) {
         this.deselectGesamteKante(kanteId);
       } else {
-        this.deselectElement(kanteId, segmentIndex, seitenbezug);
+        this.deselectElement(kanteId, segmentIndex, kantenSeite);
       }
     } else {
-      if (seitenbezug && this.isKantenseiteSelektiert(kanteId, Seitenbezug.getGegenseite(seitenbezug))) {
-        this.deselectKantenseite(kanteId, seitenbezug);
+      if (kantenSeite && this.isKantenseiteSelektiert(kanteId, KantenSeite.getGegenseite(kantenSeite))) {
+        this.deselectKantenseite(kanteId, kantenSeite);
       } else {
         this.deselectGesamteKante(kanteId);
       }
     }
   }
 
-  public adjustSelectionForSegmentInsertion(kanteId: number, segmentIndex: number, seitenbezug?: Seitenbezug): void {
+  public adjustSelectionForSegmentInsertion(kanteId: number, segmentIndex: number, kantenSeite?: KantenSeite): void {
     invariant(this.isKanteSelektiert(kanteId));
 
     const bestehendeKantenSelektionIndex = this.selektion.findIndex(selektion => selektion.kante.id === kanteId);
     const bestehendeKantenSelektion = this.selektion[bestehendeKantenSelektionIndex];
     const neueSelektion = [...this.selektion];
-    neueSelektion[bestehendeKantenSelektionIndex] = bestehendeKantenSelektion.insertSegment(segmentIndex, seitenbezug);
+    neueSelektion[bestehendeKantenSelektionIndex] = bestehendeKantenSelektion.insertSegment(segmentIndex, kantenSeite);
 
     this.selektionSubject.next(neueSelektion);
   }
 
-  public adjustSelectionForSegmentDeletion(kanteId: number, segmentIndex: number, seitenbezug?: Seitenbezug): void {
+  public adjustSelectionForSegmentDeletion(kanteId: number, segmentIndex: number, kantenSeite?: KantenSeite): void {
     invariant(this.isKanteSelektiert(kanteId));
 
     const neueSelektion = [...this.selektion];
     const bestehendeKantenSelektionIndex = this.selektion.findIndex(({ kante }) => kante.id === kanteId);
     neueSelektion[bestehendeKantenSelektionIndex] = this.selektion[bestehendeKantenSelektionIndex].deleteSegment(
       segmentIndex,
-      seitenbezug
+      kantenSeite
     );
 
     this.selektionSubject.next(neueSelektion);
@@ -150,9 +150,9 @@ export class KantenSelektionService {
     });
   }
 
-  public isSelektiert(kanteId: number, seitenbezug?: Seitenbezug): boolean {
-    if (seitenbezug) {
-      return this.isKantenseiteSelektiert(kanteId, seitenbezug);
+  public isSelektiert(kanteId: number, kantenSeite?: KantenSeite): boolean {
+    if (kantenSeite) {
+      return this.isKantenseiteSelektiert(kanteId, kantenSeite);
     } else {
       return this.isKanteSelektiert(kanteId);
     }
@@ -173,36 +173,36 @@ export class KantenSelektionService {
     return this.selektion.map(kantenSelektion => kantenSelektion.kante.id).includes(kanteId);
   }
 
-  private isKantenseiteSelektiert(kanteId: number, seitenbezug: Seitenbezug): boolean {
+  private isKantenseiteSelektiert(kanteId: number, kantenSeite: KantenSeite): boolean {
     const foundSelektion = this.selektion.find(selektion => selektion.kante.id === kanteId);
     if (foundSelektion) {
-      return foundSelektion.istSeiteSelektiert(seitenbezug);
+      return foundSelektion.istSeiteSelektiert(kantenSeite);
     } else {
       return false;
     }
   }
 
-  private isKantenelementSelektiert(kanteId: number, segmentIndex: number, seitenbezug?: Seitenbezug): boolean {
+  private isKantenelementSelektiert(kanteId: number, segmentIndex: number, kantenSeite?: KantenSeite): boolean {
     const foundSelektion = this.selektion.find(selektion => selektion.kante.id === kanteId);
     if (foundSelektion) {
-      return foundSelektion.istSegmentSelektiert(segmentIndex, seitenbezug);
+      return foundSelektion.istSegmentSelektiert(segmentIndex, kantenSeite);
     } else {
       return false;
     }
   }
 
-  private isLastSelectedElement(kanteId: number, seitenbezug: Seitenbezug | undefined): boolean {
+  private isLastSelectedElement(kanteId: number, kantenSeite: KantenSeite | undefined): boolean {
     const currentSelektion = this.selektion.find(selektion => selektion.kante.id === kanteId);
     invariant(currentSelektion);
-    if (seitenbezug !== undefined) {
+    if (kantenSeite !== undefined) {
       return (
-        !currentSelektion.istSeiteSelektiert(Seitenbezug.getGegenseite(seitenbezug)) &&
-        currentSelektion.getSelectedSegmentIndices(seitenbezug).length === 1
+        !currentSelektion.istSeiteSelektiert(KantenSeite.getGegenseite(kantenSeite)) &&
+        currentSelektion.getSelectedSegmentIndices(kantenSeite).length === 1
       );
     } else {
       return (
-        currentSelektion.getSelectedSegmentIndices(Seitenbezug.LINKS).length === 1 &&
-        currentSelektion.getSelectedSegmentIndices(Seitenbezug.RECHTS).length === 1
+        currentSelektion.getSelectedSegmentIndices(KantenSeite.LINKS).length === 1 &&
+        currentSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS).length === 1
       );
     }
   }
@@ -211,23 +211,23 @@ export class KantenSelektionService {
     const neueSelektion = this.selektion.map(kantenSelektion => {
       let neueKantenselektion: KantenSelektion;
       if (!AttributGruppe.isSeitenbezogen(newAttributgruppe) || kantenSelektion.istBeidseitigSelektiert()) {
-        const segmentAnzahlLinks = Kante.getAnzahlSegmente(newAttributgruppe, kantenSelektion.kante, Seitenbezug.LINKS);
+        const segmentAnzahlLinks = Kante.getAnzahlSegmente(newAttributgruppe, kantenSelektion.kante, KantenSeite.LINKS);
         const segmentAnzahlRechts = Kante.getAnzahlSegmente(
           newAttributgruppe,
           kantenSelektion.kante,
-          Seitenbezug.RECHTS
+          KantenSeite.RECHTS
         );
         neueKantenselektion = kantenSelektion.selectGesamteKante(segmentAnzahlLinks, segmentAnzahlRechts);
-      } else if (kantenSelektion.istSeiteSelektiert(Seitenbezug.LINKS)) {
-        const segmentAnzahlLinks = Kante.getAnzahlSegmente(newAttributgruppe, kantenSelektion.kante, Seitenbezug.LINKS);
-        neueKantenselektion = kantenSelektion.selectSeite(Seitenbezug.LINKS, segmentAnzahlLinks);
+      } else if (kantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)) {
+        const segmentAnzahlLinks = Kante.getAnzahlSegmente(newAttributgruppe, kantenSelektion.kante, KantenSeite.LINKS);
+        neueKantenselektion = kantenSelektion.selectSeite(KantenSeite.LINKS, segmentAnzahlLinks);
       } else {
         const segmentAnzahlRechts = Kante.getAnzahlSegmente(
           newAttributgruppe,
           kantenSelektion.kante,
-          Seitenbezug.RECHTS
+          KantenSeite.RECHTS
         );
-        neueKantenselektion = kantenSelektion.selectSeite(Seitenbezug.RECHTS, segmentAnzahlRechts);
+        neueKantenselektion = kantenSelektion.selectSeite(KantenSeite.RECHTS, segmentAnzahlRechts);
       }
       return neueKantenselektion;
     });
@@ -246,12 +246,12 @@ export class KantenSelektionService {
           const anzahlSegmenteLinks = Kante.getAnzahlSegmente(
             this.activeAttributGruppe as AttributGruppe,
             newKante,
-            Seitenbezug.LINKS
+            KantenSeite.LINKS
           );
           const anzahlSegmenteRechts = Kante.getAnzahlSegmente(
             this.activeAttributGruppe as AttributGruppe,
             newKante,
-            Seitenbezug.RECHTS
+            KantenSeite.RECHTS
           );
           if (additiv) {
             this.selektionSubject.next([
@@ -268,7 +268,7 @@ export class KantenSelektionService {
     });
   }
 
-  private selectKantenseite(kanteId: number, additiv: boolean, seitenbezug: Seitenbezug): void {
+  private selectKantenseite(kanteId: number, additiv: boolean, kantenSeite: KantenSeite): void {
     const bestehendeKantenSelektionIndex = this.selektion.findIndex(selektion => selektion.kante.id === kanteId);
     if (bestehendeKantenSelektionIndex >= 0) {
       // Kante nicht nachladen
@@ -276,12 +276,12 @@ export class KantenSelektionService {
       const anzahlSegmente = Kante.getAnzahlSegmente(
         this.activeAttributGruppe as AttributGruppe,
         bestehendeKantenSelektion.kante,
-        seitenbezug
+        kantenSeite
       );
       if (additiv) {
         const neueSelektion = [...this.selektion];
         neueSelektion[bestehendeKantenSelektionIndex] = bestehendeKantenSelektion.selectSeite(
-          seitenbezug,
+          kantenSeite,
           anzahlSegmente,
           true
         );
@@ -291,11 +291,11 @@ export class KantenSelektionService {
         if (werdenKantenDeselektiert) {
           this.canDeactivate().then(proceed => {
             if (proceed) {
-              this.selektionSubject.next([bestehendeKantenSelektion.selectSeite(seitenbezug, anzahlSegmente)]);
+              this.selektionSubject.next([bestehendeKantenSelektion.selectSeite(kantenSeite, anzahlSegmente)]);
             }
           });
         } else {
-          this.selektionSubject.next([bestehendeKantenSelektion.selectSeite(seitenbezug, anzahlSegmente)]);
+          this.selektionSubject.next([bestehendeKantenSelektion.selectSeite(kantenSeite, anzahlSegmente)]);
         }
       }
     } else {
@@ -306,15 +306,15 @@ export class KantenSelektionService {
             const anzahlSegmente = Kante.getAnzahlSegmente(
               this.activeAttributGruppe as AttributGruppe,
               newKante,
-              seitenbezug
+              kantenSeite
             );
             if (additiv) {
               this.selektionSubject.next([
                 ...this.resetSegmentIndices(this.selektion),
-                KantenSelektion.ofSeite(newKante, seitenbezug, anzahlSegmente),
+                KantenSelektion.ofSeite(newKante, kantenSeite, anzahlSegmente),
               ]);
             } else {
-              this.selektionSubject.next([KantenSelektion.ofSeite(newKante, seitenbezug, anzahlSegmente)]);
+              this.selektionSubject.next([KantenSelektion.ofSeite(newKante, kantenSeite, anzahlSegmente)]);
             }
           });
         }
@@ -322,11 +322,11 @@ export class KantenSelektionService {
     }
   }
 
-  private deselectKantenseite(kanteId: number, seitenbezug: Seitenbezug): void {
-    invariant(this.isKantenseiteSelektiert(kanteId, seitenbezug));
-    invariant(this.isKantenseiteSelektiert(kanteId, Seitenbezug.getGegenseite(seitenbezug)));
+  private deselectKantenseite(kanteId: number, kantenSeite: KantenSeite): void {
+    invariant(this.isKantenseiteSelektiert(kanteId, kantenSeite));
+    invariant(this.isKantenseiteSelektiert(kanteId, KantenSeite.getGegenseite(kantenSeite)));
     const bestehendeKantenSelektionIndex = this.selektion.findIndex(selektion => selektion.kante.id === kanteId);
-    const neueKantenSelektion = this.selektion[bestehendeKantenSelektionIndex].deselectSeite(seitenbezug);
+    const neueKantenSelektion = this.selektion[bestehendeKantenSelektionIndex].deselectSeite(kantenSeite);
     const neueSelektion = [...this.selektion];
     neueSelektion[bestehendeKantenSelektionIndex] = neueKantenSelektion;
     this.selektionSubject.next(neueSelektion);
@@ -347,7 +347,7 @@ export class KantenSelektionService {
     kanteId: number,
     segmentIndex: number,
     additiv: boolean,
-    seitenbezug: Seitenbezug | undefined
+    kantenSeite: KantenSeite | undefined
   ): void {
     invariant(
       this.selektion.find(selektion => selektion.kante.id === kanteId),
@@ -356,7 +356,7 @@ export class KantenSelektionService {
     const bestehendeKantenSelektionIndex = this.selektion.findIndex(selektion => selektion.kante.id === kanteId);
     const updatedSelektion = this.selektion[bestehendeKantenSelektionIndex].selectSegment(
       segmentIndex,
-      seitenbezug,
+      kantenSeite,
       additiv
     );
     let neueSelektion: KantenSelektion[];
@@ -378,11 +378,11 @@ export class KantenSelektionService {
     }
   }
 
-  private deselectElement(kanteId: number, segmentIndex: number, seitenbezug?: Seitenbezug): void {
-    invariant(this.isKantenelementSelektiert(kanteId, segmentIndex, seitenbezug));
+  private deselectElement(kanteId: number, segmentIndex: number, kantenSeite?: KantenSeite): void {
+    invariant(this.isKantenelementSelektiert(kanteId, segmentIndex, kantenSeite));
     const bestehendeKantenSelektionIndex = this.selektion.findIndex(selektion => selektion.kante.id === kanteId);
     const bestehendeKantenSelektion = this.selektion[bestehendeKantenSelektionIndex];
-    const neueKantenSelektion = bestehendeKantenSelektion.deselectSegment(segmentIndex, seitenbezug);
+    const neueKantenSelektion = bestehendeKantenSelektion.deselectSegment(segmentIndex, kantenSeite);
     const neueSelektion = [...this.selektion];
     neueSelektion[bestehendeKantenSelektionIndex] = neueKantenSelektion;
     this.selektionSubject.next(neueSelektion);

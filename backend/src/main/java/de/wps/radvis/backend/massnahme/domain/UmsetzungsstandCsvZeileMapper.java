@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.UmsetzungsstandImportStatistik;
 import de.wps.radvis.backend.massnahme.domain.valueObject.GrundFuerAbweichungZumMassnahmenblatt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.GrundFuerNichtUmsetzungDerMassnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.PruefungQualitaetsstandardsErfolgt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandCsvZeile;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -146,10 +146,10 @@ public class UmsetzungsstandCsvZeileMapper {
 	}
 
 	public String mapAnmerkung(UmsetzungsstandCsvZeile umsetzungsstandCsvZeile) {
-		String anmerkung1 =
-			umsetzungsstandCsvZeile.getAnmerkungsfeld() == null ? "" : umsetzungsstandCsvZeile.getAnmerkungsfeld();
-		String anmerkung2 =
-			umsetzungsstandCsvZeile.getAnmerkungsfeld2() == null ? "" : umsetzungsstandCsvZeile.getAnmerkungsfeld2();
+		String anmerkung1 = umsetzungsstandCsvZeile.getAnmerkungsfeld() == null ? "" : umsetzungsstandCsvZeile
+			.getAnmerkungsfeld();
+		String anmerkung2 = umsetzungsstandCsvZeile.getAnmerkungsfeld2() == null ? "" : umsetzungsstandCsvZeile
+			.getAnmerkungsfeld2();
 		String anmerkung = anmerkung1 + " " + anmerkung2;
 		anmerkung = anmerkung.trim();
 		return anmerkung.substring(0, Math.min(anmerkung.length(), 3000));
@@ -162,9 +162,9 @@ public class UmsetzungsstandCsvZeileMapper {
 
 		if (
 			// 5534 Treffer
-			zustaendigString.isEmpty()
-				// 62 Treffer
-				|| zustaendigString.equalsIgnoreCase("nein")) {
+		zustaendigString.isEmpty()
+			// 62 Treffer
+			|| zustaendigString.equalsIgnoreCase("nein")) {
 			return Optional.empty();
 		}
 
@@ -178,14 +178,13 @@ public class UmsetzungsstandCsvZeileMapper {
 			// 278 Treffer
 			if (
 				// 234 Treffer
-				(zustaendigString.equalsIgnoreCase("Gemeinde")
-					||
-					// 4 weitere Treffer
-					(
-						zustaendigString.toLowerCase().startsWith("gemeinde")
-							&& zustaendigString.toLowerCase().endsWith("herabstufung")))
-					&& organisationsArt.equals(OrganisationsArt.GEMEINDE)
-					&& organisationName.equalsIgnoreCase(
+			(zustaendigString.equalsIgnoreCase("Gemeinde")
+				||
+				// 4 weitere Treffer
+				(zustaendigString.toLowerCase().startsWith("gemeinde")
+					&& zustaendigString.toLowerCase().endsWith("herabstufung")))
+				&& organisationsArt.equals(OrganisationsArt.GEMEINDE)
+				&& organisationName.equalsIgnoreCase(
 					gemeindeAusCSV
 						// 40 weitere Treffer
 						.replace(", Stadt", ""))) {
@@ -195,23 +194,23 @@ public class UmsetzungsstandCsvZeileMapper {
 			// 40 Treffer
 			if (
 				// 1 Treffer
-				(zustaendigString.equalsIgnoreCase("Baulastträger Land")
-					// 16 Treffer
-					|| zustaendigString.equalsIgnoreCase("Bund")
-					// 23 Treffer
-					|| zustaendigString.equalsIgnoreCase("Land"))
-					&& organisationsArt.equals(OrganisationsArt.BUNDESLAND)) {
+			(zustaendigString.equalsIgnoreCase("Baulastträger Land")
+				// 16 Treffer
+				|| zustaendigString.equalsIgnoreCase("Bund")
+				// 23 Treffer
+				|| zustaendigString.equalsIgnoreCase("Land"))
+				&& organisationsArt.equals(OrganisationsArt.BUNDESLAND)) {
 				return Optional.of(organisation);
 			}
 
 			// 34 Treffer
 			if (
 				// 15 Treffer
-				(zustaendigString.equalsIgnoreCase("Kreis")
-					// 19 Treffer
-					|| zustaendigString.equalsIgnoreCase("Stadt"))
-					&& organisationName.equalsIgnoreCase(stadtLandkreisAusCSV)
-					&& organisationsArt.equals(OrganisationsArt.KREIS)) {
+			(zustaendigString.equalsIgnoreCase("Kreis")
+				// 19 Treffer
+				|| zustaendigString.equalsIgnoreCase("Stadt"))
+				&& organisationName.equalsIgnoreCase(stadtLandkreisAusCSV)
+				&& organisationsArt.equals(OrganisationsArt.KREIS)) {
 				return Optional.of(organisation);
 			}
 
@@ -236,12 +235,12 @@ public class UmsetzungsstandCsvZeileMapper {
 			// 4 Treffer
 			if (
 				// 2 Treffer
-				(zustaendigString.equalsIgnoreCase("Deutsche Bahn")
-					// 1 Treffer
-					|| zustaendigString.equalsIgnoreCase("Untereisesheim")
-					// 1 Treffer
-					|| zustaendigString.equalsIgnoreCase("Linkenheim-Hochstetten"))
-					&& organisationName.equalsIgnoreCase(zustaendigString)) {
+			(zustaendigString.equalsIgnoreCase("Deutsche Bahn")
+				// 1 Treffer
+				|| zustaendigString.equalsIgnoreCase("Untereisesheim")
+				// 1 Treffer
+				|| zustaendigString.equalsIgnoreCase("Linkenheim-Hochstetten"))
+				&& organisationName.equalsIgnoreCase(zustaendigString)) {
 				return Optional.of(organisation);
 			}
 

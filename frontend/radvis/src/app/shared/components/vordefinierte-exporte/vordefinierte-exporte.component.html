@@ -13,13 +13,7 @@
   -->
 
 <h2 mat-dialog-title>Vordefinierte Exporte</h2>
-<button
-  [attr.aria-label]="'Schließen'"
-  matTooltip="Schließen"
-  mat-dialog-close="true"
-  mat-icon-button
-  class="close-button"
->
+<button matTooltip="Schließen" mat-dialog-close="true" mat-icon-button class="close-button">
   <mat-icon>close</mat-icon>
 </button>
 <div mat-dialog-content class="content">
@@ -66,8 +60,7 @@
           color="primary"
           type="button"
           [disabled]="dropdownValue.selectedOrganisation === null"
-          (click)="ladeHerunter(dropdownValue.selectedOrganisation)"
-        >
+          (click)="ladeHerunter(dropdownValue.selectedOrganisation)">
           <span *ngIf="isFetching">Lade...</span>
           <span *ngIf="!isFetching">Download</span>
         </button>

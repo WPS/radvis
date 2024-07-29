@@ -839,8 +839,8 @@ class UpdateKantenServiceTest {
 			// wird benötigt damit der Algorithmus nicht frühzeitig abbricht
 			Kante neuerVorgaenger = KanteTestDataProvider
 				.fromKnoten(KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(20, 10), QuellSystem.DLM)
-						.id(9L)
-						.build(),
+					.id(9L)
+					.build(),
 					KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(25, 10), QuellSystem.DLM)
 						.id(10L)
 						.build())
@@ -942,8 +942,8 @@ class UpdateKantenServiceTest {
 			// wird benötigt damit der Algorithmus nicht frühzeitig abbricht
 			Kante neuerVorgaenger = KanteTestDataProvider
 				.fromKnoten(KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(20, 10), QuellSystem.DLM)
-						.id(10L)
-						.build(),
+					.id(10L)
+					.build(),
 					KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(25, 10), QuellSystem.DLM)
 						.id(11L)
 						.build())
@@ -976,19 +976,19 @@ class UpdateKantenServiceTest {
 			// arrange
 			// Knoten der ursprünglichen, gesplitteten Kante
 			Knoten altVon = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(0, 0),
-					QuellSystem.DLM)
+				QuellSystem.DLM)
 				.id(10L)
 				.build();
 			Knoten altNach = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(20, 20),
-					QuellSystem.DLM)
+				QuellSystem.DLM)
 				.id(20L)
 				.build();
 			Knoten neuVon = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(5, 0),
-					QuellSystem.DLM)
+				QuellSystem.DLM)
 				.id(30L)
 				.build();
 			Knoten neuNach = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(15, 15),
-					QuellSystem.DLM)
+				QuellSystem.DLM)
 				.id(30L)
 				.build();
 
@@ -1005,15 +1005,15 @@ class UpdateKantenServiceTest {
 				.build();
 
 			Kante splitPartner1 = KanteTestDataProvider.fromKnoten(
-					neuNach,
-					altNach)
+				neuNach,
+				altNach)
 				.id(2L)
 				.quelle(QuellSystem.DLM)
 				.build();
 
 			Kante splitPartner2 = KanteTestDataProvider.fromKnoten(
-					neuVon,
-					altVon)
+				neuVon,
+				altVon)
 				.id(3L)
 				.quelle(QuellSystem.DLM)
 				.build();

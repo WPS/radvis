@@ -91,7 +91,8 @@ public class Fahrradzaehlstelle extends VersionierteEntity {
 		require(this.betreiberEigeneId.equals(otherFahrradzaehlstelle.getBetreiberEigeneId()));
 		this.geometrie = otherFahrradzaehlstelle.getGeometrie();
 
-		this.fahrradzaehlstelleGebietskoerperschaft = otherFahrradzaehlstelle.getFahrradzaehlstelleGebietskoerperschaft()
+		this.fahrradzaehlstelleGebietskoerperschaft = otherFahrradzaehlstelle
+			.getFahrradzaehlstelleGebietskoerperschaft()
 			.orElse(null);
 		this.fahrradzaehlstelleBezeichnung = otherFahrradzaehlstelle.getFahrradzaehlstelleBezeichnung().orElse(null);
 		this.seriennummer = otherFahrradzaehlstelle.getSeriennummer().orElse(null);
@@ -144,4 +145,3 @@ public class Fahrradzaehlstelle extends VersionierteEntity {
 	}
 
 }
-

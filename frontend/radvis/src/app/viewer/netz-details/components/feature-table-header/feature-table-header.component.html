@@ -20,11 +20,10 @@
     [attr.aria-label]="getVisibilityTooltip()"
     [matTooltip]="getVisibilityTooltip()"
     (click)="onToggleLeereAttribute()"
-    mat-icon-button
-  >
+    mat-icon-button>
     <mat-icon>{{ leereAttributeVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
   </button>
-  <button [attr.aria-label]="'Schließen'" matTooltip="Schließen" (click)="onClose()" mat-icon-button class="close-icon">
+  <button matTooltip="Schließen" (click)="onClose()" mat-icon-button class="close-icon">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>

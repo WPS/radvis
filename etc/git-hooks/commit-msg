@@ -1,0 +1,42 @@
+#!/bin/bash
+
+MESSAGE="$(cat $1)"
+JIRA_ID_PREFIX="RAD"
+JIRA_ID_REGEX_NO_PREFIX="^[0-9]{4}"
+JIRA_ID_REGEX="($JIRA_ID_PREFIX-)?[0-9]{4}"
+MASTER_BRANCH="master"
+FORCE="FORCE "
+
+echo "Original commit message is \"$MESSAGE\""
+
+# Add git branch if relevant
+BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+echo "You're on branch $BRANCH"
+
+# Extract tracker abbreviation and ticket number (e.g. DS-123)
+TICKET=$(echo $BRANCH | grep -E "$JIRA_ID_REGEX" -o)
+if [[ $TICKET =~ $JIRA_ID_REGEX_NO_PREFIX ]] ; then
+  # Add JIRA prefix when not given
+  TICKET="$JIRA_ID_PREFIX-$TICKET"
+fi
+echo "You're working on ticket $TICKET"
+
+if [ "$BRANCH" = "$MASTER_BRANCH" ] && [ "$CI" != "true" ] ; then
+  echo "You're on the $MASTER_BRANCH branch but not a CI pipeline. I'll have to check whether your action is allowed."
+  if [[ ! $MESSAGE =~ ^($FORCE) ]] ; then
+    echo "Abort committing to branch $BRANCH. Start commit message with \"$FORCE\" in order to force this commit. The \"$FORCE\"-prefix will not appear in the git history."
+    exit 1
+  else
+    echo "Your message starts with the $FORCE keyword, I'll remove it."
+    MESSAGE="${MESSAGE/$FORCE/}"
+  fi
+fi
+
+if [[ ! $MESSAGE =~ ^(\[$JIRA_ID_REGEX\]|Merge) ]] && [ -n "$TICKET" ] ; then
+  MESSAGE="[$TICKET] $MESSAGE"
+  echo "New commit message: $MESSAGE"
+else
+  echo "Message already contains the ticket number"
+fi
+
+echo "$MESSAGE" > $1

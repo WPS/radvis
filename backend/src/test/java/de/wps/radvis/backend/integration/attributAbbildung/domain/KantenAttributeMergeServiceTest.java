@@ -428,7 +428,7 @@ class KantenAttributeMergeServiceTest {
 			// arrange + act + assert
 			assertThat(kantenAttributeMergeService
 				.mergeFahrtrichtung(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG, QuellSystem.RadNETZ))
-				.isEqualTo(Richtung.GEGEN_RICHTUNG);
+					.isEqualTo(Richtung.GEGEN_RICHTUNG);
 		}
 
 		@Test
@@ -774,7 +774,7 @@ class KantenAttributeMergeServiceTest {
 			// arrange + act + assert
 			assertThat(kantenAttributeMergeService
 				.mergeFahrtrichtung(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG, QuellSystem.RadwegeDB))
-				.isEqualTo(Richtung.IN_RICHTUNG);
+					.isEqualTo(Richtung.IN_RICHTUNG);
 		}
 
 		@Test

@@ -104,8 +104,14 @@ class NetzausschnittControllerTest {
 
 		KantenMappingService kantenMappingService = new KantenMappingService(kantenMappingRepository, kantenRepository);
 		NetzToGeoJsonConverter netzToGeoJsonConverter = new NetzToGeoJsonConverter();
-		netzausschnittController = new NetzausschnittController(netzToGeoJsonConverter, netzService,
-			netzausschnittService, kantenMappingService, verwaltungseinheitResolver, netzausschnittGuard);
+		netzausschnittController = new NetzausschnittController(
+			netzToGeoJsonConverter,
+			netzService,
+			netzausschnittService,
+			kantenMappingService,
+			verwaltungseinheitResolver,
+			netzausschnittGuard
+		);
 	}
 
 	@Test

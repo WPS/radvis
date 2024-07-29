@@ -15,5 +15,10 @@
 package de.wps.radvis.backend.netzfehler.domain.valueObject;
 
 public enum AnpassungswunschKategorie {
-	DLM, TOUBIZ, RADVIS, OSM, TT_SIB, WEGWEISUNGSSYSTEM
+	DLM,
+	TOUBIZ,
+	RADVIS,
+	OSM,
+	TT_SIB,
+	WEGWEISUNGSSYSTEM
 }

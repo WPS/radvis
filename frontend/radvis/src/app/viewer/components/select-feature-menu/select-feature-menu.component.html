@@ -19,8 +19,7 @@
       class="feature"
       (click)="onSelectFeature(f)"
       radHover
-      (hover)="onFeatureHover($event, f)"
-    >
+      (hover)="onFeatureHover($event, f)">
       <mat-icon [svgIcon]="layerRegistryService.getIcon(f)"></mat-icon>
       {{ layerRegistryService.getName(f) }}
     </a>

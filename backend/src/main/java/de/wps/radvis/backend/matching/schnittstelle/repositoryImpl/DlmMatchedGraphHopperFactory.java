@@ -20,11 +20,11 @@ import java.nio.file.Files;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import com.graphhopper.config.Profile;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.reader.dem.SRTMProvider;
-import com.graphhopper.routing.util.FlagEncoder;
 
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.matching.domain.DlmMatchingCacheRepository;
@@ -48,10 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DlmMatchedGraphHopperFactory {
-
-	public interface FlagEncoderFactory {
-		FlagEncoder build();
-	}
 
 	private final String dlmPbfPath;
 	private final String routingCacheVerzeichnis;
@@ -93,14 +89,7 @@ public class DlmMatchedGraphHopperFactory {
 		File configuredRoutingCache = new File(routingCacheVerzeichnis);
 		File configuredMappingCache = new File(mappingCacheVerzeichnis);
 
-		ElevationProvider elevationProvider;
-		if (FeatureTogglz.USE_LGL_HOEHENDATEN.isActive()) {
-			elevationProvider = new LGLElevationProviderRepository(
-				elevationCacheVerzeichnis,
-				tiffTilesVerzeichnis);
-		} else {
-			elevationProvider = new SRTMProvider();
-		}
+		ElevationProvider elevationProvider = getConfiguredElevationProvider();
 
 		// Erstmal einen Tmp Graphhopper erstellen um einen neuen Cache zu bauen. Spaeter wird wieder ein neuer
 		// verwendet
@@ -162,6 +151,18 @@ public class DlmMatchedGraphHopperFactory {
 		tmpGraphHopper.clean();
 
 		log.info("Neuer Graphhopper wird mit dem zuvor erstellten Cache hochgefahren");
+
+		loadDlmGraphHopper();
+	}
+
+	public void loadDlmGraphHopper() {
+		log.info("Lade Graphhopper aus existierendem Cache");
+
+		File configuredRoutingCache = new File(routingCacheVerzeichnis);
+		File configuredMappingCache = new File(mappingCacheVerzeichnis);
+
+		ElevationProvider elevationProvider = getConfiguredElevationProvider();
+
 		dlmMatchingCacheRepository = new DlmMatchingCacheRepositoryImpl(configuredMappingCache.getAbsolutePath());
 		currentGraphhopper = new DlmMatchedGraphHopper(dlmMatchingCacheRepository);
 		currentGraphhopper.setOSMFile(dlmPbfPath);
@@ -171,7 +172,7 @@ public class DlmMatchedGraphHopperFactory {
 		currentGraphhopper.setMinNetworkSize(minNetworkSize);
 		currentGraphhopper.importOrLoad(); // hier sollte der zuvor verschobene Cache geladen werden
 
-		log.info("DLM-Graphopper ist (re-)initialisiert.");
+		log.info("DLM-Graphopper ist (re-)initialisiert");
 	}
 
 	private static void addCustomTagParsers(DlmMatchedGraphHopper graphhopper) {
@@ -308,5 +309,17 @@ public class DlmMatchedGraphHopperFactory {
 			this.updateDlmGraphHopper();
 		}
 		return this.dlmMatchingCacheRepository;
+	}
+
+	private @NotNull ElevationProvider getConfiguredElevationProvider() {
+		ElevationProvider elevationProvider;
+		if (FeatureTogglz.USE_LGL_HOEHENDATEN.isActive()) {
+			elevationProvider = new LGLElevationProviderRepository(
+				elevationCacheVerzeichnis,
+				tiffTilesVerzeichnis);
+		} else {
+			elevationProvider = new SRTMProvider();
+		}
+		return elevationProvider;
 	}
 }

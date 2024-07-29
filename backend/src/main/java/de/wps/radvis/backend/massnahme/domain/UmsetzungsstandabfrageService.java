@@ -41,12 +41,12 @@ import de.wps.radvis.backend.common.domain.FrontendLinks;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,10 +89,9 @@ public class UmsetzungsstandabfrageService {
 		log.info("Umsetzungsstandsabfrage für folgende {} Maßnahmen angestoßen:\n{}", massnahmeIds.size(), allIds);
 
 		return this.getMassnahmenStream(massnahmeIds)
-			.filter(massnahme ->
-				massnahme.getUmsetzungsstatus() != Umsetzungsstatus.STORNIERT
-					&& massnahme.getUmsetzungsstatus() != Umsetzungsstatus.UMGESETZT
-					&& massnahme.getUmsetzungsstand().isPresent())
+			.filter(massnahme -> massnahme.getUmsetzungsstatus() != Umsetzungsstatus.STORNIERT
+				&& massnahme.getUmsetzungsstatus() != Umsetzungsstatus.UMGESETZT
+				&& massnahme.getUmsetzungsstand().isPresent())
 			.peek(massnahme -> massnahme.getUmsetzungsstand().get().fordereAktualisierungAn())
 			.collect(Collectors.toList());
 	}
@@ -109,8 +108,9 @@ public class UmsetzungsstandabfrageService {
 		massnahmen
 			.stream()
 			.flatMap(massnahme -> {
-				List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
-					massnahme);
+				List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
+					.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
+						massnahme);
 				if (massnahme.getZustaendiger().isPresent() && zustaendigeBearbeiter.isEmpty()) {
 					verwaltungseinheitOhneZustaendigeBearbeiter.add(massnahme.getZustaendiger().get());
 				}
@@ -144,7 +144,8 @@ public class UmsetzungsstandabfrageService {
 		);
 
 		// Uebergeordnete Orgas bis hin zur einschliesslich Kreisebene durchsuchen
-		Optional<Verwaltungseinheit> zuDurchsuchendeVerwaltungseinheit = verwaltungseinheit.getUebergeordneteVerwaltungseinheit();
+		Optional<Verwaltungseinheit> zuDurchsuchendeVerwaltungseinheit = verwaltungseinheit
+			.getUebergeordneteVerwaltungseinheit();
 		while (zuDurchsuchendeVerwaltungseinheit.isPresent() &&
 			!zuDurchsuchendeVerwaltungseinheit.get().getOrganisationsArt().equals(OrganisationsArt.REGIERUNGSBEZIRK)
 			&&
@@ -167,7 +168,8 @@ public class UmsetzungsstandabfrageService {
 			Map<Verwaltungseinheit, Set<Benutzer>> gruppierteMailempfaenger = mailEmpfaenger.stream()
 				.collect(Collectors.groupingBy(Benutzer::getOrganisation, Collectors.toSet()));
 
-			Set<Verwaltungseinheit> kreiskoordinatorZustaendigAberOhneZustaendigeBearbeiter = verwaltungseinheitOhneRadwegeerfasserin.stream()
+			Set<Verwaltungseinheit> kreiskoordinatorZustaendigAberOhneZustaendigeBearbeiter = verwaltungseinheitOhneRadwegeerfasserin
+				.stream()
 				.filter(
 					verwaltungseinheit -> verwaltungseinheitService.istUebergeordnet(
 						kreiskoordinator.getOrganisation(),
@@ -221,8 +223,8 @@ public class UmsetzungsstandabfrageService {
 	}
 
 	protected String getRadvisLink(Verwaltungseinheit organisation) {
-		String massnahmenFilterQuery =
-			"umsetzungsstandStatus:Aktualisierung%2520angefordert,zustaendiger:" + organisation.getName()
+		String massnahmenFilterQuery = "umsetzungsstandStatus:Aktualisierung%2520angefordert,zustaendiger:"
+			+ organisation.getName()
 				.replaceAll(" ", "%2520");
 
 		return commonConfigurationProperties.getBasisUrl() + FrontendLinks.infrastrukturTabelleWithFilter("massnahmen",

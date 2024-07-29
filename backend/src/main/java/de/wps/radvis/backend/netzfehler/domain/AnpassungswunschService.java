@@ -97,25 +97,21 @@ public class AnpassungswunschService {
 	}
 
 	public Stream<Anpassungswunsch> getAlleAnpassungswuensche(boolean abgeschlosseneAusblenden) {
-		Iterable<Anpassungswunsch> result = abgeschlosseneAusblenden ?
-			anpassungswunschRepository.findAllByStatusIsNotIn(AnpassungswunschStatus.ALLE_ABGESCHLOSSENEN) :
-			anpassungswunschRepository.findAll();
+		Iterable<Anpassungswunsch> result = abgeschlosseneAusblenden ? anpassungswunschRepository
+			.findAllByStatusIsNotIn(AnpassungswunschStatus.ALLE_ABGESCHLOSSENEN) : anpassungswunschRepository.findAll();
 
 		return StreamSupport.stream(result.spliterator(), false);
 	}
 
-	public Iterable<Anpassungswunsch> findAllOpenDlm() {
-		return anpassungswunschRepository.findAllByStatusAndKategorie(AnpassungswunschStatus.OFFEN,
-			AnpassungswunschKategorie.DLM);
-	}
-
 	@EventListener
 	public void onKonsistenzregelVerletzungenGeloescht(KonsistenzregelVerletzungenDeletedEvent event) {
-		List<KonsistenzregelVerletzungReferenz> geloeschteVerletzungenReferenzen = event.getGeloeschteVerletzungenIdentities()
+		List<KonsistenzregelVerletzungReferenz> geloeschteVerletzungenReferenzen = event
+			.getGeloeschteVerletzungenIdentities()
 			.stream()
 			.map(identity -> KonsistenzregelVerletzungReferenz.of(identity, event.getTyp()))
 			.collect(Collectors.toList());
-		List<Anpassungswunsch> zuAenderndeAnpassungswuensche = anpassungswunschRepository.findByKonsistenzregelVerletzungReferenzIn(
+		List<Anpassungswunsch> zuAenderndeAnpassungswuensche = anpassungswunschRepository
+			.findByKonsistenzregelVerletzungReferenzIn(
 				geloeschteVerletzungenReferenzen)
 			.filter(aw -> !aw.getStatus().istAbgeschlossen())
 			.collect(Collectors.toList());

@@ -28,29 +28,27 @@ export enum Stellplatzart {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Stellplatzart {
-  export const options: EnumOption[] = Object.keys(Stellplatzart).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Stellplatzart.VORDERRADANSCHLUSS:
-          return { name: k, displayText: 'Vorderradanschluss' };
-        case Stellplatzart.ANLEHNBUEGEL:
-          return { name: k, displayText: 'Anlehnbügel' };
-        case Stellplatzart.FAHRRADBOX:
-          return { name: k, displayText: 'Fahrradbox' };
-        case Stellplatzart.DOPPELSTOECKIG:
-          return { name: k, displayText: 'Doppelstöckig' };
-        case Stellplatzart.SAMMELANLAGE:
-          return { name: k, displayText: 'Sammelanlage' };
-        case Stellplatzart.FAHRRADPARKHAUS:
-          return { name: k, displayText: 'Fahrradparkhaus' };
-        case Stellplatzart.AUTOMATISCHES_PARKSYSTEM:
-          return { name: k, displayText: 'Automatisches Parksystem' };
-        case Stellplatzart.SONSTIGE:
-          return { name: k, displayText: 'Sonstige' };
-      }
-      throw new Error('Beschreibung für enum Stellplatzart fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Stellplatzart).map((k: string): EnumOption => {
+    switch (k) {
+      case Stellplatzart.VORDERRADANSCHLUSS:
+        return { name: k, displayText: 'Vorderradanschluss' };
+      case Stellplatzart.ANLEHNBUEGEL:
+        return { name: k, displayText: 'Anlehnbügel' };
+      case Stellplatzart.FAHRRADBOX:
+        return { name: k, displayText: 'Fahrradbox' };
+      case Stellplatzart.DOPPELSTOECKIG:
+        return { name: k, displayText: 'Doppelstöckig' };
+      case Stellplatzart.SAMMELANLAGE:
+        return { name: k, displayText: 'Sammelanlage' };
+      case Stellplatzart.FAHRRADPARKHAUS:
+        return { name: k, displayText: 'Fahrradparkhaus' };
+      case Stellplatzart.AUTOMATISCHES_PARKSYSTEM:
+        return { name: k, displayText: 'Automatisches Parksystem' };
+      case Stellplatzart.SONSTIGE:
+        return { name: k, displayText: 'Sonstige' };
     }
-  );
+    throw new Error('Beschreibung für enum Stellplatzart fehlt: ' + k);
+  });
 
   export const getDisplayText: (stellplatzart: Stellplatzart) => string = (stellplatzart: Stellplatzart): string => {
     const enumOption = options.find(({ name }) => name === stellplatzart);

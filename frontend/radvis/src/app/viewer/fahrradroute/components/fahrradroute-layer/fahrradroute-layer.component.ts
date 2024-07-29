@@ -17,7 +17,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
 import { WMSGetFeatureInfo } from 'ol/format';
-import { Geometry, LineString, MultiLineString } from 'ol/geom';
+import { Geometry } from 'ol/geom';
 import ImageLayer from 'ol/layer/Image';
 import VectorLayer from 'ol/layer/Vector';
 import * as olProj from 'ol/proj';
@@ -25,7 +25,7 @@ import { ImageWMS } from 'ol/source';
 import { Style } from 'ol/style';
 import { filter } from 'rxjs/operators';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
-import { isLineString, isMultiLineString } from 'src/app/shared/models/geojson-geometrie';
+import { geojsonGeometryToFeatureGeometry } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
@@ -34,9 +34,7 @@ import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrr
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
-import {
-    AbstractInfrastrukturLayerComponent,
-} from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
+import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
 import { infrastrukturLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 
@@ -48,7 +46,8 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 })
 export class FahrradrouteLayerComponent
   extends AbstractInfrastrukturLayerComponent<FahrradrouteListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private highlightLayer: VectorLayer;
   private layer: ImageLayer;
   private source: ImageWMS;
@@ -58,14 +57,9 @@ export class FahrradrouteLayerComponent
     private httpClient: HttpClient,
     fahrradrouteFilterService: FahrradrouteFilterService,
     fahrradrouteRoutingService: FahrradrouteRoutingService,
-    featureHighlightService: FeatureHighlightService,
+    featureHighlightService: FeatureHighlightService
   ) {
-    super(
-      fahrradrouteRoutingService,
-      fahrradrouteFilterService,
-      featureHighlightService,
-      FAHRRADROUTE,
-    );
+    super(fahrradrouteRoutingService, fahrradrouteFilterService, featureHighlightService, FAHRRADROUTE);
 
     this.source = new ImageWMS({
       url: `/api/geoserver/saml/radvis/wms`,
@@ -77,24 +71,32 @@ export class FahrradrouteLayerComponent
       imageLoadFunction: (image, src): void => {
         const body = new URLSearchParams(src);
 
-        // Bewusts nur Hauptstrecken anzeigen
-        body.set('CQL_FILTER', `variante_kategorie IS NULL AND id IN (${this.filterService.currentFilteredList.map(flv => flv.id)})`);
+        // Bewusst nur Hauptstrecken anzeigen
+        const hauptstreckeFilter = `variante_kategorie IS NULL`;
+
+        // Nach IDs filtern, wobei die Liste nicht leer sein darf. Daher als fallback der leere String, wenn keine
+        // Routen gefunden werden sollen. Bei leerer Liste (also einfach öffnende und schließende Klammer), würde der
+        // Geoserver kein Bilder, sondern eine XML-Fehlermeldung zurückliefern.
+        const ids = this.filterService.currentFilteredList.map(flv => flv.id);
+        const idFilter = `id IN (${ids.length > 0 ? ids : "''"})`;
+
+        body.set('CQL_FILTER', `${hauptstreckeFilter} AND ${idFilter}`);
         const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
 
         this.httpClient
-        .post<Blob>(src, body, {
-          headers,
-          responseType: 'blob' as 'json',
-        })
-        .toPromise()
-        .then(blob => {
-          if (blob) {
-            // Wir setzen den blob, den wir erhalten (also die png, die vom WMS kommt), als source für das dem
-            // gerenderten Bild zugeordnete ImageElement. Dafür muss der Blob unter einer lokalen URL verfügbar sein,
-            // daher creatObjectURL(...).
-            (image.getImage() as HTMLImageElement).src = URL.createObjectURL(blob);
-          }
-        });
+          .post<Blob>(src, body, {
+            headers,
+            responseType: 'blob' as 'json',
+          })
+          .toPromise()
+          .then(blob => {
+            if (blob) {
+              // Wir setzen den blob, den wir erhalten (also die png, die vom WMS kommt), als source für das dem
+              // gerenderten Bild zugeordnete ImageElement. Dafür muss der Blob unter einer lokalen URL verfügbar sein,
+              // daher creatObjectURL(...).
+              (image.getImage() as HTMLImageElement).src = URL.createObjectURL(blob);
+            }
+          });
       },
       serverType: 'geoserver',
     });
@@ -124,8 +126,8 @@ export class FahrradrouteLayerComponent
 
   getFeatureByFahrradroutenId(id: number): Feature<Geometry>[] {
     return this.vectorSource
-    .getFeatures()
-    .filter(feature => String(id) === String(feature.get(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME)));
+      .getFeatures()
+      .filter(feature => String(id) === String(feature.get(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME)));
   }
 
   // eslint-disable-next-line prettier/prettier
@@ -156,7 +158,7 @@ export class FahrradrouteLayerComponent
       this.filterService.filteredList$.subscribe(() => {
         // CQL-Filter ändert sich hierdurch, deswegen WMS-Dienst neu anfragen.
         this.source.changed();
-      }),
+      })
     );
 
     this.subscriptions.push(
@@ -168,12 +170,12 @@ export class FahrradrouteLayerComponent
         if (this.selectedId) {
           this.setFeatureHighlighted(this.selectedId, true);
         }
-      }),
+      })
     );
   }
 
   protected extractIdFromFeature(hf: RadVisFeature): number {
-    return Number(hf.attribute.find(a => a.key === FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME)?.value);
+    return Number(hf.attributes.get(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME));
   }
 
   // Muss implementiert werden, wird aber nicht genutzt, da wir die filteredList$-Subscription überschreiben aus der
@@ -184,20 +186,15 @@ export class FahrradrouteLayerComponent
 
   protected override styleFn = (feature: FeatureLike): Style | Style[] => {
     // Nur gehighlightete Features sollen gerendert werden!
-    return feature.get('highlighted')
-      ? MapStyles.getDefaultHighlightStyle()
-      : new Style();
+    return feature.get('highlighted') ? MapStyles.getDefaultHighlightStyle() : new Style();
   };
 
   private convertDetailsToFeature(infrastruktur: FahrradrouteDetailView): Feature<Geometry> | undefined {
     let feature;
-    const geometry = (infrastruktur.geometrie ?? infrastruktur.originalGeometrie);
+    const geometry = infrastruktur.geometrie ?? infrastruktur.originalGeometrie;
     if (geometry) {
-      if (isMultiLineString(geometry)) {
-        feature = new Feature(new MultiLineString(geometry.coordinates));
-      } else if (isLineString(geometry)) {
-        feature = new Feature(new LineString(geometry.coordinates));
-      } else {
+      feature = geojsonGeometryToFeatureGeometry(geometry);
+      if (feature === null) {
         throw new Error('Fahrradrouten Geometrie ist weder LineString noch MultiLineString');
       }
       feature.set(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, infrastruktur.id);
@@ -217,35 +214,34 @@ export class FahrradrouteLayerComponent
       url.searchParams.set('propertyName', 'id,name,variante_kategorie');
 
       return this.httpClient
-      .get(url.toString(), { responseType: 'text' })
-      .toPromise()
-      .then(
-        gml => {
-          const features = new WMSGetFeatureInfo()
-          .readFeatures(gml)
-          // Wir wollen keine Varianten
-          .filter(f => !f.get('variante_kategorie'))
-          // und nur Features, die dem Filter entsprechen
-          .filter(f => this.filterService.currentFilteredList.map(flv => flv.id).includes(+f.get('id')));
+        .get(url.toString(), { responseType: 'text' })
+        .toPromise()
+        .then(
+          gml => {
+            const features = new WMSGetFeatureInfo()
+              .readFeatures(gml)
+              // Wir wollen keine Varianten
+              .filter(f => !f.get('variante_kategorie'))
+              // und nur Features, die dem Filter entsprechen
+              .filter(f => this.filterService.currentFilteredList.map(flv => flv.id).includes(+f.get('id')));
 
-          features.forEach(feature => {
-            feature.set(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, feature.get('id'));
-            feature.set(AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME, feature.get('name'));
-          });
-          // Wir laden die angefragten Features in die vectorSource,
-          // damit sie ggf. onHover gehighlighted werden können.
-          Promise.all(features.map(f => this.getFeatureWithGeometry(f.get('id'))))
-          .then(fs => {
-            this.vectorSource.clear(true);
-            // @ts-expect-error Migration von ts-ignore filter undefined
-            this.vectorSource.addFeatures(fs.filter(f => !!f));
-          });
-          return features;
-        },
-        () => {
-          return Promise.resolve([]);
-        },
-      );
+            features.forEach(feature => {
+              feature.set(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, feature.get('id'));
+              feature.set(AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME, feature.get('name'));
+            });
+            // Wir laden die angefragten Features in die vectorSource,
+            // damit sie ggf. onHover gehighlighted werden können.
+            Promise.all(features.map(f => this.getFeatureWithGeometry(f.get('id')))).then(fs => {
+              this.vectorSource.clear(true);
+              // @ts-expect-error Migration von ts-ignore filter undefined
+              this.vectorSource.addFeatures(fs.filter(f => !!f));
+            });
+            return features;
+          },
+          () => {
+            return Promise.resolve([]);
+          }
+        );
     }
     return Promise.resolve([]);
   };

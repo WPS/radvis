@@ -32,9 +32,7 @@ export class NetzdetailService {
     }
     params = params.append('seite', selektierteSeite ?? '');
 
-    return this.http
-      .get<KanteDetailView>(`${this.api}/kante/${id}`, { params })
-      .toPromise();
+    return this.http.get<KanteDetailView>(`${this.api}/kante/${id}`, { params }).toPromise();
   }
 
   getKnotenForView(id: number): Promise<KnotenDetailView> {

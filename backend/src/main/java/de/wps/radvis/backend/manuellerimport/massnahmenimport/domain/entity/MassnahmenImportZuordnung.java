@@ -18,66 +18,150 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.geotools.api.feature.simple.SimpleFeature;
+import org.locationtech.jts.geom.Geometry;
 
+import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MappingFehler;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MassnahmenImportZuordnungStatus;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweis;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweisText;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
+import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import lombok.Getter;
 
 public class MassnahmenImportZuordnung {
+
+	private static int nextId = 1;
+
+	@Getter
+	private final int id;
+
+	private final MassnahmeKonzeptID massnahmeKonzeptId;
 
 	@Getter
 	private final SimpleFeature feature;
 
 	private final Massnahme massnahme;
 
-	private final MassnahmeKonzeptID id;
+	@Getter
+	private final MassnahmenImportZuordnungStatus zuordnungStatus;
+
+	private MassnahmeNetzBezug netzbezug;
 
 	@Getter
-	private final MassnahmenImportZuordnungStatus status;
-
-	@Getter
-	private final List<MappingFehler> mappingFehler;
+	private final Set<MappingFehler> mappingFehler;
 
 	@Getter
 	private final List<NetzbezugHinweis> netzbezugHinweise;
 
-	public MassnahmenImportZuordnung(MassnahmeKonzeptID id, SimpleFeature feature, Massnahme massnahme,
-		MassnahmenImportZuordnungStatus status) {
-		require(Objects.isNull(massnahme) || MassnahmenImportZuordnungStatus.statusMitZugeordneterMassnahme()
-				.contains(status),
-			"Nur bei Status GELOESCHT oder GEMAPPT darf eine Massnahme zugeordnet sein");
+	private boolean selected;
 
-		this.id = id;
+	public MassnahmenImportZuordnung(MassnahmeKonzeptID massnahmeKonzeptId, SimpleFeature feature, Massnahme massnahme,
+		MassnahmenImportZuordnungStatus zuordnungStatus) {
+		require(feature, notNullValue());
+		require(zuordnungStatus, notNullValue());
+		require(
+			Objects.isNull(massnahme) || MassnahmenImportZuordnungStatus.statusMitZugeordneterMassnahme()
+				.contains(zuordnungStatus),
+			String.format("Nur bei Status %s oder %s darf eine Massnahme zugeordnet sein",
+				MassnahmenImportZuordnungStatus.GELOESCHT.name(),
+				MassnahmenImportZuordnungStatus.ZUGEORDNET.name()));
+
+		this.id = nextId++;
+		this.massnahmeKonzeptId = massnahmeKonzeptId;
 		this.feature = feature;
 		this.massnahme = massnahme;
-		this.status = status;
-		this.mappingFehler = new ArrayList<>();
+		this.zuordnungStatus = zuordnungStatus;
+		this.mappingFehler = new HashSet<>();
 		this.netzbezugHinweise = new ArrayList<>();
+		this.selected = false;
 	}
 
-	public void addMappingFehler(MappingFehler mappingFehler) {
-		require(mappingFehler, notNullValue());
-		this.mappingFehler.add(mappingFehler);
-	}
-
-	public void addNetzbezugHinweis(NetzbezugHinweis netzbezugHinweis) {
-		require(netzbezugHinweis, notNullValue());
-		this.netzbezugHinweise.add(netzbezugHinweis);
+	public Optional<MassnahmeKonzeptID> getMassnahmeKonzeptId() {
+		return Optional.ofNullable(massnahmeKonzeptId);
 	}
 
 	public Optional<Massnahme> getMassnahme() {
 		return Optional.ofNullable(massnahme);
 	}
 
-	public Optional<MassnahmeKonzeptID> getId() {
-		return Optional.ofNullable(id);
+	public Optional<MassnahmeNetzBezug> getNetzbezug() {
+		return Optional.ofNullable(netzbezug);
+	}
+
+	public void addMappingFehler(MappingFehler mappingFehler) {
+		require(mappingFehler, notNullValue());
+		this.mappingFehler.add(mappingFehler);
+		deselect();
+	}
+
+	public void addNetzbezugHinweis(NetzbezugHinweis netzbezugHinweis) {
+		require(netzbezugHinweis, notNullValue());
+		this.netzbezugHinweise.add(netzbezugHinweis);
+		if (hasNetzbezugHinweisFehler()) {
+			deselect();
+		}
+	}
+
+	public boolean hasNetzbezugHinweisFehler() {
+		return getNetzbezugHinweise()
+			.stream()
+			.anyMatch(hinweis -> hinweis.getSeverity() == Severity.ERROR);
+	}
+
+	public boolean hasMappingFehler() {
+		return !getMappingFehler().isEmpty();
+	}
+
+	public boolean canBeSaved() {
+		return zuordnungStatus != MassnahmenImportZuordnungStatus.FEHLERHAFT && !hasNetzbezugHinweisFehler()
+			&& !hasMappingFehler();
+	}
+
+	public void select() {
+		require(canBeSaved(), "Zuordnung " + id
+			+ " darf nicht selektiert werden, da sie fehlerhaft ist oder Fehler-Einträge enthält.");
+
+		this.selected = true;
+	}
+
+	public void deselect() {
+		this.selected = false;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void aktualisiereNetzbezug(MassnahmeNetzBezug netzbezug, boolean clearNetzbezugHinweise) {
+		// Hier ist es auch erlaubt, den Netzbezug auf null zu setzen!
+		this.netzbezug = netzbezug;
+
+		if (clearNetzbezugHinweise) {
+			getNetzbezugHinweise().clear();
+		}
+
+		if (netzbezug == null) {
+			addNetzbezugHinweis(NetzbezugHinweis.ofError(NetzbezugHinweisText.NETZBEZUG_NICHT_GEFUNDEN));
+		}
+	}
+
+	public Optional<Geometry> getNetzbezugGeometrie() {
+		if (zuordnungStatus == MassnahmenImportZuordnungStatus.GELOESCHT) {
+			return getMassnahme()
+				.map(Massnahme::getNetzbezug)
+				.map(MassnahmeNetzBezug::getGeometrie);
+		} else {
+			return getNetzbezug()
+				.map(MassnahmeNetzBezug::getGeometrie);
+		}
 	}
 }

@@ -41,6 +41,7 @@ import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
@@ -60,7 +61,6 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -104,17 +104,17 @@ class QuaelitaetsSicherungsRepositoryImplTestIT extends DBIntegrationTestIT {
 			.build();
 
 		Kante grundnetzKanteRadNETZAusserhalb = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 9, 9,
-				QuellSystem.RadNETZ)
+			QuellSystem.RadNETZ)
 			.isGrundnetz(true)
 			.build();
 
 		Kante kanteRadNETZAusserhalb = KanteTestDataProvider.withCoordinatesAndQuelle(42, 42, 99, 99,
-				QuellSystem.RadNETZ)
+			QuellSystem.RadNETZ)
 			.isGrundnetz(false)
 			.build();
 
 		Kante grundnetzKanteRadNETZInnerhalb = KanteTestDataProvider.withCoordinatesAndQuelle(5, 5, 11, 11,
-				QuellSystem.RadNETZ)
+			QuellSystem.RadNETZ)
 			.isGrundnetz(true)
 			.build();
 
@@ -123,7 +123,7 @@ class QuaelitaetsSicherungsRepositoryImplTestIT extends DBIntegrationTestIT {
 			.build();
 
 		Kante grundnetzKanteDLMAusserhalb = KanteTestDataProvider.withCoordinatesAndQuelle(70, 70, 100, 100,
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.isGrundnetz(true)
 			.build();
 
@@ -132,7 +132,7 @@ class QuaelitaetsSicherungsRepositoryImplTestIT extends DBIntegrationTestIT {
 			.build();
 
 		Kante grundnetzKanteDLMInnerhalb = KanteTestDataProvider.withCoordinatesAndQuelle(12, 12, 20, 20,
-				QuellSystem.DLM)
+			QuellSystem.DLM)
 			.isGrundnetz(true)
 			.build();
 
@@ -168,7 +168,8 @@ class QuaelitaetsSicherungsRepositoryImplTestIT extends DBIntegrationTestIT {
 	@Test
 	void testLiegenAlleInQualitaetsgesichertenLandkreisen() {
 		// arrange
-		Gebietskoerperschaft landkreisQualitaetsgesichert = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+		Gebietskoerperschaft landkreisQualitaetsgesichert = VerwaltungseinheitTestDataProvider
+			.defaultGebietskoerperschaft()
 			.name("landkreisQualitaetsgesichert")
 			.organisationsArt(OrganisationsArt.KREIS)
 			.bereich(createQuadratischerBereich(0, 0, 20, 20))
@@ -196,9 +197,9 @@ class QuaelitaetsSicherungsRepositoryImplTestIT extends DBIntegrationTestIT {
 			.build();
 
 		List<Long> ids = StreamSupport.stream(
-				kantenRepository.saveAll(List.of(kanteQualitaetsGesichert, kanteNichtQualitaetsGesichert, kanteHeterogen))
-					.spliterator(),
-				false)
+			kantenRepository.saveAll(List.of(kanteQualitaetsGesichert, kanteNichtQualitaetsGesichert, kanteHeterogen))
+				.spliterator(),
+			false)
 			.map(Kante::getId)
 			.collect(Collectors.toList());
 

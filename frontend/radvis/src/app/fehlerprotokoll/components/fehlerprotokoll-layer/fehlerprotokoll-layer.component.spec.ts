@@ -15,21 +15,19 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { DatePipe } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockComponent } from 'ng-mocks';
 import { Geometry, LineString } from 'ol/geom';
 import * as olProj from 'ol/proj';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { FehlerprotokollAuswahlComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-auswahl/fehlerprotokoll-auswahl.component';
 import { FehlerprotokollDetailViewComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-detail-view/fehlerprotokoll-detail-view.component';
-import { FehlerprotokollTyp } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-typ';
-import {
-  FehlerprotokollLoader,
-  FehlerprotokollSelectionService,
-} from 'src/app/fehlerprotokoll/services/fehlerprotokoll-selection.service';
+import { defaultFehlerpotokoll } from 'src/app/fehlerprotokoll/models/fehlerpotokoll-test-data-provider.spec';
+import { DLM_REIMPORT_JOB_MASSNAHMEN_FEHLERPROTOKOLL } from 'src/app/fehlerprotokoll/models/fehlerpotokoll-typ-test-data-provider.spec';
+import { FehlerprotokollSelectionService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll-selection.service';
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
 import { HintergrundAuswahlComponent } from 'src/app/karte/components/hintergrund-auswahl/hintergrund-auswahl.component';
 import { HintergrundLayerComponent } from 'src/app/karte/components/hintergrund-layer/hintergrund-layer.component';
@@ -41,13 +39,12 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { OrtsSucheComponent } from 'src/app/karte/components/orts-suche/orts-suche.component';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { OlPopupComponent } from 'src/app/shared/components/ol-popup/ol-popup.component';
+import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { MapQueryParams } from 'src/app/shared/models/map-query-params';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { anything, instance, mock, when } from 'ts-mockito';
-import { defaultFehlerpotokoll } from './default-fehlerpotokoll.spec';
 import { FehlerprotokollLayerComponent } from './fehlerprotokoll-layer.component';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
 
 @Component({
   template: '<rad-ol-map><rad-fehlerprotokoll-layer [zIndex]="1"></rad-fehlerprotokoll-layer></rad-ol-map>',
@@ -65,16 +62,12 @@ describe(FehlerprotokollLayerComponent.name, () => {
   let fehlerprotokollSelectionService: FehlerprotokollSelectionService;
   let fehlerprotokollService: FehlerprotokollService;
 
-  let fehlerprotokollLoaderSubject$: BehaviorSubject<FehlerprotokollLoader>;
-
   beforeEach(async () => {
-    fehlerprotokollSelectionService = mock(FehlerprotokollSelectionService);
-    fehlerprotokollLoaderSubject$ = new BehaviorSubject<FehlerprotokollLoader>(() => of([]));
-    when(fehlerprotokollSelectionService.fehlerprotokollLoader$).thenReturn(fehlerprotokollLoaderSubject$);
+    fehlerprotokollSelectionService = new FehlerprotokollSelectionService();
 
     fehlerprotokollService = mock(FehlerprotokollService);
     when(
-      fehlerprotokollService.getFehlerprotokolle([FehlerprotokollTyp.DLM_REIMPORT_JOB_MASSNAHMEN], anything())
+      fehlerprotokollService.getFehlerprotokolle([DLM_REIMPORT_JOB_MASSNAHMEN_FEHLERPROTOKOLL], anything())
     ).thenReturn(of([]));
 
     const featureTogglzService = mock(FeatureTogglzService);
@@ -106,7 +99,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
       imports: [RouterTestingModule],
       providers: [
         { provide: MapQueryParamsService, useValue: instance(mapQueryParamsService) },
-        { provide: FehlerprotokollSelectionService, useValue: instance(fehlerprotokollSelectionService) },
+        { provide: FehlerprotokollSelectionService, useValue: fehlerprotokollSelectionService },
         { provide: FehlerprotokollService, useValue: instance(fehlerprotokollService) },
         { provide: FeatureTogglzService, useValue: instance(featureTogglzService) },
       ],
@@ -121,7 +114,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
 
   describe('select FehlerprotokollTyp', () => {
     it('should fill layer, same entity Id', fakeAsync(() => {
-      fehlerprotokollLoaderSubject$.next(() =>
+      fehlerprotokollSelectionService.fehlerprotokollLoader$.next(() =>
         of([
           { ...defaultFehlerpotokoll, id: 1, fehlerprotokollKlasse: 'Klasse1' },
           { ...defaultFehlerpotokoll, id: 1, fehlerprotokollKlasse: 'Klasse2' },
@@ -138,7 +131,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
 
   describe('Detail View', () => {
     it('should show correct values', fakeAsync(() => {
-      fehlerprotokollLoaderSubject$.next(() => of([defaultFehlerpotokoll]));
+      fehlerprotokollSelectionService.fehlerprotokollLoader$.next(() => of([defaultFehlerpotokoll]));
 
       tick();
 
@@ -153,7 +146,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
         feature.getGeometry() as Geometry
       );
 
-      component.onSelect(selectedFeature);
+      component.onSelect(selectedFeature, defaultFehlerpotokoll.iconPosition.coordinates[0]);
       fixture.detectChanges();
 
       expect(
@@ -168,13 +161,13 @@ describe(FehlerprotokollLayerComponent.name, () => {
           .innerText
       ).toEqual(defaultFehlerpotokoll.beschreibung);
       expect(
-        ((fixture.debugElement.nativeElement as HTMLElement).querySelector(
-          'a.fehlerprotokoll-text'
-        ) as HTMLElement).attributes.getNamedItem('href')?.value
+        (
+          (fixture.debugElement.nativeElement as HTMLElement).querySelector('a.fehlerprotokoll-text') as HTMLElement
+        ).attributes.getNamedItem('href')?.value
       ).toEqual(defaultFehlerpotokoll.entityLink);
       expect(component['geometryVectorSource'].getFeatures().length).toBe(1);
       expect((component['geometryVectorSource'].getFeatures()[0].getGeometry() as LineString).getCoordinates()).toEqual(
-        defaultFehlerpotokoll.originalGeometry.coordinates
+        (<LineStringGeojson>defaultFehlerpotokoll.originalGeometry).coordinates
       );
       expect(
         component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent['HIGHLIGHTED_PROPERTY_NAME'])
@@ -182,7 +175,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
     }));
 
     it('should unhighlight on close', fakeAsync(() => {
-      fehlerprotokollLoaderSubject$.next(() => of([defaultFehlerpotokoll]));
+      fehlerprotokollSelectionService.fehlerprotokollLoader$.next(() => of([defaultFehlerpotokoll]));
 
       tick();
       triggerLoadFeatures();
@@ -196,7 +189,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
         feature.getGeometry() as Geometry
       );
 
-      component.onSelect(selectedFeature);
+      component.onSelect(selectedFeature, [0, 0]);
       fixture.detectChanges();
 
       component.onCloseDetailView();
@@ -209,40 +202,48 @@ describe(FehlerprotokollLayerComponent.name, () => {
     }));
   });
 
-  describe('Fehlerprotokoll ID Extrahierung', () => {
-    it('should throw if attribute for id is missing', () => {
-      expect(() => {
-        FehlerprotokollLayerComponent.extractProtokollId([
-          { key: 'foo', value: 'bar', linearReferenziert: false } as RadVisFeatureAttribut,
-        ]);
-      }).toThrow();
-    });
+  it('should keep selection after reload (e.g. on extent/selected typ changed)', () => {
+    fehlerprotokollSelectionService.fehlerprotokollLoader$.next(() =>
+      of([
+        { ...defaultFehlerpotokoll, id: 1, fehlerprotokollKlasse: 'Klasse1' },
+        { ...defaultFehlerpotokoll, id: 2, fehlerprotokollKlasse: 'Klasse1' },
+      ])
+    );
+    component['iconVectorSource'].loadFeatures([0, 1000, 100, 1000], 0, olProj.get('EPSG:25832'));
+    expect(component['iconVectorSource'].getFeatures().length).toBe(2);
 
-    it('should throw if attribute contains bad value', () => {
-      expect(() => {
-        FehlerprotokollLayerComponent.extractProtokollId([
-          { key: 'foo', value: 'bar', linearReferenziert: false } as RadVisFeatureAttribut,
-          {
-            key: FehlerprotokollLayerComponent['PROTOKOLL_ID_PROPERTYNAME'],
-            value: undefined,
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ]);
-      }).toThrow();
-    });
+    const feature = component['iconVectorSource'].getFeatures()[0];
+    const id: number | string | undefined = feature.getId();
+    const selectedFeature = RadVisFeature.ofAttributesMap(
+      id ? +id : null,
+      feature.getProperties(),
+      FehlerprotokollLayerComponent.LAYER_ID,
+      feature.getGeometry() as Geometry
+    );
 
-    it('should extract from attribute', () => {
-      expect(
-        FehlerprotokollLayerComponent.extractProtokollId([
-          { key: 'foo', value: 'bar', linearReferenziert: false } as RadVisFeatureAttribut,
-          {
-            key: FehlerprotokollLayerComponent['PROTOKOLL_ID_PROPERTYNAME'],
-            value: 'abc/1',
-            linearReferenziert: false,
-          } as RadVisFeatureAttribut,
-        ])
-      ).toBe('abc/1');
-    });
+    component.onSelect(selectedFeature, [0, 0]);
+    fixture.detectChanges();
+
+    expect(
+      component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME)
+    ).toBe(true);
+
+    component['iconVectorSource'].loadFeatures([100, 1000, 200, 1000], 0, olProj.get('EPSG:25832'));
+
+    expect(
+      component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME)
+    ).toBe(true);
+
+    component.onCloseDetailView();
+    expect(
+      component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME)
+    ).toBe(false);
+
+    triggerLoadFeatures();
+
+    expect(
+      component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME)
+    ).toBe(false);
   });
 
   const triggerLoadFeatures = (): void => {

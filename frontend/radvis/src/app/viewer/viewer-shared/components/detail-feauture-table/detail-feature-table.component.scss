@@ -15,15 +15,21 @@
 @import 'src/style/font-style';
 @import 'src/style/spacing';
 
-
 :host {
   display: block;
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
 }
 
 table {
   width: 100%;
   table-layout: fixed;
+}
+
+th {
+  position: sticky;
+  top: 0;
 }
 
 .wrap {
@@ -34,6 +40,8 @@ td.group-header {
   padding: 0.2rem $padding-left-head !important;
   font-size: $font-size-peripheral;
   color: $font-color-peripheral;
+  top: var(--mat-table-header-container-height);
+  position: sticky;
 }
 
 tr.group-header {

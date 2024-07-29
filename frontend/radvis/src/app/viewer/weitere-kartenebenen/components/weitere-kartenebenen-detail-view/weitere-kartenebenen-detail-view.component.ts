@@ -57,15 +57,15 @@ export class WeitereKartenebenenDetailViewComponent implements OnDestroy {
     this.attributes$ = activatedRoute.data.pipe(
       map(data => {
         const attributListe: { [key: string]: string } = {};
-        (data.feature as RadVisFeature).attribute.forEach(attr => {
+        (data.feature as RadVisFeature).attributes.forEach((value: any, key: string) => {
           if (
-            attr.key !== WeitereKartenebene.LAYER_ID_KEY &&
-            attr.key !== 'geometry' &&
-            attr.key !== WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME &&
-            attr.key !== WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME
+            key !== WeitereKartenebene.LAYER_ID_KEY &&
+            key !== 'geometry' &&
+            key !== WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME &&
+            key !== WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME
           ) {
-            if (attr.value === undefined || attr.value?.toString() !== '[object Object]') {
-              attributListe[attr.key] = attr.value;
+            if (value === undefined || value?.toString() !== '[object Object]') {
+              attributListe[key] = value;
             }
           }
         });
@@ -76,9 +76,7 @@ export class WeitereKartenebenenDetailViewComponent implements OnDestroy {
     );
     this.layerName$ = activatedRoute.data.pipe(
       map(data => {
-        const layerId = (data.feature as RadVisFeature).attribute.find(
-          attr => attr.key === WeitereKartenebene.LAYER_ID_KEY
-        )?.value;
+        const layerId = (data.feature as RadVisFeature).attributes.get(WeitereKartenebene.LAYER_ID_KEY);
         let layerName;
         if (layerId) {
           layerName = weitereKartenebenenService.weitereKartenebenen.find(e => e.id === layerId)?.name;

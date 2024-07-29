@@ -12,16 +12,26 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MatSelect } from '@angular/material/select';
+import { Subscription } from 'rxjs';
+import { NetzklassenAuswahlService } from 'src/app/karte/services/netzklassen-auswahl.service';
 import { Signatur } from 'src/app/shared/models/signatur';
 import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
-import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { SignaturService } from 'src/app/viewer/signatur/services/signatur.service';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
-import { MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'rad-radvis-signatur-auswahl',
@@ -29,9 +39,9 @@ import { MatSelect } from '@angular/material/select';
   styleUrls: ['./radvis-signatur-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RadvisSignaturAuswahlComponent implements OnInit {
+export class RadvisSignaturAuswahlComponent implements OnInit, OnDestroy {
   @Output()
-  selectRadVisSignatur = new EventEmitter<Signatur>();
+  selectRadVisSignatur = new EventEmitter<Signatur | null>();
 
   @Input()
   selectedSignatur: Signatur | null = null;
@@ -39,30 +49,45 @@ export class RadvisSignaturAuswahlComponent implements OnInit {
   @ViewChild('matSelect')
   selectElement: MatSelect | null = null;
 
-  public signaturenSubject$: BehaviorSubject<Signatur[]> = new BehaviorSubject<Signatur[]>([]);
-  public formControl: UntypedFormControl;
+  public signaturen: Signatur[] = [];
+  public formControl: FormControl<Signatur | null>;
   public compareSignatur = Signatur.compare;
 
-  private massnahmenInfrastrukturSelected = false;
+  private subscriptions: Subscription[] = [];
+
+  protected readonly signaturIncompatibleHinweis = Signatur.SIGNATUR_NETZFILTER_INCOMPATIBLE_MESSAGE;
 
   constructor(
     private signaturService: SignaturService,
-    private featureTogglzService: FeatureTogglzService,
-    private infrastrukturenSelectionService: InfrastrukturenSelektionService
+    private infrastrukturenSelectionService: InfrastrukturenSelektionService,
+    private changeDetector: ChangeDetectorRef,
+    private netzklassenAuswahlService: NetzklassenAuswahlService
   ) {
-    this.formControl = new UntypedFormControl();
+    this.formControl = new FormControl<Signatur | null>(null);
     this.formControl.valueChanges.subscribe(value => {
       this.selectRadVisSignatur.emit(value);
     });
-    this.infrastrukturenSelectionService.selektierteInfrastrukturen$.subscribe(infrastrukturen => {
-      this.massnahmenInfrastrukturSelected = infrastrukturen.includes(MASSNAHMEN);
-      this.loadSignaturen();
+    this.infrastrukturenSelectionService.selektierteInfrastrukturen$.subscribe(() => {
+      this.initSignaturen();
+      this.changeDetector.markForCheck();
     });
+    this.initSignaturen();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  private initSignaturen(): void {
+    this.signaturen = this.signaturService.getSignaturen(
+      this.infrastrukturenSelectionService.isSelected(MASSNAHMEN)
+        ? [SignaturTyp.MASSNAHME, SignaturTyp.NETZ]
+        : [SignaturTyp.NETZ]
+    );
   }
 
   ngOnInit(): void {
     this.formControl.patchValue(this.selectedSignatur, { emitEvent: false });
-    this.loadSignaturen();
   }
 
   getDisplayText(signature: Signatur): string {
@@ -72,20 +97,18 @@ export class RadvisSignaturAuswahlComponent implements OnInit {
     return signature.name;
   }
 
+  isSelectionCompatibleWithNetzklassenfilter(): boolean {
+    if (this.formControl.value) {
+      return Signatur.isCompatibleWithNetzklassenfilter(
+        this.formControl.value,
+        this.netzklassenAuswahlService.currentAuswahl
+      );
+    }
+
+    return true;
+  }
+
   setFocus(): void {
     this.selectElement?.focus();
-  }
-
-  get signaturen$(): Observable<Signatur[]> {
-    return this.signaturenSubject$.asObservable();
-  }
-
-  private loadSignaturen(): void {
-    this.signaturService.getSignaturen().subscribe(signaturen => {
-      if (!this.massnahmenInfrastrukturSelected) {
-        signaturen = signaturen.filter(s => s.typ !== SignaturTyp.MASSNAHME);
-      }
-      this.signaturenSubject$.next(signaturen);
-    });
   }
 }

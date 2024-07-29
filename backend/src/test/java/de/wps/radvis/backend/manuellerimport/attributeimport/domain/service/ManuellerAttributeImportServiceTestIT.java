@@ -193,8 +193,8 @@ class ManuellerAttributeImportServiceTestIT extends DBIntegrationTestIT {
 				.filter(kKP -> kantenRepository.findById(kKP.getKanteId()).isPresent())
 				.map(kantenKonfliktProtokoll -> kantenRepository.findById(
 					kantenKonfliktProtokoll.getKanteId()).map(
-					k -> new ManuellerImportFehler(k, now, benutzer, gebietskoerperschaft,
-						kantenKonfliktProtokoll.getKonflikte())))
+						k -> new ManuellerImportFehler(k, now, benutzer, gebietskoerperschaft,
+							kantenKonfliktProtokoll.getKonflikte())))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.collect(Collectors.toList()));

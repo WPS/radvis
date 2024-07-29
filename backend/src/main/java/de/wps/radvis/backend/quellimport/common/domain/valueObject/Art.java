@@ -15,5 +15,6 @@
 package de.wps.radvis.backend.quellimport.common.domain.valueObject;
 
 public enum Art {
-	Massnahme, Strecke
+	Massnahme,
+	Strecke
 }

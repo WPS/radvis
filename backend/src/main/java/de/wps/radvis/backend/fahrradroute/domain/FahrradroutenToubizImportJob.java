@@ -26,7 +26,6 @@ import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
-import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
@@ -95,12 +94,6 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 
 	@Override
 	protected Optional<JobStatistik> doRun() {
-		if (!FeatureTogglz.FAHRRADROUTE_JOBS.isActive()) {
-			log.info(
-				"Fahrradrouten werden nicht importiert, da Fahrradrouten-Jobs über das FeatureToggle deaktiviert sind.");
-			return Optional.empty();
-		}
-
 		log.info("FahrradroutenToubizImportJob gestartet");
 		ToubizImportStatistik toubizImportStatistik = new ToubizImportStatistik();
 
@@ -138,7 +131,7 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 		log.info(toubizImportStatistik.toString());
 		log.info("Anzahl importierter ToubizFahrradrouten mit erfolgreich erstellten Netzbezügen: "
 			+ (toubizImportStatistik.fahrradrouteMatchingStatistik.anzahlMatchingErfolgreich
-			+ toubizImportStatistik.fahrradrouteMatchingStatistik.anzahlRoutingErfolgreich));
+				+ toubizImportStatistik.fahrradrouteMatchingStatistik.anzahlRoutingErfolgreich));
 		log.info("Für {} Fahrradrouten konnte kein Netzbezug erstellt werden",
 			toubizImportStatistik.fahrradrouteMatchingStatistik.anzahlRoutingFehlgeschlagen);
 		int erfolgreich = toubizImportStatistik.fahrradrouteMatchingStatistik.anzahlMatchingErfolgreich
@@ -169,10 +162,11 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 			// das anschließende Routing klappt, wird dieser Wert noch auf "true" gesetzt.
 			.abbildungDurchRouting(false);
 
-		Optional<FahrradrouteNetzbezugResult> netzbezugResult = fahrradroutenMatchingService.getFahrradrouteNetzbezugResult(
-			(LineString) importedToubizRoute.getOriginalGeometrie(),
-			toubizImportStatistik.fahrradrouteMatchingStatistik,
-			fahrradroutenMatchingAndRoutingInformationBuilder, true);
+		Optional<FahrradrouteNetzbezugResult> netzbezugResult = fahrradroutenMatchingService
+			.getFahrradrouteNetzbezugResult(
+				(LineString) importedToubizRoute.getOriginalGeometrie(),
+				toubizImportStatistik.fahrradrouteMatchingStatistik,
+				fahrradroutenMatchingAndRoutingInformationBuilder, true);
 
 		return createFahradrouteFromImportedToubizRoute(
 			importedToubizRoute,
@@ -188,10 +182,11 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 		List<LinearReferenzierteProfilEigenschaften> profilEigenschaften,
 		FahrradroutenMatchingAndRoutingInformation fahrradroutenMatchingAndRoutingInformation) {
 
-		// Eine ImportedToubizRoute hat immer eine Originalgeometrie.
-		// Die Iconlocation wird hauptsaechlich fuer das Icon im FehlerProtokoll verwendet
-		Geometry iconLocation = ((LineString) importedToubizRoute.getOriginalGeometrie()).getStartPoint();
-		iconLocation.setSRID(KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
+		Geometry iconLocation = null;
+		if (importedToubizRoute.getOriginalGeometrie() != null) {
+			iconLocation = ((LineString) importedToubizRoute.getOriginalGeometrie()).getStartPoint();
+			iconLocation.setSRID(KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
+		}
 
 		return new Fahrradroute(
 			importedToubizRoute.getToubizId(),

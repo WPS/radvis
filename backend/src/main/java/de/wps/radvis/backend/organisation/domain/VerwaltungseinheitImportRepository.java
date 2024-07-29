@@ -14,7 +14,6 @@
 
 package de.wps.radvis.backend.organisation.domain;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -22,8 +21,7 @@ import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 
 public interface VerwaltungseinheitImportRepository {
-	List<Gebietskoerperschaft> getGebietskoerperschaftenFromShapeFiles(File bundeslandFile, File regierungsbezirkFile,
-		File landkreisFile, File gemeindeFile) throws IOException;
+	List<Gebietskoerperschaft> getGebietskoerperschaften() throws IOException;
 
 	List<Organisation> getCustomAdditionalOrganisationen();
 }

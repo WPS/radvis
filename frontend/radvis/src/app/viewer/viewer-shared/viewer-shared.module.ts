@@ -21,12 +21,7 @@ import { ExpandLinkComponent } from 'src/app/viewer/viewer-shared/components/exp
 import { ExpandableContentComponent } from 'src/app/viewer/viewer-shared/components/expandable-content/expandable-content.component';
 import { ExportButtonComponent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { InfrastrukturTabelleLayoutComponent } from 'src/app/viewer/viewer-shared/components/infrastruktur-tabelle-layout/infrastruktur-tabelle-layout.component';
-import { NetzbezugHighlightLayerComponent } from 'src/app/viewer/viewer-shared/components/netzbezug-highlight-layer/netzbezug-highlight-layer.component';
-import { BearbeitungsModusToggleButtonComponent } from 'src/app/viewer/viewer-shared/components/netzbezug-selektion-control/bearbeitungs-modus-toggle-button/bearbeitungs-modus-toggle-button.component';
-import { NetzbezugSelektionControlComponent } from 'src/app/viewer/viewer-shared/components/netzbezug-selektion-control/netzbezug-selektion-control.component';
-import { NetzbezugSelektionLayerComponent } from 'src/app/viewer/viewer-shared/components/netzbezug-selektion-control/netzbezug-selektion-layer/netzbezug-selektion-layer.component';
 import { OriginalGeometrieAnzeigenButtonComponent } from 'src/app/viewer/viewer-shared/components/original-geometrie-anzeigen-button/original-geometrie-anzeigen-button.component';
-import { OriginalGeometrieLayerComponent } from 'src/app/viewer/viewer-shared/components/original-geometrie-layer/original-geometrie-layer.component';
 import { PositionSelektionControlComponent } from 'src/app/viewer/viewer-shared/components/position-selektion-control/position-selektion-control.component';
 import { FilterHeaderComponent } from './components/filter-header/filter-header.component';
 import { FilterMenuComponent } from './components/filter-menu/filter-menu.component';
@@ -40,10 +35,7 @@ const exports = [
   FilterHeaderComponent,
   BenachrichtigungButtonComponent,
   OriginalGeometrieAnzeigenButtonComponent,
-  OriginalGeometrieLayerComponent,
   ExportButtonComponent,
-  NetzbezugSelektionControlComponent,
-  NetzbezugHighlightLayerComponent,
   PositionSelektionControlComponent,
   ExpandableContentComponent,
   DetailFeatureTableComponent,
@@ -51,14 +43,8 @@ const exports = [
 ];
 
 @NgModule({
-  declarations: [
-    ...exports,
-    ExpandLinkComponent,
-    NetzbezugSelektionLayerComponent,
-    BearbeitungsModusToggleButtonComponent,
-    CsvImportDialogComponent,
-  ],
+  declarations: [...exports, ExpandLinkComponent, CsvImportDialogComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule],
-  exports,
+  exports: [exports],
 })
 export class ViewerSharedModule {}

@@ -91,7 +91,7 @@ public class AttributeAnreicherungsService {
 		int indexFuerFortschritt = 0;
 		int size = attributprojektionsbeschreibungen.size();
 		for (Iterator<Attributprojektionsbeschreibung> iterator = attributprojektionsbeschreibungen.iterator(); iterator
-			.hasNext(); ) {
+			.hasNext();) {
 			Attributprojektionsbeschreibung attributprojektionsbeschreibung = iterator.next();
 
 			Kante grundnetzKante = attributprojektionsbeschreibung.getZielnetzKante();
@@ -264,7 +264,7 @@ public class AttributeAnreicherungsService {
 				.stream()
 				// keine Punktintersection ist an dieser Stelle wichtig
 				.filter(attribut -> linearReferenzierterAbschnitt.intersection(
-						attribut.getLinearReferenzierterAbschnittAufZielnetzkante())
+					attribut.getLinearReferenzierterAbschnittAufZielnetzkante())
 					.isPresent())
 				.collect(Collectors.toList());
 			mapAufAttribute.put(linearReferenzierterAbschnitt, matchingAttribute);
@@ -368,9 +368,9 @@ public class AttributeAnreicherungsService {
 				FahrtrichtungAttributGruppe.class.getSimpleName());
 
 			fahrtrichtungAttributGruppe.setRichtung(attributeMergeService
-					.mergeFahrtrichtung(
-						fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
-						neueRichtungLinks, quelleDerProjiziertenAttribute),
+				.mergeFahrtrichtung(
+					fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
+					neueRichtungLinks, quelleDerProjiziertenAttribute),
 				fahrtrichtungAttributGruppe.getFahrtrichtungRechts());
 
 		} catch (MehrdeutigeAttributgruppeException | AttributgruppenanteilZuKleinException e) {
@@ -525,7 +525,7 @@ public class AttributeAnreicherungsService {
 
 	/**
 	 * @param lineareReferenzen
-	 * 	Liste and Linearen Referenzen die sich potentiell überlappen
+	 *     Liste and Linearen Referenzen die sich potentiell überlappen
 	 * @return Konsolidierte List an Linearen Referenzen die sich nicht mehr überlappen
 	 */
 	private List<LinearReferenzierterAbschnitt> normalisiereLineareReferenzen(
@@ -735,8 +735,8 @@ public class AttributeAnreicherungsService {
 				// kleine Ueberlappungen interpolieren
 				double intersectionLength = intersection.get().relativeLaenge();
 				if (intersectionLength < relativeMinimaleLaenge) {
-					double interpolationspunkt =
-						seg.getLinearReferenzierterAbschnitt().getBisValue() - intersectionLength / 2;
+					double interpolationspunkt = seg.getLinearReferenzierterAbschnitt().getBisValue()
+						- intersectionLength / 2;
 					LinearReferenzierterAbschnitt interpoliertSeg = LinearReferenzierterAbschnitt
 						.of(seg.getLinearReferenzierterAbschnitt().getVonValue(), interpolationspunkt);
 					LinearReferenzierterAbschnitt interpoliertNext = LinearReferenzierterAbschnitt
@@ -758,7 +758,7 @@ public class AttributeAnreicherungsService {
 			// interpolate
 			double interpolationspunkt = seg.getLinearReferenzierterAbschnitt().getBisValue()
 				+ (nextSeg.getLinearReferenzierterAbschnitt().getVonValue()
-				- seg.getLinearReferenzierterAbschnitt().getBisValue()) / 2;
+					- seg.getLinearReferenzierterAbschnitt().getBisValue()) / 2;
 			LinearReferenzierterAbschnitt interpoliertSeg = LinearReferenzierterAbschnitt
 				.of(seg.getLinearReferenzierterAbschnitt().getVonValue(), interpolationspunkt);
 			LinearReferenzierterAbschnitt interpoliertNext = LinearReferenzierterAbschnitt

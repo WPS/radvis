@@ -25,33 +25,31 @@ export enum GrundFuerNichtUmsetzungDerMassnahme {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GrundFuerNichtUmsetzungDerMassnahme {
-  export const options: EnumOption[] = Object.keys(GrundFuerNichtUmsetzungDerMassnahme).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case GrundFuerNichtUmsetzungDerMassnahme.RADNETZ_VERLEGUNG:
-          return { name: k, displayText: 'RadNetz Verlegung (keine neue Maßnahme erforderlich)' };
-        case GrundFuerNichtUmsetzungDerMassnahme.LAUT_VERKEHRSSCHAU_NICHT_ERFORDERLICH:
-          return {
-            name: k,
-            displayText: 'Maßnahme laut Verkehrsschau nicht erforderlich',
-          };
-        case GrundFuerNichtUmsetzungDerMassnahme.AUS_SUBJEKTIVER_SICHT_NICHT_ERFORDERLICH:
-          return {
-            name: k,
-            displayText:
-              'Maßnahme aus subjektiver Sicht nicht erforderlich (Begründung und Ansprechpartner im Anmerkungsfeld ergänzen)',
-          };
-        case GrundFuerNichtUmsetzungDerMassnahme.NOCH_IN_PLANUNG_UMSETZUNG:
-          return { name: k, displayText: 'Maßnahme ist derzeit noch in der Planung/Umsetzung' };
-        case GrundFuerNichtUmsetzungDerMassnahme.KAPAZITAETSGRUENDE:
-          return {
-            name: k,
-            displayText: 'Maßnahme aus Kapazitätsgründen noch nicht angegangen',
-          };
-        case GrundFuerNichtUmsetzungDerMassnahme.SONSTIGER_GRUND:
-          return { name: k, displayText: 'Sonstiger Grund (Erläuterung erfolgt im Anmerkungsfeld)' };
-      }
-      throw new Error('Beschreibung für enum GrundFuerAbweichungZumMassnahmenblatt fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(GrundFuerNichtUmsetzungDerMassnahme).map((k: string): EnumOption => {
+    switch (k) {
+      case GrundFuerNichtUmsetzungDerMassnahme.RADNETZ_VERLEGUNG:
+        return { name: k, displayText: 'RadNetz Verlegung (keine neue Maßnahme erforderlich)' };
+      case GrundFuerNichtUmsetzungDerMassnahme.LAUT_VERKEHRSSCHAU_NICHT_ERFORDERLICH:
+        return {
+          name: k,
+          displayText: 'Maßnahme laut Verkehrsschau nicht erforderlich',
+        };
+      case GrundFuerNichtUmsetzungDerMassnahme.AUS_SUBJEKTIVER_SICHT_NICHT_ERFORDERLICH:
+        return {
+          name: k,
+          displayText:
+            'Maßnahme aus subjektiver Sicht nicht erforderlich (Begründung und Ansprechpartner im Anmerkungsfeld ergänzen)',
+        };
+      case GrundFuerNichtUmsetzungDerMassnahme.NOCH_IN_PLANUNG_UMSETZUNG:
+        return { name: k, displayText: 'Maßnahme ist derzeit noch in der Planung/Umsetzung' };
+      case GrundFuerNichtUmsetzungDerMassnahme.KAPAZITAETSGRUENDE:
+        return {
+          name: k,
+          displayText: 'Maßnahme aus Kapazitätsgründen noch nicht angegangen',
+        };
+      case GrundFuerNichtUmsetzungDerMassnahme.SONSTIGER_GRUND:
+        return { name: k, displayText: 'Sonstiger Grund (Erläuterung erfolgt im Anmerkungsfeld)' };
     }
-  );
+    throw new Error('Beschreibung für enum GrundFuerAbweichungZumMassnahmenblatt fehlt: ' + k);
+  });
 }

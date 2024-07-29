@@ -261,6 +261,15 @@ deploy_dev:
     project: radvis/infrastruktur-bitbw
     branch: dev
 
+deploy_vertrieb:
+  extends: .deploy_job
+  variables:
+    PROPERTY_VALUE: $CI_COMMIT_SHA
+    ENV_URL: https://radvis-demo.wps.de
+  trigger:
+    project: radvis/infrastruktur-bitbw
+    branch: vertrieb
+
 deploy_dev_scheduled:
   extends: deploy_dev
   when: always

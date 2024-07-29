@@ -76,8 +76,10 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	NetzausschnittControllerTestIT.TestConfiguration.class,
 	CommonConfiguration.class,
 	NetzfehlerConfiguration.class,
-	BenutzerConfiguration.class, KommentarConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class, KonsistenzregelnConfiguration.class
+	BenutzerConfiguration.class,
+	KommentarConfiguration.class,
+	KonsistenzregelPruefungsConfiguration.class,
+	KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
 	FeatureToggleProperties.class,
@@ -111,8 +113,14 @@ public class NetzausschnittControllerTestIT extends DBIntegrationTestIT {
 
 		@Bean
 		public NetzausschnittController netzController() {
-			return new NetzausschnittController(netzToGeoJsonConverter, netzService, netzausschnittService,
-				kantenMappingService, verwaltungseinheitResolver, netzausschnittGuard);
+			return new NetzausschnittController(
+				netzToGeoJsonConverter,
+				netzService,
+				netzausschnittService,
+				kantenMappingService,
+				verwaltungseinheitResolver,
+				netzausschnittGuard
+			);
 		}
 	}
 

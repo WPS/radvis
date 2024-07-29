@@ -168,21 +168,19 @@ describe(ImportMassnahmenDateiHochladenComponent.name, () => {
 
   describe('session exists', () => {
     let session: MassnahmenImportSessionView;
-    beforeEach(
-      waitForAsync(() => {
-        importExistsSubject.next(true);
-        session = {
-          log: [],
-          schritt: 2,
-          executing: false,
-          gebietskoerperschaften: [1, 2, 3],
-          konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
-          sollStandard: SollStandard.BASISSTANDARD,
-          attribute: [],
-        };
-        importSessionSubject.next(session);
-      })
-    );
+    beforeEach(waitForAsync(() => {
+      importExistsSubject.next(true);
+      session = {
+        log: [],
+        schritt: 2,
+        executing: false,
+        gebietskoerperschaften: [1, 2, 3],
+        konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
+        sollStandard: SollStandard.BASISSTANDARD,
+        attribute: [],
+      };
+      importSessionSubject.next(session);
+    }));
 
     it('should fill form', () => {
       expect(component.sessionExists).toBeTrue();

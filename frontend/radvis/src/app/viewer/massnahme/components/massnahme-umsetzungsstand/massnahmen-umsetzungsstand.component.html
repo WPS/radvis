@@ -21,8 +21,7 @@
 Bei Ja bitte Fragen 2, 3, 4, 5, 6, 8 beantworten
 Bei Nein bitte Fragen 7, 8 beantworten"
       matTooltipClass="umsetzungsstand-multiline-tooltip"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <span class="align-top">1.&nbsp;</span><span class="flex-grow align-top">Ist die Umsetzung erfolgt?</span>
       <mat-radio-group class="ml-2" [value]="istMassnahmeUmgesetzt">
         <mat-radio-button class="ml-2" disabled [value]="true"> Ja</mat-radio-button>
@@ -37,14 +36,12 @@ Bei Nein bitte Fragen 7, 8 beantworten"
 Bei Ja bitte Fragen 6, 8 beantworten
 Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
       matTooltipClass="umsetzungsstand-multiline-tooltip"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <span class="align-top">2.&nbsp;</span
       ><span class="flex-grow align-top">Umsetzung gemäß RadNETZ-Maßnahmenblatt?</span>
       <mat-radio-group
         class="ml-2 gemaess-massnahmenblatt-radio-group"
-        formControlName="umsetzungGemaessMassnahmenblatt"
-      >
+        formControlName="umsetzungGemaessMassnahmenblatt">
         <mat-radio-button class="ml-2" [value]="true" name="1"> Ja</mat-radio-button>
         <mat-radio-button class="ml-8" [value]="false" name="2"> Nein</mat-radio-button>
       </mat-radio-group>
@@ -53,15 +50,13 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
     <div
       class="display-flex-vertical mt-10"
       matTooltip="Welchen Grund gibt es für die Abweichungen vom Maßnahmenblatt?"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <rad-enum-dropdown-control
         [nullable]="true"
         [options]="grundFuerAbweichungZumMassnahmenblattOptions"
         [showTooltip]="true"
         class="mat-form-field-full-width w-100"
-        formControlName="grundFuerAbweichungZumMassnahmenblatt"
-      >
+        formControlName="grundFuerAbweichungZumMassnahmenblatt">
         3. Grund für Abweichung zum RadNETZ-Maßnahmenblatt
       </rad-enum-dropdown-control>
     </div>
@@ -69,27 +64,23 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
     <div
       class="display-flex-vertical mt-10"
       matTooltip="Wurde die Einhaltung des Qualitätsstandards geprüft?"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <rad-enum-dropdown-control
         [nullable]="false"
         [options]="pruefungQualitaetsstandardsErfolgtOptions"
         [showTooltip]="true"
         class="mat-form-field-full-width w-100"
-        formControlName="pruefungQualitaetsstandardsErfolgt"
-      >
+        formControlName="pruefungQualitaetsstandardsErfolgt">
         4. Prüfung auf Einhaltung der RadNETZ-Qualitätsstandards erfolgt?
       </rad-enum-dropdown-control>
       <rad-validation-error-anzeige
-        [errors]="formGroup.get('pruefungQualitaetsstandardsErfolgt')?.errors || null"
-      ></rad-validation-error-anzeige>
+        [errors]="formGroup.get('pruefungQualitaetsstandardsErfolgt')?.errors || null"></rad-validation-error-anzeige>
     </div>
 
     <div
       class="display-flex-vertical"
       matTooltip="Beschreibung der alternativen Maßnahme (Freitext)"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <mat-form-field class="mat-form-field-full-width w-100">
         <mat-label>5. Beschreibung der abweichenden RadNETZ-Maßnahme</mat-label>
         <textarea class="text-area" formControlName="beschreibungAbweichenderMassnahme" matInput></textarea>
@@ -104,8 +95,7 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
     <div
       class="display-flex-vertical"
       matTooltip="Bitte Kosten für Maßnahme angeben (Währungsbetrag)"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <rad-text-input-control class="mat-form-field-full-width w-100" formControlName="kostenDerMassnahme">
         <div class="label">6. Kosten der RadNETZ-Maßnahme</div>
         <div class="suffix">€</div>
@@ -117,20 +107,17 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
     <div
       class="display-flex-vertical mt-10"
       matTooltip="Grund für Nicht-Umsetzung der Maßnahme"
-      matTooltipPosition="left"
-    >
+      matTooltipPosition="left">
       <rad-enum-dropdown-control
         [nullable]="true"
         [options]="grundFuerNichtUmsetzungDerMassnahmeOptions"
         [showTooltip]="true"
         class="mat-form-field-full-width w-100"
-        formControlName="grundFuerNichtUmsetzungDerMassnahme"
-      >
+        formControlName="grundFuerNichtUmsetzungDerMassnahme">
         7. Grund für Nicht-Umsetzung der RadNETZ-Maßnahme
       </rad-enum-dropdown-control>
       <rad-validation-error-anzeige
-        [errors]="formGroup.get('grundFuerNichtUmsetzungDerMassnahme')?.errors || null"
-      ></rad-validation-error-anzeige>
+        [errors]="formGroup.get('grundFuerNichtUmsetzungDerMassnahme')?.errors || null"></rad-validation-error-anzeige>
     </div>
 
     <div class="display-flex-vertical" matTooltip="Anmerkungsfeld (Freitext)" matTooltipPosition="left">
@@ -154,15 +141,13 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
       </div>
       <div
         matTooltip="Für stornierte und umgesetzte Maßnahmen kann die Abfrage nur nach Anforderung aktualisiert werden"
-        [matTooltipDisabled]="!istBearbeitungGesperrt"
-      >
+        [matTooltipDisabled]="!istBearbeitungGesperrt">
         <button
           [disabled]="istBearbeitungGesperrt"
           (click)="onSave()"
           mat-flat-button
           color="primary"
-          class="flex-grow"
-        >
+          class="flex-grow">
           <div *ngIf="!isFetching">Bestätigen</div>
           <mat-spinner color="accent" *ngIf="isFetching" diameter="28"></mat-spinner>
         </button>

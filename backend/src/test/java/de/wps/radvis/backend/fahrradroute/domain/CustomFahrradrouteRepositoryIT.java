@@ -83,7 +83,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		assertThat(
 			jdbcTemplate.queryForList("SELECT * FROM geoserver_fahrradroute_import_diff_materialized_view"))
-			.hasSize(0);
+				.hasSize(0);
 	}
 
 	@Test

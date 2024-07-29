@@ -131,9 +131,9 @@ public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKon
 				.build());
 		Kante radnetzKante = kantenRepository
 			.save(KanteTestDataProvider.fromKnoten(knotenRadNetz, knotenGemischt).kantenAttributGruppe(
-					KantenAttributGruppeTestDataProvider.defaultValue()
-						.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_ALLTAG))
-						.build())
+				KantenAttributGruppeTestDataProvider.defaultValue()
+					.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_ALLTAG))
+					.build())
 				.quelle(QuellSystem.DLM)
 				.dlmId(DlmId.of("DlmId1")).build());
 

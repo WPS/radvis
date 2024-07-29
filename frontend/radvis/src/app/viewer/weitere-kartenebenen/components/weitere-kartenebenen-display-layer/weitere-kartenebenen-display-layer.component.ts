@@ -15,7 +15,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
-import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitereKartenebeneTyp';
+import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene-typ';
 import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 
 @Component({
@@ -27,7 +27,10 @@ import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/
 export class WeitereKartenebenenDisplayLayerComponent {
   public selectedLayers$: Observable<WeitereKartenebene[]>;
 
-  constructor(private weitereKartenebenenService: WeitereKartenebenenService, private changeRef: ChangeDetectorRef) {
+  constructor(
+    private weitereKartenebenenService: WeitereKartenebenenService,
+    private changeRef: ChangeDetectorRef
+  ) {
     this.selectedLayers$ = this.weitereKartenebenenService.selectedWeitereKartenebenen$;
 
     this.selectedLayers$.subscribe(() => changeRef.markForCheck());

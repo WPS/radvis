@@ -40,11 +40,11 @@ describe(BenutzerListComponent.name, () => {
     activatedRoute = mock(ActivatedRoute);
     administrationRoutingService = mock(AdministrationRoutingService);
 
-    when(activatedRoute.snapshot).thenReturn(({
+    when(activatedRoute.snapshot).thenReturn({
       data: {
         benutzer: [],
       },
-    } as unknown) as ActivatedRouteSnapshot);
+    } as unknown as ActivatedRouteSnapshot);
     when(activatedRoute.queryParamMap).thenReturn(queryParamMap$);
     when(activatedRoute.queryParams).thenReturn(of({}));
 

@@ -33,7 +33,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class KonsistenzregelVerletzungsDetails {
 
-	@Getter
 	private Geometry position;
 
 	private Geometry originalGeometry;
@@ -48,15 +47,15 @@ public class KonsistenzregelVerletzungsDetails {
 	 * Details einer KonsistenzregelVerletzung
 	 *
 	 * @param position
-	 * 	Hier wird das Icon in der Web-Oerfläche angezeigt/ Geometrie für WFS
+	 *     Hier wird das Icon in der Web-Oerfläche angezeigt/ Geometrie für WFS
 	 * @param originalGeometry
-	 * 	(optional) zweite Geometrie, auf die sich der Fehler bezieht. Wird für ausgewählten Fehler zusätzlich
-	 * 	in der Web-Oberfläche angezeigt
+	 *     (optional) zweite Geometrie, auf die sich der Fehler bezieht. Wird für ausgewählten Fehler zusätzlich
+	 *     in der Web-Oberfläche angezeigt
 	 * @param beschreibung
-	 * 	Beschreibungstext
+	 *     Beschreibungstext
 	 * @param identity
-	 * 	(max 255 Zeichen) Ist dieser String für zwei Verletzungen derselben Regel gleich, so wird davon
-	 * 	ausgegangen, dass es dieselbe Verletzung ist
+	 *     (max 255 Zeichen) Ist dieser String für zwei Verletzungen derselben Regel gleich, so wird davon
+	 *     ausgegangen, dass es dieselbe Verletzung ist
 	 */
 	public KonsistenzregelVerletzungsDetails(Point position, Geometry originalGeometry, String beschreibung,
 		String identity) {
@@ -74,6 +73,10 @@ public class KonsistenzregelVerletzungsDetails {
 	public KonsistenzregelVerletzungsDetails(Point position, String beschreibung,
 		String identity) {
 		this(position, null, beschreibung, identity);
+	}
+
+	public Point getPosition() {
+		return (Point) position;
 	}
 
 	// IntelliJ zeigt hier einen error an, jedoch compiliert und funktioniert es so

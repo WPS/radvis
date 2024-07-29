@@ -17,22 +17,21 @@ import { ChangeDetectorRef } from '@angular/core';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { BenutzerName } from 'src/app/shared/models/benutzer-name';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
+import { neueWeitereKartenebenenDefaultZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { WeitereKartenebenenVerwaltungComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-verwaltung/weitere-kartenebenen-verwaltung.component';
 import { DateiLayer } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer';
 import { DateiLayerFormat } from 'src/app/viewer/weitere-kartenebenen/models/datei-layer-format';
-import { PredefinedWeitereKartenebenen } from 'src/app/viewer/weitere-kartenebenen/models/predefined-weitere-kartenebenen';
 import { SaveWeitereKartenebeneCommand } from 'src/app/viewer/weitere-kartenebenen/models/save-weitere-kartenebene-command';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
-import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitereKartenebeneTyp';
+import { WeitereKartenebeneTyp } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene-typ';
 import { DateiLayerService } from 'src/app/viewer/weitere-kartenebenen/services/datei-layer.service';
 import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { neueWeitereKartenebenenDefaultZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 
 describe(WeitereKartenebenenVerwaltungComponent.name, () => {
   let component: WeitereKartenebenenVerwaltungComponent;
@@ -43,6 +42,19 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
 
   let dateiLayerService: DateiLayerService;
   let alleDateiLayers$: BehaviorSubject<DateiLayer[]>;
+
+  const predefinedLayer: SaveWeitereKartenebeneCommand = {
+    name: 'Bevölkerungszahlen',
+    url: 'https://www.wms.nrw.de/wms/zensusatlas?LAYERS=bevoelkerungszahl',
+    weitereKartenebeneTyp: WeitereKartenebeneTyp.WMS,
+    farbe: undefined,
+    deckkraft: 0.7,
+    zoomstufe: 8.7,
+    zindex: 1,
+    id: null,
+    quellangabe: 'https://www.wms.nrw.de/wms/zensusatlas?REQUEST=GetCapabilities',
+    dateiLayerId: null,
+  };
 
   beforeEach(() => {
     weitereKartenebenenService = mock(WeitereKartenebenenService);
@@ -78,13 +90,13 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
   describe('form', () => {
     it('should be valid and saved', () => {
       component['resetForm']([
-        ({
+        {
           name: 'Layer valid',
           url: 'http://localhost',
           quellangabe: 'Testquelle',
-        } as unknown) as WeitereKartenebene,
+        } as unknown as WeitereKartenebene,
       ]);
-      component.onAddPredefinedWeitereKartenebenen(PredefinedWeitereKartenebenen.allgemein[0]);
+      component.onAddPredefinedWeitereKartenebenen(predefinedLayer);
       expect(component.weitereKartenebenenFormArray.valid).toBeTrue();
 
       component['saveLayers']();
@@ -93,11 +105,11 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
 
     it('should be invalid and not saved', () => {
       component['resetForm']([
-        ({
+        {
           name: 'Layer invalid url',
           url: 'invalid url!',
           quellangabe: null,
-        } as unknown) as WeitereKartenebene,
+        } as unknown as WeitereKartenebene,
       ]);
       expect(component.weitereKartenebenenFormArray.invalid).toBeTrue();
       component['resetForm']([
@@ -262,18 +274,18 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
   it('should add predefined', () => {
     weitereKartenebenen$$.next([]);
 
-    component.onAddPredefinedWeitereKartenebenen(PredefinedWeitereKartenebenen.allgemein[0]);
+    component.onAddPredefinedWeitereKartenebenen(predefinedLayer);
 
     expect(component.weitereKartenebenenFormArray.length).toBe(1);
     expect(component.weitereKartenebenenFormArray.dirty).toBeTrue();
     expect(component.weitereKartenebenenFormArray.valid).toBeTrue();
-    expect(component.weitereKartenebenenFormArray.value).toEqual([PredefinedWeitereKartenebenen.allgemein[0]]);
+    expect(component.weitereKartenebenenFormArray.value).toEqual([predefinedLayer]);
   });
 
   it('should add new custom Layer with zindex on top of predefined', () => {
     weitereKartenebenen$$.next([
       {
-        ...PredefinedWeitereKartenebenen.allgemein[0],
+        ...predefinedLayer,
         id: 1,
       },
     ]);
@@ -282,14 +294,12 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
     expect(component.weitereKartenebenenFormArray.length).toBe(2);
     expect(component.weitereKartenebenenFormArray.dirty).toBeTrue();
     expect(component.weitereKartenebenenFormArray.valid).toBeFalse();
-    expect(component.weitereKartenebenenFormArray.at(1).get('zindex')?.value).toEqual(
-      PredefinedWeitereKartenebenen.allgemein[0].zindex + 1
-    );
+    expect(component.weitereKartenebenenFormArray.at(1).get('zindex')?.value).toEqual(predefinedLayer.zindex + 1);
   });
 
   it('should delete layer', () => {
     component.onAddWeitereKartenebenen();
-    component.onAddPredefinedWeitereKartenebenen(PredefinedWeitereKartenebenen.allgemein[0]);
+    component.onAddPredefinedWeitereKartenebenen(predefinedLayer);
     component.onAddWeitereKartenebenen();
 
     component.onDeleteLayer(2);
@@ -307,7 +317,7 @@ describe(WeitereKartenebenenVerwaltungComponent.name, () => {
         quellangabe: null,
         dateiLayerId: null,
       },
-      PredefinedWeitereKartenebenen.allgemein[0],
+      predefinedLayer,
     ]);
   });
 

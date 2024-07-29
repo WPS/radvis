@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="#fff">
+  <path
+    d="M24,13.71h-10.29v10.29h-3.43v-10.29H0v-3.43h10.29V0h3.43v10.29h10.29v3.43Z" transform="translate(4.5,4.5),scale(0.625)"/>
+</svg>

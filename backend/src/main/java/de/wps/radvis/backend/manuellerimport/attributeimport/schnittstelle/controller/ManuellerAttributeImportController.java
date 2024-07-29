@@ -34,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.common.domain.exception.ZipFileRequiredFilesMissingException;
+import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.AttributeImportSession;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.entity.FeatureMapping;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.service.ManuellerAttributeImportService;
@@ -109,7 +109,7 @@ public class ManuellerAttributeImportController {
 
 		Verwaltungseinheit organisation = verwaltungseinheitResolver.resolve(command.getOrganisation());
 
-		File shpDirectory = manuellerImportService.unzipAndValidate(file.getBytes());
+		File shpDirectory = manuellerImportService.unzipAndValidateShape(file.getBytes());
 
 		AttributeImportSession importSession = new AttributeImportSession(benutzer, organisation,
 			command.getAttribute(), command.getAttributeImportFormat());
@@ -155,12 +155,11 @@ public class ManuellerAttributeImportController {
 		manuellerAttributeImportGuard.validateAttribute(authentication, command, file);
 		try {
 			return manuellerAttributeImportService.validateAttribute(
-				file.getBytes(),
-				command.getAttributeImportFormat());
+				file.getBytes(), command.getAttributeImportFormat());
 		} catch (IOException e) {
 			log.error("I/O-Exception beim Validieren der Attribute", e);
 			throw new ManuellerImportNichtMoeglichException("Die hochgeladene Zip-Datei ist fehlerhaft.", e);
-		} catch (ZipFileRequiredFilesMissingException e) {
+		} catch (ShapeZipInvalidException e) {
 			throw new ManuellerImportNichtMoeglichException(e);
 		}
 	}
@@ -195,7 +194,7 @@ public class ManuellerAttributeImportController {
 		manuellerAttributeImportGuard.getKonfliktprotokolle(authentication);
 		return this.konfliktToGeoJsonConverter.convert(
 			this.manuellerAttributeImportService.getAttributeImportSession(
-					benutzerResolver.fromAuthentication(authentication)).get().getAttributeImportKonfliktProtokoll()
+				benutzerResolver.fromAuthentication(authentication)).get().getAttributeImportKonfliktProtokoll()
 				.getKantenKonfliktProtokolle());
 	}
 

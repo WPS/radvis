@@ -26,7 +26,7 @@ class RamUsageUtilityTest {
 			"Ein hungriger Job Name",
 			28234567890L,
 			98765432100L))
-			.isEqualTo("Ein hungriger Job Name: Aktuell verwendeter RAM ist 65,687 GiB von 91,982 GiB (71,41%)");
+				.isEqualTo("Ein hungriger Job Name: Aktuell verwendeter RAM ist 65,687 GiB von 91,982 GiB (71,41%)");
 	}
 
 	@Test
@@ -35,12 +35,12 @@ class RamUsageUtilityTest {
 			null,
 			28234567890L,
 			98765432100L))
-			.isEqualTo("Aktuell verwendeter RAM ist 65,687 GiB von 91,982 GiB (71,41%)");
+				.isEqualTo("Aktuell verwendeter RAM ist 65,687 GiB von 91,982 GiB (71,41%)");
 
 		assertThat(RamUsageUtility.buildMessage(
 			"",
 			28234567890L,
 			98765432100L))
-			.isEqualTo("Aktuell verwendeter RAM ist 65,687 GiB von 91,982 GiB (71,41%)");
+				.isEqualTo("Aktuell verwendeter RAM ist 65,687 GiB von 91,982 GiB (71,41%)");
 	}
 }

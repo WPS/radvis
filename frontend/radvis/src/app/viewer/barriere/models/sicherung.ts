@@ -27,36 +27,34 @@ export enum Sicherung {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Sicherung {
-  export const options: EnumOption[] = Object.keys(Sicherung).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Sicherung.KEINE_BODENMARKIERUNG:
-          return { name: Sicherung.KEINE_BODENMARKIERUNG, displayText: 'Keine Bodenmarkierung vorhanden' };
-        case Sicherung.BODENMARKIERUNG:
-          return { name: Sicherung.BODENMARKIERUNG, displayText: 'Bodenmarkierung vorhanden' };
-        case Sicherung.RETROREFLEKTIERENDE_BODENMARKIERUNG:
-          return {
-            name: Sicherung.RETROREFLEKTIERENDE_BODENMARKIERUNG,
-            displayText: 'Retroreflektierende Bodenmarkierung vorhanden',
-          };
-        case Sicherung.TAKTILE_BODENMARKIERUNG:
-          return { name: Sicherung.TAKTILE_BODENMARKIERUNG, displayText: 'Taktile Bodenmarkierung vorhanden' };
-        case Sicherung.BAULICHE_SICHERUNG:
-          return {
-            name: Sicherung.BAULICHE_SICHERUNG,
-            displayText: 'Bauliche Sicherung (z.B. durch Aufpflasterung vorhanden)',
-          };
-        case Sicherung.BELEUCHTUNG:
-          return { name: Sicherung.BELEUCHTUNG, displayText: 'Beleuchtung vorhanden' };
-        case Sicherung.BELEUCHTUNG_UND_RETROREFLEKTIERENDE_BODENMARKIERUNG:
-          return {
-            name: Sicherung.BELEUCHTUNG_UND_RETROREFLEKTIERENDE_BODENMARKIERUNG,
-            displayText: 'Beleuchtung und retroreflektierende Bodenmarkierung vorhanden',
-          };
-      }
-      throw new Error('Beschreibung für enum Sicherung fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Sicherung).map((k: string): EnumOption => {
+    switch (k) {
+      case Sicherung.KEINE_BODENMARKIERUNG:
+        return { name: Sicherung.KEINE_BODENMARKIERUNG, displayText: 'Keine Bodenmarkierung vorhanden' };
+      case Sicherung.BODENMARKIERUNG:
+        return { name: Sicherung.BODENMARKIERUNG, displayText: 'Bodenmarkierung vorhanden' };
+      case Sicherung.RETROREFLEKTIERENDE_BODENMARKIERUNG:
+        return {
+          name: Sicherung.RETROREFLEKTIERENDE_BODENMARKIERUNG,
+          displayText: 'Retroreflektierende Bodenmarkierung vorhanden',
+        };
+      case Sicherung.TAKTILE_BODENMARKIERUNG:
+        return { name: Sicherung.TAKTILE_BODENMARKIERUNG, displayText: 'Taktile Bodenmarkierung vorhanden' };
+      case Sicherung.BAULICHE_SICHERUNG:
+        return {
+          name: Sicherung.BAULICHE_SICHERUNG,
+          displayText: 'Bauliche Sicherung (z.B. durch Aufpflasterung vorhanden)',
+        };
+      case Sicherung.BELEUCHTUNG:
+        return { name: Sicherung.BELEUCHTUNG, displayText: 'Beleuchtung vorhanden' };
+      case Sicherung.BELEUCHTUNG_UND_RETROREFLEKTIERENDE_BODENMARKIERUNG:
+        return {
+          name: Sicherung.BELEUCHTUNG_UND_RETROREFLEKTIERENDE_BODENMARKIERUNG,
+          displayText: 'Beleuchtung und retroreflektierende Bodenmarkierung vorhanden',
+        };
     }
-  );
+    throw new Error('Beschreibung für enum Sicherung fehlt: ' + k);
+  });
 
   export const getDisplayText: (sicherung: Sicherung) => string = (sicherung: Sicherung): string => {
     const enumOption = options.find(({ name }) => name === sicherung);

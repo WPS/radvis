@@ -71,7 +71,8 @@ import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-
   ],
 })
 export class MassnahmenToolComponent
-  implements MassnahmeUpdatedService, MassnahmeNetzbezugDisplayService, OnDestroy, KommentarService, DokumentService {
+  implements MassnahmeUpdatedService, MassnahmeNetzbezugDisplayService, OnDestroy, KommentarService, DokumentService
+{
   eigenschaftenRoute = './' + MassnahmenRoutingService.EIGENSCHAFTEN;
   umsetzungsstandRoute = './' + MassnahmenRoutingService.UMSETZUNGSSTAND;
   massnahmenDateiRoute = './' + MassnahmenRoutingService.DATEIEN;

@@ -25,23 +25,20 @@ class GeschwindigkeitAttributeTest {
 
 	@Test
 	public void testeReversed() {
-		GeschwindigkeitAttribute g1 =
-			GeschwindigkeitAttribute.builder()
-				.ortslage(KantenOrtslage.INNERORTS)
-				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_20_KMH)
-				.build();
-		GeschwindigkeitAttribute g2 =
-			GeschwindigkeitAttribute.builder()
-				.ortslage(KantenOrtslage.INNERORTS)
-				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_20_KMH)
-				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_50_KMH)
-				.build();
-		GeschwindigkeitAttribute g3 =
-			GeschwindigkeitAttribute.builder()
-				.ortslage(KantenOrtslage.INNERORTS)
-				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_20_KMH)
-				.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_20_KMH)
-				.build();
+		GeschwindigkeitAttribute g1 = GeschwindigkeitAttribute.builder()
+			.ortslage(KantenOrtslage.INNERORTS)
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_20_KMH)
+			.build();
+		GeschwindigkeitAttribute g2 = GeschwindigkeitAttribute.builder()
+			.ortslage(KantenOrtslage.INNERORTS)
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_20_KMH)
+			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_50_KMH)
+			.build();
+		GeschwindigkeitAttribute g3 = GeschwindigkeitAttribute.builder()
+			.ortslage(KantenOrtslage.INNERORTS)
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_20_KMH)
+			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_20_KMH)
+			.build();
 
 		assertThat(g1.vertauscht()).isEqualTo(g1);
 		assertThat(g2.vertauscht().vertauscht()).isEqualTo(g2);

@@ -11,44 +11,38 @@
   ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
-<rad-import-step-layout>
+<rad-import-step-layout header="Maßnahmen-Import">
   <form [formGroup]="formGroup" class="form-group import-step-content">
-    <rad-multi-organisationen-dropdown-control
-      formControlName="gebietskoerperschaften"
-      [options]="(zuweisbareOrganisationen$ | async) ?? []"
-      [errors]="formGroup.get('gebietskoerperschaften')?.errors"
-    >
-      <div class="ueberschrift">Gebietskörperschaften</div>
-      <div class="beschreibung">
-        {{
-          formGroup.get('gebietskoerperschaften')?.value?.length
-            ? 'Weitere Gebietskörperschaften...'
-            : 'Gebietskörperschaften'
-        }}
-      </div>
-    </rad-multi-organisationen-dropdown-control>
-
     <rad-enum-dropdown-control
       formControlName="konzeptionsquelle"
       [options]="konzeptionsquelleOptions"
       [nullable]="false"
       [touchOnWrite]="false"
-      [errors]="formGroup.get('konzeptionsquelle')?.errors"
-    >
-      Quelle auswählen
+      [errors]="formGroup.get('konzeptionsquelle')?.errors">
+      Quelle
     </rad-enum-dropdown-control>
 
+    <rad-multi-organisationen-dropdown-control
+      formControlName="gebietskoerperschaften"
+      [options]="(zuweisbareOrganisationen$ | async) ?? []"
+      [errors]="formGroup.get('gebietskoerperschaften')?.errors">
+      Zu importierende Bereiche
+    </rad-multi-organisationen-dropdown-control>
+
     <div class="hinweis">
-      Durch die Auswahl eines Soll-Standards wird eine eindeutigere Zuordnung zu den bestehenden Maßnahmen ermöglicht.
+      Es werden nur die Maßnahmen des angegebenen Soll-Standards importiert; das erleichtert die Aktualisierung
+      bestehender Maßnahmen.
+    </div>
+    <div class="hinweis">
+      Wird kein Soll-Standard angegeben, werden die Maßnahmen unabhängig vom Soll-Standard importiert.
     </div>
     <rad-enum-dropdown-control
       formControlName="sollStandard"
       [options]="sollStandardOptions"
       [nullable]="true"
       [touchOnWrite]="false"
-      [errors]="formGroup.get('sollStandard')?.errors"
-    >
-      Soll-Standard
+      [errors]="formGroup.get('sollStandard')?.errors">
+      Soll-Standard (optional)
     </rad-enum-dropdown-control>
 
     <div class="hinweis">Bitte laden Sie eine GeoJSON-Datei hoch (max. Dateigröße 300MB).</div>
@@ -57,11 +51,13 @@
       class="w-100"
       [maxFileSizeInMB]="300"
       [dateiEndung]="['json', 'geojson']"
-      [touchOnWrite]="false"
-      [errors]="formGroup.get('file')?.errors"
-    >
+      [touchOnWrite]="false">
       GeoJSON auswählen
     </rad-file-upload-control>
+    <rad-validation-error-anzeige
+      class="text-small align-self-start"
+      [errors]="formGroup.get('file')?.errors || null"
+      *ngIf="formGroup.get('file')?.dirty"></rad-validation-error-anzeige>
   </form>
 
   <div *ngIf="sessionExists && !sessionCreated" class="import-step-footer-message hinweis red flex-grow mt-10">
@@ -69,48 +65,30 @@
     Sie diese ab, um eine neue zu starten.
   </div>
 
-  <mat-accordion [multi]="true" class="import-step-footer-message">
-    <mat-expansion-panel *ngIf="hasFehler" [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <div class="display-flex">
-            <mat-icon class="error">report</mat-icon>
-            <div class="ml-3">Fehler</div>
-            <div class="ml-3 hinweis">({{ fehler.length }})</div>
-          </div>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="log-eintrag-wrapper">
-        <div *ngFor="let f of fehler">{{ f }}</div>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
+  <rad-info-panel class="import-step-footer-message" [fehler]="fehler"></rad-info-panel>
   <div class="import-step-footer-buttons">
     <button
       [disabled]="!massnahmenSessionExists && formGroup.pristine"
-      mat-flat-button
+      mat-stroked-button
       color="primary"
       class="abbrechen-button"
-      (click)="onAbort()"
-    >
+      (click)="onAbort()">
       Abbrechen
     </button>
+    <button [disabled]="true" mat-stroked-button color="primary">Zurück</button>
     <button
+      *ngIf="schrittAbgeschlossenOderFehler"
       mat-flat-button
       color="primary"
       (click)="onNext()"
-      *ngIf="massnahmenSessionExists"
-      [disabled]="isDateiHochladenRunning || hasFehler"
-    >
-      <ng-container *ngIf="!isDateiHochladenRunning"> Weiter</ng-container>
-      <mat-spinner color="accent" *ngIf="isDateiHochladenRunning" diameter="28"></mat-spinner>
+      [disabled]="hasFehler">
+      Weiter
     </button>
     <rad-action-button
-      *ngIf="!massnahmenSessionExists"
+      *ngIf="!schrittAbgeschlossenOderFehler"
       (action)="onStart()"
-      [waiting]="uploading"
-      [disabled]="sessionExists || formGroup.invalid || hasFehler"
-    >
+      [waiting]="uploading || isDateiHochladenRunning"
+      [disabled]="(sessionExists && !massnahmenSessionExists) || formGroup.invalid">
       Import starten
     </rad-action-button>
   </div>

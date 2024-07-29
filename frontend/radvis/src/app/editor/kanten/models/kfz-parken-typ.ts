@@ -23,19 +23,17 @@ export enum KfzParkenTyp {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace KfzParkenTyp {
-  export const options: EnumOption[] = Object.keys(KfzParkenTyp).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case KfzParkenTyp.PARKEN_VERBOTEN:
-          return { name: k, displayText: 'Parken verboten / kein Kfz-Parken' };
-        case KfzParkenTyp.LAENGS_PARKEN:
-          return { name: k, displayText: 'Parken in Längsaufstellung' };
-        case KfzParkenTyp.SCHRAEG_PARKEN:
-          return { name: k, displayText: 'Parken in Schräg-/Senkrechtaufstellung' };
-        case KfzParkenTyp.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum KfzParkenTyp fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(KfzParkenTyp).map((k: string): EnumOption => {
+    switch (k) {
+      case KfzParkenTyp.PARKEN_VERBOTEN:
+        return { name: k, displayText: 'Parken verboten / kein Kfz-Parken' };
+      case KfzParkenTyp.LAENGS_PARKEN:
+        return { name: k, displayText: 'Parken in Längsaufstellung' };
+      case KfzParkenTyp.SCHRAEG_PARKEN:
+        return { name: k, displayText: 'Parken in Schräg-/Senkrechtaufstellung' };
+      case KfzParkenTyp.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum KfzParkenTyp fehlt: ' + k);
+  });
 }

@@ -18,7 +18,7 @@
     ><input matSliderThumb [value]="value" (input)="onSliderMove(ngSliderThumb.value)" #ngSliderThumb="matSliderThumb"
   /></mat-slider>
   <div class="ml-3 info-text">
-    <span>1:{{ getMassStab() | number: '1.0-0':'de' }}</span>
+    <span>1:{{ getMassStab() | number: '1.0-0' : 'de' }}</span>
     <span class="massstab-info">{{ getMassStabInfo() }}</span>
   </div>
 </div>

@@ -241,7 +241,7 @@ public class FahrradrouteTest {
 		List<AbschnittsweiserKantenBezug> bezuegeB = new ArrayList<>();
 		bezuegeB.add(varianteBKantenBezug);
 		fahrradroute.replaceFahrradrouteVarianten(List.of(FahrradrouteVarianteTestDataProvider.defaultTfis()
-				.abschnittsweiserKantenBezug(bezuegeA).build(),
+			.abschnittsweiserKantenBezug(bezuegeA).build(),
 			FahrradrouteVarianteTestDataProvider.defaultTfis()
 				.abschnittsweiserKantenBezug(bezuegeB).build()));
 

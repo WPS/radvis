@@ -22,11 +22,9 @@ import de.wps.radvis.backend.matching.domain.valueObject.ProfilMatchResult;
 
 public interface DlmMatchingRepository {
 
-	OsmMatchResult matchGeometry(LineString geometrie, String profile) throws
-		KeinMatchGefundenException;
+	OsmMatchResult matchGeometry(LineString geometrie, String profile) throws KeinMatchGefundenException;
 
-	ProfilMatchResult matchGeometryUndDetails(LineString geometrie, String profile) throws
-		KeinMatchGefundenException;
+	ProfilMatchResult matchGeometryUndDetails(LineString geometrie, String profile) throws KeinMatchGefundenException;
 
 	void swapGraphHopper();
 }

@@ -35,7 +35,8 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 })
 export class BarriereLayerComponent
   extends AbstractInfrastrukturLayerComponent<BarriereListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   private olLayer: VectorLayer;
 
   constructor(
@@ -61,7 +62,7 @@ export class BarriereLayerComponent
     if (!infrastruktur.iconPosition || !isPoint(infrastruktur.iconPosition)) {
       throw new Error('Icongeometrie ist nicht vorhanden oder kein Punkt');
     }
-    const feature = new Feature(new Point((infrastruktur.iconPosition.coordinates as unknown) as Coordinate));
+    const feature = new Feature(new Point(infrastruktur.iconPosition.coordinates as unknown as Coordinate));
     feature.setId(infrastruktur.id);
     feature.set(AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME, 'Barriere');
     return [feature];

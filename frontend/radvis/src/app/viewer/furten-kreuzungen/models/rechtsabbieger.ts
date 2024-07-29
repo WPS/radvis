@@ -23,19 +23,17 @@ export enum Rechtsabbieger {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Rechtsabbieger {
-  export const options: EnumOption[] = Object.keys(Rechtsabbieger).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Rechtsabbieger.GRUENPFEIL_ALLE:
-          return { name: k, displayText: 'Grünpfeil (Alle)' };
-        case Rechtsabbieger.GRUENPFEIL_RAD:
-          return { name: k, displayText: 'Grünpfeil (Rad)' };
-        case Rechtsabbieger.RECHTSABBIEGER:
-          return { name: k, displayText: 'Rechtsabbieger' };
-        case Rechtsabbieger.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Rechtsabbieger fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Rechtsabbieger).map((k: string): EnumOption => {
+    switch (k) {
+      case Rechtsabbieger.GRUENPFEIL_ALLE:
+        return { name: k, displayText: 'Grünpfeil (Alle)' };
+      case Rechtsabbieger.GRUENPFEIL_RAD:
+        return { name: k, displayText: 'Grünpfeil (Rad)' };
+      case Rechtsabbieger.RECHTSABBIEGER:
+        return { name: k, displayText: 'Rechtsabbieger' };
+      case Rechtsabbieger.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Rechtsabbieger fehlt: ' + k);
+  });
 }

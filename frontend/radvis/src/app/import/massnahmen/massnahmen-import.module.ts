@@ -13,18 +13,20 @@
  */
 
 import { NgModule } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 import { ImportMassnahmenAttributeAuswaehlenComponent } from 'src/app/import/massnahmen/components/import-massnahmen-attribute-auswaehlen/import-massnahmen-attribute-auswaehlen.component';
 import { ImportMassnahmenAttributfehlerUeberpruefenComponent } from 'src/app/import/massnahmen/components/import-massnahmen-attributfehler-ueberpruefen/import-massnahmen-attributfehler-ueberpruefen.component';
 import { ImportMassnahmenDateiHochladenComponent } from 'src/app/import/massnahmen/components/import-massnahmen-datei-hochladen/import-massnahmen-datei-hochladen.component';
 import { ImportMassnahmenFehlerprotokollHerunterladenComponent } from 'src/app/import/massnahmen/components/import-massnahmen-fehlerprotokoll-herunterladen/import-massnahmen-fehlerprotokoll-herunterladen.component';
+import { ImportMassnahmenImportUeberpruefenLayerComponent } from 'src/app/import/massnahmen/components/import-massnahmen-import-ueberpruefen-layer/import-massnahmen-import-ueberpruefen-layer.component';
 import { ImportMassnahmenImportUeberpruefenComponent } from 'src/app/import/massnahmen/components/import-massnahmen-import-ueberpruefen/import-massnahmen-import-ueberpruefen.component';
 import { ImportMassnahmenToolComponent } from 'src/app/import/massnahmen/components/import-massnahmen-tool/import-massnahmen-tool.component';
-import { MassnahmenImportService } from 'src/app/import/massnahmen/services/massnahmen-import.service';
+import { MassnahmenImportZuordnungStatus } from 'src/app/import/massnahmen/models/massnahmen-import-zuordnung-status';
+import { KarteModule } from 'src/app/karte/karte.module';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MassnahmenImportZuordnungStatus } from 'src/app/import/massnahmen/models/massnahmen-import-zuordnung';
+import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
 
 @NgModule({
   declarations: [
@@ -33,16 +35,17 @@ import { MassnahmenImportZuordnungStatus } from 'src/app/import/massnahmen/model
     ImportMassnahmenAttributeAuswaehlenComponent,
     ImportMassnahmenAttributfehlerUeberpruefenComponent,
     ImportMassnahmenImportUeberpruefenComponent,
+    ImportMassnahmenImportUeberpruefenLayerComponent,
     ImportMassnahmenFehlerprotokollHerunterladenComponent,
   ],
-  imports: [SharedModule, ImportSharedModule],
-  providers: [MassnahmenImportService],
+  imports: [SharedModule, ImportSharedModule, KarteModule, ViewerSharedModule],
+  exports: [ImportMassnahmenImportUeberpruefenLayerComponent],
 })
 export class MassnahmenImportModule {
   constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     [
       MassnahmenImportZuordnungStatus.NEU,
-      MassnahmenImportZuordnungStatus.GEMAPPT,
+      MassnahmenImportZuordnungStatus.ZUGEORDNET,
       MassnahmenImportZuordnungStatus.GELOESCHT,
       MassnahmenImportZuordnungStatus.FEHLERHAFT,
     ].forEach(status => {

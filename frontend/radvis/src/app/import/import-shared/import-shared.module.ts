@@ -13,11 +13,13 @@
  */
 import { NgModule } from '@angular/core';
 import { ImportStepLayoutComponent } from 'src/app/import/import-shared/components/import-step-layout/import-step-layout.component';
+import { InfoPanelComponent } from 'src/app/import/import-shared/components/info-panel/info-panel.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  declarations: [ImportStepLayoutComponent],
-  imports: [],
+  declarations: [ImportStepLayoutComponent, InfoPanelComponent],
+  imports: [SharedModule],
   providers: [],
-  exports: [ImportStepLayoutComponent],
+  exports: [ImportStepLayoutComponent, InfoPanelComponent],
 })
 export class ImportSharedModule {}

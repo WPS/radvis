@@ -12,7 +12,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+@import 'src/style/colors';
+
 :host {
   display: flex;
   flex-direction: column;
+  width: 20rem;
+}
+
+.compatibility-notice {
+  color: map-get($radvis-app-red-palette, 200);
 }

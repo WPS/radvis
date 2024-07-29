@@ -43,14 +43,13 @@ public abstract class MehrdeutigeProjektionException extends Exception {
 
 	@Override
 	public String getMessage() {
-		String seitenbezugInfo = !seite.isEmpty() ?
-			"Auf der Seite " + seite + " der Kante ist ein Problem aufgetreten: " : "";
+		String seitenbezugInfo = !seite.isEmpty() ? "Auf der Seite " + seite
+			+ " der Kante ist ein Problem aufgetreten: " : "";
 
-		String additionalInfo = grundnetzKantenID != null && projizierteKanteIds != null ?
-			String.format(" Es wurden die Attribute der Kanten mit IDs %s auf die GrundnetzKante mit ID %s projiziert.",
-				projizierteKanteIds.stream().map(Object::toString).collect(
-					Collectors.joining(",")), grundnetzKantenID) :
-			"";
+		String additionalInfo = grundnetzKantenID != null && projizierteKanteIds != null ? String.format(
+			" Es wurden die Attribute der Kanten mit IDs %s auf die GrundnetzKante mit ID %s projiziert.",
+			projizierteKanteIds.stream().map(Object::toString).collect(
+				Collectors.joining(",")), grundnetzKantenID) : "";
 		return super.getMessage() + seitenbezugInfo + additionalInfo;
 	}
 }

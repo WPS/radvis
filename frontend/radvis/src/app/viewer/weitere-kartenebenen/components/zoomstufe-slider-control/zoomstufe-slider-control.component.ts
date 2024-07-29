@@ -71,7 +71,7 @@ export class ZoomstufeSliderControlComponent extends AbstractFormControl<number>
 
   getMassStabInfo(): string {
     if (this.value >= 8.5 && this.value <= 9) {
-      return 'Baden-Württemberg';
+      return 'Bundesland';
     } else if (this.value < 7) {
       return 'Deutschland';
     }

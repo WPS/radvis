@@ -15,7 +15,9 @@
 package de.wps.radvis.backend.abfrage.fehlerprotokoll.schnittstelle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.hibernate.spatial.jts.EnvelopeAdapter;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.service.FehlerprotokollAbfrageService;
+import de.wps.radvis.backend.abfrage.fehlerprotokoll.schnittstelle.view.FehlerprotokollTypView;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.schnittstelle.view.FehlerprotokollView;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
@@ -57,17 +60,23 @@ public class FehlerprotokollController {
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 	}
 
+	@GetMapping("/types")
+	public List<FehlerprotokollTypView> getFehlerprotokollTypen() {
+		return Arrays.asList(FehlerprotokollTyp.values()).stream().map(f -> new FehlerprotokollTypView(f))
+			.collect(Collectors.toList());
+	}
+
 	@GetMapping("/list")
 	public Stream<FehlerprotokollView> getFehlerprotokolle(
 		@ModelAttribute("sichtbereich") Envelope sichtbereich,
-		@RequestParam List<FehlerprotokollTyp> selectedTypen
-	) {
+		@RequestParam List<FehlerprotokollTyp> selectedTypen) {
 		if (!FeatureTogglz.FEHLERPROTOKOLL.isActive()) {
 			return Stream.empty();
 		}
 
-		List<FehlerprotokollEintrag> alleFehlerprotokolleFuerTypen = fehlerprotokollAbfrageService.getAlleFehlerprotokolleFuerTypenInBereich(
-			selectedTypen, sichtbereich);
+		List<FehlerprotokollEintrag> alleFehlerprotokolleFuerTypen = fehlerprotokollAbfrageService
+			.getAlleFehlerprotokolleFuerTypenInBereich(
+				selectedTypen, sichtbereich);
 		return alleFehlerprotokolleFuerTypen.stream()
 			.map(FehlerprotokollView::new);
 	}
@@ -77,23 +86,24 @@ public class FehlerprotokollController {
 		@ModelAttribute("sichtbereich") Envelope sichtbereich,
 		@RequestParam Long organisation,
 		@RequestParam boolean includeNetzklassenImport,
-		@RequestParam boolean includeAttributeImport
-	) {
+		@RequestParam boolean includeAttributeImport) {
 		List<ManuellerImportFehler> result = new ArrayList<>();
 		Verwaltungseinheit resolvedOrganisation = verwaltungseinheitResolver.resolve(organisation);
 		if (includeNetzklassenImport) {
-			List<ManuellerImportFehler> allLatestByOrganisationAndType = manuellerImportFehlerRepository.getAllLatestByOrganisationAndTypeInBereich(
-				resolvedOrganisation,
-				ImportTyp.NETZKLASSE_ZUWEISEN,
-				EnvelopeAdapter.toPolygon(sichtbereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
+			List<ManuellerImportFehler> allLatestByOrganisationAndType = manuellerImportFehlerRepository
+				.getAllLatestByOrganisationAndTypeInBereich(
+					resolvedOrganisation,
+					ImportTyp.NETZKLASSE_ZUWEISEN,
+					EnvelopeAdapter.toPolygon(sichtbereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
 			result.addAll(
 				allLatestByOrganisationAndType);
 		}
 		if (includeAttributeImport) {
-			List<ManuellerImportFehler> allLatestByOrganisationAndType = manuellerImportFehlerRepository.getAllLatestByOrganisationAndTypeInBereich(
-				resolvedOrganisation,
-				ImportTyp.ATTRIBUTE_UEBERNEHMEN,
-				EnvelopeAdapter.toPolygon(sichtbereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
+			List<ManuellerImportFehler> allLatestByOrganisationAndType = manuellerImportFehlerRepository
+				.getAllLatestByOrganisationAndTypeInBereich(
+					resolvedOrganisation,
+					ImportTyp.ATTRIBUTE_UEBERNEHMEN,
+					EnvelopeAdapter.toPolygon(sichtbereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
 			result.addAll(allLatestByOrganisationAndType);
 		}
 		return result.stream().map(FehlerprotokollView::new);

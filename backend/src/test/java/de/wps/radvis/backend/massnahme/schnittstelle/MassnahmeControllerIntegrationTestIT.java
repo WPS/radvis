@@ -91,6 +91,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.schnittstelle.command.KnotenNetzbezugCommand;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.PunktuellerKantenSeitenBezugCommand;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -164,7 +165,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 			when(benutzerResolver.fromAuthentication(any()))
 				.thenReturn(
 					BenutzerTestDataProvider.admin(
-							VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
 			return new MassnahmeController(massnahmeService,
 				umsetzungsstandabfrageService,
@@ -323,7 +324,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 	void uploadDateiAnDokumentOhneBerechtigung() throws AccessDeniedException {
 		// Arrange
 		Benutzer benutzer = BenutzerTestDataProvider.admin(
-				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 			.rollen(Collections.singleton(Rolle.RADVIS_BETRACHTER)).build();
 
 		Massnahme massnahme = createMassnahme(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(),

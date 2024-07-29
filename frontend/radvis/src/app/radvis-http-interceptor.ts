@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class RadvisHttpInterceptor implements HttpInterceptor {
@@ -55,19 +56,23 @@ export class RadvisHttpInterceptor implements HttpInterceptor {
         }
         return throwError(err);
       }),
-      catchError(
-        (error: HttpErrorResponse): Observable<any> => {
-          switch (error.status) {
-            case 401:
-            case 301:
+      catchError((error: HttpErrorResponse): Observable<any> => {
+        switch (error.status) {
+          case 401:
+            if (environment.production) {
               window.location.reload();
-              break;
-            default:
-              this.errorHandlingService.handleHttpError(error);
-          }
-          return throwError(error);
+            } else {
+              window.location.replace(environment.loginUrl);
+            }
+            break;
+          case 301:
+            window.location.reload();
+            break;
+          default:
+            this.errorHandlingService.handleHttpError(error);
         }
-      )
+        return throwError(error);
+      })
     );
   }
 }

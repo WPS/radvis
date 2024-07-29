@@ -48,7 +48,7 @@ public class Zoomstufe {
 		return new Zoomstufe((double) value);
 	}
 
-	private static boolean isValid(Double value) {
+	public static boolean isValid(Double value) {
 		return value != null && value >= 0;
 	}
 

@@ -15,20 +15,10 @@
 <ng-container *ngIf="fahrradzaehlstelleDetailView">
   <mat-toolbar radRightDetailsShortcut>
     <h2 class="flex-grow">Fahrradzählstelle</h2>
-    <button
-      [attr.aria-label]="'Zur Fahrradzählstelle springen'"
-      matTooltip="Zur Fahrradzählstelle springen"
-      (click)="focusFahrradzaehlstelleIntoView()"
-      mat-icon-button
-    >
+    <button matTooltip="Zur Fahrradzählstelle springen" (click)="focusFahrradzaehlstelleIntoView()" mat-icon-button>
       <mat-icon>my_location</mat-icon>
     </button>
-    <button
-      [attr.aria-label]="'Fahrradzählstellendetailanzeige schließen'"
-      matTooltip="Fahrradzählstellendetailanzeige schließen"
-      (click)="onClose()"
-      mat-icon-button
-    >
+    <button matTooltip="Fahrradzählstellendetailanzeige schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </mat-toolbar>
@@ -42,8 +32,7 @@
       [active]="rlaEigenschaften.isActive"
       routerLinkActive
       #rlaEigenschaften="routerLinkActive"
-      class="nav-bar-item"
-    >
+      class="nav-bar-item">
       Eigenschaften
     </a>
     <a
@@ -54,8 +43,7 @@
       [active]="rlaStatistik.isActive"
       routerLinkActive
       #rlaStatistik="routerLinkActive"
-      class="nav-bar-item"
-    >
+      class="nav-bar-item">
       Statistik
     </a>
   </nav>

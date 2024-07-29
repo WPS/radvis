@@ -53,7 +53,7 @@ public class JobController {
 
 		/*
 		Gruppe vom Regex enthält folgende Werte:
-
+		
 		Name   -> Prefix
 		abcDef -> abc
 		abc    -> abc

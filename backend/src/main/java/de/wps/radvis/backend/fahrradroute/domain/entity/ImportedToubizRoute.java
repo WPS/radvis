@@ -14,9 +14,6 @@
 
 package de.wps.radvis.backend.fahrradroute.domain.entity;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.valid4j.Assertive.require;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +23,6 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Tourenkategorie;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -35,7 +31,6 @@ public class ImportedToubizRoute {
 	private ToubizId toubizId;
 	private FahrradrouteName name;
 
-	@NotNull
 	private Geometry originalGeometrie;
 
 	private String kurzbezeichnung;
@@ -70,7 +65,6 @@ public class ImportedToubizRoute {
 		String emailAnsprechpartner, String lizenz,
 		LocalDateTime zuletztBearbeitet, List<String> linksZuWeiterenMedien, String lizenzNamensnennung,
 		boolean landesradfernweg) {
-		require(originalGeometrie, notNullValue());
 		this.toubizId = toubizId;
 		this.name = name;
 		this.beschreibung = beschreibung;

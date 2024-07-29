@@ -20,5 +20,4 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject
 import jakarta.validation.constraints.NotNull;
 
 public record MassnahmenImportAttributeAuswaehlenCommand(@NotNull List<MassnahmenImportAttribute> attribute) {
-
 }

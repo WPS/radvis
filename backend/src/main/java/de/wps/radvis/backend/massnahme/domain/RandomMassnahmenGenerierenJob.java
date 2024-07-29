@@ -60,6 +60,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RandomMassnahmenGenerierenJob extends AbstractJob {
 	private static final int ANZAHL_RANDOM_MASSNAHMEN = 100;
+	private static final String BEZEICHNUNG_PRAEFIX = "Zufällig generierte Maßnahme Nr. %s";
+	private static int nextNumber = 1;
 
 	private final KantenRepository kantenRepository;
 	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
@@ -97,8 +99,8 @@ public class RandomMassnahmenGenerierenJob extends AbstractJob {
 		return super.run(force);
 	}
 
-	private String createRandomString() {
-		return Long.toHexString(Double.doubleToLongBits(random.nextDouble()));
+	private String createDummyBezeichnung() {
+		return String.format(BEZEICHNUNG_PRAEFIX, nextNumber++);
 	}
 
 	private Set<Massnahmenkategorie> createRandomMassnahmenkategorie() {
@@ -163,7 +165,7 @@ public class RandomMassnahmenGenerierenJob extends AbstractJob {
 			}
 
 			Massnahme massnahme = Massnahme.builder()
-				.bezeichnung(Bezeichnung.of(createRandomString()))
+				.bezeichnung(Bezeichnung.of(createDummyBezeichnung()))
 				.massnahmenkategorien(createRandomMassnahmenkategorie())
 				.netzbezug(createRandomNetzbezug())
 				.umsetzungsstatus(createRandomUmsetzungsstatus())
@@ -171,13 +173,13 @@ public class RandomMassnahmenGenerierenJob extends AbstractJob {
 				.planungErforderlich(random.nextBoolean())
 				.durchfuehrungszeitraum(createRandomDurchfuehrungszeitraum())
 				.baulastZustaendiger(createRandomOrganisation())
+				.zustaendiger(createRandomOrganisation())
 				.letzteAenderung(LocalDateTime.now())
 				.benutzerLetzteAenderung(benutzer)
 				.sollStandard(createRandomSollStandard())
 				.handlungsverantwortlicher(createRandomHandlungsverantwortlicher())
 				.konzeptionsquelle(randomKonzeptionsquelle)
-				.umsetzungsstand(umsetzungsstand)
-				.sonstigeKonzeptionsquelle(createRandomString())
+				.sonstigeKonzeptionsquelle("Automatisch generierte Maßnahmen")
 				.netzklassen(createRandomNetzklassen(random))
 				.dokumentListe(new DokumentListe())
 				.kommentarListe(new KommentarListe())

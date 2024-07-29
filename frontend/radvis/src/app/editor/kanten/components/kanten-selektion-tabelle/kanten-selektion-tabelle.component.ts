@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { MatCheckboxDefaultOptions, MAT_CHECKBOX_DEFAULT_OPTIONS } from '@angular/material/checkbox';
+import { MAT_CHECKBOX_DEFAULT_OPTIONS, MatCheckboxDefaultOptions } from '@angular/material/checkbox';
 import { Subscription } from 'rxjs';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import {
@@ -21,7 +21,7 @@ import {
   KantenSelektionHoverService,
 } from 'src/app/editor/kanten/services/kanten-selektion-hover.service';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 
 @Component({
   selector: 'rad-kanten-selektion-tabelle',
@@ -36,9 +36,9 @@ export class KantenSelektionTabelleComponent implements OnDestroy, OnInit {
   @Input()
   selektion: KantenSelektion[] = [];
 
-  public LINKS = Seitenbezug.LINKS;
-  public RECHTS = Seitenbezug.RECHTS;
-  hoveredKante: { kanteId: number; seitenbezug?: Seitenbezug } | null = null;
+  public LINKS = KantenSeite.LINKS;
+  public RECHTS = KantenSeite.RECHTS;
+  hoveredKante: { kanteId: number; kantenSeite?: KantenSeite } | null = null;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -47,8 +47,8 @@ export class KantenSelektionTabelleComponent implements OnDestroy, OnInit {
     private changeDetectorRef: ChangeDetectorRef
   ) {}
 
-  isHovered(kanteId: number, seitenbezug?: Seitenbezug): boolean {
-    return this.hoveredKante?.kanteId === kanteId && this.hoveredKante?.seitenbezug === seitenbezug;
+  isHovered(kanteId: number, kantenSeite?: KantenSeite): boolean {
+    return this.hoveredKante?.kanteId === kanteId && this.hoveredKante?.kantenSeite === kantenSeite;
   }
 
   ngOnInit(): void {
@@ -60,23 +60,23 @@ export class KantenSelektionTabelleComponent implements OnDestroy, OnInit {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  onTabelleHover(hovered: boolean, kanteId: number, seitenbezug?: Seitenbezug): void {
+  onTabelleHover(hovered: boolean, kanteId: number, kantenSeite?: KantenSeite): void {
     if (hovered) {
-      this.kantenSelektionHoverService.notifyHover({ kanteId, seitenbezug });
+      this.kantenSelektionHoverService.notifyHover({ kanteId, kantenSeite: kantenSeite });
     } else {
       this.kantenSelektionHoverService.notifyUnhover();
     }
   }
 
-  onSelect(kanteId: number, seitenbezug?: Seitenbezug): void {
+  onSelect(kanteId: number, kantenSeite?: KantenSeite): void {
     const clickedKantenSelektion = this.selektion.find(
       kantenSelektion => kantenSelektion.kante.id === kanteId
     ) as KantenSelektion;
-    if (seitenbezug) {
-      if (clickedKantenSelektion.istSeiteSelektiert(seitenbezug)) {
-        this.kantenSelektionService.deselect(kanteId, seitenbezug);
+    if (kantenSeite) {
+      if (clickedKantenSelektion.istSeiteSelektiert(kantenSeite)) {
+        this.kantenSelektionService.deselect(kanteId, kantenSeite);
       } else {
-        this.kantenSelektionService.select(kanteId, true, seitenbezug);
+        this.kantenSelektionService.select(kanteId, true, kantenSeite);
       }
     } else {
       this.kantenSelektionService.deselect(kanteId);
@@ -85,8 +85,8 @@ export class KantenSelektionTabelleComponent implements OnDestroy, OnInit {
 
   private onHover(event: KantenHoverEvent): void {
     // Nicht unnötig viel change detection betreiben
-    if (this.hoveredKante?.kanteId !== event.kanteId || this.hoveredKante.seitenbezug !== event.seitenbezug) {
-      this.hoveredKante = { kanteId: event.kanteId, seitenbezug: event.seitenbezug };
+    if (this.hoveredKante?.kanteId !== event.kanteId || this.hoveredKante.kantenSeite !== event.kantenSeite) {
+      this.hoveredKante = { kanteId: event.kanteId, kantenSeite: event.kantenSeite };
       this.changeDetectorRef.detectChanges();
     }
   }

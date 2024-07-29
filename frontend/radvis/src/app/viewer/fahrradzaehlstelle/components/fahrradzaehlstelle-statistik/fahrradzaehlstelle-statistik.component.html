@@ -17,8 +17,7 @@
     [formControl]="artDerAuswertungFormControl"
     [nullable]="false"
     [options]="artDerAuswertungOptions"
-    class="mat-form-field-full-width mt-4"
-  >
+    class="mat-form-field-full-width mt-4">
     Art der Auswertung
   </rad-enum-dropdown-control>
 
@@ -26,24 +25,21 @@
     <rad-date-range-picker-control
       [artDerAuswertung]="artDerAuswertungFormControl.value"
       [formControl]="rangeFormControl"
-      class="mat-form-field-full-width"
-    >
+      class="mat-form-field-full-width">
     </rad-date-range-picker-control>
   </ng-container>
   <ng-template #jahresAuswahl>
     <rad-jahreszeitraum-control [formControl]="rangeFormControl"></rad-jahreszeitraum-control>
     <rad-validation-error-anzeige
       *ngIf="zeitraumSelected && !zeitraumValid"
-      [errors]="{ error: 'Enddatum darf nicht vor Anfangsdatum liegen!' }"
-    >
+      [errors]="{ error: 'Enddatum darf nicht vor Anfangsdatum liegen!' }">
     </rad-validation-error-anzeige>
   </ng-template>
   <rad-enum-dropdown-control
     [formControl]="channelFormControl"
     [nullable]="false"
     [options]="channelOptions"
-    class="mat-form-field-full-width mt-4"
-  >
+    class="mat-form-field-full-width mt-4">
     Richtung
   </rad-enum-dropdown-control>
 </div>

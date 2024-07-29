@@ -25,11 +25,11 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 
@@ -38,16 +38,22 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
 	private final GebietskoerperschaftRepository gebietskoerperschaftRepository;
 	private final OrganisationRepository organisationRepository;
+	private final OrganisationsArt obersteGebietskoerperschaftOrganisationsArt;
+	private final String obersteGebietskoerperschaftName;
 
 	public VerwaltungseinheitService(VerwaltungseinheitRepository verwaltungseinheitRepository,
 		GebietskoerperschaftRepository gebietskoerperschaftRepository,
-		OrganisationRepository organisationRepository) {
+		OrganisationRepository organisationRepository,
+		OrganisationsArt obersteGebietskoerperschaftOrganisationsArt,
+		String obersteGebietskoerperschaftName) {
 		require(verwaltungseinheitRepository, notNullValue());
 		require(gebietskoerperschaftRepository, notNullValue());
 		require(organisationRepository, notNullValue());
 		this.organisationRepository = organisationRepository;
 		this.gebietskoerperschaftRepository = gebietskoerperschaftRepository;
 		this.verwaltungseinheitRepository = verwaltungseinheitRepository;
+		this.obersteGebietskoerperschaftOrganisationsArt = obersteGebietskoerperschaftOrganisationsArt;
+		this.obersteGebietskoerperschaftName = obersteGebietskoerperschaftName;
 	}
 
 	public List<Verwaltungseinheit> getAll() {
@@ -82,6 +88,11 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 		return verwaltungseinheitRepository.findByOrganisationsArt(OrganisationsArt.BUNDESLAND).get(0);
 	}
 
+	public Optional<Verwaltungseinheit> getObersteGebietskoerperschaft() {
+		return verwaltungseinheitRepository.findByNameAndOrganisationsArt(obersteGebietskoerperschaftName,
+			obersteGebietskoerperschaftOrganisationsArt);
+	}
+
 	public boolean istUebergeordnet(@NonNull Verwaltungseinheit uebergeordnet,
 		@NonNull Verwaltungseinheit untergeordnet) {
 		if (untergeordnet.equals(uebergeordnet)) {
@@ -113,7 +124,7 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	 * urspruengliche Ausgangsorganisation.
 	 *
 	 * @param verwaltungseinheit
-	 * 	Die Organisation von der die uebergordneten gefunden werden sollen
+	 *     Die Organisation von der die uebergordneten gefunden werden sollen
 	 * @return List<Verwaltungseinheit> ausgangsorganisation + alle uebergeordneten
 	 */
 	public List<Verwaltungseinheit> findeAlleZustaendigenVerwaltungseinheiten(Verwaltungseinheit verwaltungseinheit) {
@@ -122,7 +133,8 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 		result.add(verwaltungseinheit);
 
 		while (aktuelleVerwaltungseinheit.getUebergeordneteVerwaltungseinheit().isPresent()) {
-			Verwaltungseinheit naechsteVerwaltungseinheit = aktuelleVerwaltungseinheit.getUebergeordneteVerwaltungseinheit()
+			Verwaltungseinheit naechsteVerwaltungseinheit = aktuelleVerwaltungseinheit
+				.getUebergeordneteVerwaltungseinheit()
 				.get();
 			result.add(naechsteVerwaltungseinheit);
 			aktuelleVerwaltungseinheit = naechsteVerwaltungseinheit;
@@ -168,6 +180,7 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 
 	/***
 	 * Findet anhand von Names und Organisationsart einer Verwaltugnseinheit die dazugehörige Entity
+	 *
 	 * @param name inklusive Organisationsart als String, organisationsArt als OrganisationsArt
 	 * @return Verwaltungseinheit
 	 */

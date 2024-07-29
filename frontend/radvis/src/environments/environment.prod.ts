@@ -14,4 +14,5 @@
 
 export const environment = {
   production: true,
+  loginUrl: '', // Im produktiven Betrieb wird die Login-URL nicht vom Frontend aus aufgerufen.
 };

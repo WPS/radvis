@@ -48,7 +48,7 @@ public class ZipService {
 		if (tempZipFile == null) {
 			throw new ZipFileExtractException("Das gegebene ZIP-File konnte nicht gelesen werden");
 		}
-		
+
 		File tempDir = this.createTempDirectory(tempDirectoryPrefix);
 
 		log.info("ZipFile {} wird nach {} entpackt...", tempZipFile.getName(), tempDir.getName());

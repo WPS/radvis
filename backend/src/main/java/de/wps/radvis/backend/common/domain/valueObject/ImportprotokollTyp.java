@@ -15,5 +15,6 @@
 package de.wps.radvis.backend.common.domain.valueObject;
 
 public enum ImportprotokollTyp {
-	FAHRRADROUTE, WEGWEISENDE_BESCHILDERUNG;
+	FAHRRADROUTE,
+	WEGWEISENDE_BESCHILDERUNG;
 }

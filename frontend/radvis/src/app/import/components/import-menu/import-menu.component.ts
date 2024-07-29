@@ -60,7 +60,9 @@ export class ImportMenuComponent {
     this.attributeRoute = importRoutingService.getAttributeImportRoute();
     this.massnahmenRoute = importRoutingService.getMassnahmenImportRoute();
     this.massnahmenDateianhaengeRoute = `/${ImportRoutes.IMPORT_ROUTE}/${ImportRoutes.MASSNAHMEN_DATEIANHAENGE_IMPORT_ROUTE}`;
-    this.canBenutzerImportNetzKlassenUndAttribute = this.benutzerDetailsService.canBenutzerImportNetzklassenAndAttribute();
-    this.canBenutzerMassnahmenAndDateianhaenge = this.benutzerDetailsService.canBenutzerImportMassnahmenAndDateianhaenge();
+    this.canBenutzerImportNetzKlassenUndAttribute =
+      this.benutzerDetailsService.canBenutzerImportNetzklassenAndAttribute();
+    this.canBenutzerMassnahmenAndDateianhaenge =
+      this.benutzerDetailsService.canBenutzerImportMassnahmenAndDateianhaenge();
   }
 }

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import com.graphhopper.GraphHopper;
 
+import de.wps.radvis.backend.matching.domain.CustomBikeFlagEncoderFactory;
 import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
 import lombok.Getter;
@@ -43,10 +44,10 @@ public class OsmMatchedGraphHopper extends GraphHopper {
 	public OsmMatchedGraphHopper(OsmMatchingCacheRepository osmMatchingCacheRepository) {
 		super();
 		require(osmMatchingCacheRepository, notNullValue());
+		super.setFlagEncoderFactory(new CustomBikeFlagEncoderFactory());
 
 		this.graphHopperEdgesAufLinRefOsmWaysIds = new HashMap<>();
 		this.osmMatchingCacheRepository = osmMatchingCacheRepository;
-
 	}
 
 	@Override
@@ -58,14 +59,14 @@ public class OsmMatchedGraphHopper extends GraphHopper {
 		log.info("start creating graph from {}.", getOSMFile());
 		OsmWayReader reader = new OsmWayReader(getGraphHopperStorage(), null, null,
 			graphHopperEdgesAufLinRefOsmWaysIds)
-			.setFile(_getOSMFile())
-			.setWorkerThreads(getWorkerThreads())
-			// Verhindert Simplification; wird standardmäßig über getWayPointMaxDistance gesetzt.
-			// https://discuss.graphhopper.com/t/map-matching-pillow-nodes-missing-in-matchresult/3142/2
-			// TODO dann brauchen wir das aber auch im Graphhopper, oder? siehe
-			// https://discuss.graphhopper.com/t/map-matching-pillow-nodes-missing-in-matchresult/3142/6
-			.setWayPointMaxDistance(0)
-			.setLongEdgeSamplingDistance(Double.MAX_VALUE);
+				.setFile(_getOSMFile())
+				.setWorkerThreads(getWorkerThreads())
+				// Verhindert Simplification; wird standardmäßig über getWayPointMaxDistance gesetzt.
+				// https://discuss.graphhopper.com/t/map-matching-pillow-nodes-missing-in-matchresult/3142/2
+				// TODO dann brauchen wir das aber auch im Graphhopper, oder? siehe
+				// https://discuss.graphhopper.com/t/map-matching-pillow-nodes-missing-in-matchresult/3142/6
+				.setWayPointMaxDistance(0)
+				.setLongEdgeSamplingDistance(Double.MAX_VALUE);
 
 		log.info("using " + getGraphHopperStorage().toString() + ", memory:" + getMemInfo());
 		try {

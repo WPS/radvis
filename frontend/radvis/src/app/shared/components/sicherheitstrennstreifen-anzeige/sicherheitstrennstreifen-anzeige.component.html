@@ -17,8 +17,7 @@
   [class.selected]="selectedSeite === seiteLinks"
   [class.badge]="linksDirty"
   (click)="onTrennstreifenClicked(seiteLinks)"
-  [matTooltip]="'Sicherheitstrennstreifen ' + seiteLinks"
->
+  [matTooltip]="'Sicherheitstrennstreifen ' + seiteLinks">
   <span class="trennstreifen-label">{{ seiteLinks }}</span>
 </div>
 <div class="radweg">
@@ -46,8 +45,7 @@
   [class.selected]="selectedSeite === seiteRechts"
   [class.badge]="rechtsDirty"
   (click)="onTrennstreifenClicked(seiteRechts)"
-  [matTooltip]="'Sicherheitstrennstreifen ' + seiteRechts"
->
+  [matTooltip]="'Sicherheitstrennstreifen ' + seiteRechts">
   <span class="trennstreifen-label">{{ seiteRechts }}</span>
 </div>
 <div *ngIf="hasStationierungsrichtungspfeil" class="stationierungsrichtungspfeil" matTooltip="Stationierungsrichtung">

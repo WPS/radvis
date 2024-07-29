@@ -66,8 +66,8 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT DISTINCT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig)"
-					+ " FROM Kante kante")
+			"SELECT DISTINCT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig)"
+				+ " FROM Kante kante")
 			.append(" LEFT OUTER JOIN kante.kantenAttributGruppe as kag")
 			.append(" LEFT OUTER JOIN kag.netzklassen as nk")
 			.append(" WHERE")
@@ -90,7 +90,7 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteNetzklasseMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig, kante.kantenAttributGruppe)")
+			"SELECT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteNetzklasseMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig, kante.kantenAttributGruppe)")
 			.append(" FROM Kante kante")
 			.append(" WHERE")
 			.append(" kante.quelle = ").append("'").append(QuellSystem.DLM.toString()).append("'")
@@ -110,7 +110,7 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteNetzklasseMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig, kante.kantenAttributGruppe)")
+			"SELECT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteNetzklasseMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig, kante.kantenAttributGruppe)")
 			.append(" FROM Kante kante, KantenMapping kantenMapping")
 			.append(" WHERE")
 			.append(" kantenMapping.grundnetzKantenId = kante.id")
@@ -132,8 +132,8 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig)"
-					+ " FROM Kante kante")
+			"SELECT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteMapView(kante.id, kante.geometry, kante.verlaufLinks, kante.verlaufRechts, kante.isZweiseitig)"
+				+ " FROM Kante kante")
 			.append(" WHERE ").append(CommonQueryLibrary.whereClauseFuerBereichKante())
 			.append(" AND ").append("kante.quelle = :quelle");
 
@@ -156,10 +156,10 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT DISTINCT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.GeometrienVerlaufMapView(kante.id, kante.verlaufLinks, kante.verlaufRechts)"
-					+ " FROM Kante kante"
-					+ " LEFT OUTER JOIN kante.kantenAttributGruppe as kag"
-					+ " LEFT OUTER JOIN kag.netzklassen as nk")
+			"SELECT DISTINCT new de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.GeometrienVerlaufMapView(kante.id, kante.verlaufLinks, kante.verlaufRechts)"
+				+ " FROM Kante kante"
+				+ " LEFT OUTER JOIN kante.kantenAttributGruppe as kag"
+				+ " LEFT OUTER JOIN kag.netzklassen as nk")
 			.append(" WHERE")
 			.append(CommonQueryLibrary.whereClauseFuerNetzklassen(orNichtKlassifiziert))
 			.append(" AND ").append(CommonQueryLibrary.whereClauseFuerBereichKante())
@@ -188,9 +188,9 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
 		hqlStringBuilder.append(
-				"SELECT DISTINCT kante "
-					+ " FROM KanteGeschwindigkeitAttributeView kante LEFT OUTER JOIN kante.netzklassen as nk"
-					+ " JOIN FETCH kante.geschwindigkeitAttributGruppe")
+			"SELECT DISTINCT kante "
+				+ " FROM KanteGeschwindigkeitAttributeView kante LEFT OUTER JOIN kante.netzklassen as nk"
+				+ " JOIN FETCH kante.geschwindigkeitAttributGruppe")
 			.append(" WHERE")
 			.append(CommonQueryLibrary.whereClauseFuerNetzklassenInView(orNichtKlassifiziert)).append(" AND ")
 			.append(CommonQueryLibrary.whereClauseFuerBereichKante())
@@ -223,7 +223,7 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 			+ CommonQueryLibrary.whereClauseFuerNetzklassenInView(orNichtKlassifiziert) + " AND "
 			+ CommonQueryLibrary.whereClauseFuerBereichKante()
 			+ " AND " + CommonQueryLibrary.whereClauseGrundnetzInView(
-			featureToggleProperties.isShowDlm() || showDLM);
+				featureToggleProperties.isShowDlm() || showDLM);
 		return entityManager.createQuery(hqlStringBuilder, KanteFuehrungsformAttributeView.class)
 			.setParameter("bereich", bereichAlsPolygon)
 			.setParameter("netzklassen", netzklassen)
@@ -250,7 +250,7 @@ public class KantenAbfrageRepositoryImpl implements KantenAbfrageRepository {
 			+ CommonQueryLibrary.whereClauseFuerNetzklassenInView(orNichtKlassifiziert) + " AND "
 			+ CommonQueryLibrary.whereClauseFuerBereichKante()
 			+ " AND " + CommonQueryLibrary.whereClauseGrundnetzInView(
-			featureToggleProperties.isShowDlm() || showDLM);
+				featureToggleProperties.isShowDlm() || showDLM);
 		return entityManager.createQuery(hqlStringBuilder, KanteZustaendigkeitAttributeView.class)
 			.setParameter("bereich", bereichAlsPolygon)
 			.setParameter("netzklassen", netzklassen)

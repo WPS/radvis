@@ -30,6 +30,7 @@ import de.wps.radvis.backend.abfrage.signatur.domain.SignaturService;
 import de.wps.radvis.backend.abfrage.signatur.domain.valueObject.SignaturTyp;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.ExtentProperty;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 
 public class SignaturController_SignaturServiceIntegrationTest {
@@ -50,8 +51,14 @@ public class SignaturController_SignaturServiceIntegrationTest {
 	public void setUp() throws Exception {
 		MockitoAnnotations.openMocks(this);
 		ExtentProperty extent = new ExtentProperty(492846.960, 500021.252, 5400410.543, 5418644.476);
-		commonConfigurationProperties = new CommonConfigurationProperties("src/test/resources/", 60, extent, null,
-			"test", "https://radvis-dev.landbw.de/");
+		commonConfigurationProperties = new CommonConfigurationProperties(
+			"src/test/resources/",
+			60,
+			extent,
+			null,
+			"test",
+			"https://radvis-dev.landbw.de/",
+			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources");
 		signaturConfigurationProperties = new SignaturConfigurationProperties("/signaturen/",
 			"/signaturen/Massnahmen/");
 

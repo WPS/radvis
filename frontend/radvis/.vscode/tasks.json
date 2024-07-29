@@ -11,7 +11,7 @@
     },
     {
       "label": "prettier",
-      "command": "npm run prettier:fix",
+      "command": "npm run format-fix",
       "type": "shell",
       "problemMatcher": "$tsc"
     },
@@ -23,7 +23,7 @@
     },
     {
       "label": "test",
-      "command": "ng test",
+      "command": " ng test --browsers Chrome",
       "type": "shell",
       "problemMatcher": "$tsc"
     },

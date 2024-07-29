@@ -27,7 +27,10 @@ import { Servicestation } from 'src/app/viewer/servicestation/models/servicestat
 export class ServicestationService {
   private readonly api = '/api/servicestation';
 
-  constructor(private http: HttpClient, private fileHandlingService: FileHandlingService) {}
+  constructor(
+    private http: HttpClient,
+    private fileHandlingService: FileHandlingService
+  ) {}
 
   public create(command: SaveServicestationCommand): Promise<number> {
     return this.http.post<number>(`${this.api}/new`, command).toPromise();
@@ -38,9 +41,7 @@ export class ServicestationService {
   }
 
   public delete(id: number, command: DeleteServicestationCommand): Promise<void> {
-    return this.http
-      .delete<void>(`${this.api}/${id}`, { body: command })
-      .toPromise();
+    return this.http.delete<void>(`${this.api}/${id}`, { body: command }).toPromise();
   }
 
   public getAll(): Promise<Servicestation[]> {

@@ -175,7 +175,7 @@ class DLMWFSImportRepositoryTestIT extends DBIntegrationTestIT {
 			5298316.5840815855 + 100);
 		List<ImportedFeature> importedFeatures = Stream.concat(dlmwfsImportRepository.readStrassenFeatures(envelope),
 			dlmwfsImportRepository.readWegeFeatures(envelope)).collect(
-			Collectors.toList());
+				Collectors.toList());
 		Polygon envelopePolygon = EnvelopeAdapter.toPolygon(envelope,
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 		Double maxDistance = importedFeatures.stream().map(ImportedFeature::getGeometrie)

@@ -72,8 +72,7 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
     featureHighlightService: FeatureHighlightService
   ) {
     const featureFilter = (f: RadVisFeature): boolean =>
-      f.layer === WeitereKartenebene.LAYER_NAME &&
-      f.attribute.find(attr => attr.key === WeitereKartenebene.LAYER_ID_KEY)?.value === this.layerId;
+      f.layer === WeitereKartenebene.LAYER_NAME && f.attributes.get(WeitereKartenebene.LAYER_ID_KEY) === this.layerId;
 
     this.subscriptions.push(
       featureHighlightService.highlightedFeature$.pipe(filter(featureFilter)).subscribe(f => {
@@ -176,7 +175,7 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
   }
 
   private getExterneWmsId(f: RadVisFeature): string {
-    return f.attribute.find(attr => attr.key === WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME)?.value;
+    return f.attributes.get(WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME);
   }
 
   private getFeaturesCallback = (coordinate: number[], resolution: number): Promise<Feature<Geometry>[]> => {

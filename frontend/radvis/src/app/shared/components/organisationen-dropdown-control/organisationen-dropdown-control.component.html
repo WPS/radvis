@@ -22,8 +22,7 @@
     [matAutocomplete]="auto"
     [formControl]="formControl"
     #trigger="matAutocompleteTrigger"
-    (click)="onClick($event, trigger)"
-  />
+    (click)="onClick($event, trigger)" />
   <mat-icon matSuffix class="dropdown-arrow">arrow_drop_down</mat-icon>
   <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onOptionSelected($event)">
     <mat-option disabled [value]="UNDETERMINED" *ngIf="showUndeterminedOption"></mat-option>

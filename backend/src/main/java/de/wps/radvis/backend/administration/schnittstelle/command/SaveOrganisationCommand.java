@@ -20,7 +20,7 @@ import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;

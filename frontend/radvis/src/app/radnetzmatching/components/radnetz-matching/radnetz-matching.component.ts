@@ -34,7 +34,7 @@ import { RadVisLayerTyp } from 'src/app/shared/models/layers/rad-vis-layer-typ';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
-import { RadVisFeatureAttribut } from 'src/app/shared/models/rad-vis-feature-attribut';
+import { RadVisFeatureAttributes } from 'src/app/shared/models/rad-vis-feature-attributes';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -292,7 +292,7 @@ export class RadnetzMatchingComponent implements OnDestroy {
             promises.push(
               this.featureDetailsService
                 .getAttributeFuerKante(Number(feature.id), clickposition)
-                .then(k => this.convertKanteToMatchingRelatedFeatureDetails(k))
+                .then(k => this.convertKanteToMatchingRelatedFeatureDetails(new Map(Object.entries(k))))
             );
           }
           break;
@@ -306,13 +306,13 @@ export class RadnetzMatchingComponent implements OnDestroy {
   }
 
   private convertKanteToMatchingRelatedFeatureDetails(
-    attribute: RadVisFeatureAttribut[]
+    attribute: RadVisFeatureAttributes
   ): MatchingRelatedFeatureDetails {
     return {
-      id: Number(attribute.find(featureAttribut => featureAttribut.key === 'ID')?.value),
-      attribute,
-      layername: attribute.find(featureAttribut => featureAttribut.key === 'Quelle')?.value as QuellSystem,
-      layerId: attribute.find(featureAttribut => featureAttribut.key === 'Quelle')?.value as QuellSystem,
+      id: Number(attribute.get('ID')),
+      attributes: attribute,
+      layername: attribute.get('Quelle') as QuellSystem,
+      layerId: attribute.get('Quelle') as QuellSystem,
       isNetzfehler: false,
     };
   }
@@ -323,19 +323,11 @@ export class RadnetzMatchingComponent implements OnDestroy {
       [key: string]: string;
     }
   ): MatchingRelatedFeatureDetails {
-    const convertedAttributes: RadVisFeatureAttribut[] = [];
-    Object.keys(netzfehler).forEach(key => {
-      convertedAttributes.push({
-        key,
-        value: netzfehler[key],
-        linearReferenziert: false,
-      });
-    });
     return {
       id: Number(netzfehler.id),
       layername: this.selectableLayers.find(l => l.id === layer)?.bezeichnung || '',
       layerId: layer,
-      attribute: convertedAttributes,
+      attributes: new RadVisFeatureAttributes(netzfehler),
       isNetzfehler: true,
     };
   }

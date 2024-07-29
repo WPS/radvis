@@ -24,21 +24,19 @@ export enum Ueberwacht {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Ueberwacht {
-  export const options: EnumOption[] = Object.keys(Ueberwacht).map(
-    (k: string): EnumOption => {
-      switch (k) {
-        case Ueberwacht.KEINE:
-          return { name: k, displayText: 'Keine' };
-        case Ueberwacht.VIDEO:
-          return { name: k, displayText: 'Video' };
-        case Ueberwacht.VOR_ORT_PERSONAL:
-          return { name: k, displayText: 'Vor-Ort-Personal' };
-        case Ueberwacht.UNBEKANNT:
-          return { name: k, displayText: 'Unbekannt' };
-      }
-      throw new Error('Beschreibung für enum Ueberwacht fehlt: ' + k);
+  export const options: EnumOption[] = Object.keys(Ueberwacht).map((k: string): EnumOption => {
+    switch (k) {
+      case Ueberwacht.KEINE:
+        return { name: k, displayText: 'Keine' };
+      case Ueberwacht.VIDEO:
+        return { name: k, displayText: 'Video' };
+      case Ueberwacht.VOR_ORT_PERSONAL:
+        return { name: k, displayText: 'Vor-Ort-Personal' };
+      case Ueberwacht.UNBEKANNT:
+        return { name: k, displayText: 'Unbekannt' };
     }
-  );
+    throw new Error('Beschreibung für enum Ueberwacht fehlt: ' + k);
+  });
 
   export const getDisplayText: (ueberwacht: Ueberwacht) => string = (ueberwacht: Ueberwacht): string => {
     const enumOption = options.find(({ name }) => name === ueberwacht);

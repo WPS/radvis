@@ -29,6 +29,10 @@ export class NetzklassenAuswahlService {
     );
   }
 
+  get currentAuswahl(): Netzklassefilter[] {
+    return this.mapQueryParamService.mapQueryParamsSnapshot.netzklassen ?? [Netzklassefilter.RADNETZ];
+  }
+
   public selectNetzklasse(selectedNetzklasse: Netzklassefilter): void {
     const currentNetzklassen = this.mapQueryParamService.mapQueryParamsSnapshot.netzklassen;
     this.mapQueryParamService.update({ netzklassen: [...currentNetzklassen, selectedNetzklasse] });

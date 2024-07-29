@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.graphhopper.config.Profile;
+import com.graphhopper.matching.MatchResult;
 
 import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -83,53 +84,53 @@ public class OsmMatchingRepositoryImplWithCustomPbfTest {
 
 		kanten = List.of(
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(10, 0),
-						new Coordinate(10, 10),
-						new Coordinate(10, 20))) // Länge 20m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(10, 0),
+					new Coordinate(10, 10),
+					new Coordinate(10, 20))) // Länge 20m
 				.id(1L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(10, 20),
-						new Coordinate(20, 20),
-						new Coordinate(30, 20),
-						new Coordinate(40, 20))) // Länge 30m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(10, 20),
+					new Coordinate(20, 20),
+					new Coordinate(30, 20),
+					new Coordinate(40, 20))) // Länge 30m
 				.id(2L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(40, 20),
-						new Coordinate(50, 20),
-						new Coordinate(50, 70))) // Länge 60m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(40, 20),
+					new Coordinate(50, 20),
+					new Coordinate(50, 70))) // Länge 60m
 				.id(3L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(40, 20),
-						new Coordinate(40, 80))) // Länge 60m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(40, 20),
+					new Coordinate(40, 80))) // Länge 60m
 				.id(4L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(50, 70),
-						new Coordinate(60, 70),
-						new Coordinate(60, 90))) // Länge 30m
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(50, 70),
+					new Coordinate(60, 70),
+					new Coordinate(60, 90))) // Länge 30m
 				.id(5L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(-500, -500),
-						new Coordinate(500, -500),
-						new Coordinate(-500, -500),
-						new Coordinate(-500, 500)))
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(-500, -500),
+					new Coordinate(500, -500),
+					new Coordinate(-500, -500),
+					new Coordinate(-500, 500)))
 				.id(6L)
 				.build(),
 			KanteTestDataProvider.withDefaultValues().geometry(
-					GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
-						new Coordinate(-500, -500),
-						new Coordinate(0, 50),
-						new Coordinate(500, 500)))
+				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(
+					new Coordinate(-500, -500),
+					new Coordinate(0, 50),
+					new Coordinate(500, 500)))
 				.id(7L)
 				.build()
 		);
@@ -154,9 +155,7 @@ public class OsmMatchingRepositoryImplWithCustomPbfTest {
 		}
 
 		Profile profile = new Profile("bike").setVehicle("bike").setWeighting("fastest").setTurnCosts(false);
-		Profile profileCar = new Profile("car").setVehicle("car").setWeighting("fastest").setTurnCosts(false);
-		Profile profileFoot = new Profile("foot").setVehicle("foot").setWeighting("fastest").setTurnCosts(false);
-		osmMatchedGraphHopper.setProfiles(profile, profileCar, profileFoot);
+		osmMatchedGraphHopper.setProfiles(profile);
 		osmMatchedGraphHopper.importOrLoad();
 
 		osmMatchingRepository = new OsmMatchingRepositoryImpl(osmMatchedGraphHopper,
@@ -172,12 +171,14 @@ public class OsmMatchingRepositoryImplWithCustomPbfTest {
 			new Coordinate(40, 20),
 			new Coordinate(50, 20),
 			new Coordinate(50, 30)
-			//			new Coordinate(41, 20)
-			//			new Coordinate(50, 20)
+		//			new Coordinate(41, 20)
+		//			new Coordinate(50, 20)
 		);
 
-		LinearReferenziertesOsmMatchResult linearReferenziertesOsmMatchResult = osmMatchingRepository.matchGeometryLinearReferenziert(
-			lineString, "foot");
+		MatchResult matchResult = osmMatchingRepository.matchGeometry(lineString);
+		LinearReferenziertesOsmMatchResult linearReferenziertesOsmMatchResult = osmMatchingRepository
+			.extrahiereLineareReferenzierung(
+				matchResult);
 
 		assertThat(linearReferenziertesOsmMatchResult.getLinearReferenzierteOsmWayIds()).extracting(
 			LinearReferenzierteOsmWayId::getValue).containsExactly(1L, 2L, 3L);

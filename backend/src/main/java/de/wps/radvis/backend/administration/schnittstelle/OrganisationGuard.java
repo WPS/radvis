@@ -157,7 +157,7 @@ public class OrganisationGuard {
 	private void pruefeBerechtigungOrganisationenVerwalten(Benutzer benutzer) {
 		if (!benutzer.getRechte().contains(Recht.ALLE_BENUTZER_UND_ORGANISATIONEN_BEARBEITEN)
 			&& !benutzer.getRechte()
-			.contains(Recht.BENUTZER_UND_ORGANISATIONEN_MEINES_VERWALTUNGSBEREICHS_BEARBEITEN)
+				.contains(Recht.BENUTZER_UND_ORGANISATIONEN_MEINES_VERWALTUNGSBEREICHS_BEARBEITEN)
 			&& !benutzer.getRechte().contains(Recht.EIGENEN_BEREICH_EINER_ORGANISATION_ZUORDNEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung Organisationen zu verwalten.");
 

@@ -31,15 +31,15 @@ public class RadNETZNachbearbeitungsRepositoryImpl implements RadNETZNachbearbei
 	@Override
 	public Stream<Geometry> getKnotenMitHoechstensEinerAdjazentenRadNETZKante() {
 		return entityManager.createQuery(
-				"select knoten.point from Knoten knoten, Kante kante"
-					+ "    inner join kante.kantenAttributGruppe as kag"
-					+ "    inner join kag.netzklassen as netzklassen"
-					+ "    where netzklassen IN :netzklassen"
-					+ "    and kante.quelle = :dlmQuelle"
-					+ "    and (kante.vonKnoten = knoten or kante.nachKnoten = knoten)"
-					+ "    group by knoten.id having count(distinct kante.id) <= 1", Geometry.class
-			).setParameter("netzklassen",
-				Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ))
+			"select knoten.point from Knoten knoten, Kante kante"
+				+ "    inner join kante.kantenAttributGruppe as kag"
+				+ "    inner join kag.netzklassen as netzklassen"
+				+ "    where netzklassen IN :netzklassen"
+				+ "    and kante.quelle = :dlmQuelle"
+				+ "    and (kante.vonKnoten = knoten or kante.nachKnoten = knoten)"
+				+ "    group by knoten.id having count(distinct kante.id) <= 1", Geometry.class
+		).setParameter("netzklassen",
+			Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ))
 			.setParameter("dlmQuelle", QuellSystem.DLM)
 			.getResultStream();
 	}

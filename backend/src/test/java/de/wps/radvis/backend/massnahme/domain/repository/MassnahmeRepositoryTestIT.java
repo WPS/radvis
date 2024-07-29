@@ -52,6 +52,7 @@ import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
@@ -86,7 +87,6 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import jakarta.persistence.EntityManager;
 
 @Tag("group6")
@@ -240,16 +240,16 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 		Dokument dokument = DokumentTestDataProvider.withDefaultValues().benutzer(benutzer).build();
 
 		Long mannahmeID = massnahmeRepository.save(
-				createDefaultTestmassnahme()
-					.netzbezug(new MassnahmeNetzBezug(Set.of(new AbschnittsweiserKantenSeitenBezug(
-						kantenRepository.save(KanteTestDataProvider.withDefaultValues().build()),
-						LinearReferenzierterAbschnitt.of(0, 1.),
-						Seitenbezug.BEIDSEITIG)),
-						Set.of(),
-						Set.of(
-							knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build()))))
-					.benutzerLetzteAenderung(benutzer)
-					.build())
+			createDefaultTestmassnahme()
+				.netzbezug(new MassnahmeNetzBezug(Set.of(new AbschnittsweiserKantenSeitenBezug(
+					kantenRepository.save(KanteTestDataProvider.withDefaultValues().build()),
+					LinearReferenzierterAbschnitt.of(0, 1.),
+					Seitenbezug.BEIDSEITIG)),
+					Set.of(),
+					Set.of(
+						knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build()))))
+				.benutzerLetzteAenderung(benutzer)
+				.build())
 			.getId();
 
 		entityManager.flush();
@@ -306,9 +306,9 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 		Geometry geometry = massnahmeRepository.findById(massnahmenID).get().getNetzbezug().getGeometrie();
 		assertThat(List.of(geometry.getGeometryN(0), geometry.getGeometryN(1),
 			geometry.getGeometryN(2))).containsExactlyInAnyOrder(
-			GeometryTestdataProvider.createLineString(new Coordinate(20, 20), new Coordinate(60, 60)),
-			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(70, 70)),
-			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(10, 100)));
+				GeometryTestdataProvider.createLineString(new Coordinate(20, 20), new Coordinate(60, 60)),
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(70, 70)),
+				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(10, 100)));
 	}
 
 	@Test

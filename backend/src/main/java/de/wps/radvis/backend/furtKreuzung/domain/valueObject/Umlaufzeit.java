@@ -50,12 +50,3 @@ public class Umlaufzeit {
 		return 0 <= value && value <= 9999;
 	}
 }
-
-
-
-
-
-
-
-
-

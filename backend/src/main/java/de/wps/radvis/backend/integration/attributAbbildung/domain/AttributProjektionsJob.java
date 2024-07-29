@@ -236,7 +236,7 @@ public class AttributProjektionsJob extends AbstractJob {
 		String featureType = getFeatureType(quellSystem);
 
 		importedFeaturePersistentRepository.getAllByQuelleAndArtAndGeometryType(quellSystem,
-				Art.Strecke, featureType)
+			Art.Strecke, featureType)
 			.filter(feature -> quellTechnischeIDs.containsKey(feature.getTechnischeId()))
 			.forEach(feature -> {
 				feature.setAnteilProjiziert(quellTechnischeIDs.get(feature.getTechnischeId()));

@@ -68,12 +68,11 @@ public class CustomRoutingProfileController {
 		@RequestBody List<SaveCustomRoutingProfileCommand> commands) {
 		guard.save(authentication, commands);
 
-		List<CustomRoutingProfile> profiles = commands.stream().map(command ->
-				CustomRoutingProfile.builder()
-					.id(command.getId())
-					.profilJson(command.getProfilJson())
-					.name(command.getName())
-					.build())
+		List<CustomRoutingProfile> profiles = commands.stream().map(command -> CustomRoutingProfile.builder()
+			.id(command.getId())
+			.profilJson(command.getProfilJson())
+			.name(command.getName())
+			.build())
 			.toList();
 
 		return customRoutingProfileService.updateCustomRoutingProfiles(profiles);

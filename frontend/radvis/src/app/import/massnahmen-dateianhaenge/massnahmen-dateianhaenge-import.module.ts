@@ -13,13 +13,14 @@
  */
 
 import { NgModule } from '@angular/core';
+import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 import { MassnahmenDateianhaengeDateiHochladenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-datei-hochladen/massnahmen-dateianhaenge-datei-hochladen.component';
 import { MassnahmenDateianhaengeDuplikateUeberpruefenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-duplikate-ueberpruefen/massnahmen-dateianhaenge-duplikate-ueberpruefen.component';
 import { MassnahmenDateianhaengeFehlerUeberpruefenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-fehler-ueberpruefen/massnahmen-dateianhaenge-fehler-ueberpruefen.component';
+import { MassnahmenDateianhaengeFehlerprotokollHerunterladenComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-fehlerprotokoll-herunterladen/massnahmen-dateianhaenge-fehlerprotokoll-herunterladen.component';
 import { MassnahmenDateianhaengeToolComponent } from 'src/app/import/massnahmen-dateianhaenge/components/massnahmen-dateianhaenge-tool/massnahmen-dateianhaenge-tool.component';
 import { MassnahmenDateianhaengeService } from 'src/app/import/massnahmen-dateianhaenge/services/massnahmen-dateianhaenge.service';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.m
     MassnahmenDateianhaengeDateiHochladenComponent,
     MassnahmenDateianhaengeFehlerUeberpruefenComponent,
     MassnahmenDateianhaengeDuplikateUeberpruefenComponent,
+    MassnahmenDateianhaengeFehlerprotokollHerunterladenComponent,
   ],
   imports: [SharedModule, ImportSharedModule],
   providers: [MassnahmenDateianhaengeService],

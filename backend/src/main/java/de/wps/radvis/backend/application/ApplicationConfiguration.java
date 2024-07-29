@@ -24,12 +24,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import de.wps.radvis.backend.application.domain.InitialImportService;
+import de.wps.radvis.backend.application.domain.ScheduleConfigurationProperties;
 import de.wps.radvis.backend.application.schnittstelle.RadVisJobScheduler;
 import de.wps.radvis.backend.application.schnittstelle.RequestLoggingInterceptor;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjektionsJob;
 import de.wps.radvis.backend.integration.grundnetz.domain.DLMNetzbildungJob;
-import de.wps.radvis.backend.integration.grundnetzReimport.domain.DLMReimportJob;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNETZNetzbildungJob;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNETZSackgassenJob;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungJob;
@@ -47,6 +47,9 @@ import de.wps.radvis.backend.quellimport.radnetz.domain.RadNETZQuellImportJob;
 public class ApplicationConfiguration {
 	@Autowired
 	private List<AbstractJob> jobs;
+
+	@Autowired
+	private ScheduleConfigurationProperties scheduleConfigurationProperties;
 
 	private final RadNETZQuellImportJob radnetzQuellImportJob;
 	private final GenericQuellImportJob radwegeLglTuttlingenImportJob;
@@ -82,7 +85,6 @@ public class ApplicationConfiguration {
 		@Autowired ImportedFeaturePersistentRepository importedFeaturesRepository,
 		DlmPbfErstellungsJob dlmPbfErstellungsJob,
 		RadNETZSackgassenJob radNETZSackgassenJob,
-		DLMReimportJob dlmReimportJob,
 		ApplicationContext applicationContext, MatchNetzAufDLMJob matchRadwegeDbAufDLMJob,
 		AttributProjektionsJob radNETZAttributProjektionsJob, AttributProjektionsJob radwegeDbAttributProjektionsJob,
 		MatchNetzAufDLMJob matchRadNETZAufDLMJob) {
@@ -132,7 +134,11 @@ public class ApplicationConfiguration {
 
 	@Bean
 	public RadVisJobScheduler radVisJobScheduler() {
-		return new RadVisJobScheduler(jobs);
+		return new RadVisJobScheduler(
+			jobs,
+			scheduleConfigurationProperties.getRadVisStartupJobSchedule(),
+			scheduleConfigurationProperties.getRadVisNaechtlicherJobSchedule()
+		);
 	}
 
 	@Bean

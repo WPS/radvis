@@ -125,6 +125,10 @@ public class NetzausschnittService {
 			.getKanteZustaendigkeitAttributeViewInBereichNachNetzklasse(sichtbereich, netzklasseFilter, showDLM);
 	}
 
+	public boolean hasCachedNetzMapView() {
+		return radNETZNetzViewCacheRepository.hasCache();
+	}
+
 	public NetzMapView getCachedNetzMapView() {
 		return radNETZNetzViewCacheRepository.getCache();
 	}

@@ -107,7 +107,7 @@ class MappedAttributesTest {
 
 	@Test
 	void testeLoeseUeberschneidungenAuf() {
-
+		// Arrange
 		List<MappedAttributes> mappedAttributes = List.of(
 			MappedAttributes.of(Map.of("怪物", "Monster with a Name", "Fritzgerald", "Fuck Tom Buchanan"),
 				LinearReferenzierterAbschnitt.of(0., 0.2),
@@ -129,10 +129,11 @@ class MappedAttributesTest {
 				Seitenbezug.BEIDSEITIG, false)
 		);
 
+		// Act
 		List<MappedAttributes> ueberschneidungsfreieListe = MappedAttributes.loeseUeberschneidungenAuf(mappedAttributes,
-			"怪物",
-			kantenKonfliktProtokoll);
+			"怪物", kantenKonfliktProtokoll);
 
+		// Assert
 		assertThat(LinearReferenzierterAbschnitt.segmentsCoverFullLine(ueberschneidungsfreieListe.stream()
 			.map(MappedAttributes::getLinearReferenzierterAbschnitt).collect(Collectors.toList()))).isTrue();
 		assertThat(ueberschneidungsfreieListe).usingRecursiveFieldByFieldElementComparator()
@@ -150,10 +151,12 @@ class MappedAttributesTest {
 		assertThat(kantenKonfliktProtokoll.getKonflikte())
 			.usingRecursiveFieldByFieldElementComparator()
 			.containsExactlyInAnyOrder(
-				new Konflikt(LinearReferenzierterAbschnitt.of(0.2, 0.8), "怪物", "Monster with a Name",
-					Set.of("Monster without a Name")),
-				new Konflikt(LinearReferenzierterAbschnitt.of(0.8, 1.), "怪物", "Koichi",
-					Set.of("Allicrab", "Crabigator"))
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.2, 0.8), Seitenbezug.BEIDSEITIG, "怪物",
+					"Monster with a Name", Set.of("Monster without a Name"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 1 anderen Abschnitten auf der gleichen Seite gibt."),
+				new Konflikt(LinearReferenzierterAbschnitt.of(0.8, 1.), Seitenbezug.BEIDSEITIG, "怪物", "Koichi",
+					Set.of("Allicrab", "Crabigator"),
+					"Das Attribut konnte nicht geschrieben werden, da es Überschneidungen mit 2 anderen Abschnitten auf der gleichen Seite gibt.")
 			);
 	}
 

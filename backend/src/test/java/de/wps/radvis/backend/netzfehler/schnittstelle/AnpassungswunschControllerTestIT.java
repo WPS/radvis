@@ -115,7 +115,7 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 			Mockito.when(benutzerResolver.fromAuthentication(Mockito.any()))
 				.thenReturn(
 					BenutzerTestDataProvider.admin(
-							VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
 			return new AnpassungswunschController(anpassungswunschService,
 				anpassungswunschGuard, benutzerResolver, verwaltungseinheitService,

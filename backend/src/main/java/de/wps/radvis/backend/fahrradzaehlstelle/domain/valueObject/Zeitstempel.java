@@ -131,8 +131,8 @@ public class Zeitstempel implements Comparable<Zeitstempel> {
 	}
 
 	public Zeitstempel referenzMonat() {
-		ZonedDateTime monatImReferenzJahr2000 =
-			ZonedDateTime.of(2000, this.toZonedDateTime().getMonthValue(), 2, 0, 0, 0, 0, ZoneId.of("Europe/Berlin"));
+		ZonedDateTime monatImReferenzJahr2000 = ZonedDateTime.of(2000, this.toZonedDateTime().getMonthValue(), 2, 0, 0,
+			0, 0, ZoneId.of("Europe/Berlin"));
 		return new Zeitstempel(monatImReferenzJahr2000.toEpochSecond());
 	}
 }

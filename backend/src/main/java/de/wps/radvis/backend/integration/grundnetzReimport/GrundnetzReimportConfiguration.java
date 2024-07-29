@@ -14,12 +14,17 @@
 
 package de.wps.radvis.backend.integration.grundnetzReimport;
 
+import java.io.File;
+
 import org.locationtech.jts.geom.Envelope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingRepository;
 import de.wps.radvis.backend.integration.grundnetz.domain.DLMAttributMapper;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.CreateKantenService;
@@ -28,6 +33,7 @@ import de.wps.radvis.backend.integration.grundnetzReimport.domain.DLMReimportJob
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.ExecuteTopologischeUpdatesService;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.FindKnotenFromIndexService;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.InitialPartitionenImportService;
+import de.wps.radvis.backend.integration.grundnetzReimport.domain.OSMImportJob;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.UpdateKantenService;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.VernetzungKorrekturJob;
 import de.wps.radvis.backend.integration.grundnetzReimport.domain.VernetzungService;
@@ -43,6 +49,9 @@ import jakarta.persistence.EntityManager;
 public class GrundnetzReimportConfiguration {
 	@Autowired
 	private EntityManager entityManager;
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@Autowired
 	private NetzService netzService;
@@ -64,6 +73,12 @@ public class GrundnetzReimportConfiguration {
 
 	@Autowired
 	private DLMConfigurationProperties dlmConfigurationProperties;
+
+	@Autowired
+	private OsmPbfConfigurationProperties osmPbfConfigurationProperties;
+
+	@Autowired
+	private CommonConfigurationProperties commonConfigurationProperties;
 
 	@Autowired
 	private KnotenRepository knotenRepository;
@@ -96,9 +111,14 @@ public class GrundnetzReimportConfiguration {
 		return new DLMReimportJob(
 			jobExecutionDescriptionRepository,
 			dlmImportRepository, netzService,
-			updateKantenService(), createKantenService(), updateAttributgruppenService(),
+			updateKantenService(),
+			createKantenService(),
+			updateAttributgruppenService(),
 			kantenMappingRepository,
-			entityManager, vernetzungService(), kanteUpdateElevationService);
+			entityManager,
+			vernetzungService(),
+			kanteUpdateElevationService,
+			commonConfigurationProperties.getBasisnetzImportSource());
 	}
 
 	@Bean
@@ -127,5 +147,16 @@ public class GrundnetzReimportConfiguration {
 			jobExecutionDescriptionRepository,
 			dlmImportRepository, netzService,
 			entityManager, initialPartitionenImportService());
+	}
+
+	@Bean
+	public OSMImportJob osmImportJob() {
+		return new OSMImportJob(
+			jobExecutionDescriptionRepository,
+			new File(osmPbfConfigurationProperties.getOsmBasisnetzDaten()),
+			commonConfigurationProperties.getBasisnetzImportSource(),
+			entityManager,
+			jdbcTemplate
+		);
 	}
 }

@@ -70,13 +70,11 @@ describe(CsvImportDialogComponent.name, () => {
     }).compileComponents();
   });
 
-  beforeEach(
-    waitForAsync(() => {
-      fixture = TestBed.createComponent(CsvImportDialogComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    fixture = TestBed.createComponent(CsvImportDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   describe('Form', () => {
     beforeEach(() => {

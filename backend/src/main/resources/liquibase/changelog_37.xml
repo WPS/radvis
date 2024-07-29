@@ -365,4 +365,13 @@
       DELETE FROM databasechangelog WHERE id IN ('RAD-5461-1', 'RAD-5461-2', 'RAD-5463', 'RAD-5067');
     </sql>
   </changeSet>
+  
+  <changeSet id="RAD-6456" author="hst">
+    <addColumn tableName="manueller_import_fehler_konflikt">
+      <column name="seitenbezug" type="TEXT"/>
+    </addColumn>
+    <addColumn tableName="manueller_import_fehler_konflikt">
+      <column name="bemerkung" type="TEXT"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

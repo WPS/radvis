@@ -136,12 +136,12 @@ describe(ImportAttributeLayerComponent.name, () => {
 
       describe('Remove highlighting', () => {
         it('should remove highlight on click if no feature is present', () => {
-          const clickEvent = ({
+          const clickEvent = {
             originalEvent: {
               ctrlKey: false,
               metaKey: false,
             },
-          } as unknown) as MapBrowserEvent;
+          } as unknown as MapBrowserEvent;
           const clickedFeature = component['mappingsVectorSource'].getFeatureById('3');
 
           when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]).thenReturn([]);
@@ -162,12 +162,12 @@ describe(ImportAttributeLayerComponent.name, () => {
         let clickedFeature: Feature;
 
         beforeEach(() => {
-          const clickEvent = ({
+          const clickEvent = {
             originalEvent: {
               ctrlKey: false,
               metaKey: false,
             },
-          } as unknown) as MapBrowserEvent;
+          } as unknown as MapBrowserEvent;
 
           clickedFeature = component['mappingsVectorSource'].getFeatureById('3');
           when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]);
@@ -203,12 +203,12 @@ describe(ImportAttributeLayerComponent.name, () => {
             features,
           } as ModifyEvent;
 
-          const clickEvent = ({
+          const clickEvent = {
             originalEvent: {
               ctrlKey: false,
               metaKey: false,
             },
-          } as unknown) as MapBrowserEvent;
+          } as unknown as MapBrowserEvent;
 
           when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([feature]).thenReturn([]);
 
@@ -272,13 +272,13 @@ describe(ImportAttributeLayerComponent.name, () => {
         let clickEvent: MapBrowserEvent;
 
         beforeEach(() => {
-          clickEvent = ({
+          clickEvent = {
             originalEvent: {
               ctrlKey: true,
               metaKey: false,
             },
             coordinate: [1.5, 1.5],
-          } as unknown) as MapBrowserEvent;
+          } as unknown as MapBrowserEvent;
         });
 
         describe('with feature without mappedGrundnetzkante', () => {
@@ -297,38 +297,34 @@ describe(ImportAttributeLayerComponent.name, () => {
         });
 
         describe('with feature with mappedGrundnetzkante', () => {
-          beforeEach(
-            waitForAsync(() => {
-              const clickedFeature = component['mappingsVectorSource'].getFeatureById('3-1');
-              when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]);
-              when(olMapService.getFeaturesAtCoordinate(anything(), anything(), anything())).thenReturn([
-                clickedFeature,
-              ]);
+          beforeEach(waitForAsync(() => {
+            const clickedFeature = component['mappingsVectorSource'].getFeatureById('3-1');
+            when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]);
+            when(olMapService.getFeaturesAtCoordinate(anything(), anything(), anything())).thenReturn([clickedFeature]);
 
-              const resultFeatureCollection: GeoJSONFeatureCollection = {
-                type: 'FeatureCollection',
-                features: [
-                  {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                      type: 'LineString',
-                      coordinates: [
-                        [1, 1],
-                        [2, 2],
-                      ],
-                    },
-                    id: '3',
+            const resultFeatureCollection: GeoJSONFeatureCollection = {
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                      [1, 1],
+                      [2, 2],
+                    ],
                   },
-                ],
-              };
-              when(attributeImportService.deleteMappedGrundnetzkanten(anything())).thenReturn(
-                of(resultFeatureCollection).toPromise()
-              );
+                  id: '3',
+                },
+              ],
+            };
+            when(attributeImportService.deleteMappedGrundnetzkanten(anything())).thenReturn(
+              of(resultFeatureCollection).toPromise()
+            );
 
-              mapClicked.next(clickEvent);
-            })
-          );
+            mapClicked.next(clickEvent);
+          }));
 
           it('should delete a mappedGrundnetzkante', () => {
             verify(attributeImportService.deleteMappedGrundnetzkanten(anything())).once();

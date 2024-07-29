@@ -17,7 +17,8 @@
     <ng-container *ngIf="!fetching">
       <div class="hinweis">Entfernen Sie blaue RadVIS-Kanten aus der Zuordnung mit STRG + linke Maustaste.</div>
       <div class="hinweis">Wählen Sie Kanten aus, um die Zuordnung dieser Kante anzuzeigen.</div>
-      <div class="hinweis">Verändern Sie ausgewählte Kanten (magenta), um die automatische Abbildung zu verbessern.
+      <div class="hinweis">
+        Verändern Sie ausgewählte Kanten (magenta), um die automatische Abbildung zu verbessern.
       </div>
 
       <h4>Legende:</h4>
@@ -40,8 +41,8 @@
     </div>
   </div>
   <div class="import-step-footer-buttons">
-    <button mat-flat-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
-    <button mat-flat-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onAbort()">Abbrechen</button>
+    <button mat-stroked-button color="primary" class="button" (click)="onPrevious()">Zurück</button>
     <button mat-flat-button color="primary" class="button" (click)="onNext()">Weiter</button>
   </div>
 </rad-import-step-layout>
@@ -53,8 +54,7 @@
       [editable]="true"
       [radvisFeatures]="radvisFeatures"
       [featureMappings]="featureMappings"
-      (loaded)="onLoaded()"
-    >
+      (loaded)="onLoaded()">
     </rad-import-attribute-abschliessen-layer>
   </ng-container>
 </ng-container>

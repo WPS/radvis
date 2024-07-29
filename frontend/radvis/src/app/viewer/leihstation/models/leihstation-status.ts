@@ -24,19 +24,17 @@ export enum LeihstationStatus {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace LeihstationStatus {
   export const options: EnumOption[] = Object.keys(LeihstationStatus)
-    .map(
-      (o: string): EnumOption => {
-        switch (o) {
-          case LeihstationStatus.GEPLANT:
-            return { name: o, displayText: 'Geplant' };
-          case LeihstationStatus.AKTIV:
-            return { name: o, displayText: 'Aktiv' };
-          case LeihstationStatus.AUSSER_BETRIEB:
-            return { name: o, displayText: 'Außer Betrieb' };
-        }
-        throw new Error('Beschreibung für enum LeihstationStatus fehlt: ' + o);
+    .map((o: string): EnumOption => {
+      switch (o) {
+        case LeihstationStatus.GEPLANT:
+          return { name: o, displayText: 'Geplant' };
+        case LeihstationStatus.AKTIV:
+          return { name: o, displayText: 'Aktiv' };
+        case LeihstationStatus.AUSSER_BETRIEB:
+          return { name: o, displayText: 'Außer Betrieb' };
       }
-    )
+      throw new Error('Beschreibung für enum LeihstationStatus fehlt: ' + o);
+    })
     .sort((a, b) => a.displayText.toLowerCase().localeCompare(b.displayText.toLowerCase()));
 
   export const getDisplayText: (leihstationStatus: LeihstationStatus) => string = (

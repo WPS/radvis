@@ -22,15 +22,13 @@
       matInput
       aria-label="Ortssuche"
       [formControl]="ortsSucheControl"
-      [matAutocomplete]="auto"
-    />
+      [matAutocomplete]="auto" />
 
     <mat-autocomplete
       #auto="matAutocomplete"
       [displayWith]="extractName"
       autoActiveFirstOption
-      (optionSelected)="onOrtAusgewaehlt($event)"
-    >
+      (optionSelected)="onOrtAusgewaehlt($event)">
       <mat-option *ngFor="let suggestion of suggestions$ | async" [value]="suggestion">
         {{ suggestion.name }}
       </mat-option>
@@ -39,24 +37,20 @@
 
   <button
     radAccessabilityTabCircleElement
-    [attr.aria-label]="'Eingabe zurücksetzen'"
     matTooltip="Eingabe zurücksetzen"
     [disabled]="!input.value"
     (click)="onClearClick()"
     mat-icon-button
-    class="ml-3 mat-icon-button-small"
-  >
+    class="ml-3 mat-icon-button-small">
     <mat-icon>clear</mat-icon>
   </button>
   <button
     radAccessabilityTabCircleElement
     matTooltip="Erneut anzeigen"
-    [attr.aria-label]="'Erneut anzeigen'"
     [disabled]="!ortsSucheControl.value || !ortsSucheControl.value.name"
     (click)="onRefreshClick()"
     mat-icon-button
-    class="mat-icon-button-small"
-  >
+    class="mat-icon-button-small">
     <mat-icon>refresh</mat-icon>
   </button>
 </div>

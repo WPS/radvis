@@ -33,8 +33,7 @@
       </rad-file-upload-control>
       <rad-validation-error-anzeige
         [errors]="formGroup.get('csvImportFile')?.errors || null"
-        *ngIf="formGroup.get('csvImportFile')?.dirty"
-      ></rad-validation-error-anzeige>
+        *ngIf="formGroup.get('csvImportFile')?.dirty"></rad-validation-error-anzeige>
     </div>
   </form>
 </div>

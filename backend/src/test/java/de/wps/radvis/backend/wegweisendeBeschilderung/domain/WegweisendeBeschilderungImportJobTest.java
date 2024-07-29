@@ -42,9 +42,9 @@ import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.entity.WegweisendeBeschilderung;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.entity.WegweisendeBeschilderungImportJobStatistik;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.repository.WegweisendeBeschilderungRepository;
@@ -93,8 +93,8 @@ class WegweisendeBeschilderungImportJobTest {
 
 		when(gebietskoerperschaftRepository.findByNameAndOrganisationsArt("Baden-Württemberg",
 			OrganisationsArt.BUNDESLAND)).thenReturn(Optional.of(
-			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Baden-Württemberg")
-				.organisationsArt(OrganisationsArt.BUNDESLAND).build()));
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Baden-Württemberg")
+					.organisationsArt(OrganisationsArt.BUNDESLAND).build()));
 
 		job = new WegweisendeBeschilderungImportJob(
 			"https://tolle-url.de", geoJsonImportRepository,
@@ -126,7 +126,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(1);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(0);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(1);
@@ -185,7 +186,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(2);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(2);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);
@@ -239,7 +241,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(1);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(0);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);
@@ -316,7 +319,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(1);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(0);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);
@@ -358,7 +362,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(1);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(1);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);
@@ -391,7 +396,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(1);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(1);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);
@@ -406,17 +412,17 @@ class WegweisendeBeschilderungImportJobTest {
 	void doRun_ignoriertFeaturesMitFehlendemWert() throws ReadGeoJSONException {
 		// arrange
 		SimpleFeatureType simpleFeatureTypeWoEinFeldFehlt = SimpleFeatureTypeFactory.createSimpleFeatureType(Set.of(
-				// PfostenNr fehlt
-				"WWTyp_Tx",  // --> WegweiserTyp
-				"PfTyp_Tx",  // --> PfostenTyp
-				"GesZus",    // --> Zustandsbewertung
-				"GesMangel", // --> Defizit
-				"PfZus",     // --> Pfostenzustand
-				"PfMangel",  // --> Pfostendefizit
-				"GE_Gem",    // --> Gemeinde
-				"GE_Kreis",  // --> Kreis
-				"GE_Land"    // --> Land
-			),
+			// PfostenNr fehlt
+			"WWTyp_Tx",  // --> WegweiserTyp
+			"PfTyp_Tx",  // --> PfostenTyp
+			"GesZus",    // --> Zustandsbewertung
+			"GesMangel", // --> Defizit
+			"PfZus",     // --> Pfostenzustand
+			"PfMangel",  // --> Pfostendefizit
+			"GE_Gem",    // --> Gemeinde
+			"GE_Kreis",  // --> Kreis
+			"GE_Land"    // --> Land
+		),
 			Geometry.class,
 			SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_GEOMETRY);
 		SimpleFeatureBuilder f = new SimpleFeatureBuilder(simpleFeatureTypeWoEinFeldFehlt);
@@ -438,7 +444,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(1);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(1);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);
@@ -518,7 +525,8 @@ class WegweisendeBeschilderungImportJobTest {
 		Optional<JobStatistik> jobStatistik = job.doRun();
 
 		// assert
-		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik.get();
+		WegweisendeBeschilderungImportJobStatistik statistik = (WegweisendeBeschilderungImportJobStatistik) jobStatistik
+			.get();
 		assertThat(statistik.anzahlFeatures).isEqualTo(2);
 		assertThat(statistik.anzahlIgnoriert).isEqualTo(1);
 		assertThat(statistik.anzahlNeuErstellt).isEqualTo(0);

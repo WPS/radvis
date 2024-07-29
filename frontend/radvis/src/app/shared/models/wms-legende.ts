@@ -15,7 +15,10 @@
 export class WMSLegende {
   public url: string;
 
-  constructor(public titel: string, _url: string) {
+  constructor(
+    public titel: string,
+    _url: string
+  ) {
     const url = new URL(_url.replace(/layers=/gi, 'layer='));
 
     url.searchParams.set('request', 'GetLegendGraphic');

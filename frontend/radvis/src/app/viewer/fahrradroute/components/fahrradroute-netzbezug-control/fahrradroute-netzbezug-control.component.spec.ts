@@ -15,15 +15,15 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
 import { ValidationErrors } from '@angular/forms';
-import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
+import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Collection, Feature, MapBrowserEvent } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { LineString, Point } from 'ol/geom';
 import { DrawEvent } from 'ol/interaction/Draw';
 import { ModifyEvent } from 'ol/interaction/Modify';
-import { Subject, of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
-import { BedienhinweisService } from 'src/app/karte/services/bedienhinweis.service';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
@@ -34,7 +34,7 @@ import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrra
 import { RoutingResult } from 'src/app/viewer/fahrradroute/models/routing-result';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
 import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
-import { NetzbezugAuswahlModusService } from 'src/app/viewer/viewer-shared/services/netzbezug-auswahl-modus.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import { anything, capture, instance, mock, reset, verify, when } from 'ts-mockito';
 
 describe(FahrradrouteNetzbezugControlComponent.name, () => {
@@ -553,7 +553,7 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
   describe('mitFahrtrichtungControl', () => {
     beforeEach(() => {
       when(fahrradrouteService.routeFahrradroutenVerlauf(anything(), anything(), anything())).thenResolve(
-        (null as unknown) as RoutingResult
+        null as unknown as RoutingResult
       );
     });
 

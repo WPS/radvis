@@ -18,8 +18,8 @@ import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public interface GebietskoerperschaftRepository extends Repository<Gebietskoerperschaft, Long> {
 	Optional<Gebietskoerperschaft> findById(Long id);

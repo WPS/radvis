@@ -106,28 +106,28 @@ class GeoJsonImportRepositoryTest {
 
 		assertThat(
 			f1.getFeatureType().getTypes().stream().map(t -> t.getName().toString()).collect(Collectors.toList()))
-			.containsExactlyInAnyOrder(
-				"geometry",
-				"Farbe",
-				"Knoten",
-				"PfostenNr"
-			);
+				.containsExactlyInAnyOrder(
+					"geometry",
+					"Farbe",
+					"Knoten",
+					"PfostenNr"
+				);
 		assertThat(
 			f2.getFeatureType().getTypes().stream().map(t -> t.getName().toString()).collect(Collectors.toList()))
-			.containsExactlyInAnyOrder(
-				"geometry",
-				"Farbe",
-				"Knoten",
-				"PfostenNr"
-			);
+				.containsExactlyInAnyOrder(
+					"geometry",
+					"Farbe",
+					"Knoten",
+					"PfostenNr"
+				);
 		assertThat(
 			f3.getFeatureType().getTypes().stream().map(t -> t.getName().toString()).collect(Collectors.toList()))
-			.containsExactlyInAnyOrder(
-				"geometry",
-				"Farbe",
-				"Knoten",
-				"PfostenNr"
-			);
+				.containsExactlyInAnyOrder(
+					"geometry",
+					"Farbe",
+					"Knoten",
+					"PfostenNr"
+				);
 
 		// "Farbe" existiert nur im dritten Feature in der Datei
 		// → Trotzdem konnte ein Feature mit dem Attribut Farbe importiert werden.
@@ -191,7 +191,7 @@ class GeoJsonImportRepositoryTest {
 		assertThat(
 			vollstaendigesFeature.getFeatureType().getTypes().stream().map(t -> t.getName().toString())
 				.collect(Collectors.toList()))
-			.containsExactlyInAnyOrder("PfostenNr", "geometry");
+					.containsExactlyInAnyOrder("PfostenNr", "geometry");
 
 		assertThat(vollstaendigesFeature.getAttribute("geometry")).isNotNull();
 	}

@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'rad-import-step-layout',
@@ -19,4 +19,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrl: './import-step-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportStepLayoutComponent {}
+export class ImportStepLayoutComponent {
+  @Input()
+  header: string | undefined;
+}

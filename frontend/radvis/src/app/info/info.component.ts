@@ -13,6 +13,7 @@
  */
 
 import { AfterViewInit, ChangeDetectionStrategy, Component } from '@angular/core';
+import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
 
 @Component({
@@ -25,7 +26,10 @@ export class InfoComponent implements AfterViewInit {
   // workaround for https://github.com/angular/components/issues/14759
   disableAnimation = true;
 
-  constructor(private manualRoutingService: ManualRoutingService) {}
+  constructor(
+    private manualRoutingService: ManualRoutingService,
+    private featureTogglzService: FeatureTogglzService
+  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => (this.disableAnimation = false));
@@ -33,5 +37,9 @@ export class InfoComponent implements AfterViewInit {
 
   openManualWeitereHilfe(): void {
     this.manualRoutingService.openManualWeitereHilfe();
+  }
+
+  get isDefaultVersionsinfoDialogToggleOn(): boolean {
+    return this.featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_DEFAULT_VERSIONSINFO_DIALOG);
   }
 }

@@ -48,10 +48,11 @@ public class MappedKante {
 	public MappedKante(LineareReferenzProjektionsergebnis lineareReferenzFuerKantenSegment,
 		LineareReferenzProjektionsergebnis lineareReferenzFuerLinearReferenzierteAttribute, Long kanteId) {
 		this.linearReferenzierterAbschnittAufGrundnetzKante = lineareReferenzFuerKantenSegment.getErgebnisProjektion();
-		this.linearReferenzierterAbschnittAufQuellnetzKante = lineareReferenzFuerLinearReferenzierteAttribute.getErgebnisProjektion();
+		this.linearReferenzierterAbschnittAufQuellnetzKante = lineareReferenzFuerLinearReferenzierteAttribute
+			.getErgebnisProjektion();
 		this.richtungenVertauscht = lineareReferenzFuerKantenSegment
 			.isWurdenVonUndBisBeiProjektionVertauscht() != lineareReferenzFuerLinearReferenzierteAttribute
-			.isWurdenVonUndBisBeiProjektionVertauscht();
+				.isWurdenVonUndBisBeiProjektionVertauscht();
 		this.kanteId = kanteId;
 	}
 }

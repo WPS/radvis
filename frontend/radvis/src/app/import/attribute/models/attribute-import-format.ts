@@ -21,12 +21,10 @@ export enum AttributeImportFormat {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AttributeImportFormat {
-  export const options: EnumOption[] = Object.keys(AttributeImportFormat).map(
-    (k: string): EnumOption => {
-      if (k === 'RADVIS') {
-        return { name: k, displayText: 'RadVIS' };
-      }
-      return { name: k, displayText: k };
+  export const options: EnumOption[] = Object.keys(AttributeImportFormat).map((k: string): EnumOption => {
+    if (k === 'RADVIS') {
+      return { name: k, displayText: 'RadVIS' };
     }
-  );
+    return { name: k, displayText: k };
+  });
 }

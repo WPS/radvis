@@ -14,7 +14,7 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
-import { Seitenbezug } from 'src/app/shared/models/seitenbezug';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
 
 @Component({
@@ -47,7 +47,7 @@ export class SicherheitstrennstreifenAnzeigeComponent {
   @Output()
   selectedSeiteChange = new EventEmitter<TrennstreifenSeite>();
 
-  public Seitenbezug = Seitenbezug;
+  public Seitenbezug = KantenSeite;
   public Richtung = Richtung;
 
   constructor() {}

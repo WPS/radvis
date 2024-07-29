@@ -28,8 +28,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeListenDbViewTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeViewRepository;
@@ -40,7 +40,6 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.organisation.domain.valueObject.OrganisationsArt;
 
 public class MassnahmenExporterServiceTest {
 	private MassnahmenExporterService exporterService;
@@ -72,7 +71,6 @@ public class MassnahmenExporterServiceTest {
 					.organisationsArt(OrganisationsArt.GEMEINDE)
 					.build())
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.umsetzungsstand(new Umsetzungsstand())
 			.build();
 		List<Long> ids = List.of(1L);
 		when(massnahmeRepository.findAllByIdIn(ids))

@@ -50,7 +50,8 @@ import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators
 })
 export class FloatInputControlComponent
   extends AbstractUndeterminedFormControl<number>
-  implements OnChanges, Validator {
+  implements OnChanges, Validator
+{
   @Input()
   value: number | null = null;
   // Bei direkter Zuweisung des Controls kommt kein neues "enabled" rein, daher binden wir das hier zusätzlich

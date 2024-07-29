@@ -67,7 +67,7 @@ public class GeoJsonImportRepositoryImpl implements GeoJsonImportRepository {
 	public Stream<SimpleFeature> readFeaturesFromByteArray(byte[] bytes) throws ReadGeoJSONException {
 		String jsonString = new String(bytes);
 		// An dieser Stelle erstmal "nur" nach json validieren.
-		// Wenn es nicht dem GeoJSON Standart entspricht fliegen wir spaeter beim konvertieren raus
+		// Wenn es nicht dem GeoJSON Standard entspricht fliegen wir später beim Konvertieren raus
 		if (!validateJSON(jsonString)) {
 			throw new ReadGeoJSONException("Die hochgeladene Datei enthält kein gültiges JSON.");
 		}

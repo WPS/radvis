@@ -35,7 +35,8 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 })
 export class AnpassungswuenscheLayerComponent
   extends AbstractInfrastrukturLayerComponent<AnpassungswunschListenView>
-  implements OnDestroy {
+  implements OnDestroy
+{
   public readonly HIGHLIGHTED_PROPERTY = 'highlighted';
 
   private olLayer: VectorLayer;

@@ -176,17 +176,17 @@ public class GeschwindigkeitAttribute extends LinearReferenzierteAttribute {
 		return Objects.equals(ortslage, other.ortslage)
 			&& Objects.equals(hoechstgeschwindigkeit, other.hoechstgeschwindigkeit)
 			&& Objects.equals(abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung,
-			other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung);
+				other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung);
 	}
 
 	public boolean widersprechenSichAttribute(GeschwindigkeitAttribute other) {
 		return (!Objects.equals(ortslage, other.ortslage)
 			&& ortslage != null && other.ortslage != null)
 			|| (!Objects.equals(hoechstgeschwindigkeit, other.hoechstgeschwindigkeit)
-			&& hoechstgeschwindigkeit != null && other.hoechstgeschwindigkeit != null)
+				&& hoechstgeschwindigkeit != null && other.hoechstgeschwindigkeit != null)
 			|| (!Objects.equals(abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung,
-			other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung)
-			&& abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung != null
-			&& other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung != null);
+				other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung)
+				&& abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung != null
+				&& other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung != null);
 	}
 }

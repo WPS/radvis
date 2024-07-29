@@ -18,7 +18,10 @@ import invariant from 'tiny-invariant';
 export class LinearReferenzierterAbschnittInMeter {
   public static readonly MINIMUM_ELEMENT_LENGTH = 0.01;
 
-  private constructor(private _von: number, private _bis: number) {}
+  private constructor(
+    private _von: number,
+    private _bis: number
+  ) {}
 
   public static of(
     linearReferenzierterAbschnitt: LinearReferenzierterAbschnitt,

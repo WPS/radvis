@@ -18,6 +18,7 @@ import static org.valid4j.Assertive.require;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.netz.domain.entity.AbstractNetzBezug;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
@@ -76,5 +77,24 @@ public class MassnahmeNetzBezug extends AbstractNetzBezug {
 	@Override
 	protected Set<Knoten> getMutableKnotenBezug() {
 		return knotenBezug;
+	}
+
+	public static MassnahmeNetzBezug vereinige(Set<MassnahmeNetzBezug> netzbezuege) {
+		// Kantenabschnitte, die sich überlappen, werden zusammengefasst
+		Set<AbschnittsweiserKantenSeitenBezug> abschnittsweiserKantenSeitenBezug = AbschnittsweiserKantenSeitenBezug
+			.fasseUeberlappendeBezuegeProKanteZusammen(netzbezuege.stream()
+				.flatMap(netzbezug -> netzbezug.getMutableAbschnittsweiserKantenSeitenBezug().stream())
+				.collect(Collectors.toSet())
+			);
+
+		// Duplikate von PunktuellerKantenSeitenBezug und Knoten werden durch das Sammeln in einem Set automatisch dedupliziert!
+		Set<PunktuellerKantenSeitenBezug> punktuellerKantenSeitenBezug = netzbezuege.stream()
+			.flatMap(netzbezug -> netzbezug.getMutablePunktuellerKantenSeitenBezug().stream())
+			.collect(Collectors.toSet());
+		Set<Knoten> knotenBezug = netzbezuege.stream()
+			.flatMap(netzbezug -> netzbezug.getMutableKnotenBezug().stream())
+			.collect(Collectors.toSet());
+
+		return new MassnahmeNetzBezug(abschnittsweiserKantenSeitenBezug, punktuellerKantenSeitenBezug, knotenBezug);
 	}
 }

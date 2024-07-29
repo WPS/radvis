@@ -18,8 +18,7 @@
   <mat-button-toggle-group
     [formControl]="gebietskoerperschaftOderWahlkreisControl"
     class="display-flex"
-    value="{{ AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT }}"
-  >
+    value="{{ AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT }}">
     <mat-button-toggle class="w-100" value="{{ AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT }}"
       >Gebietskörperschaft
     </mat-button-toggle>
@@ -28,26 +27,22 @@
 
   <div
     class="display-flex mt-10 mb-10"
-    *ngIf="gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT"
-  >
+    *ngIf="gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.GEBIETSKOERPERSCHAFT">
     <rad-organisationen-dropdown-control
       [options]="(gemeindeKreisBezirkOptions | async) || []"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="gemeindeKreisBezirk"
-    >
+      formControlName="gemeindeKreisBezirk">
       Gemeinde/Kreis/Bezirk
     </rad-organisationen-dropdown-control>
   </div>
 
   <div
     class="display-flex mt-10 mb-10"
-    *ngIf="gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.WAHLKREIS"
-  >
+    *ngIf="gebietskoerperschaftOderWahlkreisControl.value === AuswertungGebietsauswahl.WAHLKREIS">
     <rad-wahlkreis-dropdown-control
       [options]="(wahlkreisOptions | async) || []"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="wahlkreis"
-    >
+      formControlName="wahlkreis">
       Wahlkreis
     </rad-wahlkreis-dropdown-control>
   </div>
@@ -62,8 +57,7 @@
     <div
       class="display-flex align-items-start align-items-stretch justify-content-space-between mt-10"
       style="margin-left: 1.5rem"
-      formArrayName="netzklassen"
-    >
+      formArrayName="netzklassen">
       <div class="checkbox-column">
         <fieldset>
           <legend>RadNETZ</legend>
@@ -107,8 +101,7 @@
     <div
       class="display-flex align-items-start justify-content-space-between mt-10"
       style="margin-left: 1.5rem"
-      formArrayName="istStandards"
-    >
+      formArrayName="istStandards">
       <div class="checkbox-column">
         <mat-checkbox formControlName="0">Basisstandard</mat-checkbox>
         <mat-checkbox formControlName="1">Kein Standard</mat-checkbox>
@@ -133,8 +126,7 @@
     <rad-organisationen-dropdown-control
       [options]="(organisationsOptions | async) || []"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="baulast"
-    >
+      formControlName="baulast">
       Baulastträger
     </rad-organisationen-dropdown-control>
   </div>
@@ -143,8 +135,7 @@
     <rad-organisationen-dropdown-control
       [options]="(organisationsOptions | async) || []"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="unterhalt"
-    >
+      formControlName="unterhalt">
       Unterhalt
     </rad-organisationen-dropdown-control>
   </div>
@@ -153,8 +144,7 @@
     <rad-organisationen-dropdown-control
       [options]="(organisationsOptions | async) || []"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="erhalt"
-    >
+      formControlName="erhalt">
       Erhalt
     </rad-organisationen-dropdown-control>
   </div>
@@ -163,8 +153,7 @@
     <rad-enum-dropdown-control
       [options]="belagartOptions"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="belagart"
-    >
+      formControlName="belagart">
       Belagart
     </rad-enum-dropdown-control>
   </div>
@@ -173,8 +162,7 @@
     <rad-grouped-enum-dropdown-control
       [groupedOptions]="radverkehrsfuehrungOptions"
       class="ml-1 mat-form-field-full-width w-100"
-      formControlName="fuehrung"
-    >
+      formControlName="fuehrung">
       Radverkehrsführung
     </rad-grouped-enum-dropdown-control>
   </div>
@@ -184,8 +172,7 @@
     color="primary"
     (click)="getAuswertung()"
     type="button"
-    [disabled]="fetching"
-  >
+    [disabled]="fetching">
     Auswerten
   </button>
   <mat-card appearance="outlined" class="mt-10">

@@ -23,6 +23,7 @@ import de.wps.radvis.backend.barriere.domain.valueObject.BarrierenForm;
 import de.wps.radvis.backend.barriere.domain.valueObject.Markierung;
 import de.wps.radvis.backend.barriere.domain.valueObject.Sicherung;
 import de.wps.radvis.backend.barriere.domain.valueObject.VerbleibendeDurchfahrtsbreite;
+import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +40,7 @@ import lombok.ToString;
 @Builder
 public class SaveBarriereCommand {
 	@NotNull
-	private BarriereNetzBezugCommand netzbezug;
+	private NetzbezugCommand netzbezug;
 	@NotNull
 	private Long verantwortlicheOrganisation;
 	Long version;

@@ -15,7 +15,7 @@
 package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.valueObject;
 
 public enum MassnahmenDateianhaengeImportZuordnungStatus {
-	GEMAPPT,
+	ZUGEORDNET,
 	IGNORIERT,
 	FEHLERHAFT;
 }

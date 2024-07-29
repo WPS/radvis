@@ -15,5 +15,6 @@
 package de.wps.radvis.backend.abfrage.signatur.domain.valueObject;
 
 public enum SignaturTyp {
-	NETZ, MASSNAHME;
+	NETZ,
+	MASSNAHME;
 }

@@ -97,7 +97,7 @@ class ExecuteTopologischeUpdatesServiceTest {
 
 	Comparator<LinearReferenzierterAbschnitt> LR_COMPARATOR_WITH_PRECISION = (a,
 		b) -> Math.abs(a.getVonValue() - b.getVonValue()) < 0.000000001
-		&& Math.abs(a.getBisValue() - b.getBisValue()) < 0.000000001 ? 0 : -1;
+			&& Math.abs(a.getBisValue() - b.getBisValue()) < 0.000000001 ? 0 : -1;
 
 	@BeforeEach
 	void setUp() {
@@ -122,11 +122,11 @@ class ExecuteTopologischeUpdatesServiceTest {
 				new Coordinate(10, 10),
 				new Coordinate(20, 10)))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue().kantenAttribute(
-					KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
-						.strassenName(StrassenName.of("Rainbow Road"))
-						.strassenNummer(StrassenNummer.of("42"))
-						.beleuchtung(Beleuchtung.VORHANDEN)
-						.build())
+				KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
+					.strassenName(StrassenName.of("Rainbow Road"))
+					.strassenNummer(StrassenNummer.of("42"))
+					.beleuchtung(Beleuchtung.VORHANDEN)
+					.build())
 				.build())
 			.fahrtrichtungAttributGruppe(fahrtrichtungAttributGruppe)
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
@@ -265,7 +265,7 @@ class ExecuteTopologischeUpdatesServiceTest {
 		LineString lineStringKante = this.geometryFactory.createLineString(
 			new Coordinate[] { new Coordinate(0, 0), new Coordinate(2, 0), new Coordinate(2, 2) });
 		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider.withLineareReferenz(0.0,
-				1.0).belagArt(
+			1.0).belagArt(
 				BelagArt.ASPHALT)
 			.breite(Laenge.of(2.0)).build();
 		FuehrungsformAttributGruppe fuehrungsformAttributGruppe = new FuehrungsformAttributGruppe(
@@ -1341,12 +1341,12 @@ class ExecuteTopologischeUpdatesServiceTest {
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getHoechstgeschwindigkeit())
-			.isEqualTo(Hoechstgeschwindigkeit.MAX_70_KMH);
+					.isEqualTo(Hoechstgeschwindigkeit.MAX_70_KMH);
 
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
-			.contains(Hoechstgeschwindigkeit.MAX_100_KMH);
+					.contains(Hoechstgeschwindigkeit.MAX_100_KMH);
 
 		assertThat(topologischStarkVeraenderteKanten).isEmpty();
 	}
@@ -1390,12 +1390,12 @@ class ExecuteTopologischeUpdatesServiceTest {
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getHoechstgeschwindigkeit())
-			.isEqualTo(Hoechstgeschwindigkeit.MAX_100_KMH);
+					.isEqualTo(Hoechstgeschwindigkeit.MAX_100_KMH);
 
 		assertThat(
 			resultKante.getGeschwindigkeitAttributGruppe().getImmutableGeschwindigkeitAttribute().get(0)
 				.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
-			.contains(Hoechstgeschwindigkeit.MAX_70_KMH);
+					.contains(Hoechstgeschwindigkeit.MAX_70_KMH);
 
 		assertThat(topologischStarkVeraenderteKanten).isEmpty();
 	}
@@ -1856,7 +1856,7 @@ class ExecuteTopologischeUpdatesServiceTest {
 			// Geschwindigkeit
 			assertThat(gesplitteteKante.getGeschwindigkeitAttributGruppe()
 				.getGeschwindigkeitAttribute()).containsExactlyInAnyOrderElementsOf(
-				List.of(geschwindigkeitAttribute));
+					List.of(geschwindigkeitAttribute));
 
 			// Umkehrung der Stationierungsrichtung!
 			assertThat(splitPartner.getGeschwindigkeitAttributGruppe().getGeschwindigkeitAttribute()).isEqualTo(
@@ -2262,11 +2262,11 @@ class ExecuteTopologischeUpdatesServiceTest {
 			// arrange
 			// Knoten der ursprünglichen, gesplitteten Kante
 			Knoten altVon = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514965.56, 5372032.2),
-					QuellSystem.DLM)
+				QuellSystem.DLM)
 				.id(10L)
 				.build();
 			Knoten altNach = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514986.89, 5371993.17),
-					QuellSystem.DLM)
+				QuellSystem.DLM)
 				.id(20L)
 				.build();
 
@@ -2340,9 +2340,9 @@ class ExecuteTopologischeUpdatesServiceTest {
 			Knoten neuNach = altNach;
 
 			Kante splitPartner = KanteTestDataProvider.fromKnoten(
-					KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514964.63, 5372032.2), QuellSystem.DLM)
-						.id(30L).build(),
-					altVon)
+				KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(514964.63, 5372032.2), QuellSystem.DLM)
+					.id(30L).build(),
+				altVon)
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(514964.63, 5372032.2),
 					new Coordinate(514965.56, 5372033.23)))
 				.id(2L)
