@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.manuellerimport.massnahmendateianhaenge.domain.service;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.io.File;
@@ -65,7 +66,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 	private final ZipService zipService;
 	private final CsvRepository csvRepository;
 
-	private final MassnahmeRepository massnahmenRepostory;
+	private final MassnahmeRepository massnahmenRepository;
 	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
 
 	public Optional<MassnahmenDateianhaengeImportSession> getMassnahmenDateianhaengeImportSession(Benutzer benutzer) {
@@ -90,6 +91,9 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 	@Async
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public void ladeDateien(MassnahmenDateianhaengeImportSession session, File file) {
+		require(session, notNullValue());
+		require(file, notNullValue());
+
 		session.setExecuting(true);
 
 		try {
@@ -111,9 +115,8 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 						massnahmenDir,
 						session.getBereich(),
 						session.getKonzeptionsquelle(),
-						session.getSollStandard()
-					)
-				).collect(Collectors.toMap(MassnahmenDateianhaengeImportZuordnung::getOrdnerName, Function.identity()));
+						session.getSollStandard()))
+				.collect(Collectors.toMap(MassnahmenDateianhaengeImportZuordnung::getOrdnerName, Function.identity()));
 
 			session.setZuordnungen(zuordnungen);
 			session.setSchritt(MassnahmenDateianhaengeImportSession.FEHLER_UEBERPRUEFEN);
@@ -156,7 +159,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 			return zuordnung;
 		}
 
-		List<Massnahme> massnahmen = massnahmenRepostory.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
+		List<Massnahme> massnahmen = massnahmenRepository.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
 			MassnahmeKonzeptID.of(directoryName), konzeptionsquelle);
 
 		if (sollStandard != null) {
@@ -189,6 +192,14 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 			zuordnung.setHinweis(
 				MassnahmenDateianhaengeMappingHinweis.ofError("Liegt nicht im gewählten Bereich"));
 			return zuordnung;
+		}
+
+		if (massnahme.isArchiviert()) {
+			zuordnung.setStatus(MassnahmenDateianhaengeImportZuordnungStatus.FEHLERHAFT);
+			zuordnung.setHinweis(
+				MassnahmenDateianhaengeMappingHinweis.ofError("Maßnahme ist bereits archiviert"));
+			return zuordnung;
+
 		}
 
 		this.markPotentialDuplicateFiles(massnahme, zuordnung);
@@ -233,7 +244,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 			.toList();
 
 		filteredZuordnungen.forEach(zuordnung -> {
-			massnahmenRepostory.findById(zuordnung.getMassnahmeId()).ifPresentOrElse(
+			massnahmenRepository.findById(zuordnung.getMassnahmeId()).ifPresentOrElse(
 				massnahme -> zuordnung.getDateien().values().stream()
 					.filter(MassnahmenDateianhaengeImportDatei::isSelected)
 					.forEach(datei -> {
@@ -248,8 +259,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 							zuordnung.setHinweis(MassnahmenDateianhaengeMappingHinweis.ofError(
 								"Dateien konnten nicht gelesen werden, bitte starten Sie den Import erneut"));
 						}
-					}
-					),
+					}),
 				() -> zuordnung.setHinweis(MassnahmenDateianhaengeMappingHinweis.ofError(
 					"Dateien konnten nicht geschrieben werden, da die Maßnahme zwischenzeitlich gelöscht wurde")));
 
@@ -278,9 +288,7 @@ public class ManuellerMassnahmenDateianhaengeImportService {
 		session.getZuordnungen().values().forEach(zuordnung -> rows.addAll(
 			zuordnung.getDateien().isEmpty() ? List.of(convertZuordnungDateiToCsvRow(zuordnung, Optional.empty()))
 				: zuordnung.getDateien().values().stream()
-					.map(datei -> convertZuordnungDateiToCsvRow(zuordnung, Optional.of(datei))).toList()
-		)
-		);
+					.map(datei -> convertZuordnungDateiToCsvRow(zuordnung, Optional.of(datei))).toList()));
 		return csvRepository.write(CsvData.of(rows, MassnahmenDateianhaengeImportSession.CsvHeader.ALL));
 	}
 

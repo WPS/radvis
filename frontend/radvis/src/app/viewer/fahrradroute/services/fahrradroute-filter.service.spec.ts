@@ -15,10 +15,10 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MockBuilder } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view';
-import { testFahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view-test-data-provider.spec';
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
+import { FahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view';
+import { testFahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view-test-data-provider.spec';
 import { FieldFilter } from 'src/app/viewer/viewer-shared/models/field-filter';
 import { FilterQueryParams } from 'src/app/viewer/viewer-shared/models/filter-query-params';
 import { Infrastruktur } from 'src/app/viewer/viewer-shared/models/infrastruktur';

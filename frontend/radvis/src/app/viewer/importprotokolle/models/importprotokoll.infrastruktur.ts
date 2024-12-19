@@ -19,5 +19,5 @@ export const IMPORTPROTOKOLLE = new Infrastruktur(
   'icon-importprotokoll.svg',
   'importprotokoll',
   undefined,
-  'unten'
+  'Analyse'
 );

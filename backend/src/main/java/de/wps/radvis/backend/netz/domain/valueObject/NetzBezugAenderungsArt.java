@@ -20,8 +20,12 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum NetzBezugAenderungsArt {
 	KANTE_GELOESCHT("Kante gelöscht"),
-	KANTE_VERAENDERT("Kante verändert"),
-	KNOTEN_GELOESCHT("Knoten gelöscht");
+	KNOTEN_GELOESCHT("Knoten gelöscht"),
+
+	// Kann eigentlich weg, ist aber noch vorhanden, weil Einträge in der Datenbank existieren, die diesen Enum Wert
+	// haben. Diese könnte man sonst nicht mehr per Hibernate aus der DB lesen.
+	@Deprecated
+	KANTE_VERAENDERT("Kante verändert");
 
 	private final String displayText;
 

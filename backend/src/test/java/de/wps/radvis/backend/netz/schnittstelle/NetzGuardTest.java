@@ -17,16 +17,16 @@ package de.wps.radvis.backend.netz.schnittstelle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -34,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
@@ -57,144 +58,302 @@ class NetzGuardTest {
 	@Mock
 	private Authentication authentication;
 
-	private Benutzer benutzer;
-
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
 		netzGuard = new NetzGuard(netzService, zustaendigkeitsService, benutzerResolver);
-		benutzer = BenutzerTestDataProvider
-			.radwegeErfasserinKommuneKreis(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+	}
+
+	@Test
+	void testSaveKanteAllgemein_keineEditRechte_wirftException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer()
+			.rollen(Set.of(Rolle.RADVIS_BETRACHTER))
 			.build();
 		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
-	}
 
-	@Test
-	void RadNetzKlasseHinzugefuegtOderEntfernt_NichtsVeraendert_false() {
-
-		Set<Netzklasse> netzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ,
-			Netzklasse.KOMMUNALNETZ_ALLTAG);
-
-		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_ALLTAG,
-			Netzklasse.RADNETZ_ZIELNETZ);
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KREISNETZ_ALLTAG, Netzklasse.RADNETZ_ALLTAG);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KREISNETZ_FREIZEIT, Netzklasse.RADNETZ_FREIZEIT);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1L)
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
 			.build();
 
-		when(netzService.getKante(Mockito.any()))
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
 			.thenReturn(KanteTestDataProvider.withDefaultValues()
 				.kantenAttributGruppe(
 					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
 				.build());
 
-		assertDoesNotThrow(() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
-			command.getNetzklassen(), benutzer));
+		// act + assert
+		assertThatThrownBy(
+			() -> netzGuard.saveKanteAllgemein(authentication, commands))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 	}
 
 	@Test
-	void RadNetzKlasseHinzugefuegtOderEntfernt_AenderungenAberKeineRadNetzAenderungen_keinRAdnetzBeteiltigt_false() {
+	void testSaveKanteAllgemein_keineAenderungen_wirftKeineException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer()
+			.rollen(Set.of(Rolle.EXTERNER_DIENSTLEISTER))
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
 
-		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KREISNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_ALLTAG);
-		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KREISNETZ_FREIZEIT, Netzklasse.KOMMUNALNETZ_ALLTAG);
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KREISNETZ_ALLTAG, Netzklasse.RADNETZ_ALLTAG);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KREISNETZ_ALLTAG, Netzklasse.RADNETZ_ALLTAG);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1L)
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
 			.build();
 
-		when(netzService.getKante(Mockito.any()))
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
 			.thenReturn(KanteTestDataProvider.withDefaultValues()
 				.kantenAttributGruppe(
 					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
 				.build());
 
-		assertDoesNotThrow(() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
-			command.getNetzklassen(), benutzer));
+		// act + assert
+		assertDoesNotThrow(() -> netzGuard.saveKanteAllgemein(authentication, commands));
 	}
 
 	@Test
-	void RadNetzKlasseHinzugefuegtOderEntfernt_AenderungenAberKeineRadNetzAenderungen_false() {
+	void testSaveKanteAllgemein_KeineRadNetzOderKreisnetzAenderungen_wirftKeineException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer()
+			.rollen(Set.of(Rolle.EXTERNER_DIENSTLEISTER))
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
 
-		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KREISNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_ALLTAG,
-			Netzklasse.RADNETZ_ALLTAG);
-		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KREISNETZ_FREIZEIT, Netzklasse.RADNETZ_ALLTAG,
-			Netzklasse.KOMMUNALNETZ_ALLTAG);
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_FREIZEIT);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.RADSCHNELLVERBINDUNG);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1L)
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
 			.build();
 
-		when(netzService.getKante(Mockito.any()))
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
 			.thenReturn(KanteTestDataProvider.withDefaultValues()
 				.kantenAttributGruppe(
 					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
 				.build());
 
-		assertDoesNotThrow(() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
-			command.getNetzklassen(), benutzer));
+		// act + assert
+		assertDoesNotThrow(() -> netzGuard.saveKanteAllgemein(authentication, commands));
 	}
 
 	@Test
-	void RadNetzKlasseHinzugefuegtOderEntfernt_RadNetzDurchRadNetzErsetzt_true() {
+	void testSaveKanteAllgemein_keineRadNetzRechteUndRadNetzHinzugefuegt_wirftException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
 
-		Set<Netzklasse> netzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ);
-		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT);
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1L)
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
 			.build();
 
-		when(netzService.getKante(Mockito.any()))
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
 			.thenReturn(KanteTestDataProvider.withDefaultValues()
 				.kantenAttributGruppe(
 					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
 				.build());
 
-		assertThrows(AccessDeniedException.class,
-			() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
-				command.getNetzklassen(), benutzer));
+		// act + assert
+		assertThatThrownBy(
+			() -> netzGuard.saveKanteAllgemein(authentication, commands))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie sind nicht berechtigt, die Netzklasse RadNETZ zu verändern.");
 	}
 
 	@Test
-	void RadNetzKlasseHinzugefuegtOderEntfernt_RadNetzEntfernt_true() {
+	void testSaveKanteAllgemein_keineRadNetzRechteUndRadNetzGeloescht_wirftException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
 
-		Set<Netzklasse> netzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ);
-		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG);
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1L)
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
 			.build();
 
-		when(netzService.getKante(Mockito.any()))
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
 			.thenReturn(KanteTestDataProvider.withDefaultValues()
 				.kantenAttributGruppe(
 					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
 				.build());
 
-		assertThrows(AccessDeniedException.class,
-			() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
-				command.getNetzklassen(), benutzer));
+		// act + assert
+		assertThatThrownBy(
+			() -> netzGuard.saveKanteAllgemein(authentication, commands))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie sind nicht berechtigt, die Netzklasse RadNETZ zu verändern.");
 	}
 
 	@Test
-	void RadNetzKlasseHinzugefuegtOderEntfernt_RadNetzhinzugefuegt_true() {
+	void testSaveKanteAllgemein_hatRadNetzRechteUndRadNetzGeandert_wirftKeineException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer()
+			.rollen(Set.of(Rolle.RADVERKEHRSBEAUFTRAGTER))
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
 
 		Set<Netzklasse> netzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG);
-		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADSCHNELLVERBINDUNG, Netzklasse.RADNETZ_FREIZEIT);
 
 		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
-			.netzklassen(neueNetzklassen).kanteId(1L)
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
 			.build();
 
-		when(netzService.getKante(Mockito.any()))
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
 			.thenReturn(KanteTestDataProvider.withDefaultValues()
 				.kantenAttributGruppe(
 					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
 				.build());
 
-		assertThrows(AccessDeniedException.class,
-			() -> netzGuard.authorizeRadNetzVerlegung(command.getKanteId(),
-				command.getNetzklassen(), benutzer));
+		// act + assert
+		assertDoesNotThrow(() -> netzGuard.saveKanteAllgemein(authentication, commands));
+	}
+
+	@Test
+	void testSaveKanteAllgemein_keineKreisnetzRechteUndKreisnetzHinzugefuegt_wirftException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
+
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KREISNETZ_FREIZEIT);
+
+		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
+			.build();
+
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
+			.thenReturn(KanteTestDataProvider.withDefaultValues()
+				.kantenAttributGruppe(
+					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
+				.build());
+
+		// act + assert
+		assertThatThrownBy(
+			() -> netzGuard.saveKanteAllgemein(authentication, commands))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern.");
+	}
+
+	@Test
+	void testSaveKanteAllgemein_keineKreisnetzRechteUndKreisnetzGeloescht_wirftException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
+
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KREISNETZ_FREIZEIT);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG);
+
+		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
+			.build();
+
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
+			.thenReturn(KanteTestDataProvider.withDefaultValues()
+				.kantenAttributGruppe(
+					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
+				.build());
+
+		// act + assert
+		assertThatThrownBy(
+			() -> netzGuard.saveKanteAllgemein(authentication, commands))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern.");
+	}
+
+	@Test
+	void testSaveKanteAllgemein_hatKreisnetzRechteUndKreisnetzGeandert_wirftKeineException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer()
+			.rollen(Set.of(Rolle.RADWEGE_ERFASSERIN, Rolle.KREISNETZBEARBEITERIN))
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
+
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KREISNETZ_ALLTAG);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.RADSCHNELLVERBINDUNG, Netzklasse.KREISNETZ_FREIZEIT);
+
+		SaveKanteAttributeCommand command = SaveKanteAttributeCommand.builder()
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
+			.build();
+
+		List<SaveKanteAttributeCommand> commands = List.of(command);
+
+		when(netzService.getKante(any()))
+			.thenReturn(KanteTestDataProvider.withDefaultValues()
+				.kantenAttributGruppe(
+					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
+				.build());
+
+		// act + assert
+		assertDoesNotThrow(() -> netzGuard.saveKanteAllgemein(authentication, commands));
+	}
+
+	@Test
+	void testSaveKanteAllgemein_MehrereKantenGleichzeitig_wirftKeineException() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer()
+			.rollen(Set.of(Rolle.EXTERNER_DIENSTLEISTER))
+			.build();
+		when(benutzerResolver.fromAuthentication(eq(authentication))).thenReturn(benutzer);
+
+		Set<Netzklasse> netzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_FREIZEIT);
+		Set<Netzklasse> neueNetzklassen = Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.RADSCHNELLVERBINDUNG);
+
+		SaveKanteAttributeCommand command1 = SaveKanteAttributeCommand.builder()
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
+			.build();
+
+		SaveKanteAttributeCommand command2 = SaveKanteAttributeCommand.builder()
+			.netzklassen(neueNetzklassen)
+			.kanteId(1L)
+			.build();
+
+		List<SaveKanteAttributeCommand> commands = List.of(command1, command2);
+
+		when(netzService.getKante(any()))
+			.thenReturn(KanteTestDataProvider.withDefaultValues()
+				.kantenAttributGruppe(
+					KantenAttributGruppeTestDataProvider.defaultValue().netzklassen(netzklassen).build())
+				.build());
+
+		// act + assert
+		assertDoesNotThrow(() -> netzGuard.saveKanteAllgemein(authentication, commands));
 	}
 
 	@Test

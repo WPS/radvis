@@ -4,6 +4,7 @@ import static de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvi
 import static de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider.getDbListView;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -119,53 +120,80 @@ class BenutzerRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	public void testFindByStatusAndRollenIsNotContaining() {
+	public void findByStatusAndRollenIsNotContainingAndLetzteAktivitaetBefore() {
 		// arrange
+		LocalDate grenzDatum = LocalDate.now();
+		int sbwid = 0;
+
 		Gebietskoerperschaft gebietskoerperschaft = gebietskoerperschaftRepository.save(
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
 
-		Benutzer aktiverBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+		Benutzer benutzerMitStatusAktivZuLangeNichtEingeloggt = benutzerRepository.save(BenutzerTestDataProvider
 			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
-			.serviceBwId(ServiceBwId.of("sbwid0"))
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
+			.status(BenutzerStatus.AKTIV)
+			.letzteAktivitaet(LocalDate.now().minusDays(1))
 			.build()
 		);
 
-		Benutzer inaktiverBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+		Benutzer benutzerMitStatusAktivUndRechtzeitigEingeloggt = benutzerRepository.save(BenutzerTestDataProvider
 			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
-			.serviceBwId(ServiceBwId.of("sbwid1"))
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
+			.status(BenutzerStatus.AKTIV)
+			.letzteAktivitaet(LocalDate.now())
+			.build()
+		);
+
+		Benutzer benutzerMitStatusInaktiv = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
 			.status(BenutzerStatus.INAKTIV)
 			.build()
 		);
 
-		Benutzer wartenderBenutzer = benutzerRepository.save(BenutzerTestDataProvider
+		Benutzer benutzerMitStatusWarteAufFreischaltung = benutzerRepository.save(BenutzerTestDataProvider
 			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
-			.serviceBwId(ServiceBwId.of("sbwid2"))
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
 			.status(BenutzerStatus.WARTE_AUF_FREISCHALTUNG)
+			.build()
+		);
+
+		Benutzer benutzerMitStatusAbgelehnt = benutzerRepository.save(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(gebietskoerperschaft)
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
+			.status(BenutzerStatus.ABGELEHNT)
 			.build()
 		);
 
 		Benutzer admin = benutzerRepository.save(BenutzerTestDataProvider
 			.admin(gebietskoerperschaft)
-			.serviceBwId(ServiceBwId.of("sbwid3"))
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
+			.status(BenutzerStatus.AKTIV)
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR))
+			.letzteAktivitaet(LocalDate.now().minusDays(1)) // sollte trotzdem ignoriert werden!
 			.build()
 		);
 
 		Benutzer adminMitMehrfachrolle = benutzerRepository.save(BenutzerTestDataProvider
 			.admin(gebietskoerperschaft)
-			.serviceBwId(ServiceBwId.of("sbwid4"))
+			.serviceBwId(ServiceBwId.of("sbwid" + ++sbwid))
+			.status(BenutzerStatus.AKTIV)
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR, Rolle.RADWEGE_ERFASSERIN))
+			.letzteAktivitaet(LocalDate.now().minusDays(1)) // sollte trotzdem ignoriert werden!
 			.build()
 		);
 
 		// act
-		List<Benutzer> result = benutzerRepository.findByStatusAndRollenIsNotContaining(BenutzerStatus.AKTIV,
-			Rolle.RADVIS_ADMINISTRATOR);
+		List<Benutzer> result = benutzerRepository.findByStatusAndRollenIsNotContainingAndLetzteAktivitaetBefore(
+			BenutzerStatus.AKTIV,
+			Rolle.RADVIS_ADMINISTRATOR, grenzDatum);
 
 		// assert
-		assertThat(result).contains(aktiverBenutzer);
-		assertThat(result).doesNotContain(inaktiverBenutzer);
-		assertThat(result).doesNotContain(wartenderBenutzer);
+		assertThat(result).contains(benutzerMitStatusAktivZuLangeNichtEingeloggt);
+		assertThat(result).doesNotContain(benutzerMitStatusAktivUndRechtzeitigEingeloggt);
+		assertThat(result).doesNotContain(benutzerMitStatusInaktiv);
+		assertThat(result).doesNotContain(benutzerMitStatusWarteAufFreischaltung);
+		assertThat(result).doesNotContain(benutzerMitStatusAbgelehnt);
 		assertThat(result).doesNotContain(admin);
 		assertThat(result).doesNotContain(adminMitMehrfachrolle);
 	}

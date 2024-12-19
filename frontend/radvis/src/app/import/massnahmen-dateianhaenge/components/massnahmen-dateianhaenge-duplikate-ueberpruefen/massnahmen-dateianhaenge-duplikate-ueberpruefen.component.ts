@@ -17,7 +17,7 @@ import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, interval } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 import { exhaustMap, startWith, take, takeWhile } from 'rxjs/operators';
 import { MassnahmenDateianhaengeImportSessionView } from 'src/app/import/massnahmen-dateianhaenge/models/massnahmen-dateianhaenge-import-session-view';
 import {
@@ -34,6 +34,7 @@ import {
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import invariant from 'tiny-invariant';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 export interface MassnahmenDateianhaengeDuplikateUeberpruefenRow {
   massnahmeId: number;
@@ -77,6 +78,7 @@ export class MassnahmenDateianhaengeDuplikateUeberpruefenComponent implements On
     private notifyUserService: NotifyUserService,
     private changeDetecor: ChangeDetectorRef,
     private dialog: MatDialog,
+    private matomoTracker: MatomoTracker,
     route: ActivatedRoute
   ) {
     this.session = route.snapshot.data.session;
@@ -122,6 +124,8 @@ export class MassnahmenDateianhaengeDuplikateUeberpruefenComponent implements On
     dialogRef.afterClosed().subscribe(yes => {
       if (yes) {
         this.isSaving = true;
+
+        this.matomoTracker.trackEvent('Import', 'Abschließen', 'Maßnahmen-Dateianhänge');
 
         const commands: SaveMassnahmenDateianhaengeCommand[] = [];
         this.massnahmen.forEach((value, key) => {

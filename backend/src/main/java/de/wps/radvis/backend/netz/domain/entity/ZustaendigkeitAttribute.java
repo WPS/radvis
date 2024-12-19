@@ -73,8 +73,7 @@ public class ZustaendigkeitAttribute extends LinearReferenzierteAttribute {
 	public ZustaendigkeitAttribute withLinearReferenzierterAbschnitt(
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
 		return new ZustaendigkeitAttribute(linearReferenzierterAbschnitt, baulastTraeger, unterhaltsZustaendiger,
-			erhaltsZustaendiger,
-			vereinbarungsKennung);
+			erhaltsZustaendiger, vereinbarungsKennung);
 	}
 
 	@Override
@@ -189,5 +188,10 @@ public class ZustaendigkeitAttribute extends LinearReferenzierteAttribute {
 
 	public Optional<Verwaltungseinheit> getBaulastTraeger() {
 		return Optional.ofNullable(baulastTraeger);
+	}
+
+	@Override
+	protected boolean hasOnlyDefaultAttribute() {
+		return sindAttributeGleich(ZustaendigkeitAttribute.builder().build());
 	}
 }

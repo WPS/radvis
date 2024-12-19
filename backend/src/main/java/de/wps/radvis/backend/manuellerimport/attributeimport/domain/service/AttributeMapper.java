@@ -637,6 +637,7 @@ abstract public class AttributeMapper {
 	}
 
 	// --------------------------------------- FahrtrichtungsAttributGruppe --------------------------------------------
+	@SuppressWarnings("deprecation")
 	protected void applyFahrtrichtung(Kante kante, Richtung richtung) {
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe = kante.getFahrtrichtungAttributGruppe();
 		fahrtrichtungAttributGruppe.setRichtung(richtung);
@@ -647,7 +648,7 @@ abstract public class AttributeMapper {
 			kante.changeSeitenbezug(true);
 		}
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe = kante.getFahrtrichtungAttributGruppe();
-		fahrtrichtungAttributGruppe.setRichtung(richtungLinks, richtungRechts);
+		fahrtrichtungAttributGruppe.update(richtungLinks, richtungRechts);
 	}
 
 	public boolean shouldFilterNullValues(String attribut) {

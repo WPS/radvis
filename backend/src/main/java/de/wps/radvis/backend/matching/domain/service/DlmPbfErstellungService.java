@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +32,7 @@ import org.locationtech.jts.geom.Envelope;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
-import de.wps.radvis.backend.matching.domain.PbfErstellungsRepository;
+import de.wps.radvis.backend.matching.domain.repository.PbfErstellungsRepository;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
@@ -54,32 +56,49 @@ public class DlmPbfErstellungService {
 	}
 
 	public void erstelleDlmPbf() throws IOException {
-		log.info("Starte Erstellung der dlmPbf-Datei...");
 		File outputFile = new File(dlmBasisDaten);
-		File tempOutputFile = File.createTempFile(outputFile.getName(), "temp");
-
+		log.info("Starte Erstellung von PBF-Datei {}", outputFile.getAbsolutePath());
 		try {
 			Files.createDirectories(outputFile.getParentFile().toPath());
 		} catch (IOException e) {
-			log.error("Ordner-Struktur konnte nicht erstellt werden: {}", outputFile.getParentFile().getAbsolutePath(),
-				e);
+			throw new IOException("Ordner-Struktur für Datei " + outputFile.getAbsolutePath()
+				+ " konnte nicht erstellt werden", e);
 		}
+
+		File tempOutputFile = File.createTempFile(outputFile.getName(), "temp");
 
 		List<Envelope> partitionen = AbstractJob.getPartitionen(config.getExtentProperty(), config.getPbfpartitionen());
 
-		log.info("Hole Kanten-Stream (DLM) aus der DB...");
+		log.debug("Hole Kanten-Streams aus der DB");
 		Map<Envelope, Stream<Kante>> kantenStreams = partitionen.stream().collect(Collectors.toMap(Function.identity(),
 			partition -> kantenRepository
 				.getKantenInBereichNachQuellenEagerFetchFahrtrichtungEagerFetchFuehrungsformAttributeLinks(
 					partition,
 					Set.of(QuellSystem.DLM, QuellSystem.RadVis))));
 
-		log.info("Schreibe DLM-Kanten als osm.pbf-Daten nach {}.", outputFile.getAbsolutePath());
 		pbfErstellungsRepository.writePbf(kantenStreams, tempOutputFile);
-		log.info("Schreiben der DlmPbf-Datei beendet.");
+
+		log.info("Verschiebe temporäre PBF-Datei {} nach {}", tempOutputFile.getAbsolutePath(), outputFile
+			.getAbsolutePath());
 		Files.move(
 			Paths.get(tempOutputFile.getAbsolutePath()),
 			Paths.get(outputFile.getAbsolutePath()),
 			StandardCopyOption.REPLACE_EXISTING);
+	}
+
+	public void erstellePbfForKanten(File outputFile, Collection<Kante> kanten) throws IOException {
+		log.info("Starte Erstellung von PBF-Datei {} für {} Kanten", outputFile.getAbsolutePath(), kanten.size());
+
+		// Wir überspringen die Korrekte Erstellung von Partitionen der Einfachheit halber: Die Kanten sind bereits im
+		// Speicher und können direkt verarbeitet werden. Eine Partitionierung hätte hier also erst einmal kaum bis
+		// keine Vorteile.
+		Envelope partition = AbstractJob.getPartitionen(config.getExtentProperty(), 1).get(0);
+
+		Map<Envelope, Stream<Kante>> kantenStreamMap = new HashMap<>();
+		kantenStreamMap.put(partition, kanten.stream());
+
+		pbfErstellungsRepository.writePbf(kantenStreamMap, outputFile);
+
+		log.info("DLM-PBF Erstellung beendet");
 	}
 }

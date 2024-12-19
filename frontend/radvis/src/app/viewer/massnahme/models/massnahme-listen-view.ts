@@ -20,6 +20,7 @@ import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
+import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { UmsetzungsstandStatus } from 'src/app/viewer/massnahme/models/umsetzungsstand-status';
@@ -43,6 +44,8 @@ export interface MassnahmeListenView {
   unterhaltsZustaendiger: Verwaltungseinheit | null;
   sollStandard: SollStandard;
   handlungsverantwortlicher: Handlungsverantwortlicher;
+  konzeptionsquelle: Konzeptionsquelle;
+  archiviert: boolean;
 
   geometry: LineStringGeojson | MultiLineStringGeojson | PointGeojson;
 }
@@ -105,6 +108,12 @@ export namespace MassnahmeListenView {
           Handlungsverantwortlicher.options.find(option => option.name === item.handlungsverantwortlicher)
             ?.displayText ?? EMPTY_FIELD_INDICATOR
         );
+      case 'konzeptionsquelle':
+        return (
+          Konzeptionsquelle.options.find(o => o.name === item.konzeptionsquelle)?.displayText ?? EMPTY_FIELD_INDICATOR
+        );
+      case 'archiviert':
+        return item.archiviert ? 'ja' : 'nein';
       default:
         throw Error(`Key ${key} nicht gefunden`);
     }

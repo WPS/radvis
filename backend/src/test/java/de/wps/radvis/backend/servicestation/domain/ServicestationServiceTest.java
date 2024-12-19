@@ -26,10 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
-import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import de.wps.radvis.backend.servicestation.domain.entity.provider.ServicestationTestDataProvider;
 import jakarta.persistence.EntityNotFoundException;
@@ -38,16 +36,11 @@ class ServicestationServiceTest {
 	private ServicestationService servicestationService;
 	@Mock
 	private ServicestationRepository servicestationRepository;
-	@Mock
-	private BenutzerResolver benutzerResolver;
-	@Mock
-	private ZustaendigkeitsService zustaendigkeitsService;
 
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.openMocks(this);
-		servicestationService = new ServicestationService(servicestationRepository, benutzerResolver,
-			zustaendigkeitsService);
+		servicestationService = new ServicestationService(servicestationRepository);
 	}
 
 	@Test

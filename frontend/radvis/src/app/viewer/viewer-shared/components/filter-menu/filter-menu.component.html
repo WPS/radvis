@@ -45,15 +45,19 @@
           matInput
           [formControl]="filterControl"
           (keydown.enter)="menuTrigger.closeMenu()" />
+        <button
+          matSuffix
+          radAccessabilityTabCircleElement
+          matTooltip="Filter zurücksetzen"
+          [disabled]="!filterInput.value"
+          (click)="onFilterClear()"
+          mat-icon-button
+          class="mx-3">
+          <mat-icon>backspace_outlined</mat-icon>
+        </button>
       </mat-form-field>
-      <button
-        radAccessabilityTabCircleElement
-        matTooltip="Filter zurücksetzen"
-        [disabled]="!filterInput.value"
-        (click)="onFilterClear()"
-        mat-icon-button
-        class="ml-3 mat-icon-button-small">
-        <mat-icon>clear</mat-icon>
+      <button mat-icon-button class="ml-5" (click)="menuTrigger.closeMenu()" matTooltip="Filter schließen">
+        <mat-icon>close</mat-icon>
       </button>
     </div>
   </div>

@@ -17,7 +17,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-import { MassnahmeUmsetzungsstandDialogComponent } from 'src/app/viewer/massnahme/components/massnahme-umsetzungsstand-dialog/massnahme-umsetzungsstand-dialog.component';
+import { UmsetzungsstandAbfrageVorschauDialogComponent } from 'src/app/viewer/massnahme/components/umsetzungsstand-abfrage-vorschau-dialog/umsetzungsstand-abfrage-vorschau-dialog.component';
+import { UmsetzungsstandAbfrageVorschau } from 'src/app/viewer/massnahme/models/umsetzungsstand-abfrage-vorschau';
 import { UmsetzungsstandStatus } from 'src/app/viewer/massnahme/models/umsetzungsstand-status';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
@@ -51,24 +52,40 @@ export class MassnahmeUmsetzungsstandButtonMenuComponent {
   ) {}
 
   showConfirmationDialog(): void {
-    const dialogRef = this.dialog.open(MassnahmeUmsetzungsstandDialogComponent, {
-      width: '24rem',
-    });
-    dialogRef.afterClosed().subscribe(abfrageStarten => {
-      if (abfrageStarten) {
-        const filteredMassnahmeIds = this.massnahmeFilterService.currentFilteredList.map(m => m.id);
-        this.loading = true;
-        this.changeDetectorRef.markForCheck();
-        this.massnahmeService
-          .starteUmsetzungsstandsabfrage(filteredMassnahmeIds)
-          .then(() => this.notifyUserService.inform('Umsetzungsstandsabfrage erfolgreich gestartet.'))
-          .finally(() => {
+    const filteredMassnahmeIds = this.massnahmeFilterService.currentFilteredList.map(m => m.id);
+    this.loading = true;
+    this.massnahmeService
+      .getUmsetzungsstandAbfrageVorschau(filteredMassnahmeIds)
+      .then(vorschau => {
+        const dialogRef = this.dialog.open<
+          UmsetzungsstandAbfrageVorschauDialogComponent,
+          UmsetzungsstandAbfrageVorschau
+        >(UmsetzungsstandAbfrageVorschauDialogComponent, {
+          data: vorschau,
+          autoFocus: 'dialog',
+          width: '50rem',
+        });
+        dialogRef.afterClosed().subscribe(abfrageStarten => {
+          if (abfrageStarten) {
+            this.changeDetectorRef.markForCheck();
+            this.massnahmeService
+              .starteUmsetzungsstandsabfrage(filteredMassnahmeIds)
+              .then(() => this.notifyUserService.inform('Umsetzungsstandsabfrage erfolgreich gestartet.'))
+              .finally(() => {
+                this.loading = false;
+                this.changeDetectorRef.markForCheck();
+                this.massnahmeFilterService.refetchData();
+              });
+          } else {
             this.loading = false;
             this.changeDetectorRef.markForCheck();
-            this.massnahmeFilterService.refetchData();
-          });
-      }
-    });
+          }
+        });
+      })
+      .catch(() => {
+        this.loading = false;
+        this.changeDetectorRef.markForCheck();
+      });
   }
 
   downloadAuswertung(): void {

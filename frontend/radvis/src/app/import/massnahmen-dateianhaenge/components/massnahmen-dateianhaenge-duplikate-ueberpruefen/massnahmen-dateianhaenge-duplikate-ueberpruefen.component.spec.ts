@@ -14,8 +14,8 @@
 
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, ActivatedRouteSnapshot, Data } from '@angular/router';
-import { MockBuilder, MockRender, MockedComponentFixture, ngMocks } from 'ng-mocks';
-import { Subject, of } from 'rxjs';
+import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
+import { of, Subject } from 'rxjs';
 import { ImportModule } from 'src/app/import/import.module';
 import { defaultMassnahmenDateianhaengeSessionFehlerUeberpruefen } from 'src/app/import/massnahmen-dateianhaenge/models/massnahmen-dateianhaenge-import-session-test-data-provider.spec';
 import { MassnahmenDateianhaengeImportSessionView } from 'src/app/import/massnahmen-dateianhaenge/models/massnahmen-dateianhaenge-import-session-view';
@@ -25,6 +25,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { MassnahmenDateianhaengeDuplikateUeberpruefenComponent } from './massnahmen-dateianhaenge-duplikate-ueberpruefen.component';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 describe(MassnahmenDateianhaengeDuplikateUeberpruefenComponent.name, () => {
   let component: MassnahmenDateianhaengeDuplikateUeberpruefenComponent;
@@ -35,6 +36,7 @@ describe(MassnahmenDateianhaengeDuplikateUeberpruefenComponent.name, () => {
   let notifyUserService: NotifyUserService;
   let route: ActivatedRoute;
   let dialog: MatDialog;
+  let matomoTracker: MatomoTracker;
 
   let importSessionSubject: Subject<MassnahmenDateianhaengeImportSessionView | null>;
 
@@ -46,13 +48,15 @@ describe(MassnahmenDateianhaengeDuplikateUeberpruefenComponent.name, () => {
     notifyUserService = mock(NotifyUserService);
     route = mock(ActivatedRoute);
     dialog = mock(MatDialog);
+    matomoTracker = mock(MatomoTracker);
 
     return MockBuilder(MassnahmenDateianhaengeDuplikateUeberpruefenComponent, ImportModule)
       .provide({ provide: MassnahmenDateianhaengeService, useValue: instance(service) })
       .provide({ provide: MassnahmenDateianhaengeRoutingService, useValue: instance(routingService) })
       .provide({ provide: NotifyUserService, useValue: instance(notifyUserService) })
       .provide({ provide: ActivatedRoute, useValue: instance(route) })
-      .provide({ provide: MatDialog, useValue: instance(dialog) });
+      .provide({ provide: MatDialog, useValue: instance(dialog) })
+      .provide({ provide: MatomoTracker, useValue: instance(matomoTracker) });
   });
 
   beforeEach(() => {

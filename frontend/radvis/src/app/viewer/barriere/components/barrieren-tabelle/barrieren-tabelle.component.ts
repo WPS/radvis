@@ -14,10 +14,12 @@
 
 import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { BarriereListenView } from 'src/app/viewer/barriere/models/barriere-listen-view';
 import { BarriereFilterService } from 'src/app/viewer/barriere/services/barriere-filter.service';
 import { BarriereRoutingService } from 'src/app/viewer/barriere/services/barriere-routing.service';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 
 @Component({
@@ -30,21 +32,31 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
 export class BarrierenTabelleComponent {
   selectedBarriereId$: Observable<number | null>;
 
-  displayedColumns: string[] = ['verantwortlich', 'barriereform', 'durchfahrtsbreite', 'sicherung', 'markierung'];
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'verantwortlich', displayName: 'Verantwortliche Organisation' },
+    { name: 'barriereform', displayName: 'Barriereform', width: 'large' },
+    { name: 'durchfahrtsbreite', displayName: 'Barrieredurchfahrbreite' },
+    { name: 'sicherung', displayName: 'Absperranlagensicherung' },
+    { name: 'markierung', displayName: 'Absperranlagenmarkierung' },
+  ];
 
   data$: Observable<BarriereListenView[]>;
   public isBenutzerBerechtigtBarrierenZuErstellen: boolean;
 
   isSmallViewport = false;
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public barriereFilterService: BarriereFilterService,
     private barriereRoutingService: BarriereRoutingService,
-    private benutzerDetailsService: BenutzerDetailsService
+    benutzerDetailsService: BenutzerDetailsService
   ) {
     this.isBenutzerBerechtigtBarrierenZuErstellen = benutzerDetailsService.canCreateFurtenKreuzungen();
     this.data$ = this.barriereFilterService.filteredList$;
     this.selectedBarriereId$ = barriereRoutingService.selectedInfrastrukturId$;
+    this.filteredSpalten$ = this.barriereFilterService.filter$.pipe(
+      map(filteredFields => filteredFields.map(f => f.field))
+    );
   }
 
   public onSelectRecord(id: number): void {

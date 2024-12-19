@@ -23,6 +23,7 @@ public enum Recht {
 	// @formatter:off
 	JOBS_AUSFUEHREN("Jobs ausführen"),
 	LOGS_EINSEHEN("Zugriff auf Grafana"),
+	FACHLICHE_STATISTIKEN_EINSEHEN("Zugriff auf fachliche Statistiken"),
 
 	ALLE_BENUTZER_UND_ORGANISATIONEN_BEARBEITEN("Alle Benutzer und Organisationen bearbeiten"),
 	BENUTZER_UND_ORGANISATIONEN_MEINES_VERWALTUNGSBEREICHS_BEARBEITEN("Benutzer und Organisationen meines Verwaltungsbereichs bearbeiten"),
@@ -41,6 +42,7 @@ public enum Recht {
 	ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN("Alle Maßnahmen erfassen/bearbeiten"),
 	UMSETZUNGSSTANDSABFRAGEN_STARTEN("Umsetzungsstandsabfragen starten"),
 	UMSETZUNGSSTANDSABFRAGEN_AUSWERTEN("Umsetzungsstandsabfragen auswerten"),
+	MASSNAHMEN_ARCHIVIEREN("Maßnahmen archivieren"),
 
 	RADROUTEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN("Radrouten im eigenen Zuständigkeitsbereich erfassen/bearbeiten"),
 	ALLE_RADROUTEN_ERFASSEN_BEARBEITEN("Alle Radrouten erfassen/bearbeiten"),
@@ -53,7 +55,9 @@ public enum Recht {
 	STRECKENDATEN_DES_EIGENEN_ZUSTAENDIGKEITSBEREICHES_IMPORTIEREN("Streckendaten des eigenen Zuständigkeitsbereiches importieren"),
 	MANUELLES_MATCHING_ZUORDNEN_UND_BEARBEITEN("Manuelles Matching zuordnen und bearbeiten"),
 	ANPASSUNGSWUENSCHE_BEARBEITEN("Anpassungswünsche bearbeiten"),
-	ANPASSUNGSWUENSCHE_ERFASSEN("Anpassungswünsche erfassen")
+	ANPASSUNGSWUENSCHE_ERFASSEN("Anpassungswünsche erfassen"),
+
+	KREISNETZ_ROUTENVERLEGUNGEN("Kreisnetz Routenverlegungen")
 	;
 	// @formatter:on
 

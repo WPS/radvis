@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjektionsJob;
-import de.wps.radvis.backend.integration.grundnetz.domain.DLMNetzbildungJob;
+import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungJob;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNETZNetzbildungJob;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNETZSackgassenJob;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungJob;

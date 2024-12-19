@@ -83,13 +83,26 @@ export class BenutzerDetailsService {
     return this.benutzer.rechte?.includes(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN) ?? false;
   }
 
+  canKreisnetzVerlegen(): boolean {
+    return this.benutzer.rechte?.includes(Recht.KREISNETZ_ROUTENVERLEGUNGEN) ?? false;
+  }
+
+  canMassnahmenArchivieren(): boolean {
+    return this.benutzer.rechte?.includes(Recht.MASSNAHMEN_ARCHIVIEREN) ?? false;
+  }
+
   canEdit(): boolean {
     const editRechte = [
       Recht.RADNETZ_ROUTENVERLEGUNGEN,
       Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT,
       Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN,
+      Recht.KREISNETZ_ROUTENVERLEGUNGEN,
     ];
     return this.benutzer.rechte?.some(r => editRechte.includes(r)) || false;
+  }
+
+  canRadNetzVerlegen(): boolean {
+    return this.benutzer.rechte?.includes(Recht.RADNETZ_ROUTENVERLEGUNGEN) ?? false;
   }
 
   canEditZustaendigkeitsBereichOfOrganisation(): boolean {

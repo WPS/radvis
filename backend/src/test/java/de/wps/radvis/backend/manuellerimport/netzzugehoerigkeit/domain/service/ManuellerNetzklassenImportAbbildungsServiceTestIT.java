@@ -77,11 +77,11 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.PbfErstellungsRepository;
-import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
+import de.wps.radvis.backend.matching.domain.repository.PbfErstellungsRepository;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.PbfErstellungsRepositoryImpl;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.PbfErstellungsTestDataProvider;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -126,7 +126,8 @@ import lombok.extern.slf4j.Slf4j;
 	PostgisConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -155,9 +156,6 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 	CommonConfigurationProperties commonConfigurationProperties;
 
 	@Autowired
-	MatchingKorrekturService matchingKorrekturService;
-
-	@Autowired
 	InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory;
 
 	ManuellerNetzklassenImportAbbildungsService manuellerNetzklassenImportAbbildungsService;
@@ -182,7 +180,7 @@ class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTes
 		CoordinateReferenceSystemConverter coordinateReferenceSystemConverter = new CoordinateReferenceSystemConverter(
 			commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope());
 
-		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager,
+		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter,
 			barriereRepository, kantenRepository);
 	}
 

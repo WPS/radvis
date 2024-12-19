@@ -28,9 +28,11 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteNetzbezugResult;
@@ -49,6 +51,15 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithFehlercode(Fehlercode.FAHRRADROUTE_TOUBIZ_IMPORT)
+/**
+ * Import Fahrradrouten von Toubiz. Aktualisiert bereits importierte, erstellt neue oder löscht die in Quelle nicht mehr
+ * vorhandenen.
+ * 
+ * Umgang mit Landesradfernwegen: Es werden Informationen aus Toubiz nur für bereits im System befindliche LRFW mit
+ * Toubiz-ID gezogen. Es werden alle nicht von der Route abhängigen Informationen aktualisiert. Dabei werden
+ * Nutzerinformationen ggf. überschrieben.
+ */
 public class FahrradroutenToubizImportJob extends AbstractJob {
 	// Dieser Job Name sollte sich nicht mehr aendern, weil Controller und DB Eintraege den Namen verwenden
 	public static final String JOB_NAME = "FahrradroutenToubizImportJob";

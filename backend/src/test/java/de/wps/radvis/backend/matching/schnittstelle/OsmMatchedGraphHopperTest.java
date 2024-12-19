@@ -38,7 +38,7 @@ import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
 
 class OsmMatchedGraphHopperTest {
 
@@ -67,7 +67,7 @@ class OsmMatchedGraphHopperTest {
 			null,
 			"test",
 			"https://radvis-dev.landbw.de/",
-			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources");
+			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0);
 		graphhopperOsmConfigurationProperties = new GraphhopperOsmConfigurationProperties(
 			"target/test-routing-graph-cache", mappingCacheVerzeichnis, 1d);
 		graphhopperServiceConfiguration = new MatchingConfiguration(

@@ -18,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,6 +31,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.command.StartNetzklassenImportSessionCommand;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
@@ -63,7 +66,7 @@ class ManuellerNetzklassenImportGuardTest {
 	}
 
 	@Test
-	public void startNetzklassenImportSession() {
+	public void testStartNetzklassenImportSession_happyPath_keineException() {
 		// arrange
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(benutzerMitManuellerImportRecht);
 		when(verwaltungseinheitService.resolve(12345L)).thenReturn(organisation);
@@ -80,7 +83,7 @@ class ManuellerNetzklassenImportGuardTest {
 	}
 
 	@Test
-	public void startNetzklassenImportSession_organisationNichtInZustaendigkeitsbereich() {
+	public void testStartNetzklassenImportSession_organisationNichtInZustaendigkeitsbereich_exception() {
 		// arrange
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(benutzerMitManuellerImportRecht);
 		when(verwaltungseinheitService.resolve(12345L)).thenReturn(organisation);
@@ -95,11 +98,11 @@ class ManuellerNetzklassenImportGuardTest {
 		assertThatThrownBy(
 			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null))
 				.isInstanceOf(AccessDeniedException.class)
-				.hasMessage("Die Organisation liegt nicht in Ihrem Zuständigkeitsbereich");
+				.hasMessage("Die Organisation liegt nicht in Ihrem Zuständigkeitsbereich.");
 	}
 
 	@Test
-	public void startNetzklassenImportSession_benutzerKeineBerechtigung() {
+	public void testStartNetzklassenImportSession_benutzerHatKeineImportBerechtigung_exception() {
 		// arrange
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(
 			BenutzerTestDataProvider.bearbeiterinVmRadnetzAdminInaktiv(organisation)
@@ -117,6 +120,84 @@ class ManuellerNetzklassenImportGuardTest {
 		assertThatThrownBy(
 			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null))
 				.isInstanceOf(AccessDeniedException.class)
-				.hasMessage("Sie haben nicht die Berechtigung Streckendaten zu importieren");
+				.hasMessage("Sie haben nicht die Berechtigung Streckendaten zu importieren.");
+	}
+
+	@Test
+	public void testStartNetzklassenImportSession_benutzerEditiertKreisnetzUndHatKeineBerechtigung_exception() {
+		// arrange
+		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(benutzerMitManuellerImportRecht);
+		when(verwaltungseinheitService.resolve(12345L)).thenReturn(organisation);
+		when(verwaltungseinheitService.istUebergeordnet(organisation, organisation)).thenReturn(true);
+
+		StartNetzklassenImportSessionCommand command = StartNetzklassenImportSessionCommand.builder()
+			.netzklasse(Netzklasse.KREISNETZ_ALLTAG)
+			.organisation(organisation.getId())
+			.build();
+
+		// act + assert
+		assertThatThrownBy(
+			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern.");
+	}
+
+	@Test
+	public void testStartNetzklassenImportSession_benutzerEditiertKreisnetzUndHatBerechtigung_Keineexception() {
+		// arrange
+		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(organisation)
+			.rollen(Set.of(Rolle.RADWEGE_ERFASSERIN, Rolle.KREISNETZBEARBEITERIN))
+			.build());
+		when(verwaltungseinheitService.resolve(12345L)).thenReturn(organisation);
+		when(verwaltungseinheitService.istUebergeordnet(organisation, organisation)).thenReturn(true);
+
+		StartNetzklassenImportSessionCommand command = StartNetzklassenImportSessionCommand.builder()
+			.netzklasse(Netzklasse.KREISNETZ_ALLTAG)
+			.organisation(organisation.getId())
+			.build();
+
+		// act + assert
+		assertDoesNotThrow(
+			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null));
+	}
+
+	@Test
+	public void testStartNetzklassenImportSession_benutzerEditiertRadNetzUndHatKeineBerechtigung_exception() {
+		// arrange
+		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(benutzerMitManuellerImportRecht);
+		when(verwaltungseinheitService.resolve(12345L)).thenReturn(organisation);
+		when(verwaltungseinheitService.istUebergeordnet(organisation, organisation)).thenReturn(true);
+
+		StartNetzklassenImportSessionCommand command = StartNetzklassenImportSessionCommand.builder()
+			.netzklasse(Netzklasse.RADNETZ_ALLTAG)
+			.organisation(organisation.getId())
+			.build();
+
+		// act + assert
+		assertThatThrownBy(
+			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null))
+				.isInstanceOf(AccessDeniedException.class)
+				.hasMessage("Sie sind nicht berechtigt, die Netzklasse RadNETZ zu verändern.");
+	}
+
+	@Test
+	public void testStartNetzklassenImportSession_benutzerEditiertRadNetzUndHatBerechtigung_Keineexception() {
+		// arrange
+		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(BenutzerTestDataProvider
+			.radwegeErfasserinKommuneKreis(organisation)
+			.rollen(Set.of(Rolle.RADWEGE_ERFASSERIN, Rolle.RADNETZ_QUALITAETSSICHERIN))
+			.build());
+		when(verwaltungseinheitService.resolve(12345L)).thenReturn(organisation);
+		when(verwaltungseinheitService.istUebergeordnet(organisation, organisation)).thenReturn(true);
+
+		StartNetzklassenImportSessionCommand command = StartNetzklassenImportSessionCommand.builder()
+			.netzklasse(Netzklasse.RADNETZ_ALLTAG)
+			.organisation(organisation.getId())
+			.build();
+
+		// act + assert
+		assertDoesNotThrow(
+			() -> manuellerNetzklassenImportGuard.startNetzklassenImportSession(authentication, command, null));
 	}
 }

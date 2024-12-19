@@ -21,7 +21,7 @@ import org.locationtech.jts.geom.LineString;
 import org.springframework.data.domain.Slice;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
-import de.wps.radvis.backend.matching.domain.KanteUpdateElevationService;
+import de.wps.radvis.backend.matching.domain.service.KanteUpdateElevationService;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.LGLElevationProviderRepository;
 import de.wps.radvis.backend.netz.domain.entity.KanteElevationView;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -76,8 +76,7 @@ public class KanteUpdateElevationServiceImpl implements KanteUpdateElevationServ
 						.toArray(Coordinate[]::new));
 
 				return new KanteElevationUpdate(kanteElevationView.getId(), lineString);
-			}
-			);
+			});
 			kantenRepository.updateKanteElevation(kanteElevationInserts);
 			numKantenVerarbeitet += kanteElevationInserts.getNumberOfElements();
 			log.info("{}/{} Kanten verarbeitet", numKantenVerarbeitet, totalKanten);

@@ -14,13 +14,17 @@
 
 package de.wps.radvis.backend.furtKreuzung;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.furtKreuzung.domain.FurtKreuzungService;
+import de.wps.radvis.backend.furtKreuzung.domain.repository.FurtKreuzungNetzBezugAenderungRepository;
 import de.wps.radvis.backend.furtKreuzung.domain.repository.FurtKreuzungRepository;
 import de.wps.radvis.backend.furtKreuzung.schnittstelle.FurtKreuzungGuard;
 import de.wps.radvis.backend.furtKreuzung.schnittstelle.SaveFurtKreuzungCommandConverter;
@@ -33,20 +37,28 @@ import lombok.NonNull;
 @EnableJpaRepositories
 @EntityScan
 public class FurtKreuzungConfiguration {
-	private final NetzService kantenUndKnotenResolver;
+	private final NetzService netzService;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
+	private final BenutzerService benutzerService;
 	private final FurtKreuzungRepository repository;
 	private final BenutzerResolver benutzerResolver;
 	private final VerwaltungseinheitService verwaltungseinheitService;
+	private CommonConfigurationProperties commonConfigurationProperties;
+
+	@Autowired
+	private FurtKreuzungNetzBezugAenderungRepository furtKreuzungNetzBezugAenderungRepository;
 
 	public FurtKreuzungConfiguration(
-		@NonNull NetzService kantenUndKnotenResolver,
+		@NonNull NetzService netzService,
 		@NonNull BenutzerResolver benutzerResolver,
+		@NonNull BenutzerService benutzerService,
 		@NonNull VerwaltungseinheitService verwaltungseinheitService,
 		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
-		@NonNull FurtKreuzungRepository repository) {
+		@NonNull FurtKreuzungRepository repository, CommonConfigurationProperties commonConfigurationProperties) {
+		this.commonConfigurationProperties = commonConfigurationProperties;
+		this.benutzerService = benutzerService;
 		this.repository = repository;
-		this.kantenUndKnotenResolver = kantenUndKnotenResolver;
+		this.netzService = netzService;
 		this.benutzerResolver = benutzerResolver;
 		this.verwaltungseinheitService = verwaltungseinheitService;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
@@ -54,13 +66,16 @@ public class FurtKreuzungConfiguration {
 
 	@Bean
 	public SaveFurtKreuzungCommandConverter createFurtKreuzungCommandConverter() {
-		return new SaveFurtKreuzungCommandConverter(kantenUndKnotenResolver, kantenUndKnotenResolver,
+		return new SaveFurtKreuzungCommandConverter(netzService, netzService,
 			verwaltungseinheitResolver);
 	}
 
 	@Bean
 	public FurtKreuzungService furtKreuzungService() {
-		return new FurtKreuzungService(repository, verwaltungseinheitService);
+		return new FurtKreuzungService(repository, verwaltungseinheitService, netzService,
+			commonConfigurationProperties.getErlaubteAbweichungFuerKantenNetzbezugRematch(),
+			furtKreuzungNetzBezugAenderungRepository,
+			benutzerService);
 	}
 
 	@Bean

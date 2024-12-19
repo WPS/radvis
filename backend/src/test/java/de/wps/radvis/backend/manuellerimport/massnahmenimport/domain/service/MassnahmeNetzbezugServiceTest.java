@@ -50,11 +50,11 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity.Mass
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity.MassnahmenImportZuordnungTestDataProvider;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweis;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweisText;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;

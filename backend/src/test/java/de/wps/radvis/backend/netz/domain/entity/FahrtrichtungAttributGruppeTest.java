@@ -55,6 +55,7 @@ class FahrtrichtungAttributGruppeTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	void testeSetter() {
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe = new FahrtrichtungAttributGruppe(
 			Richtung.BEIDE_RICHTUNGEN, false);
@@ -63,16 +64,16 @@ class FahrtrichtungAttributGruppeTest {
 		fahrtrichtungAttributGruppe.setRichtung(Richtung.IN_RICHTUNG);
 		fahrtrichtungAttributGruppe.setRichtung(Richtung.BEIDE_RICHTUNGEN);
 
-		fahrtrichtungAttributGruppe.setRichtung(Richtung.GEGEN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
+		fahrtrichtungAttributGruppe.update(Richtung.GEGEN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
 
 		assertThatThrownBy(() -> {
-			fahrtrichtungAttributGruppe.setRichtung(Richtung.GEGEN_RICHTUNG, Richtung.IN_RICHTUNG);
+			fahrtrichtungAttributGruppe.update(Richtung.GEGEN_RICHTUNG, Richtung.IN_RICHTUNG);
 		}).isInstanceOf(RequireViolation.class);
 		assertThatThrownBy(() -> {
-			fahrtrichtungAttributGruppe.setRichtung(null, Richtung.IN_RICHTUNG);
+			fahrtrichtungAttributGruppe.update(null, Richtung.IN_RICHTUNG);
 		}).isInstanceOf(RequireViolation.class);
 		assertThatThrownBy(() -> {
-			fahrtrichtungAttributGruppe.setRichtung(Richtung.GEGEN_RICHTUNG, null);
+			fahrtrichtungAttributGruppe.update(Richtung.GEGEN_RICHTUNG, null);
 		}).isInstanceOf(RequireViolation.class);
 		assertThatThrownBy(() -> {
 			fahrtrichtungAttributGruppe.setRichtung(null);
@@ -84,9 +85,9 @@ class FahrtrichtungAttributGruppeTest {
 		fahrtrichtungAttributGruppe.setRichtung(Richtung.IN_RICHTUNG);
 		fahrtrichtungAttributGruppe.setRichtung(Richtung.BEIDE_RICHTUNGEN);
 
-		fahrtrichtungAttributGruppe.setRichtung(Richtung.GEGEN_RICHTUNG, Richtung.IN_RICHTUNG);
-		fahrtrichtungAttributGruppe.setRichtung(Richtung.IN_RICHTUNG, Richtung.BEIDE_RICHTUNGEN);
-		fahrtrichtungAttributGruppe.setRichtung(Richtung.GEGEN_RICHTUNG, Richtung.BEIDE_RICHTUNGEN);
+		fahrtrichtungAttributGruppe.update(Richtung.GEGEN_RICHTUNG, Richtung.IN_RICHTUNG);
+		fahrtrichtungAttributGruppe.update(Richtung.IN_RICHTUNG, Richtung.BEIDE_RICHTUNGEN);
+		fahrtrichtungAttributGruppe.update(Richtung.GEGEN_RICHTUNG, Richtung.BEIDE_RICHTUNGEN);
 
 		fahrtrichtungAttributGruppe.changeSeitenbezug(false);
 		assertThat(fahrtrichtungAttributGruppe.getFahrtrichtungLinks())

@@ -14,37 +14,21 @@
 
 package de.wps.radvis.backend.leihstation.domain;
 
-import java.util.Set;
-
-import org.locationtech.jts.geom.Geometry;
-import org.springframework.security.core.Authentication;
-
-import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
-import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntityService;
 import de.wps.radvis.backend.leihstation.domain.entity.Leihstation;
-import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import jakarta.transaction.Transactional;
 
+@Transactional
 public class LeihstationService extends AbstractVersionierteEntityService<Leihstation> {
 
-	private final BenutzerResolver benutzerResolver;
-	private final ZustaendigkeitsService zustaendigkeitsService;
+	private LeihstationRepository repository;
 
-	public LeihstationService(LeihstationRepository repository,
-		BenutzerResolver benutzerResolver,
-		ZustaendigkeitsService zustaendigkeitsService) {
+	public LeihstationService(LeihstationRepository repository) {
 		super(repository);
-		this.benutzerResolver = benutzerResolver;
-		this.zustaendigkeitsService = zustaendigkeitsService;
+		this.repository = repository;
 	}
 
-	public boolean darfBenutzerBearbeiten(Authentication authentication, Leihstation leihstation) {
-		Geometry geometry = leihstation.getGeometrie();
-		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
-		Set<Recht> benutzerRechte = aktiverBenutzer.getRechte();
-
-		return benutzerRechte.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN) &&
-			zustaendigkeitsService.istImZustaendigkeitsbereich(geometry, aktiverBenutzer);
+	public Leihstation save(Leihstation leihstation) {
+		return repository.save(leihstation);
 	}
 }

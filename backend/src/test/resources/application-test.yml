@@ -30,6 +30,11 @@ radVis:
     fahrradzaehlstellenMobiDataImportStartDate: 202101
   dlm:
     basisUrl: https://owsproxy.lgl-bw.de/owsproxy/ows/WFS_LGL-BW_ATKIS_Basis-DLM
+  netzkorrektur:
+    attributlueckenMaximaleLaengeInM: 300
+    attributlueckenMaximaleKantenanzahl: 2
+    maximaleAnzahlAdjazenterAttribuierterKanten: 2
+    attributlueckeninGpkgSchreiben: false
 spring:
   jpa:
     properties:

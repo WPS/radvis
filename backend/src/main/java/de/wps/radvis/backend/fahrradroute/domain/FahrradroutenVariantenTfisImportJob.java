@@ -24,9 +24,11 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteVariante;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradroutenVariantenTfisImportStatistik;
@@ -39,6 +41,12 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+/**
+ * Importiert Varianten für alle TFIS-Routen, die bereits im System sind, außer LRFW.
+ * 
+ * Aktualisiert, löscht und erstellt neu anhand der Quelle
+ */
+@WithFehlercode(Fehlercode.FAHRRADROUTE_TFIS_IMPORT)
 public class FahrradroutenVariantenTfisImportJob extends AbstractFahrradroutenVariantenTfisImportJob {
 	// Dieser Job Name sollte sich nicht mehr aendern, weil Controller und DB Eintraege den Namen verwenden
 	public static final String JOB_NAME = "FahrradroutenVariantenTfisImportJob";

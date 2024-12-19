@@ -17,7 +17,6 @@ package de.wps.radvis.backend.benutzer.domain;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -167,6 +166,11 @@ public class BenutzerService {
 					+ "Bitte laden Sie das Objekt neu und führen Sie Ihre Änderungen erneut durch.");
 		}
 		benutzer.setStatus(status);
+
+		if (status != BenutzerStatus.AKTIV) {
+			benutzer.setAblaufdatum(null);
+		}
+
 		return benutzerRepository.save(benutzer);
 	}
 
@@ -334,14 +338,17 @@ public class BenutzerService {
 	 * @return Alle Rechte, mit der man die Rolle vergeben darf
 	 */
 	public List<Benutzer> ermittleAktiveBenutzerInaktivLaengerAls(Integer dauerInTagen) {
-		List<Benutzer> benutzerListe = benutzerRepository.findByStatusAndRollenIsNotContaining(
-			BenutzerStatus.AKTIV,
-			Rolle.RADVIS_ADMINISTRATOR
-		);
+		LocalDate grenzDatum = LocalDate.now().minusDays(dauerInTagen);
 
-		return benutzerListe.stream()
-			.filter(b -> ChronoUnit.DAYS.between(b.getLetzteAktivitaet(), LocalDate.now()) > dauerInTagen)
-			.collect(Collectors.toList());
+		return benutzerRepository.findByStatusAndRollenIsNotContainingAndLetzteAktivitaetBefore(
+			BenutzerStatus.AKTIV,
+			Rolle.RADVIS_ADMINISTRATOR,
+			grenzDatum
+		);
+	}
+
+	public List<Benutzer> ermittleBenutzerAblaufdatumUeberschritten() {
+		return benutzerRepository.findByStatusAndAblaufdatumBefore(BenutzerStatus.AKTIV, LocalDate.now());
 	}
 
 	public Benutzer beantrageReaktivierungFuerBenutzer(Benutzer benutzer) throws BenutzerIstNichtRegistriertException {
@@ -373,6 +380,14 @@ public class BenutzerService {
 			.map(b -> b.getMailadresse().toString())
 			.toList();
 		mailService.sendMail(zustaendigeMailadressen, betreff, mailText);
+	}
+
+	public long getAnzahlBenutzerGesamt() {
+		return benutzerRepository.count();
+	}
+
+	public long getAnzahlBenutzerAktiv() {
+		return benutzerRepository.countByStatus(BenutzerStatus.AKTIV);
 	}
 
 }

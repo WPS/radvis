@@ -19,7 +19,6 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FahrradrouteNetzbezugHighlightLayerComponent } from 'src/app/viewer/fahrradroute/components/fahrradroute-netzbezug-highlight-layer/fahrradroute-netzbezug-highlight-layer.component';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
-import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { KantenNetzbezug } from 'src/app/shared/models/kanten-netzbezug';
 import { defaultKantenbezug } from 'src/app/viewer/viewer-shared/models/kantennetzbezug-test-data-provider.spec';
 import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
@@ -51,7 +50,6 @@ describe(FahrradrouteNetzbezugHighlightLayerComponent.name, () => {
   beforeEach(() => {
     inputs = {
       kantenBezug: defaultKantenbezug,
-      layerId: MASSNAHMEN.name,
       fahrradRouteNetzbezug: undefined as unknown as FahrradrouteNetzbezug,
     };
     fixture = MockRender(FahrradrouteNetzbezugHighlightLayerComponent, inputs, { detectChanges: false });

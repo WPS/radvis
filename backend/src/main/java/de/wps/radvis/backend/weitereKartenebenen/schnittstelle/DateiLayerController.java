@@ -40,6 +40,8 @@ import org.springframework.web.server.ResponseStatusException;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.schnittstelle.BenutzerView;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.common.schnittstelle.ErrorDetails;
 import de.wps.radvis.backend.weitereKartenebenen.domain.DateiLayerImportException;
 import de.wps.radvis.backend.weitereKartenebenen.domain.DateiLayerService;
@@ -53,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/datei-layer")
 @Validated
 @Slf4j
+@WithFehlercode(Fehlercode.DATEI_LAYER)
 public class DateiLayerController {
 	private final DateiLayerRepository dateiLayerRepository;
 	private final BenutzerResolver benutzerResolver;
@@ -98,8 +101,7 @@ public class DateiLayerController {
 	@Transactional
 	public ResponseEntity<?> create(Authentication authentication,
 		@RequestPart CreateDateiLayerCommand command,
-		@RequestPart MultipartFile file
-	) {
+		@RequestPart MultipartFile file) {
 		dateiLayerGuard.create(authentication, command, file);
 
 		if (file.getSize() > multipartProperties.getMaxFileSize().toBytes()) {
@@ -166,8 +168,7 @@ public class DateiLayerController {
 		MediaType.MULTIPART_FORM_DATA_VALUE,
 	})
 	public ResponseEntity<?> addOrChangeStyle(Authentication authentication, @PathVariable Long layerId,
-		@RequestPart MultipartFile sldFile
-	) {
+		@RequestPart MultipartFile sldFile) {
 		dateiLayerGuard.addOrChangeStyle(authentication, layerId);
 
 		if (sldFile.getSize() > weitereKartenebenenProperties.getMaxSldFileSize().toBytes()) {

@@ -12,17 +12,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { asString } from 'ol/color';
+import { Point } from 'ol/geom';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
+import { CreateKanteZwischenKnotenCommand } from 'src/app/editor/kanten/models/create-kante-zwischen-knoten-command';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NotifyGeometryChangedService } from 'src/app/editor/kanten/services/notify-geometry-changed.service';
+import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
-import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
+import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
+import { CreateAnpassungswunschRouteProvider } from 'src/app/shared/services/create-anpassungswunsch-route.provider';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-import { Point } from 'ol/geom';
-import { CreateKanteZwischenKnotenCommand } from 'src/app/editor/kanten/models/create-kante-zwischen-knoten-command';
 import invariant from 'tiny-invariant';
 
 @Component({
@@ -31,23 +33,37 @@ import invariant from 'tiny-invariant';
   styleUrls: ['./kanten-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KantenCreatorComponent {
+export class KantenCreatorComponent implements OnInit {
   isFetching = false;
   vonKnotenId: string | undefined;
   bisKnotenId: string | undefined;
   bisKnotenGeom: Point | undefined;
   showValidationMessage = false;
   validInputColor = asString(MapStyles.VALID_INPUT_COLOR);
+  previousNetzklassenfilter: Netzklassefilter[];
+  createAnpassungswunschRoute: string;
 
   constructor(
     private editorRoutingService: EditorRoutingService,
     private netzService: NetzService,
-    private errorHandlingService: ErrorHandlingService,
     private notifyUserService: NotifyUserService,
     private notifyGeometryChangedService: NotifyGeometryChangedService,
     private changeDetector: ChangeDetectorRef,
-    private kanteSelektionService: KantenSelektionService
-  ) {}
+    private kanteSelektionService: KantenSelektionService,
+    private mapQueryParamsService: MapQueryParamsService,
+    createAnpassungswunschRouteProvider: CreateAnpassungswunschRouteProvider
+  ) {
+    this.previousNetzklassenfilter = mapQueryParamsService.mapQueryParamsSnapshot.netzklassen;
+    this.createAnpassungswunschRoute = createAnpassungswunschRouteProvider.getCreatorRoute();
+  }
+
+  ngOnInit(): void {
+    if (this.previousNetzklassenfilter.length !== Netzklassefilter.getAll().length) {
+      this.mapQueryParamsService.update({
+        netzklassen: Netzklassefilter.getAll(),
+      });
+    }
+  }
 
   get isDirty(): boolean {
     return this.vonKnotenId !== undefined || this.bisKnotenId !== undefined;

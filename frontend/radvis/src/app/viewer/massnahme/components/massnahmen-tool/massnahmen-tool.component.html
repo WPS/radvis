@@ -38,6 +38,10 @@
     </button>
   </mat-toolbar>
 
+  <rad-warnhinweis class="archiviert-hinweis" *ngIf="massnahmeToolView.archiviert">
+    Diese Maßnahme wurde bereits archiviert.
+  </rad-warnhinweis>
+
   <nav mat-tab-nav-bar color="accent" class="mat-tab-nav" [disableRipple]="true" [tabPanel]="tabPanel">
     <a
       mat-tab-link
@@ -86,13 +90,18 @@
     </a>
   </nav>
 
-  <rad-netzbezug-highlight-layer
-    *ngIf="isNetzbezugVisible$ | async"
-    [netzbezug]="massnahmeToolView.netzbezug"
-    [layerId]="massnahmenLayerId"></rad-netzbezug-highlight-layer>
-  <ng-container *ngIf="massnahmeToolView.originalGeometrie !== null && originalGeometrieAnzeigen">
-    <rad-original-geometrie-layer [geometrie]="massnahmeToolView.originalGeometrie"></rad-original-geometrie-layer>
+  <ng-container *ngIf="isNetzbezugVisible$ | async">
+    @if (massnahmeToolView.netzbezugSnapshot) {
+      <rad-massnahme-netzbezug-snapshot-layer [geometrie]="massnahmeToolView.netzbezugSnapshot">
+      </rad-massnahme-netzbezug-snapshot-layer>
+    } @else {
+      <rad-netzbezug-highlight-layer [netzbezug]="massnahmeToolView.netzbezug" [layerId]="massnahmenLayerId">
+      </rad-netzbezug-highlight-layer>
+    }
   </ng-container>
+  <rad-original-geometrie-layer
+    *ngIf="massnahmeToolView.originalGeometrie !== null && originalGeometrieAnzeigen"
+    [geometrie]="massnahmeToolView.originalGeometrie"></rad-original-geometrie-layer>
 </ng-container>
 
 <mat-tab-nav-panel class="tab-panel" #tabPanel>

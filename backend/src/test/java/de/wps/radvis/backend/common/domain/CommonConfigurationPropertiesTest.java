@@ -54,7 +54,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"));
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0));
 	}
 
 	@Test
@@ -68,7 +68,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0))
 				.hasMessageContaining("externeResourcenBasisPfad muss Dateipfadstruktur haben");
 	}
 
@@ -83,7 +83,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0))
 				.isInstanceOf(org.valid4j.errors.RequireViolation.class)
 				.hasMessageContaining("expected: not null");
 	}
@@ -99,7 +99,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0))
 				.isInstanceOf(org.valid4j.errors.RequireViolation.class)
 				.hasMessageContaining("expected: not null");
 	}
@@ -115,7 +115,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"));
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0));
 	}
 
 	@Test
@@ -129,7 +129,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+			basisnetzImportSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0))
 				.hasMessageContaining("basisUrl muss URL-Struktur haben");
 	}
 
@@ -144,7 +144,7 @@ class CommonConfigurationPropertiesTest {
 			proxy,
 			version,
 			basisURL,
-			basisnetzSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources"))
+			basisnetzSource, "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0))
 				.hasMessage("basisnetzImportSource muss einen der folgenden Wert enthalten: DLM, OSM");
 	}
 }

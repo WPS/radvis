@@ -27,7 +27,7 @@ import java.util.Map;
 
 import com.graphhopper.GraphHopper;
 
-import de.wps.radvis.backend.matching.domain.DlmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
 import de.wps.radvis.backend.netz.domain.valueObject.SeitenbezogeneProfilEigenschaften;
 import lombok.Getter;
@@ -92,6 +92,20 @@ public class DlmMatchedGraphHopper extends GraphHopper {
 		if (reader.getDataDate() != null)
 			getGraphHopperStorage().getProperties().put("datareader.data.date", f.format(reader.getDataDate()));
 		dlmMatchingCacheRepository.save(graphHopperEdgesAufOsmWays, graphHopperEdgesAufProfilEigenschaften);
+
+		/*
+		 Es kann sein, dass Teile der Geometrien außerhalb des Graphen (also dem "GraphHopperStorage") vom Graphhopper
+		 liegen. Das liegt daran, dass dieser Graph nur Tower-Nodes enthält, also Keuzungspunkte. Die ganzen anderen
+		 Nodes eines OSM-Ways werden hier nicht direkt gespeichert. Wenn man also eine PBF mit nur einem U-förmigen
+		 Way hat, dann liegt der untere Teil vom "U" außerhalb des Graphen. Das führt beim Matching zu Problemen, da
+		 der GraphHopper viel auf die BBox des Graphen prüft. Als Fix erweitern wir hier die BBox in jede Richtung um
+		 >100km (in BW sind 1° Lat ca. 110 km und 1° Lon ca. 70 km), sodass sichergestellt ist, dass alle Teile der
+		 Geometrien auch innerhalb der BBox liegen.
+		*/
+		getGraphHopperStorage().getBounds().minLat -= 1.0;
+		getGraphHopperStorage().getBounds().minLon -= 2.0;
+		getGraphHopperStorage().getBounds().maxLat += 1.0;
+		getGraphHopperStorage().getBounds().maxLon += 2.0;
 	}
 
 	@Override

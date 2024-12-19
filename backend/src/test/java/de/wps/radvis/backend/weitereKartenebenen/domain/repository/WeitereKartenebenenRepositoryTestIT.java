@@ -39,6 +39,7 @@ import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -75,7 +76,8 @@ import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.Zoomstufe;
 	MailConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
-	WeitereKartenebenenConfigurationProperties.class
+	WeitereKartenebenenConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class WeitereKartenebenenRepositoryTestIT extends DBIntegrationTestIT {
 

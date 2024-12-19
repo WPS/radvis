@@ -14,6 +14,7 @@
 
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Injectable({
   providedIn: 'root',
@@ -27,10 +28,18 @@ export class ManualRoutingService {
   static readonly MANUAL_DATENSCHNITTSTELLEN_URL: string = '/manual/docs/datenschnittstellen';
   static readonly MANUAL_IMPORT_URL: string = '/manual/docs/import';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private matomoTracker: MatomoTracker
+  ) {}
 
   openManual(): void {
     const url = this.router.serializeUrl(this.router.createUrlTree([ManualRoutingService.MANUAL_URL]));
+    this.openManualInNewTab(url);
+  }
+
+  private openManualInNewTab(url: string): void {
+    this.matomoTracker.trackEvent('Handbuch', 'Aufruf', url);
     window.open(url, '_blank');
   }
 
@@ -38,35 +47,35 @@ export class ManualRoutingService {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_IMPORT_URL], { fragment: 'transformation' })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualRollenRechte(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_BENUTZERVERWALTUNG_URL], { fragment: 'rollen--rechte' })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualLeihstationenImport(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_VIEWER_URL], { fragment: 'leihstationen' })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualServicestationenImport(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_VIEWER_URL], { fragment: 'servicestationen' })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualAbstellanlageImport(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_VIEWER_URL], { fragment: 'abstellanlagen' })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualWeitereHilfe(): void {
@@ -75,7 +84,7 @@ export class ManualRoutingService {
         fragment: 'weitere-hilfe-und-informationen',
       })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualAnzeigeordnungViewer(): void {
@@ -84,7 +93,7 @@ export class ManualRoutingService {
         fragment: 'anzeigeordnung-der-kartenebenen',
       })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualRoutingProfile(): void {
@@ -93,14 +102,14 @@ export class ManualRoutingService {
         fragment: 'verwalten-von-routing-profilen',
       })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualWmsWfsSchnittstelle(): void {
     const url = this.router.serializeUrl(
       this.router.createUrlTree([ManualRoutingService.MANUAL_DATENSCHNITTSTELLEN_URL])
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 
   openManualPflichtattribute(): void {
@@ -109,6 +118,6 @@ export class ManualRoutingService {
         fragment: 'pflichtattribute',
       })
     );
-    window.open(url, '_blank');
+    this.openManualInNewTab(url);
   }
 }

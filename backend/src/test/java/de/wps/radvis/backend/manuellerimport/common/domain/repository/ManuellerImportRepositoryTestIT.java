@@ -30,6 +30,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,6 +46,7 @@ import de.wps.radvis.backend.manuellerimport.common.ManuellerImportCommonConfigu
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.ManuellerImportFehler;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportTyp;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
@@ -60,6 +62,7 @@ public class ManuellerImportRepositoryTestIT extends DBIntegrationTestIT {
 	@EnableJpaRepositories(basePackageClasses = { ManuellerImportFehlerRepository.class,
 		VerwaltungseinheitRepository.class,
 		BenutzerRepository.class })
+	@MockBean(NetzConfigurationProperties.class)
 	public static class TestConfiguration {
 	}
 

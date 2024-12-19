@@ -29,7 +29,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
 import lombok.extern.slf4j.Slf4j;
 

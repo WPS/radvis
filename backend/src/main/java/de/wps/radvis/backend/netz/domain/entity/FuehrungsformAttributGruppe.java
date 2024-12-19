@@ -30,6 +30,7 @@ import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
@@ -62,15 +63,12 @@ public class FuehrungsformAttributGruppe extends VersionierteEntity {
 
 	public FuehrungsformAttributGruppe(List<FuehrungsformAttribute> fuehrungsformAttributeBeideSeiten,
 		boolean isZweiseitig) {
-		require(fuehrungsformAttributeBeideSeiten, notNullValue());
-		require(fuehrungsformAttributeBeideSeiten, Matchers.not(Matchers.empty()));
-		require(LinearReferenzierterAbschnitt.segmentsCoverFullLine(fuehrungsformAttributeBeideSeiten.stream()
-			.map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
-			.collect(Collectors.toList())));
+		this(fuehrungsformAttributeBeideSeiten, fuehrungsformAttributeBeideSeiten, isZweiseitig);
+	}
 
-		this.fuehrungsformAttributeLinks = new HashSet<>(fuehrungsformAttributeBeideSeiten);
-		this.fuehrungsformAttributeRechts = new HashSet<>(fuehrungsformAttributeBeideSeiten);
-		this.isZweiseitig = isZweiseitig;
+	public FuehrungsformAttributGruppe(List<FuehrungsformAttribute> fuehrungsformAttributeLinks,
+		List<FuehrungsformAttribute> fuehrungsformAttributeRechts, boolean isZweiseitig) {
+		this(null, fuehrungsformAttributeLinks, fuehrungsformAttributeRechts, isZweiseitig, null);
 	}
 
 	@Builder(builderMethodName = "privateBuilder")
@@ -226,5 +224,41 @@ public class FuehrungsformAttributGruppe extends VersionierteEntity {
 	public Oberflaechenbeschaffenheit getOberflaechenbeschaffenheitWertMitGroesstemAnteilRechts() {
 		return LinearReferenzierteAttribute.getWertMitGroesstemAnteil(fuehrungsformAttributeRechts,
 			FuehrungsformAttribute::getOberflaechenbeschaffenheit);
+	}
+
+	public void insert(FuehrungsformAttribute attribut) {
+		require(!isZweiseitig, "für zweiseitige Kante, rechts und links einzeln einfügen");
+		replaceFuehrungsformAttribute(
+			LinearReferenzierteAttribute.insertInto(getImmutableFuehrungsformAttributeLinks(), attribut));
+	}
+
+	public void insertLinks(FuehrungsformAttribute attribut) {
+		require(isZweiseitig, "für einseitige Kante, use @insert");
+		replaceFuehrungsformAttribute(
+			LinearReferenzierteAttribute.insertInto(getImmutableFuehrungsformAttributeLinks(), attribut),
+			getImmutableFuehrungsformAttributeRechts());
+	}
+
+	public void insertRechts(FuehrungsformAttribute attribut) {
+		require(isZweiseitig, "für einseitige Kante, use @insert");
+		replaceFuehrungsformAttribute(getImmutableFuehrungsformAttributeLinks(),
+			LinearReferenzierteAttribute.insertInto(getImmutableFuehrungsformAttributeRechts(), attribut));
+	}
+
+	/**
+	 * Fasst Segmente (echt) kleiner als übergebene Länge mit Nachbarn zusammen
+	 */
+	public void mergeSegmentsKleinerAls(LineareReferenz minimalSegmentLength) {
+		require(minimalSegmentLength.getAbschnittsmarke() > 0.0);
+
+		if (getImmutableFuehrungsformAttributeLinks().size() > 1) {
+			replaceFuehrungsformAttributeLinks(LinearReferenzierteAttribute
+				.mergeSegmentsKleinerAls(getImmutableFuehrungsformAttributeLinks(), minimalSegmentLength));
+		}
+
+		if (getImmutableFuehrungsformAttributeRechts().size() > 1) {
+			replaceFuehrungsformAttributeRechts(LinearReferenzierteAttribute
+				.mergeSegmentsKleinerAls(getImmutableFuehrungsformAttributeRechts(), minimalSegmentLength));
+		}
 	}
 }

@@ -97,13 +97,17 @@ public class GeometryTestdataProvider {
 
 	public static MultiPolygon createQuadratischerBereich(double minX, double minY, double maxX, double maxY) {
 		return GEO_FACTORY.createMultiPolygon(new Polygon[] {
-			GEO_FACTORY.createPolygon(new Coordinate[] {
-				new Coordinate(minX, minY),
-				new Coordinate(minX, maxY),
-				new Coordinate(maxX, maxY),
-				new Coordinate(maxX, minY),
-				new Coordinate(minX, minY)
-			})
+			createQuadratischerBereichAsPolygon(minX, minY, maxX, maxY)
+		});
+	}
+
+	public static Polygon createQuadratischerBereichAsPolygon(double minX, double minY, double maxX, double maxY) {
+		return GEO_FACTORY.createPolygon(new Coordinate[] {
+			new Coordinate(minX, minY),
+			new Coordinate(minX, maxY),
+			new Coordinate(maxX, maxY),
+			new Coordinate(maxX, minY),
+			new Coordinate(minX, minY)
 		});
 	}
 

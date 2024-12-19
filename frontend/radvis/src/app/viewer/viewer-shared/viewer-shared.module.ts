@@ -17,17 +17,16 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { BenachrichtigungButtonComponent } from 'src/app/viewer/viewer-shared/components/benachrichtigung-button/benachrichtigung-button.component';
-import { ExpandLinkComponent } from 'src/app/viewer/viewer-shared/components/expandable-content/expand-link/expand-link.component';
-import { ExpandableContentComponent } from 'src/app/viewer/viewer-shared/components/expandable-content/expandable-content.component';
+import { DetailFeatureTableComponent } from 'src/app/viewer/viewer-shared/components/detail-feauture-table/detail-feature-table.component';
 import { ExportButtonComponent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { InfrastrukturTabelleLayoutComponent } from 'src/app/viewer/viewer-shared/components/infrastruktur-tabelle-layout/infrastruktur-tabelle-layout.component';
+import { InfrastrukturTabelleSpalteComponent } from 'src/app/viewer/viewer-shared/components/infrastruktur-tabelle-spalte/infrastruktur-tabelle-spalte.component';
 import { OriginalGeometrieAnzeigenButtonComponent } from 'src/app/viewer/viewer-shared/components/original-geometrie-anzeigen-button/original-geometrie-anzeigen-button.component';
 import { PositionSelektionControlComponent } from 'src/app/viewer/viewer-shared/components/position-selektion-control/position-selektion-control.component';
+import { RightDetailsShortcutDirective } from 'src/app/viewer/viewer-shared/components/right-details-shortcut.directive';
+import { CsvImportDialogComponent } from './components/csv-import-dialog/csv-import-dialog.component';
 import { FilterHeaderComponent } from './components/filter-header/filter-header.component';
 import { FilterMenuComponent } from './components/filter-menu/filter-menu.component';
-import { CsvImportDialogComponent } from './components/csv-import-dialog/csv-import-dialog.component';
-import { DetailFeatureTableComponent } from 'src/app/viewer/viewer-shared/components/detail-feauture-table/detail-feature-table.component';
-import { RightDetailsShortcutDirective } from 'src/app/viewer/viewer-shared/components/right-details-shortcut.directive';
 
 const exports = [
   InfrastrukturTabelleLayoutComponent,
@@ -37,13 +36,13 @@ const exports = [
   OriginalGeometrieAnzeigenButtonComponent,
   ExportButtonComponent,
   PositionSelektionControlComponent,
-  ExpandableContentComponent,
   DetailFeatureTableComponent,
   RightDetailsShortcutDirective,
+  InfrastrukturTabelleSpalteComponent,
 ];
 
 @NgModule({
-  declarations: [...exports, ExpandLinkComponent, CsvImportDialogComponent],
+  declarations: [...exports, CsvImportDialogComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule],
   exports: [exports],
 })

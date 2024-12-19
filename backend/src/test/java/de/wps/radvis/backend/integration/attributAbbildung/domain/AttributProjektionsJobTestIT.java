@@ -50,6 +50,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfigu
 import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -77,7 +78,8 @@ import jakarta.persistence.PersistenceContext;
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),

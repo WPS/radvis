@@ -25,6 +25,7 @@ import {
 import { Coordinate } from 'ol/coordinate';
 import { AnpassungswunschAnlegenService } from 'src/app/shared/services/anpassungswunsch-anlegen.service';
 import invariant from 'tiny-invariant';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-fehlerprotokoll-detail-view',
@@ -48,6 +49,7 @@ export class FehlerprotokollDetailViewComponent {
 
   constructor(
     private changeDetector: ChangeDetectorRef,
+    private matomoTracker: MatomoTracker,
     @Optional() public anpassungswunschAnlegenService?: AnpassungswunschAnlegenService
   ) {}
 
@@ -77,6 +79,8 @@ export class FehlerprotokollDetailViewComponent {
     invariant(this.anpassungswunschAnlegenService);
     invariant(this.selectedLocation);
     invariant(this.id);
+
+    this.matomoTracker.trackEvent('Editor', 'Speichern', 'anpassungen/newFromFehlerprotokoll');
 
     this.anpassungswunschAnlegenService.addAnpassungswunschFuerFehlerprotokoll(
       this.selectedLocation,

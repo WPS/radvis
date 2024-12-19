@@ -14,16 +14,20 @@
 
 package de.wps.radvis.backend.barriere;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import de.wps.radvis.backend.barriere.domain.BarriereService;
+import de.wps.radvis.backend.barriere.domain.repository.BarriereNetzBezugAenderungRepository;
 import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.barriere.schnittstelle.BarriereGuard;
 import de.wps.radvis.backend.barriere.schnittstelle.SaveBarriereCommandConverter;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
@@ -33,34 +37,46 @@ import lombok.NonNull;
 @EnableJpaRepositories
 @EntityScan
 public class BarriereConfiguration {
-	private final NetzService kantenUndKnotenResolver;
+	private final NetzService netzService;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 	private final BarriereRepository barriereRepository;
 	private final BenutzerResolver benutzerResolver;
+	private final BenutzerService benutzerService;
 	private final VerwaltungseinheitService verwaltungseinheitService;
+	private CommonConfigurationProperties commonConfigurationProperties;
+
+	@Autowired
+	private BarriereNetzBezugAenderungRepository barriereNetzBezugAenderungRepository;
 
 	public BarriereConfiguration(
-		@NonNull NetzService kantenUndKnotenResolver,
+		@NonNull NetzService netzService,
 		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
 		@NonNull BarriereRepository barriereRepository,
 		@NonNull BenutzerResolver benutzerResolver,
+		CommonConfigurationProperties commonConfigurationProperties,
+		@NonNull BenutzerService benutzerService,
 		@NonNull VerwaltungseinheitService verwaltungseinheitService) {
-		this.kantenUndKnotenResolver = kantenUndKnotenResolver;
+		this.commonConfigurationProperties = commonConfigurationProperties;
+		this.netzService = netzService;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 		this.barriereRepository = barriereRepository;
 		this.benutzerResolver = benutzerResolver;
+		this.benutzerService = benutzerService;
 		this.verwaltungseinheitService = verwaltungseinheitService;
 	}
 
 	@Bean
 	public SaveBarriereCommandConverter createBarriereCommandConverter() {
-		return new SaveBarriereCommandConverter(kantenUndKnotenResolver, kantenUndKnotenResolver,
+		return new SaveBarriereCommandConverter(netzService, netzService,
 			verwaltungseinheitResolver);
 	}
 
 	@Bean
 	public BarriereService barriereService() {
-		return new BarriereService(barriereRepository, verwaltungseinheitService);
+		return new BarriereService(barriereRepository, verwaltungseinheitService, netzService,
+			commonConfigurationProperties.getErlaubteAbweichungFuerKantenNetzbezugRematch(),
+			barriereNetzBezugAenderungRepository,
+			benutzerService);
 	}
 
 	@Bean

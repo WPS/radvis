@@ -14,7 +14,6 @@
 
 package de.wps.radvis.backend.netz.schnittstelle;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -31,7 +30,6 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
-import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
@@ -74,8 +72,8 @@ public class NetzGuard {
 			.collect(Collectors.toSet());
 		authorizeEditKanten(kanteIds, aktiverBenutzer);
 		for (SaveKanteAttributeCommand command : commands) {
-			authorizeRadNetzVerlegung(command.getKanteId(), command.getNetzklassen(),
-				aktiverBenutzer);
+			authorizeRadNetzVerlegen(command.getKanteId(), command.getNetzklassen(), aktiverBenutzer);
+			authorizeKreisnetzVerlegen(command.getKanteId(), command.getNetzklassen(), aktiverBenutzer);
 		}
 	}
 
@@ -154,7 +152,7 @@ public class NetzGuard {
 
 		if (!aktiverBenutzer.hatRecht(Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT)
 			&& !aktiverBenutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Kanten zu erstellen");
+			throw new AccessDeniedException("Sie haben nicht die Berechtigung Kanten zu erstellen.");
 		}
 
 		// Wenn beide Knoten der zu erstellenden Kante im Zustaendigkeitsbereich liegen, dann liegt auch
@@ -172,14 +170,14 @@ public class NetzGuard {
 		if (!aktiverBenutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
 			if (!zustaendigkeitsService.istImZustaendigkeitsbereich(vonKnoten, aktiverBenutzer) ||
 				!zustaendigkeitsService.istImZustaendigkeitsbereich(bisKnoten, aktiverBenutzer)) {
-				throw new AccessDeniedException("Die erstellte Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+				throw new AccessDeniedException("Die erstellte Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 			}
 		}
 
 		if ((!vonKnoten.getQuelle().equals(QuellSystem.DLM) && !vonKnoten.getQuelle().equals(QuellSystem.RadVis))
 			|| (!bisKnoten.getQuelle().equals(QuellSystem.DLM)
 				&& !bisKnoten.getQuelle().equals(QuellSystem.RadVis))) {
-			throw new AccessDeniedException("Es können nur Kanten zwischen DLM- oder RadVis-Knoten erstellt werden");
+			throw new AccessDeniedException("Es können nur Kanten zwischen DLM- oder RadVis-Knoten erstellt werden.");
 		}
 	}
 
@@ -187,7 +185,7 @@ public class NetzGuard {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 		if (!aktiverBenutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
 			throw new AccessDeniedException(
-				" Nur Benutzer:innen mit der Rolle Administrator:in dürfen die Materialized Views refreshen");
+				" Nur Benutzer:innen mit der Rolle Administrator:in dürfen die Materialized Views refreshen.");
 
 		}
 	}
@@ -196,13 +194,13 @@ public class NetzGuard {
 
 		if (!benutzer.hatRecht(Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT)
 			&& !benutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Kanten zu bearbeiten");
+			throw new AccessDeniedException("Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 		}
 
 		if (!benutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
 			netzService.getKanten(kanteIds).forEach(kante -> {
 				if (!zustaendigkeitsService.istImZustaendigkeitsbereich(kante, benutzer)) {
-					throw new AccessDeniedException("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+					throw new AccessDeniedException("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 				}
 			});
 		}
@@ -212,43 +210,47 @@ public class NetzGuard {
 	public void authorizeEditKnoten(Long knotenId, Benutzer benutzer) {
 		if (!benutzer.hatRecht(Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT)
 			&& !benutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Kanten zu bearbeiten");
+			throw new AccessDeniedException("Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 		}
 
 		if (!benutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
 			if (!zustaendigkeitsService.istImZustaendigkeitsbereich(netzService.getKnoten(knotenId), benutzer)) {
-				throw new AccessDeniedException("Der Knoten liegt nicht in Ihrem Zuständigkeitsbereich");
+				throw new AccessDeniedException("Der Knoten liegt nicht in Ihrem Zuständigkeitsbereich.");
 			}
 		}
 	}
 
-	void authorizeRadNetzVerlegung(long kanteId, Set<Netzklasse> neueNetzklassen, Benutzer benutzer) {
+	private void authorizeRadNetzVerlegen(long kanteId, Set<Netzklasse> neueNetzklassen, Benutzer benutzer) {
 		if (benutzer.hatRecht(Recht.RADNETZ_ROUTENVERLEGUNGEN)) {
 			return;
 		}
 
-		KantenAttributGruppe alteGruppe = netzService.getKante(kanteId).getKantenAttributGruppe();
-		if (radNetzKlasseHinzugefuegtOderEntfernt(alteGruppe.getNetzklassen(),
-			neueNetzklassen)) {
+		Set<Netzklasse> alteNetzklassen = netzService.getKante(kanteId).getKantenAttributGruppe().getNetzklassen();
+		if (netzklasseHinzugefuegtOderEntfernt(alteNetzklassen, neueNetzklassen, Netzklasse.RADNETZ_NETZKLASSEN)
+		) {
 			throw new AccessDeniedException("Sie sind nicht berechtigt, die Netzklasse RadNETZ zu verändern.");
 		}
 	}
 
-	private boolean radNetzKlasseHinzugefuegtOderEntfernt(Set<Netzklasse> attributGruppe,
-		Set<Netzklasse> netzklassenaenderungen) {
+	private void authorizeKreisnetzVerlegen(long kanteId, Set<Netzklasse> neueNetzklassen, Benutzer benutzer) {
+		if (benutzer.hatRecht(Recht.KREISNETZ_ROUTENVERLEGUNGEN)) {
+			return;
+		}
 
-		// kopieren, da sonst die Originale verändert werden.
-		Set<Netzklasse> alteNetzklassen = new HashSet<>(attributGruppe);
-		Set<Netzklasse> neueNetzklassen = new HashSet<>(netzklassenaenderungen);
+		Set<Netzklasse> alteNetzklassen = netzService.getKante(kanteId).getKantenAttributGruppe().getNetzklassen();
+		if (netzklasseHinzugefuegtOderEntfernt(alteNetzklassen, neueNetzklassen, Netzklasse.KREISNETZ_NETZKLASSEN)
+		) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern.");
+		}
+	}
 
-		// gemeinsame Netzklassen entfernen
-		alteNetzklassen.removeAll(netzklassenaenderungen); // alle Netzklassen die entfernt wurden
-		neueNetzklassen.removeAll(attributGruppe); // alle Netzklassen, die neu hinzu gekommen sind
+	private boolean netzklasseHinzugefuegtOderEntfernt(Set<Netzklasse> alteNetzklassen,
+		Set<Netzklasse> neueNetzklassen, Set<Netzklasse> zuPruefendeNetzklassen) {
 
-		// Menge der geänderten Klassen
-		alteNetzklassen.addAll(neueNetzklassen);
-
-		return alteNetzklassen.stream().anyMatch(Netzklasse.RADNETZ_NETZKLASSEN::contains);
+		return zuPruefendeNetzklassen.stream()
+			.anyMatch(netzklasse -> (!alteNetzklassen.contains(netzklasse) && neueNetzklassen.contains(netzklasse)) || // Hinzugefügt
+				(alteNetzklassen.contains(netzklasse) && !neueNetzklassen.contains(netzklasse)) // Entfernt
+			);
 	}
 
 	public void deleteRadVISKanteById(Long id, Authentication authentication) {

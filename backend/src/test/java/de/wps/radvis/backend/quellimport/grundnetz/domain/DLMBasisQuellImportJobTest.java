@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,7 @@ class DLMBasisQuellImportJobTest {
 	ImportedFeaturePersistentRepository importedFeaturePersistentRepository;
 
 	@Mock
-	DLMWFSImportRepository dlmWFSImportRepository;
+	DlmRepository dlmWFSImportRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -74,30 +73,13 @@ class DLMBasisQuellImportJobTest {
 			.addAttribut("bezeichnung", "E52;A8")
 			.build();
 
-		ImportedFeature wegeFeature1 = ImportedFeatureTestDataProvider.defaultWFSObject().fachId("technischeID6")
-			.build();
-		ImportedFeature wegeFeature2 = ImportedFeatureTestDataProvider.defaultWFSObject().fachId("technischeID7")
-			.build();
-		ImportedFeature wegeFeature3 = ImportedFeatureTestDataProvider.defaultWFSObject().fachId("technischeID8")
-			.build();
-		ImportedFeature wegeFeature4 = ImportedFeatureTestDataProvider.defaultWFSObject().fachId("technischeID9")
-			.build();
-
-		when(dlmWFSImportRepository.readStrassenFeatures(partitionLeftTop))
-			.thenReturn(Stream.of(strassenFeature1, strassenFeature2));
-		when(dlmWFSImportRepository.readStrassenFeatures(partitionRightTop)).thenReturn(Stream.of(strassenFeature2));
-		when(dlmWFSImportRepository.readStrassenFeatures(partitionLeftBot))
-			.thenReturn(Stream.of(strassenFeature3, strassenFeature2));
-		when(dlmWFSImportRepository.readStrassenFeatures(partitionRightBot))
-			.thenReturn(Stream.of(strassenFeature4, strassenFeature3, strassenFeature5));
-
-		when(dlmWFSImportRepository.readWegeFeatures(partitionLeftTop))
-			.thenReturn(Stream.of(wegeFeature1, wegeFeature2));
-		when(dlmWFSImportRepository.readWegeFeatures(partitionRightTop)).thenReturn(Stream.of(wegeFeature2));
-		when(dlmWFSImportRepository.readWegeFeatures(partitionLeftBot))
-			.thenReturn(Stream.of(wegeFeature3, wegeFeature2));
-		when(dlmWFSImportRepository.readWegeFeatures(partitionRightBot))
-			.thenReturn(Stream.of(wegeFeature4, wegeFeature3));
+		when(dlmWFSImportRepository.getKanten(partitionLeftTop))
+			.thenReturn(List.of(strassenFeature1, strassenFeature2));
+		when(dlmWFSImportRepository.getKanten(partitionRightTop)).thenReturn(List.of(strassenFeature2));
+		when(dlmWFSImportRepository.getKanten(partitionLeftBot))
+			.thenReturn(List.of(strassenFeature3, strassenFeature2));
+		when(dlmWFSImportRepository.getKanten(partitionRightBot))
+			.thenReturn(List.of(strassenFeature4, strassenFeature3, strassenFeature5));
 
 		DLMBasisQuellImportJob job = new DLMBasisQuellImportJob(
 			jobExecutionDescriptionRepository,
@@ -113,9 +95,5 @@ class DLMBasisQuellImportJobTest {
 			same(strassenFeature4)); // Autobahn Features sollen nicht importiert werden
 		verify(importedFeaturePersistentRepository, times(0)).save(
 			same(strassenFeature5)); // Autobahn Features sollen nicht importiert werden
-		verify(importedFeaturePersistentRepository, times(1)).save(same(wegeFeature1));
-		verify(importedFeaturePersistentRepository, times(1)).save(same(wegeFeature2));
-		verify(importedFeaturePersistentRepository, times(1)).save(same(wegeFeature3));
-		verify(importedFeaturePersistentRepository, times(1)).save(same(wegeFeature4));
 	}
 }

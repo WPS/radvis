@@ -14,7 +14,7 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
-import { Subscription, interval } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 import { exhaustMap, take, takeWhile } from 'rxjs/operators';
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
 import { Severity } from 'src/app/import/models/import-session-view';
@@ -25,6 +25,7 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import invariant from 'tiny-invariant';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-import-netzklasse-abschliessen',
@@ -51,7 +52,8 @@ export class ImportNetzklasseAbschliessenComponent implements OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private notifyUserService: NotifyUserService,
     private organisationenService: OrganisationenService,
-    private fehlerprotokollService: FehlerprotokollService
+    private fehlerprotokollService: FehlerprotokollService,
+    private matomoTracker: MatomoTracker
   ) {
     this.netzklassenImportService.getImportSession().subscribe(session => {
       invariant(session);
@@ -109,6 +111,8 @@ export class ImportNetzklasseAbschliessenComponent implements OnDestroy {
   onExecute(): void {
     invariant(this.session);
     this.session.executing = true;
+
+    this.matomoTracker.trackEvent('Import', 'Abschließen', 'Netzklassen');
 
     this.netzklassenImportService.executeNetzklassenZuweisen().catch(() => {
       invariant(this.session);

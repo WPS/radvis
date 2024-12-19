@@ -14,6 +14,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatToolbar } from '@angular/material/toolbar';
+import { RouterTestingModule } from '@angular/router/testing';
 import { MockComponent } from 'ng-mocks';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { AttributeEditorComponent } from 'src/app/form-elements/components/attribute-editor/attribute-editor.component';
@@ -25,7 +26,7 @@ describe('AttributeEditorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [AttributeEditorComponent, MockComponent(MatToolbar)],
-      imports: [EditorModule],
+      imports: [EditorModule, RouterTestingModule],
     }).compileComponents();
   });
 

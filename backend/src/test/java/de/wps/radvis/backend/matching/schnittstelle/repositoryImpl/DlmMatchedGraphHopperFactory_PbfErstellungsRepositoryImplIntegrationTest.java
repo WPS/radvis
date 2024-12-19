@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,14 +33,13 @@ import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.common.DlmMatchedGraphhopperTestdataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import jakarta.persistence.EntityManager;
 
 class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 
@@ -50,9 +50,6 @@ class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 			new Coordinate(378073.54, 5255657.09),
 			new Coordinate(633191.12, 5534702.95))
 	);
-
-	@Mock
-	private EntityManager entityManager;
 
 	@Mock
 	private BarriereRepository barriereRepository;
@@ -68,12 +65,12 @@ class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 	@BeforeEach
 	void setUp() {
 		openMocks(this);
-		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager,
+		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter,
 			barriereRepository, kantenRepository);
 	}
 
 	@Test
-	void test_update_cleansCache() throws KeineRouteGefundenException {
+	void test_update_cleansCache() throws KeineRouteGefundenException, IOException {
 		List<Kante> kanten = List.of(
 			KanteTestDataProvider.withDefaultValues().geometry(
 				GeometryTestdataProvider.createLineString(new Coordinate(417700, 5288700),
@@ -126,7 +123,7 @@ class DlmMatchedGraphHopperFactory_PbfErstellungsRepositoryImplIntegrationTest {
 
 		// act
 		dlmMatchedGraphHopperFactory.updateDlmGraphHopper();
-		graphhopperRoutingRepository.swapGraphHopper();
+		graphhopperRoutingRepository.updateGraphHopper();
 
 		// assert
 		RoutingResult newRoute = graphhopperRoutingRepository.route(pointsToRoute,

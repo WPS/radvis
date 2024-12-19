@@ -50,6 +50,7 @@ import de.wps.radvis.backend.fahrradroute.domain.entity.provider.FahrradrouteTes
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -61,7 +62,7 @@ import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 @EntityScan(basePackageClasses = { FahrradrouteConfiguration.class,
 	NetzConfiguration.class, OrganisationConfiguration.class, BenutzerConfiguration.class })
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
-	PostgisConfigurationProperties.class, CommonConfigurationProperties.class })
+	PostgisConfigurationProperties.class, CommonConfigurationProperties.class, NetzConfigurationProperties.class })
 @ContextConfiguration(classes = { CommonConfiguration.class, GeoConverterConfiguration.class })
 public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 	@Autowired

@@ -13,10 +13,10 @@
  */
 
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
+import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
 import { SaveFahrradrouteVarianteCommand } from 'src/app/viewer/fahrradroute/models/save-fahrradroute-variante-command';
 import { Tourenkategorie } from 'src/app/viewer/fahrradroute/models/tourenkategorie';
-import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 
 export interface SaveFahrradrouteCommand {
   id: number;
@@ -24,7 +24,7 @@ export interface SaveFahrradrouteCommand {
   name: string;
   kurzbeschreibung: string;
   beschreibung: string;
-  kategorie: Kategorie;
+  kategorie: FahrradrouteKategorie;
   tourenkategorie: Tourenkategorie;
   offizielleLaenge: number;
   homepage: string;

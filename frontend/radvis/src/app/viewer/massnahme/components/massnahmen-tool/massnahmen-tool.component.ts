@@ -27,9 +27,11 @@ import {
   ConfirmationDialogComponent,
   QuestionYesNo,
 } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
+import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
+import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
+import { DokumentService } from 'src/app/viewer/dokument/services/dokument.service';
 import { AddKommentarCommand } from 'src/app/viewer/kommentare/models/add-kommentar-command';
 import { Kommentar } from 'src/app/viewer/kommentare/models/kommentar';
 import { KommentarService } from 'src/app/viewer/kommentare/services/kommentar.service';
@@ -44,10 +46,6 @@ import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/mass
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import invariant from 'tiny-invariant';
-import { DokumentService } from 'src/app/viewer/dokument/services/dokument.service';
-import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
-import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
 
 @Component({
   selector: 'rad-massnahmen-tool',
@@ -110,8 +108,6 @@ export class MassnahmenToolComponent
     private notifyUserService: NotifyUserService,
     private massnahmeFilterService: MassnahmeFilterService,
     private dialog: MatDialog,
-    private errorHandlingService: ErrorHandlingService,
-    private fileHandlingService: FileHandlingService,
     private changeDetectorRef: ChangeDetectorRef,
     private olMapService: OlMapService
   ) {
@@ -124,6 +120,7 @@ export class MassnahmenToolComponent
           changeDetectorRef.detectChanges();
         });
         this.focusMassnahmeIntoView();
+        this.changeDetectorRef.markForCheck();
       })
     );
     this.infrastrukturenSelektionService.selectInfrastrukturen(MASSNAHMEN);

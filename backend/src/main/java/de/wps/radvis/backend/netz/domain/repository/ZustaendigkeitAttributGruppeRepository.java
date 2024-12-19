@@ -14,10 +14,24 @@
 
 package de.wps.radvis.backend.netz.domain.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.history.RevisionRepository;
 
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 
-public interface ZustaendigkeitAttributGruppeRepository extends CrudRepository<ZustaendigkeitAttributGruppe, Long> {
+public interface ZustaendigkeitAttributGruppeRepository extends CrudRepository<ZustaendigkeitAttributGruppe, Long>,
+	RevisionRepository<ZustaendigkeitAttributGruppe, Long, Long> {
+
+	@Query(value = "with "
+		+ "	abschnitte AS "
+		+ "		(SELECT za.zustaendigkeit_attribut_gruppe_id, ST_Length(st_linesubstring(k.geometry, za.von, za.bis)) as laenge "
+		+ "		 	FROM zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute za JOIN kante k ON k.zustaendigkeit_attributgruppe_id=za.zustaendigkeit_attribut_gruppe_id "
+		+ "		 	WHERE (k.quelle='DLM' OR k.quelle='RadVis')"
+		+ "		)"
+		+ "SELECT * from zustaendigkeit_attribut_gruppe where id in (select zustaendigkeit_attribut_gruppe_id from abschnitte WHERE laenge < ?1)", nativeQuery = true)
+	List<ZustaendigkeitAttributGruppe> findAllWithSegmenteKleinerAls(double maximaleSegmentLaenge);
 
 }

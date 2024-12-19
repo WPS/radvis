@@ -42,10 +42,10 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmenImportProtokoll;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;

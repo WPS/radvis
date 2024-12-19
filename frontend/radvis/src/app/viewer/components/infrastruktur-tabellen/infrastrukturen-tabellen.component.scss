@@ -20,91 +20,82 @@
   display: block;
   background: #ffffff;
   height: 100%;
-}
-
-@media print {
-  .infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
-    display: none;
-  }
-
-  .full-screen-button {
-    display: none;
-  }
-}
-
-.tab-container.dialog {
-  max-height: 100%;
-  max-width: 100%;
-  height: unset;
-  box-shadow: none;
-}
-
-.tab-container {
-  max-height: 100%;
-  height: 50rem;
-  transition: height ease 0.3s;
-  display: flex;
-  flex-direction: column;
-  position: relative;
   box-shadow:
     3px 0 3px -2px rgb(0 0 0 / 20%),
     3px 0 4px 0 rgb(0 0 0 / 14%),
     1px 0 8px 0 rgb(0 0 0 / 12%);
 }
 
-.infrastrukturen-tabs {
-  flex-grow: 1;
-  overflow: hidden;
+$header-row-height: 48px;
+
+@media print {
+  .header-row {
+    display: none !important;
+  }
 }
 
-.infrastrukturen-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
-  flex-grow: 1;
+.tab-container {
+  height: 100%;
+  width: 100%;
+  transition: height ease 0.3s;
+  position: relative;
 }
 
-.infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
+.dialog .header-row nav {
+  max-width: 100%;
+}
+
+.header-row {
   box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
-  margin-bottom: $shadow-spacing;
-  padding-right: 48px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: $header-row-height;
+
+  nav {
+    max-width: calc(100% - 96px);
+  }
 }
 
-.dialog .infrastrukturen-tabs ::ng-deep .mat-mdc-tab-header {
-  padding-right: 0px;
+.header-icon {
+  filter: brightness(0.4) saturate(100%);
+  &.selected {
+    filter: brightness(0) saturate(100%) invert(19%) sepia(100%) saturate(3336%) hue-rotate(327deg) brightness(87%)
+      contrast(93%);
+  }
 }
 
-.full-screen-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 333;
-  width: 48px;
-  height: 48px;
-  border-radius: 0;
+.tab-body {
+  height: 40vh;
+  width: 100%;
+}
+
+.dialog .tab-body {
+  height: calc(100% - $header-row-height);
 }
 
 // Entspricht Breakpoints.TabletLandscape siehe https://material.angular.io/cdk/layout/overview#predefined-breakpoints
 @media screen and (max-width: 1279.98px) {
-  ::ng-deep .tab-container .mdc-tab__text-label {
+  :host ::ng-deep .tab-container .mdc-tab__text-label {
     height: 1.5rem !important;
   }
 
-  ::ng-deep .tab-container .mat-mdc-tab-header {
+  :host ::ng-deep .tab-container .mat-mdc-tab-header {
     margin-bottom: 0 !important;
   }
 
-  ::ng-deep .tab-container .toolbar {
-    padding-bottom: 0 !important;
-    padding-top: 0 !important;
+  :host ::ng-deep .tab-container .toolbar {
+    padding: 8px !important;
   }
 
-  ::ng-deep .tab-container .mat-mdc-header-row {
+  :host ::ng-deep .tab-container .mat-mdc-header-row {
     height: 1rem !important;
   }
 
-  ::ng-deep .pagination-container mat-paginator,
-  ::ng-deep .pagination-container .mat-mdc-paginator-outer-container,
-  ::ng-deep .pagination-container .mat-mdc-paginator-container {
+  :host ::ng-deep .pagination-container mat-paginator,
+  :host ::ng-deep .pagination-container .mat-mdc-paginator-outer-container,
+  :host ::ng-deep .pagination-container .mat-mdc-paginator-container {
     min-height: 1rem !important;
-    height: 1rem !important;
     line-height: 1rem !important;
     display: inline-flex;
   }

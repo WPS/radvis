@@ -126,17 +126,14 @@ class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 		List<Kante> kanten = StreamSupport.stream(kantenRepository.saveAll(List.of(
 			KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build(),
 			KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 200, 0, QuellSystem.DLM).build(),
-			KanteTestDataProvider.withCoordinatesAndQuelle(200, 0, 300, 0, QuellSystem.RadVis).build()
-		)).spliterator(), false).collect(Collectors.toList());
+			KanteTestDataProvider.withCoordinatesAndQuelle(200, 0, 300, 0, QuellSystem.RadVis).build())).spliterator(),
+			false).collect(Collectors.toList());
 
 		// folgende Kanten werden berücksichtigt:
-		kanten.get(0).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
-		kanten.get(1).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_FREIZEIT)));
+		kanten.get(0).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
+		kanten.get(1).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_FREIZEIT)));
 		// Zielnetz soll explizit nicht dabei sein
-		kanten.get(2).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)));
+		kanten.get(2).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)));
 
 		List<WegweisendeBeschilderung> zuWeitWeg = generateWBProKanteMitYAbstand(kanten,
 			beschilderungMaxEntfernungVonRoute + 5);
@@ -165,16 +162,13 @@ class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 		List<Kante> kanten = StreamSupport.stream(kantenRepository.saveAll(List.of(
 			KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build(),
 			KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 200, 0, QuellSystem.RadwegeDB).build(),
-			KanteTestDataProvider.withCoordinatesAndQuelle(200, 0, 300, 0, QuellSystem.RadNETZ).build()
-		)).spliterator(), false).collect(Collectors.toList());
+			KanteTestDataProvider.withCoordinatesAndQuelle(200, 0, 300, 0, QuellSystem.RadNETZ).build())).spliterator(),
+			false).collect(Collectors.toList());
 
 		// folgende Kanten werden berücksichtigt:
-		kanten.get(0).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
-		kanten.get(1).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
-		kanten.get(2).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
+		kanten.get(0).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
+		kanten.get(1).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
+		kanten.get(2).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
 
 		List<WegweisendeBeschilderung> zuWeitWeg = generateWBProKanteMitYAbstand(kanten,
 			beschilderungMaxEntfernungVonRoute + 5);
@@ -203,16 +197,13 @@ class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 		List<Kante> kanten = StreamSupport.stream(kantenRepository.saveAll(List.of(
 			KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build(),
 			KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 200, 0, QuellSystem.DLM).build(),
-			KanteTestDataProvider.withCoordinatesAndQuelle(200, 0, 300, 0, QuellSystem.DLM).build()
-		)).spliterator(), false).collect(Collectors.toList());
+			KanteTestDataProvider.withCoordinatesAndQuelle(200, 0, 300, 0, QuellSystem.DLM).build())).spliterator(),
+			false).collect(Collectors.toList());
 
 		// folgende Kanten werden berücksichtigt:
-		kanten.get(0).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
-		kanten.get(1).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG)));
-		kanten.get(2).getKantenAttributGruppe()
-			.updateNetzklassen(new HashSet<>(Set.of()));
+		kanten.get(0).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)));
+		kanten.get(1).ueberschreibeNetzklassen(new HashSet<>(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG)));
+		kanten.get(2).ueberschreibeNetzklassen(new HashSet<>(Set.of()));
 
 		List<WegweisendeBeschilderung> zuWeitWeg = generateWBProKanteMitYAbstand(kanten,
 			beschilderungMaxEntfernungVonRoute + 5);
@@ -239,11 +230,11 @@ class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 	void pruefen_mehrereNetzklassen() {
 		// Arrange
 		List<Kante> kanten = StreamSupport.stream(kantenRepository.saveAll(List.of(
-			KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build()
-		)).spliterator(), false).collect(Collectors.toList());
+			KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build())).spliterator(),
+			false).collect(Collectors.toList());
 
 		// folgende Kanten werden berücksichtigt:
-		kanten.get(0).getKantenAttributGruppe().updateNetzklassen(
+		kanten.get(0).ueberschreibeNetzklassen(
 			new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ, Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT)));
 
 		List<WegweisendeBeschilderung> zuWeitWeg = generateWBProKanteMitYAbstand(kanten,
@@ -270,8 +261,7 @@ class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 					.withDefaultValuesGeometrieAndVerwaltungseinheit(
 						new Coordinate(midPoint.getX(), midPoint.getY() + abstand),
 						badenWuerttemberg)
-					.build())
-			);
+					.build()));
 		});
 		return wegweisendeBeschilderungs;
 	}

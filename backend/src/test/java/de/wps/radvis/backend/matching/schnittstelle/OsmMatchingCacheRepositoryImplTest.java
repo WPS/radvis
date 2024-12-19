@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.OsmMatchingCacheRepositoryImpl;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
 

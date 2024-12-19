@@ -38,6 +38,7 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
 import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import invariant from 'tiny-invariant';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 export interface MassnahmenImportUeberpruefenRow {
   zuordnungId: number;
@@ -90,7 +91,8 @@ export class ImportMassnahmenImportUeberpruefenComponent
     private changeDetectorRef: ChangeDetectorRef,
     private notifyUserService: NotifyUserService,
     private errorHandlingService: ErrorHandlingService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private matomoTracker: MatomoTracker
   ) {
     this.selektierteZuordnungsId$ = this.massnahmenImportZuordnungenService.selektierteZuordnungsId$;
 
@@ -192,6 +194,9 @@ export class ImportMassnahmenImportUeberpruefenComponent
     dialogRef.afterClosed().subscribe(yes => {
       if (yes) {
         this.executing = true;
+
+        this.matomoTracker.trackEvent('Import', 'Abschließen', 'Maßnahmen');
+
         const selektierteZuordnungenIds = this.dataSource.data
           .filter(zuordnung => zuordnung.selectionControl.value)
           .map(zuordnung => zuordnung.zuordnungId);

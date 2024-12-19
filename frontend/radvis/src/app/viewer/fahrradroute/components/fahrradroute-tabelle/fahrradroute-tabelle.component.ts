@@ -15,14 +15,16 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-import { skip, take } from 'rxjs/operators';
+import { map, skip, take } from 'rxjs/operators';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { RoutingProfileVerwaltenDialogComponent } from 'src/app/viewer/fahrradroute/components/routing-profile-verwalten-dialog/routing-profile-verwalten-dialog.component';
-import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
+import { ExportEvent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { FahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { ExportService } from 'src/app/viewer/viewer-shared/services/export.service';
 
@@ -38,12 +40,12 @@ import { ExportService } from 'src/app/viewer/viewer-shared/services/export.serv
 export class FahrradrouteTabelleComponent {
   selectedFahrradrouteID$: Observable<number | null>;
 
-  displayedColumns: string[] = [
-    'name',
-    'kategorie',
-    'fahrradrouteTyp',
-    'verantwortlicheOrganisation',
-    'anstiegAbstieg',
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'name', displayName: 'Name', width: 'large' },
+    { name: 'fahrradrouteKategorie', displayName: 'Kategorie' },
+    { name: 'fahrradrouteTyp', displayName: 'Fahrradroutentyp' },
+    { name: 'verantwortlicheOrganisation', displayName: 'Verantwortliche Organisation' },
+    { name: 'anstiegAbstieg', displayName: 'Anstieg/Abstieg' },
   ];
 
   data$: Observable<FahrradrouteListenView[]>;
@@ -60,6 +62,7 @@ export class FahrradrouteTabelleComponent {
   public showRoutenProfil$: Observable<boolean>;
 
   isSmallViewport = false;
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public fahrradrouteFilterService: FahrradrouteFilterService,
@@ -80,6 +83,9 @@ export class FahrradrouteTabelleComponent {
     this.fahrradroutenCreatorRoute = this.fahrradrouteRoutingService.getCreatorRoute();
 
     this.showRoutenProfil$ = this.fahrradrouteProfilService.showCurrentRouteProfile$;
+    this.filteredSpalten$ = this.fahrradrouteFilterService.filter$.pipe(
+      map(filteredFields => filteredFields.map(f => f.field))
+    );
   }
 
   onChangeBreakpointState(isSmall: boolean): void {
@@ -94,13 +100,18 @@ export class FahrradrouteTabelleComponent {
     this.fahrradrouteFilterService.reset();
   }
 
-  public onExport(format: ExportFormat): void {
+  public onExport(exportEvent: ExportEvent): void {
     const currentFilter = this.fahrradrouteFilterService.currentFilteredList.map(m => m.id);
+    const fieldNamesToExclude = this.spaltenDefinition
+      .filter(def => !exportEvent.felder.includes(def.name))
+      .map(def => def.displayName);
     this.exporting = true;
-    this.exportService.exportInfrastruktur('FAHRRADROUTE', format, currentFilter).finally(() => {
-      this.exporting = false;
-      this.changeDetector.markForCheck();
-    });
+    this.exportService
+      .exportInfrastruktur('FAHRRADROUTE', exportEvent.format, currentFilter, fieldNamesToExclude)
+      .finally(() => {
+        this.exporting = false;
+        this.changeDetector.markForCheck();
+      });
   }
 
   onShowHoehenprofil(id: number): void {
@@ -118,10 +129,6 @@ export class FahrradrouteTabelleComponent {
         .subscribe(() => this.fahrradrouteProfilService.showCurrentRouteProfile());
     }
     this.onSelectRecord(id);
-  }
-
-  hasLineStringGeometry(element: FahrradrouteListenView): boolean {
-    return element.geometry?.type === 'LineString';
   }
 
   onCloseRoutenProfil(): void {

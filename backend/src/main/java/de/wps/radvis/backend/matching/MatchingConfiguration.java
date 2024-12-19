@@ -35,27 +35,30 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
-import de.wps.radvis.backend.matching.domain.KanteUpdateElevationService;
-import de.wps.radvis.backend.matching.domain.OsmAbbildungsFehlerRepository;
-import de.wps.radvis.backend.matching.domain.OsmAbbildungsFehlerService;
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
-import de.wps.radvis.backend.matching.domain.OsmMatchingRepository;
-import de.wps.radvis.backend.matching.domain.PbfErstellungsRepository;
+import de.wps.radvis.backend.matching.domain.repository.CustomDlmMatchingRepositoryFactory;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmAbbildungsFehlerRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.PbfErstellungsRepository;
 import de.wps.radvis.backend.matching.domain.service.CustomRoutingProfileService;
 import de.wps.radvis.backend.matching.domain.service.DlmPbfErstellungService;
 import de.wps.radvis.backend.matching.domain.service.GraphhopperUpdateService;
+import de.wps.radvis.backend.matching.domain.service.GrundnetzMappingService;
+import de.wps.radvis.backend.matching.domain.service.KanteUpdateElevationService;
 import de.wps.radvis.backend.matching.domain.service.MatchingJobProtokollService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
+import de.wps.radvis.backend.matching.domain.service.OsmAbbildungsFehlerService;
 import de.wps.radvis.backend.matching.domain.service.OsmAuszeichnungsService;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.matching.schnittstelle.CustomRoutingProfileGuard;
 import de.wps.radvis.backend.matching.schnittstelle.GraphhopperUpdateServiceImpl;
 import de.wps.radvis.backend.matching.schnittstelle.KanteUpdateElevationServiceImpl;
+import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.CustomDlmMatchingRepositoryFactoryImpl;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchingRepositoryImpl;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.GraphhopperRoutingRepositoryImpl;
@@ -66,7 +69,6 @@ import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.PbfErstellung
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
-import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -92,9 +94,6 @@ public class MatchingConfiguration {
 
 	@Autowired
 	private DLMConfigurationProperties dlmConfigurationProperties;
-
-	@Autowired
-	private EntityManager entityManager;
 
 	@Autowired
 	private OsmAbbildungsFehlerRepository osmAbbildungsFehlerRepository;
@@ -127,6 +126,12 @@ public class MatchingConfiguration {
 	}
 
 	@Bean
+	public CustomDlmMatchingRepositoryFactory customDlmMatchingRepositoryFactory() {
+		return new CustomDlmMatchingRepositoryFactoryImpl(graphhopperDlmConfigurationProperties,
+			commonConfigurationProperties, coordinateReferenceSystemConverter);
+	}
+
+	@Bean
 	public MatchingJobProtokollService osmJobProtokollService() {
 		return new MatchingJobProtokollService(netzfehlerRepository);
 	}
@@ -156,6 +161,11 @@ public class MatchingConfiguration {
 	@Bean
 	public MatchingKorrekturService osmMatchingKorrekturService() {
 		return new MatchingKorrekturService();
+	}
+
+	@Bean
+	public GrundnetzMappingService grundnetzMappingService() {
+		return new GrundnetzMappingService(matchingFuerManuellerImportService());
 	}
 
 	@Lazy
@@ -197,8 +207,7 @@ public class MatchingConfiguration {
 			minNetworkSize,
 			graphhopperDlmConfigurationProperties.getElevationCacheVerzeichnis(),
 			commonConfigurationProperties.getExterneResourcenBasisPfad()
-				+ graphhopperDlmConfigurationProperties.getTiffTilesVerzeichnis()
-		);
+				+ graphhopperDlmConfigurationProperties.getTiffTilesVerzeichnis());
 	}
 
 	@Bean
@@ -217,7 +226,7 @@ public class MatchingConfiguration {
 
 	@Bean
 	PbfErstellungsRepository pbfErstellungsRepository() {
-		return new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, entityManager, barriereRepository,
+		return new PbfErstellungsRepositoryImpl(coordinateReferenceSystemConverter, barriereRepository,
 			kantenRepository);
 	}
 
@@ -257,7 +266,6 @@ public class MatchingConfiguration {
 			kantenRepository,
 			graphhopperDlmConfigurationProperties.getElevationCacheVerzeichnis(),
 			commonConfigurationProperties.getExterneResourcenBasisPfad()
-				+ graphhopperDlmConfigurationProperties.getTiffTilesVerzeichnis()
-		);
+				+ graphhopperDlmConfigurationProperties.getTiffTilesVerzeichnis());
 	}
 }

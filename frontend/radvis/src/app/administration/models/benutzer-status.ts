@@ -37,6 +37,32 @@ export namespace BenutzerStatus {
     throw new Error('Beschreibung für enum BenutzerStatus fehlt: ' + k);
   });
 
+  export const canAktivieren = (status: BenutzerStatus): boolean => {
+    switch (status) {
+      case BenutzerStatus.AKTIV:
+      case BenutzerStatus.INAKTIV:
+        return false;
+      case BenutzerStatus.WARTE_AUF_FREISCHALTUNG:
+      case BenutzerStatus.ABGELEHNT:
+        return true;
+      default:
+        throw new Error('canAblehnen für enum BenutzerStatus fehlt: ' + status);
+    }
+  };
+
+  export const canAblehnen = (status: BenutzerStatus): boolean => {
+    switch (status) {
+      case BenutzerStatus.AKTIV:
+      case BenutzerStatus.INAKTIV:
+      case BenutzerStatus.WARTE_AUF_FREISCHALTUNG:
+        return true;
+      case BenutzerStatus.ABGELEHNT:
+        return false;
+      default:
+        throw new Error('canAblehnen für enum BenutzerStatus fehlt: ' + status);
+    }
+  };
+
   export const getDisplayName = (status: BenutzerStatus): string => {
     return options.find(o => o.name === status)?.displayText ?? status;
   };

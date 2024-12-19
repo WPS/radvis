@@ -23,4 +23,8 @@
     <changeSet author="bw" id="RAD">
         <sql>CREATE EXTENSION IF NOT EXISTS postgis</sql>
     </changeSet>
+    
+    <changeSet id="RAD-7150" author="mr" runAlways="true">
+  	  <sql>SELECT postgis_extensions_upgrade()</sql>
+    </changeSet>
 </databaseChangeLog>

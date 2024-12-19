@@ -14,32 +14,20 @@
 
 package de.wps.radvis.backend.servicestation.domain;
 
-import java.util.Set;
-
-import org.locationtech.jts.geom.Geometry;
-import org.springframework.security.core.Authentication;
-
-import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
-import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntityService;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
-import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
-import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationenQuellSystem;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
+@Transactional
 public class ServicestationService extends AbstractVersionierteEntityService<Servicestation> {
 
-	private final BenutzerResolver benutzerResolver;
-	private final ZustaendigkeitsService zustaendigkeitsService;
+	private final ServicestationRepository repository;
 
-	public ServicestationService(ServicestationRepository repository,
-		BenutzerResolver benutzerResolver,
-		ZustaendigkeitsService zustaendigkeitsService) {
+	public ServicestationService(ServicestationRepository repository) {
 		super(repository);
-		this.benutzerResolver = benutzerResolver;
-		this.zustaendigkeitsService = zustaendigkeitsService;
+		this.repository = repository;
 	}
 
 	public Dokument getDokument(Long servicestationId, Long dokumentId) {
@@ -49,6 +37,10 @@ public class ServicestationService extends AbstractVersionierteEntityService<Ser
 			.stream().filter(d -> dokumentId.equals(d.getId()))
 			.findFirst()
 			.orElseThrow(EntityNotFoundException::new);
+	}
+
+	public Servicestation save(Servicestation servicestation) {
+		return repository.save(servicestation);
 	}
 
 	public void addDokument(Long servicestationId, Dokument dokument) {
@@ -61,13 +53,4 @@ public class ServicestationService extends AbstractVersionierteEntityService<Ser
 		servicestation.deleteDokument(dokumentId);
 	}
 
-	public boolean darfBenutzerBearbeiten(Authentication authentication, Servicestation servicestation) {
-		Geometry geometry = servicestation.getGeometrie();
-		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
-		Set<Recht> benutzerRechte = aktiverBenutzer.getRechte();
-
-		return servicestation.getQuellSystem().equals(ServicestationenQuellSystem.RADVIS) &&
-			benutzerRechte.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN) &&
-			zustaendigkeitsService.istImZustaendigkeitsbereich(geometry, aktiverBenutzer);
-	}
 }

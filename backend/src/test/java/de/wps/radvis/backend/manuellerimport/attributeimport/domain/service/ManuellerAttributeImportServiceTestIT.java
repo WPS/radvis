@@ -67,6 +67,7 @@ import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperti
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -105,7 +106,8 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	PostgisConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),

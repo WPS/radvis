@@ -14,16 +14,21 @@
 
 package de.wps.radvis.backend.architektur;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.properties.CanBeAnnotated.Predicates.annotatedWith;
 import static com.tngtech.archunit.core.domain.properties.HasParameterTypes.Predicates.rawParameterTypes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -41,6 +46,18 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import de.wps.radvis.backend.abfrage.netzausschnitt.domain.StreckeViewCacheRepository;
+import de.wps.radvis.backend.abfrage.statistik.domain.StatistikRepository;
+import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoApplier;
+import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
+import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
+import de.wps.radvis.backend.basicAuthentication.domain.BasicAuthPasswortService;
+import de.wps.radvis.backend.basicAuthentication.domain.BenutzerBasicAuthenticationToken;
+import de.wps.radvis.backend.benutzer.domain.BenutzerAktivitaetsService;
+import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepository;
+import de.wps.radvis.backend.massnahme.domain.RandomMassnahmenGenerierenJob;
+
 @AnalyzeClasses(packages = { "de.wps.radvis.backend" }, importOptions = ImportOption.DoNotIncludeTests.class)
 public class MusterTest {
 
@@ -56,6 +73,28 @@ public class MusterTest {
 		.and().areDeclaredInClassesThat(JavaClass.Predicates.simpleNameEndingWith("Controller"))
 		.should().beAnnotatedWith(PostMapping.class)
 		.orShould().beAnnotatedWith(DeleteMapping.class);
+
+	@ArchTest
+	static final ArchRule REPOSITORIES_SHOULD_HAVE_INTERFACE = classes().that()
+		.resideInAnyPackage("..domain..").and().haveSimpleNameEndingWith("Repository")
+		// TODO: auftrennen in RepositoryImpl und Interface!
+		.and().areNotAssignableTo(StreckeViewCacheRepository.class)
+		.and().areNotAssignableTo(StatistikRepository.class)
+		.and().areNotAssignableTo(InMemoryKantenRepository.class)
+		.should().beInterfaces();
+
+	@ArchTest
+	static final ArchRule NO_SPRINGSECURITY_CLASSES_IN_DOMAIN = noClasses().that().resideInAnyPackage("..domain..")
+		// ist in folgenden Fällen korrekt:
+		.and().doNotBelongToAnyOf(RadVisAuthentication.class, RadVisUserDetails.class,
+			BenutzerBasicAuthenticationToken.class, AdditionalRevInfoApplier.class, BasicAuthPasswortService.class,
+			BenutzerResolver.class, BenutzerAktivitaetsService.class)
+		// FIXME: violations
+		.and().doNotBelongToAnyOf(RandomMassnahmenGenerierenJob.class)
+		.should()
+		.dependOnClassesThat(JavaClass.Predicates.resideInAnyPackage("..org.springframework.security..")
+			.and(not(JavaClass.Predicates.belongToAnyOf(AccessDeniedException.class))))
+		.because("das weist auf eine schlechte Trennung zwischen Schnittstelle und Domain hin");
 
 	@ArchTest
 	static final ArchRule MODIFYING_CONTROLLER_METHODS_SHOULD_CALL_CORRESPONDING_GUARD = methods()
@@ -99,21 +138,22 @@ public class MusterTest {
 		return new ArchCondition<>("call guard-Method with same signature first, if any") {
 			@Override
 			public void check(JavaMethod javaMethod, ConditionEvents conditionEvents) {
-				Optional<JavaCall<?>> firstGuardCall = javaMethod.getCallsFromSelf().stream()
+				Set<JavaCall<?>> guardCalls = javaMethod.getCallsFromSelf().stream()
 					.filter(javaCall -> javaCall.getTarget().getOwner().getName().endsWith("Guard"))
-					.findFirst();
+					.collect(Collectors.toSet());
 
-				if (firstGuardCall.isEmpty()) {
+				if (guardCalls.isEmpty()) {
 					conditionEvents.add(new SimpleConditionEvent(javaMethod, true,
 						javaMethod.getFullName() + " doesn't call any guard: "
 							+ javaMethod.getSourceCodeLocation()));
 					return;
 				}
 
-				boolean guardMethodNameEqualsCallerMethodName = firstGuardCall.get().getTarget().getName()
-					.equals(javaMethod.getName());
+				Optional<JavaCall<?>> callWithCorrespondingMethodName = guardCalls.stream()
+					.filter(c -> c.getTarget().getName().equals(javaMethod.getName()))
+					.findAny();
 
-				conditionEvents.add(new SimpleConditionEvent(javaMethod, guardMethodNameEqualsCallerMethodName,
+				conditionEvents.add(new SimpleConditionEvent(javaMethod, callWithCorrespondingMethodName.isPresent(),
 					javaMethod.getFullName() + " calls guard with different method name: "
 						+ javaMethod.getSourceCodeLocation()));
 
@@ -123,7 +163,8 @@ public class MusterTest {
 					.map(JavaType::getName)
 					.collect(Collectors.toList());
 
-				List<String> guardMethodParameterTypes = firstGuardCall.get().getTarget().resolveMember().get()
+				List<String> guardMethodParameterTypes = callWithCorrespondingMethodName.get().getTarget()
+					.resolveMember().get()
 					.getParameters()
 					.stream()
 					.map(JavaParameter::getType)

@@ -14,10 +14,25 @@
 
 package de.wps.radvis.backend.barriere.domain.repository;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.barriere.domain.entity.Barriere;
 
 public interface BarriereRepository extends CrudRepository<Barriere, Long> {
 	Iterable<Barriere> findAll();
+
+	@Query("SELECT distinct barriere FROM Barriere barriere " +
+		"LEFT JOIN barriere.netzbezug.abschnittsweiserKantenSeitenBezug aksb " +
+		"LEFT JOIN barriere.netzbezug.punktuellerKantenSeitenBezug pksb " +
+		"WHERE aksb.kante.id IN :kantenIds OR pksb.kante.id IN :kantenIds")
+	List<Barriere> findByKantenInNetzBezug(Collection<Long> kantenIds);
+
+	@Query("SELECT distinct barriere FROM Barriere barriere " +
+		"LEFT JOIN barriere.netzbezug.knotenBezug kb " +
+		"WHERE kb.id IN :knotenIds")
+	List<Barriere> findByKnotenInNetzBezug(Collection<Long> knotenIds);
 }

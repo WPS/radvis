@@ -58,7 +58,7 @@ public class SignaturController_SignaturServiceIntegrationTest {
 			null,
 			"test",
 			"https://radvis-dev.landbw.de/",
-			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources");
+			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0);
 		signaturConfigurationProperties = new SignaturConfigurationProperties("/signaturen/",
 			"/signaturen/Massnahmen/");
 

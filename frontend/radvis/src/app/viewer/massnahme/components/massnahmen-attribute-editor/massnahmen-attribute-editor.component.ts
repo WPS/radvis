@@ -13,7 +13,7 @@
  */
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -23,6 +23,7 @@ import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators
 import { Durchfuehrungszeitraum } from 'src/app/shared/models/durchfuehrungszeitraum';
 import { NetzklasseFlat } from 'src/app/shared/models/netzklasse-flat';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NetzklassenConverterService } from 'src/app/shared/services/netzklassen-converter.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -70,6 +71,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
 
   public isFetching = false;
   private subscriptions: Subscription[] = [];
+  darfUnarchivieren: boolean;
 
   constructor(
     organisationenService: OrganisationenService,
@@ -80,9 +82,10 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     private viewerRoutingService: ViewerRoutingService,
     private massnahmeUpdatedService: MassnahmeUpdatedService,
     private massnahmenRoutingService: MassnahmenRoutingService,
-    massnahmeNetzbezugDisplayService: MassnahmeNetzbezugDisplayService
+    massnahmeNetzbezugDisplayService: MassnahmeNetzbezugDisplayService,
+    benutzerDetailsService: BenutzerDetailsService,
+    private changeDetector: ChangeDetectorRef
   ) {
-    massnahmeNetzbezugDisplayService.showNetzbezug(false);
     this.formGroup = new UntypedFormGroup({
       bezeichnung: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
       massnahmenkategorien: new UntypedFormControl(
@@ -127,6 +130,8 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       displayText: option.displayText,
     }));
 
+    this.darfUnarchivieren = benutzerDetailsService.canMassnahmenArchivieren();
+
     this.alleOrganisationenOptions = organisationenService
       .getAlleOrganisationen()
       .pipe(
@@ -145,6 +150,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       this.activatedRoute.data.subscribe(data => {
         this.currentMassnahme = data.massnahme;
         invariant(this.currentMassnahme);
+        massnahmeNetzbezugDisplayService.showNetzbezug(this.currentMassnahme.archiviert);
         this.resetForm(this.currentMassnahme);
       })
     );
@@ -250,6 +256,17 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
 
   canDiscard(): boolean {
     return this.formGroup.pristine;
+  }
+
+  onUnarchivieren(): void {
+    invariant(this.currentMassnahme);
+    this.massnahmeService.unarchivieren(this.currentMassnahme.id).then(archivedMassnahme => {
+      this.currentMassnahme = archivedMassnahme;
+      this.resetForm(this.currentMassnahme);
+      this.massnahmeUpdatedService.updateMassnahme();
+      this.changeDetector.markForCheck();
+      this.massnahmeFilterService.refetchData();
+    });
   }
 
   get isRadNETZMassnahme(): boolean {

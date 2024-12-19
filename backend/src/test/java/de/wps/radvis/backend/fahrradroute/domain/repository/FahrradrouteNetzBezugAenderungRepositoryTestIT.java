@@ -89,14 +89,16 @@ public class FahrradrouteNetzBezugAenderungRepositoryTestIT extends DBIntegratio
 		private KantenAttributGruppeRepository kantenAttributGruppenRepository;
 		@MockBean
 		private VerwaltungseinheitResolver verwaltungseinheitResolver;
+		@PersistenceContext
+		EntityManager entityManager;
 
 		@Bean
 		NetzService netzService() {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
-				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver);
+				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
+				entityManager, 1.0);
 		}
-
 	}
 
 	@Autowired

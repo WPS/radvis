@@ -28,26 +28,19 @@ import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.entity.provider.AbstellanlageTestDataProvider;
-import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
-import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import jakarta.persistence.EntityNotFoundException;
 
 class AbstellanlageServiceTest {
 	private AbstellanlageService abstellanlageService;
 	@Mock
 	private AbstellanlageRepository abstellanlageRepository;
-	@Mock
-	private BenutzerResolver benutzerResolver;
-	@Mock
-	private ZustaendigkeitsService zustaendigkeitsService;
 
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.openMocks(this);
-		abstellanlageService = new AbstellanlageService(abstellanlageRepository, benutzerResolver,
-			zustaendigkeitsService);
+		abstellanlageService = new AbstellanlageService(abstellanlageRepository);
 	}
 
 	@Test

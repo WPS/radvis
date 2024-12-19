@@ -52,17 +52,6 @@
       font-size: small;
     }
   }
-
-  .row-right-side {
-    display: flex;
-    align-items: center;
-
-    mat-icon {
-      color: $black;
-      cursor: pointer;
-      margin-left: 0.5rem;
-    }
-  }
 }
 
 .uploader {

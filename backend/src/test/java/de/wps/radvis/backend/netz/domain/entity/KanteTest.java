@@ -22,8 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +49,7 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
@@ -60,7 +64,6 @@ import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
-import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
@@ -72,6 +75,8 @@ import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 
 class KanteTest {
+
+	private Laenge minimaleSegmentLaenge = Laenge.of(1.0);
 
 	@BeforeEach
 	void beforeEach() {
@@ -158,12 +163,8 @@ class KanteTest {
 			.createLineString(new Coordinate[] { vonKnoten.getKoordinate(), nachKnoten.getKoordinate() });
 
 		// act
-		Kante kante = new Kante("123", vonKnoten, nachKnoten, geometry, false, QuellSystem.LGL,
-			KantenAttributGruppeTestDataProvider.defaultValue().build(),
-			new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, false),
-			ZustaendigkeitAttributGruppeTestDataProvider.withLeereGrundnetzAttribute().build(),
-			createGeschwindigkeitAttributGruppe(),
-			createFuehrungsformAttributGruppe());
+		Kante kante = KanteTestDataProvider.fromKnotenUndQuelle(vonKnoten, nachKnoten, QuellSystem.DLM)
+			.geometry(geometry).build();
 		// assert
 		assertNotNull(kante);
 	}
@@ -181,64 +182,24 @@ class KanteTest {
 
 		// act & assert
 		assertThatExceptionOfType(RequireViolation.class)
-			.isThrownBy(() -> new Kante("123", vonKnoten, nachKnoten, geometry, false, QuellSystem.RadNETZ,
-				KantenAttributGruppeTestDataProvider.defaultValue().build(),
-				new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, false),
-				ZustaendigkeitAttributGruppeTestDataProvider.withLeereGrundnetzAttribute().build(),
-				createGeschwindigkeitAttributGruppe(),
-				createFuehrungsformAttributGruppe()));
+			.isThrownBy(() -> KanteTestDataProvider.fromKnotenUndQuelle(vonKnoten, nachKnoten, QuellSystem.DLM)
+				.geometry(geometry).build());
 	}
 
 	@Test
 	public void testKante_QuelleDLMDlmIdNull_wirftRequireException() {
-		// arrange
-		Coordinate vonKoordinate = new Coordinate(10, 10);
-		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(vonKoordinate, QuellSystem.DLM).build();
-		Coordinate nachKoordinate = new Coordinate(20, 20);
-		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(nachKoordinate, QuellSystem.DLM).build();
-
-		LineString geometry = getGeometryFactory()
-			.createLineString(new Coordinate[] { vonKnoten.getKoordinate(), nachKnoten.getKoordinate() });
-
 		// act & assert
 		assertThatExceptionOfType(RequireViolation.class)
-			.isThrownBy(() -> new Kante("123", vonKnoten, nachKnoten, geometry, false, QuellSystem.DLM,
-				KantenAttributGruppeTestDataProvider.defaultValue().build(),
-				new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, false),
-				ZustaendigkeitAttributGruppeTestDataProvider.withLeereGrundnetzAttribute().build(),
-				createGeschwindigkeitAttributGruppe(),
-				createFuehrungsformAttributGruppe()));
-		assertThatExceptionOfType(RequireViolation.class)
-			.isThrownBy(
-				() -> new Kante(null, null, vonKnoten, nachKnoten, geometry, false, QuellSystem.DLM,
-					KantenAttributGruppeTestDataProvider.defaultValue().build(),
-					new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, false),
-					ZustaendigkeitAttributGruppeTestDataProvider.withLeereGrundnetzAttribute().build(),
-					createGeschwindigkeitAttributGruppe(),
-					createFuehrungsformAttributGruppe()));
+			.isThrownBy(() -> KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).dlmId(null).build());
 	}
 
 	@Test
 	public void testKante_QuelleNichtDLMDlmIdNichtNull_wirftRequireException() {
-		// arrange
-		Coordinate vonKoordinate = new Coordinate(10, 10);
-		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(vonKoordinate, QuellSystem.RadNETZ).build();
-		Coordinate nachKoordinate = new Coordinate(20, 20);
-		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(nachKoordinate, QuellSystem.RadNETZ).build();
-
-		LineString geometry = getGeometryFactory()
-			.createLineString(new Coordinate[] { vonKnoten.getKoordinate(), nachKnoten.getKoordinate() });
-
 		// act & assert
 		assertThatExceptionOfType(RequireViolation.class)
 			.isThrownBy(
-				() -> new Kante(DlmId.of("testDlmId16Chars"), null, vonKnoten, nachKnoten, geometry, false,
-					QuellSystem.RadNETZ,
-					KantenAttributGruppeTestDataProvider.defaultValue().build(),
-					new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, false),
-					ZustaendigkeitAttributGruppeTestDataProvider.withLeereGrundnetzAttribute().build(),
-					createGeschwindigkeitAttributGruppe(),
-					createFuehrungsformAttributGruppe()));
+				() -> KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).dlmId(DlmId.of("123"))
+					.build());
 	}
 
 	@Test
@@ -627,9 +588,9 @@ class KanteTest {
 		// keine TopologieÄnderung
 		assertThat(vonKnoten).isEqualTo(kante.getVonKnoten());
 		assertThat(nachKnoten).isEqualTo(kante.getNachKnoten());
-		assertThat(vonKnoten.getKoordinate()).isEqualTo(ursprungsLinestring.getCoordinates()[0]);
+		assertThat(vonKnoten.getKoordinate()).isEqualTo(neuerLinestring.getCoordinates()[0]);
 		assertThat(nachKnoten.getKoordinate())
-			.isEqualTo(ursprungsLinestring.getCoordinates()[ursprungsLinestring.getCoordinates().length - 1]);
+			.isEqualTo(neuerLinestring.getCoordinates()[neuerLinestring.getCoordinates().length - 1]);
 
 		assertThat(kante.getGeometry().equals(neuerLinestring)).isTrue();
 		assertThat(kante.getZugehoerigeDlmGeometrie().equals(neuerLinestring)).isTrue();
@@ -651,80 +612,6 @@ class KanteTest {
 		assertThatThrownBy(() -> {
 			kante.updateDLMGeometry(neuerLinestring);
 		}).isInstanceOf(RequireViolation.class);
-	}
-
-	@Test
-	public void updateGeometryAndTopologyTest_großeVerschiebungMitTopologischerKonsequenzUndValiderNeuerKnoten_TopologieWirdKorrektVeraendert() {
-		LineString ursprungsLinestring = getGeometryFactory().createLineString(
-			new Coordinate[] { new Coordinate(1, 1), new Coordinate(5, 1), new Coordinate(10, 1) });
-
-		Knoten vonKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(
-			ursprungsLinestring.getStartPoint().getCoordinate(), QuellSystem.DLM)
-			.id(1L)
-			.build();
-
-		Knoten nachKnoten = KnotenTestDataProvider.withCoordinateAndQuelle(
-			ursprungsLinestring.getEndPoint().getCoordinate(), QuellSystem.DLM)
-			.id(2L)
-			.build();
-
-		Kante kante = KanteTestDataProvider.fromKnoten(vonKnoten, nachKnoten)
-			.quelle(QuellSystem.DLM)
-			.geometry(ursprungsLinestring)
-			.build();
-
-		LineString neuerLinestring = getGeometryFactory().createLineString(
-			new Coordinate[] { new Coordinate(0.5, 1), new Coordinate(5, 2), new Coordinate(10.5, 3) });
-
-		Knoten neuerKnoten = Knoten.builder().point(getGeometryFactory().createPoint(new Coordinate(10.5, 3)))
-			.build();
-
-		// act
-		kante.updateDLMGeometryUndTopology(neuerLinestring, kante.getVonKnoten(), neuerKnoten);
-
-		// assert
-		assertThat(kante.getVonKnoten()).isEqualTo(vonKnoten);
-		assertThat(kante.getNachKnoten()).isEqualTo(neuerKnoten);
-		assertThat(vonKnoten.getKoordinate()).isEqualTo(ursprungsLinestring.getCoordinates()[0]);
-		assertThat(neuerKnoten.getKoordinate())
-			.isEqualTo(neuerLinestring.getCoordinates()[neuerLinestring.getCoordinates().length - 1]);
-
-		assertThat(kante.getGeometry().equals(neuerLinestring)).isTrue();
-		assertThat(kante.getZugehoerigeDlmGeometrie().equals(neuerLinestring)).isTrue();
-		assertThat(kante.getKantenLaengeInCm()).isCloseTo(1000, Offset.offset(20));
-	}
-
-	@Test
-	public void updateGeometryAndTopologyTest_großeVerschiebungMitTopologischerKonsequenzUndInvaliderNeuerKnoten_wirftRequireViolationUndKanteBleibtUnveraendert() {
-		LineString ursprungsLinestring = getGeometryFactory().createLineString(
-			new Coordinate[] { new Coordinate(1, 1), new Coordinate(5, 1), new Coordinate(10, 1) });
-
-		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(1, 1, 10, 1, QuellSystem.DLM)
-			.geometry(ursprungsLinestring)
-			.build();
-
-		Knoten vonKnoten = kante.getVonKnoten();
-		Knoten nachKnoten = kante.getNachKnoten();
-
-		LineString neuerLinestring = getGeometryFactory().createLineString(
-			new Coordinate[] { new Coordinate(0.5, 2), new Coordinate(5, 3), new Coordinate(10.5, 3) });
-
-		Knoten neuerKnoten = Knoten.builder().point(getGeometryFactory().createPoint(new Coordinate(10.5, 5.3)))
-			.build();
-
-		// act + assert
-		assertThatThrownBy(() -> {
-			kante.updateDLMGeometryUndTopology(neuerLinestring, kante.getVonKnoten(), neuerKnoten);
-		}).isInstanceOf(RequireViolation.class);
-
-		assertThat(vonKnoten).isEqualTo(kante.getVonKnoten());
-		assertThat(nachKnoten).isEqualTo(kante.getNachKnoten());
-		assertThat(vonKnoten.getKoordinate()).isEqualTo(ursprungsLinestring.getCoordinates()[0]);
-		assertThat(nachKnoten.getKoordinate())
-			.isEqualTo(ursprungsLinestring.getCoordinates()[ursprungsLinestring.getCoordinates().length - 1]);
-
-		assertThat(kante.getGeometry().equals(ursprungsLinestring)).isTrue();
-		assertThat(kante.getZugehoerigeDlmGeometrie().equals(ursprungsLinestring)).isTrue();
 	}
 
 	@Test
@@ -965,7 +852,7 @@ class KanteTest {
 			.build();
 
 		// act
-		kante.defragmentiereLinearReferenzierteAttribute();
+		kante.defragmentiereLinearReferenzierteAttribute(minimaleSegmentLaenge);
 
 		// assert
 		List<ZustaendigkeitAttribute> zustaendigkeitAttribute = kante.getZustaendigkeitAttributGruppe()
@@ -1019,9 +906,9 @@ class KanteTest {
 			.build();
 
 		// act
-		kante.defragmentiereLinearReferenzierteAttribute();
+		kante.defragmentiereLinearReferenzierteAttribute(minimaleSegmentLaenge);
 		// mehrmals ausführen sollte auch kein Unterschied machen wenn nicht defragmentiert
-		kante.defragmentiereLinearReferenzierteAttribute();
+		kante.defragmentiereLinearReferenzierteAttribute(minimaleSegmentLaenge);
 
 		// assert
 		List<ZustaendigkeitAttribute> zustaendigkeitAttribute = kante.getZustaendigkeitAttributGruppe()
@@ -1080,7 +967,7 @@ class KanteTest {
 			.build();
 
 		// act
-		kante.defragmentiereLinearReferenzierteAttribute();
+		kante.defragmentiereLinearReferenzierteAttribute(minimaleSegmentLaenge);
 
 		// assert
 		List<FuehrungsformAttribute> fuehrungsformAttributeLinks = kante.getFuehrungsformAttributGruppe()
@@ -1113,8 +1000,7 @@ class KanteTest {
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 		}
 
 		@Test
@@ -1164,85 +1050,62 @@ class KanteTest {
 
 		@Test
 		void builder_schlaegt_fehl() {
-			// Arrange
-			GeometryFactory geometryFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
-
-			final var vonKnoten = KnotenTestDataProvider.withDefaultValues().build();
-			final var bisKnoten = KnotenTestDataProvider.withDefaultValues()
-				.point(geometryFactory.createPoint(new Coordinate(1, 1))).build();
-
 			// Act + Assert
-			assertThatThrownBy(() -> new Kante(null, vonKnoten, bisKnoten,
-				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createLineString(
-					new Coordinate[] { vonKnoten.getKoordinate(), bisKnoten.getKoordinate() }),
-				false,
-				QuellSystem.RadVis,
-				KantenAttributGruppe.builder().build(),
-				FahrtrichtungAttributGruppe.builder().isZweiseitig(true).build(),
-				ZustaendigkeitAttributGruppe.builder().build(),
-				GeschwindigkeitAttributGruppe.builder().build(),
-				FuehrungsformAttributGruppe.builder().isZweiseitig(true).build())).isInstanceOf(RequireViolation.class);
+			assertThatThrownBy(() -> KanteTestDataProvider.withDefaultValuesAndZweiseitig().isZweiseitig(false).build())
+				.isInstanceOf(RequireViolation.class);
 		}
 
 		@Test
 		void builder_schlaegt_nicht_fehl() {
-			// Arrange
-			GeometryFactory geometryFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
-
-			final var vonKnoten = KnotenTestDataProvider.withDefaultValues().build();
-			final var bisKnoten = KnotenTestDataProvider.withDefaultValues()
-				.point(geometryFactory.createPoint(new Coordinate(1, 1))).build();
-
 			// Act
-			final var kante = new Kante(null, vonKnoten, bisKnoten,
-				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createLineString(
-					new Coordinate[] { vonKnoten.getKoordinate(), bisKnoten.getKoordinate() }),
-				true,
-				QuellSystem.RadVis,
-				KantenAttributGruppe.builder().build(),
-				FahrtrichtungAttributGruppe.builder().isZweiseitig(true).build(),
-				ZustaendigkeitAttributGruppe.builder().build(),
-				GeschwindigkeitAttributGruppe.builder().build(),
-				FuehrungsformAttributGruppe.builder().isZweiseitig(true).build());
+			Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig().build();
 
 			// Assert
 			assertThat(kante).isNotNull();
 		}
 	}
 
+	@Test
+	void mergeSegmenteKleinerAls_coversAllLinearReferenzierteAttributGruppen() {
+		// arrange
+		FuehrungsformAttributGruppe fuehrungsformAttributGruppeMock = mock(FuehrungsformAttributGruppe.class);
+		GeschwindigkeitAttributGruppe geschwindigkeitAttributGruppeMock = mock(GeschwindigkeitAttributGruppe.class);
+		ZustaendigkeitAttributGruppe zustaendigkeitAttributGruppeMock = mock(ZustaendigkeitAttributGruppe.class);
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100, QuellSystem.DLM)
+			.fuehrungsformAttributGruppe(fuehrungsformAttributGruppeMock)
+			.geschwindigkeitAttributGruppe(geschwindigkeitAttributGruppeMock)
+			.zustaendigkeitAttributGruppe(zustaendigkeitAttributGruppeMock).build();
+
+		// act
+		kante.mergeSegmenteKleinerAls(Laenge.of(12));
+
+		// assert
+		verify(fuehrungsformAttributGruppeMock).mergeSegmentsKleinerAls(eq(LineareReferenz.of(0.12)));
+		verify(geschwindigkeitAttributGruppeMock).mergeSegmentsKleinerAls(eq(LineareReferenz.of(0.12)));
+		verify(zustaendigkeitAttributGruppeMock).mergeSegmentsKleinerAls(eq(LineareReferenz.of(0.12)));
+	}
+
+	@Test
+	void mergeSegmenteKleinerAll_minimalLengthGreaterKantenLengt_uses1() {
+		// arrange
+		FuehrungsformAttributGruppe fuehrungsformAttributGruppeMock = mock(FuehrungsformAttributGruppe.class);
+		GeschwindigkeitAttributGruppe geschwindigkeitAttributGruppeMock = mock(GeschwindigkeitAttributGruppe.class);
+		ZustaendigkeitAttributGruppe zustaendigkeitAttributGruppeMock = mock(ZustaendigkeitAttributGruppe.class);
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100, QuellSystem.DLM)
+			.fuehrungsformAttributGruppe(fuehrungsformAttributGruppeMock)
+			.geschwindigkeitAttributGruppe(geschwindigkeitAttributGruppeMock)
+			.zustaendigkeitAttributGruppe(zustaendigkeitAttributGruppeMock).build();
+
+		// act
+		kante.mergeSegmenteKleinerAls(Laenge.of(102));
+
+		// assert
+		verify(fuehrungsformAttributGruppeMock).mergeSegmentsKleinerAls(eq(LineareReferenz.of(1.0)));
+		verify(geschwindigkeitAttributGruppeMock).mergeSegmentsKleinerAls(eq(LineareReferenz.of(1.0)));
+		verify(zustaendigkeitAttributGruppeMock).mergeSegmentsKleinerAls(eq(LineareReferenz.of(1.0)));
+	}
+
 	private GeometryFactory getGeometryFactory() {
 		return KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
-	}
-
-	private GeschwindigkeitAttributGruppe createGeschwindigkeitAttributGruppe() {
-		return GeschwindigkeitAttributGruppe.builder()
-			.geschwindigkeitAttribute(
-				List.of(GeschwindigkeitAttribute.builder()
-					.ortslage(KantenOrtslage.INNERORTS)
-					.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_9_KMH)
-					.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_20_KMH)
-					.build()))
-			.build();
-	}
-
-	private FuehrungsformAttributGruppe createFuehrungsformAttributGruppe() {
-		return new FuehrungsformAttributGruppe(Collections.singletonList(
-			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0, 1),
-				BelagArt.SONSTIGER_BELAG,
-				Oberflaechenbeschaffenheit.UNBEKANNT,
-				Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER,
-				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
-				KfzParkenTyp.PARKEN_VERBOTEN,
-				KfzParkenForm.PARKBUCHTEN,
-				Laenge.of(1),
-				Benutzungspflicht.NICHT_VORHANDEN,
-				null,
-				null,
-				null,
-				null,
-				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			)),
-			false);
 	}
 }

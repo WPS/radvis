@@ -39,21 +39,21 @@ import { Circle, Stroke, Style } from 'ol/style';
 import Fill from 'ol/style/Fill';
 import Text from 'ol/style/Text';
 import { Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
-import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LineStringOperations } from 'src/app/shared/models/line-string-operations';
+import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
+import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
+import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
+import { CustomRoutingProfile, DEFAULT_PROFILE_ID } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
 import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
-import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-auswahl-modus.service';
-import invariant from 'tiny-invariant';
-import { CustomRoutingProfile, DEFAULT_PROFILE_ID } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
 import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
-import { distinctUntilChanged } from 'rxjs/operators';
-import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
+import invariant from 'tiny-invariant';
 
 @Component({
   selector: 'rad-fahrradroute-netzbezug-control',
@@ -192,7 +192,6 @@ export class FahrradrouteNetzbezugControlComponent
         }
       }),
       this.customProfileSelectionControl.valueChanges.pipe(distinctUntilChanged()).subscribe(value => {
-        console.log(this.customProfileSelectionControl.value, value);
         if (this.stuetzpunkte.length >= 2) {
           this.updateVerlauf();
         }

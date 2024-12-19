@@ -20,6 +20,7 @@ import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste
 import { DeleteServicestationCommand } from 'src/app/viewer/servicestation/models/delete-servicestation-command';
 import { SaveServicestationCommand } from 'src/app/viewer/servicestation/models/save-servicestation-command';
 import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
+import { ServicestationListView } from 'src/app/viewer/servicestation/models/servicestation-list-view';
 
 @Injectable({
   providedIn: 'root',
@@ -44,8 +45,8 @@ export class ServicestationService {
     return this.http.delete<void>(`${this.api}/${id}`, { body: command }).toPromise();
   }
 
-  public getAll(): Promise<Servicestation[]> {
-    return this.http.get<Servicestation[]>(`${this.api}`).toPromise();
+  public getAll(): Promise<ServicestationListView[]> {
+    return this.http.get<ServicestationListView[]>(`${this.api}`).toPromise();
   }
 
   public get(id: number): Promise<Servicestation> {

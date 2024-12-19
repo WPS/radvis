@@ -21,7 +21,8 @@ import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 
 public class SetzeBenutzerInaktivJobStatistik extends JobStatistik {
 
-	public int anzahlInaktivZuSetzenderBenutzer = 0;
+	public int anzahlBenutzerZuLangeNichtEingeloggt = 0;
+	public int anzahlBenutzerAblaufdatumUeberschritten = 0;
 	public int anzahlErfolgreicherInaktivsetzungen = 0;
 	public int anzahlFehlgeschlagenerInaktivsetzungen = 0;
 

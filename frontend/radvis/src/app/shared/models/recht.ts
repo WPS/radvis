@@ -39,6 +39,8 @@ export enum Recht {
   FURTEN_KREUZUNGEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN = 'FURTEN_KREUZUNGEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN',
   BARRIEREN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN = 'BARRIEREN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN',
   JOBS_AUSFUEHREN = 'JOBS_AUSFUEHREN',
+  KREISNETZ_ROUTENVERLEGUNGEN = 'KREISNETZ_ROUTENVERLEGUNGEN',
+  MASSNAHMEN_ARCHIVIEREN = 'MASSNAHMEN_ARCHIVIEREN',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -101,6 +103,10 @@ export namespace Recht {
         return { name: k, displayText: 'Barrieren im eigenen Zuständigkeitsbereich erfassen/bearbeiten' };
       case Recht.JOBS_AUSFUEHREN:
         return { name: k, displayText: 'Jobs ausführen' };
+      case Recht.KREISNETZ_ROUTENVERLEGUNGEN:
+        return { name: k, displayText: 'Kreisnetz bearbeiten' };
+      case Recht.MASSNAHMEN_ARCHIVIEREN:
+        return { name: k, displayText: 'Maßnahmen archivieren' };
     }
     throw new Error('Beschreibung für enum Recht fehlt: ' + k);
   });

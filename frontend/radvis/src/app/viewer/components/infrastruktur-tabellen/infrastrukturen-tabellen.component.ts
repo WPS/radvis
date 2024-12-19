@@ -12,8 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -42,6 +44,23 @@ import { WEGWEISENDE_BESCHILDERUNG } from 'src/app/viewer/wegweisende-beschilder
   templateUrl: './infrastrukturen-tabellen.component.html',
   styleUrls: ['./infrastrukturen-tabellen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('easeInOut', [
+      state(
+        'in',
+        style({
+          height: '0px',
+        })
+      ),
+      state(
+        'out',
+        style({
+          height: '*',
+        })
+      ),
+      transition('in <=> out', [animate('0.25s')]),
+    ]),
+  ],
 })
 export class InfrastrukturenTabellenComponent {
   @ViewChild('tabContainer', { read: ElementRef })
@@ -65,9 +84,24 @@ export class InfrastrukturenTabellenComponent {
   readonly SERVICESTATIONEN = SERVICESTATIONEN;
   readonly LEIHSTATIONEN = LEIHSTATIONEN;
   readonly FAHRRADZAEHLSTELLE = FAHRRADZAEHLSTELLE;
+  minimized = false;
 
-  constructor(private infrastrukturenSelektionService: InfrastrukturenSelektionService) {
+  activeInfrastruktur: Infrastruktur | null = null;
+
+  constructor(
+    private infrastrukturenSelektionService: InfrastrukturenSelektionService,
+    changeDetector: ChangeDetectorRef
+  ) {
     this.selektierteInfrastrukturen$ = this.infrastrukturenSelektionService.selektierteInfrastrukturen$;
+    this.selektierteInfrastrukturen$.subscribe(infrastrukturen => {
+      if (
+        (this.activeInfrastruktur && !infrastrukturen.includes(this.activeInfrastruktur)) ||
+        !Boolean(this.activeInfrastruktur)
+      ) {
+        this.activeInfrastruktur = infrastrukturen[0] ?? null;
+        changeDetector.markForCheck();
+      }
+    });
   }
 
   @HostListener('document:keydown.control.alt.shift.t')
@@ -77,5 +111,9 @@ export class InfrastrukturenTabellenComponent {
 
   onFullScreen(): void {
     this.showFullscreen.next();
+  }
+
+  onToggleMinimization(): void {
+    this.minimized = !this.minimized;
   }
 }

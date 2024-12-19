@@ -30,4 +30,7 @@ public interface JobExecutionDescriptionRepository extends CrudRepository<JobExe
 	@Query("FROM JobExecutionDescription WHERE name IN ?2 and executionStart > ?1 ORDER BY executionStart DESC")
 	List<JobExecutionDescription> findAllByNameInAfterOrderByExecutionStartDesc(LocalDateTime after,
 		List<String> names);
+
+	List<JobExecutionDescription> findByExecutionStartGreaterThanEqualAndExecutionStartLessThan(
+		LocalDateTime startDateTime, LocalDateTime endDateTime);
 }

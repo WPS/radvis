@@ -14,8 +14,10 @@
 
 package de.wps.radvis.backend.barriere.domain.entity.provider;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.barriere.domain.entity.Barriere;
 import de.wps.radvis.backend.barriere.domain.entity.BarriereNetzBezug;
@@ -52,4 +54,14 @@ public class BarriereTestDataProvider {
 			.barrierenForm(BarrierenForm.SONSTIGE_BARRIERE);
 	}
 
+	public static Barriere.BarriereBuilder onKante(Kante... kanten) {
+		return withDefaultValues()
+			.netzbezug(new BarriereNetzBezug(
+				Arrays.stream(kanten).map(k -> new AbschnittsweiserKantenSeitenBezug(k, LinearReferenzierterAbschnitt
+					.of(0, 1), Seitenbezug.LINKS)).collect(Collectors.toSet()),
+				Arrays.stream(kanten).map(k -> new PunktuellerKantenSeitenBezug(k, LineareReferenz.of(0.25),
+					Seitenbezug.BEIDSEITIG)).collect(Collectors.toSet()),
+				Collections.emptySet()
+			));
+	}
 }

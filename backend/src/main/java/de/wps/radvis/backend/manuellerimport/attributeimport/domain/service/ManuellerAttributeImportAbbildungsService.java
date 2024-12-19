@@ -21,10 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Envelope;
@@ -41,14 +39,9 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.AbstractManuellerImportAbbildungsService;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
-import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
+import de.wps.radvis.backend.matching.domain.service.GrundnetzMappingService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
-import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
-import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
-import de.wps.radvis.backend.netz.domain.entity.Kante;
-import de.wps.radvis.backend.netz.domain.entity.LineStrings;
-import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -58,14 +51,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ManuellerAttributeImportAbbildungsService extends AbstractManuellerImportAbbildungsService {
 
 	private final InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory;
-
-	private final SimpleMatchingService simpleMatchingService;
+	private final GrundnetzMappingService grundnetzMappingService;
 
 	public ManuellerAttributeImportAbbildungsService(
 		InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory,
-		SimpleMatchingService simpleMatchingService) {
+		GrundnetzMappingService grundnetzMappingService) {
 		this.inMemoryKantenRepositoryFactory = inMemoryKantenRepositoryFactory;
-		this.simpleMatchingService = simpleMatchingService;
+		this.grundnetzMappingService = grundnetzMappingService;
 	}
 
 	public List<FeatureMapping> bildeFeaturesAb(List<SimpleFeature> featuresInBereich,
@@ -135,25 +127,14 @@ public class ManuellerAttributeImportAbbildungsService extends AbstractManueller
 	}
 
 	private FeatureMapping matcheFeatureMapping(FeatureMapping featureMapping,
-		MatchingStatistik matchingStatistik,
-		InMemoryKantenRepository inMemoryMatchingKantenRepository) {
-		Optional<OsmMatchResult> osmMatchResult = simpleMatchingService.matche(
-			featureMapping.getImportedLineString(), matchingStatistik);
+		MatchingStatistik matchingStatistik, InMemoryKantenRepository inMemoryMatchingKantenRepository) {
 
-		if (osmMatchResult.isPresent()) {
-			List<Kante> matchingKanten = inMemoryMatchingKantenRepository.findKantenById(
-				osmMatchResult.get().getOsmWayIds().stream().map(OsmWayId::getValue).collect(Collectors.toSet()));
-			matchingKanten.stream()
-				// Matches für die keine Kanten innerhalb der Organisation liegen rausfiltern
-				.filter(Objects::nonNull)
-				.filter(kante -> LineStrings.calculateUeberschneidungslinestring(kante.getGeometry(),
-					osmMatchResult.get().getGeometrie()).isPresent())
-				// sicherstellen, dass nur auf DLM oder RadVIS gemapped wird
+		grundnetzMappingService.mappeAufGrundnetz(featureMapping.getImportedLineString(), matchingStatistik, (ids) -> {
+			return inMemoryMatchingKantenRepository.findKantenById(ids).stream().filter(Objects::nonNull)
 				.filter(kante -> kante.getQuelle().equals(QuellSystem.DLM)
 					|| kante.getQuelle().equals(QuellSystem.RadVis))
-				.forEach(kante -> featureMapping.add(new MappedGrundnetzkante(kante.getGeometry(), kante.getId(),
-					osmMatchResult.get().getGeometrie())));
-		}
+				.toList();
+		}).forEach(featureMapping::add);
 
 		return featureMapping;
 	}

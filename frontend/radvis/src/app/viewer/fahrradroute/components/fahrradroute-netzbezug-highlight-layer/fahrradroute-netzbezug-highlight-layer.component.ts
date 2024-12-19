@@ -13,19 +13,19 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Color } from 'ol/color';
 import Feature from 'ol/Feature';
+import { Color } from 'ol/color';
 import { Geometry, LineString, MultiLineString } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Style } from 'ol/style';
+import { KantenNetzbezug } from 'src/app/shared/models/kanten-netzbezug';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
+import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
+import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
-import { KantenNetzbezug } from 'src/app/shared/models/kanten-netzbezug';
-import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.service';
 import invariant from 'tiny-invariant';
-import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 
 @Component({
   selector: 'rad-fahrradroute-netzbezug-highlight-layer',
@@ -34,10 +34,10 @@ import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-
 })
 export class FahrradrouteNetzbezugHighlightLayerComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
-  kantenBezug?: KantenNetzbezug[];
+  kantenBezug: KantenNetzbezug[] | null = null;
 
   @Input()
-  fahrradRouteNetzbezug?: FahrradrouteNetzbezug;
+  fahrradRouteNetzbezug: FahrradrouteNetzbezug | null = null;
 
   @Input()
   color: Color = MapStyles.FEATURE_SELECT_COLOR;

@@ -13,12 +13,15 @@
  */
 
 import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
+import { MassnahmeToolView } from 'src/app/viewer/massnahme/models/massnahme-tool-view';
 
-export const defaultMassnahmeToolView = {
+export const defaultMassnahmeToolView: MassnahmeToolView = {
   id: 3,
   version: 1,
   canDelete: true,
   hasUmsetzungsstand: true,
   netzbezug: defaultNetzbezug,
   originalGeometrie: null,
+  netzbezugSnapshot: null,
+  archiviert: false,
 };

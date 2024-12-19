@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
@@ -57,6 +58,13 @@ public class GeschwindigkeitAttributGruppe extends VersionierteEntity {
 	private GeschwindigkeitAttributGruppe(Long id, Long version,
 		List<GeschwindigkeitAttribute> geschwindigkeitAttribute) {
 		super(id, version);
+		require(geschwindigkeitAttribute, notNullValue());
+		require(geschwindigkeitAttribute, Matchers.not(Matchers.empty()));
+		List<LinearReferenzierterAbschnitt> lineareReferenzen = geschwindigkeitAttribute.stream()
+			.map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
+			.collect(Collectors.toList());
+		require(LinearReferenzierterAbschnitt.segmentsCoverFullLine(lineareReferenzen),
+			"Fehlerhafte Referenzen: " + lineareReferenzen);
 		this.geschwindigkeitAttribute = new HashSet<>(geschwindigkeitAttribute);
 	}
 
@@ -85,7 +93,23 @@ public class GeschwindigkeitAttributGruppe extends VersionierteEntity {
 		replaceGeschwindigkeitAttribute(
 			List.of(GeschwindigkeitAttribute.builder()
 				.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UNBEKANNT)
-				.build())
-		);
+				.build()));
+	}
+
+	public void insert(GeschwindigkeitAttribute attribut) {
+		replaceGeschwindigkeitAttribute(
+			LinearReferenzierteAttribute.insertInto(getImmutableGeschwindigkeitAttribute(), attribut));
+	}
+
+	/**
+	 * Fasst Segmente (echt) kleiner als übergebene Länge mit Nachbarn zusammen
+	 */
+	public void mergeSegmentsKleinerAls(LineareReferenz minimalSegmentLength) {
+		require(minimalSegmentLength.getAbschnittsmarke() > 0.0);
+
+		if (getGeschwindigkeitAttribute().size() > 1) {
+			replaceGeschwindigkeitAttribute(LinearReferenzierteAttribute
+				.mergeSegmentsKleinerAls(getImmutableGeschwindigkeitAttribute(), minimalSegmentLength));
+		}
 	}
 }

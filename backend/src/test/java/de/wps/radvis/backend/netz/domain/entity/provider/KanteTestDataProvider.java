@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
@@ -49,8 +50,8 @@ public class KanteTestDataProvider {
 	public static KanteBuilder withCoordinatesAndQuelle(double x1, double y1, double x2, double y2,
 		QuellSystem quelle) {
 
-		Coordinate vonKoordinate = new Coordinate(x1, y1);
-		Coordinate nachKoordinate = new Coordinate(x2, y2);
+		Coordinate vonKoordinate = new CoordinateXY(x1, y1);
+		Coordinate nachKoordinate = new CoordinateXY(x2, y2);
 		LineString lineString = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { vonKoordinate, nachKoordinate });
 

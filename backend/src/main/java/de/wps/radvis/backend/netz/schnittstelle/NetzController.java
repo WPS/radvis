@@ -26,6 +26,7 @@ import org.geojson.Feature;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
@@ -47,18 +49,21 @@ import de.wps.radvis.backend.common.domain.entity.VersionedId;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.KanteDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.KanteGeometrien;
-import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.LinearReferenzierteAttribute;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenSeite;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.schnittstelle.command.ChangeSeitenbezugCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.CreateKanteCommand;
@@ -90,6 +95,7 @@ public class NetzController {
 	private final ZustaendigkeitsService zustaendigkeitsService;
 	private final SaveKanteCommandConverter saveKanteCommandConverter;
 	private final NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
+	private final Laenge minimaleSegmentLaenge;
 
 	public NetzController(
 		@NonNull NetzService netzService,
@@ -97,13 +103,15 @@ public class NetzController {
 		@NonNull BenutzerResolver benutzerResolver,
 		@NonNull ZustaendigkeitsService zustaendigkeitsService,
 		@NonNull SaveKanteCommandConverter saveKanteCommandConverter,
-		@NonNull NetzToFeatureDetailsConverter netzToFeatureDetailsConverter) {
+		@NonNull NetzToFeatureDetailsConverter netzToFeatureDetailsConverter,
+		NetzConfigurationProperties netzConfigurationProperties) {
 		this.netzService = netzService;
 		this.netzGuard = netzGuard;
 		this.benutzerResolver = benutzerResolver;
 		this.zustaendigkeitsService = zustaendigkeitsService;
 		this.saveKanteCommandConverter = saveKanteCommandConverter;
 		this.netzToFeatureDetailsConverter = netzToFeatureDetailsConverter;
+		minimaleSegmentLaenge = netzConfigurationProperties.getMinimaleSegmentLaenge();
 	}
 
 	@GetMapping("kante/{id}")
@@ -159,13 +167,10 @@ public class NetzController {
 
 		checkKeineRadnetzQuelle(kanteIds);
 
-		final var kantenAttributGruppen = commands.stream().map(command -> KantenAttributGruppe.builder()
-			.id(command.getGruppenId())
-			.version(command.getGruppenVersion())
-			.netzklassen(command.getNetzklassen())
-			.istStandards(command.getIstStandards())
-			.kantenAttribute(saveKanteCommandConverter.convertKantenAttributeCommand(command))
-			.build()).collect(Collectors.toList());
+		final var kantenAttributGruppen = commands.stream().map(command -> {
+			return saveKanteCommandConverter.apply(netzService.getKante(command.getKanteId()).getKantenAttributGruppe(),
+				command);
+		}).collect(Collectors.toList());
 
 		netzService.aktualisiereKantenAttribute(kantenAttributGruppen);
 
@@ -235,6 +240,23 @@ public class NetzController {
 
 		checkKeineRadnetzQuelle(kanteIds);
 
+		if (!commands.stream().allMatch(command -> {
+			Kante kante = netzService.getKante(command.getKanteId());
+
+			return LinearReferenzierteAttribute.allSegmentsHaveMinimaleLaenge(kante.getLaengeBerechnet(),
+				minimaleSegmentLaenge,
+				command.getFuehrungsformAttributeLinks().stream().map(c -> c.getLinearReferenzierterAbschnitt())
+					.toList())
+				&& LinearReferenzierteAttribute.allSegmentsHaveMinimaleLaenge(kante.getLaengeBerechnet(),
+					minimaleSegmentLaenge,
+					command.getFuehrungsformAttributeRechts().stream().map(c -> c.getLinearReferenzierterAbschnitt())
+						.toList());
+		})) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Linear referenzierte Abschnitte müssen min. " + minimaleSegmentLaenge
+					+ " lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
 		final var fuehrungsformAttributGruppen = commands.stream().map(command -> {
 			List<FuehrungsformAttribute> fuehrungsFormAttributeLinks = saveKanteCommandConverter
 				.convertFuehrungsformAtttributeCommands(
@@ -269,12 +291,26 @@ public class NetzController {
 			.collect(Collectors.toSet());
 		checkKeineRadnetzQuelle(kanteIds);
 
+		if (!commands.stream().allMatch(command -> {
+			Kante kante = netzService.getKante(command.getKanteId());
+
+			return LinearReferenzierteAttribute.allSegmentsHaveMinimaleLaenge(kante.getLaengeBerechnet(),
+				minimaleSegmentLaenge,
+				command.getGeschwindigkeitAttribute().stream().map(c -> c.getLinearReferenzierterAbschnitt()).toList());
+		})) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Linear referenzierte Abschnitte müssen min. " + minimaleSegmentLaenge
+					+ " lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
 		Map<VersionedId, List<GeschwindigkeitAttribute>> attributeMap = commands.stream()
 			.map(command -> {
+
 				List<GeschwindigkeitAttribute> geschwindigkeitAttribute = command.getGeschwindigkeitAttribute()
 					.stream()
 					.map(saveKanteCommandConverter::convertGeschwindigkeitsAttributeCommand)
 					.collect(Collectors.toList());
+
 				VersionedId versionedId = new VersionedId(command.getGruppenID(), command.getGruppenVersion());
 				return new AbstractMap.SimpleEntry<>(versionedId, geschwindigkeitAttribute);
 			})
@@ -297,12 +333,25 @@ public class NetzController {
 			.collect(Collectors.toSet());
 		checkKeineRadnetzQuelle(kanteIds);
 
+		if (!commands.stream().allMatch(command -> {
+			Kante kante = netzService.getKante(command.getKanteId());
+
+			return LinearReferenzierteAttribute.allSegmentsHaveMinimaleLaenge(kante.getLaengeBerechnet(),
+				minimaleSegmentLaenge,
+				command.getZustaendigkeitAttribute().stream().map(c -> c.getLinearReferenzierterAbschnitt()).toList());
+		})) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Linear referenzierte Abschnitte müssen min. " + minimaleSegmentLaenge
+					+ " lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
 		Map<VersionedId, List<ZustaendigkeitAttribute>> zustaendigkeitMap = commands.stream()
 			.map(command -> {
 				List<ZustaendigkeitAttribute> zustaendigkeitAttribute = command.getZustaendigkeitAttribute()
 					.stream()
 					.map(saveKanteCommandConverter::convertZustaendigkeitsAttributeCommand)
 					.collect(Collectors.toList());
+
 				VersionedId versionedId = new VersionedId(command.getGruppenID(), command.getGruppenVersion());
 				return new AbstractMap.SimpleEntry<>(versionedId, zustaendigkeitAttribute);
 			})
@@ -351,7 +400,8 @@ public class NetzController {
 		if (Objects.isNull(command.getBisKnotenId())) {
 			kante = netzService.createGrundnetzKanteWithNewBisKnoten(command.getVonKnotenId(),
 				GeoJsonConverter.create3DJtsPointFromGeoJson(command.getBisKnotenCoor(),
-					KoordinatenReferenzSystem.ETRS89_UTM32_N), Status.FIKTIV);
+					KoordinatenReferenzSystem.ETRS89_UTM32_N),
+				Status.FIKTIV);
 		} else {
 			kante = netzService.createGrundnetzKante(command.getVonKnotenId(), command.getBisKnotenId(),
 				Status.FIKTIV);
@@ -383,7 +433,8 @@ public class NetzController {
 	 * Entwickler:innen da und kann z.B. ueber curl angesprochen werden. Dabei muessen die Authorization, die SessionID
 	 * und ein XSRF-TOKEN aus einer anderen Anfrage im Browser herausgefunden werden.
 	 *
-	 * curl "<baseUrl>/api/netz/kante/<id>" -X DELETE -H "X-XSRF-TOKEN: <xsrf-token>" -H "Authorization: <authorization>" -H "Cookie: JSESSIONID=<session id>; XSRF-TOKEN=<nochmal das xsrf-token>"
+	 * curl "<baseUrl>/api/netz/kante/<id>" -X DELETE -H "X-XSRF-TOKEN: <xsrf-token>" -H
+	 * "Authorization: <authorization>" -H "Cookie: JSESSIONID=<session id>; XSRF-TOKEN=<nochmal das xsrf-token>"
 	 */
 	@DeleteMapping("kante/{id}")
 	@WithAuditing(context = AuditingContext.DELETE_KANTE)
@@ -396,16 +447,18 @@ public class NetzController {
 
 		Kante kante = netzService.getKante(id);
 		if (kante.getQuelle().equals(QuellSystem.RadVis)) {
-			netzService.deleteKante(kante);
-			log.info("RadVIS-Kante {} wurde gelöscht", kante.getId());
+			KanteDeleteStatistik statistik = new KanteDeleteStatistik();
+			netzService.deleteKante(kante, statistik);
+			log.info("RadVIS-Kante {} wurde gelöscht, {} Netzbezüge wurden dadurch angepasst", kante.getId(),
+				statistik.anzahlAngepassterNetzbezuege);
 		} else {
 			log.warn("Die Kante mit der id {} konnte nicht gelöscht werden, da sie nicht Quellsystem \"RadVIS\" ist",
 				kante.getId());
 		}
 	}
 	/*
-	 * Dieser Endpunkt wird nicht im RadVIS-Frontend aufgerufen. Er ist zur aktualisierung der Materialized Views
-	 *  durch Entwickler:innen da und kann z.B. ueber curl angesprochen werden. Dabei muessen die Authorization, die SessionID
+	 * Dieser Endpunkt wird nicht im RadVIS-Frontend aufgerufen. Er ist zur aktualisierung der Materialized Views durch
+	 * Entwickler:innen da und kann z.B. ueber curl angesprochen werden. Dabei muessen die Authorization, die SessionID
 	 * und ein XSRF-TOKEN aus einer anderen Anfrage im Browser herausgefunden werden (analog zu Kante loeschen)
 	 */
 

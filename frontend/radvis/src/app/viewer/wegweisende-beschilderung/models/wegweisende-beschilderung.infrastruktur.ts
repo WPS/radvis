@@ -19,6 +19,6 @@ export const WEGWEISENDE_BESCHILDERUNG = new Infrastruktur(
   'icon-wegweisende-beschilderung.svg',
   'wegweisende-beschilderung',
   undefined,
-  'oben',
+  undefined,
   'Wegweisende Beschilderung'
 );

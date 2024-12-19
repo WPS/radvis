@@ -43,6 +43,7 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 
 @ContextConfiguration(classes = {
@@ -60,7 +61,8 @@ import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 	FeatureToggleProperties.class,
 	PostgisConfigurationProperties.class,
 	JobConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class
+	KonsistenzregelnConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @AutoConfigureTestEntityManager
 abstract class AbstractKonsistenzregelTestIT extends DBIntegrationTestIT {

@@ -59,6 +59,19 @@ public class ServicestationGuard {
 		assertIstImZustaendigkeitsbereich(servicestation.getGeometrie(), aktiverBenutzer);
 	}
 
+	public boolean darfBenutzerBearbeiten(Authentication authentication, Servicestation servicestation) {
+		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
+		try {
+			assertIstQuellSystemRadvis(servicestation);
+			assertHatRecht(aktiverBenutzer);
+			assertIstImZustaendigkeitsbereich(servicestation.getGeometrie(), aktiverBenutzer);
+
+			return true;
+		} catch (AccessDeniedException e) {
+			return false;
+		}
+	}
+
 	private void assertIstQuellSystemRadvis(Servicestation servicestation) {
 		if (!servicestation.getQuellSystem().equals(ServicestationenQuellSystem.RADVIS)) {
 			throw new AccessDeniedException("Nur Servicestationen mit QuellSystem " + ServicestationenQuellSystem.RADVIS

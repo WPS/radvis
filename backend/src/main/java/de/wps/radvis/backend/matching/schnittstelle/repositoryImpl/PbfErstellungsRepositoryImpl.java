@@ -53,8 +53,8 @@ import de.wps.radvis.backend.common.domain.RamUsageUtility;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.matching.domain.PbfErstellungsRepository;
 import de.wps.radvis.backend.matching.domain.entity.NodeIndex;
+import de.wps.radvis.backend.matching.domain.repository.PbfErstellungsRepository;
 import de.wps.radvis.backend.matching.schnittstelle.encodedValues.KommunalnetzAlltagEncodedValue;
 import de.wps.radvis.backend.matching.schnittstelle.encodedValues.KommunalnetzFreizeitEncodedValue;
 import de.wps.radvis.backend.matching.schnittstelle.encodedValues.KreisnetzAlltagEncodedValue;
@@ -73,7 +73,6 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SeitenbezogeneProfilEigenschaften;
-import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,7 +80,6 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 	private final CoordinateReferenceSystemConverter converter;
-	private final EntityManager entityManager;
 	private final BarriereRepository barriereRepository;
 	private final KantenRepository kantenRepository;
 
@@ -96,9 +94,11 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 	 *     Zieldatei
 	 */
 	@Override
-	public void writePbf(Map<Envelope, Stream<Kante>> partitionToKantenMap, File outputFile) {
+	public void writePbf(Map<Envelope, Stream<Kante>> partitionToKantenMap, File outputFile) throws IOException {
 		require(partitionToKantenMap, notNullValue());
 		require(outputFile, notNullValue());
+
+		log.info("Schreibe Kanten als PBF-Datei nach {}", outputFile.getAbsolutePath());
 
 		try (OutputStream output = new FileOutputStream(outputFile)) {
 			PbfWriter osmOutput = new PbfWriter(output, true);
@@ -114,8 +114,6 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 			List<Map.Entry<Envelope, Stream<Kante>>> sortedMapEntries = partitionToKantenMap.entrySet().stream()
 				.sorted(Comparator.comparing(entry -> entry.getKey().getMinX())).collect(Collectors.toList());
 
-			double maxX = sortedMapEntries.get(sortedMapEntries.size() - 1).getKey().getMaxX();
-
 			Map<Long, Set<Barriere>> kanteToBarrieren = getBarrierenForKanten();
 
 			for (Map.Entry<Envelope, Stream<Kante>> spalte : sortedMapEntries) {
@@ -123,13 +121,6 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 
 				RamUsageUtility.logCurrentRamUsage(
 					String.format("Vor envelope %s in %s", envelope, this.getClass().getSimpleName()));
-
-				Envelope envelopeWGS84 = converter.transformEnvelope(
-					new Envelope(envelope.getMinX(),
-						maxX,
-						envelope.getMinY(),
-						envelope.getMaxY()),
-					KoordinatenReferenzSystem.ETRS89_UTM32_N, KoordinatenReferenzSystem.WGS84);
 
 				log.info("Schreibe Pbf für Partition {}", envelope);
 				Stream<Kante> kanten = spalte.getValue();
@@ -150,21 +141,19 @@ public class PbfErstellungsRepositoryImpl implements PbfErstellungsRepository {
 						}
 					}
 				});
-				this.entityManager.flush();
-				this.entityManager.clear();
 
 				System.gc();
 				RamUsageUtility.logCurrentRamUsage(
 					String.format("Nach envelope %s in %s", envelope, this.getClass().getSimpleName()));
-
 			}
 
 			osmOutput.complete();
-
 		} catch (IOException e) {
-			log.error("Fehler beim Schreiben der .pbf-Datei. Konfigurierter Dateipfad: {}",
-				outputFile.getAbsolutePath(), e);
+			log.error("Fehler beim Schreiben der PBF-Datei {}", outputFile.getAbsolutePath(), e);
+			throw new IOException("PBF-Datei " + outputFile.getAbsolutePath() + " konnte nicht geschrieben werden", e);
 		}
+
+		log.info("PBF-Datei {} erfolgreich geschrieben", outputFile.getAbsolutePath());
 	}
 
 	private Map<Long, Set<Barriere>> getBarrierenForKanten() {

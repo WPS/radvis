@@ -29,7 +29,7 @@ import { Subscription } from 'rxjs';
 import { EditorLayerZindexConfig } from 'src/app/editor/editor-shared/models/editor-layer-zindex-config';
 import { MassnahmenImportZuordnungStatus } from 'src/app/import/massnahmen/models/massnahmen-import-zuordnung-status';
 import { MassnahmenImportZuordnungenService } from 'src/app/import/massnahmen/services/massnahmen-import-zuordnungen.service';
-import { geojsonGeometryToFeatureGeometry } from 'src/app/shared/models/geojson-geometrie';
+import { geojsonGeometryToFeature } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 
@@ -64,7 +64,7 @@ export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestr
 
         zuordnungen.forEach(zuordnung => {
           if (!!zuordnung.netzbezugGeometrie) {
-            const netzbezugFeature = geojsonGeometryToFeatureGeometry(zuordnung.netzbezugGeometrie);
+            const netzbezugFeature = geojsonGeometryToFeature(zuordnung.netzbezugGeometrie);
             if (netzbezugFeature != null) {
               netzbezugFeature.set(ImportMassnahmenImportUeberpruefenLayerComponent.featureIdField, zuordnung.id);
               netzbezugFeature.set(

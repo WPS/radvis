@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre as build
+FROM eclipse-temurin:17-jdk-noble as build
 COPY alphasslcasha256g4.crt alphasslcasha256g4.crt
 COPY target/radvis-0.0.1-SNAPSHOT-radvis-standalone-app.zip app.jar
 ENTRYPOINT ["sh", "-c", "java -jar /app.jar"]

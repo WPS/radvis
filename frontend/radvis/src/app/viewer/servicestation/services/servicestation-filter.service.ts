@@ -13,21 +13,21 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { ServicestationListView } from 'src/app/viewer/servicestation/models/servicestation-list-view';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
+import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
+import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { SERVICESTATIONEN } from 'src/app/viewer/servicestation/models/servicestation.infrastruktur';
 import { ServicestationService } from 'src/app/viewer/servicestation/services/servicestation.service';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/filter-query-params.service';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
-import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
-import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ServicestationFilterService extends AbstractInfrastrukturenFilterService<Servicestation> {
+export class ServicestationFilterService extends AbstractInfrastrukturenFilterService<ServicestationListView> {
   constructor(
     infrastrukturenSelektionService: InfrastrukturenSelektionService,
     filterQueryParamsService: FilterQueryParamsService,
@@ -38,7 +38,7 @@ export class ServicestationFilterService extends AbstractInfrastrukturenFilterSe
     this.init();
   }
 
-  public getInfrastrukturValueForKey(item: Servicestation, key: string): string | string[] {
+  public getInfrastrukturValueForKey(item: ServicestationListView, key: string): string | string[] {
     switch (key) {
       case 'quellSystem':
         return ServicestationQuellSystem.getDisplayText(item.quellSystem);
@@ -60,10 +60,12 @@ export class ServicestationFilterService extends AbstractInfrastrukturenFilterSe
   }
 
   public onServicestationDeleted(id: number): void {
-    this.onAlleInfrastrukturenChanged(this.alleInfrastrukturen.filter((value: Servicestation) => value.id !== id));
+    this.onAlleInfrastrukturenChanged(
+      this.alleInfrastrukturen.filter((value: ServicestationListView) => value.id !== id)
+    );
   }
 
-  protected getAll(): Promise<Servicestation[]> {
+  protected getAll(): Promise<ServicestationListView[]> {
     return this.servicestationService.getAll();
   }
 }

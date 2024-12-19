@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.util.Set;
 
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.linearref.LengthIndexedLine;
 
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -67,10 +66,6 @@ public abstract class AbstractKanteLinearReferenzierteAttributeView extends Abst
 	private Long kantenAttributgruppeId;
 
 	public LineString getSegment(LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
-		final LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(geometry);
-
-		return (LineString) lengthIndexedLine.extractLine(
-			linearReferenzierterAbschnitt.getVonValue() * geometry.getLength(),
-			linearReferenzierterAbschnitt.getBisValue() * geometry.getLength());
+		return linearReferenzierterAbschnitt.toSegment(geometry);
 	}
 }

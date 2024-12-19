@@ -124,6 +124,33 @@ describe(OrganisationListComponent.name, () => {
     });
   });
 
+  describe('filter', () => {
+    it('should filter status', () => {
+      const inaktiveOrganisation = { ...defaultOrganisation, id: 1, aktiv: false };
+      component.organisationDataSource.data = [inaktiveOrganisation, { ...defaultOrganisation, id: 2, aktiv: true }];
+      component.organisationDataSource.filter = 'inaktiv';
+      expect(component.organisationDataSource.filteredData).toEqual([inaktiveOrganisation]);
+    });
+
+    it('should filter partial matches', () => {
+      component.organisationDataSource.data = [{ ...defaultOrganisation, name: 'test' }];
+      component.organisationDataSource.filter = 'te';
+      expect(component.organisationDataSource.filteredData.length).toBe(1);
+    });
+
+    it('should filter case insensitive', () => {
+      component.organisationDataSource.data = [
+        { ...defaultOrganisation, name: 'TEST', id: 1 },
+        { ...defaultOrganisation, name: 'test', id: 2 },
+      ];
+      component.organisationDataSource.filter = 'test';
+      expect(component.organisationDataSource.filteredData.length).toBe(2);
+
+      component.organisationDataSource.filter = 'TEST';
+      expect(component.organisationDataSource.filteredData.length).toBe(2);
+    });
+  });
+
   describe('with queryParamMap', () => {
     it('should update suche', fakeAsync(() => {
       const suchbegriff = 'Kartoffelpüree';

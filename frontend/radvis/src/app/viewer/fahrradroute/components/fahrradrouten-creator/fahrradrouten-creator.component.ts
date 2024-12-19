@@ -21,11 +21,11 @@ import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { FahrradrouteAttributeEditorComponent } from 'src/app/viewer/fahrradroute/components/fahrradroute-attribute-editor/fahrradroute-attribute-editor.component';
 import { CreateFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/create-fahrradroute-command';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 
 @Component({
@@ -41,7 +41,7 @@ export class FahrradroutenCreatorComponent implements OnDestroy, DiscardableComp
   public isFetching = false;
   isRouting = false;
 
-  public kategorieOptions = Kategorie.options;
+  public kategorieOptions = FahrradrouteKategorie.options;
 
   private saved = false;
 

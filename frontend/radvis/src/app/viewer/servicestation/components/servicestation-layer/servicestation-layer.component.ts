@@ -19,6 +19,7 @@ import VectorLayer from 'ol/layer/Vector';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
+import { ServicestationListView } from 'src/app/viewer/servicestation/models/servicestation-list-view';
 import { SERVICESTATIONEN } from 'src/app/viewer/servicestation/models/servicestation.infrastruktur';
 import { ServicestationFilterService } from 'src/app/viewer/servicestation/services/servicestation-filter.service';
 import { ServicestationRoutingService } from 'src/app/viewer/servicestation/services/servicestation-routing.service';
@@ -31,7 +32,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ServicestationLayerComponent
-  extends AbstractInfrastrukturLayerComponent<Servicestation>
+  extends AbstractInfrastrukturLayerComponent<ServicestationListView>
   implements OnDestroy
 {
   private layer: VectorLayer;

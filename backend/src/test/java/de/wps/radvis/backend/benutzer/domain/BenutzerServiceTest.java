@@ -22,10 +22,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -740,38 +742,6 @@ class BenutzerServiceTest {
 	}
 
 	@Test
-	void testErmittleAlleBenutzerInaktivLaengerAls_findetKorrekteBenutzer() {
-		// arrange
-		Integer inaktivitaetsTimeout = 365;
-		Long id = 0L;
-		Long version = 1L;
-
-		Benutzer aktiverBenutzer = BenutzerTestDataProvider
-			.defaultBenutzer()
-			.id(++id)
-			.version(++version)
-			.letzteAktivitaet(LocalDate.now().minusDays(inaktivitaetsTimeout))
-			.build();
-
-		Benutzer inaktiverBenutzer = BenutzerTestDataProvider
-			.defaultBenutzer()
-			.id(++id)
-			.version(++version)
-			.letzteAktivitaet(LocalDate.now().minusDays(inaktivitaetsTimeout + 1))
-			.build();
-
-		when(benutzerRepository.findByStatusAndRollenIsNotContaining(BenutzerStatus.AKTIV, Rolle.RADVIS_ADMINISTRATOR))
-			.thenReturn(List.of(aktiverBenutzer, inaktiverBenutzer));
-
-		// act
-		List<Benutzer> benutzerListe = benutzerService.ermittleAktiveBenutzerInaktivLaengerAls(inaktivitaetsTimeout);
-
-		// assert
-		assertThat(benutzerListe).contains(inaktiverBenutzer);
-		assertThat(benutzerListe).doesNotContain(aktiverBenutzer);
-	}
-
-	@Test
 	void testReaktiviereBenutzer_aendertBenutzerStatus() throws BenutzerIstNichtRegistriertException {
 		// arrange
 		Benutzer inaktiverBenutzer = BenutzerTestDataProvider
@@ -779,7 +749,6 @@ class BenutzerServiceTest {
 			.id(2L)
 			.version(1L)
 			.status(BenutzerStatus.INAKTIV)
-			.letzteAktivitaet(LocalDate.now().minusDays(366))
 			.build();
 
 		when(benutzerRepository.findById(2L)).thenReturn(Optional.of(inaktiverBenutzer));
@@ -792,5 +761,47 @@ class BenutzerServiceTest {
 		// assert
 		assertThat(reaktivierterBenutzer.getStatus()).isEqualTo(BenutzerStatus.WARTE_AUF_FREISCHALTUNG);
 		verify(mailService).sendMail(anyList(), eq("Antrag auf Reaktivierung"), anyString());
+	}
+
+	@Test
+	void testAendereBenutzerstatus_setztAnderenStatusAlsAktiv_ablaufdatumWirdNull()
+		throws BenutzerIstNichtRegistriertException {
+		// Arrange
+		List<BenutzerStatus> benutzerStatusListeOhneAktiv = Arrays.stream(BenutzerStatus.values())
+			.filter(status -> status != BenutzerStatus.AKTIV)
+			.toList();
+
+		Long id = 1L;
+		Long version = 2L;
+
+		for (BenutzerStatus status : benutzerStatusListeOhneAktiv) {
+			Benutzer benutzer = mock(Benutzer.class);
+			when(benutzer.getVersion()).thenReturn(version);
+			when(benutzerRepository.findById(id)).thenReturn(Optional.of(benutzer));
+
+			// Act
+			benutzerService.aendereBenutzerstatus(id, version, status);
+
+			// Assert
+			verify(benutzer).setAblaufdatum(null);
+		}
+	}
+
+	@Test
+	void testAendereBenutzerstatus_setztStatusAktiv_ablaufdatumWirdNichtGeaendert()
+		throws BenutzerIstNichtRegistriertException {
+		// Arrange
+		Long id = 1L;
+		Long version = 2L;
+
+		Benutzer benutzer = mock(Benutzer.class);
+		when(benutzer.getVersion()).thenReturn(version);
+		when(benutzerRepository.findById(id)).thenReturn(Optional.of(benutzer));
+
+		// Act
+		benutzerService.aendereBenutzerstatus(id, version, BenutzerStatus.AKTIV);
+
+		// Assert
+		verify(benutzer, never()).setAblaufdatum(any());
 	}
 }

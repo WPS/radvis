@@ -254,6 +254,7 @@ class MappingServiceTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	void testMap_seitenbezogen_NoNullValuesWritten() {
 		// arrange
 		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(80, 80.2, 120, 120.2, QuellSystem.DLM)

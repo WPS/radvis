@@ -31,14 +31,8 @@ import org.locationtech.jts.index.quadtree.Quadtree;
 public class KnotenIndex {
 	public static double SNAPPING_DISTANCE = 1.0;
 	private SpatialIndex index;
-	private Envelope maxExtent;
 
 	public KnotenIndex() {
-		this(new Envelope(0, 0, 0, 0));
-	}
-
-	public KnotenIndex(Envelope maxExtent) {
-		this.maxExtent = maxExtent;
 		this.index = new Quadtree();
 	}
 

@@ -16,7 +16,8 @@
   <rad-infrastruktur-tabelle-layout
     *ngIf="data$ | async as data"
     [data]="data"
-    [displayedColumns]="displayedColumns"
+    [spaltenDefinition]="spaltenDefinition"
+    [filteredSpalten]="(filteredSpalten$ | async) ?? []"
     [selectedId]="selectedFahrradrouteID$ | async"
     [fetching]="fahrradrouteFilterService.fetching"
     (selectRow)="onSelectRecord($event)"
@@ -53,49 +54,18 @@
 
     <button
       *ngIf="isBenutzerAdmin"
-      class="action-buttons display-flex flex-row align-self-end"
-      style="margin-left: auto"
+      class="action-search"
       [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
       (click)="onRoutingProfileVerwalten()">
       <mat-icon>settings</mat-icon>
       Routing-Profile verwalten
     </button>
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header="name">
-        <span rad-filter-header>Name</span>
-      </th>
-      <td mat-cell *matCellDef="let element">{{ getDisplayValue(element, 'name') }}</td>
-    </ng-container>
-    <ng-container matColumnDef="kategorie">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header="kategorie">
-        <span rad-filter-header>Kategorie</span>
-      </th>
-      <td mat-cell *matCellDef="let element">{{ getDisplayValue(element, 'kategorie') }}</td>
-    </ng-container>
-    <ng-container matColumnDef="fahrradrouteTyp">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header="fahrradrouteTyp">
-        <span rad-filter-header>Fahrradroutentyp</span>
-      </th>
-      <td mat-cell *matCellDef="let element">{{ getDisplayValue(element, 'fahrradrouteTyp') }}</td>
-    </ng-container>
-    <ng-container matColumnDef="verantwortlicheOrganisation">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header="verantwortlicheOrganisation">
-        <span rad-filter-header>Verantwortliche Organisation</span>
-      </th>
-      <td mat-cell *matCellDef="let element">{{ getDisplayValue(element, 'verantwortlicheOrganisation') }}</td>
-    </ng-container>
-    <ng-container matColumnDef="anstiegAbstieg">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header="anstiegAbstieg">
-        <span rad-filter-header>Anstieg&nbsp;/ Abstieg</span>
-      </th>
-      <td mat-cell *matCellDef="let element">
-        {{ getDisplayValue(element, 'anstiegAbstieg') }}<br />
-        <a class="hoehenprofil-link" (click)="onShowHoehenprofil(element.id)" *ngIf="hasLineStringGeometry(element)">
-          Höhenprofil anzeigen
-        </a>
-      </td>
-    </ng-container>
+    <rad-infrastruktur-tabelle-spalte
+      *ngFor="let def of spaltenDefinition"
+      [spaltenDefinition]="def"
+      [getElementValueFn]="getDisplayValue">
+    </rad-infrastruktur-tabelle-spalte>
   </rad-infrastruktur-tabelle-layout>
 </ng-container>
 <ng-template #routenProfil>

@@ -25,6 +25,8 @@ import java.util.Set;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
@@ -33,6 +35,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithFehlercode(Fehlercode.MAILVERSAND)
 public class MailService {
 
 	private final JavaMailSender mailSender;

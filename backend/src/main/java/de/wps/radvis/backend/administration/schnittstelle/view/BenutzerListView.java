@@ -14,11 +14,13 @@
 
 package de.wps.radvis.backend.administration.schnittstelle.view;
 
-import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import java.util.Set;
+
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerDBListView;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -31,15 +33,7 @@ public class BenutzerListView {
 	private final BenutzerStatus status;
 	private final String organisation;
 	private final Mailadresse email;
-
-	public BenutzerListView(Benutzer benutzer) {
-		id = benutzer.getId();
-		vorname = benutzer.getVorname();
-		nachname = benutzer.getNachname();
-		status = benutzer.getStatus();
-		organisation = benutzer.getOrganisation().getDisplayText();
-		email = benutzer.getMailadresse();
-	}
+	private final Set<Rolle> rollen;
 
 	public BenutzerListView(BenutzerDBListView benutzer) {
 		id = benutzer.getId();
@@ -48,5 +42,6 @@ public class BenutzerListView {
 		status = benutzer.getStatus();
 		organisation = benutzer.getOrganisation();
 		email = benutzer.getEmail();
+		rollen = benutzer.getRollen();
 	}
 }

@@ -27,7 +27,7 @@ import lombok.Getter;
 public class FahrradrouteListenView {
 	private final Long id;
 	private final FahrradrouteName name;
-	private final Kategorie kategorie;
+	private final Kategorie fahrradrouteKategorie;
 	private final FahrradrouteTyp fahrradrouteTyp;
 	@Nullable
 	private final String verantwortlicheOrganisation;
@@ -38,7 +38,7 @@ public class FahrradrouteListenView {
 	public FahrradrouteListenView(FahrradrouteListenDbOhneGeomView dbView) {
 		this.id = dbView.getId();
 		this.name = dbView.getName();
-		this.kategorie = dbView.getKategorie();
+		this.fahrradrouteKategorie = dbView.getKategorie();
 		this.fahrradrouteTyp = dbView.getFahrradrouteTyp();
 		this.verantwortlicheOrganisation = dbView.getVerantwortlicheOrganisationName();
 

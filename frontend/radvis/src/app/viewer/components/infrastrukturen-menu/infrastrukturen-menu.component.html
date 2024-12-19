@@ -1,0 +1,134 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<div
+  role="region"
+  aria-label="Ebenenauswahl"
+  aria-keyshortcuts="Control+Alt+Shift+E"
+  [class.collapsed]="infrastrukturenCollapsed"
+  class="container"
+  [@easeInOut]="infrastrukturenCollapsed ? 'in' : 'out'">
+  <div class="collapse-toggle-area">
+    <button
+      #infrastrukturenCollapseButton
+      (click)="infrastrukturenCollapsed = !infrastrukturenCollapsed"
+      [attr.aria-label]="infrastrukturenCollapsed ? 'Ebenenauswahl Aufklappen' : 'Ebenenauswahl Einklappen'"
+      [matTooltip]="infrastrukturenCollapsed ? 'Ebenenauswahl Aufklappen' : 'Ebenenauswahl Einklappen'"
+      mat-icon-button>
+      <mat-icon [@collapseExpand]="infrastrukturenCollapsed ? 'collapsed' : 'expanded'">
+        keyboard_double_arrow_left
+      </mat-icon>
+    </button>
+  </div>
+  <div
+    *ngIf="selektierteInfrastrukturen$ | async as selektierteInfrastrukturen"
+    class="display-flex flex-column h-100 no-overflow">
+    <div class="display-flex flex-column flex-grow h-100 w-100 scrollable-bereich">
+      <table class="infrastruktur-selection-group">
+        <ng-template [ngForOf]="infrastrukturenAllgemein" [ngForTemplate]="auswahlItem" ngFor></ng-template>
+      </table>
+
+      <rad-infrastrukturen-sub-menu
+        *ngIf="infrastrukturenAnalyse.length > 0"
+        [initialState]="infrastrukturenAnalyseDefaultVisible ? 'expanded' : 'collapsed'">
+        <div class="header">Analyse</div>
+        <table class="infrastruktur-selection-group">
+          <ng-template [ngForOf]="infrastrukturenAnalyse" [ngForTemplate]="auswahlItem" ngFor></ng-template>
+        </table>
+      </rad-infrastrukturen-sub-menu>
+
+      <ng-container *ngIf="weitereKartenebenenFeatureAktiv">
+        <rad-infrastrukturen-sub-menu
+          *ngIf="weitereKartenebenen$ | async as weitereKartenebenen"
+          [showCollapseButton]="weitereKartenebenen.length > 0">
+          <div class="header">
+            <rad-weitere-kartenebenen-infrastruktur-menu></rad-weitere-kartenebenen-infrastruktur-menu>
+          </div>
+          <table class="infrastruktur-selection-group pt-2" *ngIf="weitereKartenebenen.length > 0">
+            <ng-template [ngForOf]="weitereKartenebenen" [ngForTemplate]="weitereKartenebenenItem" ngFor></ng-template>
+          </table>
+        </rad-infrastrukturen-sub-menu>
+      </ng-container>
+
+      <div class="flex-grow"></div>
+    </div>
+
+    <ng-template #auswahlItem let-infrastruktur>
+      <tr
+        (click)="onClickInfrastrukturen(infrastruktur)"
+        (keydown.enter)="onClickInfrastrukturen(infrastruktur)"
+        [class.selected]="selektierteInfrastrukturen.includes(infrastruktur)"
+        [matTooltipDisabled]="!infrastrukturenCollapsed"
+        [matTooltip]="infrastruktur.displayName"
+        [tabindex]="infrastrukturenCollapsed ? 0 : -1">
+        <td class="icon-column">
+          <rad-infrastruktur-icon [infrastruktur]="infrastruktur" class="ml-5"></rad-infrastruktur-icon>
+        </td>
+        <ng-container *ngIf="!infrastrukturenCollapsed">
+          <td class="text-column w-100 pl-3" [id]="infrastruktur.displayName">
+            {{ infrastruktur.displayName }}
+          </td>
+          <td>
+            <div [style.background-color]="infrastruktur.linienFarbe | colorToCss" class="linien-farbe"></div>
+          </td>
+          <td>
+            <mat-checkbox
+              (change)="onClickInfrastrukturen(infrastruktur)"
+              (click)="$event.stopPropagation()"
+              [attr.aria-labelledby]="infrastruktur.displayName"
+              [checked]="selektierteInfrastrukturen.includes(infrastruktur)"></mat-checkbox>
+          </td>
+        </ng-container>
+        <td *ngIf="infrastrukturenCollapsed">
+          <div [style.background-color]="infrastruktur.linienFarbe | colorToCss" class="linien-farbe"></div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #weitereKartenebenenItem let-weitereKarteebenen let-i="index">
+      <tr
+        (click)="onClickWeiterKartenebenen(weitereKarteebenen)"
+        (keydown.enter)="onClickWeiterKartenebenen(weitereKarteebenen)"
+        [class.selected]="selectedWeitereKartenebenen.includes(weitereKarteebenen)"
+        [matTooltipDisabled]="!infrastrukturenCollapsed"
+        [matTooltip]="weitereKarteebenen.name"
+        [tabindex]="infrastrukturenCollapsed ? 0 : -1">
+        <td class="position-relative" [class.pr-5]="!infrastrukturenCollapsed">
+          <div [matBadge]="i + 1" class="my-3 icon-with-badge-container" matBadgeSize="small">
+            <mat-icon [radAccessabilityText]="weitereKarteebenen.name" class="material-icons-outlined icon-column ml-5">
+              layers
+            </mat-icon>
+          </div>
+        </td>
+        <ng-container *ngIf="!infrastrukturenCollapsed">
+          <td class="text-column w-100 pl-3">
+            {{ weitereKarteebenen.name }}
+          </td>
+          <td>
+            <div [style.background-color]="weitereKarteebenen.farbe" class="linien-farbe"></div>
+          </td>
+          <td>
+            <mat-checkbox
+              (change)="onClickWeiterKartenebenen(weitereKarteebenen)"
+              (click)="$event.stopPropagation()"
+              [attr.aria-label]="weitereKarteebenen.name"
+              [checked]="selectedWeitereKartenebenen.includes(weitereKarteebenen)"></mat-checkbox>
+          </td>
+        </ng-container>
+        <td *ngIf="infrastrukturenCollapsed">
+          <div [style.background-color]="weitereKarteebenen.farbe" class="linien-farbe collapsed"></div>
+        </td>
+      </tr>
+    </ng-template>
+  </div>
+</div>

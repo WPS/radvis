@@ -19,10 +19,11 @@
     (resetForm)="onReset()"
     [dirty]="formGroup.dirty"
     [fetching]="isFetching"
-    [canEdit]="currentMassnahme?.canEdit || false"
+    [canEdit]="currentMassnahme?.canEdit ?? false"
     [showHeader]="false"
     class="attribute-editor">
     <rad-netzbezug-selektion-control
+      *ngIf="!this.currentMassnahme?.archiviert"
       [selectedId]="currentMassnahme!.id"
       [layerId]="MASSNAHMEN.name"
       formControlName="netzbezug"
@@ -135,7 +136,7 @@
       formControlName="konzeptionsquelle"
       [options]="konzeptionsquelleOptions"
       [nullable]="false"
-      matTooltip="Die Konzeptionsquelle von RadNETZ-Maßnahmen kann nicht geändert werden."
+      matTooltip="Die Quelle von RadNETZ-Maßnahmen kann nicht geändert werden."
       [matTooltipDisabled]="!isRadNETZMassnahme"
       matTooltipPosition="left"
       [errors]="formGroup.get('konzeptionsquelle')?.errors">
@@ -172,6 +173,10 @@
         <mat-checkbox formControlName="radschnellverbindung">Radschnellverbindung</mat-checkbox>
         <mat-checkbox formControlName="radvorrangrouten">Radvorrangrouten</mat-checkbox>
       </div>
+    </div>
+
+    <div class="archivieren-button" *ngIf="(currentMassnahme?.archiviert ?? false) && darfUnarchivieren">
+      <button mat-raised-button color="primary" (click)="onUnarchivieren()">Archivierung aufheben</button>
     </div>
   </rad-attribute-editor>
 </form>

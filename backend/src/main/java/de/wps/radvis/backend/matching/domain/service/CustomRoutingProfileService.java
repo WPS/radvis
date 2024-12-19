@@ -18,9 +18,9 @@ import java.util.Collection;
 import java.util.List;
 
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
 import de.wps.radvis.backend.matching.domain.entity.CustomRoutingProfile;
 import de.wps.radvis.backend.matching.domain.event.CustomRoutingProfilesDeletedEvent;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
 import jakarta.transaction.Transactional;
 
 public class CustomRoutingProfileService {

@@ -14,6 +14,8 @@
 
 package de.wps.radvis.backend.massnahme.domain.valueObject;
 
+import com.google.common.base.Objects;
+
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
@@ -31,5 +33,10 @@ public enum Konzeptionsquelle {
 	@Override
 	public String toString() {
 		return displayText;
+	}
+
+	public static boolean isRadNetzKonzeptionsquelle(Konzeptionsquelle konzeptionsquelle) {
+		return Objects.equal(konzeptionsquelle, RADNETZ_MASSNAHME)
+			|| Objects.equal(konzeptionsquelle, RADNETZ_MASSNAHME_2024);
 	}
 }

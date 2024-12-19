@@ -21,9 +21,9 @@ import { OrganisationenService } from 'src/app/shared/services/organisationen.se
 import { FahrradroutenCreatorComponent } from 'src/app/viewer/fahrradroute/components/fahrradrouten-creator/fahrradrouten-creator.component';
 import { CreateFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/create-fahrradroute-command';
 import { defaultFahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute-netzbezug-test-data-provider.spec';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, deepEqual, instance, mock, verify, when } from 'ts-mockito';
@@ -168,7 +168,7 @@ describe(FahrradroutenCreatorComponent.name, () => {
     it('should build command from form correct', fakeAsync(() => {
       const values = {
         name: 'name',
-        kategorie: Kategorie.RADSCHNELLWEG,
+        kategorie: FahrradrouteKategorie.RADSCHNELLWEG,
         beschreibung: 'beschreibung',
         netzbezug: {
           kantenIDs: [1],
@@ -196,7 +196,7 @@ describe(FahrradroutenCreatorComponent.name, () => {
       const command = capture(fahrradrouteService.createFahrradroute).last()[0];
       expect(command).toEqual({
         name: 'name',
-        kategorie: Kategorie.RADSCHNELLWEG,
+        kategorie: FahrradrouteKategorie.RADSCHNELLWEG,
         beschreibung: 'beschreibung',
         kantenIDs: [1],
         stuetzpunkte: {
@@ -223,7 +223,7 @@ describe(FahrradroutenCreatorComponent.name, () => {
     beforeEach(() => {
       const values = {
         name: 'name',
-        kategorie: Kategorie.RADSCHNELLWEG,
+        kategorie: FahrradrouteKategorie.RADSCHNELLWEG,
         beschreibung: 'beschreibung',
         netzbezug: {
           kantenIDs: [1],

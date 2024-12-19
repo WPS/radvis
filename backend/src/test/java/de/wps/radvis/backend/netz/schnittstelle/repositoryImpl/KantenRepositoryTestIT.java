@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.postgresql.util.PGobject;
@@ -75,6 +73,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.DrouteId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.dbView.KanteOsmMatchWithAttribute;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
@@ -154,7 +153,8 @@ import lombok.extern.slf4j.Slf4j;
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -216,22 +216,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		Kante kante = new Kante("123", vonKnoten, nachKnoten, lineString, true, QuellSystem.RadNETZ,
-			new KantenAttributGruppe(kantenAttribute, new HashSet<>(), new HashSet<>()),
-			new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, true),
-			new ZustaendigkeitAttributGruppe(List.of(
-				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0, 1), gebietskoerperschaft,
-					gebietskoerperschaft,
-					gebietskoerperschaft,
-					VereinbarungsKennung.of("123")))),
-			GeschwindigkeitAttributGruppe.builder()
-				.geschwindigkeitAttribute(
-					List.of(GeschwindigkeitAttribute.builder()
-						.ortslage(KantenOrtslage.INNERORTS)
-						.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_100_KMH)
-						.build()))
-				.build(),
-			new FuehrungsformAttributGruppe(List
+		Kante kante = KanteTestDataProvider.fromKnotenUndQuelle(vonKnoten, nachKnoten, QuellSystem.DLM)
+			.dlmId(DlmId.of("123"))
+			.kantenAttributGruppe(new KantenAttributGruppe(kantenAttribute, new HashSet<>(), new HashSet<>()))
+			.fuehrungsformAttributGruppe(new FuehrungsformAttributGruppe(List
 				.of(new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0, 1),
 					BelagArt.ASPHALT,
 					Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
@@ -246,9 +234,22 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					null,
 					null,
 					TrennstreifenForm.UNBEKANNT,
-					TrennstreifenForm.UNBEKANNT
-				)),
-				true));
+					TrennstreifenForm.UNBEKANNT)),
+				true))
+			.isZweiseitig(true)
+			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
+				.geschwindigkeitAttribute(
+					List.of(GeschwindigkeitAttribute.builder()
+						.ortslage(KantenOrtslage.INNERORTS)
+						.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_100_KMH)
+						.build()))
+				.build())
+			.zustaendigkeitAttributGruppe(new ZustaendigkeitAttributGruppe(List.of(
+				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0, 1), gebietskoerperschaft,
+					gebietskoerperschaft,
+					gebietskoerperschaft,
+					VereinbarungsKennung.of("123")))))
+			.fahrtrichtungAttributGruppe(new FahrtrichtungAttributGruppe(Richtung.BEIDE_RICHTUNGEN, true)).build();
 
 		// Act
 		Long savedKanteId = kantenRepository.save(kante).getId();
@@ -265,7 +266,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(resultKante.getNachKnoten().getKoordinate()).isEqualTo(nachKnoten.getKoordinate());
 		assertThat(resultKante.getGeometry()).isEqualTo(lineString);
 		assertThat(resultKante.getKantenLaengeInCm()).isEqualTo(Math.round(lineString.getLength() * 100));
-		assertThat(resultKante.getQuelle()).isEqualTo(QuellSystem.RadNETZ);
+		assertThat(resultKante.getQuelle()).isEqualTo(QuellSystem.DLM);
 
 		assertThat(resultKante.getKantenAttributGruppe().getKantenAttribute()).isEqualTo(kantenAttribute);
 
@@ -702,11 +703,11 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		kantenRepository.save(alle);
 		kantenRepository.save(notRadnetz);
 
-		nichtRadvisNETZ.getKantenAttributGruppe().updateNetzklassen(Set.of(Netzklasse.RADNETZ_ZIELNETZ));
-		alltag.getKantenAttributGruppe().updateNetzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG));
-		freizeit.getKantenAttributGruppe().updateNetzklassen(Set.of(Netzklasse.RADNETZ_FREIZEIT));
-		zielNetz.getKantenAttributGruppe().updateNetzklassen(Set.of(Netzklasse.RADNETZ_ZIELNETZ));
-		alle.getKantenAttributGruppe().updateNetzklassen(Netzklasse.RADNETZ_NETZKLASSEN);
+		nichtRadvisNETZ.ueberschreibeNetzklassen(Set.of(Netzklasse.RADNETZ_ZIELNETZ));
+		alltag.ueberschreibeNetzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG));
+		freizeit.ueberschreibeNetzklassen(Set.of(Netzklasse.RADNETZ_FREIZEIT));
+		zielNetz.ueberschreibeNetzklassen(Set.of(Netzklasse.RADNETZ_ZIELNETZ));
+		alle.ueberschreibeNetzklassen(Netzklasse.RADNETZ_NETZKLASSEN);
 
 		entityManager.flush();
 		entityManager.clear();
@@ -750,6 +751,53 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		// Assert
 		assertThat(kantenByLineString.size()).isEqualTo(1);
 		assertThat(kantenByLineString.get(0)).isEqualTo(kante1);
+	}
+
+	@Test
+	void testFindKanteByStatusNotAndQuelleIn() {
+		// Arrange
+		Kante kanteDlm = createKante(new Coordinate(1, 10), new Coordinate(10, 10), QuellSystem.DLM);
+		kanteDlm.getKantenAttributGruppe().getKantenAttribute().setStatus(Status.UNTER_VERKEHR);
+		Kante kanteRadVis = createKante(new Coordinate(2, 20), new Coordinate(20, 20), QuellSystem.RadVis);
+		kanteRadVis.getKantenAttributGruppe().getKantenAttribute().setStatus(Status.UNTER_VERKEHR);
+
+		Kante kanteDlmInBau = createKante(new Coordinate(10, 10), new Coordinate(100, 10), QuellSystem.DLM);
+		kanteDlmInBau.getKantenAttributGruppe().getKantenAttribute().setStatus(Status.IN_BAU);
+		Kante kanteRadVisInBau = createKante(new Coordinate(20, 20), new Coordinate(200, 20), QuellSystem.RadVis);
+		kanteRadVisInBau.getKantenAttributGruppe().getKantenAttribute().setStatus(Status.IN_BAU);
+
+		kantenRepository.save(kanteDlm);
+		kantenRepository.save(kanteRadVis);
+		kantenRepository.save(kanteDlmInBau);
+		kantenRepository.save(kanteRadVisInBau);
+
+		// Act & Assert
+		List<Kante> kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.IN_BAU, List.of(QuellSystem.DLM))
+			.toList();
+		assertThat(kanten).containsExactly(kanteDlm);
+
+		kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.IN_BAU, List.of(QuellSystem.DLM,
+			QuellSystem.RadVis)).toList();
+		assertThat(kanten).containsExactly(kanteDlm, kanteRadVis);
+
+		kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.UNTER_VERKEHR, List.of(QuellSystem.DLM))
+			.toList();
+		assertThat(kanten).containsExactly(kanteDlmInBau);
+
+		kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.UNTER_VERKEHR, List.of(QuellSystem.DLM,
+			QuellSystem.RadVis)).toList();
+		assertThat(kanten).containsExactly(kanteDlmInBau, kanteRadVisInBau);
+
+		kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.KONZEPTION, List.of(QuellSystem.DLM,
+			QuellSystem.RadVis)).toList();
+		assertThat(kanten).containsExactly(kanteDlm, kanteRadVis, kanteDlmInBau, kanteRadVisInBau);
+
+		kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.UNTER_VERKEHR, List.of(QuellSystem.RadNETZ))
+			.toList();
+		assertThat(kanten).isEmpty();
+
+		kanten = kantenRepository.findKanteByStatusNotAndQuelleIn(Status.UNTER_VERKEHR, List.of()).toList();
+		assertThat(kanten).isEmpty();
 	}
 
 	@Test
@@ -855,15 +903,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			LinearReferenzierteOsmWayId.of(6L, LinearReferenzierterAbschnitt.of(0, 1)));
 		List<KanteOsmWayIdsInsert> inserts = List.of(
 			new KanteOsmWayIdsInsert(kante1.getId(), wayIdWithLRSKante1),
-			new KanteOsmWayIdsInsert(kante2.getId(), wayIdWithLRSKante2)
-		);
+			new KanteOsmWayIdsInsert(kante2.getId(), wayIdWithLRSKante2));
 		// act
 		kantenRepository.insertOsmWayIds(inserts);
 
 		entityManager.flush();
 		entityManager.clear();
 
-		//		 assert
+		// assert
 		assertThat(kantenRepository.findKanteByQuelle(QuellSystem.DLM).map(Kante::getOsmWayIds))
 			.containsExactlyInAnyOrder(Set.copyOf(wayIdWithLRSKante1),
 				Set.copyOf(wayIdWithLRSKante2));
@@ -932,34 +979,6 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					Netzklasse.KOMMUNALNETZ_ALLTAG),
 				Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_ZIELNETZ,
 					Netzklasse.KOMMUNALNETZ_ALLTAG));
-	}
-
-	@Test
-	void testeGetKanteGeometriesByIds() {
-		// arrange
-		Kante kante1 = kantenRepository.save(createKante(new Coordinate(1, 10), new Coordinate(2, 20)));
-		Kante kante2 = kantenRepository.save(createKante(new Coordinate(2, 20), new Coordinate(3, 30)));
-		Kante kante3 = kantenRepository.save(createKante(new Coordinate(3, 30), new Coordinate(4, 40)));
-
-		entityManager.flush();
-		entityManager.clear();
-
-		// act
-		List<Geometry> kantengeometries = kantenRepository.getKanteGeometriesByIds(
-			List.of(kante1.getId(), kante2.getId(), kante3.getId()));
-
-		// assert
-		List<Geometry> sortedKantenGeometries = kantengeometries.stream()
-			.sorted(Comparator.comparing(geometry -> geometry.getCoordinates()[0].getX()))
-			.collect(Collectors.toList());
-
-		List<Geometry> expectedLineStrings = List.of(
-			GeometryTestdataProvider.createLineString(new Coordinate(1, 10), new Coordinate(2, 20)),
-			GeometryTestdataProvider.createLineString(new Coordinate(2, 20), new Coordinate(3, 30)),
-			GeometryTestdataProvider.createLineString(new Coordinate(3, 30), new Coordinate(4, 40)));
-
-		assertThat(sortedKantenGeometries)
-			.containsExactlyInAnyOrderElementsOf(expectedLineStrings);
 	}
 
 	@Test
@@ -1040,8 +1059,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 						null,
 						null,
 						TrennstreifenForm.UNBEKANNT,
-						TrennstreifenForm.UNBEKANNT
-					)),
+						TrennstreifenForm.UNBEKANNT)),
 					true))
 			.build();
 
@@ -1181,8 +1199,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		// Arrange
 		Set<Netzklasse> netzklassen = Set.of(
 			Netzklasse.KREISNETZ_FREIZEIT,
-			Netzklasse.KOMMUNALNETZ_ALLTAG
-		);
+			Netzklasse.KOMMUNALNETZ_ALLTAG);
 
 		Kante kante = KanteTestDataProvider.withCoordinates(
 			new Coordinate[] { new Coordinate(400000, 5000010), new Coordinate(400000, 5000020) })
@@ -1277,8 +1294,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0.3, 1), gebietskoerperschaft,
 					gebietskoerperschaft,
 					gebietskoerperschaft,
-					VereinbarungsKennung.of("456"))
-			)))
+					VereinbarungsKennung.of("456")))))
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
 				.geschwindigkeitAttribute(
 					List.of(
@@ -1291,8 +1307,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 							.ortslage(KantenOrtslage.AUSSERORTS)
 							.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
-							.build()
-					))
+							.build()))
 				.build())
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppe.builder()
@@ -1333,8 +1348,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
 								TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART
 
-							)
-						))
+							)))
 					.fuehrungsformAttributeRechts(
 						List.of(
 							new FuehrungsformAttribute(
@@ -1372,11 +1386,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
 								TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART
 
-							)
-						))
+							)))
 					.isZweiseitig(true)
-					.build()
-			)
+					.build())
 			.build();
 
 		kantenRepository.save(kante).getId();
@@ -1433,15 +1445,15 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				put("oberflaechenbeschaffenheit",
 					Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE.name());
 				put("benutzungspflicht", Benutzungspflicht.VORHANDEN.name());
-				//				belag_art variiert:
-				//					Links 0-0.7: ASPHALT,
-				//					Links 0.7-1 BETON,
-				//					Rechts 0-0.8: NATURSTEINPFLASTER,
-				//					Rechts 0.8-1 WASSERGEBUNDENE_DECKE
+				// belag_art variiert:
+				// Links 0-0.7: ASPHALT,
+				// Links 0.7-1 BETON,
+				// Rechts 0-0.8: NATURSTEINPFLASTER,
+				// Rechts 0.8-1 WASSERGEBUNDENE_DECKE
 
 				// -- geschwindigkeitsattribute
 				put("abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung", null);
-				//				ortslage & hoechstgeschwindigkeit variieren (0-0.5: INNERORTS/MAX_100, 0.5-1: AUSSERORTS/UERBER_100)
+				// ortslage & hoechstgeschwindigkeit variieren (0-0.5: INNERORTS/MAX_100, 0.5-1: AUSSERORTS/UERBER_100)
 
 				// -- zustaendigkeitattribute
 				put("baulast_traeger",
@@ -1451,10 +1463,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					gebietskoerperschaft.getName() + " (" + gebietskoerperschaft.getOrganisationsArt().name() + ")");
 				put("erhalts_zustaendiger",
 					gebietskoerperschaft.getName() + " (" + gebietskoerperschaft.getOrganisationsArt().name() + ")");
-				//				vereinbarungs_kennung variiert (0-0.3: "123", 0.3-1:"456")
+				// vereinbarungs_kennung variiert (0-0.3: "123", 0.3-1:"456")
 
 				// -- fahrtrichtungattribute
-				//				fahrtrichtung varriert: (Links: Richtung.BEIDE_RICHTUNGEN, Rechts: Richtung.IN_RICHTUNG)
+				// fahrtrichtung varriert: (Links: Richtung.BEIDE_RICHTUNGEN, Rechts: Richtung.IN_RICHTUNG)
 
 				// keine Auditing Daten vorhanden, da Kante im selben DB-Commit gespeichert wurde
 				// (Auditing-Daten werden erst nach Commit gespeichert)
@@ -1462,8 +1474,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			}
 		};
 
-		//				LRs LINKS: 0, 0.3, 0.5, 0.7, 1
-		//				LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
+		// LRs LINKS: 0, 0.3, 0.5, 0.7, 1
+		// LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
 
 		PGobject geometry_links_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
@@ -1759,8 +1771,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0.3, 1), gebietskoerperschaft,
 					gebietskoerperschaft,
 					gebietskoerperschaft,
-					VereinbarungsKennung.of("456"))
-			)))
+					VereinbarungsKennung.of("456")))))
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
 				.geschwindigkeitAttribute(
 					List.of(
@@ -1773,8 +1784,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 							.ortslage(KantenOrtslage.AUSSERORTS)
 							.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
-							.build()
-					))
+							.build()))
 				.build())
 			.fuehrungsformAttributGruppe(
 				new FuehrungsformAttributGruppe(
@@ -1814,9 +1824,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
 							TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART
 
-						)
-					), false)
-			)
+						)), false))
 			.build();
 
 		kantenRepository.save(kante).getId();
@@ -1873,13 +1881,13 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				put("oberflaechenbeschaffenheit",
 					Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE.name());
 				put("benutzungspflicht", Benutzungspflicht.VORHANDEN.name());
-				//				belag_art variiert:
-				//					0-0.7: ASPHALT,
-				//					0.7-1 BETON,
+				// belag_art variiert:
+				// 0-0.7: ASPHALT,
+				// 0.7-1 BETON,
 
 				// -- geschwindigkeitsattribute
 				put("abweichende_hoechstgeschwindigkeit_gegen_stationierungsrichtung", null);
-				//				ortslage & hoechstgeschwindigkeit variieren (0-0.5: INNERORTS/MAX_100, 0.5-1: AUSSERORTS/UERBER_100)
+				// ortslage & hoechstgeschwindigkeit variieren (0-0.5: INNERORTS/MAX_100, 0.5-1: AUSSERORTS/UERBER_100)
 
 				// -- zustaendigkeitattribute
 				put("baulast_traeger",
@@ -1889,7 +1897,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					gebietskoerperschaft.getName() + " (" + gebietskoerperschaft.getOrganisationsArt().name() + ")");
 				put("erhalts_zustaendiger",
 					gebietskoerperschaft.getName() + " (" + gebietskoerperschaft.getOrganisationsArt().name() + ")");
-				//				vereinbarungs_kennung variiert (0-0.3: "123", 0.3-1:"456")
+				// vereinbarungs_kennung variiert (0-0.3: "123", 0.3-1:"456")
 
 				// -- fahrtrichtungattribute
 				put("fahrtrichtung", Richtung.BEIDE_RICHTUNGEN.name());
@@ -1900,8 +1908,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			}
 		};
 
-		//				LRs LINKS: 0, 0.3, 0.5, 0.7, 1
-		//				LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
+		// LRs LINKS: 0, 0.3, 0.5, 0.7, 1
+		// LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
 
 		PGobject geometry_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3)));
@@ -2029,8 +2037,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.createLineString(new Coordinate[] { vonKnoten.getKoordinate(), nachKnoten.getKoordinate() });
 		LineString lineString_3d = GeometryTestdataProvider.createLineString(
 			new Coordinate(lineString.getStartPoint().getX(), lineString.getStartPoint().getY(), 666.),
-			new Coordinate(lineString.getEndPoint().getX(), lineString.getEndPoint().getY(), 777.)
-		);
+			new Coordinate(lineString.getEndPoint().getX(), lineString.getEndPoint().getY(), 777.));
 
 		KantenAttribute kantenAttribute = KantenAttribute.builder()
 			.dtvFussverkehr(VerkehrStaerke.of(156))
@@ -2079,8 +2086,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0.3, 1), gebietskoerperschaft,
 					gebietskoerperschaft,
 					gebietskoerperschaft,
-					VereinbarungsKennung.of("456"))
-			)))
+					VereinbarungsKennung.of("456")))))
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
 				.geschwindigkeitAttribute(
 					List.of(
@@ -2093,8 +2099,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 							.ortslage(KantenOrtslage.AUSSERORTS)
 							.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
-							.build()
-					))
+							.build()))
 				.build())
 			.fuehrungsformAttributGruppe(
 				new FuehrungsformAttributGruppe(
@@ -2134,9 +2139,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							TrennstreifenForm.UNBEKANNT,
 							TrennstreifenForm.UNBEKANNT
 
-						)
-					), false)
-			)
+						)), false))
 			.build();
 
 		kantenRepository.save(kante);
@@ -2151,18 +2154,19 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		Kante kanteMitRoutenzugehoerigkeit = kantenRepository.save(KanteTestDataProvider.withDefaultValues().geometry(
 			GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(new Coordinate(0, 0),
-				new Coordinate(30, 30))).build()); // Sollte mit drin sein, da Routenzugehoerigkeit gegeben
+				new Coordinate(30, 30)))
+			.build()); // Sollte mit drin sein, da Routenzugehoerigkeit gegeben
 		LineString kanteMitRoutenzugehoerigkeit_3dLineString = GeometryTestdataProvider.createLineString(
 			new Coordinate(kanteMitRoutenzugehoerigkeit.getGeometry().getStartPoint().getX(),
 				kanteMitRoutenzugehoerigkeit.getGeometry().getStartPoint().getY(), 888.),
 			new Coordinate(kanteMitRoutenzugehoerigkeit.getGeometry().getEndPoint().getX(),
-				kanteMitRoutenzugehoerigkeit.getGeometry().getEndPoint().getY(), 999.)
-		);
+				kanteMitRoutenzugehoerigkeit.getGeometry().getEndPoint().getY(), 999.));
 
 		Kante kanteMitFalscherRoutenzugehoerigkeit = kantenRepository.save(
 			KanteTestDataProvider.withDefaultValues().geometry(
 				GeometryTestdataProvider.createLineStringWithCoordinatesMovedToValidBounds(new Coordinate(99, 99),
-					new Coordinate(66, 66))).build()); // Sollte nicht mit drin sein, da kein LRFW oder DRoute
+					new Coordinate(66, 66)))
+				.build()); // Sollte nicht mit drin sein, da kein LRFW oder DRoute
 
 		entityManager.flush();
 		entityManager.clear();
@@ -2170,13 +2174,11 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		// Setzte Geometry3D von Kanten, die mit in dem BALM View drin sein sollen.
 		kantenRepository.updateKanteElevation(
 			new SliceImpl<>(List.of(
-				new KanteElevationUpdate(kante.getId(), lineString_3d)
-			)));
+				new KanteElevationUpdate(kante.getId(), lineString_3d))));
 		kantenRepository.updateKanteElevation(
 			new SliceImpl<>(List.of(
 				new KanteElevationUpdate(kanteMitRoutenzugehoerigkeit.getId(),
-					kanteMitRoutenzugehoerigkeit_3dLineString)
-			)));
+					kanteMitRoutenzugehoerigkeit_3dLineString))));
 
 		Fahrradroute landesradfernweg = FahrradrouteTestDataProvider.onKante(kanteMitRoutenzugehoerigkeit)
 			.kategorie(Kategorie.LANDESRADFERNWEG)
@@ -2203,12 +2205,11 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		// Assert
 
-		//				LRs LINKS: 0, 0.3, 0.5, 0.7, 1
-		//				LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
+		// LRs LINKS: 0, 0.3, 0.5, 0.7, 1
+		// LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
 
 		PGobject geometry_0__0_3 = PostGisHelper.getPGobject3D(
-			GeometryTestdataProvider.getAbschnitt(lineString_3d, LinearReferenzierterAbschnitt.of(0, 0.3))
-		);
+			GeometryTestdataProvider.getAbschnitt(lineString_3d, LinearReferenzierterAbschnitt.of(0, 0.3)));
 
 		Map<String, Object> expected_0__0_3 = new HashMap<>() {
 			{
@@ -2476,8 +2477,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0.3, 1), gebietskoerperschaft,
 					gebietskoerperschaft,
 					gebietskoerperschaft,
-					VereinbarungsKennung.of("456"))
-			)))
+					VereinbarungsKennung.of("456")))))
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
 				.geschwindigkeitAttribute(
 					List.of(
@@ -2490,8 +2490,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 							.ortslage(KantenOrtslage.AUSSERORTS)
 							.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
-							.build()
-					))
+							.build()))
 				.build())
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppe.builder()
@@ -2532,8 +2531,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								TrennstreifenForm.UNBEKANNT,
 								TrennstreifenForm.UNBEKANNT
 
-							)
-						))
+							)))
 					.fuehrungsformAttributeRechts(
 						List.of(
 							new FuehrungsformAttribute(
@@ -2571,11 +2569,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								TrennstreifenForm.UNBEKANNT,
 								TrennstreifenForm.UNBEKANNT
 
-							)
-						))
+							)))
 					.isZweiseitig(true)
-					.build()
-			)
+					.build())
 			.build();
 
 		kantenRepository.save(kante).getId();
@@ -2612,8 +2608,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		// Assert
 
-		//				LRs LINKS: 0, 0.3, 0.5, 0.7, 1
-		//				LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
+		// LRs LINKS: 0, 0.3, 0.5, 0.7, 1
+		// LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
 
 		PGobject geometry_links_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3))
@@ -3023,8 +3019,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0.99, 1), gebietskoerperschaft,
 					gebietskoerperschaft,
 					gebietskoerperschaft,
-					VereinbarungsKennung.of("789"))
-			)))
+					VereinbarungsKennung.of("789")))))
 			.geschwindigkeitAttributGruppe(GeschwindigkeitAttributGruppe.builder()
 				.geschwindigkeitAttribute(
 					List.of(
@@ -3042,8 +3037,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 							.ortslage(KantenOrtslage.AUSSERORTS)
 							.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.UEBER_100_KMH)
-							.build()
-					))
+							.build()))
 				.build())
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppe.builder()
@@ -3102,8 +3096,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								TrennstreifenForm.UNBEKANNT,
 								TrennstreifenForm.UNBEKANNT
 
-							)
-						))
+							)))
 					.fuehrungsformAttributeRechts(
 						List.of(
 							new FuehrungsformAttribute(
@@ -3141,11 +3134,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								TrennstreifenForm.UNBEKANNT,
 								TrennstreifenForm.UNBEKANNT
 
-							)
-						))
+							)))
 					.isZweiseitig(true)
-					.build()
-			)
+					.build())
 			.build();
 
 		kantenRepository.save(kante).getId();
@@ -3163,8 +3154,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		// Assert
 
-		//				LRs LINKS: 0, 0.3, 0.5, 0.7, 1
-		//				LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
+		// LRs LINKS: 0, 0.3, 0.5, 0.7, 1
+		// LRs RECHTS: 0, 0.3, 0.5, 0.8, 1
 
 		PGobject geometry_links_0__0_3 = PostGisHelper.getPGobject(
 			GeometryTestdataProvider.getAbschnitt(kante.getGeometry(), LinearReferenzierterAbschnitt.of(0, 0.3))
@@ -3589,14 +3580,16 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
 				// Status weicht vom default ab
 				.kantenAttribute(KantenAttribute.builder().status(Status.KONZEPTION).build())
-				.build()).build());
+				.build())
+			.build());
 
 		Kante ausserhalb = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
 			.geometry(GeometryTestdataProvider.createLineString(new Coordinate(100, 100), new Coordinate(105, 105)))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
 				// Status weicht vom default ab
 				.kantenAttribute(KantenAttribute.builder().status(Status.IN_BAU).build())
-				.build()).build());
+				.build())
+			.build());
 
 		Envelope bereich = new Envelope(0, 30, 0, 30);
 
@@ -3644,15 +3637,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		Kante notDefaultKante_statusFiktiv = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
 			.geometry(GeometryTestdataProvider.createLineString(new Coordinate(1, 1), new Coordinate(5, 5)))
 			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
-				.kantenAttribute(KantenAttribute.builder().status(Status.FIKTIV).build()).build()
-			)
+				.kantenAttribute(KantenAttribute.builder().status(Status.FIKTIV).build()).build())
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformAttributeLinksRechts))
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformAttributeLinksRechts))
 					.isZweiseitig(false)
-					.build()
-			).build());
+					.build())
+			.build());
 
 		Kante notDefaultKante = createAndSaveDefaultKanteWithCustomFuehrungsform(fuehrungsformAttributeLinksRechts);
 
@@ -3771,20 +3763,17 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		Kante notDefaultKante_radverkehrsfuehrung = createAndSaveDefaultKanteWithCustomFuehrungsform(
 			FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 				.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_FORST)
-				.build()
-		);
+				.build());
 
 		Kante notDefaultKante_breite = createAndSaveDefaultKanteWithCustomFuehrungsform(
 			FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 				.breite(Laenge.of(2.1))
-				.build()
-		);
+				.build());
 
 		Kante notDefaultKante_oberfl = createAndSaveDefaultKanteWithCustomFuehrungsform(
 			FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 				.oberflaechenbeschaffenheit(Oberflaechenbeschaffenheit.NEUWERTIG)
-				.build()
-		);
+				.build());
 
 		Envelope bereich = new Envelope(0, 30, 0, 30);
 
@@ -3812,19 +3801,17 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					.isZweiseitig(true)
 					// Links default
 					.fuehrungsformAttributeLinks(
-						List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte().build())
-					)
+						List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte().build()))
 					// Rechts nicht default
 					.fuehrungsformAttributeRechts(
 						List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 							.breite(Laenge.of(2.1))
-							.build())
-					)
+							.build()))
 					.build())
 			.fahrtrichtungAttributGruppe(
-				FahrtrichtungAttributGruppeTestDataProvider.withGrundnetzDefaultwerte().isZweiseitig(true).build()
-			)
-			// Muss einmal oben an der FuehrungsformAG, einmal an der FahrtrichtungAG und hier an der Kante gesetzt werden
+				FahrtrichtungAttributGruppeTestDataProvider.withGrundnetzDefaultwerte().isZweiseitig(true).build())
+			// Muss einmal oben an der FuehrungsformAG, einmal an der FahrtrichtungAG und hier an der Kante gesetzt
+			// werden
 			.isZweiseitig(true)
 			.build());
 
@@ -3861,14 +3848,12 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 					.fuehrungsformAttributeLinks(
-						List.of(fuehrungsformAttributeLinksRechts1, fuehrungsformAttributeLinksRechts2)
-					)
+						List.of(fuehrungsformAttributeLinksRechts1, fuehrungsformAttributeLinksRechts2))
 					.fuehrungsformAttributeRechts(
-						List.of(fuehrungsformAttributeLinksRechts1, fuehrungsformAttributeLinksRechts2)
-					)
+						List.of(fuehrungsformAttributeLinksRechts1, fuehrungsformAttributeLinksRechts2))
 					.isZweiseitig(false)
-					.build()
-			).build());
+					.build())
+			.build());
 
 		Envelope bereich = new Envelope(0, 30, 0, 30);
 
@@ -3907,15 +3892,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.kantenAttributGruppe(KantenAttributGruppe.builder()
 				.kantenAttribute(KantenAttribute.builder().status(status).build())
 				.netzklassen(netzklassen)
-				.build()
-			)
+				.build())
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformLinksRechts))
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformLinksRechts))
 					.isZweiseitig(false)
-					.build()
-			).build());
+					.build())
+			.build());
 
 		long osmWayId2 = 456;
 		Kante defaultKante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
@@ -3923,13 +3907,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		kantenRepository.insertOsmWayIds(List.of(
 			new KanteOsmWayIdsInsert(
 				attributierteKante.getId(),
-				List.of(LinearReferenzierteOsmWayId.of(osmWayId1, LinearReferenzierterAbschnitt.of(0, 1)))
-			),
+				List.of(LinearReferenzierteOsmWayId.of(osmWayId1, LinearReferenzierterAbschnitt.of(0, 1)))),
 			new KanteOsmWayIdsInsert(
 				defaultKante.getId(),
-				List.of(LinearReferenzierteOsmWayId.of(osmWayId2, LinearReferenzierterAbschnitt.of(0, 1)))
-			)
-		));
+				List.of(LinearReferenzierteOsmWayId.of(osmWayId2, LinearReferenzierterAbschnitt.of(0, 1))))));
 
 		entityManager.flush();
 		entityManager.clear();
@@ -3979,8 +3960,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		kantenRepository.insertOsmWayIds(List.of(new KanteOsmWayIdsInsert(
 			kante.getId(),
-			List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 0.5)))
-		)));
+			List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 0.5))))));
 
 		entityManager.flush();
 		entityManager.clear();
@@ -4017,28 +3997,24 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.kantenAttributGruppe(KantenAttributGruppe.builder()
 				.kantenAttribute(KantenAttribute.builder().status(status).build())
 				.netzklassen(netzklassen)
-				.build()
-			)
+				.build())
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformLinksRechts))
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformLinksRechts))
 					.isZweiseitig(false)
-					.build()
-			).build());
+					.build())
+			.build());
 
 		Kante defaultKante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
 
 		kantenRepository.insertOsmWayIds(List.of(
 			new KanteOsmWayIdsInsert(
 				attributierteKante.getId(),
-				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 0.5)))
-			),
+				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 0.5)))),
 			new KanteOsmWayIdsInsert(
 				defaultKante.getId(),
-				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0.5, 0.9)))
-			)
-		));
+				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0.5, 0.9))))));
 
 		entityManager.flush();
 		entityManager.clear();
@@ -4076,13 +4052,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		kantenRepository.insertOsmWayIds(List.of(
 			new KanteOsmWayIdsInsert(
 				defaultKante.getId(),
-				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 1)))
-			),
+				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 1)))),
 			new KanteOsmWayIdsInsert(
 				defaultKante2.getId(),
-				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 1)))
-			)
-		));
+				List.of(LinearReferenzierteOsmWayId.of(osmWayId, LinearReferenzierterAbschnitt.of(0, 1))))));
 
 		entityManager.flush();
 		entityManager.clear();
@@ -4093,7 +4066,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.collect(Collectors.toList());
 
 		// assert
-		// Es sollten beide Kanten gefunden werden, da sie beide von 0 bis 1 gehen und somit im Java Code entschieden wird
+		// Es sollten beide Kanten gefunden werden, da sie beide von 0 bis 1 gehen und somit im Java Code entschieden
+		// wird
 		// welche verwendet wird
 		assertThat(flacheKanten).hasSize(2);
 	}
@@ -4168,7 +4142,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		// assert
 		assertThat(kanteElevationViews).hasSize(1);
 		assertThat(kanteElevationViews.get(0).getId()).isEqualTo(kante.getId());
-		// Start und End, X und Y einzeln asserten, weil das eine ein LineString<C2D> ist und das andere ein "normaler" LineString
+		// Start und End, X und Y einzeln asserten, weil das eine ein LineString<C2D> ist und das andere ein "normaler"
+		// LineString
 		assertThat(kanteElevationViews.get(0).getGeometry().getStartPosition().getX())
 			.isEqualTo(lineString.getStartPoint().getX());
 		assertThat(kanteElevationViews.get(0).getGeometry().getStartPosition().getY())
@@ -4197,8 +4172,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		kantenRepository.updateKanteElevation(
 			new SliceImpl<>(List.of(
-				new KanteElevationUpdate(kante.getId(), lineString_3d)
-			)));
+				new KanteElevationUpdate(kante.getId(), lineString_3d))));
 
 		// act
 		List<KanteElevationView> kanteElevationViews = kantenRepository
@@ -4208,7 +4182,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		// assert
 		assertThat(kanteElevationViews).hasSize(1);
 		assertThat(kanteElevationViews.get(0).getId()).isEqualTo(kante.getId());
-		// Start und End, X und Y einzeln asserten, weil das eine ein LineString<C2D> ist und das andere ein "normaler" LineString
+		// Start und End, X und Y einzeln asserten, weil das eine ein LineString<C2D> ist und das andere ein "normaler"
+		// LineString
 		assertThat(kanteElevationViews.get(0).getGeometry().getStartPosition().getX())
 			.isEqualTo(lineString.getStartPoint().getX());
 		assertThat(kanteElevationViews.get(0).getGeometry().getStartPosition().getY())
@@ -4237,8 +4212,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		kantenRepository.updateKanteElevation(
 			new SliceImpl<>(List.of(
-				new KanteElevationUpdate(kante.getId(), lineString_3d)
-			)));
+				new KanteElevationUpdate(kante.getId(), lineString_3d))));
 
 		// act
 		List<KanteElevationView> kanteElevationViews = kantenRepository
@@ -4249,6 +4223,66 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(kanteElevationViews).isEmpty();
 	}
 
+	@Test
+	void findAllByZustaendigkeitAttributGruppeIn() {
+		// arrange
+		Kante kante1 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante2 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante3 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		Set<Kante> result = kantenRepository.findAllByZustaendigkeitAttributGruppeIn(
+			List.of(kante1.getZustaendigkeitAttributGruppe(), kante2.getZustaendigkeitAttributGruppe()));
+
+		// arrange
+		assertThat(result).hasSize(2);
+		assertThat(result).contains(kante1, kante2);
+		assertThat(result).doesNotContain(kante3);
+	}
+
+	@Test
+	void findAllByGeschwindigkeitAttributeGruppeIn() {
+		// arrange
+		Kante kante1 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante2 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante3 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		Set<Kante> result = kantenRepository.findAllByGeschwindigkeitAttributeGruppeIn(
+			List.of(kante1.getGeschwindigkeitAttributGruppe(), kante2.getGeschwindigkeitAttributGruppe()));
+
+		// arrange
+		assertThat(result).hasSize(2);
+		assertThat(result).contains(kante1, kante2);
+		assertThat(result).doesNotContain(kante3);
+	}
+
+	@Test
+	void findAllByFuehrungsformAttributGruppeIn() {
+		// arrange
+		Kante kante1 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante2 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kante3 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		Set<Kante> result = kantenRepository.findAllByFuehrungsformAttributGruppeIn(
+			List.of(kante1.getFuehrungsformAttributGruppe(), kante2.getFuehrungsformAttributGruppe()));
+
+		// arrange
+		assertThat(result).hasSize(2);
+		assertThat(result).contains(kante1, kante2);
+		assertThat(result).doesNotContain(kante3);
+	}
+
 	private Kante createAndSaveDefaultKanteWithCustomFuehrungsform(FuehrungsformAttribute fuehrungsformLinksRechts) {
 		return kantenRepository.save(KanteTestDataProvider.withDefaultValues()
 			.geometry(GeometryTestdataProvider.createLineString(new Coordinate(1, 1), new Coordinate(5, 5)))
@@ -4257,8 +4291,8 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformLinksRechts))
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformLinksRechts))
 					.isZweiseitig(false)
-					.build()
-			).build());
+					.build())
+			.build());
 	}
 
 	private Kante createKante(Coordinate vonKoordinate, Coordinate nachKoordinate) {

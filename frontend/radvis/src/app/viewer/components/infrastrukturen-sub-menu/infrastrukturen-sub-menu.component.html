@@ -1,0 +1,12 @@
+<div class="header-row" [class.expanded]="expanded">
+  <div class="header">
+    <ng-content select=".header"></ng-content>
+  </div>
+  <rad-collapse-down-button
+    [expanded]="expanded"
+    *ngIf="showCollapseButton"
+    (toggle)="expanded = !expanded"></rad-collapse-down-button>
+</div>
+<div class="menu-body" [@easeInOut]="expanded ? 'out' : 'in'">
+  <ng-content></ng-content>
+</div>

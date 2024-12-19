@@ -17,6 +17,7 @@ import { Rolle } from './rolle';
 export interface SaveBenutzerCommand {
   id: number;
   version: number;
+  ablaufdatum: string | null;
   nachname: string;
   vorname: string;
   email: string;

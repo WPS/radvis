@@ -14,6 +14,7 @@
 
 import { Injectable } from '@angular/core';
 import { Data, Route, Router } from '@angular/router';
+import { CreateAnpassungswunschRouteProvider } from 'src/app/shared/services/create-anpassungswunsch-route.provider';
 import { discardGuard } from 'src/app/shared/services/discard.guard';
 import { AnpassungenEditorComponent } from 'src/app/viewer/anpassungswunsch/components/anpassungen-editor/anpassungen-editor.component';
 import { ANPASSUNGSWUNSCH } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch.infrastruktur';
@@ -26,7 +27,10 @@ import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-sha
 @Injectable({
   providedIn: 'root',
 })
-export class AnpassungenRoutingService extends AbstractInfrastrukturenRoutingService {
+export class AnpassungenRoutingService
+  extends AbstractInfrastrukturenRoutingService
+  implements CreateAnpassungswunschRouteProvider
+{
   public static readonly CREATOR_ROUTE = 'new';
   public static readonly EIGENSCHAFTEN = 'eigenschaften';
   public static readonly KOMMENTARE = 'kommentare';

@@ -20,6 +20,7 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,8 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Tourenkategorie;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.StreckeVonKanten;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.annotation.Nullable;
@@ -67,11 +70,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @NoArgsConstructor
 @Audited
 @Getter
 @Entity
+@Slf4j
 public class Fahrradroute extends VersionierteEntity {
 
 	@Embedded
@@ -655,10 +660,42 @@ public class Fahrradroute extends VersionierteEntity {
 		return Optional.ofNullable(this.netzbezugLineString);
 	}
 
-	public void removeKanteFromNetzbezug(Long kanteId) {
+	public boolean containsKanteInHauptrouteOrVariante(Long kanteId) {
 		require(kanteId, notNullValue());
-		abschnittsweiserKantenBezug.removeIf(kantenBezug -> kantenBezug.getKante().getId().equals(kanteId));
-		varianten.forEach(v -> v.removeKanteFromNetzbezug(kanteId));
+		return containsKante(kanteId) || varianten.stream().anyMatch(v -> v.containsKante(kanteId));
+	}
+
+	public boolean containsKante(Long kanteId) {
+		require(kanteId, notNullValue());
+		return abschnittsweiserKantenBezug.stream().anyMatch(kantenBezug -> kantenBezug.getKante().getId().equals(
+			kanteId));
+	}
+
+	public void removeKantenFromNetzbezug(Collection<Long> kantenIds) {
+		require(kantenIds, notNullValue());
+		abschnittsweiserKantenBezug.removeIf(kantenBezug -> kantenIds.contains(kantenBezug.getKante().getId()));
+		varianten.forEach(v -> v.removeKantenFromNetzbezug(kantenIds));
+	}
+
+	public void ersetzeKanteInNetzbezug(Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch,
+		double erlaubteAbweichung) {
+		require(abschnittsweiserKantenBezug.stream().anyMatch(a -> a.getKante().equals(zuErsetzendeKante)));
+		require(zuErsetzenDurch, notNullValue());
+		require(!zuErsetzenDurch.isEmpty());
+
+		List<AbschnittsweiserKantenBezug> neuerKantenBezug = AbschnittsweiserKantenBezug.ersetzeKante(
+			abschnittsweiserKantenBezug, zuErsetzendeKante, zuErsetzenDurch, erlaubteAbweichung);
+		Optional<LineString> neuerNetzbezugLineString = AbschnittsweiserKantenBezug
+			.erstelleNetzbezugLineString(neuerKantenBezug).map(StreckeVonKanten::getStrecke);
+
+		boolean hasNetzbezugLineString = netzbezugLineString != null;
+		if (hasNetzbezugLineString && neuerNetzbezugLineString.isEmpty()) {
+			log.debug(
+				"Kante {} kann nicht ersetzt werden, da anschließend kein topologisch zusammenhängender LineString mehr besteht.",
+				zuErsetzendeKante.getId());
+		} else {
+			abschnittsweiserKantenBezug = neuerKantenBezug;
+		}
 	}
 
 	public void alsGeloeschtMarkieren() {

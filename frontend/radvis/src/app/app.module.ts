@@ -17,6 +17,7 @@ import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AdministrationModule } from 'src/app/administration/administration.module';
 import { AuswertungModule } from 'src/app/auswertung/auswertung.module';
+import { SystembenachrichtigungComponent } from 'src/app/components/systembenachrichtigung/systembenachrichtigung.component';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
 import { FreischaltungModule } from 'src/app/freischaltung/freischaltung.module';
@@ -64,7 +65,7 @@ const initFehlerprotokollTypen = (fehlerprotokollService: FehlerprotokollService
 // Bitte dran denken: Alle APP_INITIALIZER-Endpunkte müssen im Backend in SecurityConfiguration.internalApiFilterChain()
 // als "authenticated" hinzugefügt werden, sonst funktioniert die Anmeldung mit nicht registrierten Benutzern nicht!
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, SystembenachrichtigungComponent],
   imports: [
     BrowserModule,
     RegistrierungModule,

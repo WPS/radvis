@@ -45,6 +45,8 @@ spring:
     beschilderungsKatasterPath: pfadZurKatasterDatei
     # Grafana-Url
     grafanaUrl: localhost:3000
+    # Matomo-Url
+    matomoUrl: localhost:8081
   security:
     # Gibt an, ob sich der Server im lokalen Entwicklungsbetrieb befindet. Relevant für den Redirect nach erfolgreichem Login.
     localAuthSetup: false
@@ -149,6 +151,9 @@ radVis:
     radVisNaechtlicherJobSchedule:
       - DLMReimportJob
       - OsmPbfDownloadJob
+  netz:
+    # minimale Länge linear referenzierter Segmente in Metern
+    minimaleSegmentLaenge: 1.0
   osm:
     # Basisnetz OSM-PBF für den Import des Netzes. Diese unterscheidet sich von der regulären OSM-PBF für die Auszeichnung.
     osmBasisnetzDaten: /resourcecache/baden-wuerttemberg-latest_basisnetz.osm.pbf
@@ -293,6 +298,12 @@ radVis:
     # Organisations-Art der obersten Verwaltungseinheit in der RadVIS-Instanz
     # Wertebereich entspricht dem Enum "OrganisationsArt"
     obersteGebietskoerperschaftOrganisationsArt: Bundesland
+    # wenn sich das Grundnetz ändert, wird versucht, bestehende Netzbezüge neu zu verorten. 
+    # Dabei gilt die hier angegebene maximal erlaubte Längen-Abweichung in Metern für Kantenbezüge
+    erlaubteAbweichungFuerKantenNetzbezugRematch: 1.0
+    # wenn sich das Grundnetz ändert, wird versucht, bestehende Netzbezüge neu zu verorten. 
+    # Dabei gilt die hier angegebene maximal erlaubte Distanz zum alten Knoten in Metern
+    erlaubteAbweichungFuerKnotenNetzbezugRematch: 1.0
   dlm:
     # Basis-Url für den WFS-Dienst zum Abruf des Grundnetzes (DLM)
     basisUrl: http://example.dlm.url # Beispielwert
@@ -364,7 +375,7 @@ radVis:
         # EXTERN | RADVIS
         quelle: EXTERN
         # bei quelle RADVIS: für layer, die RadVIS bereitstellt eine relative URL der Form "/api/..." angeben
-        url: "https://www.wms.nrw.de/wms/zensusatlas?LAYERS=bevoelkerungszahl"
+        url: "https://www.wms.nrw.de/wms/zensusatlas?LAYERS=bevoelkerung"
         # WMS | WFS
         typ: WMS
         # Deckkraft relativ 0-1
@@ -384,7 +395,25 @@ radVis:
     # Strength-Parameter für die Rundenanzahl das BCrypt Verfahrens. Die Rundenanzahl steigt exponentiell mit diesem Parameter. Verändert man diesen Wert, können alte Passwörter weiterhin genutzt werden, da dieser Wert mit in der Datenbank gespeichert wird.
     passwordStrength: 10
   massnahmenimport:
+    # Ist eine bearbeitete importierte Maßnahme um höchstens diese Entfernung in Metern verschoben, wird sie noch auf die existierende Maßnahme gematcht. Größere Verschiebungen führen ggf. zu neuen Maßnahmen.
     minimaleDistanzFuerAbweichungsWarnung: 10
+  massnahmen:
+    # Distanz in Metern für die erweiterte Filterung nach Fahrradrouten, die innerhalb dieser Entfernung liegen müssen.
+    distanzZuFahrradrouteInMetern: 20
+  netzkorrektur:
+    # Breite einer Partition (vertikaler Streifen) bei der Vernetzungskorrektur in Metern.
+    vernetzungKorrekturPartitionBreiteInM: 20000.0
+    # Maximale Länge einer Lücke in Metern.
+    attributlueckenMaximaleLaengeInM: 500
+    # Maximale Anzahl an Kanten in einer Lücke.
+    attributlueckenMaximaleKantenanzahl: 2
+    # Maximale Anzahl an attribuierten Kanten, die am Ende einer Lücke akzeptiert werden. Endet eine Lücken-Kante an einem Knoten mit mehr als dieser Anzahl an adjazenten attribuierten Kanten, dann ist das Ergebnis nicht eindeutig genug und die Lücke wird verworfen.
+    maximaleAnzahlAdjazenterAttribuierterKanten: 1
+    # Zu Debug-Zwecken die Attributlücken in eine GeoPackage-Datei schreiben.
+    attributlueckeninGpkgSchreiben: false
+  servicemanagementbericht:
+    # Der untere Grenzwert für die Gesamtlänge der aufzulistenden Kommunal- und Kreisnetze im Servicemanagementbericht
+    mindestGesamtLaengeInMetern: 20000
 
 # Durch Spring bereitgestellt Konfigurationsmöglichkeiten für die Server-Umgebung,
 # https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.server
@@ -425,11 +454,6 @@ togglz:
     USE_LGL_HOEHENDATEN:
       # Aktiviert die Verwendung von LGL-Höhendaten
       enabled: false
-    DLM_REIMPORT_FIX:
-      # Aktiviert angepasstes Verhalten beim ReImport des Grundnetzes (DLM):
-      # höhere Toleranz bei Verschiebungen und Prüfung der am WFS abgerufenen Features auf Überschneidung
-      # mit dem angeforderten Bereich
-      enabled: false
     ANPASSUNGEN:
       # Aktiviert die Anzeige von Anpassungswünschen
       enabled: false
@@ -466,9 +490,6 @@ togglz:
       enabled: false
     WEGWEISENDE_BESCHILDERUNG:
       # Aktiviert die Anzeige von wegweisender Beschilderung
-      enabled: false
-    VERNETZUNG_KORREKTUR:
-      # Aktiviert die Neuvernetzung von in RadVIS angelegten Kanten nach dem nächtlichen Abgleich mit dem DLM
       enabled: false
     LEIHSTATIONEN_CSV_IMPORT:
       # Aktiviert den CSV-Import von Leihstationen
@@ -508,6 +529,9 @@ togglz:
       enabled: false
     DEFAULT_VERSIONSINFO_DIALOG:
       # Aktiviert einen alternativen Versionsinfo-Dialog passend, der nur das Nötigste beinhaltet
+      enabled: false
+    NETZBEZUG_REMATCH:
+      # Aktiviert den Rematch von Netzbezügen nach Änderungen durch den DLM Reimport
       enabled: false
 
 # Durch Spring bereitgestellt Konfigurationsmöglichkeiten für das Logging,

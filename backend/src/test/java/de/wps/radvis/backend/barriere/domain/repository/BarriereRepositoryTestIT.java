@@ -16,6 +16,8 @@ package de.wps.radvis.backend.barriere.domain.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +50,7 @@ import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -81,7 +84,8 @@ import jakarta.persistence.EntityManager;
 	TechnischerBenutzerConfigurationProperties.class,
 	MailConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class BarriereRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -113,7 +117,7 @@ class BarriereRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void erstelleMassnahme_massnahmeWirdErstellt() {
+	void save() {
 		// arrange
 		Knoten knoten = knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build());
 		Kante kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
@@ -137,5 +141,96 @@ class BarriereRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(barriereRepository.findById(gespeicherteBarriere.getId()).get()).usingRecursiveComparison()
 			.usingOverriddenEquals().ignoringFields("id")
 			.isEqualTo(barriere);
+	}
+
+	@Test
+	void findByKantenInNetzBezug() {
+		// arrange
+		Kante kanteInNetzbezug = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kanteNichtInNetzbezug = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		BarriereNetzBezug netzBezug = new BarriereNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(
+				kanteInNetzbezug, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS),
+				new AbschnittsweiserKantenSeitenBezug(
+					kanteNichtInNetzbezug, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
+			Collections.emptySet(),
+			Collections.emptySet());
+
+		Barriere barriereWithKantenbezug = barriereRepository
+			.save(BarriereTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(testVerwaltungseinheit).netzbezug(netzBezug).build());
+
+		BarriereNetzBezug punktBezug = new BarriereNetzBezug(
+			Collections.emptySet(),
+			Set.of(
+				new PunktuellerKantenSeitenBezug(kanteInNetzbezug, LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG),
+				new PunktuellerKantenSeitenBezug(kanteNichtInNetzbezug, LineareReferenz.of(0.25),
+					Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet());
+
+		Barriere barriereWithPunktbezug = barriereRepository
+			.save(BarriereTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(testVerwaltungseinheit).netzbezug(punktBezug).build());
+
+		BarriereNetzBezug ohneKanteBezug = new BarriereNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(
+				kanteNichtInNetzbezug, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
+			Set.of(
+				new PunktuellerKantenSeitenBezug(kanteNichtInNetzbezug, LineareReferenz.of(0.25),
+					Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet());
+
+		Barriere barriereNichtInNetzbezug = barriereRepository
+			.save(BarriereTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(testVerwaltungseinheit).netzbezug(ohneKanteBezug).build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		List<Barriere> barrierenWithKantenInNetzbezug = barriereRepository
+			.findByKantenInNetzBezug(List.of(kanteInNetzbezug.getId()));
+
+		// assert
+		assertThat(barrierenWithKantenInNetzbezug).contains(barriereWithKantenbezug,
+			barriereWithPunktbezug);
+		assertThat(barrierenWithKantenInNetzbezug).doesNotContain(barriereNichtInNetzbezug);
+	}
+
+	@Test
+	void findByKnotenInNetzBezug() {
+		// arrange
+		Knoten knotenInNetzbezug = knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build());
+		Knoten knotenNichtInNetzbezug = knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build());
+
+		BarriereNetzBezug netzBezug = new BarriereNetzBezug(
+			Collections.emptySet(),
+			Collections.emptySet(),
+			Set.of(knotenInNetzbezug));
+
+		Barriere barriereWithKnotenbezug = barriereRepository
+			.save(BarriereTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(testVerwaltungseinheit).netzbezug(netzBezug).build());
+
+		BarriereNetzBezug ohneKnotenBezug = new BarriereNetzBezug(
+			Collections.emptySet(),
+			Collections.emptySet(),
+			Set.of(knotenNichtInNetzbezug));
+
+		Barriere barriereNichtInKnotenbezug = barriereRepository
+			.save(BarriereTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(testVerwaltungseinheit).netzbezug(ohneKnotenBezug).build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		List<Barriere> barrierenWithKnotenInNetzbezug = barriereRepository
+			.findByKnotenInNetzBezug(List.of(knotenInNetzbezug.getId()));
+
+		// assert
+		assertThat(barrierenWithKnotenInNetzbezug).contains(barriereWithKnotenbezug);
+		assertThat(barrierenWithKnotenInNetzbezug).doesNotContain(barriereNichtInKnotenbezug);
 	}
 }

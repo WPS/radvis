@@ -26,10 +26,10 @@ import org.mockito.Mock;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
-import de.wps.radvis.backend.integration.grundnetzReimport.domain.event.PreDlmReimportJobEvent;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ImportSessionRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerImportFehlerRepository;
+import de.wps.radvis.backend.netz.domain.event.GrundnetzAktualisiertEvent;
 
 class ManuellerImportServiceTest {
 
@@ -56,12 +56,12 @@ class ManuellerImportServiceTest {
 	}
 
 	@Test
-	public void onPreDlmReimport() {
+	public void onGrundnetzAktualisiert() {
 		// Arrange
-		final var preDlmReimportJobEvent = new PreDlmReimportJobEvent();
+		final var even = new GrundnetzAktualisiertEvent();
 
 		// Act
-		manuellerImportService.onPreDlmReimport(preDlmReimportJobEvent);
+		manuellerImportService.onGrundnetzAktualisiert(even);
 
 		// Assert
 		verify(importSessionRepository).clear();

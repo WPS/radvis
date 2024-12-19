@@ -13,7 +13,10 @@
  */
 
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
-import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
+import {
+  fillFormWithMultipleValues,
+  hasMultipleValues,
+} from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 
 describe('fillFormWithMultipleValues', () => {
@@ -61,5 +64,59 @@ describe('fillFormWithMultipleValues', () => {
     expect(form.getRawValue().arr).toEqual(['item1', 'item2']);
     expect(form.getRawValue().arrUndetermined).toBeInstanceOf(UndeterminedValue);
     expect(form.getRawValue().undetermined).toBeInstanceOf(UndeterminedValue);
+  });
+});
+
+describe('hasMultipleValues', () => {
+  it('returns true if undetermined', () => {
+    const form = new UntypedFormGroup({
+      test: new UntypedFormControl(null),
+      other: new UntypedFormControl(null),
+    });
+    const obj1 = { test: 'blubb', other: 'test' };
+    const obj2 = { test: 'blah', other: 'test' };
+
+    fillFormWithMultipleValues(form, [obj1, obj2]);
+
+    expect(hasMultipleValues(form)).toBeTrue();
+  });
+
+  it('returns false if not undetermined', () => {
+    const form = new UntypedFormGroup({
+      test: new UntypedFormControl(null),
+      other: new UntypedFormControl(null),
+    });
+    const obj1 = { test: 'blubb', other: 'test' };
+
+    fillFormWithMultipleValues(form, [obj1]);
+
+    expect(hasMultipleValues(form)).toBeFalse();
+  });
+
+  it('works with null', () => {
+    const form = new UntypedFormGroup({
+      test: new UntypedFormControl(null),
+      other: new UntypedFormControl(null),
+    });
+    const obj1 = { test: null, other: 'test' };
+
+    fillFormWithMultipleValues(form, [obj1]);
+
+    expect(hasMultipleValues(form)).toBeFalse();
+  });
+
+  it('works on nested objects', () => {
+    const form = new UntypedFormGroup({
+      group: new UntypedFormGroup({
+        test: new UntypedFormControl(null),
+        other: new UntypedFormControl(null),
+      }),
+    });
+    const obj1 = { test: 'blubb', other: 'test' };
+    const obj2 = { test: 'blah', other: 'test' };
+
+    fillFormWithMultipleValues(form.get('group') as UntypedFormGroup, [obj1, obj2]);
+
+    expect(hasMultipleValues(form)).toBeTrue();
   });
 });

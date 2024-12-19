@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.MappedSuperclass;
@@ -38,12 +40,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @MappedSuperclass
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString()
 @EqualsAndHashCode
+@Slf4j
 public abstract class LinearReferenzierteAttribute {
 
 	@Getter
@@ -58,11 +62,9 @@ public abstract class LinearReferenzierteAttribute {
 	/**
 	 * Diese Methode nimmt eine LineareReferenz und gibt eine Kopie der bestehenden Attribute zurück, dessen
 	 * LineareReferenzierte Attribute so zerschnitten wurden, dass Anfang und Endpunkt der LineareReferenz auch Anfangs-
-	 * und Endpunkte (bzw. "Metermarken") von Attributen innerhalb der Liste ist. Dabei bleibt der Inhalt der Attribute auf
-	 * in der Liste UNVERÄNDERT!
-	 * Beispiel:
-	 * Input: attribute = [LRA(0, 0.5), LRA(0.5, 1)], lineareReferenz = LR(0.3, 0.8)
-	 * Ergebnis: [LRA(0, 0.3), LRA(0.3, 0.5), LRA(0.5, 0.8), LRA(0.8, 1)]
+	 * und Endpunkte (bzw. "Metermarken") von Attributen innerhalb der Liste ist. Dabei bleibt der Inhalt der Attribute
+	 * auf in der Liste UNVERÄNDERT! Beispiel: Input: attribute = [LRA(0, 0.5), LRA(0.5, 1)], lineareReferenz = LR(0.3,
+	 * 0.8) Ergebnis: [LRA(0, 0.3), LRA(0.3, 0.5), LRA(0.5, 0.8), LRA(0.8, 1)]
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends LinearReferenzierteAttribute> List<T> getAufLineareReferenzZugeschnitten(List<T> attribute,
@@ -93,6 +95,29 @@ public abstract class LinearReferenzierteAttribute {
 		return result;
 	}
 
+	/**
+	 * Fügt das übergebene Attribut in die Liste ein und schneidet die Linearen Referenzen der Segmente rechts und links
+	 * davon entsprechend zu. Gleichartige Attribute werden anschließend zusammengefasst.
+	 * 
+	 * @param <T>
+	 * @param intoAttribute
+	 * @param newAttribut
+	 * @return neue Liste mit resultierenden Attributen
+	 */
+	public static <T extends LinearReferenzierteAttribute> List<T> insertInto(List<T> intoAttribute,
+		T newAttribut) {
+		List<T> workingSet = LinearReferenzierteAttribute
+			.getAufLineareReferenzZugeschnitten(intoAttribute, newAttribut.getLinearReferenzierterAbschnitt());
+		List<T> zuLoeschende = LinearReferenzierteAttribute
+			.getIntersecting(newAttribut.getLinearReferenzierterAbschnitt(), workingSet);
+		workingSet.removeAll(zuLoeschende);
+		workingSet.add(newAttribut);
+		LinearReferenzierteAttribute.sortSegmente(workingSet);
+
+		return LinearReferenzierteAttribute
+			.fasseGleicheBenachbarteSegmenteZusammen(workingSet);
+	}
+
 	abstract public LinearReferenzierteAttribute withLinearReferenzierterAbschnitt(
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt);
 
@@ -107,6 +132,8 @@ public abstract class LinearReferenzierteAttribute {
 
 	abstract protected Optional<? extends LinearReferenzierteAttribute> union(LinearReferenzierteAttribute other);
 
+	protected abstract boolean hasOnlyDefaultAttribute();
+
 	static public Optional<? extends LinearReferenzierteAttribute> union(LinearReferenzierteAttribute first,
 		LinearReferenzierteAttribute second) {
 		if (first != null) {
@@ -116,31 +143,37 @@ public abstract class LinearReferenzierteAttribute {
 	}
 
 	public static <T extends LinearReferenzierteAttribute> List<T> defragmentiereLinearReferenzierteAttribute(
-		List<T> attribute, double gesamtLaenge, double mindestLaengeProSegment) {
+		List<T> attribute, Laenge gesamtLaenge, Laenge mindestLaengeProSegment) {
 		require(LinearReferenzierterAbschnitt.segmentsCoverFullLine(attribute.stream()
 			.map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt).collect(Collectors.toList())),
 			"LR-Attribute müssen von 0 bis 1 gehen (=coverFullLine), um defragmentiert werden zu können.");
 
-		attribute.sort(
-			Comparator.comparing(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt,
-				LinearReferenzierterAbschnitt.vonZuerst));
+		sortSegmente(attribute);
 
 		List<T> zusammengefasst = fasseGleicheBenachbarteSegmenteZusammen(attribute);
 
-		List<T> bereinigt = entferneSehrKleineLinearReferenzierteAttribute(zusammengefasst, gesamtLaenge,
-			mindestLaengeProSegment);
+		double relativeSegmentLaenge = Math.min(mindestLaengeProSegment.getValue() / gesamtLaenge.getValue(), 1.0);
+		return mergeSegmentsKleinerAls(zusammengefasst, LineareReferenz.of(relativeSegmentLaenge));
+	}
 
-		List<T> interpoliertUndBereinigt = interpoliereLueckenZwischenSegmenten(bereinigt);
-
-		return fasseGleicheBenachbarteSegmenteZusammen(interpoliertUndBereinigt);
+	/**
+	 * Sortiert übergebene Segmente entlang des LineStrings (in place)
+	 * 
+	 * @param <T>
+	 * @param attribute
+	 */
+	static <T extends LinearReferenzierteAttribute> void sortSegmente(List<T> attribute) {
+		attribute.sort(
+			Comparator.comparing(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt,
+				LinearReferenzierterAbschnitt.vonZuerst));
 	}
 
 	static <T extends LinearReferenzierteAttribute> List<T> entferneSehrKleineLinearReferenzierteAttribute(
 		List<T> attribute, double gesamtLaenge, double mindestLaengeProSegment) {
 
 		List<T> collect = attribute.stream()
-			.filter(attribut -> attribut.linearReferenzierterAbschnitt.relativeLaenge() * gesamtLaenge
-				> mindestLaengeProSegment)
+			.filter(attribut -> attribut.linearReferenzierterAbschnitt.relativeLaenge()
+				* gesamtLaenge > mindestLaengeProSegment)
 			.collect(Collectors.toList());
 
 		if (collect.isEmpty()) {
@@ -207,11 +240,15 @@ public abstract class LinearReferenzierteAttribute {
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T extends LinearReferenzierteAttribute> List<T> fasseGleicheBenachbarteSegmenteZusammen(List<T> attribute) {
+	static <T extends LinearReferenzierteAttribute> List<T> fasseGleicheBenachbarteSegmenteZusammen(
+		List<T> attribute) {
+
 		List<T> zusammengefasst = new ArrayList<>();
 		T current = attribute.get(0);
 		for (int i = 0; i < attribute.size() - 1; i++) {
 			T next = attribute.get(i + 1);
+			require(LineareReferenz.fractionEqual(next.getLinearReferenzierterAbschnitt().getVon(),
+				current.getLinearReferenzierterAbschnitt().getBis()), "Segmente müssen sortiert übergeben werden");
 
 			if (current.sindAttributeGleich(next)) {
 				Optional<LinearReferenzierterAbschnitt> union = current.linearReferenzierterAbschnitt.union(
@@ -253,8 +290,8 @@ public abstract class LinearReferenzierteAttribute {
 		// Schneide Anfang von nur teils abgebildeter LR Attribute auf Anfang von
 		// lineareReferenz zu
 		T attributeAnfang = attribute.get(0);
-		if (attributeAnfang.getLinearReferenzierterAbschnitt().getVonValue()
-			< linearReferenzierterAbschnitt.getVonValue()) {
+		if (attributeAnfang.getLinearReferenzierterAbschnitt().getVonValue() < linearReferenzierterAbschnitt
+			.getVonValue()) {
 			LinearReferenzierterAbschnitt anfangsReferenz = LinearReferenzierterAbschnitt
 				.of(linearReferenzierterAbschnitt.getVonValue(),
 					attributeAnfang.getLinearReferenzierterAbschnitt().getBisValue());
@@ -266,8 +303,8 @@ public abstract class LinearReferenzierteAttribute {
 		int letzterIndex = attribute.size() - 1;
 		T attributeEnde = attribute
 			.get(letzterIndex);
-		if (attributeEnde.getLinearReferenzierterAbschnitt().getBisValue()
-			> linearReferenzierterAbschnitt.getBisValue()) {
+		if (attributeEnde.getLinearReferenzierterAbschnitt().getBisValue() > linearReferenzierterAbschnitt
+			.getBisValue()) {
 			LinearReferenzierterAbschnitt endReferenz = LinearReferenzierterAbschnitt
 				.of(attributeEnde.getLinearReferenzierterAbschnitt().getVonValue(),
 					linearReferenzierterAbschnitt.getBisValue());
@@ -278,7 +315,6 @@ public abstract class LinearReferenzierteAttribute {
 		return attribute;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T extends LinearReferenzierteAttribute> List<T> getIntersecting(
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, List<T> attribute) {
 		return getAufLineareReferenzZugeschnitten(attribute, linearReferenzierterAbschnitt).stream()
@@ -368,5 +404,105 @@ public abstract class LinearReferenzierteAttribute {
 			.sorted(
 				Comparator.comparing(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt,
 					LinearReferenzierterAbschnitt.vonZuerst));
+	}
+
+	/**
+	 * Fasst Segmente (echt) kleiner als übergebene Länge mit Nachbarn zusammen
+	 */
+	public static <T extends LinearReferenzierteAttribute> List<T> mergeSegmentsKleinerAls(
+		List<T> attribute, LineareReferenz minimalSegmentLength) {
+		require(LinearReferenzierterAbschnitt.segmentsCoverFullLine(attribute.stream()
+			.map(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt).collect(Collectors.toList())),
+			"LR-Attribute müssen von 0 bis 1 gehen (=coverFullLine), um defragmentiert werden zu können.");
+		require(attribute, notNullValue());
+		require(minimalSegmentLength.getAbschnittsmarke() > 0);
+		List<T> result = new ArrayList<T>(attribute);
+
+		sortSegmente(result);
+
+		while (result.size() > 1) {
+			List<T> afterMerge = mergeFirstMatchingSegment(result, minimalSegmentLength);
+			if (afterMerge.size() == result.size()) {
+				break;
+			}
+			result = afterMerge;
+		}
+		return fasseGleicheBenachbarteSegmenteZusammen(result);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T extends LinearReferenzierteAttribute> List<T> mergeFirstMatchingSegment(List<T> attribute,
+		LineareReferenz minimalSegmentLength) {
+		require(attribute.size() > 1);
+
+		List<T> result = new ArrayList<>(attribute);
+
+		if (result.stream()
+			.allMatch(attr -> attr.getLinearReferenzierterAbschnitt().relativeLaenge() < minimalSegmentLength
+				.getAbschnittsmarke())) {
+			T letztesAttribut = result.get(result.size() - 1);
+			T fullLineSegment = (T) letztesAttribut
+				.withLinearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1.0));
+			log.debug("Alle Segmente zu klein, werden zu einem Segment zusammengefasst:\n{}", fullLineSegment);
+			return List.of(fullLineSegment);
+		}
+
+		for (int i = 0; i < result.size(); i++) {
+			T attr = result.get(i);
+			if (attr.getLinearReferenzierterAbschnitt().relativeLaenge() < minimalSegmentLength.getAbschnittsmarke()) {
+				if (i < result.size() - 1) {
+					T nextAttribut = result.get(i + 1);
+					if (nextAttribut.getLinearReferenzierterAbschnitt().relativeLaenge() >= minimalSegmentLength
+						.getAbschnittsmarke()) {
+						mergeRight(result, i, attr, nextAttribut);
+						break;
+					}
+				}
+				if (i > 0) {
+					T previousAttribut = result.get(i - 1);
+					if (previousAttribut.getLinearReferenzierterAbschnitt().relativeLaenge() >= minimalSegmentLength
+						.getAbschnittsmarke()) {
+						mergeLeft(result, i, attr, previousAttribut);
+						break;
+					}
+				}
+			}
+		}
+
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T extends LinearReferenzierteAttribute> void mergeLeft(List<T> result, int i, T attr,
+		T previousAttribut) {
+		log.debug("Merge zu kleines Segment in vorhergehendes Segment:\n{}\n{}", attr,
+			previousAttribut);
+		result.set(i - 1,
+			(T) previousAttribut.withLinearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(
+				previousAttribut.getLinearReferenzierterAbschnitt().getVonValue(),
+				attr.getLinearReferenzierterAbschnitt().getBisValue())));
+		result.remove(i);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T extends LinearReferenzierteAttribute> void mergeRight(List<T> result, int i, T attr,
+		T nextAttribut) {
+		log.debug("Merge zu kleines Segment in nachfolgendes Segment:\n{}\n{}", attr, nextAttribut);
+		result.set(i + 1, (T) nextAttribut.withLinearReferenzierterAbschnitt(
+			LinearReferenzierterAbschnitt.of(attr.getLinearReferenzierterAbschnitt().getVonValue(),
+				nextAttribut.getLinearReferenzierterAbschnitt().getBisValue())));
+		result.remove(i);
+	}
+
+	public static boolean allSegmentsHaveMinimaleLaenge(Laenge kantenLaenge,
+		Laenge minimaleSegmentLaenge, List<LinearReferenzierterAbschnitt> segmente) {
+		// Es gibt auf PROD Kanten < 1m, die gespeichert werden können sollen
+		if (kantenLaenge.getValue() < minimaleSegmentLaenge.getValue()) {
+			return segmente.size() == 1;
+		}
+
+		return segmente.stream()
+			.allMatch(
+				segment -> segment.relativeLaenge() * kantenLaenge.getValue() >= minimaleSegmentLaenge.getValue());
 	}
 }

@@ -61,20 +61,24 @@
       </mat-expansion-panel>
     </mat-accordion>
   </div>
+
+  <span class="hinweis">
+    Eine Anleitung zum Schreiben der JSON-Definition ist im
+    <a href="javascript:void(0);" (click)="onOpenHandbuch()">Handbuch</a>
+    zu finden.
+  </span>
 </div>
-<span class="hinweis">
-  Eine Anleitung zum Schreiben der JSON-Definition ist im
-  <a href="javascript:void(0);" (click)="onOpenHandbuch()">Handbuch</a>
-  zu finden.
-</span>
-<div class="buttons display-flex justify-content-flex-end" mat-dialog-actions>
+<div mat-dialog-actions>
   <button (click)="onAddProfile()" color="primary" mat-stroked-button>
     <mat-icon>add</mat-icon>
     Hinzufügen
   </button>
   <div class="flex-grow"></div>
   <button [disabled]="saving" mat-dialog-close="false" mat-stroked-button type="button">Abbrechen</button>
-  <rad-action-button (action)="onSave()" [dirty]="profileFormArray.dirty" [waiting]="saving">
-    Speichern
-  </rad-action-button>
+  <!-- eigenes div, damit flexbox richtig aussieht -->
+  <div>
+    <rad-action-button (action)="onSave()" [dirty]="profileFormArray.dirty" [waiting]="saving">
+      Speichern
+    </rad-action-button>
+  </div>
 </div>

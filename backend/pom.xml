@@ -14,14 +14,14 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.1</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <version>3.3.5</version>
+    <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>de.wps.radvis</groupId>
   <artifactId>backend</artifactId>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
-      <version>1.26.2</version>
+      <version>1.27.1</version>
     </dependency>
     <dependency>
       <groupId>com.github.mkopylec</groupId>
@@ -128,12 +128,15 @@
       <artifactId>gt-geopkg</artifactId>
       <version>${geotools.version}</version>
     </dependency>
-		<!--
-		RAD-6235 hst: Mit Spring 6.2 und Geotools brauchen wir hier zwingend 3.41.2.2 (bzw. irgendwas <3.43.0.0), weil sonst
-		beim Schreiben eines GeoPackages eine "java.sql.SQLFeatureNotSupportedException: not implemented by SQLite JDBC driver"
-		Exception kommt, da "getGeneratedKeys()"-support aus JDBC entfernt wurde, was aber von gt-geopkg noch benutzt wird.
+    <!--
+		RAD-6235 hst: Mit Spring 6.2 und Geotools brauchen wir hier zwingend 3.41.2.2 (bzw. irgendwas
+    <3.43.0.0), weil sonst
+		beim Schreiben eines GeoPackages eine "java.sql.SQLFeatureNotSupportedException: not implemented by
+    SQLite JDBC driver"
+		Exception kommt, da "getGeneratedKeys()"-support aus JDBC entfernt wurde, was aber von gt-geopkg
+    noch benutzt wird.
 		-->
-		<dependency>
+    <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
       <version>3.42.0.1</version>
@@ -177,11 +180,12 @@
       <artifactId>graphhopper-map-matching</artifactId>
       <version>${graphhopper-version}</version>
     </dependency>
-		<!--
-		RAD-5658 hst: Wir MÜSSEN Janino 3.1.2 nehmen, weil ein workaround in Graphhopper eines Janino bugs nicht mit
+    <!--
+		RAD-5658 hst: Wir MÜSSEN Janino 3.1.2 nehmen, weil ein workaround in Graphhopper eines Janino bugs
+    nicht mit
 		Janino > 3.1.2 funktioniert.
 		-->
-		<dependency>
+    <dependency>
       <groupId>org.codehaus.janino</groupId>
       <artifactId>janino</artifactId>
       <version>3.1.2</version>
@@ -215,14 +219,14 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.19.8</version>
+      <version>1.20.3</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>1.19.8</version>
+      <version>1.20.3</version>
       <scope>test</scope>
     </dependency>
 
@@ -236,7 +240,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.3</version>
+      <version>42.7.4</version>
     </dependency>
 
     <dependency>
@@ -310,11 +314,6 @@
       <artifactId>micrometer-registry-prometheus</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.12.7</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -332,8 +331,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-          <!--suppress UnresolvedMavenProperty -->
-					<groups>${test.group}</groups>
+          <!--suppress
+          UnresolvedMavenProperty -->
+          <groups>${test.group}</groups>
         </configuration>
         <executions>
           <execution>
@@ -427,7 +427,7 @@
         </configuration>
         <dependencies>
           <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
-					<dependency>
+          <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
             <version>4.7.3</version>
@@ -485,6 +485,127 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>coverage</id>
+      <build>
+        <!--Wir
+        müssen beide Plugins hier nochmal neu einhängen wegen der geänderten argline-->
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>${surefire.jacoco.args} -Duser.language=de -Duser.region=DE</argLine>
+              <skip>${skipSurefire}</skip>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <argLine>${failsafe.jacoco.args}</argLine>
+              <groups>${test.group}</groups>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.12</version>
+            <executions>
+              <execution>
+                <id>pre-unit-test</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <destFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</destFile>
+                  <propertyName>surefire.jacoco.args</propertyName>
+                </configuration>
+              </execution>
+              <execution>
+                <id>post-unit-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <dataFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</dataFile>
+                  <outputDirectory>
+                    ${project.reporting.outputDirectory}/jacoco-unit-test-coverage-report</outputDirectory>
+                </configuration>
+              </execution>
+              <execution>
+                <id>pre-integration-test</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <destFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</destFile>
+                  <propertyName>failsafe.jacoco.args</propertyName>
+                </configuration>
+              </execution>
+              <execution>
+                <id>post-integration-test</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <dataFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</dataFile>
+                  <outputDirectory>
+                    ${project.reporting.outputDirectory}/jacoco-integration-test-coverage-report</outputDirectory>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>merge-unit-and-integration</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>merge</goal>
+                </goals>
+                <configuration>
+                  <fileSets>
+                    <fileSet>
+                      <directory>${project.build.directory}/jacoco-output/</directory>
+                      <includes>
+                        <include>*.exec</include>
+                      </includes>
+                    </fileSet>
+                  </fileSets>
+                  <destFile>${project.build.directory}/jacoco-output/merged.exec</destFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>create-merged-report</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <dataFile>${project.build.directory}/jacoco-output/merged.exec</dataFile>
+                  <outputDirectory>
+                    ${project.reporting.outputDirectory}/jacoco-merged-test-coverage-report</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <repositories>
     <repository>

@@ -15,14 +15,15 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
-import { Geometry, LineString, MultiLineString, Point } from 'ol/geom';
+import { Geometry, LineString, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
+import { Style } from 'ol/style';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import {
-  geojsonGeometryToFeatureGeometry,
+  geojsonGeometryToFeature,
   isLineString,
   isMultiLineString,
   isPoint,
@@ -43,7 +44,6 @@ import { SignaturStyleProviderService } from 'src/app/viewer/signatur/services/s
 import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
 import { infrastrukturSignaturLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { Style } from 'ol/style';
 
 @Component({
   selector: 'rad-massnahmen-layer',
@@ -225,7 +225,7 @@ export class MassnahmenLayerComponent
       // den StreckenNetzbezug als LineString/MultiLineString
       .filter(m => isLineString(m.geometry) || isMultiLineString(m.geometry))
       .forEach(massnahme => {
-        const feature = geojsonGeometryToFeatureGeometry(massnahme.geometry)!;
+        const feature = geojsonGeometryToFeature(massnahme.geometry)!;
         feature.set(
           'Umsetzungsstatus',
           Umsetzungsstatus.options.find(opt => opt.name === massnahme.umsetzungsstatus)?.displayText

@@ -19,22 +19,21 @@ import { FeatureLike } from 'ol/Feature';
 import { WMSGetFeatureInfo } from 'ol/format';
 import { Geometry } from 'ol/geom';
 import ImageLayer from 'ol/layer/Image';
-import VectorLayer from 'ol/layer/Vector';
 import * as olProj from 'ol/proj';
 import { ImageWMS } from 'ol/source';
 import { Style } from 'ol/style';
 import { filter } from 'rxjs/operators';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
-import { geojsonGeometryToFeatureGeometry } from 'src/app/shared/models/geojson-geometrie';
+import { geojsonGeometryToFeature } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
-import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view';
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
 import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
+import { FahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view';
 import { infrastrukturLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 
@@ -48,7 +47,6 @@ export class FahrradrouteLayerComponent
   extends AbstractInfrastrukturLayerComponent<FahrradrouteListenView>
   implements OnDestroy
 {
-  private highlightLayer: VectorLayer;
   private layer: ImageLayer;
   private source: ImageWMS;
 
@@ -110,17 +108,13 @@ export class FahrradrouteLayerComponent
     this.olMapService.addWMSFeatureLayer(this.layer, this.getFeaturesCallback);
 
     // Wir nutzen den alten Fahrradrouten-Layer nur noch für das highlighting
-    this.highlightLayer = this.createLayer();
-    this.highlightLayer.setZIndex(infrastrukturLayerZIndex + 1);
     this.layer.set(OlMapService.LAYER_ID, this.layerId);
-    this.olMapService.addLayer(this.highlightLayer);
 
     this.initServiceSubscriptions();
   }
 
   ngOnDestroy(): void {
     this.olMapService.removeLayer(this.layer);
-    this.olMapService.removeLayer(this.highlightLayer);
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
@@ -193,7 +187,7 @@ export class FahrradrouteLayerComponent
     let feature;
     const geometry = infrastruktur.geometrie ?? infrastruktur.originalGeometrie;
     if (geometry) {
-      feature = geojsonGeometryToFeatureGeometry(geometry);
+      feature = geojsonGeometryToFeature(geometry);
       if (feature === null) {
         throw new Error('Fahrradrouten Geometrie ist weder LineString noch MultiLineString');
       }

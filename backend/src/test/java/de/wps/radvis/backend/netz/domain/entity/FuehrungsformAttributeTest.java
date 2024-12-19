@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute.FuehrungsformAttributeBuilder;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
@@ -631,12 +632,12 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_equal_ohne_TrennungZu() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteLinks(Laenge.of(4))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteLinks(Laenge.of(4))
 			.build();
@@ -647,12 +648,12 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isFalse();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteRechts(Laenge.of(4))
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteRechts(Laenge.of(4))
 			.build();
@@ -666,13 +667,13 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennstreifenForm_UnEqual() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteLinks(Laenge.of(1))
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(1))
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
@@ -682,13 +683,13 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isTrue();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteRechts(Laenge.of(1))
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(1))
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
@@ -701,13 +702,13 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennstreifenForm_UnEqual_null() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenBreiteLinks(Laenge.of(1))
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(null)
 			.build();
 
@@ -715,11 +716,11 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isTrue();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(null)
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(1))
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
@@ -732,13 +733,13 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_equal() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenBreiteLinks(Laenge.of(5))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenBreiteLinks(Laenge.of(5))
@@ -750,13 +751,13 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isFalse();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenBreiteRechts(Laenge.of(5))
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenBreiteRechts(Laenge.of(5))
@@ -771,10 +772,10 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_equal_null() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.build();
 
 		assertThat(FA1.widersprechenSichAttribute(FA1)).isFalse();
@@ -783,10 +784,10 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isFalse();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.build();
 
 		assertThat(FA3.widersprechenSichAttribute(FA3)).isFalse();
@@ -798,14 +799,14 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennungZu_UnEqual() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN)
 			.trennstreifenBreiteLinks(Laenge.of(3))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
@@ -816,14 +817,14 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isTrue();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenBreiteRechts(Laenge.of(3))
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR)
@@ -837,13 +838,13 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennungZu_UnEqual_null() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenTrennungZuLinks(null)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2))
@@ -853,13 +854,13 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isTrue();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenTrennungZuRechts(null)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(2))
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(2))
@@ -872,12 +873,12 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennstreifenBreite_equal() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2))
 			.build();
@@ -888,12 +889,12 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isFalse();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(0.2))
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(0.2))
 			.build();
@@ -907,12 +908,12 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennstreifenBreite_UnEqual() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2.5))
 			.build();
@@ -921,12 +922,12 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isTrue();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(0.1))
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(2))
 			.build();
@@ -938,12 +939,12 @@ class FuehrungsformAttributeTest {
 	@Test
 	void widersprechenSichAttribute_TrennstreifenBreite_UnEqual_null() {
 		// Links
-		FuehrungsformAttribute FA1 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA1 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(2))
 			.build();
 
-		FuehrungsformAttribute FA2 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA2 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenBreiteLinks(null)
 			.build();
 
@@ -951,11 +952,11 @@ class FuehrungsformAttributeTest {
 		assertThat(FA2.widersprechenSichAttribute(FA1)).isTrue();
 
 		// Rechts
-		FuehrungsformAttribute FA3 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA3 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenBreiteRechts(null)
 			.build();
 
-		FuehrungsformAttribute FA4 = createDefaultWithoutTrennstreifen()
+		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteRechts(Laenge.of(2))
 			.build();
@@ -1080,16 +1081,33 @@ class FuehrungsformAttributeTest {
 		assertThrows(RequireViolation.class, builderInvalid::build);
 	}
 
-	private FuehrungsformAttribute.FuehrungsformAttributeBuilder createDefaultWithoutTrennstreifen() {
-		return FuehrungsformAttribute.builder()
-			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0., 1.))
-			.bordstein(Bordstein.KEINE_ABSENKUNG)
-			.belagArt(BelagArt.BETON)
-			.oberflaechenbeschaffenheit(Oberflaechenbeschaffenheit.NEUWERTIG)
-			.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-			.parkenForm(KfzParkenForm.FAHRBAHNPARKEN_MARKIERT)
-			.parkenTyp(KfzParkenTyp.LAENGS_PARKEN)
-			.breite(Laenge.of(3.45))
-			.benutzungspflicht(Benutzungspflicht.VORHANDEN);
+	@Test
+	void withUmgekehrterStationierungsrichtung() {
+		// arrange
+		FuehrungsformAttributeBuilder builder = FuehrungsformAttributeTestDataProvider.withLineareReferenz(0, 1)
+			.belagArt(BelagArt.ASPHALT)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND)
+			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM)
+			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR)
+			.trennstreifenBreiteRechts(Laenge.of(0.1))
+			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN)
+			.trennstreifenTrennungZuLinks(null)
+			.trennstreifenBreiteLinks(Laenge.of(0.2));
+		FuehrungsformAttribute fuehrungsformAttribute = builder.build();
+
+		// act
+		FuehrungsformAttribute withUmgekehrterStationierungsrichtung = fuehrungsformAttribute
+			.withUmgekehrterStationierungsrichtung();
+
+		// assert
+		assertThat(fuehrungsformAttribute).isEqualTo(builder.build());
+		assertThat(withUmgekehrterStationierungsrichtung).isEqualTo(builder
+			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM)
+			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR)
+			.trennstreifenBreiteLinks(Laenge.of(0.1))
+			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN)
+			.trennstreifenTrennungZuRechts(null)
+			.trennstreifenBreiteRechts(Laenge.of(0.2)).build());
 	}
+
 }

@@ -14,6 +14,12 @@
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { TabellenSpaltenAuswahlService } from 'src/app/viewer/viewer-shared/services/tabellen-spalten-auswahl.service';
+
+export interface ExportEvent {
+  format: ExportFormat;
+  felder: string[];
+}
 
 @Component({
   selector: 'rad-export-button',
@@ -32,11 +38,13 @@ export class ExportButtonComponent {
   isMenuItem = false;
 
   @Output()
-  export = new EventEmitter<ExportFormat>();
+  export = new EventEmitter<ExportEvent>();
 
   ExportFormat = ExportFormat;
 
+  constructor(private tabellenSpaltenAuswahlService: TabellenSpaltenAuswahlService) {}
+
   onClick(format: ExportFormat): void {
-    this.export.next(format);
+    this.export.next({ format, felder: this.tabellenSpaltenAuswahlService.getCurrentAuswahl() });
   }
 }

@@ -36,6 +36,7 @@ import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-
 import { SelectFeatureMenuComponent } from 'src/app/viewer/components/select-feature-menu/select-feature-menu.component';
 import { fehlerprotokollLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
+import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 
 @Component({
   selector: 'rad-viewer',
@@ -64,13 +65,15 @@ export class ViewerComponent implements NetzbezugAuswahlModusService {
   public measureModeEnabled = false;
 
   public fehlerprotokollZIndex = fehlerprotokollLayerZIndex;
+  hasSelectedInfrastrukturen$: Observable<boolean>;
 
   constructor(
     private mapQueryParamsService: MapQueryParamsService,
     private changeDetectorRef: ChangeDetectorRef,
     featureTogglzService: FeatureTogglzService,
     iconRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer
+    sanitizer: DomSanitizer,
+    infrastrukturenSelektionService: InfrastrukturenSelektionService
   ) {
     iconRegistry.addSvgIcon('verlaufOn', sanitizer.bypassSecurityTrustResourceUrl('./assets/verlauf_on.svg'));
     iconRegistry.addSvgIcon('verlaufOff', sanitizer.bypassSecurityTrustResourceUrl('./assets/verlauf_off.svg'));
@@ -87,6 +90,9 @@ export class ViewerComponent implements NetzbezugAuswahlModusService {
       })
     );
     this.mitVerlauf$ = this.mapQueryParamsService.mitVerlauf$;
+    this.hasSelectedInfrastrukturen$ = infrastrukturenSelektionService.selektierteInfrastrukturen$.pipe(
+      map(i => i.length > 0)
+    );
   }
 
   @HostListener('document:keydown.escape')

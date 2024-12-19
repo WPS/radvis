@@ -22,14 +22,18 @@ import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.HttpBasicAuthHeaderRemoverInterceptorConfigurer.httpBasicAuthHeaderRemoverInterceptor;
 import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.XForwardedPathHeaderAdderInterceptorConfigurer.xForwardedPathHeaderAdderInterceptor;
+import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.XForwardedUriHeaderInterceptorConfigurer.xForwardedUriHeaderInterceptor;
 import static java.time.Duration.ofMinutes;
 import static java.time.Duration.ofSeconds;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -43,10 +47,23 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
 @Configuration
+@ComponentScan
 class CharonConfiguration {
 
 	@Autowired
 	ReverseproxyConfiguarationProperties reverseproxyConfiguarationProperties;
+
+	@Bean
+	public FilterRegistrationBean<WriteFormFieldsToBodyFilter> writeFormFieldsToBodyFilter() {
+		FilterRegistrationBean<WriteFormFieldsToBodyFilter> registrationBean = new FilterRegistrationBean<>();
+
+		registrationBean.setFilter(new WriteFormFieldsToBodyFilter());
+
+		registrationBean.addUrlPatterns("/matomo/*");
+		registrationBean.setOrder(1);
+
+		return registrationBean;
+	}
 
 	@Bean
 	@Order(20)
@@ -112,7 +129,16 @@ class CharonConfiguration {
 					.set(regexRequestPathRewriter()
 						.paths("/api/wegweisendebeschilderung/kataster/(?<path>.*)",
 							reverseproxyConfiguarationProperties.getBeschilderungsKatasterPath()
-								+ "/<path>")));
+								+ "/<path>")))
+			.add(
+				requestMapping("matomo redirection")
+					.pathRegex("/matomo/.*")
+					.set(requestServerNameRewriter().outgoingServers(
+						reverseproxyConfiguarationProperties.getMatomoUrl()))
+					.set(regexRequestPathRewriter()
+						.paths("/matomo/(?<path>.*)", "/<path>"))
+					.set(requestProxyHeadersRewriter())
+					.set(xForwardedUriHeaderInterceptor().basePath("/matomo")));
 	}
 
 	static class HttpBasicAuthHeaderRemoverInterceptor implements RequestForwardingInterceptor {
@@ -183,4 +209,45 @@ class CharonConfiguration {
 			return this;
 		}
 	}
+
+	static class XForwardedUriHeaderInterceptor implements RequestForwardingInterceptor {
+
+		private String basePath;
+
+		@Override
+		public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
+			HttpHeaders rewrittenHeaders = copyHeaders(request.getHeaders());
+			rewrittenHeaders.add("X-Forwarded-Uri", this.basePath);
+			request.setHeaders(rewrittenHeaders);
+			return execution.execute(request);
+		}
+
+		@Override
+		public RequestForwardingInterceptorType getType() {
+			return new RequestForwardingInterceptorType(1800);
+		}
+
+		public void setBasePath(String basePath) {
+			this.basePath = basePath;
+		}
+
+	}
+
+	static class XForwardedUriHeaderInterceptorConfigurer
+		extends RequestForwardingInterceptorConfigurer<XForwardedUriHeaderInterceptor> {
+
+		private XForwardedUriHeaderInterceptorConfigurer() {
+			super(new XForwardedUriHeaderInterceptor());
+		}
+
+		static XForwardedUriHeaderInterceptorConfigurer xForwardedUriHeaderInterceptor() {
+			return new XForwardedUriHeaderInterceptorConfigurer();
+		}
+
+		XForwardedUriHeaderInterceptorConfigurer basePath(String basePath) {
+			configuredObject.setBasePath(basePath);
+			return this;
+		}
+	}
+
 }

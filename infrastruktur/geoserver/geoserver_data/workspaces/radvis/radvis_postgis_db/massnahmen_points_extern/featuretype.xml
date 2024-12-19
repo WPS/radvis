@@ -61,7 +61,7 @@
   <simpleConversionEnabled>false</simpleConversionEnabled>
   <internationalTitle/>
   <internationalAbstract/>
-  <cqlFilter>veroeffentlicht=true</cqlFilter>
+  <cqlFilter>veroeffentlicht=true AND archiviert=false</cqlFilter>
   <maxFeatures>0</maxFeatures>
   <numDecimals>0</numDecimals>
   <padWithZeros>false</padWithZeros>
@@ -167,6 +167,13 @@
     </attribute>
     <attribute>
       <name>veroeffentlicht</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <nillable>true</nillable>
+      <binding>java.lang.Boolean</binding>
+    </attribute>
+    <attribute>
+      <name>archiviert</name>
       <minOccurs>0</minOccurs>
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>

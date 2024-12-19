@@ -149,6 +149,7 @@ public class SecurityConfiguration {
 					.requestMatchers("/app/favicon-16x16.png").permitAll()
 					.requestMatchers("/app/favicon-32x32.png").permitAll()
 					.requestMatchers("/app/**").authenticated()
+					.requestMatchers("/matomo/**").authenticated()
 					.requestMatchers("/control.html").hasAuthority(Recht.JOBS_AUSFUEHREN.name())
 					.requestMatchers("/logs/**").hasAuthority(Recht.LOGS_EINSEHEN.name())
 					.requestMatchers("/**").hasAuthority(BenutzerStatus.AKTIV.name()))
@@ -156,6 +157,7 @@ public class SecurityConfiguration {
 					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 					.csrfTokenRequestHandler(delegate)
 					.ignoringRequestMatchers("/logs/**")
+					.ignoringRequestMatchers("/matomo/**")
 					.ignoringRequestMatchers("/logout"))
 				// Muss NACH csrf-Config erfolgen
 				.requestCache(configurer -> configurer.requestCache(new HttpSessionRequestCache()))

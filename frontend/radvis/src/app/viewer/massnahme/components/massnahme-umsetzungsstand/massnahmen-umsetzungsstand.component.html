@@ -131,7 +131,7 @@ Bei Nein bitte Fragen 3, 4, 5, 6, 8 beantworten"
     </div>
   </div>
 
-  <div class="buttons display-flex p-10" *ngIf="umsetzungsstand?.canEdit">
+  <div class="buttons display-flex p-10 justify-content-flex-end" *ngIf="umsetzungsstand?.canEdit">
     <ng-container *ngIf="!aktualisierungAngefordert">
       <div *ngIf="aktualisiert && umsetzungsstand?.letzteAenderung" class="aktualiteats-hinweis aktualitaet-bestaetigt">
         Aktualität bestätigt am: {{ umsetzungsstand?.letzteAenderung | date: 'dd.MM.yyyy' }}

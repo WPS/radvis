@@ -59,6 +59,10 @@ public class CommonConfigurationProperties {
 
 	private final String staticResourcesPath;
 
+	private final double erlaubteAbweichungFuerKnotenNetzbezugRematch;
+
+	private final double erlaubteAbweichungFuerKantenNetzbezugRematch;
+
 	@ConstructorBinding
 	public CommonConfigurationProperties(String externeResourcenBasisPfad,
 		Integer anzahlTageImportprotokolleVorhalten,
@@ -68,7 +72,8 @@ public class CommonConfigurationProperties {
 		String basisUrl,
 		String basisnetzImportSource,
 		String obersteGebietskoerperschaftName,
-		OrganisationsArt obersteGebietskoerperschaftOrganisationsArt, String staticResourcesPath) {
+		OrganisationsArt obersteGebietskoerperschaftOrganisationsArt, String staticResourcesPath,
+		Double erlaubteAbweichungFuerKnotenNetzbezugRematch, Double erlaubteAbweichungFuerKantenNetzbezugRematch) {
 		require(externeResourcenBasisPfad, notNullValue());
 		require(externeResourcenBasisPfad.length() > 1, "externeResourcenBasisPfad muss Länge größer 1 haben");
 		require(anzahlTageImportprotokolleVorhalten, notNullValue());
@@ -79,6 +84,9 @@ public class CommonConfigurationProperties {
 			"basisnetzImportSource muss einen der folgenden Wert enthalten: " + Arrays.stream(
 				BasisnetzImportSource.values()).map(v -> v.name()).collect(Collectors.joining(", ")));
 		require(staticResourcesPath, notNullValue());
+		require(erlaubteAbweichungFuerKantenNetzbezugRematch, notNullValue());
+		require(erlaubteAbweichungFuerKnotenNetzbezugRematch, notNullValue());
+
 		this.externeResourcenBasisPfad = externeResourcenBasisPfad;
 		this.anzahlTageImportprotokolleVorhalten = anzahlTageImportprotokolleVorhalten;
 		this.extentProperty = extent;
@@ -98,6 +106,8 @@ public class CommonConfigurationProperties {
 			new Coordinate(extent.getMaxX(), extent.getMaxY()));
 		this.obersteGebietskoerperschaftName = obersteGebietskoerperschaftName;
 		this.obersteGebietskoerperschaftOrganisationsArt = obersteGebietskoerperschaftOrganisationsArt;
+		this.erlaubteAbweichungFuerKnotenNetzbezugRematch = erlaubteAbweichungFuerKnotenNetzbezugRematch;
+		this.erlaubteAbweichungFuerKantenNetzbezugRematch = erlaubteAbweichungFuerKantenNetzbezugRematch;
 
 	}
 

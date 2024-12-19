@@ -27,9 +27,13 @@
 }
 
 .hinweistext-netzklassen {
-  height: 100%;
-  font-style: italic;
-  color: #f00;
+  p {
+    margin: 0.5rem;
+  }
+
+  mat-icon {
+    margin-bottom: -3px;
+  }
 }
 
 .knoten-info > * {

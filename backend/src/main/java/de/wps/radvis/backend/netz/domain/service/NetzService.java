@@ -19,6 +19,7 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionSort;
@@ -55,6 +57,7 @@ import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.KanteDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.KanteGeometrien;
 import de.wps.radvis.backend.netz.domain.entity.KanteGeometryView;
 import de.wps.radvis.backend.netz.domain.entity.KanteOsmWayIdsInsert;
@@ -62,10 +65,12 @@ import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
+import de.wps.radvis.backend.netz.domain.entity.KnotenDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.KnotenIndex;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
+import de.wps.radvis.backend.netz.domain.event.GrundnetzAktualisiertEvent;
+import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitEntferntEvent;
 import de.wps.radvis.backend.netz.domain.repository.FahrtrichtungAttributGruppeRepository;
@@ -87,6 +92,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
@@ -111,6 +117,10 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	private final OffsetCurveBuilder curvebuilderLinks;
 	private final OffsetCurveBuilder curvebuilderRechts;
 
+	private final EntityManager entityManager;
+
+	private final double erlaubteAbweichungKnotenRematch;
+
 	public NetzService(KantenRepository kantenRepository,
 		KnotenRepository knotenRepository,
 		ZustaendigkeitAttributGruppeRepository zustaendigkeitAttributGruppenRepository,
@@ -118,7 +128,8 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		GeschwindigkeitAttributGruppeRepository geschwindigkeitAttributGruppeRepository,
 		FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppenRepository,
 		KantenAttributGruppeRepository kantenAttributGruppenRepository,
-		VerwaltungseinheitResolver verwaltungseinheitResolver) {
+		VerwaltungseinheitResolver verwaltungseinheitResolver, EntityManager entityManager,
+		double erlaubteAbweichungKnotenRematch) {
 
 		this.kantenRepository = kantenRepository;
 		this.knotenRepository = knotenRepository;
@@ -128,13 +139,11 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		this.fuehrungsformAttributGruppenRepository = fuehrungsformAttributGruppenRepository;
 		this.kantenAttributGruppeRepository = kantenAttributGruppenRepository;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
+		this.entityManager = entityManager;
+		this.erlaubteAbweichungKnotenRematch = erlaubteAbweichungKnotenRematch;
 
 		curvebuilderLinks = new OffsetCurveBuilder(10, 1);
 		curvebuilderRechts = new OffsetCurveBuilder(-10, 1);
-	}
-
-	public long getAnzahlAdjazenterKanten(Knoten knoten) {
-		return this.kantenRepository.getAnzahlAdjazenterKanten(knoten);
 	}
 
 	public boolean existsKante(LineString lineString, KantenAttribute kantenAttribute) {
@@ -152,11 +161,11 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		return Streamable.of(kantenRepository.saveAll(kanten)).toList();
 	}
 
-	public void deleteKante(Kante kante) {
+	public void deleteKante(Kante kante, KanteDeleteStatistik statistik) {
 		require(kante.getQuelle().equals(QuellSystem.RadVis));
 		RadVisDomainEventPublisher.publish(
-			new KanteDeletedEvent(kante.getId(), kante.getGeometry(), NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN,
-				LocalDateTime.now()));
+			new KantenDeletedEvent(List.of(kante.getId()), List.of(kante.getGeometry()),
+				NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN, LocalDateTime.now(), statistik));
 		kantenRepository.delete(kante);
 	}
 
@@ -166,6 +175,10 @@ public class NetzService implements KanteResolver, KnotenResolver {
 
 	public Stream<Kante> findKanteByQuelle(QuellSystem quelle) {
 		return kantenRepository.findKanteByQuelle(quelle);
+	}
+
+	public Stream<Kante> findKanteByStatusNotAndQuelleIn(Status statusToIgnore, List<QuellSystem> quellen) {
+		return kantenRepository.findKanteByStatusNotAndQuelleIn(statusToIgnore, quellen);
 	}
 
 	public Set<Kante> getKantenInBereichNachQuelleUndIsAbgebildet(Envelope bereich, QuellSystem quelle) {
@@ -178,10 +191,6 @@ public class NetzService implements KanteResolver, KnotenResolver {
 
 	public List<Knoten> getKnotenInBereichNachQuelle(Envelope bereich, QuellSystem quellSystem) {
 		return knotenRepository.getKnotenInBereichFuerQuelle(bereich, quellSystem);
-	}
-
-	public Stream<Kante> getKantenInBereichNachQuelleEagerFetchKantenAttribute(Envelope bereich, QuellSystem quelle) {
-		return kantenRepository.getKantenInBereichNachQuelleEagerFetchKantenAttribute(bereich, quelle);
 	}
 
 	public List<Kante> getKantenInBereichNachQuelleList(Envelope bereich, QuellSystem quelle) {
@@ -328,6 +337,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 			: curvebuilderRechts.offset(kantenverlauf);
 	}
 
+	@SuppressWarnings("deprecation")
 	public Kante createGrundnetzKante(Long vonKnotenId, Long bisKnotenId, Status status) {
 		require(vonKnotenId, notNullValue());
 		require(bisKnotenId, notNullValue());
@@ -340,6 +350,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		return kantenRepository.save(kante);
 	}
 
+	@SuppressWarnings("deprecation")
 	public Kante createGrundnetzKanteWithNewBisKnoten(Long vonKnotenId, Point bisKnotenCoor, Status status) {
 		require(vonKnotenId, notNullValue());
 		require(bisKnotenCoor, notNullValue());
@@ -395,17 +406,42 @@ public class NetzService implements KanteResolver, KnotenResolver {
 			.collect(Collectors.toList());
 	}
 
-	public int deleteVerwaisteDLMKnoten(NetzAenderungAusloeser ausloeser) {
-		knotenRepository.findVerwaisteDLMKnoten()
-			.forEach(knoten -> {
-				RadVisDomainEventPublisher.publish(new KnotenDeletedEvent(
-					knoten.getId(), knoten.getPoint(), ausloeser, LocalDateTime.now()));
-			});
-		return knotenRepository.deleteVerwaisteDLMKnoten();
+	public int deleteVerwaisteDLMKnoten(NetzAenderungAusloeser ausloeser, KnotenDeleteStatistik statistik) {
+		log.info("Entfernt verwaiste DLM-Knoten (Auslöser: {})", ausloeser);
+
+		List<Knoten> verwaisteKnoten = knotenRepository.findVerwaisteDLMKnoten();
+		if (verwaisteKnoten.isEmpty()) {
+			return 0;
+		}
+
+		RadVisDomainEventPublisher.publish(
+			new KnotenDeletedEvent(verwaisteKnoten, ausloeser, LocalDateTime.now(), statistik));
+		entityManager.flush();
+
+		knotenRepository.deleteAllById(verwaisteKnoten.stream().map(k -> k.getId()).toList());
+
+		log.info("{} Verwaiste DLM-Knoten entfernt", verwaisteKnoten.size());
+		return verwaisteKnoten.size();
 	}
 
-	public void deleteAll(Iterable<Kante> toDeleteInPersistenceContext) {
-		kantenRepository.deleteAll(toDeleteInPersistenceContext);
+	public void deleteAll(Collection<Kante> kantenToDelete, NetzAenderungAusloeser ausloeser,
+		KanteDeleteStatistik statistik) {
+		log.debug("Lösche {} Kanten", kantenToDelete.size());
+
+		if (kantenToDelete.isEmpty()) {
+			return;
+		}
+
+		RadVisDomainEventPublisher.publish(
+			new KantenDeletedEvent(
+				kantenToDelete.stream().map(Kante::getId).toList(),
+				kantenToDelete.stream().map(Kante::getGeometry).toList(),
+				ausloeser,
+				LocalDateTime.now(), statistik));
+
+		entityManager.flush();
+
+		kantenRepository.deleteAll(kantenToDelete);
 	}
 
 	public void insertOsmWayIds(List<KanteOsmWayIdsInsert> inserts) {
@@ -492,7 +528,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 			kante.updateVerlauf(kanteGeometrien.getVerlaufLinks(), kanteGeometrien.getVerlaufRechts());
 
 			if (kante.isManuelleGeometrieAenderungErlaubt()) {
-				if (!kante.isTopologieValid(kanteGeometrien.getGeometry())) {
+				if (!kante.isGeometryUpdateValid(kanteGeometrien.getGeometry())) {
 					throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 						"Start- und Endpunkt einer Kante müssen auf dem Knoten liegen, sonst ist die Routing-Fähigkeit kompromittiert."
 							+ " Bitte setzen Sie die Werte zurück und korrigieren Sie Ihre Eingabe.") {
@@ -535,8 +571,15 @@ public class NetzService implements KanteResolver, KnotenResolver {
 				throw new RuntimeException("Unterschiedliche Fahrtrichtungen bei einseitiger Kante");
 			}
 
-			attributGruppe.setRichtung(fahrtrichtungLinks, fahrtrichtungRechts);
+			attributGruppe.update(fahrtrichtungLinks, fahrtrichtungRechts);
 		});
+	}
+
+	@EventListener
+	public void onPostDlmReimport(GrundnetzAktualisiertEvent event) {
+		log.info("Refreshing RadVisNetz-Materialized-Views");
+		refreshNetzMaterializedViews();
+		log.info("Finished refreshing RadVisNetz-Materialized-Views");
 	}
 
 	public void refreshNetzMaterializedViews() {
@@ -603,5 +646,16 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		}
 		RevInfo revInfo = firstRevision.get().getMetadata().getDelegate();
 		return benutzer.equals(revInfo.getBenutzer());
+	}
+
+	public List<Knoten> findKnotenInBereich(Envelope bereich) {
+		return knotenRepository.getKnotenInBereichNachQuellen(bereich,
+			Set.of(QuellSystem.DLM, QuellSystem.RadVis));
+	}
+
+	public Optional<Knoten> findErsatzKnoten(Long fuerKnotenId, List<Long> excludeIds) {
+		return knotenRepository.findErsatzKnotenCandidates(fuerKnotenId, erlaubteAbweichungKnotenRematch).stream()
+			.filter(k -> !excludeIds.contains(k.getId()))
+			.findFirst();
 	}
 }

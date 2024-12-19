@@ -67,6 +67,13 @@
       <td mat-cell *matCellDef="let element">{{ element.email }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="rollen">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Rollen</th>
+      <td mat-cell *matCellDef="let element">
+        <rad-expandable-content [content]="Rolle.getDisplayNames(element.rollen)"></rad-expandable-content>
+      </td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: headerColumns" (click)="onEdit(row.id)" style="cursor: pointer"></tr>
   </table>

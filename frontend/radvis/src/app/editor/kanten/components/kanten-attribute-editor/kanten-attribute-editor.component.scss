@@ -14,13 +14,44 @@
 
 @import 'src/style/font-style';
 @import 'src/style/spacing';
+@import 'src/style/colors';
 
 :host {
+  display: block;
+}
+
+.header {
+  box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
+  margin-bottom: 3px;
+}
+
+.has-clipboard mat-icon {
+  overflow: visible;
+
+  &:after {
+    display: block;
+    content: '';
+    border-radius: 50%;
+    position: absolute;
+    left: 29px;
+    top: 10px;
+    border: 4px solid map-get($radvis-accent-palette, 500);
+  }
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+}
+
+.seitenbezug-toggle {
+  position: sticky;
+  top: 0px;
+  background-color: white;
+  z-index: 666;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
 }
 
 // Die geerbte group Klasse aus dem abstract-attribute-gruppe-editor css
@@ -40,11 +71,4 @@
 
 .attribute-editor ::ng-deep .form-group {
   height: 1em;
-}
-
-.delete-button {
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  background-color: white;
 }

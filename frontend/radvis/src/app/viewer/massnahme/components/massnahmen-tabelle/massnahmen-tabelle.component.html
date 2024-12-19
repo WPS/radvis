@@ -14,14 +14,15 @@
 
 <rad-infrastruktur-tabelle-layout
   *ngIf="data$ | async as data"
-  [displayedColumns]="displayedColumns"
+  [data]="data"
   [titleColumnIndex]="1"
   [selectedId]="selectedMassnahmeID$ | async"
   [fetching]="massnahmeFilterService.fetching"
   (selectRow)="onSelectRecord($event)"
-  [data]="data"
   [sort]="sort"
   [sortingDataAccessor]="sortingDataAccessor"
+  [spaltenDefinition]="spaltenDefinition"
+  [filteredSpalten]="(filteredSpalten$ | async) ?? []"
   matSort
   #sort="matSort"
   (changeBreakpointState)="onChangeBreakpointState($event)">
@@ -56,126 +57,35 @@
   <button
     class="action-buttons"
     [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
+    *ngIf="isBenutzerBerechtigtZuArchivieren"
+    (click)="onArchivieren()">
+    @if (archiving) {
+      <mat-spinner diameter="18" class="icon-button-spinner"></mat-spinner>
+    } @else {
+      <mat-icon>archive</mat-icon>
+    }
+    Archivieren
+  </button>
+
+  <button
+    class="action-buttons"
+    [ngClass]="isSmallViewport ? 'mat-mdc-menu-item' : 'mdc-button mdc-button--outlined mat-mdc-outlined-button'"
     (click)="onFilterReset()">
     <mat-icon>filter_alt_off</mat-icon>
     Alle Filter zurücksetzen
   </button>
 
-  <div class="action-search display-flex flex-row align-self-end bereich-filter">
-    <rad-organisationen-dropdown-control
-      class="w-100 mat-form-field-full-width"
-      [formControl]="organisationControl"
-      [options]="(alleNonBundeslandOrganisationenOptions | async) || []">
-      Nur innerhalb Verwaltungseinheit
-    </rad-organisationen-dropdown-control>
-  </div>
+  <button
+    mat-stroked-button
+    class="action-search"
+    [class.filter-active]="erweiterterFilterActive$ | async"
+    (click)="onErweiterteFilterVerwalten()">
+    <mat-icon>filter_alt</mat-icon>
+    Erweiterter Filter
+  </button>
 
-  <ng-container matColumnDef="massnahmeKonzeptId">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Maßnahmen-ID</span>
-    </th>
-    <td mat-cell *matCellDef="let element" class="w-medium">{{ getDisplayValue(element, 'massnahmeKonzeptId') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="bezeichnung">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Bezeichnung</span>
-    </th>
-    <td mat-cell *matCellDef="let element" class="w-huge">{{ getDisplayValue(element, 'bezeichnung') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="massnahmenkategorien">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Kategorien</span>
-    </th>
-    <td *matCellDef="let element" mat-cell class="w-huge">
-      <rad-expandable-content [content]="getDisplayValue(element, 'massnahmenkategorien')"></rad-expandable-content>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="durchfuehrungszeitraum">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Durchführungszeitraum</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'durchfuehrungszeitraum') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="umsetzungsstatus">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Umsetzungsstatus</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'umsetzungsstatus') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="umsetzungsstandStatus">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Umsetzungsstand-Status</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'umsetzungsstandStatus') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="veroeffentlicht">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Veröffentlicht</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'veroeffentlicht') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="planungErforderlich">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Planung erforderlich</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'planungErforderlich') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="prioritaet">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Priorität</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'prioritaet') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="netzklassen">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Netzklassen</span>
-    </th>
-    <td mat-cell *matCellDef="let element" class="w-medium">
-      <rad-expandable-content [content]="$any(getDisplayValue(element, 'netzklassen'))"></rad-expandable-content>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="baulastZustaendiger">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Baulastträger</span>
-    </th>
-    <td *matCellDef="let element" mat-cell class="w-large">{{ getDisplayValue(element, 'baulastZustaendiger') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="zustaendiger">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Zuständige/r</span>
-    </th>
-    <td *matCellDef="let element" mat-cell class="w-large">
-      {{ getDisplayValue(element, 'zustaendiger') }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="unterhaltsZustaendiger">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Unterhaltszuständige/r</span>
-    </th>
-    <td *matCellDef="let element" mat-cell class="w-large">{{ getDisplayValue(element, 'unterhaltsZustaendiger') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="letzteAenderung">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Letzte Änderung</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'letzteAenderung') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="benutzerLetzteAenderung">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>BenutzerIn der letzten Änderung</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'benutzerLetzteAenderung') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="sollStandard">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Soll-Standard</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'sollStandard') }}</td>
-  </ng-container>
-  <ng-container matColumnDef="handlungsverantwortlicher">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Wer soll tätig werden?</span>
-    </th>
-    <td *matCellDef="let element" mat-cell>{{ getDisplayValue(element, 'handlungsverantwortlicher') }}</td>
-  </ng-container>
+  <rad-infrastruktur-tabelle-spalte
+    *ngFor="let def of spaltenDefinition"
+    [spaltenDefinition]="def"
+    [getElementValueFn]="getDisplayValue"></rad-infrastruktur-tabelle-spalte>
 </rad-infrastruktur-tabelle-layout>

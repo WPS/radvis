@@ -24,6 +24,7 @@ import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageImportService;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageRepository;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageService;
 import de.wps.radvis.backend.abstellanlage.schnittstelle.AbstellanlageGuard;
+import de.wps.radvis.backend.abstellanlage.schnittstelle.SaveAbstellanlageCommandConverter;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
@@ -48,12 +49,17 @@ public class AbstellanlageConfiguration {
 
 	@Bean
 	public AbstellanlageService abstellanlageService() {
-		return new AbstellanlageService(abstellanlageRepository, benutzerResolver, zustaendigkeitsService);
+		return new AbstellanlageService(abstellanlageRepository);
 	}
 
 	@Bean
 	public AbstellanlageExporterService abstellanlageExporterService() {
 		return new AbstellanlageExporterService(abstellanlageRepository);
+	}
+
+	@Bean
+	public SaveAbstellanlageCommandConverter saveAbstellanlageCommandConverter() {
+		return new SaveAbstellanlageCommandConverter(verwaltungseinheitService);
 	}
 
 	@Bean

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { FormControl, ValidatorFn } from '@angular/forms';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { NetzklassenParameter } from 'src/app/import/netzklassen/models/netzklassen-parameter';
 import { StartNetzklassenImportSessionCommand } from 'src/app/import/netzklassen/models/start-netzklassen-import-session-command';
@@ -21,6 +21,7 @@ import { NetzklassenImportService } from 'src/app/import/netzklassen/services/ne
 import { NetzklassenRoutingService } from 'src/app/import/netzklassen/services/netzklassen-routing.service';
 import { CreateSessionStateService } from 'src/app/import/services/create-session.state.service';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 
 @Component({
   selector: 'rad-netzklasse-parameter-eingeben',
@@ -36,7 +37,7 @@ export class ImportNetzklasseParameterEingebenComponent {
         (Netzklasse as any)[enumOption.name]
       )
   );
-  formControl = new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty);
+  formControl: FormControl<Netzklasse | null>;
   sessionExists = false;
   uploading = false;
 
@@ -44,8 +45,14 @@ export class ImportNetzklasseParameterEingebenComponent {
     private netzklassenImportService: NetzklassenImportService,
     private netzklassenRoutingService: NetzklassenRoutingService,
     private createSessionStateService: CreateSessionStateService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private benutzerDetailsService: BenutzerDetailsService
   ) {
+    this.formControl = new FormControl<Netzklasse | null>(null, [
+      RadvisValidators.isNotNullOrEmpty,
+      this.isOnlyKreisnetzWhenAuthorized,
+    ]);
+
     this.netzklassenImportService.getImportSession().subscribe(session => {
       this.sessionExists = !!session;
       if (session) {
@@ -58,10 +65,22 @@ export class ImportNetzklasseParameterEingebenComponent {
         ) {
           this.formControl.setValue((this.createSessionStateService.parameterInfo as NetzklassenParameter).netzklasse);
         }
-        this.formControl.valueChanges.subscribe((value: Netzklasse) => this.onNetzklassenChange(value));
+        this.formControl.valueChanges.subscribe(value => {
+          if (value !== null) {
+            this.onNetzklassenChange(value);
+          }
+        });
       }
     });
   }
+
+  private isOnlyKreisnetzWhenAuthorized: ValidatorFn = ctrl => {
+    const kreisnetzNetzklassen = [Netzklasse.KREISNETZ_ALLTAG, Netzklasse.KREISNETZ_FREIZEIT];
+    if (!this.benutzerDetailsService.canKreisnetzVerlegen() && kreisnetzNetzklassen.includes(ctrl.value)) {
+      return { isOnlyKreisnetzWhenAuthorized: 'Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern' };
+    }
+    return null;
+  };
 
   onNetzklassenChange(neueNetzklasse: Netzklasse): void {
     this.createSessionStateService.updateParameterInfo(NetzklassenParameter.of(neueNetzklasse));

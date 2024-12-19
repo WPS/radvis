@@ -17,6 +17,7 @@ package de.wps.radvis.backend.massnahme.domain;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,7 @@ import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
-import de.wps.radvis.backend.benutzer.domain.BenutzerService;
+import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import de.wps.radvis.backend.common.domain.service.FehlerprotokollService;
 import de.wps.radvis.backend.common.domain.valueObject.FehlerprotokollTyp;
@@ -32,74 +33,69 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezugAenderung;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeNetzBezugAenderungRepository;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
-import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
-import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
 
 public class MassnahmeNetzbezugAenderungProtokollierungsService implements FehlerprotokollService {
 
-	private final BenutzerService benutzerService;
-
 	private final MassnahmeNetzBezugAenderungRepository massnahmeNetzBezugAenderungRepository;
 
-	public MassnahmeNetzbezugAenderungProtokollierungsService(BenutzerService benutzerService,
+	public MassnahmeNetzbezugAenderungProtokollierungsService(
 		MassnahmeNetzBezugAenderungRepository massnahmeNetzBezugAenderungRepository) {
-		this.benutzerService = benutzerService;
 		this.massnahmeNetzBezugAenderungRepository = massnahmeNetzBezugAenderungRepository;
 	}
 
-	public void protokolliereNetzBezugAenderungFuerVeraenderteKante(
-		List<Massnahme> massnahmen,
-		KanteTopologieChangedEvent event) {
-		protokolliereNetzbezugAenderung(massnahmen,
-			NetzBezugAenderungsArt.KANTE_VERAENDERT,
-			event.getKanteId(),
-			event.getDatum(),
-			event.getAusloeser(),
-			event.getGeometry());
-	}
-
-	public void protokolliereNetzBezugAenderungFuerGeloeschteKante(
-		List<Massnahme> massnahmen,
-		KanteDeletedEvent event) {
-		protokolliereNetzbezugAenderung(massnahmen,
+	public Iterable<MassnahmeNetzBezugAenderung> protokolliereNetzBezugAenderungFuerGeloeschteKante(
+		Collection<Massnahme> massnahmen,
+		Long kanteId,
+		LocalDateTime datum,
+		NetzAenderungAusloeser ausloeser,
+		Geometry geometry,
+		Benutzer benutzer) {
+		return protokolliereNetzbezugAenderung(massnahmen,
 			NetzBezugAenderungsArt.KANTE_GELOESCHT,
-			event.getKanteId(),
-			event.getDatum(),
-			event.getAusloeser(),
-			event.getGeometry());
+			kanteId,
+			datum,
+			ausloeser,
+			geometry,
+			benutzer);
 	}
 
-	public void protokolliereNetzBezugAenderungFuerGeloeschteKnoten(
-		List<Massnahme> massnahmen,
-		KnotenDeletedEvent event) {
-		protokolliereNetzbezugAenderung(massnahmen,
+	public Iterable<MassnahmeNetzBezugAenderung> protokolliereNetzBezugAenderungFuerGeloeschteKnoten(
+		Collection<Massnahme> massnahmen,
+		Long knotenId,
+		LocalDateTime datum,
+		NetzAenderungAusloeser ausloeser,
+		Geometry geometry,
+		Benutzer benutzer) {
+		return protokolliereNetzbezugAenderung(
+			massnahmen,
 			NetzBezugAenderungsArt.KNOTEN_GELOESCHT,
-			event.getKnotenId(),
-			event.getDatum(),
-			event.getAusloeser(),
-			event.getGeometry());
+			knotenId,
+			datum,
+			ausloeser,
+			geometry,
+			benutzer);
 	}
 
-	private void protokolliereNetzbezugAenderung(List<Massnahme> massnahmen,
+	private Iterable<MassnahmeNetzBezugAenderung> protokolliereNetzbezugAenderung(Collection<Massnahme> massnahmen,
 		NetzBezugAenderungsArt netzBezugAenderungsArt,
 		Long kantenKnotenId,
 		LocalDateTime datum,
 		NetzAenderungAusloeser ausloeser,
-		Geometry geometry) {
-		List<MassnahmeNetzBezugAenderung> massnahmeNetzBezugAenderungen = massnahmen.stream()
+		Geometry geometry,
+		Benutzer benutzer) {
+		return massnahmeNetzBezugAenderungRepository.saveAll(massnahmen.stream()
+			.filter(m -> !m.isArchiviert() || m.isGeloescht())
 			.map(massnahme -> new MassnahmeNetzBezugAenderung(
 				netzBezugAenderungsArt,
 				kantenKnotenId,
 				massnahme,
-				benutzerService.getTechnischerBenutzer(),
+				benutzer,
 				datum,
 				ausloeser,
 				geometry))
-			.collect(Collectors.toList());
-		massnahmeNetzBezugAenderungRepository.saveAll(massnahmeNetzBezugAenderungen);
+			.collect(Collectors.toList()));
 	}
 
 	public List<MassnahmeNetzBezugAenderung> getAllMassnahmeNetzBezugAenderungenAfter(LocalDateTime from) {

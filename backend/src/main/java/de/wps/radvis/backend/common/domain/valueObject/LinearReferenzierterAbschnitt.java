@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.linearref.LengthIndexedLine;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.locationtech.jts.linearref.LocationIndexedLine;
 
@@ -112,6 +113,13 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 
 	public double relativeLaenge() {
 		return bis.getAbschnittsmarke() - von.getAbschnittsmarke();
+	}
+
+	public LineString toSegment(LineString aufGeometry) {
+		final LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(aufGeometry);
+
+		return (LineString) lengthIndexedLine.extractLine(getVonValue() * aufGeometry.getLength(),
+			getBisValue() * aufGeometry.getLength());
 	}
 
 	public LinearReferenzierterAbschnitt fuerUmgedrehteStrecke() {
@@ -231,11 +239,11 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 	 * @return die LineareReferenz die von projiziert auf auf ergibt
 	 */
 	public static LinearReferenzierterAbschnitt of(LineString auf, LineString von) {
-		LocationIndexedLine locationIndexedGrundnetzGeometrie = new LocationIndexedLine(auf);
+		LocationIndexedLine locationIndexedAufLineString = new LocationIndexedLine(auf);
 
-		final LinearLocation projektionDesAnfangs = locationIndexedGrundnetzGeometrie
+		final LinearLocation projektionDesAnfangs = locationIndexedAufLineString
 			.project(von.getStartPoint().getCoordinate());
-		final LinearLocation projektionDesEndes = locationIndexedGrundnetzGeometrie
+		final LinearLocation projektionDesEndes = locationIndexedAufLineString
 			.project(von.getEndPoint().getCoordinate());
 
 		List<LinearLocation> projektionen = Arrays.asList(projektionDesAnfangs, projektionDesEndes);
@@ -249,7 +257,7 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 			"Lineare Referenz darf nicht Punktförmig sein");
 
 		return LinearReferenzierterAbschnitt.of(startlocationDerUeberschneidung, endlocationDerUeberschneidung,
-			locationIndexedGrundnetzGeometrie);
+			locationIndexedAufLineString);
 	}
 
 	public static final Comparator<LinearReferenzierterAbschnitt> vonZuerst = (s1, s2) -> {

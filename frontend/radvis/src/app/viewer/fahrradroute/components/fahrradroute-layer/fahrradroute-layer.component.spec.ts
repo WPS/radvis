@@ -15,23 +15,25 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 
 import { HttpClient, HttpEvent } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ImageTile } from 'ol';
 import { Point } from 'ol/geom';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FahrradrouteLayerComponent } from 'src/app/viewer/fahrradroute/components/fahrradroute-layer/fahrradroute-layer.component';
-import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view';
-import { testFahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view-test-data-provider.spec';
+import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
+import { defaultFahrradroute } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view-test-data-provider.spec';
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteRoutingService } from 'src/app/viewer/fahrradroute/services/fahrradroute-routing.service';
+import { FahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view';
+import { testFahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view-test-data-provider.spec';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import stringMatching = jasmine.stringMatching;
 
 describe(FahrradrouteLayerComponent.name, () => {
@@ -65,7 +67,18 @@ describe(FahrradrouteLayerComponent.name, () => {
     when(fahrradrouteFilterService.currentFilteredList).thenCall(() => fahrradroutenListenViewsSubject.value);
     when(fahrradrouteFilterService.getById(anything())).thenCall(id => {
       const listenView = fahrradroutenListenViewsSubject.value.find(flv => flv.id === id);
-      return Promise.resolve({ ...listenView, geometrie: listenView?.geometry });
+      const detailView: FahrradrouteDetailView = {
+        ...defaultFahrradroute,
+        ...listenView,
+        geometrie: {
+          coordinates: [
+            [0, 0],
+            [100, 100],
+          ],
+          type: 'LineString',
+        },
+      };
+      return Promise.resolve(detailView);
     });
     when(fahrradrouteRoutingService.selectedInfrastrukturId$).thenReturn(
       selectedFahrradrouteIdTestSubject.asObservable()
@@ -131,13 +144,17 @@ describe(FahrradrouteLayerComponent.name, () => {
       // arrange
       const radVisFeature1 = new RadVisFeature(
         null,
-        toRadVisFeatureAttributesFromMap([[FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, 1]]),
+        toRadVisFeatureAttributesFromMap([
+          [FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, fahrradroutenListenViewsSubject.value[0].id],
+        ]),
         FAHRRADROUTE.name,
         new Point([1, 2])
       );
       const radVisFeature2 = new RadVisFeature(
         null,
-        toRadVisFeatureAttributesFromMap([[FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, 2]]),
+        toRadVisFeatureAttributesFromMap([
+          [FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME, fahrradroutenListenViewsSubject.value[1].id],
+        ]),
         FAHRRADROUTE.name,
         new Point([1, 2])
       );
@@ -154,14 +171,14 @@ describe(FahrradrouteLayerComponent.name, () => {
       unhighlightFeatureSubject.next(radVisFeature1);
       tick();
 
-      expect(component.getFeatureByFahrradroutenId(1)[0].get('highlighted')).toBeFalsy();
+      expect(component.getFeatureByFahrradroutenId(1)[0].get('highlighted')).toBeFalse();
       expect(component.getFeatureByFahrradroutenId(2)).toHaveSize(0);
 
       highlightFeatureSubject.next(radVisFeature2);
       tick();
 
-      expect(component.getFeatureByFahrradroutenId(1)[0].get('highlighted')).toBeFalsy();
-      expect(component.getFeatureByFahrradroutenId(2)[0].get('highlighted')).toBeTruthy();
+      expect(component.getFeatureByFahrradroutenId(1)[0].get('highlighted')).toBeFalse();
+      expect(component.getFeatureByFahrradroutenId(2)[0].get('highlighted')).toBeTrue();
     }));
   });
 });

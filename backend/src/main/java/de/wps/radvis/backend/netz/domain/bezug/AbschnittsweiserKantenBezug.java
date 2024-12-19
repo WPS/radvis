@@ -28,12 +28,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.LineString;
 import org.springframework.data.util.Pair;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.LineStrings;
 import de.wps.radvis.backend.netz.domain.entity.StreckeVonKanten;
 import de.wps.radvis.backend.netz.domain.entity.Topologie;
 import de.wps.radvis.backend.netz.domain.valueObject.Aequivalenzklasse;
@@ -69,6 +71,46 @@ public class AbschnittsweiserKantenBezug {
 
 	@Embedded
 	private LinearReferenzierterAbschnitt linearReferenzierterAbschnitt;
+
+	public LineString getGeometrie() {
+		return linearReferenzierterAbschnitt.toSegment(this.kante.getGeometry());
+	}
+
+	public static List<AbschnittsweiserKantenBezug> ersetzeKante(
+		List<AbschnittsweiserKantenBezug> kantenAbschnitte,
+		Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch, double erlaubteAbweichung) {
+		List<AbschnittsweiserKantenBezug> result = new ArrayList<>(kantenAbschnitte);
+		kantenAbschnitte.stream().filter(a -> a.getKante().equals(zuErsetzendeKante)).forEach(a -> {
+			Set<AbschnittsweiserKantenBezug> neueAbschnitte = new HashSet<>();
+			zuErsetzenDurch.stream().forEach(
+				k -> {
+					Optional<LineString> ueberschneidungsLinestring = LineStrings
+						.calculateUeberschneidungslinestring(k.getGeometry(), a.getGeometrie());
+					if (ueberschneidungsLinestring.isPresent()) {
+						neueAbschnitte.add(new AbschnittsweiserKantenBezug(k,
+							LinearReferenzierterAbschnitt.of(k.getGeometry(), a.getGeometrie())));
+					}
+				});
+
+			if (!neueAbschnitte.isEmpty()) {
+				Double lengthOfReplacement = neueAbschnitte.stream().map(ab -> ab.getGeometrie().getLength())
+					.reduce(Double::sum).orElse(0.0);
+				double laengenDifferenz = Math.abs(lengthOfReplacement - a.getGeometrie().getLength());
+				if (laengenDifferenz <= erlaubteAbweichung) {
+					result.remove(a);
+					result.addAll(neueAbschnitte);
+				} else {
+					log.debug(
+						"Kante {} konnte nicht ersetzt werden durch Kanten {}, da Längendifferenz {} m größer ist als die erlaubte Abweichung {} m",
+						zuErsetzendeKante.getId(),
+						neueAbschnitte.stream().map(abschnitt -> abschnitt.getKante().getId()).toList(),
+						laengenDifferenz, erlaubteAbweichung);
+				}
+			}
+		});
+
+		return result;
+	}
 
 	public Optional<AbschnittsweiserKantenBezug> intersection(AbschnittsweiserKantenBezug other) {
 		if (!kante.equals(other.getKante())) {
@@ -111,8 +153,7 @@ public class AbschnittsweiserKantenBezug {
 		Map<Knoten, List<Kante>> topologischeMapkanten = Topologie.erstelleTopologieMapAusKanten(
 			alleAbschnittsweisenKanten.stream()
 				.map(AbschnittsweiserKantenBezug::getKante)
-				.collect(Collectors.toList())
-		);
+				.collect(Collectors.toList()));
 
 		// Sackgassen oder Kreuzungspunkte (Knoten mit Grad!=2) sammeln
 		Set<Knoten> endpunkteVonTeilstrecken = new HashSet<>();
@@ -186,15 +227,12 @@ public class AbschnittsweiserKantenBezug {
 	}
 
 	/*
-	 * Erklärung zum Vorgehen:
-	 * Am Anfang wird wieder eine topologischeMap erstellt und dann durch alle Knoten in dieser Iteriert.
-	 * Es wird für diesen Knoten eine sog. "eingehendeStrecke" und eine "ausgehendeStrecke" bestimmt.
-	 * Auf die Eingehende Strecke werden alle weiteren Strecken an diesem Knoten hinzugemerged.
-	 * Zuerst Wurmfortsaetze zu Loops konvertieren.
-	 * Dann alle Loops auf die Eingehende Strecke mergen.
-	 * Am Ende die einzig uebrig bleibende Strecke (ausgehende Strecke) auf Eingehende Strecke mergen.
-	 * -> Es sollten keine Strecken mehr am Knoten uebrig sein
-	 * -> Zu naechstem Knoten springen
+	 * Erklärung zum Vorgehen: Am Anfang wird wieder eine topologischeMap erstellt und dann durch alle Knoten in dieser
+	 * Iteriert. Es wird für diesen Knoten eine sog. "eingehendeStrecke" und eine "ausgehendeStrecke" bestimmt. Auf die
+	 * Eingehende Strecke werden alle weiteren Strecken an diesem Knoten hinzugemerged. Zuerst Wurmfortsaetze zu Loops
+	 * konvertieren. Dann alle Loops auf die Eingehende Strecke mergen. Am Ende die einzig uebrig bleibende Strecke
+	 * (ausgehende Strecke) auf Eingehende Strecke mergen. -> Es sollten keine Strecken mehr am Knoten uebrig sein -> Zu
+	 * naechstem Knoten springen
 	 */
 	private static void mergeTeilstrecken(
 		List<StreckeVonKanten> teilstrecken) {
@@ -218,7 +256,8 @@ public class AbschnittsweiserKantenBezug {
 			Topologie.updateStreckenEndenStatus(teilstrecken, topologischeMap);
 
 			// Strecken die die gleichen zwei Knoten verbinden gehoeren zu einer hier sogenannten Aequivalenzklasse
-			// Diese Strecken werden zuerst gesammelt und anschließend pro Aequivalenzklasse alle Strecken bis auf eine geloescht
+			// Diese Strecken werden zuerst gesammelt und anschließend pro Aequivalenzklasse alle Strecken bis auf eine
+			// geloescht
 			Map<Aequivalenzklasse, List<StreckeVonKanten>> aequivalenzMap = new HashMap<>();
 			teilstrecken.forEach(strecke -> {
 				Aequivalenzklasse curr = strecke.getAequivalenzklasse();
@@ -260,7 +299,8 @@ public class AbschnittsweiserKantenBezug {
 				continue;
 			}
 			if (teilstrecken.size() == 1) {
-				// Wenn schon alle Strecken zusammengesetzt wurden, dann muss an diesem Knoten auch nichts mehr gemacht werden
+				// Wenn schon alle Strecken zusammengesetzt wurden, dann muss an diesem Knoten auch nichts mehr gemacht
+				// werden
 				// Das kann passieren, wenn die gesamtroute ein Kreis ist.
 				// (ein Linestring muss aber einen Anfang und ein Ende haben)
 				continue;
@@ -292,7 +332,8 @@ public class AbschnittsweiserKantenBezug {
 			convertWurmfortsaetzeToLoops(streckenAnAktuellemKnoten, topologischeMap);
 
 			// ------------------------------- Loops an eingehendeStrecke ranmergen ------------------------------------
-			// (Dabei Loops nur einmal berücksichtigen, obwohl sie mit ihrem Anfang und ihrem Ende an dem Knoten haengen)
+			// (Dabei Loops nur einmal berücksichtigen, obwohl sie mit ihrem Anfang und ihrem Ende an dem Knoten
+			// haengen)
 			// Das muss hier nochmal aufgesammelt werden, weil zuvor Wurmfortsaetze in loops konvertiert wurden
 			Set<StreckeVonKanten> loopsAnKnoten = streckenAnAktuellemKnoten.stream()
 				.filter(StreckeVonKanten::isLoop)
@@ -323,8 +364,8 @@ public class AbschnittsweiserKantenBezug {
 	}
 
 	/*
-	 * Ein- und ausgehende Strecken an einem Knoten duerfen keine Loops sein und keine Kehrtwenden,
-	 * ausser sie sind Anfang bzw. Ende der Gesamtstrecke.
+	 * Ein- und ausgehende Strecken an einem Knoten duerfen keine Loops sein und keine Kehrtwenden, ausser sie sind
+	 * Anfang bzw. Ende der Gesamtstrecke.
 	 */
 	private static Pair<Optional<StreckeVonKanten>, Optional<StreckeVonKanten>> findeEinUndAusgehendeStrecken(
 		List<StreckeVonKanten> streckenAnAktuellemKnoten) {
@@ -354,17 +395,20 @@ public class AbschnittsweiserKantenBezug {
 		StreckeVonKanten eingehendeStrecke;
 		StreckeVonKanten ausgehendeStrecke;
 		if (streckenAnAktuellemKnotenOhneEndpunkte.size() == 2) {
-			// Von diesem Knoten gehen genau zwei strecken ohne endpunkte ab -> eindeutig: Eine eingehend, eine ausgehend
+			// Von diesem Knoten gehen genau zwei strecken ohne endpunkte ab -> eindeutig: Eine eingehend, eine
+			// ausgehend
 			eingehendeStrecke = streckenAnAktuellemKnotenOhneEndpunkte.get(0);
 			ausgehendeStrecke = streckenAnAktuellemKnotenOhneEndpunkte.get(1);
 		} else if (streckenAnAktuellemKnotenOhneEndpunkte.size() == 1) {
 			// Von diesem Knoten geht eine Strecke ohne Endpukt ab
 			eingehendeStrecke = streckenAnAktuellemKnotenOhneEndpunkte.get(0);
 			// Die Wurmfortsatzliste ist nach Laenge absteigend sortiert -> der laengste Wurmfortsatz ist wahrscheinlich
-			// kein unerwuenschter Wurmfortsatz, sonder der Anfang/ Ende der Gesamtstrecke -> als ausgehende Strecke verwenden
+			// kein unerwuenschter Wurmfortsatz, sonder der Anfang/ Ende der Gesamtstrecke -> als ausgehende Strecke
+			// verwenden
 			ausgehendeStrecke = wurmfortsaetze.get(0);
 		} else if (streckenAnAktuellemKnotenOhneEndpunkte.size() == 0) {
-			// Von diesem Knoten geht keine Strecke ohne Endpunkt ab (nur wurmfortsaetze oder valide Strecken anfänge/ Enden)
+			// Von diesem Knoten geht keine Strecke ohne Endpunkt ab (nur wurmfortsaetze oder valide Strecken anfänge/
+			// Enden)
 			eingehendeStrecke = wurmfortsaetze.get(0);
 			ausgehendeStrecke = wurmfortsaetze.get(1);
 		} else {
@@ -378,11 +422,10 @@ public class AbschnittsweiserKantenBezug {
 
 	/*
 	 * Wurmfortsaetze werden zu einem Loop konvertiert, indem der Wurmfortsatz mit einer reversed Copy von sich selber
-	 * gemerged wird.
-	 * Dabei arbeitet die Methode auf der Liste streckenAnAktuellemKnoten und passt dabei auch die
-	 * topologischeMap an (indirekt topologischeMap.get(aktuellerKnoten) ueber veraenderung von streckenAnAktuellemKnoten)
-	 * und explizit an den Endknoten der Wurmfortsaetze.
-	 * Wurmfortsaetze sind alle von dem aktuellen Knoten abgehenden Strecken mit einem Endpunkt.
+	 * gemerged wird. Dabei arbeitet die Methode auf der Liste streckenAnAktuellemKnoten und passt dabei auch die
+	 * topologischeMap an (indirekt topologischeMap.get(aktuellerKnoten) ueber veraenderung von
+	 * streckenAnAktuellemKnoten) und explizit an den Endknoten der Wurmfortsaetze. Wurmfortsaetze sind alle von dem
+	 * aktuellen Knoten abgehenden Strecken mit einem Endpunkt.
 	 */
 	private static void convertWurmfortsaetzeToLoops(List<StreckeVonKanten> streckenAnAktuellemKnoten,
 		Map<Knoten, List<StreckeVonKanten>> topologischeMap) {

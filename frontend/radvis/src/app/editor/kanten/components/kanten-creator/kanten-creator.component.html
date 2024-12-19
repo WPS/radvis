@@ -26,8 +26,8 @@
   </div>
   <div class="knoten-info display-flex align-items-center mt-10">
     <mat-icon *ngIf="!vonKnotenId" radAccessabilityText="Warnung:" color="warn">warning</mat-icon>
-    <mat-icon *ngIf="vonKnotenId" radAccessabilityText="Erledigt:" [style.color]="validInputColor"
-      >check_circle
+    <mat-icon *ngIf="vonKnotenId" radAccessabilityText="Erledigt:" [style.color]="validInputColor">
+      check_circle
     </mat-icon>
     <span>Von Knoten <b>A</b>:</span><span class="italic">{{ vonKnotenId ? 'Ausgewählt' : 'Bitte auswählen' }}</span>
   </div>
@@ -36,10 +36,10 @@
     <mat-icon *ngIf="bisKnotenId || bisKnotenGeom" radAccessabilityText="Erledigt:" [style.color]="validInputColor">
       check_circle
     </mat-icon>
-    <span>Bis Knoten <b>B</b>:</span
-    ><span class="italic">{{
-      bisKnotenId ? 'Ausgewählt' : bisKnotenGeom ? 'Wird neu angelegt' : 'Bitte auswählen'
-    }}</span>
+    <span>Bis Knoten <b>B</b>:</span>
+    <span class="italic">
+      {{ bisKnotenId ? 'Ausgewählt' : bisKnotenGeom ? 'Wird neu angelegt' : 'Bitte auswählen' }}
+    </span>
   </div>
   <div class="mt-10 mb-5 ml-5 fehlertext" *ngIf="showValidationMessage" [style.color]="'red'">
     Bitte wählen Sie genau zwei Knoten aus.
@@ -48,8 +48,16 @@
     #knotenSelektionComponent
     (selectVonKnoten)="onSelectVonKnoten($event)"
     (selectBisKnoten)="onSelectBisKnoten($event)"></rad-kanten-creator-knoten-selektion>
-  <div class="mt-20 mb-5 ml-5 hinweistext-netzklassen">
-    Hinweis: Bitte aktivieren Sie alle Netzklassen und stellen auch sicher, dass noch keine nicht-klassifizierten Kanten
-    an der Stelle vorhanden sind, an der Sie eine Kante vermissen!
+  <div class="hinweistext-netzklassen mt-20">
+    <p>
+      Es wird vorübergehend das gesamte Netz angezeigt, um eine Duplizierung von Kanten zu vermeiden. Sie können den
+      Netzklassenfilter <mat-icon inline="true">filter_alt</mat-icon> links in den Karteneinstellungen anpassen.
+    </p>
+    <p>Bearbeiten Sie bestehende Kanten, um diese dem gewünschten Netz hinzuzufügen.</p>
+    <p>
+      Falls Ihnen eine Kante fehlt, die in der Realität als Fahrradweg existiert, so erstellen Sie bitte einen
+      <a [routerLink]="createAnpassungswunschRoute">Anpassungswunsch</a>, statt selbst eine Kante anzulegen. Über
+      Anpassungswünsche können Sie Änderung im Grundnetz (DLM) anfordern.
+    </p>
   </div>
 </rad-attribute-editor>

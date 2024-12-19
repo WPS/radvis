@@ -12,174 +12,154 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MockBuilder } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
-import {
-  defaultBundeslandOrganisation,
-  defaultGemeinden,
-  defaultOrganisation,
-} from 'src/app/shared/models/organisation-test-data-provider.spec';
-import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import { waitForAsync } from '@angular/core/testing';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
+import { of, Subject } from 'rxjs';
+import { ErweiterterMassnahmenFilterDialogComponent } from 'src/app/viewer/massnahme/components/erweiterter-massnahmen-filter-dialog/erweiterter-massnahmen-filter-dialog.component';
 import { MassnahmenTabelleComponent } from 'src/app/viewer/massnahme/components/massnahmen-tabelle/massnahmen-tabelle.component';
-import { MassnahmeListenView } from 'src/app/viewer/massnahme/models/massnahme-listen-view';
-import { getTestMassnahmeListenViews } from 'src/app/viewer/massnahme/models/massnahme-listen-view-test-data-provider.spec';
+import { ErweiterterMassnahmenFilter } from 'src/app/viewer/massnahme/models/erweiterter-massnahmen-filter';
+import { FahrradrouteFilterKategorie } from 'src/app/viewer/massnahme/models/fahrradroute-filter-kategorie';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
-import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
-import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
+import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { testFahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view-test-data-provider.spec';
 import { FieldFilter } from 'src/app/viewer/viewer-shared/models/field-filter';
-import { FilterQueryParams } from 'src/app/viewer/viewer-shared/models/filter-query-params';
-import { Infrastruktur } from 'src/app/viewer/viewer-shared/models/infrastruktur';
-import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/filter-query-params.service';
-import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
+import { ExportService } from 'src/app/viewer/viewer-shared/services/export.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
-import { anything, instance, mock, verify, when } from 'ts-mockito';
+import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 
 describe(MassnahmenTabelleComponent.name, () => {
-  let massnahmenTabelleComponent: MassnahmenTabelleComponent;
-  let fixture: ComponentFixture<MassnahmenTabelleComponent>;
+  let component: MassnahmenTabelleComponent;
+  let fixture: MockedComponentFixture<MassnahmenTabelleComponent>;
 
   let massnahmeFilterService: MassnahmeFilterService;
-  let massnahmeService: MassnahmeService;
-  let massnahmenRoutingService: MassnahmenRoutingService;
-  let organisationService: OrganisationenService;
-  let benutzerDetailService: BenutzerDetailsService;
-  let infrastrukturenSelektionService: InfrastrukturenSelektionService;
-  let filterQueryParamsService: FilterQueryParamsService;
-  const testMassnahmenListenViews: MassnahmeListenView[] = getTestMassnahmeListenViews();
+  let dialog: MatDialog;
+  let exportService: ExportService;
 
-  const filteredMassnahmenSubject = new BehaviorSubject<MassnahmeListenView[]>([]);
-  const selectedMassnahmenIdSubject = new BehaviorSubject<number | null>(null);
+  let filterSubject: Subject<FieldFilter[]>;
 
   beforeEach(() => {
-    massnahmenRoutingService = mock(MassnahmenRoutingService);
-    when(massnahmenRoutingService.selectedInfrastrukturId$).thenReturn(selectedMassnahmenIdSubject.asObservable());
+    massnahmeFilterService = mock(MassnahmeFilterService);
+    dialog = mock(MatDialog);
+    exportService = mock(ExportService);
 
-    massnahmeService = mock(MassnahmeService);
-    when(massnahmeService.getAll(anything())).thenResolve(testMassnahmenListenViews);
+    when(massnahmeFilterService.erweiterterFilterAktiv$).thenReturn(of(false));
 
-    organisationService = mock(OrganisationenService);
-    when(organisationService.getOrganisationen()).thenResolve([defaultBundeslandOrganisation, ...defaultGemeinden]);
-
-    benutzerDetailService = mock(BenutzerDetailsService);
-    when(benutzerDetailService.aktuellerBenutzerOrganisation()).thenReturn(defaultOrganisation);
-
-    infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
-    when(infrastrukturenSelektionService.selektierteInfrastrukturen$).thenReturn(of([]));
-
-    filterQueryParamsService = mock(FilterQueryParamsService);
-    when(filterQueryParamsService.filter$).thenReturn(of(new Map<Infrastruktur, FieldFilter[]>()));
-    when(filterQueryParamsService.filterQueryParamsSnapshot).thenReturn(
-      new FilterQueryParams(new Map<string, FieldFilter[]>())
-    );
+    filterSubject = new Subject();
+    when(massnahmeFilterService.filter$).thenReturn(filterSubject.asObservable());
 
     return MockBuilder(MassnahmenTabelleComponent, ViewerModule)
-      .keep(MassnahmeFilterService)
-      .provide({ provide: MassnahmenRoutingService, useValue: instance(massnahmenRoutingService) })
-      .provide({ provide: OrganisationenService, useValue: instance(organisationService) })
-      .provide({ provide: BenutzerDetailsService, useValue: instance(benutzerDetailService) })
-      .provide({
-        provide: MassnahmeService,
-        useValue: instance(massnahmeService),
-      })
-      .provide({
-        provide: InfrastrukturenSelektionService,
-        useValue: instance(infrastrukturenSelektionService),
-      })
-      .provide({
-        provide: FilterQueryParamsService,
-        useValue: instance(filterQueryParamsService),
-      });
+      .provide({ provide: ExportService, useValue: instance(exportService) })
+      .provide({ provide: MassnahmeFilterService, useValue: instance(massnahmeFilterService) })
+      .provide({ provide: MatDialog, useValue: instance(dialog) });
   });
 
-  describe('organisationsFilter', () => {
-    describe('with initial Values for OrganisationenDropDown', () => {
-      beforeEach(() => {
-        when(organisationService.getOrganisationen()).thenResolve([defaultBundeslandOrganisation, ...defaultGemeinden]);
+  beforeEach(waitForAsync(() => {
+    fixture = MockRender(MassnahmenTabelleComponent);
+    component = fixture.point.componentInstance;
+    fixture.detectChanges();
+  }));
+
+  describe('filteredSpalten', () => {
+    it('should correspond to filteredFields', (done: DoneFn) => {
+      component.filteredSpalten$.subscribe(filteredSpalten => {
+        expect(filteredSpalten).toEqual(['test']);
+        done();
       });
 
-      beforeEach(() => {
-        fixture = TestBed.createComponent(MassnahmenTabelleComponent);
-        massnahmenTabelleComponent = fixture.componentInstance;
-        massnahmeFilterService = TestBed.inject(MassnahmeFilterService);
-      });
-
-      beforeEach(() => {
-        filteredMassnahmenSubject.next([]);
-      });
-
-      it('should not have Bundesland-organisations as options', () => {
-        expect(massnahmenTabelleComponent.alleNonBundeslandOrganisationenOptions).not.toContain(
-          defaultBundeslandOrganisation
-        );
-      });
-    });
-
-    describe('with initial non-Bundesland-Value for BenutzerOrganisation', () => {
-      beforeEach(() => {
-        when(benutzerDetailService.aktuellerBenutzerOrganisation()).thenReturn(defaultOrganisation);
-      });
-
-      beforeEach(() => {
-        fixture = TestBed.createComponent(MassnahmenTabelleComponent);
-        massnahmenTabelleComponent = fixture.componentInstance;
-        massnahmeFilterService = TestBed.inject(MassnahmeFilterService);
-      });
-
-      beforeEach(() => {
-        filteredMassnahmenSubject.next([]);
-      });
-
-      it('should prefill Controls with correct Values from massnahmeFilterService', () => {
-        expect(massnahmenTabelleComponent.organisationControl.value).toEqual(defaultOrganisation);
-      });
-    });
-
-    describe('with initial bundesland-Value for BenutzerOrganisation', () => {
-      beforeEach(() => {
-        when(benutzerDetailService.aktuellerBenutzerOrganisation()).thenReturn(defaultBundeslandOrganisation);
-      });
-
-      beforeEach(() => {
-        fixture = TestBed.createComponent(MassnahmenTabelleComponent);
-        massnahmenTabelleComponent = fixture.componentInstance;
-        massnahmeFilterService = TestBed.inject(MassnahmeFilterService);
-      });
-
-      beforeEach(() => {
-        filteredMassnahmenSubject.next([]);
-      });
-
-      it('should prefill Controls with correct Values from massnahmeFilterService', () => {
-        expect(massnahmenTabelleComponent.organisationControl.value).toBeNull();
-      });
+      filterSubject.next([new FieldFilter('test', 'filter')]);
     });
   });
 
-  describe('with default initial Values', () => {
-    beforeEach(async () => {
-      fixture = TestBed.createComponent(MassnahmenTabelleComponent);
-      massnahmenTabelleComponent = fixture.componentInstance;
-      massnahmeFilterService = TestBed.inject(MassnahmeFilterService);
+  describe('onExport', () => {
+    it('should respect spaltenauswahl', () => {
+      when(massnahmeFilterService.currentFilteredList).thenReturn([]);
+      when(exportService.exportInfrastruktur(anything(), anything(), anything(), anything())).thenResolve();
+
+      component.onExport({
+        felder: [
+          component.spaltenDefinition[0].name,
+          component.spaltenDefinition[4].name,
+          component.spaltenDefinition[5].name,
+        ],
+        format: ExportFormat.CSV,
+      });
+
+      verify(exportService.exportInfrastruktur(anything(), anything(), anything(), anything())).once();
+      expect(capture(exportService.exportInfrastruktur).last()).toEqual([
+        'MASSNAHME',
+        ExportFormat.CSV,
+        [],
+        component.spaltenDefinition
+          .filter((v, index) => index !== 0 && index !== 4 && index !== 5)
+          .map(def => def.displayName),
+      ]);
+    });
+  });
+
+  describe('onErweiterteFilterVerwalten', () => {
+    it('should provide the dialog with the current filter settings and disable clicking outside', () => {
+      // Arrange
+      const erweiterterFilter: ErweiterterMassnahmenFilter = {
+        historischeMassnahmenAnzeigen: false,
+        fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.EINZELNE_FAHRRADROUTE,
+        fahrradroute: testFahrradrouteListenView[0],
+        fahrradroutenIds: [],
+        organisation: null,
+      };
+      when(massnahmeFilterService.erweiterterFilter).thenReturn(erweiterterFilter);
+      when(dialog.open(anything(), anything())).thenReturn({
+        afterClosed: () => of(),
+      } as MatDialogRef<ErweiterterMassnahmenFilterDialogComponent>);
+
+      // Act
+      component.onErweiterteFilterVerwalten();
+
+      // Assert
+      verify(dialog.open(ErweiterterMassnahmenFilterDialogComponent, anything())).once();
+      const dialogData = capture(dialog.open).last()[1];
+      expect(dialogData?.disableClose).toBe(true);
+      expect(dialogData?.data).toEqual(erweiterterFilter);
     });
 
-    beforeEach(() => {
-      filteredMassnahmenSubject.next([]);
+    it('should update the filter when the dialog closes with a new filter', () => {
+      // Arrange
+      const neuerErweiterterFilter: ErweiterterMassnahmenFilter = {
+        historischeMassnahmenAnzeigen: false,
+        fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
+        fahrradroute: null,
+        fahrradroutenIds: [],
+        organisation: null,
+      };
+      const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(neuerErweiterterFilter) });
+      when(dialog.open(anything(), anything())).thenReturn(dialogRefSpy);
+
+      // Act
+      component.onErweiterteFilterVerwalten();
+
+      // Assert
+      verify(massnahmeFilterService.updateErweiterterFilter(anything())).once();
+      expect(capture(massnahmeFilterService.updateErweiterterFilter).last()[0]).toEqual(neuerErweiterterFilter);
     });
 
-    it('should set correct values', () => {
-      massnahmenTabelleComponent.organisationControl.patchValue(defaultGemeinden[1]);
-      expect(massnahmeFilterService.organisation).toEqual(defaultGemeinden[1]);
+    it('should not update the filter when the dialog closes with false', () => {
+      // Arrange
+      const erweiterterFilter: ErweiterterMassnahmenFilter = {
+        historischeMassnahmenAnzeigen: false,
+        fahrradrouteFilterKategorie: null,
+        fahrradroute: null,
+        fahrradroutenIds: [],
+        organisation: null,
+      };
+      when(massnahmeFilterService.erweiterterFilter).thenReturn(erweiterterFilter);
+      const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of() });
+      when(dialog.open(anything(), anything())).thenReturn(dialogRefSpy);
 
-      massnahmenTabelleComponent.organisationControl.patchValue(defaultGemeinden[0]);
-      expect(massnahmeFilterService.organisation).toEqual(defaultGemeinden[0]);
-    });
+      // Act
+      component.onErweiterteFilterVerwalten();
 
-    it('should trigger Data refetching with correct OrganisationsId, if filter is active and Organisation changes', () => {
-      massnahmenTabelleComponent.organisationControl.patchValue(defaultGemeinden[0]);
-
-      verify(massnahmeService.getAll(defaultGemeinden[0].id)).once();
+      // Assert
+      verify(massnahmeFilterService.updateErweiterterFilter(anything())).never();
       expect().nothing();
     });
   });

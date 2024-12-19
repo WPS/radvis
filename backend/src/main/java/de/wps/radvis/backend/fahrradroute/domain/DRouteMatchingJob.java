@@ -35,6 +35,10 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Für alle D-Routen, die bisher nicht gematched wurden, wird ein neuer Versuch mit der gespeicherten Originalgeometrie
+ * vorgenommen. Es wird nicht erneut die Quelle eingelesen
+ */
 @Slf4j
 public class DRouteMatchingJob extends AbstractJob {
 	// Dieser Job Name sollte sich nicht mehr aendern, weil Controller und DB Eintraege den Namen verwenden

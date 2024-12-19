@@ -17,29 +17,43 @@ package de.wps.radvis.backend.massnahme.domain;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.context.event.EventListener;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.index.strtree.STRtree;
 
-import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntityService;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
+import de.wps.radvis.backend.common.domain.valueObject.CsvData;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
+import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeUmsetzungsstandViewRepository;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeViewRepository;
 import de.wps.radvis.backend.massnahme.domain.repository.UmsetzungsstandRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmenPaketId;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
-import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
-import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.service.AbstractEntityWithNetzbezugService;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
@@ -50,28 +64,38 @@ import lombok.extern.slf4j.Slf4j;
 
 @Transactional
 @Slf4j
-public class MassnahmeService extends AbstractVersionierteEntityService<Massnahme> {
-
+public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnahme> {
 	private final MassnahmeRepository massnahmeRepository;
 	private final MassnahmeViewRepository massnahmeViewRepository;
 	private final UmsetzungsstandRepository umsetzungsstandRepository;
 	private final MassnahmeUmsetzungsstandViewRepository massnahmeUmsetzungsstandViewRepository;
-	MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+	private final MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 	private final KantenRepository kantenRepository;
+	private final BenutzerService benutzerService;
+	private final FahrradrouteRepository fahrradrouteRepository;
+	private final double distanzMassnahmeZuFahrradrouteInMetern;
 
 	public MassnahmeService(MassnahmeRepository massnahmeRepository,
 		MassnahmeViewRepository massnahmeViewRepository,
 		MassnahmeUmsetzungsstandViewRepository massnahmeUmsetzungsstandViewRepository,
 		UmsetzungsstandRepository umsetzungsstandRepository,
 		KantenRepository kantenRepository,
-		MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService) {
-		super(massnahmeRepository);
+		MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService,
+		BenutzerService benutzerService,
+		FahrradrouteRepository fahrradrouteRepository,
+		NetzService netzService,
+		double distanzMassnahmeZuFahrradrouteInMetern,
+		double erlaubteAbweichungKantenRematch) {
+		super(massnahmeRepository, netzService, erlaubteAbweichungKantenRematch);
 		this.massnahmeRepository = massnahmeRepository;
 		this.massnahmeViewRepository = massnahmeViewRepository;
 		this.massnahmeUmsetzungsstandViewRepository = massnahmeUmsetzungsstandViewRepository;
 		this.massnahmeNetzbezugAenderungProtokollierungsService = massnahmeNetzbezugAenderungProtokollierungsService;
 		this.umsetzungsstandRepository = umsetzungsstandRepository;
 		this.kantenRepository = kantenRepository;
+		this.benutzerService = benutzerService;
+		this.fahrradrouteRepository = fahrradrouteRepository;
+		this.distanzMassnahmeZuFahrradrouteInMetern = distanzMassnahmeZuFahrradrouteInMetern;
 	}
 
 	@Override
@@ -129,14 +153,98 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 		return massnahmeRepository.findAllMassnahmenPaketIds();
 	}
 
-	public List<MassnahmeListenDbView> getAlleMassnahmenListenViews() {
-		return massnahmeViewRepository.findAll();
+	@SuppressWarnings("unchecked")
+	public List<MassnahmeListenDbView> getAlleMassnahmenListenViews(
+		Boolean historischeMassnahmenAnzeigen,
+		Optional<Verwaltungseinheit> innerhalbVerwaltungseinheit,
+		List<Long> nebenFahrradroutenIds) {
+		Optional<MultiPolygon> bereich = innerhalbVerwaltungseinheit.flatMap(Verwaltungseinheit::getBereich);
+
+		List<MassnahmeListenDbView> allInBereich = massnahmeViewRepository.findAllWithFilters(bereich,
+			historischeMassnahmenAnzeigen);
+
+		if (!nebenFahrradroutenIds.isEmpty()) {
+			List<Geometry> allGeometries = fahrradrouteRepository.getAllGeometries(nebenFahrradroutenIds);
+			if (!allGeometries.isEmpty()) {
+				// Die einzelnen MultiLineStrings aufteilen und jedes einzelne Segment (also Strecke zwischen zwei
+				// Koordinaten) in den Index einfügen, statt ganze (Multi)LineStrings einzufügen. Diese Segmente sind
+				// natürlich wesentlich kleiner als die Fahrradroute selbst. Weiter unten nutzen wir die Envelopes von
+				// Routen und Maßnahmen um diejenigen Maßnahmen in er Nähe von Routen zu finden. Ist nun eine gesamte
+				// Fahrradroute mit ihrem riesigen Envelope (bei LRFW teilweise halb BW) im Index, dann ist so ziemlich
+				// jede Maßnahme "in der Nähe", was die Idee von räumlichen Queries irgendwo absurd macht. Denn für jede
+				// Maßnahme muss man nochmal exakt die Distanz berechnen um wirklich sicherzugehen, dass sie innerhalb
+				// des konfigurierten Radius ist. Diese Distanzberechnung ist aber sehr teuer und wir wollen so wenig
+				// davon wie möglich machen.
+				// Deswegen fügen wir die kleineren Segmente ein. Die Query ist dann ein Stück weit genauer, heißt ganz
+				// viele Maßnahmen werden direkt aussortiert, weil sie weit abseits der angefragten Fahrradrouten sind.
+				// Wir brauchen dann also nur noch wenige exakte Distanzberechnungen, was uns viel zeit spart. Es mag
+				// kontraintuitiv sein mehr Objekte in den Index einzufügen um schneller zu sein, aber so ist das
+				// nunmal.
+				STRtree strTree = new STRtree();
+				allGeometries.stream()
+					.flatMap(geom -> unwrap(geom).stream())
+					.forEach(geom -> {
+						Coordinate[] coordinates = geom.getCoordinates();
+
+						for (int i = 0; i < coordinates.length - 1; i++) {
+							Coordinate[] segmentCoords = new Coordinate[2];
+							segmentCoords[0] = coordinates[i];
+							segmentCoords[1] = coordinates[i + 1];
+
+							LineString segment = KoordinatenReferenzSystem.ETRS89_UTM32_N
+								.getGeometryFactory()
+								.createLineString(segmentCoords);
+
+							strTree.insert(segment.getEnvelopeInternal(), segment);
+						}
+					});
+
+				List<MassnahmeListenDbView> result = allInBereich.stream()
+					.filter(m -> {
+						if (m.getGeometry() == null) {
+							return false;
+						}
+
+						// Zunächst holen wir alle Fahrradrouten-Segmente, deren Envelopes mit dem erweiterten Envelope
+						// der Maßnahme überlappen. Das ist eine sehr schnelle aber auch sehr ungenaue Operation. Daher
+						// müssen alle Segmente nochmal durchgegangen werden, ob die Maßnahme wirklich innerhalb von
+						// x Metern an einem der Segmente dran ist. Das ist eine verhältnißmäßig teure Operation,
+						// deswegen die Vorfilterung nach Envelope auf den kleinen Segmenten, um möglichst wenig exakte
+						// aber teure Berechnungen der Distanz machen zu müssen.
+						Envelope bufferedMassnahmeEnvelope = m.getGeometry().getEnvelopeInternal();
+						bufferedMassnahmeEnvelope.expandBy(distanzMassnahmeZuFahrradrouteInMetern);
+						return strTree.query(bufferedMassnahmeEnvelope)
+							.stream()
+							.anyMatch(routeSegment -> {
+								return ((Geometry) routeSegment).isWithinDistance(m.getGeometry(),
+									distanzMassnahmeZuFahrradrouteInMetern);
+							});
+					})
+					.toList();
+
+				return result;
+			}
+		}
+
+		return allInBereich;
 	}
 
-	public List<MassnahmeListenDbView> getAlleMassnahmenListenViewsInBereich(Verwaltungseinheit organisation) {
-		return organisation.getBereich()
-			.map(massnahmeViewRepository::findAllInBereich)
-			.orElse(List.of());
+	private List<LineString> unwrap(Geometry multiLineString) {
+		ArrayList<LineString> result = new ArrayList<>();
+
+		for (int i = 0; i < multiLineString.getNumGeometries(); i++) {
+			Geometry childGeometry = multiLineString.getGeometryN(i);
+			if (childGeometry instanceof MultiLineString) {
+				result.addAll(unwrap((MultiLineString) childGeometry));
+			} else if (childGeometry instanceof LineString) {
+				result.add((LineString) childGeometry);
+			} else {
+				throw new RuntimeException("Unsupported geometry type " + childGeometry.getGeometryType()
+					+ " during unwrap of MultiLineString.");
+			}
+		}
+
+		return result;
 	}
 
 	public void haengeDateiAn(Long id, Dokument dokument) {
@@ -164,7 +272,20 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 		massnahmeRepository.save(massnahme);
 	}
 
-	public String[] getUmsetzungsstandAuswertungKopfzeile() {
+	public CsvData getUmsetzungsstandAuswertung(List<Long> massnahmenIds) {
+		List<String> headers = List.of(getUmsetzungsstandAuswertungKopfzeile());
+		List<Map<String, String>> data = getUmsetzungsstandAuswertungRows(massnahmenIds).stream().map(row -> {
+			Map<String, String> rowData = new HashMap<>();
+			for (int i = 0; i < row.length; i++) {
+				rowData.put(headers.get(i), row[i]);
+			}
+			return rowData;
+		}).toList();
+
+		return CsvData.of(data, headers);
+	}
+
+	private String[] getUmsetzungsstandAuswertungKopfzeile() {
 		return new String[] {
 			"Maßnahmennummer",
 			"Bezeichnung",
@@ -184,11 +305,12 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 			"6. Kosten der RadNETZ-Maßnahme",
 			"7. Anmerkung zu RadNETZ-Maßnahmen",
 			"Vor-, Nachname und E-Mail-Adresse des Nutzers, der die Umfrage zuletzt bestätigt hat",
-			"Zeitpunkt der letzten Bestätigung der Umfrage"
+			"Zeitpunkt der letzten Bestätigung der Umfrage",
+			"Umsetzungsstand-Status"
 		};
 	}
 
-	public List<String[]> getUmsetzungsstandAuswertungCSV(List<Long> ids) {
+	private List<String[]> getUmsetzungsstandAuswertungRows(List<Long> ids) {
 		return massnahmeUmsetzungsstandViewRepository.findAllById(ids).map(massnahme -> {
 			return new String[] {
 				massnahme.getMassnahmeKonzeptId(),
@@ -209,7 +331,8 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 				massnahme.getKostenDerMassnahme(),
 				massnahme.getAnmerkung(),
 				massnahme.getBenutzerKontaktdaten(),
-				massnahme.getLetzteAenderung()
+				massnahme.getLetzteAenderung(),
+				massnahme.getUmsetzungsstandStatus().toString()
 			};
 		}).collect(Collectors.toList());
 	}
@@ -226,11 +349,15 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 	}
 
 	public List<Massnahme> findByKanteIdInNetzBezug(Long kanteId) {
-		return massnahmeRepository.findByKanteInNetzBezug(kanteId);
+		return massnahmeRepository.findByKantenInNetzBezug(List.of(kanteId));
+	}
+
+	public List<Massnahme> findByKantenIdsInNetzBezug(Collection<Long> kantenIds) {
+		return massnahmeRepository.findByKantenInNetzBezug(kantenIds);
 	}
 
 	public List<Massnahme> findByKnotenIdInNetzBezug(long knotenId) {
-		return massnahmeRepository.findByKnotenInNetzBezug(knotenId);
+		return massnahmeRepository.findByKnotenInNetzBezug(List.of(knotenId));
 	}
 
 	public boolean hatRadNETZNetzBezug(Massnahme massnahme) {
@@ -249,36 +376,45 @@ public class MassnahmeService extends AbstractVersionierteEntityService<Massnahm
 					knoten -> kantenRepository.getAdjazenteKanten(knoten).stream().anyMatch(Kante::isRadNETZ));
 	}
 
-	@EventListener
-	public void onKanteGeloescht(KanteDeletedEvent event) {
-		List<Massnahme> massnahmen = findByKanteIdInNetzBezug(event.getKanteId());
-		if (!event.getAusloeser().equals(NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN)) {
-			massnahmeNetzbezugAenderungProtokollierungsService.protokolliereNetzBezugAenderungFuerGeloeschteKante(
-				massnahmen.stream().filter(m -> !m.isGeloescht()).collect(Collectors.toList()), event);
-		}
-		for (Massnahme massnahme : massnahmen) {
-			massnahme.removeKanteFromNetzbezug(event.getKanteId());
-			massnahmeRepository.save(massnahme);
-		}
+	public void massnahmenArchivieren(List<Long> ids) {
+		Iterable<Massnahme> massnahmen = massnahmeRepository.findAllById(ids);
+		massnahmen.forEach(m -> {
+			if (!m.isArchiviert()) {
+				m.archivieren();
+			}
+		});
+		massnahmeRepository.saveAll(massnahmen);
 	}
 
-	@EventListener
-	public void onKanteTopologieChanged(KanteTopologieChangedEvent event) {
-		List<Massnahme> massnahmen = findByKanteIdInNetzBezug(event.getKanteId()).stream()
-			.filter(m -> !m.isGeloescht())
-			.collect(Collectors.toList());
-		massnahmeNetzbezugAenderungProtokollierungsService.protokolliereNetzBezugAenderungFuerVeraenderteKante(
-			massnahmen, event);
+	public Massnahme archivierungAufheben(Long id) {
+		Massnahme massnahme = get(id);
+		massnahme.archivierungAufheben();
+		return saveMassnahme(massnahme);
 	}
 
-	@EventListener
-	public void onKnotenGeloescht(KnotenDeletedEvent event) {
-		List<Massnahme> massnahmen = findByKnotenIdInNetzBezug(event.getKnotenId());
+	@Override
+	protected void protokolliereNetzBezugAenderungFuerGeloeschteKnoten(List<Massnahme> entitiesWithKnotenInNetzbezug,
+		Knoten knoten, LocalDateTime datum, NetzAenderungAusloeser ausloeser) {
+		log.debug("Erstelle Protokoll-Einträge für Löschung von Knoten {} in Maßnahmen {}", knoten.getId(),
+			entitiesWithKnotenInNetzbezug.stream().map(e -> e.getId()).toList());
 		massnahmeNetzbezugAenderungProtokollierungsService.protokolliereNetzBezugAenderungFuerGeloeschteKnoten(
-			massnahmen.stream().filter(m -> !m.isGeloescht()).collect(Collectors.toList()), event);
-		for (Massnahme massnahme : massnahmen) {
-			massnahme.removeKnotenFromNetzbezug(event.getKnotenId());
-			massnahmeRepository.save(massnahme);
-		}
+			entitiesWithKnotenInNetzbezug, knoten.getId(), datum, ausloeser, knoten.getPoint(),
+			benutzerService.getTechnischerBenutzer());
+	}
+
+	@Override
+	protected Collection<? extends Massnahme> findByKnotenInNetzbezug(List<Long> knotenIds) {
+		return massnahmeRepository.findByKnotenInNetzBezug(knotenIds);
+	}
+
+	@Override
+	protected void protokolliereNetzBezugAenderungFuerGeloeschteKanten(List<Massnahme> entitiesWithKanteInNetzbezug,
+		Long kanteId, Geometry geometry, LocalDateTime datum, NetzAenderungAusloeser ausloeser) {
+		log.debug("Erstelle Protokoll-Einträge für Löschung von Kante {} in Maßnahmen {}", kanteId,
+			entitiesWithKanteInNetzbezug.stream().map(e -> e.getId()).toList());
+
+		massnahmeNetzbezugAenderungProtokollierungsService.protokolliereNetzBezugAenderungFuerGeloeschteKante(
+			entitiesWithKanteInNetzbezug, kanteId, datum, ausloeser, geometry,
+			benutzerService.getTechnischerBenutzer());
 	}
 }

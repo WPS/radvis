@@ -69,6 +69,7 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweis;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweisText;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
@@ -84,7 +85,6 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
@@ -368,7 +368,7 @@ public class ManuellerMassnahmenImportService {
 			Massnahme massnahme = massnahmen.get(0);
 			if (geloescht) {
 				// NICHT LÖSCHEN WENN ES EINE RADNETZ MASSNAHME IST
-				if (massnahme.getKonzeptionsquelle().equals(Konzeptionsquelle.RADNETZ_MASSNAHME)) {
+				if (Konzeptionsquelle.isRadNetzKonzeptionsquelle(massnahme.getKonzeptionsquelle())) {
 					MassnahmenImportZuordnung massnahmenImportZuordnung = new MassnahmenImportZuordnung(
 						massnahmeKonzeptID,
 						simpleFeature,
@@ -389,19 +389,32 @@ public class ManuellerMassnahmenImportService {
 				}
 			} else {
 				// UPDATE
-				MassnahmenImportZuordnung massnahmenImportZuordnungGemappt = new MassnahmenImportZuordnung(
-					massnahmeKonzeptID,
-					simpleFeature,
-					massnahme,
-					MassnahmenImportZuordnungStatus.ZUGEORDNET);
+				if (massnahme.isArchiviert()) {
+					MassnahmenImportZuordnung massnahmenImportZuordnung = new MassnahmenImportZuordnung(
+						massnahmeKonzeptID,
+						simpleFeature,
+						null,
+						MassnahmenImportZuordnungStatus.FEHLERHAFT);
+					massnahmenImportZuordnung.addMappingFehler(
+						MappingFehler.of(
+							MASSNAHME_ID_ATTRIBUTENAME,
+							MappingFehlermeldung.UPDATE_ARCHIVIERT_NICHT_MOEGLICH.getText()));
+					return massnahmenImportZuordnung;
+				} else {
+					MassnahmenImportZuordnung massnahmenImportZuordnungGemappt = new MassnahmenImportZuordnung(
+						massnahmeKonzeptID,
+						simpleFeature,
+						massnahme,
+						MassnahmenImportZuordnungStatus.ZUGEORDNET);
 
-				// PRÜFUNG AUF KORREKTEN GEOMTYPE
-				pruefeGeometrieTyp(zuImportierendeGeometrie, massnahmenImportZuordnungGemappt);
+					// PRÜFUNG AUF KORREKTEN GEOMTYPE
+					pruefeGeometrieTyp(zuImportierendeGeometrie, massnahmenImportZuordnungGemappt);
 
-				// PRÜFUNG AUF ABWEICHENDE GEOMETRIEN
-				pruefeAbweichendeGeometrien(zuImportierendeGeometrie, massnahme, massnahmenImportZuordnungGemappt);
+					// PRÜFUNG AUF ABWEICHENDE GEOMETRIEN
+					pruefeAbweichendeGeometrien(zuImportierendeGeometrie, massnahme, massnahmenImportZuordnungGemappt);
 
-				return massnahmenImportZuordnungGemappt;
+					return massnahmenImportZuordnungGemappt;
+				}
 			}
 		}
 	}

@@ -16,7 +16,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { UntypedFormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOption } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -30,25 +29,24 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { BelagArt } from 'src/app/shared/models/belag-art';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
-import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { FahrradrouteAttributeEditorComponent } from 'src/app/viewer/fahrradroute/components/fahrradroute-attribute-editor/fahrradroute-attribute-editor.component';
+import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/fahrradroute/models/abschnittsweiser-kanten-netzbezug';
 import { ChangeFahrradrouteVeroeffentlichtCommand } from 'src/app/viewer/fahrradroute/models/change-fahrradroute-veroeffentlicht-command';
 import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
+import { defaultFahrradroute } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view-test-data-provider.spec';
 import { defaultFahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute-netzbezug-test-data-provider.spec';
 import { FahrradrouteVariante } from 'src/app/viewer/fahrradroute/models/fahrradroute-variante';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
 import { SaveFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/save-fahrradroute-command';
 import { SaveFahrradrouteVarianteCommand } from 'src/app/viewer/fahrradroute/models/save-fahrradroute-variante-command';
 import { VarianteKategorie } from 'src/app/viewer/fahrradroute/models/variante-kategorie';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
-import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 import { FahrradrouteTyp } from 'src/app/viewer/viewer-shared/models/fahrradroute-typ';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, deepEqual, instance, mock, verify, when } from 'ts-mockito';
@@ -58,7 +56,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   let component: FahrradrouteAttributeEditorComponent;
 
   let dataSubject: Subject<Data>;
-  let defaultFahrradroute: FahrradrouteDetailView;
+  let fahrradroute: FahrradrouteDetailView;
 
   let organisationenService: OrganisationenService;
   let notifyUserService: NotifyUserService;
@@ -71,57 +69,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   beforeEach(async () => {
     dataSubject = new Subject();
 
-    defaultFahrradroute = {
-      id: 1,
-      version: 2,
-      toubizId: '3',
-      fahrradrouteTyp: FahrradrouteTyp.RADVIS_ROUTE,
-      canEditAttribute: true,
-      canChangeVeroeffentlicht: true,
-      name: 'Die SCHÖNSTE Route der Welt!!!',
-      kurzbeschreibung: 'Hier könnte Ihre Werbung stehen',
-      beschreibung: 'Nein wirklich, hier könnte wirklich Ihre Werbung stehen, das ist kein Schwerz!',
-      kategorie: Kategorie.UEBERREGIONALER_RADWANDERWEG,
-      tourenkategorie: 'GRAVEL_TOUR',
-      laengeHauptstrecke: 42.24,
-      offizielleLaenge: 42.24,
-      homepage: 'https://schoenste-radroute-auf-die-welt.de',
-      verantwortlich: {
-        id: 213,
-        name: 'OR-G ani.sa t.IO-n',
-        idUebergeordneteOrganisation: null,
-        organisationsArt: OrganisationsArt.GEMEINDE,
-      } as Verwaltungseinheit,
-      emailAnsprechpartner: 'werbung-schalten@schoenste-radroute-auf-die-welt.de',
-      lizenz: 'WTFPL',
-      lizenzNamensnennung: 'Hier könnte Ihr Name stehen',
-      kantenBezug: [
-        {
-          kanteId: 7,
-          geometrie: {
-            type: 'LineString',
-            coordinates: [
-              [4, 4],
-              [5, 5],
-            ],
-          },
-          linearReferenzierterAbschnitt: { von: 0, bis: 1 },
-        },
-      ],
-      originalGeometrie: undefined,
-      routedOrMatchedGeometry: undefined,
-      kehrtwenden: undefined,
-      abweichendeSegmente: undefined,
-      abbildungDurchRouting: false,
-      abstieg: 12,
-      anstieg: 2.34,
-      info: '<p>Zusätzliche Infos</p><br><span>exklusiv</span>',
-      zuletztBearbeitet: new Date('2022-01-10T15:28:09.473406'),
-      varianten: [],
-      profilEigenschaften: [],
-      veroeffentlicht: false,
-      customProfileId: 123,
-    };
+    fahrradroute = defaultFahrradroute;
 
     organisationenService = mock(OrganisationenService);
     notifyUserService = mock(NotifyUserService);
@@ -172,7 +120,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
 
   it('should show "keine Route berechenbar" message', waitForAsync(() => {
     const expectedFahrradroute: FahrradrouteDetailView = {
-      ...defaultFahrradroute,
+      ...fahrradroute,
       geometrie: undefined,
       stuetzpunkte: undefined,
       varianten: [],
@@ -250,7 +198,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         customProfileId: 22,
       };
       expectedFahrradroute = {
-        ...defaultFahrradroute,
+        ...fahrradroute,
         geometrie: {
           coordinates: [
             [0, 0],
@@ -278,26 +226,26 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       // assert
       expect(component.currentFahrradroute).toEqual(expectedFahrradroute);
       expect(component.formGroup.getRawValue()).toEqual({
-        name: defaultFahrradroute.name,
-        kurzbeschreibung: defaultFahrradroute.kurzbeschreibung,
-        beschreibung: defaultFahrradroute.beschreibung,
-        kategorie: defaultFahrradroute.kategorie,
-        tourenkategorie: defaultFahrradroute.tourenkategorie,
-        laengeHauptstrecke: defaultFahrradroute.laengeHauptstrecke / 1000,
-        offizielleLaenge: defaultFahrradroute.offizielleLaenge / 1000,
-        verantwortlich: defaultFahrradroute.verantwortlich,
-        homepage: defaultFahrradroute.homepage,
-        emailAnsprechpartner: defaultFahrradroute.emailAnsprechpartner,
-        lizenz: defaultFahrradroute.lizenz,
-        lizenzNamensnennung: defaultFahrradroute.lizenzNamensnennung,
+        name: fahrradroute.name,
+        kurzbeschreibung: fahrradroute.kurzbeschreibung,
+        beschreibung: fahrradroute.beschreibung,
+        fahrradrouteKategorie: fahrradroute.fahrradrouteKategorie,
+        tourenkategorie: fahrradroute.tourenkategorie,
+        laengeHauptstrecke: fahrradroute.laengeHauptstrecke / 1000,
+        offizielleLaenge: fahrradroute.offizielleLaenge / 1000,
+        verantwortlich: fahrradroute.verantwortlich,
+        homepage: fahrradroute.homepage,
+        emailAnsprechpartner: fahrradroute.emailAnsprechpartner,
+        lizenz: fahrradroute.lizenz,
+        lizenzNamensnennung: fahrradroute.lizenzNamensnennung,
         varianten: [
           {
             id: variante1.id,
             kategorie: variante1.kategorie,
             netzbezug: {
-              stuetzpunkte: variante1.stuetzpunkte?.coordinates,
+              stuetzpunkte: variante1.stuetzpunkte!.coordinates,
               kantenIDs: variante1.kantenIDs,
-              geometrie: variante1.geometrie,
+              geometrie: variante1.geometrie!,
               profilEigenschaften: [],
               customProfileId: variante1.customProfileId,
             },
@@ -307,9 +255,9 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
             id: variante2.id,
             kategorie: variante2.kategorie,
             netzbezug: {
-              stuetzpunkte: variante2.stuetzpunkte?.coordinates,
+              stuetzpunkte: variante2.stuetzpunkte!.coordinates,
               kantenIDs: variante2.kantenIDs,
-              geometrie: variante2.geometrie,
+              geometrie: variante2.geometrie!,
               profilEigenschaften: [],
               customProfileId: variante2.customProfileId,
             },
@@ -318,8 +266,8 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         ],
         anstieg: '2,34',
         abstieg: '12,00',
-        info: defaultFahrradroute.info,
-        toubizId: defaultFahrradroute.toubizId,
+        info: fahrradroute.info,
+        toubizId: fahrradroute.toubizId,
         zuletztBearbeitet: '10.01.22 15:28',
         netzbezug: {
           geometrie: expectedFahrradroute.geometrie,
@@ -402,19 +350,19 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       tick();
 
       // assert
-      expect(component.selectedVarianteNetzbezug).toEqual(undefined);
-      expect(component.selectedVarianteKantenBezug).toEqual(undefined);
+      expect(component.selectedVarianteNetzbezug).toEqual(null);
+      expect(component.selectedVarianteKantenBezug).toEqual(null);
     }));
   });
 
   it('should disable form when editing attributes not allowed', () => {
-    dataSubject.next({ fahrradrouteDetailView: { ...defaultFahrradroute, canEditAttribute: false } });
+    dataSubject.next({ fahrradrouteDetailView: { ...fahrradroute, canEditAttribute: false } });
 
     expect(component.formGroup.enabled).toBeFalse();
   });
 
   it('should always disable certain fields', () => {
-    dataSubject.next({ fahrradrouteDetailView: { ...defaultFahrradroute, canEditAttribute: true } });
+    dataSubject.next({ fahrradrouteDetailView: { ...fahrradroute, canEditAttribute: true } });
 
     expect(component.formGroup.get('laengeHauptstrecke')?.disabled).toBeTrue();
     expect(component.formGroup.get('toubizId')?.disabled).toBeTrue();
@@ -425,8 +373,8 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   });
 
   it('should enable toubizId for LRFW', () => {
-    const expectedFahrradroute = {
-      ...defaultFahrradroute,
+    const expectedFahrradroute: FahrradrouteDetailView = {
+      ...fahrradroute,
       geometrie: {
         coordinates: [
           [0, 0],
@@ -442,7 +390,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         type: 'LineString',
       },
       fahrradrouteTyp: FahrradrouteTyp.RADVIS_ROUTE,
-      kategorie: Kategorie.LANDESRADFERNWEG,
+      fahrradrouteKategorie: FahrradrouteKategorie.LANDESRADFERNWEG,
       canEditAttribute: true,
     };
     dataSubject.next({
@@ -452,7 +400,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       name: expectedFahrradroute.name,
       kurzbeschreibung: expectedFahrradroute.kurzbeschreibung,
       beschreibung: expectedFahrradroute.beschreibung,
-      kategorie: expectedFahrradroute.kategorie,
+      fahrradrouteKategorie: expectedFahrradroute.fahrradrouteKategorie,
       tourenkategorie: expectedFahrradroute.tourenkategorie,
       offizielleLaenge: expectedFahrradroute.offizielleLaenge / 1000,
       verantwortlich: expectedFahrradroute.verantwortlich,
@@ -499,7 +447,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         } as LineStringGeojson,
       };
       const expectedFahrradroute = {
-        ...defaultFahrradroute,
+        ...fahrradroute,
         varianten: [variante1, variante2],
       };
 
@@ -514,15 +462,15 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       });
 
       component['changeDetector'].detectChanges();
-      expect(component.variantenFormArray).toHaveSize(2);
+      expect(component.formGroup.controls.varianten).toHaveSize(2);
       component.selectedVarianteControl.patchValue(0);
       component['changeDetector'].detectChanges();
       expect(component.deleteSelectedStreckeForbidden).toBeFalse();
       expect(isLoeschenButtonDisabled(fixture.debugElement)).toBeFalse();
       component.onSelectedStreckeLoeschen();
       closeSubject.next(true);
-      expect(component.variantenFormArray).toHaveSize(1);
-      expect(component.variantenFormArray.at(0).get('kategorie')?.value).toEqual(variante2.kategorie);
+      expect(component.formGroup.controls.varianten).toHaveSize(1);
+      expect(component.formGroup.controls.varianten.at(0).get('kategorie')?.value).toEqual(variante2.kategorie);
       expect(component.deleteSelectedStreckeForbidden).toBeFalse();
       verify(fahrradrouteService.deleteFahrradroute(anything())).never();
     });
@@ -553,7 +501,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         } as LineStringGeojson,
       };
       const expectedFahrradroute = {
-        ...defaultFahrradroute,
+        ...fahrradroute,
         varianten: [variante1, variante2],
       };
       dataSubject.next({
@@ -566,9 +514,9 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
     });
 
     it('should disable Löschen-Button when LRFW Haupstrecke selected', () => {
-      const expectedFahrradroute = {
-        ...defaultFahrradroute,
-        kategorie: Kategorie.LANDESRADFERNWEG,
+      const expectedFahrradroute: FahrradrouteDetailView = {
+        ...fahrradroute,
+        fahrradrouteKategorie: FahrradrouteKategorie.LANDESRADFERNWEG,
       };
       dataSubject.next({
         fahrradrouteDetailView: expectedFahrradroute,
@@ -580,9 +528,9 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
     });
 
     it('should disable Löschen-Button when D-Route Haupstrecke selected', () => {
-      const expectedFahrradroute = {
-        ...defaultFahrradroute,
-        kategorie: Kategorie.D_ROUTE,
+      const expectedFahrradroute: FahrradrouteDetailView = {
+        ...fahrradroute,
+        fahrradrouteKategorie: FahrradrouteKategorie.D_ROUTE,
       };
       dataSubject.next({
         fahrradrouteDetailView: expectedFahrradroute,
@@ -595,7 +543,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
 
     it('should delete not-LRFW Hauptroute correctly', () => {
       const expectedFahrradroute = {
-        ...defaultFahrradroute,
+        ...fahrradroute,
       };
 
       const closeSubject = new Subject<boolean>();
@@ -620,8 +568,8 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
 
   describe('onSave', () => {
     beforeEach(() => {
-      dataSubject.next({ fahrradrouteDetailView: defaultFahrradroute });
-      when(fahrradrouteService.saveFahrradroute(anything())).thenReturn(Promise.resolve(defaultFahrradroute));
+      dataSubject.next({ fahrradrouteDetailView: fahrradroute });
+      when(fahrradrouteService.saveFahrradroute(anything())).thenReturn(Promise.resolve(fahrradroute));
     });
 
     it('should create command correctly', () => {
@@ -671,19 +619,19 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       const command = capture(fahrradrouteService.saveFahrradroute).last()[0];
 
       expect(command).toEqual({
-        id: defaultFahrradroute.id,
-        version: defaultFahrradroute.version,
+        id: fahrradroute.id,
+        version: fahrradroute.version,
         name: 'MyNewName',
-        kurzbeschreibung: defaultFahrradroute.kurzbeschreibung,
-        beschreibung: defaultFahrradroute.beschreibung,
-        kategorie: defaultFahrradroute.kategorie,
-        tourenkategorie: defaultFahrradroute.tourenkategorie,
-        offizielleLaenge: defaultFahrradroute.offizielleLaenge,
-        homepage: defaultFahrradroute.homepage,
-        verantwortlichId: defaultFahrradroute.verantwortlich?.id,
-        emailAnsprechpartner: defaultFahrradroute.emailAnsprechpartner,
-        lizenz: defaultFahrradroute.lizenz,
-        lizenzNamensnennung: defaultFahrradroute.lizenzNamensnennung,
+        kurzbeschreibung: fahrradroute.kurzbeschreibung,
+        beschreibung: fahrradroute.beschreibung,
+        kategorie: fahrradroute.fahrradrouteKategorie,
+        tourenkategorie: fahrradroute.tourenkategorie,
+        offizielleLaenge: fahrradroute.offizielleLaenge,
+        homepage: fahrradroute.homepage,
+        verantwortlichId: fahrradroute.verantwortlich?.id,
+        emailAnsprechpartner: fahrradroute.emailAnsprechpartner,
+        lizenz: fahrradroute.lizenz,
+        lizenzNamensnennung: fahrradroute.lizenzNamensnennung,
         toubizId: undefined,
         varianten: [
           {
@@ -740,8 +688,8 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
 
   describe('onVeroeffentlichtChanged', () => {
     beforeEach(() => {
-      dataSubject.next({ fahrradrouteDetailView: defaultFahrradroute });
-      when(fahrradrouteService.updateVeroeffentlicht(anything())).thenReturn(Promise.resolve(defaultFahrradroute));
+      dataSubject.next({ fahrradrouteDetailView: fahrradroute });
+      when(fahrradrouteService.updateVeroeffentlicht(anything())).thenReturn(Promise.resolve(fahrradroute));
     });
 
     it('should create command correctly', () => {
@@ -753,8 +701,8 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       const command = capture(fahrradrouteService.updateVeroeffentlicht).last()[0];
 
       expect(command).toEqual({
-        id: defaultFahrradroute.id,
-        version: defaultFahrradroute.version,
+        id: fahrradroute.id,
+        version: fahrradroute.version,
         veroeffentlicht: true,
       } as ChangeFahrradrouteVeroeffentlichtCommand);
     });
@@ -772,7 +720,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   describe('update fahrradrouteprofil', () => {
     it('should update Profil and trigger showProfile if editStrecke enabled and geometry changes', fakeAsync(() => {
       dataSubject.next({
-        fahrradrouteDetailView: defaultFahrradroute,
+        fahrradrouteDetailView: fahrradroute,
       });
 
       tick();
@@ -790,7 +738,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         fahrradrouteProfilService.updateCurrentRouteProfil(
           deepEqual({
             geometrie: defaultFahrradrouteNetzbezug.geometrie,
-            name: defaultFahrradroute.name,
+            name: fahrradroute.name,
             profilEigenschaften: defaultFahrradrouteNetzbezug.profilEigenschaften,
           })
         )
@@ -802,7 +750,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
     it('should update Profil and trigger showProfile if variante is added', fakeAsync(() => {
       dataSubject.next({
         fahrradrouteDetailView: {
-          ...defaultFahrradroute,
+          ...fahrradroute,
           geometrie: {
             coordinates: [
               [42, 42, 42],
@@ -828,7 +776,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         fahrradrouteProfilService.updateCurrentRouteProfil(
           deepEqual({
             geometrie: undefined,
-            name: defaultFahrradroute.name,
+            name: fahrradroute.name,
             profilEigenschaften: undefined,
           })
         )
@@ -850,27 +798,25 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   it('onEditVerlauf should empty netzbezug and kantenbezug', fakeAsync(() => {
     component.onEditVerlauf();
 
-    expect(component.selectedVarianteNetzbezug).toEqual(undefined);
-    expect(component.selectedVarianteKantenBezug).toEqual(undefined);
+    expect(component.selectedVarianteNetzbezug).toEqual(null);
+    expect(component.selectedVarianteKantenBezug).toEqual(null);
   }));
 
   describe('selectedNetzbezugControl', () => {
     it('should return correct variante netzbezug control', () => {
       component.onVarianteAdded(VarianteKategorie.ALTERNATIVSTRECKE);
-      expect(component.selectedNetzbezugControl).toBe(
-        component.variantenFormArray.at(0).get('netzbezug') as UntypedFormControl
-      );
+      expect(component.selectedNetzbezugControl).toBe(component.formGroup.controls.varianten.at(0).controls.netzbezug);
     });
 
     it('should return Hauptstrecke netzbezug control', () => {
       component.selectedVarianteControl.setValue(component.HAUPTSTRECKE);
-      expect(component.selectedNetzbezugControl).toBe(component.formGroup.get('netzbezug') as UntypedFormControl);
+      expect(component.selectedNetzbezugControl).toBe(component.formGroup.controls.netzbezug);
     });
   });
 
   describe('selectedVarianteControl', () => {
     it('should be HAUPTSTRECKE after reset', () => {
-      component.currentFahrradroute = defaultFahrradroute;
+      component.currentFahrradroute = fahrradroute;
       component.onVarianteAdded(VarianteKategorie.ALTERNATIVSTRECKE);
       component.onReset();
       expect(component.selectedVarianteControl.value).toEqual(component.HAUPTSTRECKE);
@@ -880,13 +826,13 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   describe('onVarianteAdd', () => {
     it('should increase number on same kategorie', () => {
       dataSubject.next({
-        fahrradrouteDetailView: defaultFahrradroute,
+        fahrradrouteDetailView: fahrradroute,
       });
       component.onVarianteAdded(VarianteKategorie.ALTERNATIVSTRECKE);
-      expect(component.variantenFormArray.length).toBe(1);
+      expect(component.formGroup.controls.varianten.length).toBe(1);
 
       component.onVarianteAdded(VarianteKategorie.ALTERNATIVSTRECKE);
-      expect(component.variantenFormArray.length).toBe(2);
+      expect(component.formGroup.controls.varianten.length).toBe(2);
 
       component['changeDetector'].detectChanges();
 
@@ -965,7 +911,7 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
   describe('should create display text from control', () => {
     it('should show correct texts for variants', () => {
       const expectedFahrradroute = {
-        ...defaultFahrradroute,
+        ...fahrradroute,
         varianten: [
           {
             id: 1,
@@ -1019,9 +965,9 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
       });
 
       expect(component.currentFahrradroute).toEqual(expectedFahrradroute);
-      expect(component.getDisplayText(component.variantenFormArray.controls[0])).toEqual('Alternativstrecke');
-      expect(component.getDisplayText(component.variantenFormArray.controls[1])).toEqual('Gegenrichtung');
-      expect(component.getDisplayText(component.variantenFormArray.controls[2])).toEqual('Zubringerstrecke');
+      expect(component.getDisplayText(component.formGroup.controls.varianten.controls[0])).toEqual('Alternativstrecke');
+      expect(component.getDisplayText(component.formGroup.controls.varianten.controls[1])).toEqual('Gegenrichtung');
+      expect(component.getDisplayText(component.formGroup.controls.varianten.controls[2])).toEqual('Zubringerstrecke');
     });
   });
 
@@ -1046,12 +992,11 @@ describe(FahrradrouteAttributeEditorComponent.name, () => {
         },
       ];
 
-      const fahrradroute = {
-        ...defaultFahrradroute,
+      component.currentFahrradroute = {
+        ...fahrradroute,
         laengeHauptstrecke: 4224,
         profilEigenschaften: neueProfileigenschaften,
       };
-      component.currentFahrradroute = fahrradroute;
 
       expect(component.getProfilAuswertungFuerRadverkehrsfuehrung('Unbekannt')).toEqual({
         prozent: expectedProzentProfil1,

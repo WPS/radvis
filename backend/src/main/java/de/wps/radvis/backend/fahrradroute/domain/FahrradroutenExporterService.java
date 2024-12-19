@@ -43,8 +43,9 @@ public class FahrradroutenExporterService implements ExporterService {
 		GeometryFactory geometryFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 		return fahrradrouteViewRepository.findAllByIdIn(ids).stream()
 			.map(fahrradroute -> {
-				Geometry geometry = fahrradroute.getGeometry() != null ? fahrradroute.getGeometry() : geometryFactory
-					.createMultiLineString();
+				Geometry geometry = fahrradroute.getGeometry() != null ? fahrradroute.getGeometry()
+					: geometryFactory
+						.createMultiLineString();
 				return new ExportData(geometry, convertProperties(fahrradroute));
 			}).collect(Collectors.toList());
 	}
@@ -57,12 +58,12 @@ public class FahrradroutenExporterService implements ExporterService {
 	private Map<String, String> convertProperties(FahrradrouteListenDbView fahrradroute) {
 		Map<String, String> result = new HashMap<>();
 
-		result.put("VerantwortlicheOrganisation", fahrradroute.getVerantwortlicheOrganisationName());
-		result.put("Typ", fahrradroute.getFahrradrouteTyp().toString());
+		result.put("Verantwortliche Organisation", fahrradroute.getVerantwortlicheOrganisationName());
+		result.put("Fahrradroutentyp", fahrradroute.getFahrradrouteTyp().toString());
 		result.put("Name", fahrradroute.getName().getName());
 		result.put("Kategorie", fahrradroute.getKategorie().toString());
-		result.put("Abstieg", String.format(Locale.GERMANY, "%.2f", fahrradroute.getAbstieg()));
-		result.put("Anstieg", String.format(Locale.GERMANY, "%.2f", fahrradroute.getAnstieg()));
+		result.put("Anstieg/Abstieg", String.format(Locale.GERMANY, "%.2f", fahrradroute.getAbstieg()) + " m / "
+			+ String.format(Locale.GERMANY, "%.2f", fahrradroute.getAnstieg()) + " m");
 		result.put("Kurzbeschreibung", fahrradroute.getKurzbeschreibung());
 		result.put("Homepage", fahrradroute.getHomepage());
 		result.put("Lizenz", fahrradroute.getLizenz());

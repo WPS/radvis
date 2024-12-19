@@ -31,7 +31,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.Hoehenunterschied;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Tourenkategorie;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitView;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class FahrradrouteDetailView {
 	private final FahrradrouteName name;
 	private final String kurzbeschreibung;
 	private final String beschreibung;
-	private final Kategorie kategorie;
+	private final Kategorie fahrradrouteKategorie;
 	private final Tourenkategorie tourenkategorie;
 	private final Double laengeHauptstrecke;
 	private final Double offizielleLaenge;
@@ -88,7 +88,7 @@ public class FahrradrouteDetailView {
 		this.name = fahrradroute.getName();
 		this.kurzbeschreibung = fahrradroute.getKurzbeschreibung();
 		this.beschreibung = fahrradroute.getBeschreibung();
-		this.kategorie = fahrradroute.getKategorie();
+		this.fahrradrouteKategorie = fahrradroute.getKategorie();
 		this.tourenkategorie = fahrradroute.getTourenkategorie();
 		this.laengeHauptstrecke = fahrradroute.getLaengeDerHauptstrecke();
 		this.offizielleLaenge = fahrradroute.getOffizielleLaenge().map(Laenge::getValue).orElse(null);

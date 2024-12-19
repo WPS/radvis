@@ -75,7 +75,7 @@ public class Servicestation extends VersionierteEntity {
 		public static final String FAHRRADHALTERUNG = "Fahrradhalterung";
 		public static final String BESCHREIBUNG = "Beschreibung";
 		public static final String ZUSTAENDIG_IN_RAD_VIS = "Zuständig in RadVIS";
-		public static final String TYP = "Typ";
+		public static final String TYP = "Servicestation-Typ";
 		public static final String STATUS = "Status";
 
 		public static final String QUELL_SYSTEM = "Quellsystem";
@@ -224,8 +224,7 @@ public class Servicestation extends VersionierteEntity {
 		Verwaltungseinheit organisation,
 		ServicestationTyp typ,
 		ServicestationStatus status,
-		DokumentListe dokumentListe
-	) {
+		DokumentListe dokumentListe) {
 		this(
 			null,
 			null,
@@ -244,8 +243,7 @@ public class Servicestation extends VersionierteEntity {
 			status,
 			organisation,
 			dokumentListe,
-			ServicestationenQuellSystem.RADVIS
-		);
+			ServicestationenQuellSystem.RADVIS);
 	}
 
 	/**
@@ -265,8 +263,7 @@ public class Servicestation extends VersionierteEntity {
 		ServicestationBeschreibung beschreibung,
 		Verwaltungseinheit organisation,
 		ServicestationTyp typ,
-		ServicestationStatus status
-	) {
+		ServicestationStatus status) {
 		require(geometrie, notNullValue());
 		require(name, notNullValue());
 		require(gebuehren, notNullValue());

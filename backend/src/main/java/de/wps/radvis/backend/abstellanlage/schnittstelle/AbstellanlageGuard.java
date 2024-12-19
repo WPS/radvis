@@ -59,6 +59,19 @@ public class AbstellanlageGuard {
 		assertIstImZustaendigkeitsbereich(abstellanlage.getGeometrie(), aktiverBenutzer);
 	}
 
+	public boolean darfBenutzerBearbeiten(Authentication authentication, Abstellanlage abstellanlage) {
+		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
+		try {
+			assertIstQuellSystemRadVIS(abstellanlage.getQuellSystem());
+			assertHatRecht(aktiverBenutzer);
+			assertIstImZustaendigkeitsbereich(abstellanlage.getGeometrie(), aktiverBenutzer);
+
+			return true;
+		} catch (AccessDeniedException e) {
+			return false;
+		}
+	}
+
 	private void assertIstQuellSystemRadVIS(AbstellanlagenQuellSystem quellSystem) {
 		if (!quellSystem.equals(AbstellanlagenQuellSystem.RADVIS)) {
 			throw new AccessDeniedException("Es dürfen nur Abstellanlagen mit Quellsystem RadVIS bearbeitet werden.");

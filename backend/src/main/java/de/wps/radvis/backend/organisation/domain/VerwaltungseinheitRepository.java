@@ -63,4 +63,42 @@ public interface VerwaltungseinheitRepository
 		"SELECT new de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView(organisation.id, organisation.name, organisation.organisationsArt, organisation.uebergeordneteOrganisation.id, organisation.aktiv)"
 			+ " FROM Verwaltungseinheit organisation WHERE organisation.id IN :gebietskoerperschaftIds")
 	List<VerwaltungseinheitDbView> findAllDbViewsById(List<Long> gebietskoerperschaftIds);
+
+	long countByOrganisationsArt(OrganisationsArt organisationsArt);
+
+	@Query(
+		"SELECT COUNT(DISTINCT o.id) " +
+			"FROM Verwaltungseinheit o " +
+			"JOIN Benutzer b ON o.id = b.organisation.id " +
+			"WHERE o.organisationsArt = :organisationsArt " +
+			"AND b.status = de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus.AKTIV")
+	long countVerwaltungseinheitenWithAtLeastOneActiveBenutzer(OrganisationsArt organisationsArt);
+
+	@Query(value = "SELECT org.* FROM organisation org " +
+		"WHERE org.organisations_art = 'KREIS' " +
+		"AND ( " +
+		"    SELECT COALESCE(SUM(st_length(abschnitt.geometry)), 0) " +
+		"    FROM geoserver_radvisnetz_kante_abschnitte_materialized_view abschnitt " +
+		"    WHERE abschnitt.status = 'UNTER_VERKEHR' " +
+		"    AND st_intersects(abschnitt.geometry, org.bereich) " +
+		"    AND ( " +
+		"        (abschnitt.netzklassen IS NOT NULL AND position('KREISNETZ_FREIZEIT' IN abschnitt.netzklassen) > 0) " +
+		"        OR (abschnitt.netzklassen IS NOT NULL AND position('KREISNETZ_ALLTAG' IN abschnitt.netzklassen) > 0) "
+		+
+		"    ) " +
+		") >= :laengeInMetern", nativeQuery = true)
+	List<Verwaltungseinheit> findAllKreiseWithKreisnetzGreaterOrEqual(Integer laengeInMetern);
+
+	@Query(value = "SELECT org.* FROM organisation org " +
+		"LEFT JOIN geoserver_radvisnetz_kante_abschnitte_materialized_view abschnitt " +
+		"ON st_intersects(abschnitt.geometry, org.bereich) " +
+		"AND abschnitt.status = 'UNTER_VERKEHR' " +
+		"AND ( " +
+		"   (abschnitt.netzklassen IS NOT NULL AND position('KOMMUNALNETZ_FREIZEIT' IN abschnitt.netzklassen) > 0) " +
+		"   OR (abschnitt.netzklassen IS NOT NULL AND position('KOMMUNALNETZ_ALLTAG' IN abschnitt.netzklassen) > 0) " +
+		") " +
+		"WHERE org.organisations_art = 'GEMEINDE' " +
+		"GROUP BY org.id " +
+		"HAVING COALESCE(SUM(st_Length(abschnitt.geometry)), 0) >= :laengeInMetern", nativeQuery = true)
+	List<Verwaltungseinheit> findAllKommunenWithKommunalnetzGreaterOrEqual(Integer laengeInMetern);
 }

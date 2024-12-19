@@ -37,11 +37,13 @@ import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.entity.WegweisendeBeschilderung;
 import de.wps.radvis.backend.wegweisendeBeschilderung.domain.entity.WegweisendeBeschilderungImportJobStatistik;
@@ -61,6 +63,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithFehlercode(Fehlercode.WEGWEISENDE_BESCHILDERUNG_IMPORT)
 public class WegweisendeBeschilderungImportJob extends AbstractJob {
 
 	public static final String JOB_NAME = "WegweisendeBeschilderungImportJob";
@@ -142,8 +145,7 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 				"GE_Land" // --> Land
 			),
 			Point.class,
-			SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_GEOMETRY
-		).getTypes();
+			SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_GEOMETRY).getTypes();
 
 		WegweisendeBeschilderungImportJobStatistik wegweisendeBeschilderungImportJobStatistik = new WegweisendeBeschilderungImportJobStatistik();
 		wegweisendeBeschilderungImportJobStatistik.anzahlFeatures = features.size();
@@ -218,8 +220,7 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 					beschilderungInMemRepo))
 				.filter(beschilderung -> beschilderung.isPresent())
 				.map(beschilderung -> beschilderung.get())
-				.collect(Collectors.toList())
-		);
+				.collect(Collectors.toList()));
 
 		wegweisendeBeschilderungImportJobStatistik.anzahlIgnoriert += countIgnoriert.get();
 		wegweisendeBeschilderungImportJobStatistik.anzahlNeuErstellt += countNeuErstellt.get();
@@ -284,8 +285,7 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 		return Optional.of(
 			potentiellBestehende
 				.map(p -> p.update(zuImportierendeBeschilderung))
-				.orElse(zuImportierendeBeschilderung)
-		);
+				.orElse(zuImportierendeBeschilderung));
 	}
 
 	private void deleteWegbeschilderungenWhichAreNotInFeatures(

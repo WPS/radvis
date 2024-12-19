@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -38,7 +39,6 @@ import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.PbfErstellung
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.PbfErstellungsTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -51,13 +51,12 @@ public class DlmMatchedGraphhopperTestdataProvider {
 	);
 
 	public static DlmMatchingRepositoryImpl reimportWithKanten(List<List<Kante>> kanten, String cacheDirName,
-		File tempDir) {
+		File tempDir) throws IOException {
 
 		DlmMatchedGraphHopperFactory graphHopperFactoryMock = mock(DlmMatchedGraphHopperFactory.class);
 
 		PbfErstellungsRepositoryImpl pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(
-			COORDINATE_REFERENCE_SYSTEM_CONVERTER, mock(EntityManager.class), mock(BarriereRepository.class),
-			mock(KantenRepository.class));
+			COORDINATE_REFERENCE_SYSTEM_CONVERTER, mock(BarriereRepository.class), mock(KantenRepository.class));
 
 		File pbfFile = new File(tempDir, "test-fahrradrouten-import-toubiz.osm.pbf");
 		pbfErstellungsRepository.writePbf(

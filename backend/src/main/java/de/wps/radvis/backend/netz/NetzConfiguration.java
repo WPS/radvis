@@ -21,6 +21,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.netz.domain.LineareReferenzenDefragmentierungJob;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.repository.FahrtrichtungAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.repository.FuehrungsformAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.repository.GeschwindigkeitAttributGruppeRepository;
@@ -29,8 +33,8 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
-import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.service.NetzklassenStreckenViewService;
+import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.netz.schnittstelle.NetzGuard;
@@ -38,6 +42,8 @@ import de.wps.radvis.backend.netz.schnittstelle.NetzToFeatureDetailsConverter;
 import de.wps.radvis.backend.netz.schnittstelle.SaveKanteCommandConverter;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.NonNull;
 
 @Configuration
@@ -69,9 +75,21 @@ public class NetzConfiguration {
 	@Autowired
 	private OrganisationConfigurationProperties organisationConfigurationProperties;
 
+	@Autowired
+	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
+
+	@PersistenceContext
+	EntityManager entityManager;
+
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 
 	private final BenutzerResolver benutzerResolver;
+
+	@Autowired
+	NetzConfigurationProperties netzConfigurationProperties;
+
+	@Autowired
+	CommonConfigurationProperties commonConfigurationProperties;
 
 	public NetzConfiguration(@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
 		@NonNull BenutzerResolver benutzerResolver) {
@@ -83,7 +101,8 @@ public class NetzConfiguration {
 	public NetzService netzService() {
 		return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppeRepository,
 			fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
-			fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver);
+			fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver,
+			entityManager, commonConfigurationProperties.getErlaubteAbweichungFuerKnotenNetzbezugRematch());
 	}
 
 	@Bean
@@ -121,4 +140,11 @@ public class NetzConfiguration {
 		return new SackgassenService(netzService(), kantenRepository);
 	}
 
+	@Bean
+	public LineareReferenzenDefragmentierungJob lineareReferenzenDefragmentierungJob() {
+		return new LineareReferenzenDefragmentierungJob(jobExecutionDescriptionRepository,
+			zustaendigkeitAttributGruppeRepository, fuehrungsformAttributGruppeRepository,
+			geschwindigkeitAttributGruppeRepository, kantenRepository,
+			netzConfigurationProperties.getMinimaleSegmentLaenge());
+	}
 }

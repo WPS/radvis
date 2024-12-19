@@ -71,11 +71,11 @@ import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
-import de.wps.radvis.backend.matching.domain.PbfErstellungsRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.PbfErstellungsRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
@@ -85,7 +85,6 @@ import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGr
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
-import jakarta.persistence.EntityManager;
 
 class PbfErstellungsRepositoryImplTest {
 
@@ -96,9 +95,6 @@ class PbfErstellungsRepositoryImplTest {
 	);
 
 	PbfErstellungsRepository pbfErstellungsRepository;
-
-	@Mock
-	private EntityManager entityManager;
 
 	@Mock
 	private BarriereRepository barriereRepository;
@@ -118,12 +114,11 @@ class PbfErstellungsRepositoryImplTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(converter, entityManager, barriereRepository,
-			kantenRepository);
+		pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(converter, barriereRepository, kantenRepository);
 	}
 
 	@Test
-	public void testWritePbf() {
+	public void testWritePbf() throws IOException {
 		//arrange
 		Stream<Kante> kanten = Stream.of(
 			KanteTestDataProvider
@@ -161,7 +156,7 @@ class PbfErstellungsRepositoryImplTest {
 	}
 
 	@Test
-	public void testWritePbf_zweiKantenMitGleichemInnerenStuetzpunkt_KeineGemeinsamenNodes() {
+	public void testWritePbf_zweiKantenMitGleichemInnerenStuetzpunkt_KeineGemeinsamenNodes() throws IOException {
 		//arrange
 
 		Coordinate[] coordinatesKante1 = new Coordinate[] {
@@ -265,7 +260,7 @@ class PbfErstellungsRepositoryImplTest {
 	}
 
 	@Test
-	public void testWritePbf_zweiKantenMitGleichemAeusseremStuetzpunkt_EineGemeinsameNode() {
+	public void testWritePbf_zweiKantenMitGleichemAeusseremStuetzpunkt_EineGemeinsameNode() throws IOException {
 		//arrange
 
 		Coordinate[] coordinatesKante1 = new Coordinate[] {
@@ -370,7 +365,7 @@ class PbfErstellungsRepositoryImplTest {
 	}
 
 	@Test
-	public void testWritePbf_zweiKantenStreckeUeber2PartitionenMitVerbindungInErsterPartition() {
+	public void testWritePbf_zweiKantenStreckeUeber2PartitionenMitVerbindungInErsterPartition() throws IOException {
 		//arrange
 
 		Coordinate[] coordinatesKante1 = new Coordinate[] {
@@ -483,7 +478,7 @@ class PbfErstellungsRepositoryImplTest {
 	}
 
 	@Test
-	public void testWritePbf_zweiKantenStreckeUeber2PartitionenMitVerbindungAufPartitionsgrenze() {
+	public void testWritePbf_zweiKantenStreckeUeber2PartitionenMitVerbindungAufPartitionsgrenze() throws IOException {
 		//arrange
 
 		Coordinate[] coordinatesKante1 = new Coordinate[] {
@@ -596,7 +591,7 @@ class PbfErstellungsRepositoryImplTest {
 	}
 
 	@Test
-	public void testWritePbf_zweiKantenStreckeUeber3PartitionenMitVerbindungInDritterPartition() {
+	public void testWritePbf_zweiKantenStreckeUeber3PartitionenMitVerbindungInDritterPartition() throws IOException {
 		//arrange
 
 		Coordinate[] coordinatesKante1 = new Coordinate[] {
@@ -717,7 +712,7 @@ class PbfErstellungsRepositoryImplTest {
 	}
 
 	@Test
-	public void testWritePbf_zweiKantenStreckeUeber2PartitionenMitVerbindungInZweiterPartition() {
+	public void testWritePbf_zweiKantenStreckeUeber2PartitionenMitVerbindungInZweiterPartition() throws IOException {
 		//arrange
 
 		Coordinate[] coordinatesKante1 = new Coordinate[] {

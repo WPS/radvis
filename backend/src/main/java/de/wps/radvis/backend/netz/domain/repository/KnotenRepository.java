@@ -15,19 +15,18 @@
 package de.wps.radvis.backend.netz.domain.repository;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 
 public interface KnotenRepository extends CrudRepository<Knoten, Long>, CustomKnotenRepository {
 	String GEOSERVER_BALM_KNOTEN_VIEW_NAME = "geoserver_balm_knoten_view";
 
-	Stream<Knoten> findKnotenByQuelle(QuellSystem quelle);
-
 	@Query("From Knoten knoten where knoten.quelle=de.wps.radvis.backend.common.domain.valueObject.QuellSystem.DLM AND not exists (select kante from Kante kante where kante.quelle = de.wps.radvis.backend.common.domain.valueObject.QuellSystem.DLM and (kante.vonKnoten = knoten or kante.nachKnoten = knoten))")
 	List<Knoten> findDlmKnotenWithoutDlmKanten();
+
+	@Query(value = "select * from knoten where id!=?1 AND st_dwithin(point, (select point from knoten where id=?1), ?2) ORDER BY point <-> (select point from knoten where id=?1)", nativeQuery = true)
+	List<Knoten> findErsatzKnotenCandidates(Long fuerKnotenId, double maximaleAbweichung);
 }

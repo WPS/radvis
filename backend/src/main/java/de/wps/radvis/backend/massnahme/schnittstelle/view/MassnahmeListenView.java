@@ -24,6 +24,7 @@ import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
@@ -60,6 +61,8 @@ public class MassnahmeListenView {
 	private final SollStandard sollStandard;
 	private final Handlungsverantwortlicher handlungsverantwortlicher;
 	private final Geometry geometry;
+	private final Konzeptionsquelle konzeptionsquelle;
+	private final boolean archiviert;
 
 	public MassnahmeListenView(MassnahmeListenDbView massnahmeListenDBView) {
 		this(massnahmeListenDBView.getId(),
@@ -102,6 +105,8 @@ public class MassnahmeListenView {
 					true),
 			massnahmeListenDBView.getSollStandard(),
 			massnahmeListenDBView.getHandlungsverantwortlicher(),
-			massnahmeListenDBView.getDisplayGeometry());
+			massnahmeListenDBView.getDisplayGeometry(),
+			massnahmeListenDBView.getKonzeptionsquelle(),
+			massnahmeListenDBView.isArchiviert());
 	}
 }

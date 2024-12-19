@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.benutzer.domain;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
@@ -49,25 +50,87 @@ public class SetzeBenutzerInaktivJobTest {
 	}
 
 	@Test
-	void testSetzeBenutzerInaktiv() throws BenutzerIstNichtRegistriertException {
-		//arrange
-		Long id = 1L;
-		Long version = 2L;
-
-		Benutzer benutzer = BenutzerTestDataProvider
+	void testSetzeBenutzerInaktiv_zuLangeNichtAktiv() throws BenutzerIstNichtRegistriertException {
+		// Arrange
+		Benutzer benutzer1 = BenutzerTestDataProvider
 			.defaultBenutzer()
-			.id(id)
-			.version(version)
+			.id(1L)
+			.version(2L)
+			.build();
+
+		Benutzer benutzer2 = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(2L)
+			.version(3L)
 			.build();
 
 		when(benutzerService.ermittleAktiveBenutzerInaktivLaengerAls(inaktivitaetsTimeoutInTagen)).thenReturn(
-			List.of(benutzer));
+			List.of(benutzer1, benutzer2));
 
-		//act
+		// Act
 		setzeBenutzerInaktivJob.doRun();
 
-		//assert
-		verify(benutzerService).aendereBenutzerstatus(benutzer.getId(), benutzer.getVersion(), BenutzerStatus.INAKTIV);
-		//
+		// Assert
+		verify(benutzerService).aendereBenutzerstatus(benutzer1.getId(), benutzer1.getVersion(),
+			BenutzerStatus.INAKTIV);
+		verify(benutzerService).aendereBenutzerstatus(benutzer2.getId(), benutzer2.getVersion(),
+			BenutzerStatus.INAKTIV);
+	}
+
+	@Test
+	void testSetzeBenutzerInaktiv_ablaufdatumUeberschritten() throws BenutzerIstNichtRegistriertException {
+		// Arrange
+		Benutzer benutzer1 = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(1L)
+			.version(2L)
+			.build();
+
+		Benutzer benutzer2 = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(2L)
+			.version(3L)
+			.build();
+
+		when(benutzerService.ermittleBenutzerAblaufdatumUeberschritten()).thenReturn(List.of(benutzer1, benutzer2));
+
+		// Act
+		setzeBenutzerInaktivJob.doRun();
+
+		// Assert
+		verify(benutzerService).aendereBenutzerstatus(benutzer1.getId(), benutzer1.getVersion(),
+			BenutzerStatus.INAKTIV);
+		verify(benutzerService).aendereBenutzerstatus(benutzer2.getId(), benutzer2.getVersion(),
+			BenutzerStatus.INAKTIV);
+	}
+
+	@Test
+	void testSetzeBenutzerInaktiv_mehrereGruende_wirdNurEinMalInaktivGesetzt()
+		throws BenutzerIstNichtRegistriertException {
+		// Arrange
+		Benutzer benutzer1 = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(1L)
+			.version(2L)
+			.build();
+
+		Benutzer benutzer2 = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(2L)
+			.version(3L)
+			.build();
+
+		when(benutzerService.ermittleAktiveBenutzerInaktivLaengerAls(inaktivitaetsTimeoutInTagen)).thenReturn(
+			List.of(benutzer1, benutzer2));
+		when(benutzerService.ermittleBenutzerAblaufdatumUeberschritten()).thenReturn(List.of(benutzer1, benutzer2));
+
+		// Act
+		setzeBenutzerInaktivJob.doRun();
+
+		// Assert
+		verify(benutzerService, times(1)).aendereBenutzerstatus(benutzer1.getId(), benutzer1.getVersion(),
+			BenutzerStatus.INAKTIV);
+		verify(benutzerService, times(1)).aendereBenutzerstatus(benutzer2.getId(), benutzer2.getVersion(),
+			BenutzerStatus.INAKTIV);
 	}
 }

@@ -30,8 +30,8 @@ import org.mockito.MockitoAnnotations;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeListenDbViewTestDataProvider;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeListenDbViewTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeViewRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
@@ -91,7 +91,7 @@ public class MassnahmenExporterServiceTest {
 			.isEqualTo(massnahme.getNetzbezug().getImmutableKantenAbschnittBezug().iterator().next().getKante()
 				.getGeometry().getCoordinates());
 
-		assertThat(exportDataProperties).hasSize(23);
+		assertThat(exportDataProperties).hasSize(25);
 		assertThat(exportDataProperties.get("RADVIS_ID"))
 			.isEqualTo("1");
 		assertThat(exportDataProperties.get("Bezeichnung"))
@@ -126,7 +126,7 @@ public class MassnahmenExporterServiceTest {
 			.isEqualTo("Beispiel-Unterhalts-Zuständiger (Gemeinde)");
 		assertThat(exportDataProperties.get("Letzte Änderung"))
 			.isEqualTo("01.10.2020 10:12");
-		assertThat(exportDataProperties.get("BenutzerIn der letzten Änderung"))
+		assertThat(exportDataProperties.get("Benutzer/in der letzten Änderung"))
 			.isEqualTo("adminVorname adminNachname");
 		assertThat(exportDataProperties.get("Soll-Standard"))
 			.isEqualTo("Kein Standard erfüllt");
@@ -144,5 +144,52 @@ public class MassnahmenExporterServiceTest {
 			.isEqualTo("verbaID");
 		assertThat(exportDataProperties.get("LGVFG-ID"))
 			.isEqualTo("lgvfgid");
+		assertThat(exportDataProperties.get("Quelle"))
+			.isEqualTo("RadNETZ-Maßnahme (2016)");
+		assertThat(exportDataProperties.get("Archiviert"))
+			.isEqualTo("Nein");
+	}
+
+	@Test
+	public void export_archiviert() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withDefaultValues().id(234l).build();
+		Massnahme massnahme = MassnahmeTestDataProvider.withKanten(kante)
+			.id(1L)
+			.letzteAenderung(LocalDateTime.of(2020, 10, 1, 10, 12)).planungErforderlich(true)
+			.sollStandard(SollStandard.KEIN_STANDARD_ERFUELLT)
+			.baulastZustaendiger(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+					.name("Beispiel-Baulast-Zuständiger")
+					.organisationsArt(OrganisationsArt.KREIS)
+					.build())
+			.unterhaltsZustaendiger(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+					.name("Beispiel-Unterhalts-Zuständiger")
+					.organisationsArt(OrganisationsArt.GEMEINDE)
+					.build())
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+			.build();
+		massnahme.archivieren();
+		massnahme.removeKanteFromNetzbezug(List.of(kante.getId()));
+		List<Long> ids = List.of(1L);
+		when(massnahmeRepository.findAllByIdIn(ids))
+			.thenReturn(List.of(MassnahmeListenDbViewTestDataProvider.withMassnahme(massnahme).build()));
+
+		// Act
+		List<ExportData> result = exporterService.export(ids);
+
+		// Assert
+		Geometry exportDataGeometry = result.get(0).getGeometry();
+		Map<String, String> exportDataProperties = result.get(0).getProperties();
+
+		assertThat(exportDataGeometry.getNumGeometries())
+			.isEqualTo(1);
+		assertThat(exportDataGeometry.getGeometryN(0).getGeometryType())
+			.isEqualTo("MultiLineString");
+		assertThat(exportDataGeometry.getGeometryN(0).getCoordinates())
+			.isEqualTo(kante.getGeometry().getCoordinates());
+		assertThat(exportDataProperties.get("Archiviert"))
+			.isEqualTo("Ja");
 	}
 }

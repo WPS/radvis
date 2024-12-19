@@ -81,7 +81,7 @@ describe(ImportNetzklasseAutomatischeAbbildungComponent.name, () => {
           useValue: instance(netzklassenImportService),
         },
       ],
-    });
+    }).compileComponents();
   });
 
   beforeEach(() => {

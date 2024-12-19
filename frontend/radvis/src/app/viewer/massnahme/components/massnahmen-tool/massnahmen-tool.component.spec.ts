@@ -18,19 +18,20 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Data } from '@angular/router';
 import { Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
+import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { MassnahmenToolComponent } from 'src/app/viewer/massnahme/components/massnahmen-tool/massnahmen-tool.component';
+import { MassnahmeToolView } from 'src/app/viewer/massnahme/models/massnahme-tool-view';
 import { defaultMassnahmeToolView } from 'src/app/viewer/massnahme/models/massnahme-tool-view-test-data-provider';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
-import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 
 describe(MassnahmenToolComponent.name, () => {
   let massnahmenToolComponent: MassnahmenToolComponent;
@@ -67,6 +68,7 @@ describe(MassnahmenToolComponent.name, () => {
 
     const changeDetectorRef = {
       detectChanges: (): void => {},
+      markForCheck: (): void => {},
     };
     massnahmenToolComponent = new MassnahmenToolComponent(
       instance(activatedRoute),
@@ -77,8 +79,6 @@ describe(MassnahmenToolComponent.name, () => {
       instance(notifyUserService),
       instance(massnahmeFilterService),
       instance(dialog),
-      instance(errorHandlingService),
-      instance(fileHandlingService),
       changeDetectorRef as ChangeDetectorRef,
       instance(olMapService)
     );
@@ -94,13 +94,15 @@ describe(MassnahmenToolComponent.name, () => {
     it('should set MassnahmeToolView from route data and retrieve benachrichtigungsfunktion when another massnahme was selected', fakeAsync(() => {
       expect(massnahmenToolComponent.benachrichtigungAktiv).toBeNull();
 
-      const massnahme = {
+      const massnahme: MassnahmeToolView = {
         id: 3,
         version: 1,
         canDelete: true,
         hasUmsetzungsstand: false,
         netzbezug: defaultNetzbezug,
         originalGeometrie: null,
+        netzbezugSnapshot: null,
+        archiviert: false,
       };
       data.next({
         massnahme,

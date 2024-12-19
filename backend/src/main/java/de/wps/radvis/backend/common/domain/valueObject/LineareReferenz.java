@@ -32,9 +32,9 @@ import lombok.Getter;
 import lombok.NonNull;
 
 /**
- * Modelliert eine lineare Referenzierung mittels des dezimalen Anteils (Fraction), von 0.0 bis 1.0,
- * an einem linearen gemessenen Feature bzw einer linearen Geometrie. Diese Klasse stellt eine solcher Markierungen
- * da - nicht den Bereich ab der / bis zur Markierung.
+ * Modelliert eine lineare Referenzierung mittels des dezimalen Anteils (Fraction), von 0.0 bis 1.0, an einem linearen
+ * gemessenen Feature bzw einer linearen Geometrie. Diese Klasse stellt eine solcher Markierungen da - nicht den Bereich
+ * ab der / bis zur Markierung.
  */
 @EqualsAndHashCode
 public class LineareReferenz {
@@ -80,7 +80,7 @@ public class LineareReferenz {
 	}
 
 	public static boolean fractionEqual(LineareReferenz d1, LineareReferenz d2) {
-		return Math.abs(d1.abschnittsmarke - d2.abschnittsmarke) < PRECISION;
+		return fractionEqual(d1.abschnittsmarke, d2.abschnittsmarke);
 	}
 
 	public static boolean fractionEqual(Double d1, Double d2) {

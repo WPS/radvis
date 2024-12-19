@@ -12,9 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ManualRoutingService } from './manual-routing.service';
 import { Router } from '@angular/router';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
+import { ManualRoutingService } from './manual-routing.service';
 
 describe(ManualRoutingService.name, () => {
   let manualRoutingService: ManualRoutingService;
@@ -22,12 +23,7 @@ describe(ManualRoutingService.name, () => {
 
   beforeEach(() => {
     router = mock(Router);
-
-    manualRoutingService = new ManualRoutingService(instance(router));
-  });
-
-  it('should be created', () => {
-    expect(manualRoutingService).toBeTruthy();
+    manualRoutingService = new ManualRoutingService(instance(router), instance(mock(MatomoTracker)));
   });
 
   describe('with url and openSpy', () => {

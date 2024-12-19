@@ -14,8 +14,9 @@
 
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Data } from '@angular/router';
 import { MockBuilder } from 'ng-mocks';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { Subject } from 'rxjs';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -42,6 +43,7 @@ describe(MassnahmenUmsetzungsstandComponent.name, () => {
   let activatedRoute: ActivatedRoute;
   let dialog: MatDialog;
   let massnahmeNetzbezugDisplayService: MassnahmeNetzbezugDisplayService;
+  let matomoTracker: MatomoTracker;
 
   beforeEach(() => {
     dataSubject = new Subject();
@@ -53,8 +55,10 @@ describe(MassnahmenUmsetzungsstandComponent.name, () => {
     massnahmeNetzbezugDisplayService = {
       showNetzbezug: (): void => {},
     };
+    matomoTracker = mock(MatomoTracker);
 
     when(activatedRoute.data).thenReturn(dataSubject.asObservable());
+    when(activatedRoute.snapshot).thenReturn({ url: [''] } as unknown as ActivatedRouteSnapshot);
 
     return MockBuilder(MassnahmenUmsetzungsstandComponent, ViewerModule)
       .provide({
@@ -74,8 +78,16 @@ describe(MassnahmenUmsetzungsstandComponent.name, () => {
         useValue: instance(dialog),
       })
       .provide({
+        provide: MatomoTracker,
+        useValue: instance(mock(MatomoTracker)),
+      })
+      .provide({
         provide: MassnahmeNetzbezugDisplayService,
         useValue: massnahmeNetzbezugDisplayService,
+      })
+      .provide({
+        provide: MatomoTracker,
+        useValue: instance(matomoTracker),
       });
   });
 

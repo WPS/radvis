@@ -16,59 +16,64 @@ import { Inject, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { AbstractQueryParams } from 'src/app/shared/models/abstract-query-params';
 import { AbstractQueryParamsService } from 'src/app/shared/services/abstract-query-params.service';
 import { Infrastruktur, InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
 import { InfrastrukturenQueryParams } from 'src/app/viewer/viewer-shared/models/infrastruktur-query-params';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Injectable({
   providedIn: 'root',
 })
 export class InfrastrukturenSelektionService extends AbstractQueryParamsService<InfrastrukturenQueryParams> {
   selektierteInfrastrukturen$: Observable<Infrastruktur[]>;
-  tabellenVisible$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     router: Router,
-    @Inject(InfrastrukturToken) infrastrukturen: Infrastruktur[]
+    @Inject(InfrastrukturToken) private infrastrukturen: Infrastruktur[],
+    private matomoTracker: MatomoTracker
   ) {
     super(router);
+    this.convertQueryParamToInfrastrukturen(this.activatedRoute.snapshot.queryParams.infrastrukturen).forEach(
+      infrastruktur => {
+        this.trackInfrastrukturSelektion(infrastruktur);
+      }
+    );
     this.selektierteInfrastrukturen$ = this.activatedRoute.queryParams.pipe(
       map(params => params.infrastrukturen),
       distinctUntilChanged(),
       map(param => {
-        const includedPathElements = InfrastrukturenQueryParams.paramToInfrastrukturen(param);
-        return infrastrukturen.filter(i => includedPathElements.includes(i.pathElement));
+        return this.convertQueryParamToInfrastrukturen(param);
       })
     );
+  }
 
-    this.tabellenVisible$ = this.activatedRoute.queryParams.pipe(
-      map(params => params.tabellenVisible),
-      distinctUntilChanged(),
-      map(param => AbstractQueryParams.paramToBoolean(param) ?? false)
-    );
+  private convertQueryParamToInfrastrukturen(param: string | undefined): Infrastruktur[] {
+    const includedPathElements = InfrastrukturenQueryParams.paramToInfrastrukturen(param);
+    return this.infrastrukturen.filter(i => includedPathElements.includes(i.pathElement));
+  }
+
+  public get selektierteInfrastrukturen(): Infrastruktur[] {
+    return this.convertQueryParamToInfrastrukturen(this.activatedRoute.snapshot.queryParams.infrastrukturen);
   }
 
   public selectInfrastrukturen(infrastrukturen: Infrastruktur): void {
     if (!this.isSelected(infrastrukturen)) {
       // ACHTUNG! Hier können wir in race-conditions laufen, z.B. wenn die Methode zweimal direkt hintereinander aufgerufen wird.
-      // Der QueryParams-snapshot erhält bei zweiten Aufruf den alten Wert (da die navigation noch nicht abgeschlossen ist) und
+      // Der QueryParams-snapshot erhält bei zweitem Aufruf den alten Wert (da die navigation noch nicht abgeschlossen ist) und
       // wir haben ein Lost-update. In den Tests werden aufeinanderfolgende Aufruf zur Vermeidung in setTimeout gewrappt.
-      this.updateQueryParams({
-        infrastrukturen: [...this.infrastrukturenQueryParamsSnapshot.infrastrukturen, infrastrukturen.pathElement],
-        tabellenVisible: true,
-      });
+      this.trackInfrastrukturSelektion(infrastrukturen);
+      this.updateQueryParams([...this.infrastrukturenQueryParamsSnapshot.infrastrukturen, infrastrukturen.pathElement]);
     }
   }
 
   public deselectInfrastrukturen(infrastrukturen: Infrastruktur): void {
     if (this.isSelected(infrastrukturen)) {
-      this.updateQueryParams({
-        infrastrukturen: this.infrastrukturenQueryParamsSnapshot.infrastrukturen.filter(
+      this.updateQueryParams(
+        this.infrastrukturenQueryParamsSnapshot.infrastrukturen.filter(
           selektion => selektion !== infrastrukturen.pathElement
-        ),
-      });
+        )
+      );
     }
   }
 
@@ -76,24 +81,16 @@ export class InfrastrukturenSelektionService extends AbstractQueryParamsService<
     return this.infrastrukturenQueryParamsSnapshot.infrastrukturen.includes(infrastrukturen.pathElement);
   }
 
-  public toggleTabellenVisible(): void {
-    this.updateQueryParams({
-      tabellenVisible: !this.infrastrukturenQueryParamsSnapshot.tabellenVisible,
-    });
-  }
-
-  public showTabelle(): void {
-    this.updateQueryParams({
-      tabellenVisible: true,
-    });
-  }
-
   private get infrastrukturenQueryParamsSnapshot(): InfrastrukturenQueryParams {
     return InfrastrukturenQueryParams.fromRoute(this.activatedRoute.snapshot.queryParams);
   }
 
-  private updateQueryParams(opts: { infrastrukturen?: string[]; tabellenVisible?: boolean }): void {
-    const queryParams = InfrastrukturenQueryParams.merge(opts, this.infrastrukturenQueryParamsSnapshot);
+  private updateQueryParams(infrastrukturen: string[]): void {
+    const queryParams = InfrastrukturenQueryParams.merge({ infrastrukturen }, this.infrastrukturenQueryParamsSnapshot);
     this.updateInUrl(queryParams);
+  }
+
+  private trackInfrastrukturSelektion(infrastruktur: Infrastruktur): void {
+    this.matomoTracker.trackEvent('Infrastruktur', 'Aufruf', infrastruktur.name);
   }
 }

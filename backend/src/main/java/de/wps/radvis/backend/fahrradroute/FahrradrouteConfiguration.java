@@ -60,8 +60,8 @@ import de.wps.radvis.backend.fahrradroute.schnittstelle.FahrradrouteGuard;
 import de.wps.radvis.backend.fahrradroute.schnittstelle.SaveFahrradrouteCommandConverter;
 import de.wps.radvis.backend.fahrradroute.schnittstelle.ToubizConfigurationProperties;
 import de.wps.radvis.backend.fahrradroute.schnittstelle.ToubizRepositoryImpl;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.netz.domain.KanteResolver;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
@@ -166,7 +166,7 @@ public class FahrradrouteConfiguration {
 		return new FahrradrouteService(fahrradrouteRepository, fahrradrouteViewRepository,
 			org.springframework.data.util.Lazy.of(() -> graphhopperRoutingRepository),
 			fahrradrouteNetzBezugAenderungRepository, jobExecutionDescriptionRepository, benutzerService,
-			sackgassenService);
+			sackgassenService, commonConfigurationProperties.getErlaubteAbweichungFuerKantenNetzbezugRematch());
 	}
 
 	@Bean

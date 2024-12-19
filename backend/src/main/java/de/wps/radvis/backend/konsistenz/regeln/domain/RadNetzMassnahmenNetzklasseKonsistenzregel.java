@@ -59,11 +59,11 @@ public class RadNetzMassnahmenNetzklasseKonsistenzregel implements Konsistenzreg
 			fromAlleRadNetzKanten);
 
 		String whereStatusAndKonzeptionsquelle = String.format(
-			"WHERE m.konzeptionsquelle='%s'"
+			"WHERE (m.konzeptionsquelle='%s' OR m.konzeptionsquelle='%s')"
 				+ " AND m.umsetzungsstatus!='%s'"
 				+ " AND m.umsetzungsstatus!='%s' ",
-			Konzeptionsquelle.RADNETZ_MASSNAHME.name(), Umsetzungsstatus.STORNIERT.name(),
-			Umsetzungsstatus.UMGESETZT.name());
+			Konzeptionsquelle.RADNETZ_MASSNAHME.name(), Konzeptionsquelle.RADNETZ_MASSNAHME_2024.name(),
+			Umsetzungsstatus.STORNIERT.name(), Umsetzungsstatus.UMGESETZT.name());
 
 		String streckenmassnahmen = String.format(
 			"SELECT distinct ON (m.id) m.id AS massnahme_id, ST_AsText(k.geometry) AS geometry, k.id AS bezug_id"

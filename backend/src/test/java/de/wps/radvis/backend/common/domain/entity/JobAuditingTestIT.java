@@ -49,7 +49,6 @@ import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
-import de.wps.radvis.backend.integration.grundnetz.IntegrationGrundnetzConfiguration;
 import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
 import de.wps.radvis.backend.integration.radwegedb.IntegrationRadwegeDBConfiguration;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
@@ -57,6 +56,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfigu
 import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -74,7 +74,6 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	GeoConverterConfiguration.class,
 	BenutzerConfiguration.class,
 	JacksonConfiguration.class,
-	IntegrationGrundnetzConfiguration.class,
 	NetzfehlerConfiguration.class,
 	KommentarConfiguration.class,
 	ImportsCommonConfiguration.class,
@@ -93,7 +92,8 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),

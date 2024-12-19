@@ -94,6 +94,8 @@
     <mat-progress-bar *ngIf="ladend$ | async" mode="indeterminate"></mat-progress-bar>
     <span class="spacer"></span>
 
+    <rad-systembenachrichtigung *ngIf="isBenutzerAktiv"></rad-systembenachrichtigung>
+
     <button
       *ngIf="
         isBenutzerAktiv &&

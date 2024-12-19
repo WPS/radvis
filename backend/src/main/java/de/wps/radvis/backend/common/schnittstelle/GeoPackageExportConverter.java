@@ -29,6 +29,7 @@ import org.geotools.geopkg.FeatureEntry;
 import org.geotools.geopkg.GeoPackage;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Geometry;
+import org.valid4j.Assertive;
 
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.valueObject.ExportData;
@@ -44,23 +45,10 @@ public class GeoPackageExportConverter implements ExportConverter {
 			return new byte[0];
 		}
 
-		SimpleFeatureType simpleFeatureType = SimpleFeatureTypeFactory.createSimpleFeatureType(
-			data.get(0).getProperties(),
-			Geometry.class,
-			SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_THE_GEOM);
-		ListFeatureCollection collection = getListFeatureCollection(data, simpleFeatureType);
-
 		File exportGeoPkgFile = null;
 		byte[] result;
 		try {
-			exportGeoPkgFile = Files.createTempFile("export", "gpkg").toFile();
-			exportGeoPkgFile.deleteOnExit();
-			GeoPackage geopkg = new GeoPackage(exportGeoPkgFile);
-			geopkg.init();
-			FeatureEntry entry = new FeatureEntry();
-			geopkg.add(entry, collection);
-			geopkg.addCRS(KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-			geopkg.close();
+			exportGeoPkgFile = convertToFile(data);
 			result = FileUtils.readFileToByteArray(exportGeoPkgFile);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -70,6 +58,27 @@ public class GeoPackageExportConverter implements ExportConverter {
 			}
 		}
 		return result;
+	}
+
+	public File convertToFile(List<ExportData> data) throws IOException {
+		Assertive.require(!data.isEmpty(), "GeoPackage Export-Daten dürfen nicht leer sein");
+
+		SimpleFeatureType simpleFeatureType = SimpleFeatureTypeFactory.createSimpleFeatureType(
+			data.get(0).getProperties(),
+			Geometry.class,
+			SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_THE_GEOM);
+		ListFeatureCollection collection = getListFeatureCollection(data, simpleFeatureType);
+
+		File exportGeoPkgFile = Files.createTempFile("export", "gpkg").toFile();
+		exportGeoPkgFile.deleteOnExit();
+		GeoPackage geopkg = new GeoPackage(exportGeoPkgFile);
+		geopkg.init();
+		FeatureEntry entry = new FeatureEntry();
+		geopkg.add(entry, collection);
+		geopkg.addCRS(KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
+		geopkg.close();
+
+		return exportGeoPkgFile;
 	}
 
 	@Override

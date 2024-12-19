@@ -1,0 +1,83 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2024 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+  <changeSet id="RAD-6658" author="hst">
+    <createTable tableName="attributluecken_schliessen_problem">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="attributluecken_schliessen_problem_pkey"/>
+      </column>
+      <column name="benutzer_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="datum" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="luecke_start_knoten_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="luecke_start_knoten_point" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+      <column name="kanten_zuege" type="GEOMETRY"/>
+      <column name="problem_art" type="TEXT"/>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="attributluecken_schliessen_problem"
+      baseColumnNames="luecke_start_knoten_id"
+      constraintName="fk_attributluecken_schliessen_problem_knoten_id"
+      referencedTableName="knoten"
+      referencedColumnNames="id"/>
+    <addForeignKeyConstraint
+      baseTableName="attributluecken_schliessen_problem"
+      baseColumnNames="benutzer_id"
+      constraintName="fk_attributluecken_schliessen_problem_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="RAD-6658_2" author="hst">
+    <addNotNullConstraint columnName="problem_art" tableName="attributluecken_schliessen_problem" validate="true"/>
+  </changeSet>
+  
+  <changeSet id="7205" author="mr">
+    <dropColumn tableName="attributluecken_schliessen_problem">
+	  <column name="problem_art"></column>
+	  <column name="kanten_zuege"></column>
+	  <column name="benutzer_id"></column>
+    </dropColumn>
+    <dropForeignKeyConstraint baseTableName="attributluecken_schliessen_problem" 
+      constraintName="fk_attributluecken_schliessen_problem_knoten_id" />
+  </changeSet>
+  
+  <changeSet id="RAD-7279" author="mr">
+    <sql>update weitere_kartenebene SET url=(replace(url, '/ows/', '/wfs/')) 
+      where url like 'https://owsproxy.lgl-bw.de/owsproxy/ows/WFS_LGL-BW_ATKIS_BasisDLM_VerwGr%' AND weitere_kartenebene_typ='WFS';
+    </sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7280" author="mr">
+    <sql>
+      update weitere_kartenebene SET url=(replace(url, 'LAYERS=bevoelkerungszahl', 'LAYERS=bevoelkerung')) 
+      where url like 'https://www.wms.nrw.de/wms/zensusatlas?LAYERS=bevoelkerungszahl%';
+    </sql>
+  </changeSet>
+</databaseChangeLog>

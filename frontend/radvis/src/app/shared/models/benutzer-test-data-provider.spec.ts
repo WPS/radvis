@@ -15,6 +15,7 @@
 import { BenutzerListView } from 'src/app/administration/models/benutzer-list-view';
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
+import { Rolle } from 'src/app/administration/models/rolle';
 
 export const defaultBenutzer: BenutzerListView = {
   email: 'test@test.de',
@@ -23,4 +24,5 @@ export const defaultBenutzer: BenutzerListView = {
   organisation: defaultOrganisation.name,
   status: BenutzerStatus.AKTIV,
   vorname: 'Vorname',
+  rollen: [Rolle.RADWEGE_ERFASSERIN, Rolle.RADROUTEN_BEARBEITERIN],
 };

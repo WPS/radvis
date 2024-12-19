@@ -53,6 +53,19 @@ public class ExportInfrastrukturenController {
 		@PathVariable("format") ExportFormat format, @RequestBody ExportInfrastrukturCommand command) {
 		ExporterService exporter = infrastrukturenExporterFactory.getExporter(infrastrukturTyp);
 		List<ExportData> exportData = exporter.export(command.getIds());
+
+		if (!exportData.isEmpty()) {
+			for (String feldname : command.getFieldsToExclude()) {
+				if (!exportData.get(0).hasHeader(feldname)) {
+					log.warn("Zu exkludierender Feldname: " + feldname + " existiert nicht in Export-Data");
+				} else {
+					for (ExportData exportDataRow : exportData) {
+						exportDataRow.removeField(feldname);
+					}
+				}
+			}
+		}
+
 		ExportConverter converter = converterFactory.getConverter(format);
 
 		HttpHeaders headers = new HttpHeaders();

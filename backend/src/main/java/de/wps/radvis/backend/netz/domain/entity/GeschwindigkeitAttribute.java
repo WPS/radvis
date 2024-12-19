@@ -78,7 +78,7 @@ public class GeschwindigkeitAttribute extends LinearReferenzierteAttribute {
 		return Optional.ofNullable(abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung);
 	}
 
-	public GeschwindigkeitAttribute vertauscht() {
+	public GeschwindigkeitAttribute withUmgekehrterStationierungsrichtung() {
 		if (getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung().isEmpty()) {
 			return new GeschwindigkeitAttribute(linearReferenzierterAbschnitt, ortslage, hoechstgeschwindigkeit, null);
 		} else {
@@ -188,5 +188,10 @@ public class GeschwindigkeitAttribute extends LinearReferenzierteAttribute {
 				other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung)
 				&& abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung != null
 				&& other.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung != null);
+	}
+
+	@Override
+	protected boolean hasOnlyDefaultAttribute() {
+		return sindAttributeGleich(GeschwindigkeitAttribute.builder().build());
 	}
 }

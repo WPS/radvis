@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,7 +33,7 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteTyp;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 
 public interface FahrradrouteRepository extends CrudRepository<Fahrradroute, Long>, CustomFahrradrouteRepository {
@@ -40,12 +41,17 @@ public interface FahrradrouteRepository extends CrudRepository<Fahrradroute, Lon
 	String GEOSERVER_BALM_FAHRRADROUTEN_VIEW_NAME = "geoserver_balm_fahrradrouten_view";
 
 	@Query("SELECT distinct fahrradroute FROM Fahrradroute fahrradroute " +
-		"LEFT JOIN fahrradroute.abschnittsweiserKantenBezug route_kanten " +
-		"LEFT JOIN fahrradroute.varianten varianten " +
-		"LEFT JOIN varianten.abschnittsweiserKantenBezug varianten_kanten " +
-		"WHERE route_kanten.kante.id = :kanteId " +
-		"OR varianten_kanten.kante.id = :kanteId")
-	List<Fahrradroute> findByKanteIdInNetzBezug(long kanteId);
+		"WHERE fahrradroute.id IN (" +
+		"	SELECT f1.id AS fid FROM Fahrradroute f1" +
+		"	LEFT JOIN f1.abschnittsweiserKantenBezug route_kanten " +
+		"	WHERE route_kanten.kante.id IN :kantenIds" +
+		"	UNION" +
+		"	SELECT f2.id AS fid FROM Fahrradroute f2" +
+		"	LEFT JOIN f2.varianten varianten " +
+		"	LEFT JOIN varianten.abschnittsweiserKantenBezug varianten_kanten " +
+		"	WHERE varianten_kanten.kante.id IN :kantenIds" +
+		")")
+	List<Fahrradroute> findByKanteIdInNetzBezug(Collection<Long> kantenIds);
 
 	Stream<Fahrradroute> findAllByFahrradrouteTypNot(FahrradrouteTyp fahrradrouteTyp);
 
@@ -158,4 +164,10 @@ public interface FahrradrouteRepository extends CrudRepository<Fahrradroute, Lon
 		+ " WHERE f.customProfileId IN (:customProfileIds)")
 	void setCustomRoutingProfileIdToDefaultWhereCustomRoutingProfileIdIn(Collection<Long> customProfileIds);
 
+	/**
+	 * @param fahrradrouteIds
+	 * @return Alle Geometrien von Fahrradrouten gemäß IDs, die Geometrie besitzen (also möglicherweise leer).
+	 */
+	@Query("SELECT COALESCE(f.netzbezugLineString, f.originalGeometrie) FROM Fahrradroute f WHERE f.id IN ?1 AND (f.netzbezugLineString IS NOT NULL OR f.originalGeometrie IS NOT NULL)")
+	List<Geometry> getAllGeometries(List<Long> fahrradrouteIds);
 }

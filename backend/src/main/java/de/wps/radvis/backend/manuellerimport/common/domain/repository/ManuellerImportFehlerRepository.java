@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.manuellerimport.common.domain.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.locationtech.jts.geom.Polygon;
@@ -34,7 +35,7 @@ public interface ManuellerImportFehlerRepository extends CrudRepository<Manuelle
 	List<ManuellerImportFehler> getAllLatestByOrganisationAndTypeInBereich(Verwaltungseinheit organisation,
 		ImportTyp importTyp, Polygon bereich);
 
-	@Query("SELECT mif FROM ManuellerImportFehler mif WHERE mif.kante.id = ?1")
-	List<ManuellerImportFehler> findAllByKanteId(Long kanteId);
+	@Query("SELECT mif FROM ManuellerImportFehler mif WHERE mif.kante.id IN :kantenIds")
+	List<ManuellerImportFehler> findAllByKanteId(Collection<Long> kantenIds);
 
 }

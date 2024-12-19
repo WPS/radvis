@@ -35,7 +35,7 @@ import { Subscription } from 'rxjs';
 import { FehlerprotokollDetailViewComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-detail-view/fehlerprotokoll-detail-view.component';
 import { FehlerprotokollView } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-view';
 import { FehlerprotokollSelectionService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll-selection.service';
-import { Geojson, geojsonGeometryToFeatureGeometry } from 'src/app/shared/models/geojson-geometrie';
+import { Geojson, geojsonGeometryToFeature } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
@@ -172,7 +172,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
   };
 
   private convertToFeature(fehlerprotokoll: FehlerprotokollView): Feature {
-    const feature = geojsonGeometryToFeatureGeometry(fehlerprotokoll.iconPosition);
+    const feature = geojsonGeometryToFeature(fehlerprotokoll.iconPosition);
     invariant(feature);
     const id = `${fehlerprotokoll.fehlerprotokollKlasse}/${fehlerprotokoll.id}`;
     feature.setId(id);
@@ -234,7 +234,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
   }
 
   private showFehlerprotokollGeometry(geojson: Geojson): void {
-    const feature = geojsonGeometryToFeatureGeometry(geojson);
+    const feature = geojsonGeometryToFeature(geojson);
     if (feature) {
       this.geometryVectorSource.addFeature(feature);
     }

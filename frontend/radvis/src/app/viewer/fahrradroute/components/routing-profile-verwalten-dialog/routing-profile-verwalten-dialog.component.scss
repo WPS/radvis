@@ -44,22 +44,10 @@
   flex-direction: column;
 }
 
-.mat-mdc-dialog-actions {
-  margin-bottom: 0;
-}
-
 mat-accordion {
   padding: 1rem;
 }
 
 mat-panel-description {
   color: $warning-color;
-}
-
-.buttons {
-  gap: 1rem;
-}
-
-.buttons > * {
-  width: auto;
 }

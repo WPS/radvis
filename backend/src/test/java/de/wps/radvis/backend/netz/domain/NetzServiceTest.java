@@ -17,10 +17,11 @@ package de.wps.radvis.backend.netz.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -64,16 +65,18 @@ import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.KanteDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.KanteGeometrien;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.KnotenDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KanteGeometrieChangedEvent;
+import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitEntferntEvent;
@@ -104,6 +107,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
 
 class NetzServiceTest {
@@ -134,6 +138,9 @@ class NetzServiceTest {
 	@Mock
 	private VerwaltungseinheitResolver verwaltungseinheitResolver;
 
+	@Mock
+	private EntityManager entityManager;
+
 	private NetzService netzService;
 
 	@BeforeEach
@@ -142,7 +149,7 @@ class NetzServiceTest {
 		netzService = new NetzService(kantenRepositoryMock, knotenRepositoryMock,
 			zustaendigkeitAttributGruppeRepository, fahrtrichtungAttributGruppeRepository,
 			geschwindigkeitAttributGruppeRepository, fuehrungsformAttributGruppeRepository,
-			kantenAttributGruppeRepository, verwaltungseinheitResolver);
+			kantenAttributGruppeRepository, verwaltungseinheitResolver, entityManager, 1.0);
 	}
 
 	@Test
@@ -865,18 +872,13 @@ class NetzServiceTest {
 				.id(1L).build();
 			when(knotenRepositoryMock.findVerwaisteDLMKnoten()).thenReturn(List.of(knoten1, knoten2));
 
-			netzService.deleteVerwaisteDLMKnoten(NetzAenderungAusloeser.DLM_REIMPORT_JOB);
+			netzService.deleteVerwaisteDLMKnoten(NetzAenderungAusloeser.DLM_REIMPORT_JOB, new KnotenDeleteStatistik());
 
-			verify(knotenRepositoryMock).deleteVerwaisteDLMKnoten();
 			domainPublisherMock.verify(
-				() -> RadVisDomainEventPublisher.publish(eventCaptor.capture()), times(2));
-			assertThat(eventCaptor.getAllValues()).allMatch(event -> event instanceof KnotenDeletedEvent);
-			assertThat(eventCaptor.getAllValues())
-				.extracting("knotenId")
-				.containsExactly(knoten1.getId(), knoten2.getId());
-			assertThat(eventCaptor.getAllValues())
-				.extracting("geometry")
-				.containsExactly(knoten1.getPoint(), knoten2.getPoint());
+				() -> RadVisDomainEventPublisher.publish(eventCaptor.capture()), times(1));
+			assertThat(eventCaptor.getValue()).isInstanceOf(KnotenDeletedEvent.class);
+			KnotenDeletedEvent capturedEvent = (KnotenDeletedEvent) eventCaptor.getValue();
+			assertThat(capturedEvent.getKnoten()).containsExactlyInAnyOrder(knoten1, knoten2);
 		}
 
 		@Test
@@ -970,18 +972,19 @@ class NetzServiceTest {
 			// arrange
 			ArgumentCaptor<Kante> kanteCaptor = ArgumentCaptor.forClass(Kante.class);
 			doNothing().when(kantenRepositoryMock).delete(kanteCaptor.capture());
+			Kante kanteToDelete = KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(1L).build();
 
 			// act
-			netzService.deleteKante(
-				KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.RadVis).id(1L).build());
+			KanteDeleteStatistik statistik = new KanteDeleteStatistik();
+			netzService.deleteKante(kanteToDelete, statistik);
 
 			// assert
 			domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(eventCaptor.capture()));
 			domainPublisherMock.verifyNoMoreInteractions();
 			assertThat(eventCaptor.getValue()).usingRecursiveComparison().ignoringFields("geometry", "datum")
 				.isEqualTo(
-					new KanteDeletedEvent(1L, null, NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN, LocalDateTime.now()));
-
+					new KantenDeletedEvent(List.of(kanteToDelete.getId()), List.of(kanteToDelete.getGeometry()),
+						NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN, LocalDateTime.now(), statistik));
 		}
 
 		@Test
@@ -993,7 +996,8 @@ class NetzServiceTest {
 			// act & assert
 
 			assertThatThrownBy(() -> netzService.deleteKante(
-				KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).id(1L).build())).isInstanceOf(
+				KanteTestDataProvider.withDefaultValuesAndQuelle(QuellSystem.DLM).id(1L).build(),
+				new KanteDeleteStatistik())).isInstanceOf(
 					RequireViolation.class);
 
 			domainPublisherMock.verifyNoInteractions();
@@ -1267,6 +1271,51 @@ class NetzServiceTest {
 		assertThat(knoten.getKnotenAttribute().getZustandsbeschreibung()).isEmpty();
 		assertThat(knoten.getKnotenAttribute().getGemeinde()).isEmpty();
 
+	}
+
+	@Test
+	public void findErsatzKnoten_filterExcludeIds_returnsNearestMatch() {
+		// arrange
+		Long knotenId1 = 1l;
+		Long knotenId2 = 2l;
+		Long knotenId3 = 3l;
+		Long knotenId4 = 4l;
+		Long zuErsetzenderKnotenId = 5l;
+
+		when(knotenRepositoryMock.findErsatzKnotenCandidates(eq(zuErsetzenderKnotenId), anyDouble()))
+			.thenReturn(List.of(
+				KnotenTestDataProvider.withDefaultValues().id(knotenId1).build(),
+				KnotenTestDataProvider.withDefaultValues().id(knotenId2).build(),
+				KnotenTestDataProvider.withDefaultValues().id(knotenId3).build(),
+				KnotenTestDataProvider.withDefaultValues().id(knotenId4).build()));
+
+		// act
+		Optional<Knoten> findErsatzKnoten = netzService.findErsatzKnoten(zuErsetzenderKnotenId,
+			List.of(knotenId1, knotenId3));
+
+		// assert
+		assertThat(findErsatzKnoten).isPresent();
+		assertThat(findErsatzKnoten.get().getId()).isEqualTo(knotenId2);
+	}
+
+	@Test
+	public void findErsatzKnoten_filterExcludeIds_returnsNoMatch() {
+		// arrange
+		Long knotenId1 = 1l;
+		Long knotenId2 = 2l;
+		Long zuErsetzenderKnotenId = 5l;
+
+		when(knotenRepositoryMock.findErsatzKnotenCandidates(eq(zuErsetzenderKnotenId), anyDouble()))
+			.thenReturn(List.of(
+				KnotenTestDataProvider.withDefaultValues().id(knotenId1).build(),
+				KnotenTestDataProvider.withDefaultValues().id(knotenId2).build()));
+
+		// act
+		Optional<Knoten> findErsatzKnoten = netzService.findErsatzKnoten(zuErsetzenderKnotenId,
+			List.of(knotenId1, knotenId2));
+
+		// assert
+		assertThat(findErsatzKnoten).isEmpty();
 	}
 
 	private static GeometryFactory createGeometryFactory(Integer srid) {

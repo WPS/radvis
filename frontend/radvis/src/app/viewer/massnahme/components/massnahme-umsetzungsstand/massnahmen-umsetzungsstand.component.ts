@@ -32,6 +32,8 @@ import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massna
 import { MassnahmeNetzbezugDisplayService } from 'src/app/viewer/massnahme/services/massnahme-netzbezug-display.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import invariant from 'tiny-invariant';
+import { AbstractEventTrackedEditor } from 'src/app/form-elements/components/abstract-event-tracked-editor';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-massnahmen-umsetzungsstand',
@@ -42,7 +44,10 @@ import invariant from 'tiny-invariant';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MassnahmenUmsetzungsstandComponent implements OnDestroy, DiscardableComponent {
+export class MassnahmenUmsetzungsstandComponent
+  extends AbstractEventTrackedEditor
+  implements OnDestroy, DiscardableComponent
+{
   public isFetching = false;
 
   public formGroup: UntypedFormGroup;
@@ -59,10 +64,13 @@ export class MassnahmenUmsetzungsstandComponent implements OnDestroy, Discardabl
     private massnahmeService: MassnahmeService,
     private massnahmeFilterService: MassnahmeFilterService,
     private notifyUserService: NotifyUserService,
-    private activatedRoute: ActivatedRoute,
     public dialog: MatDialog,
+    matomoTracker: MatomoTracker,
+    activatedRoute: ActivatedRoute,
     massnahmeNetzbezugDisplayService: MassnahmeNetzbezugDisplayService
   ) {
+    super(matomoTracker, activatedRoute);
+
     massnahmeNetzbezugDisplayService.showNetzbezug(true);
     this.formGroup = new UntypedFormGroup({
       umsetzungGemaessMassnahmenblatt: new UntypedFormControl(null),
@@ -121,6 +129,8 @@ export class MassnahmenUmsetzungsstandComponent implements OnDestroy, Discardabl
     invariant(this.umsetzungsstand);
 
     this.isFetching = true;
+
+    this.trackSpeichernEvent();
 
     const { id, version } = this.umsetzungsstand;
 

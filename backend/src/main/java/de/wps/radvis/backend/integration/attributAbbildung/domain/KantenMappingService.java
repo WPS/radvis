@@ -24,12 +24,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.context.event.EventListener;
+
+import de.wps.radvis.backend.common.domain.BatchedCollectionIterator;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.entity.KantenMapping;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.entity.MappedKante;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class KantenMappingService {
 
 	private final KantenMappingRepository kantenMappingRepository;
@@ -91,4 +97,22 @@ public class KantenMappingService {
 		kantenMappingRepository.deleteByGrundnetzKantenIdAndQuellsystem(dlmnetzKanteId, quellSystem);
 	}
 
+	@EventListener
+	public void onKantenGeloescht(KantenDeletedEvent event) {
+		log.debug("Entferne gelöschte Grundnetzkante aus Kanten-Mapping");
+
+		List<Long> kantenIds = event.getKantenIds();
+
+		// Batching, da Hibernate/Postgres nur eine gewisse Anzahl an Parametern in "someId IN (...)"-Queries zulässt.
+		BatchedCollectionIterator.iterate(
+			kantenIds,
+			1000,
+			(kantenIdBatch, startIndex, endIndex) -> {
+				log.debug("Verarbeite Kanten-Mapping für Kanten-Batch {} bis {}", startIndex, endIndex);
+				kantenMappingRepository.deleteAllByGrundnetzKantenIdIn(kantenIdBatch);
+			}
+		);
+
+		log.debug("Bereinigung von Kanten-Mapping beendet");
+	}
 }

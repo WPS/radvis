@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -68,9 +69,10 @@ import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurat
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchingRepositoryImpl;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -113,7 +115,8 @@ import jakarta.persistence.EntityManager;
 	ToubizConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -163,7 +166,7 @@ class FahrradroutenToubizImportJobIntegrationTestIT extends DBIntegrationTestIT 
 	private Kante kante4;
 
 	@BeforeEach
-	void setUp() {
+	void setUp() throws IOException {
 		MockitoAnnotations.openMocks(this);
 
 		kante1 = kantenRepository

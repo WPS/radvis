@@ -37,9 +37,12 @@
     </div>
   </form>
 </div>
-<div mat-dialog-actions class="buttons display-flex justify-content-flex-end">
+<div mat-dialog-actions>
   <button mat-stroked-button mat-dialog-close>Abbrechen</button>
-  <rad-action-button [disabled]="!formGroup.valid" (action)="onImport()" [waiting]="loading">
-    Importieren
-  </rad-action-button>
+  <!-- eigenes div, damit flexbox richtig aussieht -->
+  <div>
+    <rad-action-button [disabled]="!formGroup.valid" (action)="onImport()" [waiting]="loading">
+      Importieren
+    </rad-action-button>
+  </div>
 </div>

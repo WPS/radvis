@@ -46,10 +46,10 @@ import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopper;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
@@ -252,7 +252,7 @@ class DlmMatchingRepositoryImplTest {
 	}
 
 	@Test
-	void testSwapGraphhopper_oldGraphhopperClosedAndCleaned_MatchingStillWorks() throws KeinMatchGefundenException {
+	void testUpdateGraphhopper_oldGraphhopperClosedAndCleaned_MatchingStillWorks() throws KeinMatchGefundenException {
 		// Arrange
 		DlmMatchedGraphHopper oldGraphHopperSpy = spy(
 			(DlmMatchedGraphHopper) Objects.requireNonNull(ReflectionTestUtils.getField(graphhopperFactory,
@@ -262,7 +262,7 @@ class DlmMatchingRepositoryImplTest {
 
 		// Act
 		graphhopperFactory.updateDlmGraphHopper();
-		dlmMatchingRepository.swapGraphHopper();
+		dlmMatchingRepository.updateGraphHopper();
 
 		// Assert
 		assertThat(oldGraphHopperSpy).isNotSameAs(ReflectionTestUtils.getField(dlmMatchingRepository,

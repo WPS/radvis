@@ -17,6 +17,7 @@ package de.wps.radvis.backend.benutzer.domain;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,7 +47,20 @@ public class BenutzerAktivitaetsService {
 	public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
 		Authentication authentication = event.getAuthentication();
 		if (authentication instanceof BenutzerHolder) {
-			Benutzer benutzer = ((BenutzerHolder) authentication).getBenutzer();
+			if (((BenutzerHolder) authentication).getBenutzer() == null) {
+				return;
+			}
+
+			// Wir laden den Nutzer sicherheitshalber nochmal frisch von der DB,
+			// da der bei mehreren gleichzeitigen Anfragen zwischenzeitlich geändert worden sein kann
+			Optional<Benutzer> benutzerOpt = benutzerRepository
+				.findById(((BenutzerHolder) authentication).getBenutzer().getId());
+			if (benutzerOpt.isEmpty()) {
+				return;
+			}
+
+			Benutzer benutzer = benutzerOpt.get();
+
 			if (Objects.isNull(benutzer) ||
 				Objects.isNull(benutzer.getId()) ||
 				benutzer.getLetzteAktivitaet().equals(LocalDate.now())) {

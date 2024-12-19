@@ -25,9 +25,11 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.fahrradroute.domain.entity.AbstractTfisImportStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute.FahrradrouteBuilder;
@@ -37,9 +39,15 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteTyp;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+/**
+ * Importiert alle Fahrradrouten von TFIS, die keine Landesradfernwege sind.
+ * 
+ * Anhand der TFIS-ID werden bereits importierte Fahrradrouten identifiziert und aktualisiert. Nicht vorhandene
+ * Fahrradrouten werden neu erstellt. Alle im System befindlichen Fahrradrouten, deren TFIS-ID nicht in der Quelle
+ * enthalten sind, werden gelöscht.
+ */
+@WithFehlercode(Fehlercode.FAHRRADROUTE_TFIS_IMPORT)
 public class FahrradroutenTfisImportJob extends AbstractTFISRadroutenImportJob {
 	// Dieser Job Name sollte sich nicht mehr aendern, weil Controller und DB Eintraege den Namen verwenden
 	public static final String JOB_NAME = "FahrradroutenTfisImportJob";

@@ -17,10 +17,12 @@ package de.wps.radvis.backend.furtKreuzung.domain.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,7 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.furtKreuzung.FurtKreuzungConfiguration;
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzung;
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzungNetzBezug;
+import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzungTestDataProvider;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenKommentar;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenTyp;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.GruenAnforderung;
@@ -53,15 +56,20 @@ import de.wps.radvis.backend.furtKreuzung.domain.valueObject.Linksabbieger;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.Rechtsabbieger;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
+import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -84,7 +92,8 @@ import jakarta.persistence.PersistenceContext;
 	TechnischerBenutzerConfigurationProperties.class,
 	MailConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 	@Autowired
@@ -95,6 +104,9 @@ class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	KantenRepository kantenRepository;
+
+	@Autowired
+	KnotenRepository knotenRepository;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -107,6 +119,16 @@ class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 			"verantwortlicheOrganisation.bereichBuffer",
 			"netzbezug")
 		.build();
+
+	private Gebietskoerperschaft verantwortlicheOrganisation;
+
+	@BeforeEach
+	void setup() {
+		verantwortlicheOrganisation = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Eine verantwortliche Organisation")
+				.organisationsArt(OrganisationsArt.KREIS)
+				.build());
+	}
 
 	@Test
 	void saveFurtKreuzung() {
@@ -148,17 +170,11 @@ class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 			Set.of(new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG)),
 			Collections.emptySet());
 
-		FurtKreuzung ohneLSA = new FurtKreuzung(netzbezug, gebietskoerperschaftRepository.save(
-			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Eine verantwortliche Organisation")
-				.organisationsArt(OrganisationsArt.KREIS)
-				.build()),
+		FurtKreuzung ohneLSA = new FurtKreuzung(netzbezug, verantwortlicheOrganisation,
 			FurtenKreuzungenTyp.KREUZUNG, true, new FurtenKreuzungenKommentar("Dies ist ein Kommentar"),
 			KnotenForm.MINIKREISVERKEHR_24_M, Optional.empty(), Optional.empty());
 
-		FurtKreuzung mitLSA = new FurtKreuzung(netzbezug2, gebietskoerperschaftRepository.save(
-			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Eine verantwortliche Organisation")
-				.organisationsArt(OrganisationsArt.KREIS)
-				.build()),
+		FurtKreuzung mitLSA = new FurtKreuzung(netzbezug2, verantwortlicheOrganisation,
 			FurtenKreuzungenTyp.KREUZUNG, true, new FurtenKreuzungenKommentar("Dies ist ein Kommentar"),
 			KnotenForm.LSA_KNOTEN_MIT_RADVERKEHRSFUEHRUNG_UEBER_BAULICHE_NEBENANLAGE, Optional.empty(),
 			Optional.of(new LichtsignalAnlageEigenschaften(true, false, false, Rechtsabbieger.GRUENPFEIL_ALLE,
@@ -196,5 +212,96 @@ class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(gespeichertMitLSA.getNetzbezug()).isEqualTo(mitLSA.getNetzbezug());
 		assertThat(gespeichertMitLSA.getVerantwortlicheOrganisation().getBereich())
 			.isEqualTo(mitLSA.getVerantwortlicheOrganisation().getBereich());
+	}
+
+	@Test
+	void findByKanteInNetzBezug() {
+		// arrange
+		Kante kanteInNetzbezug = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		Kante kanteNichtInNetzbezug = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		FurtKreuzungNetzBezug netzBezug = new FurtKreuzungNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(
+				kanteInNetzbezug, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS),
+				new AbschnittsweiserKantenSeitenBezug(
+					kanteNichtInNetzbezug, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
+			Collections.emptySet(),
+			Collections.emptySet());
+
+		FurtKreuzung furtWithKantenbezug = furtKreuzungRepository
+			.save(FurtKreuzungTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(verantwortlicheOrganisation).netzbezug(netzBezug).build());
+
+		FurtKreuzungNetzBezug punktBezug = new FurtKreuzungNetzBezug(
+			Collections.emptySet(),
+			Set.of(
+				new PunktuellerKantenSeitenBezug(kanteInNetzbezug, LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG),
+				new PunktuellerKantenSeitenBezug(kanteNichtInNetzbezug, LineareReferenz.of(0.25),
+					Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet());
+
+		FurtKreuzung furtWithPunktbezug = furtKreuzungRepository
+			.save(FurtKreuzungTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(verantwortlicheOrganisation).netzbezug(punktBezug).build());
+
+		FurtKreuzungNetzBezug ohneKanteBezug = new FurtKreuzungNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(
+				kanteNichtInNetzbezug, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
+			Set.of(
+				new PunktuellerKantenSeitenBezug(kanteNichtInNetzbezug, LineareReferenz.of(0.25),
+					Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet());
+
+		FurtKreuzung furtNichtInNetzbezug = furtKreuzungRepository
+			.save(FurtKreuzungTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(verantwortlicheOrganisation).netzbezug(ohneKanteBezug).build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		List<FurtKreuzung> furtenWithKantenInNetzbezug = furtKreuzungRepository
+			.findByKanteInNetzBezug(List.of(kanteInNetzbezug.getId()));
+
+		// assert
+		assertThat(furtenWithKantenInNetzbezug).contains(furtWithKantenbezug,
+			furtWithPunktbezug);
+		assertThat(furtenWithKantenInNetzbezug).doesNotContain(furtNichtInNetzbezug);
+	}
+
+	@Test
+	void findByKnotenInNetzBezug() {
+		// arrange
+		Knoten knotenInNetzbezug = knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build());
+		Knoten knotenNichtInNetzbezug = knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build());
+
+		FurtKreuzungNetzBezug netzBezug = new FurtKreuzungNetzBezug(
+			Collections.emptySet(),
+			Collections.emptySet(),
+			Set.of(knotenInNetzbezug));
+
+		FurtKreuzung furtWithKnotenbezug = furtKreuzungRepository
+			.save(FurtKreuzungTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(verantwortlicheOrganisation).netzbezug(netzBezug).build());
+
+		FurtKreuzungNetzBezug ohneKnotenBezug = new FurtKreuzungNetzBezug(
+			Collections.emptySet(),
+			Collections.emptySet(),
+			Set.of(knotenNichtInNetzbezug));
+
+		FurtKreuzung furtNichtInKnotenbezug = furtKreuzungRepository
+			.save(FurtKreuzungTestDataProvider.withDefaultValues()
+				.verantwortlicheOrganisation(verantwortlicheOrganisation).netzbezug(ohneKnotenBezug).build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		List<FurtKreuzung> furtenWithKnotenInNetzbezug = furtKreuzungRepository
+			.findByKnotenInNetzBezug(List.of(knotenInNetzbezug.getId()));
+
+		// assert
+		assertThat(furtenWithKnotenInNetzbezug).contains(furtWithKnotenbezug);
+		assertThat(furtenWithKnotenInNetzbezug).doesNotContain(furtNichtInKnotenbezug);
 	}
 }

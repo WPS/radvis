@@ -14,10 +14,12 @@
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { FahrradzaehlstelleListenView } from 'src/app/viewer/fahrradzaehlstelle/models/fahrradzaehlstelle-listen-view';
 import { FahrradzaehlstelleFilterService } from 'src/app/viewer/fahrradzaehlstelle/services/fahrradzaehlstelle-filter.service';
 import { FahrradzaehlstelleRoutingService } from 'src/app/viewer/fahrradzaehlstelle/services/fahrradzaehlstelle-routing.service';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 
 @Component({
@@ -34,19 +36,23 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
 })
 export class FahrradzaehlstelleTabelleComponent {
   data$: Observable<FahrradzaehlstelleListenView[]>;
-  displayedColumns: string[];
   selectedID$: Observable<number | null>;
   exporting = false;
   exportFormate = [ExportFormat.CSV];
   isSmallViewport = false;
-  private columnMapping: Map<string, string> = new Map([
-    ['betreiberEigeneId', 'Betreiber eigene ID'],
-    ['fahrradzaehlstelleGebietskoerperschaft', 'Gebietskörperschaft'],
-    ['fahrradzaehlstelleBezeichnung', 'Bezeichnung'],
-    ['seriennummer', 'Seriennummer'],
-    ['zaehlintervall', 'Intervall'],
-    ['neusterZeitstempel', 'Letzte Aktualisierung'],
-  ]);
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'betreiberEigeneId', displayName: 'Betreiber eigene ID' },
+    {
+      name: 'fahrradzaehlstelleGebietskoerperschaft',
+      displayName: 'Gebietskörperschaft',
+      width: 'large',
+    },
+    { name: 'fahrradzaehlstelleBezeichnung', displayName: 'Bezeichnung', width: 'large' },
+    { name: 'seriennummer', displayName: 'Seriennummer' },
+    { name: 'zaehlintervall', displayName: 'Intervall' },
+    { name: 'neusterZeitstempel', displayName: 'Letzte Aktualisierung' },
+  ];
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public filterService: FahrradzaehlstelleFilterService,
@@ -54,15 +60,11 @@ export class FahrradzaehlstelleTabelleComponent {
   ) {
     this.data$ = this.filterService.filteredList$;
     this.selectedID$ = this.routingService.selectedInfrastrukturId$;
-    this.displayedColumns = Array.from(this.columnMapping.keys());
+    this.filteredSpalten$ = this.filterService.filter$.pipe(map(filteredFields => filteredFields.map(f => f.field)));
   }
 
   onChangeBreakpointState(isSmall: boolean): void {
     this.isSmallViewport = isSmall;
-  }
-
-  getHeader(key: string): string {
-    return this.columnMapping.get(key) ?? '';
   }
 
   onSelectRecord(selectedId: number): void {

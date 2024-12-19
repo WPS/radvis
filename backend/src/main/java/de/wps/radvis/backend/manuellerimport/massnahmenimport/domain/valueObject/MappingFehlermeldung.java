@@ -14,6 +14,9 @@
 
 package de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject;
 
+/*
+ * Alle Werte müssen dokumentiert sein: https://radvis-dev.landbw.de/manual/docs/import#schritt-3---attributfehler-%C3%BCberpr%C3%BCfen
+ */
 public enum MappingFehlermeldung {
 	MASSNAHME_KEINE_ID("ID fehlt."),
 	MASSNAHME_MEHRFACH("ID in der Quelle mehrfach vorhanden."),
@@ -27,7 +30,8 @@ public enum MappingFehlermeldung {
 	QUERVALIDIERUNG_MASSNAHMENKATEGORIE("Nur eine Kategorie pro Oberkategorie erlaubt."),
 	LOESCHUNG_QUELLE_RADNETZ_UNGUELTIG("Maßnahme hat Quelle RadNETZ und kann daher nicht gelöscht werden."),
 	MASSNAHME_ID_INVALID(
-		"Die ID %s ist ungültig: Erlaubt sind alphanumerische Zeichen sowie Punkt, Leerzeichen und Unterstrich");
+		"Die ID %s ist ungültig: Erlaubt sind alphanumerische Zeichen sowie Punkt, Leerzeichen und Unterstrich."),
+	UPDATE_ARCHIVIERT_NICHT_MOEGLICH("Archivierte Maßnahmen können nicht aktualisiert werden.");
 
 	private final String fehlermeldung;
 

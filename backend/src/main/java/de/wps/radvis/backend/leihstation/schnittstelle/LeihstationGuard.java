@@ -55,6 +55,19 @@ public class LeihstationGuard {
 		assertIstImZustaendigkeitsbereich(leihstation.getGeometrie(), aktiverBenutzer);
 	}
 
+	public boolean darfBenutzerBearbeiten(Authentication authentication, Leihstation leihstation) {
+
+		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
+		try {
+			assertHatRecht(aktiverBenutzer);
+			assertIstImZustaendigkeitsbereich(leihstation.getGeometrie(), aktiverBenutzer);
+
+			return true;
+		} catch (AccessDeniedException e) {
+			return false;
+		}
+	}
+
 	private void assertHatRecht(Benutzer aktiverBenutzer) {
 		if (!aktiverBenutzer.getRechte()
 			.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN)) {

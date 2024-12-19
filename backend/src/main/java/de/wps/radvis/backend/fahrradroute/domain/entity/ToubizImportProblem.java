@@ -49,7 +49,7 @@ public class ToubizImportProblem extends AbstractEntity implements Fehlerprotoko
 
 	@Override
 	public String getTitel() {
-		return "Toubiz-Import Fehler";
+		return "Toubiz-Import-Fehler";
 	}
 
 	@Override

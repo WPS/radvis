@@ -84,7 +84,8 @@ import jakarta.persistence.PersistenceContext;
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -127,6 +128,9 @@ public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 		@Autowired
 		private VerwaltungseinheitResolver verwaltungseinheitResolver;
 
+		@PersistenceContext
+		EntityManager entityManager;
+
 		@Bean
 		NetzToFeatureDetailsConverter netzToFeatureDetailsConverter() {
 			return new NetzToFeatureDetailsConverter();
@@ -141,7 +145,8 @@ public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 		NetzService netzService() {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppeRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
-				fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver);
+				fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver,
+				entityManager, 1.0);
 		}
 	}
 
@@ -188,37 +193,6 @@ public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 		Optional<Kante> kante1Deleted = kantenRepository.findById(kante1.getId());
 		assertThat(kante1Deleted).isEmpty();
 		assertThat(kante3.getVonKnoten()).isNotNull();
-	}
-
-	@Test
-	public void getAnzahlAdjazenteKanten() {
-		// Arrange
-		QuellSystem quelle = QuellSystem.RadNETZ;
-		LineString lineString1 = GEO_FACTORY
-			.createLineString(new Coordinate[] { new Coordinate(1, 2), new Coordinate(3, 4) });
-
-		LineString lineString2 = GEO_FACTORY
-			.createLineString(new Coordinate[] { new Coordinate(3, 4), new Coordinate(8, 8) });
-		Knoten knoten1 = KnotenTestDataProvider
-			.withCoordinateAndQuelle(lineString1.getStartPoint().getCoordinate(), quelle).build();
-		Knoten knoten2 = KnotenTestDataProvider
-			.withCoordinateAndQuelle(lineString1.getEndPoint().getCoordinate(), quelle).build();
-		Knoten knoten3 = KnotenTestDataProvider
-			.withCoordinateAndQuelle(lineString2.getEndPoint().getCoordinate(), quelle).build();
-
-		Kante kante1 = netzService.saveKante(KanteTestDataProvider.withDefaultValuesAndQuelle(quelle).vonKnoten(knoten1)
-			.nachKnoten(knoten2).geometry(lineString1).build());
-		Kante kante2 = netzService.saveKante(KanteTestDataProvider.withDefaultValuesAndQuelle(quelle).vonKnoten(knoten2)
-			.nachKnoten(knoten3).geometry(lineString2).build());
-		// Act
-		long anzahlAdjazenterKanten1von = netzService.getAnzahlAdjazenterKanten(kante1.getVonKnoten());
-		long anzahlAdjazenterKanten1nach = netzService.getAnzahlAdjazenterKanten(kante1.getNachKnoten());
-		long anzahlAdjazenterKanten2nach = netzService.getAnzahlAdjazenterKanten(kante2.getNachKnoten());
-
-		// Assert
-		assertThat(anzahlAdjazenterKanten1von).isEqualTo(1);
-		assertThat(anzahlAdjazenterKanten1nach).isEqualTo(2);
-		assertThat(anzahlAdjazenterKanten2nach).isEqualTo(1);
 	}
 
 	@Test

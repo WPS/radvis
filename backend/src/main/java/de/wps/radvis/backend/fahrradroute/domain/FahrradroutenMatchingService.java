@@ -38,10 +38,10 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteMatchingStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteNetzbezugResult;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradroutenMatchingAndRoutingInformation.FahrradroutenMatchingAndRoutingInformationBuilder;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilMatchResult;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;

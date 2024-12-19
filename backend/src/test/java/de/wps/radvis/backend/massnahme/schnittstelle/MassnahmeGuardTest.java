@@ -18,9 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +50,7 @@ import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
 import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -81,6 +83,57 @@ public class MassnahmeGuardTest {
 		when(organisationConfigurationProperties.getZustaendigkeitBufferInMeter()).thenReturn(500);
 		zustaendigkeitsService = new ZustaendigkeitsService(organisationConfigurationProperties);
 		massnahmeGuard = new MassnahmeGuard(zustaendigkeitsService, netzService, benutzerResolver, massnahmeService);
+	}
+
+	@Nested
+	class Archivieren {
+		@Test
+		void archivieren_hasRecht() {
+			// arrange
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider.defaultBenutzer()
+				.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR)).build());
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.archivieren(mock(Authentication.class), mock(MassnahmenArchivierenCommand.class)));
+		}
+
+		@Test
+		void archivieren_noRecht_throws() {
+			// arrange
+			Set<Rolle> alleAußerAdmin = new HashSet<>(Set.of(Rolle.values()));
+			alleAußerAdmin.remove(Rolle.RADVIS_ADMINISTRATOR);
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider.defaultBenutzer()
+				.rollen(alleAußerAdmin).build());
+
+			// act + assert
+			assertThrows(AccessDeniedException.class,
+				() -> massnahmeGuard.archivieren(mock(Authentication.class), mock(MassnahmenArchivierenCommand.class)));
+		}
+
+		@Test
+		void unarchivieren_hasRecht() {
+			// arrange
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider.defaultBenutzer()
+				.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR)).build());
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.unarchivieren(mock(Authentication.class), 1l));
+		}
+
+		@Test
+		void unarchivieren_noRecht_throws() {
+			// arrange
+			Set<Rolle> alleAußerAdmin = new HashSet<>(Set.of(Rolle.values()));
+			alleAußerAdmin.remove(Rolle.RADVIS_ADMINISTRATOR);
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider.defaultBenutzer()
+				.rollen(alleAußerAdmin).build());
+
+			// act + assert
+			assertThrows(AccessDeniedException.class,
+				() -> massnahmeGuard.unarchivieren(mock(Authentication.class), 1l));
+		}
 	}
 
 	@Nested
@@ -191,7 +244,7 @@ public class MassnahmeGuardTest {
 			Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
-			assertThat(massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme)).isFalse();
+			assertThat(massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme)).isFalse();
 		}
 
 		@Test
@@ -206,9 +259,13 @@ public class MassnahmeGuardTest {
 			Massnahme massnahmeRadNETZ = MassnahmeTestDataProvider.withDefaultValues()
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
+			Massnahme massnahmeRadNETZ2024 = MassnahmeTestDataProvider.withDefaultValues()
+				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahme)).isFalse();
 			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahmeRadNETZ)).isFalse();
+			assertThat(massnahmeGuard.canMassnahmeLoeschen(benutzer, massnahmeRadNETZ2024)).isFalse();
 		}
 
 		@Test
@@ -251,6 +308,7 @@ public class MassnahmeGuardTest {
 					.status(BenutzerStatus.AKTIV).build());
 
 			assertDoesNotThrow(() -> massnahmeGuard.starteUmsetzungsstandsabfrage(authentication));
+			assertDoesNotThrow(() -> massnahmeGuard.getUmsetzungsstandsabfrageVorschau(authentication));
 		}
 
 		@Test
@@ -263,6 +321,8 @@ public class MassnahmeGuardTest {
 
 			assertThrows(AccessDeniedException.class,
 				() -> massnahmeGuard.starteUmsetzungsstandsabfrage(authentication));
+			assertThrows(AccessDeniedException.class,
+				() -> massnahmeGuard.getUmsetzungsstandsabfrageVorschau(authentication));
 		}
 	}
 
@@ -371,7 +431,7 @@ public class MassnahmeGuardTest {
 			Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
-			assertThat(massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme)).isTrue();
+			assertThat(massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme)).isTrue();
 		}
 
 		@Test
@@ -515,7 +575,7 @@ public class MassnahmeGuardTest {
 			Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
-			assertThat(massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme)).isTrue();
+			assertThat(massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme)).isTrue();
 		}
 
 		@Test
@@ -766,7 +826,7 @@ public class MassnahmeGuardTest {
 			Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
-			assertThat(massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme)).isFalse();
+			assertThat(massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme)).isFalse();
 		}
 
 		@Test
@@ -912,7 +972,7 @@ public class MassnahmeGuardTest {
 			Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 				.netzbezug(NetzBezugTestDataProvider.forKanteAbschnittsweise(kante)).build();
 
-			assertThat(massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme)).isTrue();
+			assertThat(massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme)).isTrue();
 		}
 
 		@Test

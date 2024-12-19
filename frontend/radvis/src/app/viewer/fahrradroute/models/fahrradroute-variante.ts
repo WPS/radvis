@@ -13,9 +13,9 @@
  */
 
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { VarianteKategorie } from 'src/app/viewer/fahrradroute/models/variante-kategorie';
+import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/fahrradroute/models/abschnittsweiser-kanten-netzbezug';
 import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
-import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
+import { VarianteKategorie } from 'src/app/viewer/fahrradroute/models/variante-kategorie';
 
 export interface FahrradrouteVariante {
   id: number;

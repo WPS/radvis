@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
@@ -29,6 +29,10 @@ import { SaveMassnahmeCommand } from 'src/app/viewer/massnahme/models/save-massn
 import { SaveUmsetzungsstandCommand } from 'src/app/viewer/massnahme/models/save-umsetzungsstand-command';
 import { Umsetzungsstand } from 'src/app/viewer/massnahme/models/umsetzungsstand';
 
+import { ErweiterterMassnahmenFilter } from 'src/app/viewer/massnahme/models/erweiterter-massnahmen-filter';
+import { FilterMassnahmenCommand } from 'src/app/viewer/massnahme/models/filter-massnahmen-command';
+import { UmsetzungsstandAbfrageVorschau } from 'src/app/viewer/massnahme/models/umsetzungsstand-abfrage-vorschau';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -42,6 +46,14 @@ export class MassnahmeService {
 
   createMassnahme(command: CreateMassnahmeCommand): Promise<number> {
     return this.http.post<number>(`${this.api}/create`, command).toPromise();
+  }
+
+  unarchivieren(id: number): Promise<Massnahme> {
+    return this.http.post<Massnahme>(`${this.api}/${id}/unarchivieren`, {}).toPromise();
+  }
+
+  archivieren(ids: number[]): Promise<void> {
+    return this.http.post<void>(`${this.api}/archivieren`, { ids }).toPromise();
   }
 
   getDokumentListe(id: number): Promise<DokumentListeView> {
@@ -83,12 +95,14 @@ export class MassnahmeService {
     return this.http.get<Massnahme>(`${this.api}/${id}/edit`).toPromise();
   }
 
-  getAll(organisationId: number | null = null): Promise<MassnahmeListenView[]> {
-    let params = new HttpParams();
-    if (organisationId) {
-      params = params.set('organisationId', organisationId);
-    }
-    return this.http.get<MassnahmeListenView[]>(`${this.api}/list`, { params }).toPromise();
+  getAll(erweiterterFilter: ErweiterterMassnahmenFilter): Promise<MassnahmeListenView[]> {
+    const filterCommand: FilterMassnahmenCommand = {
+      historischeMassnahmenAnzeigen: erweiterterFilter.historischeMassnahmenAnzeigen,
+      fahrradroutenIds: erweiterterFilter.fahrradroutenIds,
+      verwaltungseinheitId: erweiterterFilter.organisation?.id ?? null,
+    };
+
+    return this.http.post<MassnahmeListenView[]>(`${this.api}/list`, filterCommand).toPromise();
   }
 
   saveUmsetzungsstand(saveUmsetzungsstandCommand: SaveUmsetzungsstandCommand): Promise<Umsetzungsstand> {
@@ -104,7 +118,13 @@ export class MassnahmeService {
   }
 
   starteUmsetzungsstandsabfrage(massnahmeIds: number[]): Promise<void> {
-    return this.http.post<void>(`${this.api}/starteUmsetzungsstandsabfrage`, massnahmeIds).toPromise();
+    return this.http.post<void>(`${this.api}/umsetzungsstandsabfrage/start`, massnahmeIds).toPromise();
+  }
+
+  getUmsetzungsstandAbfrageVorschau(massnahmeIds: number[]): Promise<UmsetzungsstandAbfrageVorschau> {
+    return this.http
+      .post<UmsetzungsstandAbfrageVorschau>(`${this.api}/umsetzungsstandsabfrage/vorschau`, massnahmeIds)
+      .toPromise();
   }
 
   auswertungHerunterladen(massnahmenIds: number[]): Promise<HttpResponse<Blob>> {

@@ -19,10 +19,15 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
+import static org.valid4j.Assertive.ensure;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,12 +36,17 @@ import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 
 import com.google.common.base.Objects;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
-import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
@@ -57,8 +67,9 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
+import de.wps.radvis.backend.netz.domain.entity.AbstractEntityWithNetzbezug;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
@@ -83,7 +94,7 @@ import lombok.ToString;
 @Audited
 @Entity
 @ToString
-public class Massnahme extends VersionierteEntity {
+public class Massnahme extends AbstractEntityWithNetzbezug {
 
 	@Enumerated(EnumType.STRING)
 	private Realisierungshilfe realisierungshilfe;
@@ -192,6 +203,14 @@ public class Massnahme extends VersionierteEntity {
 	@OptimisticLock(excluded = true)
 	private Set<Benutzer> zuBenachrichtigendeBenutzer;
 
+	@Getter
+	private boolean archiviert;
+
+	@Getter(value = AccessLevel.PACKAGE)
+	private MultiPoint netzbezugSnapshotPoints;
+	@Getter(value = AccessLevel.PACKAGE)
+	private MultiLineString netzbezugSnapshotLines;
+
 	@Builder(builderMethodName = "privateBuilder", toBuilder = true)
 	private Massnahme(Long id, Long version, Bezeichnung bezeichnung,
 		Set<Massnahmenkategorie> massnahmenkategorien, MassnahmeNetzBezug netzbezug,
@@ -199,13 +218,11 @@ public class Massnahme extends VersionierteEntity {
 		DokumentListe dokumentListe, Boolean veroeffentlicht, Boolean planungErforderlich,
 		KommentarListe kommentarListe, MaViSID maViSID, VerbaID verbaID, LGVFGID lgvfgid, Prioritaet prioritaet,
 		Kostenannahme kostenannahme, Set<Netzklasse> netzklassen, Benutzer benutzerLetzteAenderung,
-		LocalDateTime letzteAenderung,
-		Verwaltungseinheit baulastZustaendiger, Verwaltungseinheit unterhaltsZustaendiger,
-		Verwaltungseinheit zustaendiger,
+		LocalDateTime letzteAenderung, Verwaltungseinheit baulastZustaendiger,
+		Verwaltungseinheit unterhaltsZustaendiger, Verwaltungseinheit zustaendiger,
 		MassnahmeKonzeptID massnahmeKonzeptId, SollStandard sollStandard,
-		Handlungsverantwortlicher handlungsverantwortlicher,
-		Konzeptionsquelle konzeptionsquelle, String sonstigeKonzeptionsquelle,
-		Geometry originalRadNETZGeometrie, MassnahmenPaketId massnahmenPaketId,
+		Handlungsverantwortlicher handlungsverantwortlicher, Konzeptionsquelle konzeptionsquelle,
+		String sonstigeKonzeptionsquelle, Geometry originalRadNETZGeometrie, MassnahmenPaketId massnahmenPaketId,
 		Set<Benutzer> zuBenachrichtigendeBenutzer, boolean geloescht, Realisierungshilfe realisierungshilfe) {
 		super(id, version);
 		require(bezeichnung, notNullValue());
@@ -228,8 +245,6 @@ public class Massnahme extends VersionierteEntity {
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
 			sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
-		require(umsetzungsstandNurFuerRadNETZMassnahmenVorhanden(umsetzungsstand, konzeptionsquelle),
-			"Nur Massnahmen mit Konzeptionsquelle 'RadNETZ-Maßnahme' können einen Umsetzungsstand haben");
 
 		this.bezeichnung = bezeichnung;
 		this.massnahmenkategorien = new HashSet<>(massnahmenkategorien);
@@ -262,8 +277,11 @@ public class Massnahme extends VersionierteEntity {
 		}
 		this.geloescht = geloescht;
 		this.realisierungshilfe = realisierungshilfe;
+		this.archiviert = false;
 
 		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
+
+		ensure(umsetzungsstandValidForKonzeptionsquelle());
 	}
 
 	/**
@@ -286,11 +304,9 @@ public class Massnahme extends VersionierteEntity {
 		String sonstigeKonzeptionsquelle) {
 		this(null, null, bezeichnung, massnahmenkategorien, netzbezug, durchfuehrungszeitraum, umsetzungsstatus,
 			new DokumentListe(), veroeffentlicht, planungErforderlich, new KommentarListe(), null, null, null,
-			null, null, new HashSet<>(), benutzerLetzteAenderung,
-			letzteAenderung,
-			baulastZustaendiger, null, zustaendiger, null, sollStandard, handlungsverantwortlicher, konzeptionsquelle,
-			sonstigeKonzeptionsquelle, null, null,
-			new HashSet<>(), false, null);
+			null, null, new HashSet<>(), benutzerLetzteAenderung, letzteAenderung, baulastZustaendiger, null,
+			zustaendiger, null, sollStandard, handlungsverantwortlicher, konzeptionsquelle, sonstigeKonzeptionsquelle,
+			null, null, new HashSet<>(), false, null);
 
 		require(!konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME), "Für Konzeptionsquelle "
 			+ Konzeptionsquelle.RADNETZ_MASSNAHME + " dürfen keine neuen Maßnahmen angelegt werden.");
@@ -328,6 +344,7 @@ public class Massnahme extends VersionierteEntity {
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
 			sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
+		require(!archiviert);
 
 		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
 
@@ -353,7 +370,18 @@ public class Massnahme extends VersionierteEntity {
 		this.handlungsverantwortlicher = handlungsverantwortlicher;
 		this.sonstigeKonzeptionsquelle = sonstigeKonzeptionsquelle;
 		this.realisierungshilfe = realisierungshilfe;
+
+		ensure(umsetzungsstandValidForKonzeptionsquelle());
+
 		RadVisDomainEventPublisher.publish(new MassnahmeChangedEvent(this.id));
+	}
+
+	private boolean umsetzungsstandValidForKonzeptionsquelle() {
+		if (Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle)) {
+			return umsetzungsstand != null;
+		}
+
+		return umsetzungsstand == null;
 	}
 
 	private void aktualisiereKonzeptionsquelleUndUmsetzungsstand(Konzeptionsquelle konzeptionsquelle,
@@ -372,6 +400,27 @@ public class Massnahme extends VersionierteEntity {
 
 		this.umsetzungsstatus = neuerUmsetzungsstatus;
 		this.konzeptionsquelle = konzeptionsquelle;
+	}
+
+	public Optional<GeometryCollection> getNetzbezugSnapshot() {
+		if (netzbezugSnapshotLines == null && netzbezugSnapshotPoints == null) {
+			return Optional.empty();
+		}
+
+		List<Geometry> netzbezugSnapshots = new ArrayList<>();
+		if (netzbezugSnapshotLines != null) {
+			for (int i = 0; i < netzbezugSnapshotLines.getNumGeometries(); i++) {
+				netzbezugSnapshots.add(netzbezugSnapshotLines.getGeometryN(i));
+			}
+		}
+		if (netzbezugSnapshotPoints != null) {
+			for (int i = 0; i < netzbezugSnapshotPoints.getNumGeometries(); i++) {
+				netzbezugSnapshots.add(netzbezugSnapshotPoints.getGeometryN(i));
+			}
+		}
+
+		return Optional.of(new GeometryCollection(netzbezugSnapshots.toArray(new Geometry[] {}),
+			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()));
 	}
 
 	public boolean canUpdateKonzeptionsquelle(Konzeptionsquelle neueKonzeptionsquelle) {
@@ -449,8 +498,8 @@ public class Massnahme extends VersionierteEntity {
 	}
 
 	private void passeUmsetzungsstandAnNeueKonzeptionsquelleAn(Konzeptionsquelle konzeptionsquelle) {
-		if (konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME
-			&& this.konzeptionsquelle != Konzeptionsquelle.RADNETZ_MASSNAHME) {
+		if (Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle)
+			&& !Konzeptionsquelle.isRadNetzKonzeptionsquelle(this.konzeptionsquelle)) {
 			this.umsetzungsstand = new Umsetzungsstand();
 		}
 	}
@@ -483,11 +532,6 @@ public class Massnahme extends VersionierteEntity {
 		return massnahmenkategorien.stream()
 			.map(Massnahmenkategorie::getMassnahmenOberkategorie)
 			.collect(Collectors.toSet()).size() == massnahmenkategorien.size();
-	}
-
-	public static boolean umsetzungsstandNurFuerRadNETZMassnahmenVorhanden(Umsetzungsstand umsetzungsstand,
-		Konzeptionsquelle konzeptionsquelle) {
-		return umsetzungsstand != null ? konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME : true;
 	}
 
 	public void updateMassnahmeUmgesetztFuerUmsetzungsstandabfrageImport() {
@@ -525,6 +569,8 @@ public class Massnahme extends VersionierteEntity {
 	}
 
 	public void addDokument(Dokument dokument) {
+		require(!archiviert);
+
 		if (this.dokumentListe == null) {
 			this.dokumentListe = new DokumentListe();
 		}
@@ -538,6 +584,8 @@ public class Massnahme extends VersionierteEntity {
 	}
 
 	public void deleteDokument(long dokumentId) {
+		require(!archiviert);
+
 		this.dokumentListe.deleteDokument(dokumentId);
 	}
 
@@ -558,7 +606,7 @@ public class Massnahme extends VersionierteEntity {
 	}
 
 	public boolean isRadNETZMassnahme() {
-		return konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME);
+		return Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle);
 	}
 
 	public void stornieren(Benutzer benutzerLetzteAenderung, LocalDateTime letzteAenderung) {
@@ -567,13 +615,57 @@ public class Massnahme extends VersionierteEntity {
 		this.letzteAenderung = letzteAenderung;
 	}
 
-	public void removeKanteFromNetzbezug(Long kanteId) {
-		require(kanteId, notNullValue());
-		netzbezug.removeKante(kanteId);
+	public void archivieren() {
+		require(!archiviert);
+		this.archiviert = true;
+
+		List<LineString> lineStrings = this.netzbezug.getLineStrings();
+		if (!lineStrings.isEmpty()) {
+			this.netzbezugSnapshotLines = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+				.createMultiLineString(lineStrings.toArray(LineString[]::new));
+		}
+
+		List<Point> points = this.netzbezug.getPoints();
+		if (!points.isEmpty()) {
+			this.netzbezugSnapshotPoints = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+				.createMultiPoint(points.toArray(Point[]::new));
+		}
 	}
 
-	public void removeKnotenFromNetzbezug(Long knotenId) {
-		require(knotenId, notNullValue());
-		netzbezug.removeKnoten(knotenId);
+	public void archivierungAufheben() {
+		require(archiviert);
+
+		this.archiviert = false;
+		this.netzbezugSnapshotLines = null;
+		this.netzbezugSnapshotPoints = null;
+	}
+
+	public void removeKanteFromNetzbezug(Collection<Long> kantenIds) {
+		require(kantenIds, notNullValue());
+		netzbezug = netzbezug.withoutKanten(new HashSet<>(kantenIds));
+	}
+
+	@Override
+	public void removeKnotenFromNetzbezug(Collection<Long> knotenIds) {
+		require(knotenIds, notNullValue());
+		netzbezug = netzbezug.withoutKnoten(new HashSet<>(knotenIds));
+	}
+
+	public void ersetzeKanteInNetzbezug(Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch,
+		double erlaubteAbweichung) {
+		require(zuErsetzenDurch, notNullValue());
+		require(!zuErsetzenDurch.isEmpty());
+
+		netzbezug = netzbezug.withKanteErsetzt(zuErsetzendeKante, zuErsetzenDurch, erlaubteAbweichung);
+	}
+
+	/**
+	 * Ersetzt Knoten anhand übergebener Abbildung
+	 * 
+	 * @param ersatzKnoten:
+	 *     ID des zu ersetzenden Knoten -> Ersatz-Knoten
+	 */
+	public void ersetzeKnotenInNetzbezug(Map<Long, Knoten> ersatzKnoten) {
+		netzbezug = netzbezug.withKnotenErsetzt(ersatzKnoten);
 	}
 }

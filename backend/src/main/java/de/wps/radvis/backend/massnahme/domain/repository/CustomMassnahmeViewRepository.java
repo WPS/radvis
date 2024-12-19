@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.massnahme.domain.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.locationtech.jts.geom.MultiPolygon;
 
@@ -22,5 +23,6 @@ import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 
 public interface CustomMassnahmeViewRepository {
 
-	List<MassnahmeListenDbView> findAllInBereich(MultiPolygon bereich);
+	public List<MassnahmeListenDbView> findAllWithFilters(Optional<MultiPolygon> innerhalbBereich,
+		Boolean historischeMassnahmenAnzeigen);
 }

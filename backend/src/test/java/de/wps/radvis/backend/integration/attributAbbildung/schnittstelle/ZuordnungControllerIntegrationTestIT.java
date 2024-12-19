@@ -72,6 +72,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfigu
 import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
@@ -138,7 +139,8 @@ import jakarta.persistence.PersistenceContext;
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -241,7 +243,7 @@ class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
 		final FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe = FahrtrichtungAttributGruppe.builder()
 			.build();
 		fahrtrichtungAttributGruppe.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppe.setRichtung(Richtung.BEIDE_RICHTUNGEN, Richtung.IN_RICHTUNG);
+		fahrtrichtungAttributGruppe.update(Richtung.BEIDE_RICHTUNGEN, Richtung.IN_RICHTUNG);
 		List<ZustaendigkeitAttribute> zustaendigkeitsattribute = List.of(
 			ZustaendigkeitAttribute.builder().unterhaltsZustaendiger(eineOrganisation)
 				.build());

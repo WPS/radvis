@@ -12,11 +12,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { Benutzer } from 'src/app/administration/models/benutzer';
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 import { Rolle } from 'src/app/administration/models/rolle';
@@ -29,6 +32,7 @@ import {
   AutoCompleteOption,
 } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
 import { EnumDropdownControlComponent } from 'src/app/form-elements/components/enum-dropdown-control/enum-dropdown-control.component';
+import { ErrorMessagePipe } from 'src/app/form-elements/components/error-message.pipe';
 import { TextInputControlComponent } from 'src/app/form-elements/components/text-input-control/text-input-control.component';
 import { MaterialDesignModule } from 'src/app/material-design.module';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
@@ -47,6 +51,7 @@ describe(BenutzerEditorComponent.name, () => {
     nachname: 'mein nachname',
     vorname: 'mein vorname',
     status: BenutzerStatus.AKTIV,
+    ablaufdatum: null,
     version: 1,
     organisation: defaultOrganisation,
     rollen: [Rolle.RADVIS_ADMINISTRATOR, Rolle.RADWEGE_ERFASSERIN],
@@ -88,10 +93,12 @@ describe(BenutzerEditorComponent.name, () => {
 
   let benutzerService: BenutzerService;
   let administrationRoutingService: AdministrationRoutingService;
+  let matomoTracker: MatomoTracker;
 
   beforeEach(async () => {
     benutzerService = mock(BenutzerService);
     administrationRoutingService = mock(AdministrationRoutingService);
+    matomoTracker = mock(MatomoTracker);
 
     await TestBed.configureTestingModule({
       declarations: [
@@ -100,13 +107,26 @@ describe(BenutzerEditorComponent.name, () => {
         MockComponent(AutocompleteDropdownComponent),
         MockComponent(TextInputControlComponent),
         MockComponent(EnumDropdownControlComponent),
+
+        MockPipe(ErrorMessagePipe),
       ],
-      imports: [RouterTestingModule, MockModule(MaterialDesignModule), MockModule(ReactiveFormsModule)],
+      imports: [
+        RouterTestingModule,
+        MockModule(MaterialDesignModule),
+        MockModule(ReactiveFormsModule),
+        MockModule(MatDatepickerModule),
+        MockModule(MatNativeDateModule),
+      ],
       providers: [
         { provide: BenutzerService, useValue: instance(benutzerService) },
         { provide: NotifyUserService, useValue: instance(mock(NotifyUserService)) },
         { provide: ActivatedRoute, useValue: activatedRoute },
+        {
+          provide: MatomoTracker,
+          useValue: instance(mock(MatomoTracker)),
+        },
         { provide: AdministrationRoutingService, useValue: instance(administrationRoutingService) },
+        { provide: MatomoTracker, useValue: instance(matomoTracker) },
       ],
     }).compileComponents();
   });
@@ -120,19 +140,20 @@ describe(BenutzerEditorComponent.name, () => {
   it('should fill form', () => {
     const expectedBenutzerinForm = {
       status: BenutzerStatus.getDisplayName(BenutzerStatus.AKTIV),
+      ablaufdatum: null,
       vorname: existingBenutzer.vorname,
       nachname: existingBenutzer.nachname,
       email: existingBenutzer.email,
       organisation: defaultGewaehlteOrganisation,
       rollen: ['RADVIS_ADMINISTRATOR', 'RADWEGE_ERFASSERIN'],
     };
-    expect(component.form.getRawValue()).toEqual(expectedBenutzerinForm);
+    expect(component.formGroup.getRawValue()).toEqual(expectedBenutzerinForm);
   });
 
   it('should read form', fakeAsync(() => {
     when(benutzerService.save(anything())).thenReturn(Promise.resolve({ ...existingBenutzer, version: 2 } as Benutzer));
     const organisationId = 94766;
-    component.form.patchValue({
+    component.formGroup.patchValue({
       nachname: 'Test',
       organisation: {
         ...defaultGewaehlteOrganisation,
@@ -144,6 +165,7 @@ describe(BenutzerEditorComponent.name, () => {
     verify(benutzerService.save(anything())).once();
     expect(capture(benutzerService.save).last()[0]).toEqual({
       id: benutzerId,
+      ablaufdatum: null,
       vorname: existingBenutzer.vorname,
       nachname: 'Test',
       email: 'ich@test.de',
@@ -154,7 +176,7 @@ describe(BenutzerEditorComponent.name, () => {
   }));
 
   it('should not save when invalid', () => {
-    spyOnProperty(component.form, 'valid').and.returnValue(false);
+    spyOnProperty(component.formGroup, 'valid').and.returnValue(false);
     component.onSave();
     verify(benutzerService.save(anything())).never();
     expect().nothing();
@@ -162,22 +184,27 @@ describe(BenutzerEditorComponent.name, () => {
 
   describe('validation', () => {
     it('should be invalid if fields not set', () => {
-      component.form.reset();
-      expect(component.form.get('vorname')?.valid).toBeFalse();
-      expect(component.form.get('nachname')?.valid).toBeFalse();
-      expect(component.form.get('organisation')?.valid).toBeFalse();
-      expect(component.form.get('rollen')?.valid).toBeFalse();
+      component.formGroup.reset();
+      expect(component.formGroup.get('vorname')?.valid).toBeFalse();
+      expect(component.formGroup.get('nachname')?.valid).toBeFalse();
+      expect(component.formGroup.get('organisation')?.valid).toBeFalse();
+      expect(component.formGroup.get('rollen')?.valid).toBeFalse();
     });
 
     it('should be invalid when fields too long', () => {
       const stringLonger255 =
         'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata ';
-      component.form.patchValue({
+      component.formGroup.patchValue({
         nachname: stringLonger255,
         vorname: stringLonger255,
       });
-      expect(component.form.get('vorname')?.valid).toBeFalse();
-      expect(component.form.get('nachname')?.valid).toBeFalse();
+      expect(component.formGroup.get('vorname')?.valid).toBeFalse();
+      expect(component.formGroup.get('nachname')?.valid).toBeFalse();
+    });
+
+    it('should be invalid if ablaufdatum is enabled but not set', () => {
+      component.isAblaufdatumEnabled = true;
+      expect(component.formGroup.get('ablaufdatum')?.valid).toBeFalse();
     });
   });
 
@@ -188,8 +215,8 @@ describe(BenutzerEditorComponent.name, () => {
       );
 
       const benutzer = activatedRoute.snapshot.data.benutzer;
-      component.form.reset();
-      component.form.patchValue({
+      component.formGroup.reset();
+      component.formGroup.patchValue({
         version: benutzer.version,
         nachname: '   test   ',
         vorname: '   test   ',
@@ -206,6 +233,7 @@ describe(BenutzerEditorComponent.name, () => {
       expect(data).toEqual({
         id: activatedRoute.snapshot.params.id,
         version: benutzer.version,
+        ablaufdatum: null,
         nachname: 'test',
         vorname: 'test',
         email: benutzer.email,
@@ -224,5 +252,22 @@ describe(BenutzerEditorComponent.name, () => {
       verify(administrationRoutingService.toAdministration()).once();
       expect().nothing();
     });
+  });
+
+  describe('onAblehnen', () => {
+    it('should disable the ablaufdatum', fakeAsync(() => {
+      // Arrange
+      when(benutzerService.aendereBenutzerstatus(anything(), anything(), anything())).thenReturn(
+        Promise.resolve(existingBenutzer)
+      );
+      const spy = spyOn(component, 'disableAblaufdatum');
+
+      // Act
+      component.onAblehnen();
+      tick();
+
+      // Assert
+      expect(spy).toHaveBeenCalled();
+    }));
   });
 });

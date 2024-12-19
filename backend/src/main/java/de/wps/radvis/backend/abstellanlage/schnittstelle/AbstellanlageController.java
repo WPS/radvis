@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,6 @@ import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageImportService;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageRepository;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageService;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
@@ -47,59 +45,33 @@ import de.wps.radvis.backend.common.domain.exception.CsvReadException;
 import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
-import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.dokument.schnittstelle.view.DokumenteView;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
-import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/abstellanlage")
 @AllArgsConstructor
-@Transactional
+// kein @Transactional am Controller, da sonst Optimistic Locking für save nicht funktioniert
 public class AbstellanlageController {
 	private final AbstellanlageRepository repository;
 	private final AbstellanlageService service;
 	private final AbstellanlageImportService importService;
 	private final AbstellanlageGuard abstellanlageGuard;
-	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 	private final BenutzerResolver benutzerResolver;
 	private final CsvRepository csvRepository;
+	private final SaveAbstellanlageCommandConverter saveAbstellanlageCommandConverter;
 
 	@PostMapping("new")
 	@WithAuditing(context = AuditingContext.SAVE_ABSTELLANLAGE_COMMAND)
 	public Long create(@RequestBody @Valid SaveAbstellanlageCommand command, Authentication authentication) {
 		abstellanlageGuard.create(command, authentication);
 
-		Verwaltungseinheit zustaendig = command.getZustaendigId() != null ? verwaltungseinheitResolver.resolve(command
-			.getZustaendigId()) : null;
-		Abstellanlage abstellanlage = new Abstellanlage(
-			(Point) command.getGeometrie(),
-			command.getBetreiber(),
-			command.getExterneId(),
-			AbstellanlagenQuellSystem.RADVIS,
-			zustaendig,
-			command.getAnzahlStellplaetze(),
-			command.getAnzahlSchliessfaecher(),
-			command.getAnzahlLademoeglichkeiten(),
-			command.getUeberwacht(),
-			command.getAbstellanlagenOrt(),
-			command.getGroessenklasse(),
-			command.getStellplatzart(),
-			command.getUeberdacht(),
-			command.getGebuehrenProTag(),
-			command.getGebuehrenProMonat(),
-			command.getGebuehrenProJahr(),
-			command.getBeschreibung(),
-			command.getWeitereInformation(),
-			command.getStatus(),
-			new DokumentListe());
-		return repository.save(abstellanlage).getId();
+		Abstellanlage abstellanlage = saveAbstellanlageCommandConverter.convert(command);
+		return service.save(abstellanlage).getId();
 	}
 
 	@PostMapping("{id}")
@@ -108,45 +80,24 @@ public class AbstellanlageController {
 		Authentication authentication) {
 		abstellanlageGuard.save(id, command, authentication);
 
-		Verwaltungseinheit zustaendig = command.getZustaendigId() != null ? verwaltungseinheitResolver.resolve(command
-			.getZustaendigId()) : null;
 		Abstellanlage abstellanlage = service.loadForModification(id, command.getVersion());
-		abstellanlage.update(
-			(Point) command.getGeometrie(),
-			command.getBetreiber(),
-			command.getExterneId(),
-			zustaendig,
-			command.getAnzahlStellplaetze(),
-			command.getAnzahlSchliessfaecher(),
-			command.getAnzahlLademoeglichkeiten(),
-			command.getUeberwacht(),
-			command.getAbstellanlagenOrt(),
-			command.getGroessenklasse(),
-			command.getStellplatzart(),
-			command.getUeberdacht(),
-			command.getGebuehrenProTag(),
-			command.getGebuehrenProMonat(),
-			command.getGebuehrenProJahr(),
-			command.getBeschreibung(),
-			command.getWeitereInformation(),
-			command.getStatus()
-		);
-		return new AbstellanlageView(repository.save(abstellanlage),
-			service.darfBenutzerBearbeiten(authentication, abstellanlage));
+		saveAbstellanlageCommandConverter.apply(abstellanlage, command);
+		return new AbstellanlageView(service.save(abstellanlage),
+			abstellanlageGuard.darfBenutzerBearbeiten(authentication, abstellanlage));
 	}
 
 	@GetMapping("")
 	public Stream<AbstellanlageView> getAll(Authentication authentication) {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
 			.map(abstellanlage -> new AbstellanlageView(abstellanlage,
-				service.darfBenutzerBearbeiten(authentication, abstellanlage)));
+				abstellanlageGuard.darfBenutzerBearbeiten(authentication, abstellanlage)));
 	}
 
 	@GetMapping("{id}")
 	public AbstellanlageView get(@PathVariable Long id, Authentication authentication) {
 		Abstellanlage abstellanlage = repository.findById(id).orElseThrow(EntityNotFoundException::new);
 		return new AbstellanlageView(abstellanlage,
-			service.darfBenutzerBearbeiten(authentication, abstellanlage));
+			abstellanlageGuard.darfBenutzerBearbeiten(authentication, abstellanlage));
 	}
 
 	@GetMapping("{id}/dokumentliste")
@@ -188,8 +139,7 @@ public class AbstellanlageController {
 				command.getFilename(),
 				benutzerResolver.fromAuthentication(authentication),
 				file.getBytes(),
-				LocalDateTime.now())
-		);
+				LocalDateTime.now()));
 	}
 
 	@DeleteMapping("{id}/dokument/{dokumentId}")

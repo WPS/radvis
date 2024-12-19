@@ -16,9 +16,17 @@ package de.wps.radvis.backend.netz.domain.entity.provider;
 
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
+import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
+import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
+import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 
 public class KantenAttributeTestDataProvider {
 	public static KantenAttribute.KantenAttributeBuilder withLeereGrundnetzAttribute() {
@@ -27,5 +35,24 @@ public class KantenAttributeTestDataProvider {
 			.umfeld(Umfeld.UNBEKANNT)
 			.strassenquerschnittRASt06(StrassenquerschnittRASt06.UNBEKANNT)
 			.status(Status.defaultWert());
+	}
+
+	public static KantenAttribute.KantenAttributeBuilder createWithValues(Gebietskoerperschaft gemeinde) {
+		return KantenAttribute.builder()
+			.umfeld(Umfeld.GEWERBEGEBIET)
+			.strassenkategorieRIN(StrassenkategorieRIN.NAHRAEUMIG)
+			.wegeNiveau(WegeNiveau.FAHRBAHN)
+			.strassenquerschnittRASt06(StrassenquerschnittRASt06.HAUPTGESCHAEFTSSTRASSE)
+			.sv(VerkehrStaerke.of(12))
+			.beleuchtung(Beleuchtung.VORHANDEN)
+			.dtvFussverkehr(VerkehrStaerke.of(1))
+			.dtvRadverkehr(VerkehrStaerke.of(2))
+			.dtvPkw(VerkehrStaerke.of(3))
+			.gemeinde(gemeinde)
+			.laengeManuellErfasst(Laenge.of(123.45))
+			.kommentar(Kommentar.of("Toller Kommentar"))
+			.strassenNummer(StrassenNummer.of("B123"))
+			.strassenName(StrassenName.of("Dingenskirchener Straße"))
+			.status(Status.UNTER_VERKEHR);
 	}
 }

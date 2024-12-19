@@ -13,26 +13,37 @@
   -->
 
 <form [formGroup]="formGroup" class="form-group" *ngIf="hasKanten$ | async">
-  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
-    NICHT_BEARBEITBAR_HINWEIS
-  }}</rad-warnhinweis>
-  <div class="display-flex ml-10">
-    <mat-slide-toggle
-      [class.indeterminate]="seitenbezogenUndetermined"
-      (toggleChange)="onSeitenbezugChange()"
-      [disabled]="formGroup.dirty || formGroup.disabled"
-      [checked]="seitenbezogen"
-      aria-label="Radweg auf zwei Seiten">
-      Radwege auf zwei Seiten
-    </mat-slide-toggle>
-    <mat-spinner *ngIf="changeSeitenbezug" diameter="16"></mat-spinner>
-    <div class="flex-grow"></div>
+  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">
+    {{ NICHT_BEARBEITBAR_HINWEIS }}
+  </rad-warnhinweis>
+  <div class="display-flex justify-content-flex-end header">
+    <button
+      *ngIf="canDelete"
+      [disabled]="formGroup.disabled"
+      (click)="onDelete()"
+      matTooltip="Kante löschen"
+      mat-icon-button>
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      matTooltip="Attribute kopieren"
+      (click)="onCopy()"
+      [disabled]="copyDisabled || formGroup.disabled">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      matTooltip="Attribute einfügen"
+      (click)="onPaste()"
+      [disabled]="!hasClipboard || formGroup.disabled"
+      [class.has-clipboard]="hasClipboard">
+      <mat-icon>content_paste</mat-icon>
+    </button>
     <button matTooltip="Schließen" (click)="onClose()" mat-icon-button>
       <mat-icon>clear</mat-icon>
     </button>
   </div>
-  <div *ngIf="formGroup.dirty" class="hinweis">Bitte erst speichern</div>
-  <div *ngIf="!formGroup.dirty && seitenbezogenUndetermined" class="hinweis">Mehrere Werte ausgewählt</div>
   <rad-attribute-editor
     [showHeader]="false"
     (dismiss)="onClose()"
@@ -42,6 +53,23 @@
     [dirty]="formGroup.dirty"
     [fetching]="isFetching"
     class="attribute-editor">
+    <div class="display-flex seitenbezug-toggle p-5">
+      <mat-slide-toggle
+        [class.indeterminate]="seitenbezogenUndetermined"
+        (toggleChange)="onSeitenbezugChange()"
+        [disabled]="formGroup.dirty || formGroup.disabled"
+        [checked]="seitenbezogen"
+        aria-label="Radweg auf zwei Seiten">
+        Radwege auf zwei Seiten
+        @if (formGroup.dirty) {
+          (bitte erst speichern)
+        } @else if (seitenbezogenUndetermined) {
+          (mehrere Werte ausgewählt)
+        }
+      </mat-slide-toggle>
+      <mat-spinner *ngIf="changeSeitenbezug" diameter="16"></mat-spinner>
+    </div>
+
     <rad-enum-dropdown-control formControlName="wegeNiveau" [options]="wegeniveauOptions">
       Wegeniveau
     </rad-enum-dropdown-control>
@@ -131,74 +159,81 @@
       <div class="header">Netzklassen</div>
       <div role="group" aria-labelledby="t1">
         <div id="t1">RadNETZ-Klassen:</div>
-        <rad-undetermined-checkbox-control formControlName="radnetzAlltag">Alltag</rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radnetzFreizeit"
-          >Freizeit
+        <rad-undetermined-checkbox-control
+          formControlName="radnetzAlltag"
+          matomoClickCategory="Netzklassen"
+          matomoClickAction="Zuweisung"
+          matomoClickName="RadNETZ Alltag">
+          Alltag
         </rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radnetzZielnetz"
-          >Zielnetz
+        <rad-undetermined-checkbox-control
+          formControlName="radnetzFreizeit"
+          matomoClickCategory="Netzklassen"
+          matomoClickAction="Zuweisung"
+          matomoClickName="RadNETZ Freizeit">
+          Freizeit
+        </rad-undetermined-checkbox-control>
+        <rad-undetermined-checkbox-control
+          formControlName="radnetzZielnetz"
+          matomoClickCategory="Netzklassen"
+          matomoClickAction="Zuweisung"
+          matomoClickName="RadNETZ Zielnetz">
+          Zielnetz
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t2">
         <div id="t2">Kreisnetz-Klassen:</div>
         <rad-undetermined-checkbox-control formControlName="kreisnetzAlltag">Alltag</rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="kreisnetzFreizeit"
-          >Freizeit
+        <rad-undetermined-checkbox-control formControlName="kreisnetzFreizeit">
+          Freizeit
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t3">
         <div id="t3">Kommunalnetz-Klassen:</div>
-        <rad-undetermined-checkbox-control formControlName="kommunalnetzAlltag"
-          >Alltag
+        <rad-undetermined-checkbox-control formControlName="kommunalnetzAlltag">
+          Alltag
         </rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="kommunalnetzFreizeit"
-          >Freizeit
+        <rad-undetermined-checkbox-control formControlName="kommunalnetzFreizeit">
+          Freizeit
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t4">
         <div id="t4">Weitere:</div>
-        <rad-undetermined-checkbox-control formControlName="radschnellverbindung"
-          >Radschnellverbindung
+        <rad-undetermined-checkbox-control formControlName="radschnellverbindung">
+          Radschnellverbindung
         </rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radvorrangrouten"
-          >Radvorrangrouten
+        <rad-undetermined-checkbox-control formControlName="radvorrangrouten">
+          Radvorrangrouten
         </rad-undetermined-checkbox-control>
       </div>
     </div>
 
     <div class="group" formGroupName="istStandards">
       <div class="header">Ist-Standards</div>
-      <rad-undetermined-checkbox-control formControlName="basisstandard"
-        >Basisstandard
+      <rad-undetermined-checkbox-control formControlName="basisstandard">
+        Basisstandard
       </rad-undetermined-checkbox-control>
       <div role="group" aria-labelledby="t5">
         <div id="t5">RadNETZ-Standards:</div>
-        <rad-undetermined-checkbox-control formControlName="radnetzStartstandard"
-          >Startstandard
+        <rad-undetermined-checkbox-control formControlName="radnetzStartstandard">
+          Startstandard
         </rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radnetzZielstandard"
-          >Zielstandard
+        <rad-undetermined-checkbox-control formControlName="radnetzZielstandard">
+          Zielstandard
         </rad-undetermined-checkbox-control>
       </div>
       <div role="group" aria-labelledby="t6">
         <div id="t6">Weitere:</div>
-        <rad-undetermined-checkbox-control formControlName="radschnellverbindung"
-          >Radschnellverbindung
+        <rad-undetermined-checkbox-control formControlName="radschnellverbindung">
+          Radschnellverbindung
         </rad-undetermined-checkbox-control>
-        <rad-undetermined-checkbox-control formControlName="radvorrangrouten"
-          >Radvorrangrouten
+        <rad-undetermined-checkbox-control formControlName="radvorrangrouten">
+          Radvorrangrouten
         </rad-undetermined-checkbox-control>
       </div>
     </div>
-
-    <button
-      *ngIf="canDelete"
-      [disabled]="formGroup.disabled"
-      (click)="onDelete()"
-      mat-stroked-button
-      type="button"
-      class="delete-button">
-      Kante löschen
-    </button>
   </rad-attribute-editor>
 </form>
+
+<rad-kanten-attribute-copied-layer *ngIf="copiedKanteId" [copiedKante]="copiedKanteId">
+</rad-kanten-attribute-copied-layer>

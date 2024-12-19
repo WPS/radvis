@@ -16,23 +16,24 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, Opt
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
+import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import { SaveServicestationCommand } from 'src/app/viewer/servicestation/models/save-servicestation-command';
 import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
+import { ServicestationListView } from 'src/app/viewer/servicestation/models/servicestation-list-view';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
+import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
+import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { SERVICESTATIONEN } from 'src/app/viewer/servicestation/models/servicestation.infrastruktur';
 import { ServicestationFilterService } from 'src/app/viewer/servicestation/services/servicestation-filter.service';
 import { ServicestationRoutingService } from 'src/app/viewer/servicestation/services/servicestation-routing.service';
+import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/services/servicestation-updated.service';
 import { ServicestationService } from 'src/app/viewer/servicestation/services/servicestation.service';
 import { SimpleEditorCreatorComponent } from 'src/app/viewer/viewer-shared/components/simple-editor-creator.component';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
-import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
-import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
-import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import invariant from 'tiny-invariant';
-import { SaveServicestationCommand } from 'src/app/viewer/servicestation/models/save-servicestation-command';
-import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/services/servicestation-updated.service';
-import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 @Component({
   selector: 'rad-servicestation-editor',
@@ -40,7 +41,7 @@ import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/
   styleUrls: ['./servicestation-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<Servicestation> {
+export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<ServicestationListView> {
   // Setzt je nachdem ob es Creator oder Editor ist die entsprechende CSS Klasse an :host,
   // welches in .scss dann verwendet werden kann.
   @HostBinding('class') get hostClasses(): string {

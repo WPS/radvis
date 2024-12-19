@@ -81,6 +81,7 @@ public class AttributeAnreicherungsService {
 	 * @return Eine Map von Quellnetz ID auf den Anteil, der erfolgreich projiziert wurde
 	 */
 	@SuppressChangedEvents
+	@SuppressWarnings("deprecation")
 	public Map<Long, Double> reichereGrundnetzKantenMitAttributenAn(
 		Collection<Attributprojektionsbeschreibung> attributprojektionsbeschreibungen,
 		QuellSystem quelleDerProjiziertenAttribute, AttributProjektionsJobStatistik statistik,
@@ -242,6 +243,7 @@ public class AttributeAnreicherungsService {
 		return quellnetzIDAufAnteil;
 	}
 
+	@SuppressWarnings("deprecation")
 	private void reichereKanteMitSeitenbezogenenAttributenAn(QuellSystem quelleDerProjiziertenAttribute,
 		AttributProjektionsJobStatistik statistik,
 		String jobZuordnung, Attributprojektionsbeschreibung attributprojektionsbeschreibung,
@@ -285,13 +287,13 @@ public class AttributeAnreicherungsService {
 					Richtung mergedlinks = attributeMergeService.mergeFahrtrichtung(
 						fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
 						neueFahrtrichtung, quelleDerProjiziertenAttribute);
-					fahrtrichtungAttributGruppe.setRichtung(
+					fahrtrichtungAttributGruppe.update(
 						mergedlinks,
 						fahrtrichtungAttributGruppe.getFahrtrichtungRechts());
 					Richtung mergeRechts = attributeMergeService.mergeFahrtrichtung(
 						fahrtrichtungAttributGruppe.getFahrtrichtungRechts(),
 						neueFahrtrichtung, quelleDerProjiziertenAttribute);
-					fahrtrichtungAttributGruppe.setRichtung(
+					fahrtrichtungAttributGruppe.update(
 						fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
 						mergeRechts);
 
@@ -367,7 +369,7 @@ public class AttributeAnreicherungsService {
 				potentiellInkonsistenteRichtungAufAnteilLinks,
 				FahrtrichtungAttributGruppe.class.getSimpleName());
 
-			fahrtrichtungAttributGruppe.setRichtung(attributeMergeService
+			fahrtrichtungAttributGruppe.update(attributeMergeService
 				.mergeFahrtrichtung(
 					fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
 					neueRichtungLinks, quelleDerProjiziertenAttribute),
@@ -388,7 +390,7 @@ public class AttributeAnreicherungsService {
 				FahrtrichtungAttributGruppe.class.getSimpleName());
 
 			fahrtrichtungAttributGruppe
-				.setRichtung(fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
+				.update(fahrtrichtungAttributGruppe.getFahrtrichtungLinks(),
 					attributeMergeService
 						.mergeFahrtrichtung(fahrtrichtungAttributGruppe.getFahrtrichtungRechts(), neueRichtungRechts,
 							quelleDerProjiziertenAttribute));

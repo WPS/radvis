@@ -60,7 +60,7 @@ public class OrganisationConfiguration {
 
 	private final CommonConfigurationProperties commonConfigurationProperties;
 
-	private OrganisationConfigurationProperties organisationConfigurationProperties;
+	private final OrganisationConfigurationProperties organisationConfigurationProperties;
 
 	public OrganisationConfiguration(@NonNull GeoConverterConfiguration geoConverterConfiguration,
 		@NonNull CommonConfigurationProperties commonConfigurationProperties,

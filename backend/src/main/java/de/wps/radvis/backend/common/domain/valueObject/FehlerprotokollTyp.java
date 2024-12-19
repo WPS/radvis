@@ -22,6 +22,9 @@ import lombok.Getter;
 public enum FehlerprotokollTyp {
 	DLM_REIMPORT_JOB_MASSNAHMEN("DLM-Reimport (Maßnahmen)", 11.5),
 	DLM_REIMPORT_JOB_FAHRRADROUTEN("DLM-Reimport (Fahrradrouten)", 11.5),
+	DLM_REIMPORT_JOB_BARRIEREN("DLM-Reimport (Barrieren)", 11.5),
+	DLM_REIMPORT_JOB_FURTEN_KREUZUNGEN("DLM-Reimport (Furten und Kreuzungen)", 11.5),
+	ATTRIBUTLUECKEN_SCHLIESSEN("Attributlücken", 11.5),
 	TOUBIZ_IMPORT_FAHRRADROUTEN("Toubiz-Routen Import", 9),
 	TFIS_IMPORT_FAHRRADROUTEN("TFIS-Routen Import", 9),
 	TFIS_IMPORT_LRFW("Landesradfernwege (Import aus TFIS)", 9),

@@ -19,7 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject, Subject, of } from 'rxjs';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 import { ValidationErrorAnzeigeComponent } from 'src/app/form-elements/components/validation-error-anzeige/validation-error-anzeige.component';
 import { ImportMassnahmenImportUeberpruefenLayerComponent } from 'src/app/import/massnahmen/components/import-massnahmen-import-ueberpruefen-layer/import-massnahmen-import-ueberpruefen-layer.component';
 import { MassnahmenImportModule } from 'src/app/import/massnahmen/massnahmen-import.module';
@@ -40,6 +40,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { ImportMassnahmenImportUeberpruefenComponent } from './import-massnahmen-import-ueberpruefen.component';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
   let component: ImportMassnahmenImportUeberpruefenComponent;
@@ -50,6 +51,7 @@ describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
   let massnahmenImportRoutingService: MassnahmenImportRoutingService;
   let massnahmenImportZuordnungenService: MassnahmenImportZuordnungenService;
   let dialog: MatDialog;
+  let matomoTracker: MatomoTracker;
 
   let sessionSubject: Subject<MassnahmenImportSessionView | null>;
   let zuordnungenSubject: BehaviorSubject<MassnahmenImportZuordnungUeberpruefung[]>;
@@ -69,6 +71,7 @@ describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
     massnahmenImportRoutingService = mock(MassnahmenImportRoutingService);
     massnahmenImportZuordnungenService = mock(MassnahmenImportZuordnungenService);
     dialog = mock(MatDialog);
+    matomoTracker = mock(MatomoTracker);
 
     sessionSubject = new Subject();
     when(massnahmenImportService.getImportSession()).thenReturn(sessionSubject.asObservable());
@@ -111,6 +114,7 @@ describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
         { provide: MassnahmenImportService, useValue: instance(massnahmenImportService) },
         { provide: MassnahmenImportRoutingService, useValue: instance(massnahmenImportRoutingService) },
         { provide: MatDialog, useValue: instance(dialog) },
+        { provide: MatomoTracker, useValue: instance(matomoTracker) },
       ],
     }).compileComponents();
   });

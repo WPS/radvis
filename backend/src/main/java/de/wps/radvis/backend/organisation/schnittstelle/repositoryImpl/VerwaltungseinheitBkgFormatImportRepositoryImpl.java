@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -335,7 +336,12 @@ public class VerwaltungseinheitBkgFormatImportRepositoryImpl extends AbstractVer
 	public static boolean checkShapeFiles(File gebietskoerperschaftShpVerzeichnis) {
 		File gemeindeFile = new File(gebietskoerperschaftShpVerzeichnis, "VG250_GEM.shp");
 		SimpleFeatureCollection featureCollection;
+
 		try {
+			if (!gemeindeFile.exists() || Files.size(gemeindeFile.toPath()) == 0) {
+				return false;
+			}
+
 			featureCollection = readShapeFile(gemeindeFile, CHARSET);
 		} catch (IOException e) {
 			log.info("Die Datei {} konnte nicht eingelesen werden.", gemeindeFile.getAbsolutePath());

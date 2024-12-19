@@ -83,7 +83,7 @@ public class MassnahmenExporterService implements ExporterService {
 				massnahme.getUnterhaltOrganisationsArt()));
 		result.put("Letzte Änderung",
 			massnahme.getLetzteAenderung().format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm")));
-		result.put("BenutzerIn der letzten Änderung",
+		result.put("Benutzer/in der letzten Änderung",
 			massnahme.getBenutzerLetzteAenderungVorname() + " " + massnahme.getBenutzerLetzteAenderungNachname());
 		result.put("Soll-Standard", massnahme.getSollStandard().toString());
 		result.put("Wer soll tätig werden?", massnahme.getHandlungsverantwortlicher() == null ? ""
@@ -97,6 +97,8 @@ public class MassnahmenExporterService implements ExporterService {
 		result.put("MaViS-ID", massnahme.getMaViSID() == null ? "" : massnahme.getMaViSID().toString());
 		result.put("Verba-ID", massnahme.getVerbaID() == null ? "" : massnahme.getVerbaID().toString());
 		result.put("LGVFG-ID", massnahme.getLgvfgID() == null ? "" : massnahme.getLgvfgID().toString());
+		result.put("Quelle", massnahme.getKonzeptionsquelle().toString());
+		result.put("Archiviert", massnahme.isArchiviert() ? "Ja" : "Nein");
 		return result;
 	}
 }

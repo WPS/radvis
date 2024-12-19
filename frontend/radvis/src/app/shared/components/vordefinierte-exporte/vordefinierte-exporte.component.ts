@@ -19,6 +19,7 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-vordefinierte-exporte',
@@ -130,13 +131,19 @@ export class VordefinierteExporteComponent {
     private fileHandlingService: FileHandlingService,
     private errorHandlingService: ErrorHandlingService,
     private notifyUserService: NotifyUserService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private matomoTracker: MatomoTracker
   ) {
     this.alleGebietskoerperschaften$ = organisationenService.getGebietskoerperschaften();
   }
 
   ladeHerunter(value: Verwaltungseinheit | null): Promise<void> | null {
     this.isFetching = true;
+
+    if (value) {
+      this.matomoTracker.trackEvent('Vordefinierte Exporte', 'Download', 'Netz für Gebietskörperschaft');
+    }
+
     return this.organisationenService
       .getBereichVonOrganisationAlsString(value?.id)
       .then(bereich => {
@@ -158,7 +165,7 @@ export class VordefinierteExporteComponent {
               try {
                 this.fileHandlingService.downloadInBrowser(res.body, filename);
               } catch (err) {
-                console.log(err);
+                console.error(err);
                 this.notifyUserService.warn('Die heruntergeladene Datei konnte nicht gespeichert werden');
               }
             } else {

@@ -18,6 +18,7 @@ import { RouterModule } from '@angular/router';
 import { EditorSharedModule } from 'src/app/editor/editor-shared/editor-shared.module';
 import { AutocorrectingNumberInputControlComponent } from 'src/app/editor/kanten/components/autocorrecting-number-input-control/autocorrecting-number-input-control.component';
 import { KanteGeometryControlComponent } from 'src/app/editor/kanten/components/kante-geometry-control/kante-geometry-control.component';
+import { KantenAttributeCopiedLayerComponent } from 'src/app/editor/kanten/components/kanten-attribute-copied-layer/kanten-attribute-copied-layer.component';
 import { KantenAttributeEditorMitSubauswahlComponent } from 'src/app/editor/kanten/components/kanten-attribute-editor-mit-subauswahl/kanten-attribute-editor-mit-subauswahl.component';
 import { KantenAttributeEditorComponent } from 'src/app/editor/kanten/components/kanten-attribute-editor/kanten-attribute-editor.component';
 import { KantenCreatorKnotenSelektionComponent } from 'src/app/editor/kanten/components/kanten-creator-knoten-selektion/kanten-creator-knoten-selektion.component';
@@ -52,6 +53,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     UndeterminedCheckboxControlComponent,
     KantenAttributeEditorMitSubauswahlComponent,
     KantenToolComponent,
+    KantenAttributeCopiedLayerComponent,
   ],
   imports: [CommonModule, SharedModule, EditorSharedModule, RouterModule],
   exports: [KantenToolComponent],

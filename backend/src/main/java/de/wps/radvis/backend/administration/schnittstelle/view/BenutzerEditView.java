@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.administration.schnittstelle.view;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -29,6 +30,7 @@ public class BenutzerEditView {
 	private final Name vorname;
 	private final Name nachname;
 	private final BenutzerStatus status;
+	private final LocalDate ablaufdatum;
 	private final VerwaltungseinheitView organisation;
 	private final Mailadresse email;
 	private final long version;
@@ -38,6 +40,7 @@ public class BenutzerEditView {
 		this.vorname = benutzer.getVorname();
 		this.nachname = benutzer.getNachname();
 		this.status = benutzer.getStatus();
+		this.ablaufdatum = benutzer.getAblaufdatum().orElse(null);
 		this.organisation = new VerwaltungseinheitView(benutzer.getOrganisation());
 		this.email = benutzer.getMailadresse();
 		this.version = benutzer.getVersion();

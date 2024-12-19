@@ -16,6 +16,7 @@ stages:
   - package
   - release
   - deploy
+  - coverage
 
 variables:
   # Docker host for testcontainer:
@@ -34,7 +35,7 @@ variables:
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
 services:
-  - docker:19.03.0-dind
+  - docker:27.3.1-dind
 
 .docker_job:
   image: docker:stable
@@ -51,6 +52,7 @@ install_dependencies:
     - set -o pipefail
     - mvn $MAVEN_CLI_OPTS compile -DskipTests -Png-install
   artifacts:
+    expire_in: 1 month
     paths:
       - distribution/target
   cache:
@@ -74,6 +76,7 @@ build:
     - set -o pipefail
     - mvn $MAVEN_CLI_OPTS package -DskipTests -Png-install,ng-build,ng-version
   artifacts:
+    expire_in: 1 month
     paths:
       - distribution/target
   cache:
@@ -105,6 +108,8 @@ backend_integration_tests:
     # mit grep wird output von liquibase auf stdout gefiltert. (No logger? urgh! siehe https://github.com/liquibase/liquibase/issues/2396)
     # Keine Ausgabe des ablaufenden changesets
     - mvn $MAVEN_CLI_OPTS -DskipSurefire=true -Dtest.group="group$CI_NODE_INDEX" -pl backend verify | grep -v "^Running\sChangeset"
+  artifacts:
+    expire_in: 1 week
   cache:
     key:
       files:
@@ -125,6 +130,34 @@ backend_unit_tests:
   script:
     - set -o pipefail
     - mvn $MAVEN_CLI_OPTS -T 1C -pl backend test
+  artifacts:
+    expire_in: 1 week
+  cache:
+    key:
+      files:
+        - backend/pom.xml
+        - frontend/radvis/package-lock.json
+    policy: pull
+    paths:
+      - .m2/repository
+      - frontend/radvis/.npm
+
+
+backend_test_coverage:
+  image: maven:3.9-eclipse-temurin-17-focal
+  when: manual
+  stage: coverage
+  needs:
+    - install_dependencies
+  except:
+    - tags
+  script:
+    - set -o pipefail
+    - mvn $MAVEN_CLI_OPTS -Pcoverage -pl backend verify
+  artifacts:
+    paths:
+      - backend/target/site/jacoco-merged-test-coverage-report/
+    expire_in: 1 week
   cache:
     key:
       files:
@@ -172,6 +205,8 @@ frontend_lint:
   script:
     - set -o pipefail
     - mvn $MAVEN_CLI_OPTS -DskipTests -pl frontend compile -Png-install,ng-lint
+  artifacts:
+    expire_in: 1 week
   cache:
     key:
       files:
@@ -197,6 +232,8 @@ package_docker_backend_image:
     - set -eoux pipefail
     - docker build -t $BACKEND_IMAGE_NAME:$CI_COMMIT_SHA ./distribution
     - docker push $BACKEND_IMAGE_NAME:$CI_COMMIT_SHA
+  artifacts:
+    expire_in: 1 month
 
 package_geoserver_base_image:
   stage: package
@@ -210,6 +247,8 @@ package_geoserver_base_image:
     - docker push $GEOSERVER_BASE_IMAGE_NAME:$CI_COMMIT_SHA
     - docker tag $GEOSERVER_BASE_IMAGE_NAME:$CI_COMMIT_SHA $GEOSERVER_BASE_IMAGE_NAME:$GEOSERVER_BASE_IMAGE_VERSION
     - docker push $GEOSERVER_BASE_IMAGE_NAME:$GEOSERVER_BASE_IMAGE_VERSION
+  artifacts:
+    expire_in: 1 month
 
 package_geoserver_radvis_image:
   stage: package
@@ -220,6 +259,8 @@ package_geoserver_radvis_image:
   script:
     - docker build -t $GEOSERVER_IMAGE_NAME:$CI_COMMIT_SHA --build-arg GEOSERVER_BASE_IMAGE_NAME=$GEOSERVER_BASE_IMAGE_NAME --build-arg GEOSERVER_BASE_IMAGE_VERSION=$GEOSERVER_BASE_IMAGE_VERSION ./infrastruktur/geoserver/
     - docker push $GEOSERVER_IMAGE_NAME:$CI_COMMIT_SHA
+  artifacts:
+    expire_in: 1 month
 
 .tag_docker_images:
   stage: deploy
@@ -231,6 +272,8 @@ package_geoserver_radvis_image:
     - docker tag $GEOSERVER_IMAGE_NAME:$CI_COMMIT_SHA $GEOSERVER_IMAGE_NAME:$TAG
     - docker push $BACKEND_IMAGE_NAME:$TAG
     - docker push $GEOSERVER_IMAGE_NAME:$TAG
+  artifacts:
+    expire_in: 1 month
 
 tag_latest_docker_image:
   extends: .tag_docker_images
@@ -315,6 +358,8 @@ update-maven-dependencies:
     - export TARGET_BRANCH_NAME="$CI_COMMIT_BRANCH"
     - export COMMIT_MESSAGE="Update maven dependencies ($(date -I))"
     - run-update-and-create-mr.sh
+  artifacts:
+    expire_in: 1 week
 
 
 release-patch:
@@ -328,6 +373,8 @@ release-patch:
     GITLAB_TOKEN: $GITLAB_ACCESS_TOKEN
   script:
     - create-tag
+  artifacts:
+    expire_in: 1 week
 
 release:
   extends: release-patch
@@ -343,3 +390,5 @@ gitlab-release:
     GITLAB_TOKEN: $GITLAB_ACCESS_TOKEN
   script:
     - create-release
+  artifacts:
+    expire_in: 1 week

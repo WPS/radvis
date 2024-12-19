@@ -15,12 +15,14 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { first, take } from 'rxjs/operators';
 import { AbstractQueryParams } from 'src/app/shared/models/abstract-query-params';
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
+import { instance, mock } from 'ts-mockito';
 
 describe(InfrastrukturenSelektionService.name, () => {
   let infrastrukturenSelektionService: InfrastrukturenSelektionService;
@@ -37,6 +39,7 @@ describe(InfrastrukturenSelektionService.name, () => {
           provide: InfrastrukturToken,
           useValue: [MASSNAHMEN, FAHRRADROUTE],
         },
+        { provide: MatomoTracker, useValue: instance(mock(MatomoTracker)) },
       ],
     }).compileComponents();
   });
@@ -95,19 +98,6 @@ describe(InfrastrukturenSelektionService.name, () => {
       tick();
       expect(i).toBe(3);
     }));
-
-    it('should open Tabelle, wenn infrastruktur is selected', done => {
-      let i = 0;
-      const expectedValues = [false, true];
-      infrastrukturenSelektionService.tabellenVisible$.pipe(take(2)).subscribe(
-        visible => {
-          expect(visible).toEqual(expectedValues[i++]);
-        },
-        () => {},
-        () => done()
-      );
-      infrastrukturenSelektionService.selectInfrastrukturen(MASSNAHMEN);
-    });
   });
 
   describe('isSelected', () => {

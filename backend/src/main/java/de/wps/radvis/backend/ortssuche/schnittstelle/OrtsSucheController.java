@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.ortssuche.domain.OrtssucheRepository;
 import de.wps.radvis.backend.ortssuche.domain.entity.OrtsSucheErgebnis;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/ortssuche")
+@WithFehlercode(Fehlercode.ORTSSUCHE)
 public class OrtsSucheController {
 
 	private final OrtssucheRepository ortssucheRepository;

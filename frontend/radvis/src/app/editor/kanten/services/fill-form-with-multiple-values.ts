@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { UntypedFormGroup } from '@angular/forms';
+import { FormGroup, UntypedFormGroup } from '@angular/forms';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import invariant from 'tiny-invariant';
 
@@ -40,4 +40,24 @@ export const fillFormWithMultipleValues = (form: UntypedFormGroup, values: any[]
     }
     form.get(key)?.reset(formValue, { emitEvent });
   });
+};
+/**
+ * ignoriert disabled felder
+ * @param form
+ * @returns
+ */
+export const hasMultipleValues = (form: FormGroup | UntypedFormGroup): boolean => {
+  const formValue = form.value;
+  const recursiveCheck = (v: any): boolean => {
+    return Object.keys(v).some(k => {
+      if (v[k] instanceof UndeterminedValue) {
+        return true;
+      } else if (v[k] && typeof v[k] === 'object' && Object.keys(v[k]).length > 0) {
+        return recursiveCheck(v[k]);
+      } else {
+        return false;
+      }
+    });
+  };
+  return recursiveCheck(formValue);
 };

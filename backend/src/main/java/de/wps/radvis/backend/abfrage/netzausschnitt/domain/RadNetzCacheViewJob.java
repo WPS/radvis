@@ -22,13 +22,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Envelope;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
-import de.wps.radvis.backend.integration.grundnetzReimport.domain.event.PostDlmReimportJobEvent;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.StreckeVonKanten;
 import de.wps.radvis.backend.netz.domain.entity.StreckenEinerPartition;
@@ -55,8 +53,7 @@ public abstract class RadNetzCacheViewJob<CacheTyp, StreckenTyp extends StreckeV
 		KantenRepository kantenRepository,
 		StreckenViewAbstractService<StreckenTyp> streckenViewService,
 		StreckeViewCacheRepository<CacheTyp, StreckenTyp> streckeViewCacheRepository,
-		EntityManager entityManager
-	) {
+		EntityManager entityManager) {
 		super(jobExecutionDescriptionRepository);
 		this.kantenRepository = kantenRepository;
 		this.streckenViewService = streckenViewService;
@@ -130,11 +127,6 @@ public abstract class RadNetzCacheViewJob<CacheTyp, StreckenTyp extends StreckeV
 			unvollstaendigeStreckenUeberPartitionenHinweg.size());
 		streckenVonKanten.addAll(unvollstaendigeStreckenUeberPartitionenHinweg);
 		return streckenVonKanten;
-	}
-
-	@EventListener
-	public void onPostDlmReimport(PostDlmReimportJobEvent postDlmReimportJobEvent) {
-		this.doRun();
 	}
 
 	@TransactionalEventListener(fallbackExecution = true)

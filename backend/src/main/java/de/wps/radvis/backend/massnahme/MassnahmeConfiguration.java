@@ -34,10 +34,12 @@ import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
+import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeRueckstufungStornierungService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmenBenachrichtigungsService;
+import de.wps.radvis.backend.massnahme.domain.MassnahmenConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.MassnahmenExporterService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmenImportJob;
 import de.wps.radvis.backend.massnahme.domain.MassnahmenMappingService;
@@ -83,6 +85,7 @@ public class MassnahmeConfiguration {
 
 	@Autowired
 	private KantenRepository kantenRepository;
+
 	@Autowired
 	private VerwaltungseinheitRepository verwaltungseinheitRepository;
 
@@ -102,7 +105,7 @@ public class MassnahmeConfiguration {
 	private ShapeFileRepository shapeFileRepository;
 
 	@Autowired
-	SimpleMatchingService simpleMatchingService;
+	private SimpleMatchingService simpleMatchingService;
 
 	@Autowired
 	private BenutzerService benutzerService;
@@ -127,6 +130,12 @@ public class MassnahmeConfiguration {
 
 	@Autowired
 	private NetzService netzService;
+
+	@Autowired
+	private FahrradrouteRepository fahrradrouteRepository;
+
+	@Autowired
+	private MassnahmenConfigurationProperties massnahmenConfigurationProperties;
 
 	private final NetzService kantenUndKnotenResolver;
 	private final VerwaltungseinheitService verwaltungseinheitService;
@@ -164,7 +173,9 @@ public class MassnahmeConfiguration {
 	public MassnahmeService massnahmeService() {
 		return new MassnahmeService(massnahmeRepository, massnahmeListRepository,
 			massnahmeUmsetzungsstandViewRepository, umsetzungsstandRepository, kantenRepository,
-			massnahmeNetzbezugAenderungProtokollierungsService());
+			massnahmeNetzbezugAenderungProtokollierungsService(), benutzerService, fahrradrouteRepository, netzService,
+			massnahmenConfigurationProperties.getDistanzZuFahrradrouteInMetern(),
+			commonConfigurationProperties.getErlaubteAbweichungFuerKantenNetzbezugRematch());
 	}
 
 	@Bean
@@ -252,8 +263,7 @@ public class MassnahmeConfiguration {
 
 	@Bean
 	public MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService() {
-		return new MassnahmeNetzbezugAenderungProtokollierungsService(benutzerService,
-			massnahmeNetzBezugAenderungRepository);
+		return new MassnahmeNetzbezugAenderungProtokollierungsService(massnahmeNetzBezugAenderungRepository);
 	}
 
 }

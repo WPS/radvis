@@ -26,6 +26,7 @@ import { BelagArt } from 'src/app/shared/models/belag-art';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { AuswertungModule } from 'src/app/auswertung/auswertung.module';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 describe(AuswertungComponent.name, () => {
   let component: AuswertungComponent;
@@ -33,6 +34,7 @@ describe(AuswertungComponent.name, () => {
 
   let auswertungService: AuswertungService;
   let organisationenService: OrganisationenService;
+  let matomoTracker: MatomoTracker;
 
   let checkboxUseNetzklassen: MatCheckbox;
   let checkboxUseIstStandards: MatCheckbox;
@@ -40,6 +42,7 @@ describe(AuswertungComponent.name, () => {
   beforeEach(async () => {
     auswertungService = mock(AuswertungService);
     organisationenService = mock(OrganisationenService);
+    matomoTracker = mock(MatomoTracker);
 
     when(organisationenService.getOrganisationen()).thenResolve([defaultOrganisation]);
 
@@ -51,6 +54,10 @@ describe(AuswertungComponent.name, () => {
       .provide({
         provide: OrganisationenService,
         useValue: instance(organisationenService),
+      })
+      .provide({
+        provide: MatomoTracker,
+        useValue: instance(matomoTracker),
       });
   });
 

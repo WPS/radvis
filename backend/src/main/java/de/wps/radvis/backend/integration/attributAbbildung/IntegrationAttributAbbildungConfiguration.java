@@ -25,11 +25,13 @@ import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjek
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributeAnreicherungsService;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributeProjektionsProtokollService;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenAttributeMergeService;
+import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenAttributeUebertragungService;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenDublettenPruefungService;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingRepository;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingService;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNetzNetzbildungService;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungService;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
@@ -59,9 +61,13 @@ public class IntegrationAttributAbbildungConfiguration {
 
 	private final RadwegeDBNetzbildungService radwegeDBNetzbildungService;
 
+	private NetzConfigurationProperties netzConfigurationProperties;
+
 	public IntegrationAttributAbbildungConfiguration(@NonNull NetzService netzService,
 		@NonNull RadNetzNetzbildungService radNetzNetzbildungService,
-		@NonNull RadwegeDBNetzbildungService radwegeDBNetzbildungService) {
+		@NonNull RadwegeDBNetzbildungService radwegeDBNetzbildungService,
+		NetzConfigurationProperties netzConfigurationProperties) {
+		this.netzConfigurationProperties = netzConfigurationProperties;
 		this.netzService = netzService;
 		this.radNetzNetzbildungService = radNetzNetzbildungService;
 		this.radwegeDBNetzbildungService = radwegeDBNetzbildungService;
@@ -103,4 +109,8 @@ public class IntegrationAttributAbbildungConfiguration {
 		return new KantenMappingService(kantenMappingRepository, kantenRepository);
 	}
 
+	@Bean
+	public KantenAttributeUebertragungService kantenAttributeUebertragungService() {
+		return new KantenAttributeUebertragungService(netzConfigurationProperties.getMinimaleSegmentLaenge());
+	}
 }

@@ -52,6 +52,10 @@ public class BenutzerGuard {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
 		Benutzer zuBearbeitenderBenutzer = benutzerService.getBenutzer(id);
 
+		if (aktiverBenutzer.equals(zuBearbeitenderBenutzer)) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt, Ihren eigenen Status zu ändern.");
+		}
+
 		if (BenutzerService.benutzerverwaltungsRechte.stream().noneMatch(aktiverBenutzer::hatRecht)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung Benutzer zu ändern.");
 		}

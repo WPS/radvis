@@ -20,6 +20,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrls: ['./massnahme-umsetzungsstand-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MassnahmeUmsetzungsstandDialogComponent {
-  constructor() {}
-}
+export class MassnahmeUmsetzungsstandDialogComponent {}

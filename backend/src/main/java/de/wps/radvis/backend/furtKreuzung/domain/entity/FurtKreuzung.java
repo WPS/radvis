@@ -18,15 +18,21 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 import static org.valid4j.Assertive.require;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.hibernate.envers.Audited;
 
-import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtKreuzungMusterloesung;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenKommentar;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenTyp;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.LichtsignalAnlageEigenschaften;
+import de.wps.radvis.backend.netz.domain.entity.AbstractEntityWithNetzbezug;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.Embedded;
@@ -35,6 +41,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -43,7 +50,7 @@ import lombok.ToString;
 @Audited
 @Entity
 @ToString
-public class FurtKreuzung extends VersionierteEntity {
+public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 
 	@Getter
 	@Embedded
@@ -77,6 +84,16 @@ public class FurtKreuzung extends VersionierteEntity {
 		FurtenKreuzungenTyp typ, Boolean radnetzKonform, FurtenKreuzungenKommentar kommentar, KnotenForm knotenForm,
 		Optional<FurtKreuzungMusterloesung> musterloesung,
 		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften) {
+		this(null, null, netzbezug, verantwortlicheOrganisation, typ, radnetzKonform, kommentar, knotenForm,
+			musterloesung, lichtsignalAnlageEigenschaften);
+	}
+
+	@Builder
+	private FurtKreuzung(Long id, Long version, FurtKreuzungNetzBezug netzbezug,
+		Verwaltungseinheit verantwortlicheOrganisation, FurtenKreuzungenTyp typ, Boolean radnetzKonform,
+		FurtenKreuzungenKommentar kommentar, KnotenForm knotenForm, Optional<FurtKreuzungMusterloesung> musterloesung,
+		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften) {
+		super(id, version);
 		require(netzbezug, notNullValue());
 		require(verantwortlicheOrganisation, notNullValue());
 		require(typ, notNullValue());
@@ -139,4 +156,33 @@ public class FurtKreuzung extends VersionierteEntity {
 		return (lichtsignalAnlageEigenschaften.isEmpty() && !knotenForm.isLSAKnotenForm()) ||
 			(lichtsignalAnlageEigenschaften.isPresent() && knotenForm.isLSAKnotenForm());
 	}
+
+	public void removeKanteFromNetzbezug(Collection<Long> kantenIds) {
+		require(kantenIds, notNullValue());
+		netzbezug = netzbezug.withoutKanten(new HashSet<>(kantenIds));
+	}
+
+	public void removeKnotenFromNetzbezug(Collection<Long> knotenIds) {
+		require(knotenIds, notNullValue());
+		netzbezug = netzbezug.withoutKnoten(new HashSet<>(knotenIds));
+	}
+
+	public void ersetzeKanteInNetzbezug(Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch,
+		double erlaubteAbweichung) {
+		require(zuErsetzenDurch, notNullValue());
+		require(!zuErsetzenDurch.isEmpty());
+
+		netzbezug = netzbezug.withKanteErsetzt(zuErsetzendeKante, zuErsetzenDurch, erlaubteAbweichung);
+	}
+
+	/**
+	 * Ersetzt Knoten anhand übergebener Abbildung
+	 * 
+	 * @param ersatzKnoten:
+	 *     ID des zu ersetzenden Knoten -> Ersatz-Knoten
+	 */
+	public void ersetzeKnotenInNetzbezug(Map<Long, Knoten> ersatzKnoten) {
+		netzbezug = netzbezug.withKnotenErsetzt(ersatzKnoten);
+	}
+
 }

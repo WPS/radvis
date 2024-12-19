@@ -19,5 +19,5 @@ export const ANPASSUNGSWUNSCH = new Infrastruktur(
   'icon-anpassungswunsch.svg',
   'anpassungen',
   undefined,
-  'unten'
+  'Analyse'
 );

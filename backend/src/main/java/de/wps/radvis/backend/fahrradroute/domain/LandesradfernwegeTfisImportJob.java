@@ -24,9 +24,11 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.fahrradroute.domain.entity.AbstractTfisImportStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute.FahrradrouteBuilder;
@@ -35,9 +37,11 @@ import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteReposito
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+/**
+ * Import alle Fahrradrouten, die in TFIS als LRFW markiert sind. Keine Berücksichtigung, ob bereits importiert wurde.
+ */
+@WithFehlercode(Fehlercode.FAHRRADROUTE_TFIS_IMPORT)
 public class LandesradfernwegeTfisImportJob extends AbstractTFISRadroutenImportJob {
 	// Dieser Job Name sollte sich nicht mehr aendern, weil Controller und DB Eintraege den Namen verwenden
 	private static final String JOB_NAME = "LandesradfernwegeTfisImportJob";

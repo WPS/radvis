@@ -18,22 +18,28 @@ import static org.valid4j.Assertive.ensure;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.Geometry;
 import org.springframework.context.event.EventListener;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.BatchedCollectionIterator;
 import de.wps.radvis.backend.common.domain.exception.ShapeZipInvalidException;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.service.ShapeZipService;
-import de.wps.radvis.backend.integration.grundnetzReimport.domain.event.PreDlmReimportJobEvent;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.AbstractImportSession;
 import de.wps.radvis.backend.manuellerimport.common.domain.entity.ManuellerImportFehler;
 import de.wps.radvis.backend.manuellerimport.common.domain.exception.ManuellerImportNichtMoeglichException;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ImportSessionRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerImportFehlerRepository;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
+import de.wps.radvis.backend.netz.domain.event.GrundnetzAktualisiertEvent;
+import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeEncodingException;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeUnreadableException;
@@ -107,18 +113,45 @@ public class ManuellerImportService {
 	}
 
 	@EventListener
-	public void onPreDlmReimport(PreDlmReimportJobEvent preDlmReimportJobDomainEvent) {
+	public void onGrundnetzAktualisiert(GrundnetzAktualisiertEvent grundnetzAktualisiertEvent) {
 		log.info("Clearing Importsessions");
 		this.importSessionRepository.clear();
 	}
 
 	@EventListener
-	public void onKanteDeleted(KanteDeletedEvent kanteDeletedEvent) {
-		List<ManuellerImportFehler> manuelleImportFehler = this.manuellerImportFehlerRepository.findAllByKanteId(
-			kanteDeletedEvent.getKanteId());
-		manuelleImportFehler.forEach(mif -> {
-			mif.removeDeletedKante(kanteDeletedEvent.getGeometry());
-			this.manuellerImportFehlerRepository.save(mif);
-		});
+	public void onKantenDeleted(KantenDeletedEvent event) {
+		log.debug("Ändere Netzbezug für Manueller Import Fehler");
+
+		List<ManuellerImportFehler> manuelleImportFehler = new ArrayList<>();
+
+		// Batching, da Hibernate/Postgres nur eine gewisse Anzahl an Parametern in "someId IN (...)"-Queries zulässt.
+		BatchedCollectionIterator.iterate(
+			event.getKantenIds(),
+			1000,
+			(kantenIdBatch, startIndex, endIndex) -> {
+				log.debug("Verarbeite Manueller Import Fehler für Kanten-Batch {} bis {}", startIndex, endIndex);
+				manuelleImportFehler.addAll(this.manuellerImportFehlerRepository.findAllByKanteId(kantenIdBatch));
+			}
+		);
+
+		Map<Long, List<ManuellerImportFehler>> manuellerImportFehlerMap = manuelleImportFehler.stream()
+			.collect(Collectors.groupingBy(mif -> mif.getKante().get().getId(), HashMap::new, Collectors.toCollection(
+				ArrayList::new)));
+
+		log.debug("Ändere Netzbezug für {} Manueller Import Fehler mit IDs {}", manuelleImportFehler.size(),
+			manuelleImportFehler.stream().map(f -> f.getId() + "").collect(Collectors.joining(", ")));
+
+		for (int i = 0; i < event.getKantenIds().size(); i++) {
+			Long kanteId = event.getKantenIds().get(i);
+
+			if (manuellerImportFehlerMap.containsKey(kanteId)) {
+				Geometry geometry = event.getGeometries().get(i);
+				manuellerImportFehlerMap.get(kanteId).forEach(importFehler -> importFehler.removeDeletedKante(
+					geometry));
+			}
+		}
+		this.manuellerImportFehlerRepository.saveAll(manuelleImportFehler);
+
+		log.debug("Netzbezugänderung beendet");
 	}
 }

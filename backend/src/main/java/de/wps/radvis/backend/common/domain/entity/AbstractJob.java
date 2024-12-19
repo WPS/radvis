@@ -101,7 +101,7 @@ public abstract class AbstractJob implements Job {
 				log.error("JobStatistic für " + name + " konnte nicht erzeugt werden.", e);
 			}
 		}
-		JobExecutionDescription jobExecutionDescription = repository.save(descriptionBuilder.build());// TODO here!
+		JobExecutionDescription jobExecutionDescription = repository.save(descriptionBuilder.build());
 
 		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
 

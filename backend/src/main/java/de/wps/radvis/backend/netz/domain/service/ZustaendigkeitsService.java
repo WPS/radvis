@@ -59,6 +59,6 @@ public class ZustaendigkeitsService {
 	public boolean istImZustaendigkeitsbereich(Geometry geometry, Benutzer benutzer) {
 		return benutzer.getOrganisation()
 			.getBereichBuffer(organisationConfigurationProperties.getZustaendigkeitBufferInMeter())
-			.intersects(geometry);
+			.map(buffer -> buffer.intersects(geometry)).orElse(false);
 	}
 }

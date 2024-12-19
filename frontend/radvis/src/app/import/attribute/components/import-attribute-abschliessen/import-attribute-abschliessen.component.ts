@@ -26,6 +26,7 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import invariant from 'tiny-invariant';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-import-attribute-abschliessen',
@@ -53,7 +54,8 @@ export class ImportAttributeAbschliessenComponent implements OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private notifyUserService: NotifyUserService,
     private organisationenService: OrganisationenService,
-    private fehlerprotokollService: FehlerprotokollService
+    private fehlerprotokollService: FehlerprotokollService,
+    private matomoTracker: MatomoTracker
   ) {
     this.attributeImportService.getImportSession().subscribe(session => {
       invariant(session);
@@ -118,6 +120,8 @@ export class ImportAttributeAbschliessenComponent implements OnDestroy {
   onExecute(): void {
     invariant(this.session);
     this.session.executing = true;
+
+    this.matomoTracker.trackEvent('Import', 'Abschließen', 'Attribute');
 
     this.attributeImportService.executeAttributeUebernehmen().catch(() => {
       this.notifyUserService.warn('Bei der Attributübernahme ist ein unerwarteter Fehler aufgetreten');

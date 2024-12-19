@@ -109,50 +109,69 @@ class BenutzerGuardTest {
 
 		when(benutzerService.ermittleVergaberechteFuerRolle(any())).thenCallRealMethod();
 
-		benutzerDerEditiertWird = BenutzerTestDataProvider.defaultBenutzer().build();
-		when(benutzerService.getBenutzer(1L)).thenReturn(benutzerDerEditiertWird);
+		benutzerDerEditiertWird = BenutzerTestDataProvider.defaultBenutzer().id(1l).build();
+		when(benutzerService.getBenutzer(benutzerDerEditiertWird.getId())).thenReturn(benutzerDerEditiertWird);
 		benutzerGuard = new BenutzerGuard(benutzerService, benutzerResolver);
 	}
 
 	@Test
 	void notAllowedThrowsAccessDenied() {
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider
-			.defaultBenutzer()
+			.defaultBenutzer().id(23l)
 			.rollen(Set.of(Rolle.RADNETZ_QUALITAETSSICHERIN))
 			.build());
-		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
+		assertThrows(AccessDeniedException.class,
+			() -> benutzerGuard.benutzerStatusAendern(null, benutzerDerEditiertWird.getId(), 1L));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider
-			.defaultBenutzer()
+			.defaultBenutzer().id(23l)
 			.rollen(Set.of(Rolle.LGL_MITARBEITERIN))
 			.build());
-		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
+		assertThrows(AccessDeniedException.class,
+			() -> benutzerGuard.benutzerStatusAendern(null, benutzerDerEditiertWird.getId(), 1L));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(BenutzerTestDataProvider
-			.defaultBenutzer()
+			.defaultBenutzer().id(23l)
 			.rollen(Set.of(Rolle.BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN))
 			.build());
-		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
+		assertThrows(AccessDeniedException.class,
+			() -> benutzerGuard.benutzerStatusAendern(null, benutzerDerEditiertWird.getId(), 1L));
 	}
 
 	@Test
 	void allowedHasAccess() {
 		Benutzer admin = BenutzerTestDataProvider
-			.defaultBenutzer()
+			.defaultBenutzer().id(12l)
 			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR))
 			.build();
 		Benutzer bearbeiterinAdmin = BenutzerTestDataProvider
-			.defaultBenutzer()
+			.defaultBenutzer().id(12l)
 			.rollen(Set.of(Rolle.KREISKOORDINATOREN))
 			.build();
 
 		when(benutzerService.findAdminaufSelberEbene(any())).thenReturn(List.of(admin));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(admin);
-		assertDoesNotThrow(() -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
+		assertDoesNotThrow(() -> benutzerGuard.benutzerStatusAendern(null, benutzerDerEditiertWird.getId(), 1L));
 
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(bearbeiterinAdmin);
-		assertDoesNotThrow(() -> benutzerGuard.benutzerStatusAendern(null, 1L, 1L));
+		assertDoesNotThrow(() -> benutzerGuard.benutzerStatusAendern(null, benutzerDerEditiertWird.getId(), 1L));
+	}
+
+	@Test
+	void benutzerStatusAendern_self_throws() throws BenutzerIstNichtRegistriertException {
+		long benutzerId = 1L;
+		Benutzer admin = BenutzerTestDataProvider
+			.defaultBenutzer()
+			.id(benutzerId)
+			.rollen(Set.of(Rolle.RADVIS_ADMINISTRATOR))
+			.build();
+		when(benutzerService.getBenutzer(benutzerId)).thenReturn(admin);
+
+		when(benutzerService.findAdminaufSelberEbene(any())).thenReturn(List.of(admin));
+
+		when(benutzerResolver.fromAuthentication(any())).thenReturn(admin);
+		assertThrows(AccessDeniedException.class, () -> benutzerGuard.benutzerStatusAendern(null, benutzerId, 1l));
 	}
 
 	@Test

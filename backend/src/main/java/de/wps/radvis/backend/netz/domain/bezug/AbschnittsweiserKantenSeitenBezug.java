@@ -28,9 +28,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.LineStrings;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,12 +44,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
+@Slf4j
 public class AbschnittsweiserKantenSeitenBezug extends AbschnittsweiserKantenBezug {
 
 	public AbschnittsweiserKantenSeitenBezug(Kante kante, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt,
@@ -102,9 +109,9 @@ public class AbschnittsweiserKantenSeitenBezug extends AbschnittsweiserKantenBez
 	}
 
 	/**
-	 * Merged sich überlappende Bezüge (z.B. [0.2, 0.5] und [0.4, 0.6] -> [0.2, 0.6]). Der Seitenbezug wird hierbei
-	 * mit beachtet, unterschiedliche Seiten können sich entsprechend nicht überlappen. Die Bezüge müssen alle die
-	 * gleiche Kante betreffen.
+	 * Merged sich überlappende Bezüge (z.B. [0.2, 0.5] und [0.4, 0.6] -> [0.2, 0.6]). Der Seitenbezug wird hierbei mit
+	 * beachtet, unterschiedliche Seiten können sich entsprechend nicht überlappen. Die Bezüge müssen alle die gleiche
+	 * Kante betreffen.
 	 */
 	public static List<AbschnittsweiserKantenSeitenBezug> fasseUeberlappendeBezuegeZusammen(
 		Collection<AbschnittsweiserKantenSeitenBezug> unsorted) {
@@ -119,7 +126,8 @@ public class AbschnittsweiserKantenSeitenBezug extends AbschnittsweiserKantenBez
 
 		List<AbschnittsweiserKantenSeitenBezug> sorted = unsorted.stream().sorted(
 			Comparator.comparing(AbschnittsweiserKantenBezug::getLinearReferenzierterAbschnitt,
-				LinearReferenzierterAbschnitt.vonZuerst)).collect(Collectors.toList());
+				LinearReferenzierterAbschnitt.vonZuerst))
+			.collect(Collectors.toList());
 
 		AbschnittsweiserKantenSeitenBezug current = sorted.get(0);
 		for (int i = 0; i < sorted.size() - 1; i++) {
@@ -155,5 +163,78 @@ public class AbschnittsweiserKantenSeitenBezug extends AbschnittsweiserKantenBez
 			.map(AbschnittsweiserKantenSeitenBezug::fasseUeberlappendeBezuegeZusammen)
 			.flatMap(List::stream)
 			.collect(Collectors.toSet());
+	}
+
+	public static Set<AbschnittsweiserKantenSeitenBezug> ersetzeKanteInAbschnitten(
+		Set<AbschnittsweiserKantenSeitenBezug> kantenAbschnitte,
+		Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch, double erlaubteAbweichung) {
+		Set<AbschnittsweiserKantenSeitenBezug> result = new HashSet<>(kantenAbschnitte);
+		kantenAbschnitte.stream().filter(a -> a.getKante().equals(zuErsetzendeKante)).forEach(a -> {
+			Set<AbschnittsweiserKantenSeitenBezug> neueAbschnitte = new HashSet<>();
+			zuErsetzenDurch.stream().forEach(
+				k -> {
+					Optional<LineString> ueberschneidungsLinestring = LineStrings
+						.calculateUeberschneidungslinestring(k.getGeometry(), a.getGeometrie());
+					if (ueberschneidungsLinestring.isPresent()) {
+						Seitenbezug neuerSeitenbezug = a.getSeitenbezug();
+						if (!LineStrings.haveSameStationierungsrichtung(zuErsetzendeKante.getGeometry(),
+							k.getGeometry())) {
+							neuerSeitenbezug = neuerSeitenbezug.withUmgekehrterStationierung();
+						}
+						neueAbschnitte.add(new AbschnittsweiserKantenSeitenBezug(k,
+							LinearReferenzierterAbschnitt.of(k.getGeometry(), a.getGeometrie()), neuerSeitenbezug));
+					}
+				});
+
+			if (!neueAbschnitte.isEmpty()) {
+				Double lengthOfReplacement = neueAbschnitte.stream().map(ab -> ab.getGeometrie().getLength())
+					.reduce(Double::sum).orElse(0.0);
+				double laengenDifferenz = Math.abs(lengthOfReplacement - a.getGeometrie().getLength());
+				if (laengenDifferenz <= erlaubteAbweichung) {
+					result.remove(a);
+					result.addAll(neueAbschnitte);
+				} else {
+					log.debug(
+						"Kante {} konnte nicht ersetzt werden durch Kanten {}, da Längendifferenz {} m größer ist als die erlaubte Abweichung {} m",
+						zuErsetzendeKante.getId(),
+						neueAbschnitte.stream().map(abschnitt -> abschnitt.getKante().getId()).toList(),
+						laengenDifferenz, erlaubteAbweichung);
+				}
+			}
+		});
+
+		return result;
+	}
+
+	public static Set<PunktuellerKantenSeitenBezug> ersetzeKanteInPunkten(Set<PunktuellerKantenSeitenBezug> punkte,
+		Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch, double erlaubteAbweichung) {
+		Set<PunktuellerKantenSeitenBezug> result = new HashSet<>(punkte);
+		punkte.stream().filter(p -> p.getKante().equals(zuErsetzendeKante)).forEach(p -> {
+			Point point = p.getPointGeometry();
+			Optional<Kante> ersatzKante = zuErsetzenDurch.stream()
+				.filter(k -> k.getGeometry().distance(point) <= erlaubteAbweichung)
+				.min((k1, k2) -> Double.compare(k1.getGeometry().distance(point), k2.getGeometry().distance(point)));
+			if (ersatzKante.isPresent()) {
+				result.remove(p);
+				Seitenbezug neuerSeitenbezug = p.getSeitenbezug();
+				if (!LineStrings.haveSameStationierungsrichtung(zuErsetzendeKante.getGeometry(),
+					ersatzKante.get().getGeometry())) {
+					neuerSeitenbezug = neuerSeitenbezug.withUmgekehrterStationierung();
+				}
+				result
+					.add(new PunktuellerKantenSeitenBezug(ersatzKante.get(),
+						LineareReferenz.of(ersatzKante.get().getGeometry(), point.getCoordinate()),
+						neuerSeitenbezug));
+			} else {
+				log.info(
+					"Punkt auf Kante {} konnte nicht übertragen werden auf Kanten {}, da der Abstand der Kantengeometrien zum Punkt {} größer ist als der erlaubte Abstand {} m",
+					zuErsetzendeKante.getId(),
+					zuErsetzenDurch.stream().map(k -> k.getId()).toList(),
+					point.getCoordinates(),
+					erlaubteAbweichung);
+			}
+		});
+
+		return result;
 	}
 }

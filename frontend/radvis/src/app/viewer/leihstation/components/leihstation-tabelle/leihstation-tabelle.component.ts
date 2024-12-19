@@ -15,6 +15,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
 import { Leihstation } from 'src/app/viewer/leihstation/models/leihstation';
@@ -22,7 +23,9 @@ import { LeihstationFilterService } from 'src/app/viewer/leihstation/services/le
 import { LeihstationRoutingService } from 'src/app/viewer/leihstation/services/leihstation-routing.service';
 import { LeihstationService } from 'src/app/viewer/leihstation/services/leihstation.service';
 import { CsvImportDialogComponent } from 'src/app/viewer/viewer-shared/components/csv-import-dialog/csv-import-dialog.component';
+import { ExportEvent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { CsvImportService } from 'src/app/viewer/viewer-shared/services/csv-import.service';
 import { ExportService } from 'src/app/viewer/viewer-shared/services/export.service';
@@ -43,21 +46,26 @@ import { ExportService } from 'src/app/viewer/viewer-shared/services/export.serv
 export class LeihstationTabelleComponent implements CsvImportService {
   public csvImportFeatureToggl = false;
   data$: Observable<Leihstation[]>;
-  displayedColumns: string[];
   selectedID$: Observable<number | null>;
   exporting = false;
   exportFormate = [ExportFormat.CSV];
   isSmallViewport = false;
 
-  private columnMapping: Map<string, string> = new Map([
-    ['betreiber', 'Betreiber'],
-    ['status', 'Status'],
-    ['anzahlFahrraeder', 'Anzahl Fahrräder'],
-    ['anzahlPedelecs', 'Anzahl Pedelecs'],
-    ['anzahlAbstellmoeglichkeiten', 'Anzahl Abstellmöglichkeiten'],
-    ['freiesAbstellen', 'Freies Abstellen'],
-    ['quellSystem', 'Quellsystem'],
-  ]);
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'betreiber', displayName: 'Betreiber' },
+    { name: 'status', displayName: 'Status' },
+    { name: 'anzahlFahrraeder', displayName: 'Anzahl Fahrräder' },
+    { name: 'anzahlPedelecs', displayName: 'Anzahl Pedelecs' },
+    {
+      name: 'anzahlAbstellmoeglichkeiten',
+      displayName: 'Anzahl Abstellmöglichkeiten',
+      width: 'auto',
+      expandable: false,
+    },
+    { name: 'freiesAbstellen', displayName: 'Freies Abstellen möglich' },
+    { name: 'quellSystem', displayName: 'Quellsystem' },
+  ];
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public filterService: LeihstationFilterService,
@@ -72,7 +80,7 @@ export class LeihstationTabelleComponent implements CsvImportService {
   ) {
     this.data$ = this.filterService.filteredList$;
     this.selectedID$ = this.routingService.selectedInfrastrukturId$;
-    this.displayedColumns = Array.from(this.columnMapping.keys());
+    this.filteredSpalten$ = this.filterService.filter$.pipe(map(filteredFields => filteredFields.map(f => f.field)));
     this.csvImportFeatureToggl = featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_LEIHSTATIONEN_CSV_IMPORT);
   }
 
@@ -92,10 +100,6 @@ export class LeihstationTabelleComponent implements CsvImportService {
     this.manualRoutingService.openManualLeihstationenImport();
   }
 
-  getHeader(key: string): string {
-    return this.columnMapping.get(key) ?? '';
-  }
-
   onCreate(): void {
     this.routingService.toCreator();
   }
@@ -108,13 +112,18 @@ export class LeihstationTabelleComponent implements CsvImportService {
     this.filterService.reset();
   }
 
-  public onExport(format: ExportFormat): void {
+  public onExport(exportEvent: ExportEvent): void {
     const currentFilter = this.filterService.currentFilteredList.map(m => m.id);
+    const fieldNamesToExclude = this.spaltenDefinition
+      .filter(def => !exportEvent.felder.includes(def.name))
+      .map(def => def.displayName);
     this.exporting = true;
-    this.exportService.exportInfrastruktur('LEIHSTATION', format, currentFilter).finally(() => {
-      this.exporting = false;
-      this.changeDetector.markForCheck();
-    });
+    this.exportService
+      .exportInfrastruktur('LEIHSTATION', exportEvent.format, currentFilter, fieldNamesToExclude)
+      .finally(() => {
+        this.exporting = false;
+        this.changeDetector.markForCheck();
+      });
   }
 
   public onOpenCsvImportDialog(): void {

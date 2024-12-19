@@ -38,7 +38,7 @@ import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 

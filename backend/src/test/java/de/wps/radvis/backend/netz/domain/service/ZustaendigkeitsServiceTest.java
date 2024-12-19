@@ -17,6 +17,8 @@ package de.wps.radvis.backend.netz.domain.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -42,20 +44,36 @@ class ZustaendigkeitsServiceTest {
 
 	@Mock
 	OrganisationConfigurationProperties organisationConfigurationProperties;
-	Benutzer benutzer;
 
 	ZustaendigkeitsService service;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
 		when(organisationConfigurationProperties.getZustaendigkeitBufferInMeter()).thenReturn(500);
 		service = new ZustaendigkeitsService(organisationConfigurationProperties);
 	}
 
 	@Test
+	void istImZustaendigkeitsbereich_organisationBereichNull_returnsFalse() {
+		// arrange
+		Benutzer benutzerOhneBereich = BenutzerTestDataProvider.defaultBenutzer()
+			.organisation(VerwaltungseinheitTestDataProvider
+				.defaultOrganisation().zustaendigFuerBereichOf(Collections.emptySet()).build())
+			.build();
+
+		// act
+		boolean istImZustaendigkeitsbereich = service
+			.istImZustaendigkeitsbereich(GeometryTestdataProvider.createLineString(), benutzerOhneBereich);
+
+		// assert
+		assertThat(istImZustaendigkeitsbereich).isFalse();
+	}
+
+	@Test
 	public void testeMultipolygonBufferWorksCorrectly() {
+		// arrange
+		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
 		MultiPolygon multiPolygonWithHoles = geometryFactory.createMultiPolygon(new Polygon[] {
 			geometryFactory.createPolygon(geometryFactory.createLinearRing(
 				new Coordinate[] { new Coordinate(10000, 10000), new Coordinate(10000, 20000),
@@ -64,8 +82,7 @@ class ZustaendigkeitsServiceTest {
 					geometryFactory.createLinearRing(
 						new Coordinate[] { new Coordinate(13000, 13000), new Coordinate(13000, 17000),
 							new Coordinate(17000, 17000), new Coordinate(17000, 13000),
-							new Coordinate(13000, 13000) }) }
-			),
+							new Coordinate(13000, 13000) }) }),
 
 			geometryFactory.createPolygon(geometryFactory.createLinearRing(
 				new Coordinate[] { new Coordinate(30000, 10000), new Coordinate(30000, 20000),
@@ -75,8 +92,7 @@ class ZustaendigkeitsServiceTest {
 					geometryFactory.createLinearRing(
 						new Coordinate[] { new Coordinate(33000, 13000), new Coordinate(33000, 17000),
 							new Coordinate(37000, 17000), new Coordinate(37000, 13000),
-							new Coordinate(33000, 13000) }) }
-			)
+							new Coordinate(33000, 13000) }) })
 		});
 
 		benutzer.setOrganisation(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
@@ -84,17 +100,22 @@ class ZustaendigkeitsServiceTest {
 
 		Kante kanteInHoleOutsideOfBuffer = KanteTestDataProvider.withDefaultValues().geometry(
 			GeometryTestdataProvider.createLineString(new Coordinate(15000, 15000),
-				new Coordinate(15010, 15010))).build();
+				new Coordinate(15010, 15010)))
+			.build();
 		Kante kanteInHoleInBuffer = KanteTestDataProvider.withDefaultValues().geometry(
 			GeometryTestdataProvider.createLineString(new Coordinate(13400, 13400),
-				new Coordinate(13410, 13410))).build();
+				new Coordinate(13410, 13410)))
+			.build();
 
 		Kante kanteZwischenPolygonsOutsideOfBuffer = KanteTestDataProvider.withDefaultValues().geometry(
 			GeometryTestdataProvider.createLineString(new Coordinate(23000, 11000),
-				new Coordinate(23010, 11010))).build();
+				new Coordinate(23010, 11010)))
+			.build();
 
+		// act
 		service.istImZustaendigkeitsbereich(kanteInHoleOutsideOfBuffer, benutzer);
 
+		// assert
 		assertThat(service.istImZustaendigkeitsbereich(kanteInHoleOutsideOfBuffer, benutzer)).isFalse();
 		assertThat(service.istImZustaendigkeitsbereich(kanteInHoleInBuffer, benutzer)).isTrue();
 		assertThat(service.istImZustaendigkeitsbereich(kanteZwischenPolygonsOutsideOfBuffer, benutzer)).isFalse();

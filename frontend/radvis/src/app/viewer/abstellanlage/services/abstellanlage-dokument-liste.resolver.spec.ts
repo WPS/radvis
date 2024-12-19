@@ -17,18 +17,19 @@ import { fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockBuilder, MockRender, NG_MOCKS_GUARDS, ngMocks } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { AbstellanlageToolComponent } from 'src/app/viewer/abstellanlage/components/abstellanlage-tool/abstellanlage-tool.component';
+import { defaultAbstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage-testdata-provider.spec';
 import { abstellanlageDokumentListeResolver } from 'src/app/viewer/abstellanlage/services/abstellanlage-dokument-liste.resolver';
 import { AbstellanlageService } from 'src/app/viewer/abstellanlage/services/abstellanlage.service';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
 import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
+import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, instance, mock, when } from 'ts-mockito';
-import { defaultAbstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage-testdata-provider.spec';
 
 describe(abstellanlageDokumentListeResolver.name, () => {
   let abstellanlageService: AbstellanlageService;
@@ -40,8 +41,10 @@ describe(abstellanlageDokumentListeResolver.name, () => {
     when(mapQueryParamsService.signatur$).thenReturn(of(null));
   });
 
-  beforeEach(() =>
-    MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
+  beforeEach(() => {
+    const infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
+    when(infrastrukturenSelektionService.selektierteInfrastrukturen$).thenReturn(NEVER);
+    return MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
       .keep(ViewerComponent)
       .keep(AbstellanlageToolComponent)
       .exclude(NG_MOCKS_GUARDS)
@@ -53,7 +56,11 @@ describe(abstellanlageDokumentListeResolver.name, () => {
         provide: MapQueryParamsService,
         useValue: instance(mapQueryParamsService),
       })
-  );
+      .provide({
+        provide: InfrastrukturenSelektionService,
+        useValue: instance(infrastrukturenSelektionService),
+      });
+  });
 
   // It is important to run routing tests in fakeAsync.
   it('should emit data if list remains empty', fakeAsync(() => {

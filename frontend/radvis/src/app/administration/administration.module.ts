@@ -21,9 +21,18 @@ import { BenutzerEditorComponent } from './components/benutzer-editor/benutzer-e
 import { BenutzerListComponent } from './components/benutzer-list/benutzer-list.component';
 import { OrganisationEditorComponent } from './components/organisation-editor/organisation-editor.component';
 import { OrganisationListComponent } from './components/organisation-list/organisation-list.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
-  imports: [AdministrationRoutingModule, CommonModule, ReactiveFormsModule, SharedModule],
+  imports: [
+    AdministrationRoutingModule,
+    CommonModule,
+    ReactiveFormsModule,
+    SharedModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+  ],
   declarations: [
     BenutzerListComponent,
     BenutzerEditorComponent,

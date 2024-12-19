@@ -43,6 +43,7 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FahrtrichtungAttributGruppeTestDataProvider;
@@ -70,7 +71,7 @@ import jakarta.persistence.PersistenceContext;
 @EntityScan(basePackageClasses = { FahrradrouteConfiguration.class,
 	NetzConfiguration.class, OrganisationConfiguration.class, BenutzerConfiguration.class })
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
-	PostgisConfigurationProperties.class })
+	PostgisConfigurationProperties.class, NetzConfigurationProperties.class })
 @ContextConfiguration(classes = { CommonConfiguration.class, GeoConverterConfiguration.class })
 public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 	@Autowired
@@ -314,8 +315,8 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 			.build());
 
 		kantenRepository.findById(kante1.getId())
-			.ifPresent(kante -> kante.getKantenAttributGruppe()
-				.updateNetzklassen(Set.of(Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ALLTAG)));
+			.ifPresent(kante -> kante
+				.ueberschreibeNetzklassen(Set.of(Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ALLTAG)));
 
 		entityManager.flush();
 		entityManager.clear();

@@ -46,13 +46,11 @@ import com.graphhopper.routing.BidirRoutingAlgorithm;
 import com.graphhopper.routing.DijkstraBidirectionRef;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.lm.LMApproximator;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
-import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -88,7 +86,7 @@ public class DlmMapMatching {
 	private final int maxVisitedNodes;
 	private final DistanceCalc distanceCalc = new DistancePlaneProjection();
 	private final Weighting unwrappedWeighting;
-	private final BooleanEncodedValue inSubnetworkEnc;
+	private final BooleanEncodedValue accessEnc;
 
 	public DlmMapMatching(GraphHopper graphHopper, PMap hints) {
 		this.locationIndex = (LocationIndexTree) graphHopper.getLocationIndex();
@@ -150,7 +148,7 @@ public class DlmMapMatching {
 		}
 		graph = graphHopper.getGraphHopperStorage();
 		unwrappedWeighting = graphHopper.createWeighting(profile, hints);
-		inSubnetworkEnc = graphHopper.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(profileStr));
+		this.accessEnc = graphHopper.getEncodingManager().getEncoder("bike").getAccessEnc();
 		this.maxVisitedNodes = hints.getInt(Parameters.Routing.MAX_VISITED_NODES, Integer.MAX_VALUE);
 	}
 
@@ -242,14 +240,22 @@ public class DlmMapMatching {
 		return Collections.emptyList();
 	}
 
+	/**
+	 * Analog zur originalen Implementation, nutzt jedoch einen eigenen Filter, da es sein kann, dass entlegene DLM-Kanten
+	 * vom Graphhopper als "Subnetwork" klassifiziert und dann nicht betrachtet werden. Mindestens bei Matchings auf
+	 * vielen separaten Kanten passiert das und macht auch fachlich keinen Sinn: Wir wollen auf alle möglichen Wege
+	 * matchen können, egal ob entlegen oder nicht.
+	 */
 	private List<Snap> findCandidateSnapsInBBox(double queryLat, double queryLon, BBox queryShape) {
-		EdgeFilter edgeFilter = new DefaultSnapFilter(unwrappedWeighting, inSubnetworkEnc);
+		EdgeFilter edgeAccessFilter = edgeState -> {
+			return edgeState.get(accessEnc) || edgeState.getReverse(accessEnc);
+		};
 		List<Snap> snaps = new ArrayList<>();
 		IntHashSet seenEdges = new IntHashSet();
 		IntHashSet seenNodes = new IntHashSet();
 		locationIndex.query(queryShape, edgeId -> {
 			EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
-			if (seenEdges.add(edgeId) && edgeFilter.accept(edge)) {
+			if (seenEdges.add(edgeId) && edgeAccessFilter.accept(edge)) {
 				Snap snap = new Snap(queryLat, queryLon);
 				locationIndex.traverseEdge(queryLat, queryLon, edge, (node, normedDist, wayIndex, pos) -> {
 					if (normedDist < snap.getQueryDistance()) {

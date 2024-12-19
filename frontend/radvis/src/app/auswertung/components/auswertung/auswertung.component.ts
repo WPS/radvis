@@ -27,6 +27,7 @@ import { BelagArt } from 'src/app/shared/models/belag-art';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-options';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-auswertung',
@@ -86,7 +87,8 @@ export class AuswertungComponent {
     private auswertungService: AuswertungService,
     private organisationenService: OrganisationenService,
     private wahlkreiseService: WahlkreiseService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private matomoTracker: MatomoTracker
   ) {
     this.gemeindeKreisBezirkOptions = this.organisationenService.getOrganisationen().then(orgs => {
       return orgs.filter(
@@ -150,6 +152,8 @@ export class AuswertungComponent {
   }
 
   getAuswertung(): void {
+    this.matomoTracker.trackEvent('Auswertung', 'Abrufen', 'Auswertung');
+
     const netzklassenParam: string[] = [];
 
     this.form.getRawValue().netzklassen.forEach((val: boolean, index: number) => {

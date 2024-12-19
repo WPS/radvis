@@ -16,11 +16,13 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AnpassungswunschAnlegenService } from 'src/app/shared/services/anpassungswunsch-anlegen.service';
+import { CreateAnpassungswunschRouteProvider } from 'src/app/shared/services/create-anpassungswunsch-route.provider';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AnpassungenEditorComponent } from 'src/app/viewer/anpassungswunsch/components/anpassungen-editor/anpassungen-editor.component';
 import { AnpassungswuenscheLayerComponent } from 'src/app/viewer/anpassungswunsch/components/anpassungswuensche-layer/anpassungswuensche-layer.component';
 import { AnpassungswunschToolComponent } from 'src/app/viewer/anpassungswunsch/components/anpassungswunsch-tool/anpassungswunsch-tool.component';
 import { ANPASSUNGSWUNSCH } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch.infrastruktur';
+import { AnpassungenRoutingService } from 'src/app/viewer/anpassungswunsch/services/anpassungen-routing.service';
 import { AnpassungswunschAnlegenServiceImpl } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch-anlegen-impl.service';
 import { KommentareModule } from 'src/app/viewer/kommentare/kommentare.module';
 import { InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
@@ -37,6 +39,7 @@ import { AnpassungswunschTabelleComponent } from './components/anpassungswunsch-
   imports: [CommonModule, SharedModule, ViewerSharedModule, RouterModule, KommentareModule],
   exports: [AnpassungswuenscheLayerComponent, AnpassungswunschTabelleComponent],
   providers: [
+    { provide: CreateAnpassungswunschRouteProvider, useExisting: AnpassungenRoutingService },
     { provide: InfrastrukturToken, useValue: ANPASSUNGSWUNSCH, multi: true },
     {
       provide: AnpassungswunschAnlegenService,

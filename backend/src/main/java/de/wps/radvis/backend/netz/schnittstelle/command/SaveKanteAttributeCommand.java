@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
-import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
@@ -55,7 +54,6 @@ public class SaveKanteAttributeCommand {
 	@NotNull
 	private Long kanteId;
 
-	private KantenOrtslage ortslage;
 	private WegeNiveau wegeNiveau;
 	@NotNull
 	private Beleuchtung beleuchtung;

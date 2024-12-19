@@ -17,20 +17,21 @@ import { fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockBuilder, MockRender, NG_MOCKS_GUARDS, ngMocks } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
+import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
 import { MassnahmenToolComponent } from 'src/app/viewer/massnahme/components/massnahmen-tool/massnahmen-tool.component';
+import { MassnahmeModule } from 'src/app/viewer/massnahme/massnahme.module';
 import { defaultMassnahmeToolView } from 'src/app/viewer/massnahme/models/massnahme-tool-view-test-data-provider';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
+import { InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
+import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, instance, mock, when } from 'ts-mockito';
-import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
-import { InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
-import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { MassnahmeModule } from 'src/app/viewer/massnahme/massnahme.module';
 
 describe('MassnahmeDokumentListeResolver', () => {
   let massnahmeService: MassnahmeService;
@@ -42,8 +43,10 @@ describe('MassnahmeDokumentListeResolver', () => {
     when(mapQueryParamsService.signatur$).thenReturn(of(null));
   });
 
-  beforeEach(() =>
-    MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], [ViewerModule, MassnahmeModule])
+  beforeEach(() => {
+    const infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
+    when(infrastrukturenSelektionService.selektierteInfrastrukturen$).thenReturn(NEVER);
+    return MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], [ViewerModule, MassnahmeModule])
       .keep(InfrastrukturToken)
       .keep(ViewerComponent)
       .keep(MassnahmenToolComponent)
@@ -57,10 +60,14 @@ describe('MassnahmeDokumentListeResolver', () => {
         useValue: instance(mapQueryParamsService),
       })
       .provide({
+        provide: InfrastrukturenSelektionService,
+        useValue: instance(infrastrukturenSelektionService),
+      })
+      .provide({
         provide: BenutzerDetailsService,
         useValue: instance(mock(BenutzerDetailsService)),
-      })
-  );
+      });
+  });
 
   // It is important to run routing tests in fakeAsync.
   it('should emit data if list remains empty', fakeAsync(() => {

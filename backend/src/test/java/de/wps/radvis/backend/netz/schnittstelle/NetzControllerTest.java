@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -29,6 +28,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,8 +49,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.server.ResponseStatusException;
 import org.togglz.junit5.AllDisabled;
 import org.togglz.testing.TestFeatureManager;
 
@@ -63,9 +65,9 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
-import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -82,15 +84,22 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenSeite;
+import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
@@ -99,6 +108,7 @@ import de.wps.radvis.backend.netz.schnittstelle.command.ChangeSeitenbezugCommand
 import de.wps.radvis.backend.netz.schnittstelle.command.CreateKanteCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveFuehrungsformAttributGruppeCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveFuehrungsformAttributeCommand;
+import de.wps.radvis.backend.netz.schnittstelle.command.SaveFuehrungsformAttributeCommand.SaveFuehrungsformAttributeCommandBuilder;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveGeschwindigkeitAttributGruppeCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveGeschwindigkeitAttributeCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveKanteAttributeCommand;
@@ -111,6 +121,7 @@ import de.wps.radvis.backend.netz.schnittstelle.view.GeschwindigkeitAttributeEdi
 import de.wps.radvis.backend.netz.schnittstelle.view.KanteEditView;
 import de.wps.radvis.backend.netz.schnittstelle.view.KnotenEditView;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
@@ -123,11 +134,13 @@ class NetzControllerTest {
 	@Mock
 	private Authentication authentication;
 	@Mock
-	private SaveKanteCommandConverter saveKanteCommandConverter;
-	@Mock
 	private NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
 	@Mock
 	private OrganisationConfigurationProperties organisationConfigurationProperties;
+	@Mock
+	private VerwaltungseinheitResolver verwaltungseinheitResolver;
+	@Mock
+	private NetzConfigurationProperties netzConfigurationProperties;
 
 	@Captor
 	private ArgumentCaptor<List<KantenAttributGruppe>> kanteAttributGruppeCaptor;
@@ -143,18 +156,21 @@ class NetzControllerTest {
 	GeometryFactory geometryFactory = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 	private Verwaltungseinheit organisation;
 	private Benutzer benutzer;
+	private double minimaleSegmentLaenge = 15.0;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 
 		when(organisationConfigurationProperties.getZustaendigkeitBufferInMeter()).thenReturn(500);
+		when(netzConfigurationProperties.getMinimaleSegmentLaenge()).thenReturn(Laenge.of(minimaleSegmentLaenge));
 
 		ZustaendigkeitsService zustaendigkeitsService = new ZustaendigkeitsService(organisationConfigurationProperties);
 
 		netzController = new NetzController(netzService,
 			new NetzGuard(netzService, zustaendigkeitsService, benutzerResolver),
-			benutzerResolver, zustaendigkeitsService, saveKanteCommandConverter, netzToFeatureDetailsConverter);
+			benutzerResolver, zustaendigkeitsService, new SaveKanteCommandConverter(verwaltungseinheitResolver),
+			netzToFeatureDetailsConverter, netzConfigurationProperties);
 
 		organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(101L).name("Bundesland")
 			.organisationsArt(
@@ -191,27 +207,17 @@ class NetzControllerTest {
 		when(benutzerResolver.fromAuthentication(authentication)).thenReturn(benutzer);
 
 		KantenAttributGruppe kantenAttributGruppe = KantenAttributGruppeTestDataProvider.defaultValue()
-			.id(2L).version(1L).build();
+			.id(gruppeId).version(1L).build();
 
 		Kante kante = KanteTestDataProvider.withDefaultValues().id(kanteId).version(1L).quelle(QuellSystem.DLM)
 			.kantenAttributGruppe(kantenAttributGruppe)
 			.geometry(geometryFactory.createLineString(new CoordinateSequence2D(1, 1, 5, 5))).build();
 		when(netzService.getKanten(any())).thenReturn(List.of(kante)).thenReturn(List.of(kante))
 			.thenReturn(List.of(kante));
-
-		KantenAttribute expectedKantenAttribute = KantenAttribute.builder().build();
-		KantenAttributGruppe expectedKantenAttributGruppe = KantenAttributGruppeTestDataProvider.defaultValue()
-			.id(command.getGruppenId())
-			.version(command.getGruppenVersion())
-			.netzklassen(command.getNetzklassen())
-			.istStandards(command.getIstStandards())
-			.kantenAttribute(expectedKantenAttribute)
-			.build();
-		when(saveKanteCommandConverter.convertKantenAttributeCommand(command)).thenReturn(expectedKantenAttribute);
+		when(netzService.getKante(any())).thenReturn(kante);
 
 		// act
-		assertDoesNotThrow(
-			() -> netzController.saveKanteAllgemein(authentication, List.of(command)));
+		assertDoesNotThrow(() -> netzController.saveKanteAllgemein(authentication, List.of(command)));
 
 		// assert
 		verify(netzService, times(1)).aktualisiereKantenAttribute(kanteAttributGruppeCaptor.capture());
@@ -219,14 +225,24 @@ class NetzControllerTest {
 		assertThat(allValues).hasSize(1);
 		assertThat(allValues.get(0)).hasSize(1);
 		final var actualKanteAttributGruppe = allValues.get(0).get(0);
-		assertThat(actualKanteAttributGruppe.getId()).isEqualTo(expectedKantenAttributGruppe.getId());
-		assertThat(actualKanteAttributGruppe.getVersion()).isEqualTo(expectedKantenAttributGruppe.getVersion());
-		assertThat(
-			actualKanteAttributGruppe.getNetzklassen().equals(expectedKantenAttributGruppe.getNetzklassen())).isTrue();
-		assertThat(actualKanteAttributGruppe.getIstStandards()
-			.equals(expectedKantenAttributGruppe.getIstStandards())).isTrue();
-		assertThat(actualKanteAttributGruppe.getKantenAttribute()
-			.equals(expectedKantenAttributGruppe.getKantenAttribute())).isTrue();
+		assertThat(actualKanteAttributGruppe.getId()).isEqualTo(command.getGruppenId());
+		assertThat(actualKanteAttributGruppe.getVersion()).isEqualTo(command.getGruppenVersion());
+		assertThat(actualKanteAttributGruppe.getNetzklassen()).isEqualTo(command.getNetzklassen());
+		assertThat(actualKanteAttributGruppe.getIstStandards()).isEqualTo((command.getIstStandards()));
+		KantenAttribute expectedKantenAttribute = kantenAttributGruppe.getKantenAttribute().toBuilder()
+			.beleuchtung(command.getBeleuchtung())
+			.dtvFussverkehr(command.getDtvFussverkehr())
+			.dtvPkw(command.getDtvPkw())
+			.dtvRadverkehr(command.getDtvRadverkehr())
+			.kommentar(command.getKommentar())
+			.laengeManuellErfasst(command.getLaengeManuellErfasst())
+			.strassenquerschnittRASt06(command.getStrassenquerschnittRASt06())
+			.sv(command.getSv())
+			.umfeld(command.getUmfeld())
+			.strassenkategorieRIN(command.getStrassenkategorieRIN())
+			.wegeNiveau(command.getWegeNiveau())
+			.status(command.getStatus()).build();
+		assertThat(actualKanteAttributGruppe.getKantenAttribute()).isEqualTo(expectedKantenAttribute);
 	}
 
 	@Test
@@ -254,7 +270,7 @@ class NetzControllerTest {
 		assertThatThrownBy(() -> netzController.saveKanteAllgemein(authentication, List.of(saveKantenAttributeCommand)))
 			.isInstanceOf(AccessDeniedException.class)
 			.hasMessage(
-				"Sie haben nicht die Berechtigung Kanten zu bearbeiten");
+				"Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 	}
 
 	@Test
@@ -290,7 +306,7 @@ class NetzControllerTest {
 		assertThatThrownBy(() -> netzController.saveKanteAllgemein(authentication, List.of(saveKantenAttributeCommand)))
 			.isInstanceOf(AccessDeniedException.class)
 			.hasMessage(
-				"Die Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+				"Die Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 	}
 
 	@Test
@@ -454,7 +470,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.createKante(command, authentication))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessage("Es können nur Kanten zwischen DLM- oder RadVis-Knoten erstellt werden");
+			.hasMessage("Es können nur Kanten zwischen DLM- oder RadVis-Knoten erstellt werden.");
 		verify(netzService, never()).createGrundnetzKante(any(), any(), any());
 	}
 
@@ -477,7 +493,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.createKante(command, authentication))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessage("Die erstellte Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+			.hasMessage("Die erstellte Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 		verify(netzService, never()).createGrundnetzKante(any(), any(), any());
 	}
 
@@ -500,7 +516,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.createKante(command, authentication))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessage("Sie haben nicht die Berechtigung Kanten zu erstellen");
+			.hasMessage("Sie haben nicht die Berechtigung Kanten zu erstellen.");
 		verify(netzService, never()).createGrundnetzKante(any(), any(), any());
 	}
 
@@ -557,7 +573,7 @@ class NetzControllerTest {
 		assertThatThrownBy(() -> netzController.saveKnoten(authentication, saveKnotenCommand))
 			.isInstanceOf(AccessDeniedException.class)
 			.hasMessage(
-				"Sie haben nicht die Berechtigung Kanten zu bearbeiten");
+				"Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 		Mockito.verify(netzService, never()).saveKnoten(any());
 	}
 
@@ -579,7 +595,7 @@ class NetzControllerTest {
 		assertThatThrownBy(() -> netzController.saveKnoten(authentication, saveKnotenCommand))
 			.isInstanceOf(AccessDeniedException.class)
 			.hasMessage(
-				"Der Knoten liegt nicht in Ihrem Zuständigkeitsbereich");
+				"Der Knoten liegt nicht in Ihrem Zuständigkeitsbereich.");
 		Mockito.verify(netzService, never()).saveKnoten(any());
 	}
 
@@ -617,10 +633,12 @@ class NetzControllerTest {
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.breite(Laenge.of(42))
+						.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 						.build()))
 				.fuehrungsformAttributeLinks(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.breite(Laenge.of(42))
+						.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 						.build()))
 				.build())
 			.build();
@@ -628,17 +646,19 @@ class NetzControllerTest {
 		when(netzService.getKante(kanteId)).thenReturn(kante);
 		when(netzService.getKanten(Set.of(kanteId))).thenReturn(List.of(kante));
 
+		SaveFuehrungsformAttributeCommandBuilder defaultCommand = SaveFuehrungsformAttributeCommand.builder()
+			.belagArt(BelagArt.ASPHALT)
+			.oberflaechenbeschaffenheit(Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE)
+			.bordstein(Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
+			.parkenTyp(KfzParkenTyp.LAENGS_PARKEN)
+			.parkenForm(KfzParkenForm.FAHRBAHNPARKEN_MARKIERT)
+			.benutzungspflicht(Benutzungspflicht.NICHT_VORHANDEN)
+			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1));
 		List<SaveFuehrungsformAttributeCommand> fuehrungsformenLinks = List.of(
-			SaveFuehrungsformAttributeCommand.builder().breite(Laenge.of(123)).build());
+			defaultCommand.breite(Laenge.of(123)).build());
 		List<SaveFuehrungsformAttributeCommand> fuehrungsformenRechts = List.of(
-			SaveFuehrungsformAttributeCommand.builder().breite(Laenge.of(234)).build());
-
-		when(saveKanteCommandConverter.convertFuehrungsformAtttributeCommands(eq(fuehrungsformenLinks))).thenReturn(
-			List.of(
-				FuehrungsformAttribute.builder().breite(Laenge.of(123)).build()));
-		when(saveKanteCommandConverter.convertFuehrungsformAtttributeCommands(eq(fuehrungsformenRechts))).thenReturn(
-			List.of(
-				FuehrungsformAttribute.builder().breite(Laenge.of(234)).build()));
+			defaultCommand.breite(Laenge.of(234)).build());
 
 		SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
 			.fuehrungsformAttributeRechts(fuehrungsformenRechts)
@@ -683,16 +703,13 @@ class NetzControllerTest {
 		when(netzService.getKanten(Set.of(kanteId))).thenReturn(List.of(kante));
 
 		SaveZustaendigkeitAttributeCommand saveAttributCommand = SaveZustaendigkeitAttributeCommand.builder()
+			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+			.erhaltsZustaendiger(organisation.getId())
 			.build();
 		SaveZustaendigkeitAttributGruppeCommand command = SaveZustaendigkeitAttributGruppeCommand.builder()
 			.kanteId(kanteId)
 			.zustaendigkeitAttribute(List.of(saveAttributCommand))
 			.build();
-
-		ZustaendigkeitAttribute zustaendigkeitAttribute = ZustaendigkeitAttribute.builder()
-			.erhaltsZustaendiger(organisation).build();
-		when(saveKanteCommandConverter.convertZustaendigkeitsAttributeCommand(saveAttributCommand)).thenReturn(
-			zustaendigkeitAttribute);
 
 		// act
 		final var result = netzController.saveZustaendigkeitAttributGruppen(authentication, List.of(command));
@@ -786,7 +803,7 @@ class NetzControllerTest {
 		commands.add(ChangeSeitenbezugCommand.builder().id(kanteId).version(1L).zweiseitig(true).build());
 		assertThatThrownBy(() -> netzController.changeSeitenbezug(authentication, commands))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessageContaining("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+			.hasMessageContaining("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 	}
 
 	@Test
@@ -884,6 +901,383 @@ class NetzControllerTest {
 					Hoechstgeschwindigkeit.MAX_40_KMH, LinearReferenzierterAbschnitt.of(0.65, 1.0)));
 	}
 
+	@Nested
+	class MinimaleSegmentLaengeValidierung {
+		private final Long kanteId = 10L;
+
+		void setupKante(double kantenlaenge) {
+			Kante kante = KanteTestDataProvider
+				.withCoordinatesAndQuelle(0, kantenlaenge, 0, 0, QuellSystem.DLM).id(kanteId).build();
+
+			when(netzService.getKante(kanteId)).thenReturn(kante);
+			when(netzService.getKanten(Set.of(kanteId))).thenReturn(List.of(kante));
+		}
+
+		@Test
+		void testeSaveGeschwindigkeit_minimaleSegmentLaengeUnterschritten_throws() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge - 0.01;
+			List<SaveGeschwindigkeitAttributeCommand> attributCommands = List.of(
+				SaveGeschwindigkeitAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveGeschwindigkeitAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveGeschwindigkeitAttributGruppeCommand command = SaveGeschwindigkeitAttributGruppeCommand.builder()
+				.geschwindigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+
+			assertThatThrownBy(
+				() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class)
+					.extracting("reason").isEqualTo(
+						"Linear referenzierte Abschnitte müssen min. 15,00 m lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
+		@Test
+		void testeSaveGeschwindigkeit_minimaleSegmentLaengeNichtUnterschritten_doesNotThrow() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge;
+			List<SaveGeschwindigkeitAttributeCommand> attributCommands = List.of(
+				SaveGeschwindigkeitAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveGeschwindigkeitAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveGeschwindigkeitAttributGruppeCommand command = SaveGeschwindigkeitAttributGruppeCommand.builder()
+				.geschwindigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, List.of(command)))
+					.isNotInstanceOf(ResponseStatusException.class);
+		}
+
+		@Test
+		void testeSaveGeschwindigkeit_minimaleSegmentLaengeUnterschrittenByKante_oneSegment_doesNotThrow() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveGeschwindigkeitAttributeCommand> attributCommands = List.of(
+				SaveGeschwindigkeitAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(0.0, 1))
+					.build());
+			SaveGeschwindigkeitAttributGruppeCommand command = SaveGeschwindigkeitAttributGruppeCommand.builder()
+				.geschwindigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, List.of(command)))
+					.isNotInstanceOf(ResponseStatusException.class);
+		}
+
+		@Test
+		void testeSaveGeschwindigkeit_minimaleSegmentLaengeUnterschrittenByKante_twoSegments_throws() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveGeschwindigkeitAttributeCommand> attributCommands = List.of(
+				SaveGeschwindigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, 0.1)).build(),
+				SaveGeschwindigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.1, 1.0)).build());
+			SaveGeschwindigkeitAttributGruppeCommand command = SaveGeschwindigkeitAttributGruppeCommand.builder()
+				.geschwindigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void testeSaveZustaendigkeit_minimaleSegmentLaengeUnterschritten_throws() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge - 0.01;
+			List<SaveZustaendigkeitAttributeCommand> attributCommands = List.of(
+				SaveZustaendigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveZustaendigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveZustaendigkeitAttributGruppeCommand command = SaveZustaendigkeitAttributGruppeCommand.builder()
+				.zustaendigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveZustaendigkeitAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+
+			assertThatThrownBy(
+				() -> netzController.saveZustaendigkeitAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class)
+					.extracting("reason").isEqualTo(
+						"Linear referenzierte Abschnitte müssen min. 15,00 m lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
+		@Test
+		void testeSaveZustaendigkeit_minimaleSegmentLaengeNichtUnterschritten_doesNotThrow() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge;
+			List<SaveZustaendigkeitAttributeCommand> attributCommands = List.of(
+				SaveZustaendigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveZustaendigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveZustaendigkeitAttributGruppeCommand command = SaveZustaendigkeitAttributGruppeCommand.builder()
+				.zustaendigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertDoesNotThrow(
+				() -> netzController.saveZustaendigkeitAttributGruppen(authentication, List.of(command)));
+			;
+		}
+
+		@Test
+		void testeSaveZustaendigkeit_minimaleSegmentLaengeUnterschrittenByKante_oneSegment_doesNotThrow() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveZustaendigkeitAttributeCommand> attributCommands = List.of(
+				SaveZustaendigkeitAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(0.0, 1))
+					.build());
+			SaveZustaendigkeitAttributGruppeCommand command = SaveZustaendigkeitAttributGruppeCommand.builder()
+				.zustaendigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertDoesNotThrow(
+				() -> netzController.saveZustaendigkeitAttributGruppen(authentication, List.of(command)));
+		}
+
+		@Test
+		void testeSaveZustaendigkeit_minimaleSegmentLaengeUnterschrittenByKante_twoSegments_throws() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveZustaendigkeitAttributeCommand> attributCommands = List.of(
+				SaveZustaendigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, 0.1)).build(),
+				SaveZustaendigkeitAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.1, 1.0)).build());
+			SaveZustaendigkeitAttributGruppeCommand command = SaveZustaendigkeitAttributGruppeCommand.builder()
+				.zustaendigkeitAttribute(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveZustaendigkeitAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void testeSaveFuehrungsformLinks_minimaleSegmentLaengeUnterschritten_throws() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge - 0.01;
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeLinks(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class)
+					.extracting("reason").isEqualTo(
+						"Linear referenzierte Abschnitte müssen min. 15,00 m lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
+		@Test
+		void testeSaveFuehrungsformLinks_minimaleSegmentLaengeNichtUnterschritten_doesNotThrow() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge;
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeLinks(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isNotInstanceOf(ResponseStatusException.class);
+		}
+
+		@Test
+		void testeSaveFuehrungsformLinks_minimaleSegmentLaengeUnterschrittenByKante_oneSegment_doesNotThrow() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(0.0, 1))
+					.build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeLinks(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isNotInstanceOf(ResponseStatusException.class);
+		}
+
+		@Test
+		void testeSaveFuehrungsformLinks_minimaleSegmentLaengeUnterschrittenByKante_twoSegments_throws() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, 0.1)).build(),
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.1, 1.0)).build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeLinks(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void testeSaveFuehrungsformRechts_minimaleSegmentLaengeUnterschritten_throws() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge - 0.01;
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeLinks(Collections.emptyList()).fuehrungsformAttributeRechts(attributCommands)
+				.kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class)
+					.extracting("reason").isEqualTo(
+						"Linear referenzierte Abschnitte müssen min. 15,00 m lang sein. Kürzere Kanten dürfen nicht aufgeteilt werden.");
+		}
+
+		@Test
+		void testeSaveFuehrungsformRechts_minimaleSegmentLaengeNichtUnterschritten_doesNotThrow() {
+			// arrange
+			double kantenlaenge = 100;
+			setupKante(kantenlaenge);
+
+			double minimaleRelativeSegmentLaenge = minimaleSegmentLaenge / kantenlaenge;
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, minimaleRelativeSegmentLaenge))
+					.build(),
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(minimaleRelativeSegmentLaenge, 1.0))
+					.build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeRechts(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isNotInstanceOf(ResponseStatusException.class);
+		}
+
+		@Test
+		void testeSaveFuehrungsformRechts_minimaleSegmentLaengeUnterschrittenByKante_oneSegment_doesNotThrow() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder().linearReferenzierterAbschnitt(
+					LinearReferenzierterAbschnitt.of(0.0, 1))
+					.build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeRechts(attributCommands).kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isNotInstanceOf(ResponseStatusException.class);
+		}
+
+		@Test
+		void testeSaveFuehrungsformRechts_minimaleSegmentLaengeUnterschrittenByKante_twoSegments_throws() {
+			// arrange
+			double kantenlaenge = minimaleSegmentLaenge - 1;
+			setupKante(kantenlaenge);
+
+			List<SaveFuehrungsformAttributeCommand> attributCommands = List.of(
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.0, 0.1)).build(),
+				SaveFuehrungsformAttributeCommand.builder()
+					.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.1, 1.0)).build());
+			SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()
+				.fuehrungsformAttributeLinks(Collections.emptyList()).fuehrungsformAttributeRechts(attributCommands)
+				.kanteId(kanteId).build();
+
+			// act+assert
+			assertThatThrownBy(
+				() -> netzController.saveFuehrungsformAttributGruppen(authentication, List.of(command)))
+					.isInstanceOf(ResponseStatusException.class).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+		}
+	}
+
 	@Test
 	void testeSaveGeschwindigkeit_deny_nichtImZustaendigkeitsbereich() {
 		// arrange
@@ -921,7 +1315,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, commands))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessageContaining("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+			.hasMessageContaining("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 	}
 
 	@Test
@@ -963,7 +1357,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.saveGeschwindigkeitAttributGruppen(authentication, commands))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessageContaining("Sie haben nicht die Berechtigung Kanten zu bearbeiten");
+			.hasMessageContaining("Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 	}
 
 	@Test
@@ -988,7 +1382,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.saveKanteVerlauf(authentication, List.of(command)))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessageContaining("Sie haben nicht die Berechtigung Kanten zu bearbeiten");
+			.hasMessageContaining("Sie haben nicht die Berechtigung Kanten zu bearbeiten.");
 	}
 
 	@Test
@@ -1013,7 +1407,7 @@ class NetzControllerTest {
 		// act + assert
 		assertThatThrownBy(() -> netzController.saveKanteVerlauf(authentication, List.of(command)))
 			.isInstanceOf(AccessDeniedException.class)
-			.hasMessageContaining("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich");
+			.hasMessageContaining("Die Kante liegt nicht in Ihrem Zuständigkeitsbereich.");
 	}
 
 	@Test
@@ -1064,7 +1458,7 @@ class NetzControllerTest {
 
 			// assert
 			verify(netzService, times(2)).getKante(kanteId); // Guard & Controller holen die Entity unabhängig
-			verify(netzService, times(1)).deleteKante(kanteCaptor.capture());
+			verify(netzService, times(1)).deleteKante(kanteCaptor.capture(), any());
 			verify(netzService, times(1)).wurdeAngelegtVon(kanteCaptor.capture(), benutzerCaptor.capture());
 			verifyNoMoreInteractions(netzService);
 			assertThat(kanteCaptor.getAllValues()).contains(kante, kante);

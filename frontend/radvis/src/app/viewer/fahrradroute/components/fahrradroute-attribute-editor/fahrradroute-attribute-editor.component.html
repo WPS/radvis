@@ -62,7 +62,9 @@
             <mat-label>Variante wählen</mat-label>
             <mat-select [formControl]="selectedVarianteControl">
               <mat-option [value]="HAUPTSTRECKE">{{ HAUPTSTRECKE }}</mat-option>
-              <mat-option *ngFor="let varianteControl of variantenFormArray.controls; let i = index" [value]="i">
+              <mat-option
+                *ngFor="let varianteControl of formGroup.controls.varianten.controls; let i = index"
+                [value]="i">
                 <div [class.error]="varianteControl.invalid">
                   {{ getDisplayText(varianteControl) }}
                 </div>
@@ -84,6 +86,7 @@
             [disabled]="deleteSelectedStreckeForbidden"
             (click)="onSelectedStreckeLoeschen()"
             mat-stroked-button
+            color="primary"
             class="mr-5 my-5 variante-loeschen-button">
             <mat-icon>delete</mat-icon>
           </button>
@@ -121,7 +124,7 @@
             {{ VarianteKategorie.getName(kategorie) }}
           </button>
         </mat-menu>
-        <div *ngIf="variantenFormArray.invalid" class="error ml-10 mt-10">
+        <div *ngIf="formGroup.controls.varianten.invalid" class="error ml-10 mt-10">
           -- Es gibt Eingabefehler bei den Varianten --
         </div>
       </div>
@@ -170,7 +173,7 @@
         [options]="kategorieOptions"
         [showTooltip]="true"
         class="mat-form-field-full-width"
-        formControlName="kategorie">
+        formControlName="fahrradrouteKategorie">
         Kategorie
       </rad-enum-dropdown-control>
       <rad-validation-error-anzeige

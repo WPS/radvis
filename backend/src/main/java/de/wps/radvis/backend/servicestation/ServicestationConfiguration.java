@@ -27,6 +27,7 @@ import de.wps.radvis.backend.servicestation.domain.ServicestationExporterService
 import de.wps.radvis.backend.servicestation.domain.ServicestationImportService;
 import de.wps.radvis.backend.servicestation.domain.ServicestationRepository;
 import de.wps.radvis.backend.servicestation.domain.ServicestationService;
+import de.wps.radvis.backend.servicestation.schnittstelle.SaveServicestationCommandConverter;
 import de.wps.radvis.backend.servicestation.schnittstelle.ServicestationGuard;
 import lombok.AllArgsConstructor;
 
@@ -48,7 +49,12 @@ public class ServicestationConfiguration {
 
 	@Bean
 	public ServicestationService servicestationService() {
-		return new ServicestationService(repository, benutzerResolver, zustaendigkeitsService);
+		return new ServicestationService(repository);
+	}
+
+	@Bean
+	public SaveServicestationCommandConverter saveServicestationCommandConverter() {
+		return new SaveServicestationCommandConverter(verwaltungseinheitService);
 	}
 
 	@Bean

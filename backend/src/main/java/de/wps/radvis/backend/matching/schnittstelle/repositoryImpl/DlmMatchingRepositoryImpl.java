@@ -44,8 +44,8 @@ import de.wps.radvis.backend.common.domain.valueObject.FractionIndexedLine;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierteProfilEigenschaften;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilMatchResult;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
@@ -71,7 +71,6 @@ public class DlmMatchingRepositoryImpl implements DlmMatchingRepository {
 	public DlmMatchingRepositoryImpl(DlmMatchedGraphHopperFactory graphHopperFactory,
 		CoordinateReferenceSystemConverter coordinateReferenceSystemConverter,
 		Double measurementErrorSigma) {
-		this.measurementErrorSigma = measurementErrorSigma;
 		require(graphHopperFactory, notNullValue());
 		require(coordinateReferenceSystemConverter, notNullValue());
 		require(measurementErrorSigma, notNullValue());
@@ -81,6 +80,7 @@ public class DlmMatchingRepositoryImpl implements DlmMatchingRepository {
 
 		this.graphHopperFactory = graphHopperFactory;
 		this.graphHopper = this.graphHopperFactory.getDlmGraphHopper();
+		this.measurementErrorSigma = measurementErrorSigma;
 
 		PMap hintsBike = new PMap();
 		hintsBike.putObject("profile", "bike");
@@ -147,14 +147,15 @@ public class DlmMatchingRepositoryImpl implements DlmMatchingRepository {
 	private ResponsePath getResponsePath(MatchResult matchResult) {
 		PathMerger pathMerger = new PathMerger(matchResult.getGraph(), matchResult.getWeighting())
 			.setEnableInstructions(false).setPathDetailsBuilders(graphHopper.getPathDetailsBuilderFactory(),
-				List.of(Parameters.Details.EDGE_ID)).setSimplifyResponse(false);
+				List.of(Parameters.Details.EDGE_ID))
+			.setSimplifyResponse(false);
 		return pathMerger
 			.doWork(PointList.EMPTY, Collections.singletonList(matchResult.getMergedPath()),
 				graphHopper.getEncodingManager(), null);
 	}
 
 	@Override
-	public void swapGraphHopper() {
+	public void updateGraphHopper() {
 		log.info("Swapping Graphhopper for DLM-Matching");
 
 		// darf nur mir graphHopperFactory.getDlmGraphHopper überschrieben werden, da die factory das clean-up handelt
@@ -255,5 +256,12 @@ public class DlmMatchingRepositoryImpl implements DlmMatchingRepository {
 			return Pair.of(edgeId, true);
 		}
 		return Pair.of(edgeIteratorState.getEdge(), false);
+	}
+
+	@Override
+	public void close() {
+		log.info("Graphhopper für DlmMatchingRepository wird geschlossen und aufgeräumt...");
+		graphHopper.close();
+		graphHopper.clean();
 	}
 }

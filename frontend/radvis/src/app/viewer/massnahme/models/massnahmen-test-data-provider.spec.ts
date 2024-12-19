@@ -12,6 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { KantenSeitenbezug } from 'src/app/shared/models/netzbezug';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
@@ -26,8 +28,6 @@ import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierung
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { Umsetzungsstand } from 'src/app/viewer/massnahme/models/umsetzungsstand';
 import { UmsetzungsstandStatus } from 'src/app/viewer/massnahme/models/umsetzungsstand-status';
-import { KantenSeitenbezug } from 'src/app/shared/models/netzbezug';
-import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 
 const eineTestOrga = {
   id: 5,
@@ -108,4 +108,5 @@ export const defaultMassnahme: Massnahme = {
   sonstigeKonzeptionsquelle: 'konzeptionsQuelle',
   canEdit: true,
   realisierungshilfe: Realisierungshilfe.NR_2_2_1,
+  archiviert: false,
 };

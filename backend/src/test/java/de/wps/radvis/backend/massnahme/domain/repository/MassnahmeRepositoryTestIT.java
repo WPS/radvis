@@ -58,22 +58,25 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
+import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
 import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
+import de.wps.radvis.backend.massnahme.domain.MassnahmenConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandsabfrageConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmenPaketId;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
@@ -109,7 +112,9 @@ import jakarta.persistence.EntityManager;
 	MailConfigurationProperties.class,
 	UmsetzungsstandsabfrageConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	MassnahmenConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -131,6 +136,9 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 
 	@MockBean
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+
+	@MockBean
+	private FahrradrouteRepository fahrradrouteRepository;
 
 	@Autowired
 	private MassnahmeRepository massnahmeRepository;
@@ -352,7 +360,7 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void testFindByKanteInNetzBezug() {
+	void testFindByKantenInNetzBezug() {
 		// arrange
 		Knoten knoten1 = knotenRepository.save(KnotenTestDataProvider.withDefaultValues().build());
 		Kante kante1 = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
@@ -384,7 +392,7 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 			massnahmeKeinBezugAufKante1));
 
 		// act
-		List<Massnahme> byKanteInNetzBezug = massnahmeRepository.findByKanteInNetzBezug(kante1.getId());
+		List<Massnahme> byKanteInNetzBezug = massnahmeRepository.findByKantenInNetzBezug(List.of(kante1.getId()));
 
 		// assert
 		assertThat(byKanteInNetzBezug).containsExactlyInAnyOrder(massnahmeAbschnittsweiserBezugAufKante1,
@@ -429,7 +437,7 @@ class MassnahmeRepositoryTestIT extends DBIntegrationTestIT {
 			hatAnderenKnoten));
 
 		// act
-		List<Massnahme> byKanteInNetzBezug = massnahmeRepository.findByKnotenInNetzBezug(knoten1.getId());
+		List<Massnahme> byKanteInNetzBezug = massnahmeRepository.findByKnotenInNetzBezug(List.of(knoten1.getId()));
 
 		// assert
 		assertThat(byKanteInNetzBezug).containsExactlyInAnyOrder(hatKnoten, hatKnotenUndAnderenKnoten);

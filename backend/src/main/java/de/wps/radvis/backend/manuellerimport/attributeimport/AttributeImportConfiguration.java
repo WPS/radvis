@@ -34,7 +34,8 @@ import de.wps.radvis.backend.manuellerimport.attributeimport.schnittstelle.repos
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.ManuellerImportFehlerRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
-import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
+import de.wps.radvis.backend.matching.domain.service.GrundnetzMappingService;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import jakarta.persistence.EntityManager;
@@ -55,7 +56,7 @@ public class AttributeImportConfiguration {
 	ManuellerImportFehlerRepository manuellerImportFehlerRepository;
 
 	@Autowired
-	private SimpleMatchingService simpleMatchingService;
+	private GrundnetzMappingService grundnetzMappingService;
 
 	@Autowired
 	private InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory;
@@ -72,16 +73,19 @@ public class AttributeImportConfiguration {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	@Autowired
+	private NetzConfigurationProperties netzConfigurationProperties;
+
 	@Bean
 	public ManuellerAttributeImportAbbildungsService attributeAbbildungsService() {
 		return new ManuellerAttributeImportAbbildungsService(inMemoryKantenRepositoryFactory,
-			simpleMatchingService);
+			grundnetzMappingService);
 	}
 
 	@Bean
 	public ManuellerAttributeImportUebernahmeService attributeUebernahmeService() {
 		return new ManuellerAttributeImportUebernahmeService(inMemoryKantenRepositoryFactory,
-			mappingService(), entityManager);
+			mappingService(), entityManager, netzConfigurationProperties.getMinimaleSegmentLaenge());
 	}
 
 	@Bean

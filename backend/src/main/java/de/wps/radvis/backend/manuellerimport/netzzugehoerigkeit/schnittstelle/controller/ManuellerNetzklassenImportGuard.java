@@ -22,6 +22,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.manuellerimport.netzzugehoerigkeit.schnittstelle.command.StartNetzklassenImportSessionCommand;
+import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 
@@ -43,7 +44,17 @@ public class ManuellerNetzklassenImportGuard {
 		Verwaltungseinheit zuBearbeitendeOrganisation = verwaltungseinheitService.resolve(command.getOrganisation());
 
 		if (!verwaltungseinheitService.istUebergeordnet(benutzer.getOrganisation(), zuBearbeitendeOrganisation)) {
-			throw new AccessDeniedException("Die Organisation liegt nicht in Ihrem Zuständigkeitsbereich");
+			throw new AccessDeniedException("Die Organisation liegt nicht in Ihrem Zuständigkeitsbereich.");
+		}
+
+		if (Netzklasse.RADNETZ_NETZKLASSEN.contains(command.getNetzklasse()) &&
+			!benutzer.hatRecht(Recht.RADNETZ_ROUTENVERLEGUNGEN)) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt, die Netzklasse RadNETZ zu verändern.");
+		}
+
+		if (Netzklasse.KREISNETZ_NETZKLASSEN.contains(command.getNetzklasse()) &&
+			!benutzer.hatRecht(Recht.KREISNETZ_ROUTENVERLEGUNGEN)) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern.");
 		}
 	}
 
@@ -68,7 +79,7 @@ public class ManuellerNetzklassenImportGuard {
 	private void authorizeManuellerNetzklassenImport(Authentication authentication) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 		if (!benutzer.hatRecht(Recht.STRECKENDATEN_DES_EIGENEN_ZUSTAENDIGKEITSBEREICHES_IMPORTIEREN)) {
-			throw new AccessDeniedException("Sie haben nicht die Berechtigung Streckendaten zu importieren");
+			throw new AccessDeniedException("Sie haben nicht die Berechtigung Streckendaten zu importieren.");
 		}
 	}
 

@@ -38,8 +38,7 @@ public class RadVisJobScheduler {
 	public RadVisJobScheduler(
 		List<AbstractJob> allJobs,
 		List<String> radVisStartupJobSchedule,
-		List<String> radVisNaechtlicherJobSchedule
-	) {
+		List<String> radVisNaechtlicherJobSchedule) {
 		this.allJobs = allJobs;
 		this.radVisStartupJobSchedule = radVisStartupJobSchedule;
 		this.radVisNaechtlicherJobSchedule = radVisNaechtlicherJobSchedule;
@@ -62,7 +61,7 @@ public class RadVisJobScheduler {
 		for (String jobName : schedule.jobsToRun()) {
 			Optional<AbstractJob> jobToRun = allJobs.stream().filter(job -> jobName.equals(job.getName())).findAny();
 			if (jobToRun.isEmpty()) {
-				log.warn("Job der Klasse " + jobName + " nicht gefunden.");
+				log.error("Job der Klasse " + jobName + " nicht gefunden.");
 			} else {
 				stopWatch.start(jobName);
 				log.info("RadVisJobScheduler: Starte run-Methode von Job " + jobName);

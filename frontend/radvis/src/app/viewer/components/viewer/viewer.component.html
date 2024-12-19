@@ -78,7 +78,7 @@
 
       <rad-bedienhinweis class="mitte-unten"></rad-bedienhinweis>
 
-      <rad-infrastrukturen-tabellen-container class="unten" />
+      <rad-infrastrukturen-tabellen-container class="unten" *ngIf="hasSelectedInfrastrukturen$ | async" />
 
       <rad-select-feature-menu></rad-select-feature-menu>
       <div class="right-details h-100" role="region" aria-label="Details" aria-keyshortcuts="Control+Alt+Shift+D">

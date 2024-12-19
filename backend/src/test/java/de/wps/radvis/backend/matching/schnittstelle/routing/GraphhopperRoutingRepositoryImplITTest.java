@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,10 +43,9 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.GraphhopperRoutingRepositoryImpl;
@@ -54,11 +54,8 @@ import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.PbfErstellung
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import jakarta.persistence.EntityManager;
 
 class GraphhopperRoutingRepositoryImplITTest {
-	@Mock
-	private GraphhopperOsmConfigurationProperties graphhopperOsmConfigurationProperties;
 
 	@Mock
 	private CommonConfigurationProperties commonConfigurationProperties;
@@ -73,9 +70,6 @@ class GraphhopperRoutingRepositoryImplITTest {
 			new Coordinate(633191.12, 5534702.95))
 	);
 	private List<Kante> kanten;
-
-	@Mock
-	EntityManager entityManager;
 
 	@Mock
 	private BarriereRepository barriereRepository;
@@ -94,10 +88,10 @@ class GraphhopperRoutingRepositoryImplITTest {
 		public File temp;
 
 		@BeforeEach
-		void setUp() {
+		void setUp() throws IOException {
 
 			PbfErstellungsRepositoryImpl pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(
-				coordinateReferenceSystemConverter, entityManager, barriereRepository, kantenRepository);
+				coordinateReferenceSystemConverter, barriereRepository, kantenRepository);
 
 			List<Kante> kanten = List.of(
 				KanteTestDataProvider.withDefaultValues().geometry(
@@ -183,21 +177,23 @@ class GraphhopperRoutingRepositoryImplITTest {
 		@Test
 		void testeRouting_KeineKanteIrgendwoInDerNaehe_WirftException() throws KeineRouteGefundenException {
 			assertThatThrownBy(() -> graphhopperRoutingRepository.route(
-				List.of(new Coordinate(8650, 5000), new Coordinate(5000, 5000),
-					new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
-				true)).isInstanceOf(
-					KeineRouteGefundenException.class)
-					.hasMessageContaining("com.graphhopper.util.exceptions.PointNotFoundException");
+				List.of(new Coordinate(8650, -5000), new Coordinate(5000, 5000), new Coordinate(5050, 5050)),
+				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
+				true)
+			)
+				.isInstanceOf(KeineRouteGefundenException.class)
+				.hasMessageContaining("com.graphhopper.util.exceptions.PointNotFoundException");
 		}
 
 		@Test
 		void testeRouting_OutOfBounds_WirftException() throws KeineRouteGefundenException {
 			assertThatThrownBy(() -> graphhopperRoutingRepository.route(
-				List.of(new Coordinate(10050, 10050), new Coordinate(5000, 5000),
-					new Coordinate(5050, 5050)), GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
-				true)).isInstanceOf(
-					KeineRouteGefundenException.class)
-					.hasMessageContaining("com.graphhopper.util.exceptions.PointOutOfBoundsException");
+				List.of(new Coordinate(100500, 100500), new Coordinate(50000, 500000), new Coordinate(50500, 505000)),
+				GraphhopperRoutingRepository.DEFAULT_PROFILE_ID,
+				true)
+			)
+				.isInstanceOf(KeineRouteGefundenException.class)
+				.hasMessageContaining("com.graphhopper.util.exceptions.PointOutOfBoundsException");
 		}
 	}
 
@@ -208,11 +204,10 @@ class GraphhopperRoutingRepositoryImplITTest {
 		public File temp;
 
 		@BeforeEach
-		void setUp() {
+		void setUp() throws IOException {
 			PbfErstellungsRepositoryImpl pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(
-				new CoordinateReferenceSystemConverter(
-					commonConfigurationProperties.getObersteGebietskoerperschaftEnvelope()),
-				entityManager, barriereRepository, kantenRepository);
+				new CoordinateReferenceSystemConverter(commonConfigurationProperties
+					.getObersteGebietskoerperschaftEnvelope()), barriereRepository, kantenRepository);
 
 			kanten = List.of(
 				KanteTestDataProvider.withDefaultValues().geometry(

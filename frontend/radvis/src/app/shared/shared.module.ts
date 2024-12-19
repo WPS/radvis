@@ -19,6 +19,7 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { MatomoModule, provideMatomo, withRouter } from 'ngx-matomo-client';
 import { FormElementsModule } from 'src/app/form-elements/form-elements.module';
 import { MaterialDesignModule } from 'src/app/material-design.module';
 import { AccessabilityTabCircleElementDirective } from 'src/app/shared/components/accessability-tab-circle-element.directive';
@@ -26,9 +27,12 @@ import { AccessabilityTabCircleGroupDirective } from 'src/app/shared/components/
 import { AccessabilityTextDirective } from 'src/app/shared/components/accessability-text.directive';
 import { BedienhinweisComponent } from 'src/app/shared/components/bedienhinweis/bedienhinweis.component';
 import { BenutzerNamePipe } from 'src/app/shared/components/benutzer-name.pipe';
+import { CollapseDownButtonComponent } from 'src/app/shared/components/collapse-down-button/collapse-down-button.component';
 import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { EnumDisplayPipe } from 'src/app/shared/components/enum-display.pipe';
+import { ExpandLinkComponent } from 'src/app/shared/components/expandable-content/expand-link/expand-link.component';
+import { ExpandableContentComponent } from 'src/app/shared/components/expandable-content/expandable-content.component';
 import { HinweisDialogComponent } from 'src/app/shared/components/hinweis-dialog/hinweis-dialog.component';
 import { HoverDirective } from 'src/app/shared/components/hover.directive';
 import { KommazahlPipe } from 'src/app/shared/components/kommazahl.pipe';
@@ -50,6 +54,7 @@ import { VerwaltungZugangsdatenComponent } from 'src/app/shared/components/verwa
 import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
 import { WahlkreisDropdownControlComponent } from 'src/app/shared/components/wahlkreis-dropdown-control/wahlkreis-dropdown-control.component';
 import { WarnhinweisComponent } from 'src/app/shared/components/warnhinweis/warnhinweis.component';
+import { environment } from 'src/environments/environment';
 import { MatPaginatorIntlLocalizationService } from './services/mat-paginator-intl-localization.service';
 
 const allDeclarations = [
@@ -82,10 +87,12 @@ const allDeclarations = [
   BedienhinweisComponent,
   OriginalGeometrieLayerComponent,
   WarnhinweisComponent,
+  ExpandableContentComponent,
+  CollapseDownButtonComponent,
 ];
 
 @NgModule({
-  declarations: allDeclarations,
+  declarations: [allDeclarations, ExpandLinkComponent],
   imports: [
     FormElementsModule,
     BrowserModule,
@@ -103,7 +110,11 @@ const allDeclarations = [
     BrowserAnimationsModule,
     RouterModule,
     FormElementsModule,
+    MatomoModule,
   ],
-  providers: [{ provide: MatPaginatorIntl, useClass: MatPaginatorIntlLocalizationService }],
+  providers: [
+    { provide: MatPaginatorIntl, useClass: MatPaginatorIntlLocalizationService },
+    provideMatomo(environment.matomoConfig, withRouter({ navigationEndComparator: 'ignoreQueryParams' })),
+  ],
 })
 export class SharedModule {}

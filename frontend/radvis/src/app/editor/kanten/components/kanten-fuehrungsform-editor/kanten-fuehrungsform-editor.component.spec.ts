@@ -43,20 +43,20 @@ import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-se
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
 import { BelagArt } from 'src/app/shared/models/belag-art';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
 import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
 import { WMSLegende } from 'src/app/shared/models/wms-legende';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
-import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
 
 /* eslint-disable no-unused-vars */
 class TestOlMapService extends OlMapService {
@@ -309,6 +309,42 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
         parkenTyp: defaultFuehrungsformAttribute.parkenTyp,
         parkenForm: defaultFuehrungsformAttribute.parkenForm,
       });
+    }));
+
+    it('should set trennstreifenValuesCorrect after delete segment rechts (RAD-7134)', fakeAsync(() => {
+      const selektion = KantenSelektion.ofGesamteKante(
+        {
+          ...defaultKante,
+          zweiseitig: true,
+          fuehrungsformAttributGruppe: {
+            id: 1,
+            version: 1,
+            fuehrungsformAttributeLinks: [
+              { ...defaultFuehrungsformAttribute, linearReferenzierterAbschnitt: { von: 0, bis: 0.5 } },
+              { ...defaultFuehrungsformAttribute, linearReferenzierterAbschnitt: { von: 0.5, bis: 1 } },
+            ],
+            fuehrungsformAttributeRechts: [
+              { ...defaultFuehrungsformAttribute, linearReferenzierterAbschnitt: { von: 0, bis: 1 } },
+              { ...defaultFuehrungsformAttribute, linearReferenzierterAbschnitt: { von: 0, bis: 1 } },
+            ],
+          },
+        },
+        2,
+        2
+      );
+      when(kantenSelektionService.adjustSelectionForSegmentDeletion(anything(), anything(), anything())).thenCall(
+        (id, index, seite) => {
+          const newSelektion = selektion.deleteSegment(index, seite);
+          kantenSelektionSubject$.next([newSelektion]);
+        }
+      );
+      kantenSelektionSubject$.next([selektion]);
+      tick();
+
+      component.onDeleteAtIndex(0, 1, KantenSeite.RECHTS);
+      tick();
+
+      expect(component['currentAttributgruppen'][0].fuehrungsformAttributeRechts.length).toBe(1);
     }));
 
     it('should set segmentierung correct, zweiseitig', fakeAsync(() => {

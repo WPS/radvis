@@ -24,9 +24,11 @@ import { AbstellanlageModule } from 'src/app/viewer/abstellanlage/abstellanlage.
 import { AnpassungswunschModule } from 'src/app/viewer/anpassungswunsch/anpassungswunsch.module';
 import { BarriereModule } from 'src/app/viewer/barriere/barriere.module';
 import { FeatureDetailsComponent } from 'src/app/viewer/components/feature-details/feature-details.component';
-import { InfrastrukturenMenuComponent } from 'src/app/viewer/components/infrastruktur-auswahl/infrastrukturen-menu.component';
+import { InfrastrukturIconComponent } from 'src/app/viewer/components/infrastruktur-icon/infrastruktur-icon.component';
 import { InfrastrukturLayerComponent } from 'src/app/viewer/components/infrastruktur-layer/infrastruktur-layer.component';
 import { InfrastrukturenTabellenComponent } from 'src/app/viewer/components/infrastruktur-tabellen/infrastrukturen-tabellen.component';
+import { InfrastrukturenMenuComponent } from 'src/app/viewer/components/infrastrukturen-menu/infrastrukturen-menu.component';
+import { InfrastrukturenSubMenuComponent } from 'src/app/viewer/components/infrastrukturen-sub-menu/infrastrukturen-sub-menu.component';
 import { InfrastrukturenTabellenContainerComponent } from 'src/app/viewer/components/infrastrukturen-tabellen-container/infrastrukturen-tabellen-container.component';
 import { LocationSelectionLayerComponent } from 'src/app/viewer/components/location-selection-layer/location-selection-layer.component';
 import { MeasureDistanceLayerComponent } from 'src/app/viewer/components/measure-distance-layer/measure-distance-layer.component';
@@ -36,6 +38,7 @@ import { RadvisNetzLayerComponent } from 'src/app/viewer/components/radvis-netz-
 import { SelectFeatureMenuComponent } from 'src/app/viewer/components/select-feature-menu/select-feature-menu.component';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { FahrradrouteModule } from 'src/app/viewer/fahrradroute/fahrradroute.module';
+import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
 import { FahrradzaehlstelleModule } from 'src/app/viewer/fahrradzaehlstelle/fahrradzaehlstelle.module';
 import { FurtenKreuzungenModule } from 'src/app/viewer/furten-kreuzungen/furten-kreuzungen.module';
 import { ImportprotokolleModule } from 'src/app/viewer/importprotokolle/importprotokolle.module';
@@ -46,6 +49,7 @@ import { ServicestationModule } from 'src/app/viewer/servicestation/servicestati
 import { SignaturModule } from 'src/app/viewer/signatur/signatur.module';
 import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
 import { ExportButtonComponent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
+import { FahrradroutenProviderService } from 'src/app/viewer/viewer-shared/services/fahrradrouten-provider.service';
 import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
 import { WegweisendeBeschilderungModule } from 'src/app/viewer/wegweisende-beschilderung/wegweisende-beschilderung.module';
 import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
@@ -64,6 +68,8 @@ import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/w
     LocationSelectionLayerComponent,
     MeasureDistanceLayerComponent,
     InfrastrukturenTabellenContainerComponent,
+    InfrastrukturenSubMenuComponent,
+    InfrastrukturIconComponent,
   ],
   imports: [
     BrowserModule,
@@ -93,6 +99,7 @@ import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/w
     AnpassungswunschModule,
     ImportprotokolleModule,
   ],
+  providers: [{ provide: FahrradroutenProviderService, useClass: FahrradrouteService }],
   exports: [ExportButtonComponent],
 })
 export class ViewerModule {}

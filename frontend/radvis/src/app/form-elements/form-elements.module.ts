@@ -30,6 +30,7 @@ import { OrganisationPipe } from 'src/app/form-elements/components/organisation.
 import { TextInputControlComponent } from 'src/app/form-elements/components/text-input-control/text-input-control.component';
 import { ValidationErrorAnzeigeComponent } from 'src/app/form-elements/components/validation-error-anzeige/validation-error-anzeige.component';
 import { MaterialDesignModule } from 'src/app/material-design.module';
+import { ErrorMessagePipe } from 'src/app/form-elements/components/error-message.pipe';
 
 const allDeclarations = [
   ValidationErrorAnzeigeComponent,
@@ -46,6 +47,7 @@ const allDeclarations = [
   MultiOrganisationenDropdownControlComponent,
   OrganisationPipe,
   ButtonAccessibilityDirective,
+  ErrorMessagePipe,
 ];
 
 @NgModule({

@@ -26,6 +26,8 @@ import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
@@ -99,7 +101,7 @@ public class KantenAttributGruppe extends VersionierteEntity {
 
 		final boolean danachRadnetzZugehoerig = entsprechenNetzklassenRadNETZ(this.netzklassen);
 
-		if (zuvorRadnetzZugehoerig != danachRadnetzZugehoerig) {
+		if (this.id != null && zuvorRadnetzZugehoerig != danachRadnetzZugehoerig) {
 			RadVisDomainEventPublisher.publish(new RadNetzZugehoerigkeitChangedEvent(this.id, danachRadnetzZugehoerig));
 		}
 	}
@@ -107,14 +109,15 @@ public class KantenAttributGruppe extends VersionierteEntity {
 	/**
 	 * Diese Methode existiert nur aus performance gründen
 	 */
-	public void updateNetzklassen(@NonNull Set<Netzklasse> netzklassen) {
+	void updateNetzklassen(@NonNull Set<Netzklasse> netzklassen) {
 		final boolean zuvorRadnetzZugehoerig = entsprechenNetzklassenRadNETZ(this.netzklassen);
 		final boolean danachRadnetzZugehoerig = entsprechenNetzklassenRadNETZ(netzklassen);
 		final boolean wurdeRadnetzEntfernt = zuvorRadnetzZugehoerig && !danachRadnetzZugehoerig;
-		// aus performance Gründen brauchen wir das wurdeRadnetzEntfernt, um nicht jedes
-		// mal die istStandards lazy nachzuladen, wenn dies gar nicht notwendig ist
-		require(!wurdeRadnetzEntfernt || istStandardsAllowedForNetzklassen(netzklassen, istStandards),
-			"Falls ein RadNETZ-IstStandard gesetzt ist, muss die Kante zu einer RadNETZ-Netzklasse gehören.");
+
+		if (wurdeRadnetzEntfernt) {
+			require(istStandardsAllowedForNetzklassen(netzklassen, istStandards),
+				"Ist-Standards sind für gewählte Netzklassen nicht erlaubt");
+		}
 
 		this.netzklassen = netzklassen;
 
@@ -144,5 +147,16 @@ public class KantenAttributGruppe extends VersionierteEntity {
 
 	public boolean isRadNETZ() {
 		return entsprechenNetzklassenRadNETZ(netzklassen);
+	}
+
+	public boolean sindAttributeGleich(KantenAttributGruppe other) {
+		return getNetzklassen().equals(other.getNetzklassen()) &&
+			getIstStandards().equals(other.getIstStandards()) &&
+			getKantenAttribute().equals(other.getKantenAttribute());
+	}
+
+	void updateStrassenInfo(StrassenName neuerStrassenName, StrassenNummer neueStrassenNummer) {
+		kantenAttribute = kantenAttribute.toBuilder().strassenName(neuerStrassenName).strassenNummer(neueStrassenNummer)
+			.build();
 	}
 }

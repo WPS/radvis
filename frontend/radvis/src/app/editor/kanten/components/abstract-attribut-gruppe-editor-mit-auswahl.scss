@@ -25,3 +25,8 @@
 .group {
   padding: 0 $padding-attribute-editor-x;
 }
+
+.mat-tab-wrapper::ng-deep .mat-mdc-tab-labels {
+  box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
+  margin-bottom: 3px;
+}

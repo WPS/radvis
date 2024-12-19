@@ -71,9 +71,10 @@ public class MassnahmeEditView {
 	private final Geometry geometry;
 	private final boolean canEdit;
 	private final Realisierungshilfe realisierungshilfe;
+	private final boolean archiviert;
 
-	public MassnahmeEditView(Massnahme massnahme, boolean canMassnahmeBearbeiten) {
-		this.canEdit = canMassnahmeBearbeiten;
+	public MassnahmeEditView(Massnahme massnahme, boolean isBerechtigtZuBearbeiten) {
+		this.canEdit = isBerechtigtZuBearbeiten && !massnahme.isArchiviert();
 		this.id = massnahme.getId();
 		this.version = massnahme.getVersion();
 		this.netzbezug = new NetzbezugView(massnahme.getNetzbezug());
@@ -103,5 +104,6 @@ public class MassnahmeEditView {
 		this.konzeptionsquelle = massnahme.getKonzeptionsquelle();
 		this.sonstigeKonzeptionsquelle = massnahme.getSonstigeKonzeptionsquelle().orElse(null);
 		this.realisierungshilfe = massnahme.getRealisierungshilfe().orElse(null);
+		this.archiviert = massnahme.isArchiviert();
 	}
 }

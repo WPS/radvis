@@ -14,11 +14,12 @@
 
 import { LineStringGeojson, MultiLineStringGeojson, PointGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/fahrradroute/models/abschnittsweiser-kanten-netzbezug';
 import { AbweichendeSegmente } from 'src/app/viewer/fahrradroute/models/abweichende-segmente';
 import { FahrradrouteVariante } from 'src/app/viewer/fahrradroute/models/fahrradroute-variante';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
 import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
-import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
+import { Tourenkategorie } from 'src/app/viewer/fahrradroute/models/tourenkategorie';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 import { FahrradrouteTyp } from 'src/app/viewer/viewer-shared/models/fahrradroute-typ';
 
 export interface FahrradrouteDetailView {
@@ -29,8 +30,8 @@ export interface FahrradrouteDetailView {
   name: string;
   kurzbeschreibung: string;
   beschreibung: string;
-  kategorie: Kategorie;
-  tourenkategorie: string;
+  fahrradrouteKategorie: FahrradrouteKategorie;
+  tourenkategorie: Tourenkategorie;
   laengeHauptstrecke: number;
   offizielleLaenge: number;
   homepage: string;

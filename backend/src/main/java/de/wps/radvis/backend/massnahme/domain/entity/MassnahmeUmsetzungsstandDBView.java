@@ -16,6 +16,7 @@ package de.wps.radvis.backend.massnahme.domain.entity;
 
 import java.util.Set;
 
+import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import jakarta.persistence.CollectionTable;
@@ -26,11 +27,18 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "massnahme_umsetzungsstand_view")
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode(of = { "id" })
 public class MassnahmeUmsetzungsstandDBView {
 
 	@Id
@@ -51,6 +59,9 @@ public class MassnahmeUmsetzungsstandDBView {
 
 	@Enumerated(EnumType.STRING)
 	Umsetzungsstatus umsetzungsstatus;
+
+	@Enumerated(EnumType.STRING)
+	UmsetzungsstandStatus umsetzungsstandStatus;
 
 	String istUmgesetzt;
 	String umsetzungGemaessMassnahmenblatt;

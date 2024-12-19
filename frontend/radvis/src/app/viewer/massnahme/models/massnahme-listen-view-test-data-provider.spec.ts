@@ -16,6 +16,7 @@ import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
+import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { MassnahmeListenView } from 'src/app/viewer/massnahme/models/massnahme-listen-view';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 
@@ -50,6 +51,8 @@ export const defaultMassnahmeListView: MassnahmeListenView = {
   },
   sollStandard: SollStandard.BASISSTANDARD,
   handlungsverantwortlicher: Handlungsverantwortlicher.BAULASTTRAEGER,
+  konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
+  archiviert: false,
 };
 
 export const getTestMassnahmeListenViews = (): MassnahmeListenView[] => {
@@ -86,6 +89,8 @@ export const getTestMassnahmeListenViews = (): MassnahmeListenView[] => {
       },
       sollStandard: SollStandard.KEIN_STANDARD_ERFUELLT,
       handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
+      konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
+      archiviert: false,
     },
     {
       id: 3,
@@ -118,6 +123,8 @@ export const getTestMassnahmeListenViews = (): MassnahmeListenView[] => {
       },
       sollStandard: SollStandard.KEIN_STANDARD_ERFUELLT,
       handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
+      konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
+      archiviert: false,
     },
   ];
 };

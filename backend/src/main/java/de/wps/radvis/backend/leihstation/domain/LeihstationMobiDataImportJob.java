@@ -32,11 +32,13 @@ import org.locationtech.jts.geom.prep.PreparedGeometry;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.leihstation.domain.entity.Leihstation;
 import de.wps.radvis.backend.leihstation.domain.entity.LeihstationMobiDataImportStatistik;
 import de.wps.radvis.backend.leihstation.domain.valueObject.Anzahl;
@@ -48,6 +50,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithFehlercode(Fehlercode.LEIHSTATIONEN_IMPORT)
 public class LeihstationMobiDataImportJob extends AbstractJob {
 	public static final String JOB_NAME = "LeihstationMobiDataImportJob";
 
@@ -191,8 +194,7 @@ public class LeihstationMobiDataImportJob extends AbstractJob {
 								.build();
 							leihstationRepository.save(neueLeihstation);
 							anzahlneu.getAndIncrement();
-						}
-					);
+						});
 				logProgress(counter, 200, "Leihstation");
 				return externeId;
 			})

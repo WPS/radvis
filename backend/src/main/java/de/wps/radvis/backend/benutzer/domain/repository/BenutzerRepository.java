@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.benutzer.domain.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +34,14 @@ public interface BenutzerRepository extends CrudRepository<Benutzer, Long>, Cust
 	List<Benutzer> findByOrganisationAndStatus(Verwaltungseinheit verwaltungseinheit,
 		BenutzerStatus benutzerStatus);
 
-	List<Benutzer> findByStatusAndRollenIsNotContaining(BenutzerStatus benutzerStatus, Rolle rolle);
+	List<Benutzer> findByStatusAndAblaufdatumBefore(BenutzerStatus benutzerStatus, LocalDate localDate);
+
+	List<Benutzer> findByStatusAndRollenIsNotContainingAndLetzteAktivitaetBefore(BenutzerStatus benutzerStatus,
+		Rolle rolle, LocalDate localDate);
 
 	List<Benutzer> findByRollenAndStatus(Rolle rolle, BenutzerStatus benutzerStatus);
 
 	List<Benutzer> findByOrganisationAndRollen(Verwaltungseinheit verwaltungseinheit, Rolle rolle);
+
+	long countByStatus(BenutzerStatus status);
 }

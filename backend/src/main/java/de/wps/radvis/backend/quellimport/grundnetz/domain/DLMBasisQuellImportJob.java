@@ -35,12 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 public class DLMBasisQuellImportJob extends AbstractJob {
 
 	private ImportedFeaturePersistentRepository importedFeaturePersistentRepository;
-	private DLMWFSImportRepository dlmImportRepository;
+	private DlmRepository dlmImportRepository;
 	private AtomicInteger counter;
 
 	public DLMBasisQuellImportJob(JobExecutionDescriptionRepository jobExecutionDescriptionRepository,
 		ImportedFeaturePersistentRepository importedFeaturePersistentRepository,
-		DLMWFSImportRepository dlmImportRepository) {
+		DlmRepository dlmImportRepository) {
 		super(jobExecutionDescriptionRepository);
 		this.counter = new AtomicInteger();
 
@@ -64,7 +64,7 @@ public class DLMBasisQuellImportJob extends AbstractJob {
 		AtomicInteger partitionCounter = new AtomicInteger();
 		partitionCounter.set(0);
 		partitions.forEach(partition -> {
-			dlmImportRepository.readStrassenFeatures(partition)
+			dlmImportRepository.getKanten(partition)
 				.forEach(importedFeature -> {
 					importFeature(importedFeature, dlmIds);
 				});
@@ -73,21 +73,6 @@ public class DLMBasisQuellImportJob extends AbstractJob {
 		log.info("Es wurden {} Strassen Features importiert.", counter.get());
 
 		statistik.importierteStrassen = counter.get();
-
-		dlmIds.clear();
-
-		counter.set(0);
-		partitionCounter.set(0);
-		log.info("Importiere Wege Features über {} Partitionen...", partitions.size());
-		partitions.forEach(partition -> {
-			dlmImportRepository.readWegeFeatures(partition)
-				.forEach(importedFeature -> {
-					importFeature(importedFeature, dlmIds);
-				});
-			log.info("finished partition {}", partitionCounter.incrementAndGet());
-		});
-		log.info("Es wurden {} Wege Features importiert.", counter.get());
-		statistik.importierteWege = counter.get();
 		return Optional.of(statistik);
 	}
 

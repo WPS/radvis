@@ -16,9 +16,9 @@ package de.wps.radvis.backend.netz.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;
@@ -26,10 +26,14 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.history.RevisionRepository;
 
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
+import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KanteElevationView;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
+import de.wps.radvis.backend.netz.domain.valueObject.Status;
 
 public interface KantenRepository
 	extends CrudRepository<Kante, Long>, CustomKantenRepository, RevisionRepository<Kante, Long, Long> {
@@ -39,12 +43,6 @@ public interface KantenRepository
 	String GEOSERVER_RADVISNETZ_ABSCHNITTE_MAT_VIEW_NAME = "geoserver_radvisnetz_kante_abschnitte_materialized_view";
 	String GEOSERVER_BALM_KANTEN_VIEW_NAME = "geoserver_balm_kanten_view";
 
-	@Query("SELECT count(distinct kante.id) "
-		+ "FROM Kante kante "
-		+ "WHERE kante.vonKnoten = ?1 "
-		+ "OR kante.nachKnoten = ?1 ")
-	long getAnzahlAdjazenterKanten(Knoten knoten);
-
 	@Query("SELECT kante "
 		+ "FROM Kante kante "
 		+ "WHERE CAST(kante.geometry as org.locationtech.jts.geom.Geometry)=?1 ")
@@ -52,19 +50,23 @@ public interface KantenRepository
 
 	Stream<Kante> findKanteByQuelle(QuellSystem quelle);
 
-	@Query(
-		value = "SELECT kante.id AS id, kante.geometry AS geometry"
-			+ " FROM Kante kante "
-			+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
-			+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)"
-			+ " LIMIT 10000", nativeQuery = true)
+	@Query("SELECT kante "
+		+ "FROM Kante kante "
+		+ "WHERE kante.kantenAttributGruppe.kantenAttribute.status != ?1 "
+		+ "  AND kante.quelle IN ?2")
+	Stream<Kante> findKanteByStatusNotAndQuelleIn(Status statusToIgnore, List<QuellSystem> quellen);
+
+	@Query(value = "SELECT kante.id AS id, kante.geometry AS geometry"
+		+ " FROM Kante kante "
+		+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
+		+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)"
+		+ " LIMIT 10000", nativeQuery = true)
 	Slice<KanteElevationView> findFirst10ThousandByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry();
 
-	@Query(
-		value = "SELECT COUNT(*)"
-			+ " FROM Kante kante "
-			+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
-			+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*)"
+		+ " FROM Kante kante "
+		+ "WHERE (kante.quelle = 'DLM' OR kante.quelle = 'RadVis')"
+		+ " AND (kante.geometry3d IS NULL OR NOT st_force2d(kante.geometry3d) = kante.geometry)", nativeQuery = true)
 	int countAllByQuelleDLMOrQuelleRadVisAndOutdated3dGeometry();
 
 	@Query("SELECT kante "
@@ -75,11 +77,6 @@ public interface KantenRepository
 
 	@Query("SELECT kante FROM Kante kante WHERE kante.kantenAttributGruppe.id = ?1")
 	Kante findByKantenAttributGruppeId(long kantenAttributGruppeId);
-
-	@Query("SELECT kante.geometry "
-		+ "FROM Kante kante "
-		+ "WHERE kante.id IN ?1")
-	List<Geometry> getKanteGeometriesByIds(List<Long> kanteIds);
 
 	@Query("SELECT id FROM Kante")
 	List<Long> getAllKanteIds();
@@ -99,4 +96,16 @@ public interface KantenRepository
 	@Query(value = "SELECT k.netzklassen FROM KanteNetzklassenView k "
 		+ "WHERE k.id = ?1")
 	Optional<String> getNetzklassenVonKante(Long kanteId);
+
+	@Query("SELECT k FROM Kante k WHERE k.zustaendigkeitAttributGruppe IN ?1")
+	Set<Kante> findAllByZustaendigkeitAttributGruppeIn(
+		List<ZustaendigkeitAttributGruppe> zustaendigkeitAttributGruppen);
+
+	@Query("SELECT k FROM Kante k WHERE k.fuehrungsformAttributGruppe IN ?1")
+	Set<Kante> findAllByFuehrungsformAttributGruppeIn(
+		List<FuehrungsformAttributGruppe> fuehrungsformAttributGruppen);
+
+	@Query("SELECT k FROM Kante k WHERE k.geschwindigkeitAttributGruppe IN ?1")
+	Set<Kante> findAllByGeschwindigkeitAttributeGruppeIn(
+		List<GeschwindigkeitAttributGruppe> geschwidnigkeitAttributGruppen);
 }

@@ -320,14 +320,11 @@ export class KantenFuehrungsformEditorComponent
   }
 
   public onDeleteAtIndex(kantenIndex: number, segmentIndex: number, kantenSeite?: KantenSeite): void {
-    let arrayToChange: FuehrungsformAttribute[];
     if (kantenSeite === KantenSeite.LINKS || kantenSeite === undefined) {
-      arrayToChange = this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks;
-      arrayToChange.splice(segmentIndex, 1);
+      this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks.splice(segmentIndex, 1);
     }
     if (kantenSeite === KantenSeite.RECHTS || kantenSeite === undefined) {
-      arrayToChange = this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts;
-      arrayToChange.splice(segmentIndex, 1);
+      this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts.splice(segmentIndex, 1);
     }
     this.kantenSelektionService.adjustSelectionForSegmentDeletion(
       (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
@@ -698,7 +695,7 @@ export class KantenFuehrungsformEditorComponent
         this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeLinks
       );
       this.resetToOriginalTrennstreifenAttribute(
-        kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS),
+        kantenSelektion.getSelectedSegmentIndices(KantenSeite.RECHTS),
         kantenSelektion.kante.fuehrungsformAttributGruppe.fuehrungsformAttributeRechts,
         this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts
       );

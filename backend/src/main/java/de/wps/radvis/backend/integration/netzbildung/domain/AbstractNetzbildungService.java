@@ -62,6 +62,7 @@ public abstract class AbstractNetzbildungService {
 			dlmId, technischeFeatureID, false);
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void addKante(LineString lineString, KantenAttributGruppe kantenAttributGruppe,
 		FahrtrichtungAttributGruppe fahrtrichtungAttributgruppe,
 		ZustaendigkeitAttributGruppe zustaendigkeitAttributgruppe,

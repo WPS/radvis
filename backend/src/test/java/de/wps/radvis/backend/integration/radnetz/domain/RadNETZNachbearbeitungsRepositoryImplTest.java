@@ -47,6 +47,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfigu
 import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -62,14 +63,16 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 @ContextConfiguration(classes = { NetzConfiguration.class, IntegrationRadNetzConfiguration.class,
 	OrganisationConfiguration.class, BenutzerConfiguration.class, CommonConfiguration.class,
 	GeoConverterConfiguration.class, NetzfehlerConfiguration.class, KommentarConfiguration.class,
-	KommentarConfiguration.class, KonsistenzregelPruefungsConfiguration.class, KonsistenzregelnConfiguration.class })
+	KommentarConfiguration.class, KonsistenzregelPruefungsConfiguration.class,
+	KonsistenzregelnConfiguration.class })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),

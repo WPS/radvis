@@ -29,7 +29,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.wps.radvis.backend.matching.domain.DlmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
 import de.wps.radvis.backend.netz.domain.valueObject.SeitenbezogeneProfilEigenschaften;
 import lombok.extern.slf4j.Slf4j;

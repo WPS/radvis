@@ -60,6 +60,7 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
@@ -95,7 +96,8 @@ import jakarta.persistence.PersistenceContext;
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -113,12 +115,14 @@ class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
 		private NetzGuard netzAutorisierungsService;
 		@Autowired
 		private ZustaendigkeitsService zustaendigkeitsService;
+		@Autowired
+		private NetzConfigurationProperties netzConfigurationProperties;
 
 		@Bean
 		public NetzController netzController() {
 			return new NetzController(netzService, netzAutorisierungsService,
 				new BenutzerResolverImpl(), zustaendigkeitsService, saveKanteCommandConverter,
-				netzToFeatureDetailsConverter);
+				netzToFeatureDetailsConverter, netzConfigurationProperties);
 		}
 
 	}

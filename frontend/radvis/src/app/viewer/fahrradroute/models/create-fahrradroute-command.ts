@@ -13,13 +13,13 @@
  */
 
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
 import { ProfilEigenschaften } from 'src/app/viewer/fahrradroute/models/profil-eigenschaften';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 
 export interface CreateFahrradrouteCommand {
   name: string;
   beschreibung: string;
-  kategorie: Kategorie;
+  kategorie: FahrradrouteKategorie;
   stuetzpunkte: LineStringGeojson;
   kantenIDs: number[];
   routenVerlauf: LineStringGeojson;

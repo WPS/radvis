@@ -15,9 +15,20 @@
 package de.wps.radvis.backend.common.domain.valueObject;
 
 public enum Seitenbezug {
-
 	RECHTS,
 	LINKS,
 	BEIDSEITIG;
 
+	public Seitenbezug withUmgekehrterStationierung() {
+		switch (this) {
+		case BEIDSEITIG:
+			return BEIDSEITIG;
+		case RECHTS:
+			return LINKS;
+		case LINKS:
+			return RECHTS;
+		default:
+			throw new RuntimeException();
+		}
+	}
 }

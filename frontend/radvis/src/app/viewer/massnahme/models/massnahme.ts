@@ -15,6 +15,7 @@
 import { BenutzerName } from 'src/app/shared/models/benutzer-name';
 import { Durchfuehrungszeitraum } from 'src/app/shared/models/durchfuehrungszeitraum';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { VersionierteEntitaet } from 'src/app/shared/models/versionierte-entitaet';
@@ -23,7 +24,6 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
-import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface Massnahme extends VersionierteEntitaet {
   bezeichnung: string;
@@ -56,4 +56,5 @@ export interface Massnahme extends VersionierteEntitaet {
   geometry: LineStringGeojson;
 
   canEdit: boolean;
+  archiviert: boolean;
 }

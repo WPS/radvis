@@ -3,13 +3,16 @@ package de.wps.radvis.backend.benutzer.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +50,7 @@ class BenutzerAktivitaetsServiceTest {
 			.id(1L)
 			.letzteAktivitaet(LocalDate.now().minusDays(30))
 			.build();
+		when(benutzerRepository.findById(eq(1L))).thenReturn(Optional.of(benutzer));
 
 		Authentication authentication = new BenutzerBasicAuthenticationToken(benutzer, "testPasswort");
 
@@ -69,6 +73,7 @@ class BenutzerAktivitaetsServiceTest {
 			.id(1L)
 			.letzteAktivitaet(LocalDate.now())
 			.build();
+		when(benutzerRepository.findById(eq(1L))).thenReturn(Optional.of(benutzer));
 
 		Authentication authentication = new BenutzerBasicAuthenticationToken(benutzer, "testPasswort");
 
@@ -91,6 +96,7 @@ class BenutzerAktivitaetsServiceTest {
 			.id(1L)
 			.letzteAktivitaet(LocalDate.now().minusDays(30))
 			.build();
+		when(benutzerRepository.findById(eq(1L))).thenReturn(Optional.of(benutzer));
 
 		Authentication authentication = new RadVisAuthentication(new RadVisUserDetails(benutzer, new ArrayList<>()));
 
@@ -110,6 +116,7 @@ class BenutzerAktivitaetsServiceTest {
 			.id(1L)
 			.letzteAktivitaet(LocalDate.now())
 			.build();
+		when(benutzerRepository.findById(eq(1L))).thenReturn(Optional.of(benutzer));
 
 		Authentication authentication = new RadVisAuthentication(new RadVisUserDetails(benutzer, new ArrayList<>()));
 
@@ -134,8 +141,7 @@ class BenutzerAktivitaetsServiceTest {
 
 		// act & assert
 		assertThatNoException().isThrownBy(
-			() -> benutzerAktivitaetsService.onAuthenticationSuccess(new AuthenticationSuccessEvent(authentication))
-		);
+			() -> benutzerAktivitaetsService.onAuthenticationSuccess(new AuthenticationSuccessEvent(authentication)));
 
 		verify(benutzerRepository, never()).save(any());
 	}
@@ -148,6 +154,7 @@ class BenutzerAktivitaetsServiceTest {
 			.id(null)
 			.letzteAktivitaet(LocalDate.now().minusDays(2))
 			.build();
+		when(benutzerRepository.findById(eq(1L))).thenReturn(Optional.empty());
 
 		Authentication authentication = new RadVisAuthentication(new RadVisUserDetails(benutzer, new ArrayList<>()));
 

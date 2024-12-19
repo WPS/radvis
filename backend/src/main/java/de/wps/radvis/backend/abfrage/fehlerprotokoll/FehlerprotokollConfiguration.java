@@ -24,10 +24,13 @@ import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.GeoserverFehlerproto
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.repository.GeoserverFehlerprotokollRepository;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.service.FehlerprotokollAbfrageService;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.service.FehlerprotokollServiceFactory;
+import de.wps.radvis.backend.barriere.domain.BarriereService;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradrouteService;
+import de.wps.radvis.backend.furtKreuzung.domain.FurtKreuzungService;
+import de.wps.radvis.backend.integration.dlm.domain.AttributlueckenService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
-import de.wps.radvis.backend.matching.domain.OsmAbbildungsFehlerService;
+import de.wps.radvis.backend.matching.domain.service.OsmAbbildungsFehlerService;
 
 @Configuration
 @EnableJpaRepositories
@@ -38,7 +41,16 @@ public class FehlerprotokollConfiguration {
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 
 	@Autowired
+	private AttributlueckenService attributlueckenService;
+
+	@Autowired
 	private FahrradrouteService fahrradrouteService;
+
+	@Autowired
+	private BarriereService barriereService;
+
+	@Autowired
+	private FurtKreuzungService furtKreuzungService;
 
 	@Autowired
 	private GeoserverFehlerprotokollRepository geoserverFehlerprotokollRepository;
@@ -52,7 +64,8 @@ public class FehlerprotokollConfiguration {
 	@Bean
 	public FehlerprotokollServiceFactory fehlerprotokollServiceFactory() {
 		return new FehlerprotokollServiceFactory(massnahmeNetzbezugAenderungProtokollierungsService,
-			fahrradrouteService, osmAbbildungsFehlerService);
+			attributlueckenService, fahrradrouteService, barriereService, furtKreuzungService,
+			osmAbbildungsFehlerService);
 	}
 
 	@Bean

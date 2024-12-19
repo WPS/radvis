@@ -41,11 +41,13 @@ import de.wps.radvis.backend.common.TogglzConfiguration;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.common.schnittstelle.ExportConverterFactory;
+import de.wps.radvis.backend.common.schnittstelle.GeoPackageExportConverter;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteProfilEigenschaften;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Hoehenunterschied;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierteProfilEigenschaften;
 import de.wps.radvis.backend.fahrradzaehlstelle.domain.FahrradzaehlstellenMobiDataImportJob;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributeAnreicherungsService;
+import de.wps.radvis.backend.integration.dlm.domain.AttributlueckenSchliessenJob;
 import de.wps.radvis.backend.konsistenz.pruefung.schnittstelle.KonsistenzregelController;
 import de.wps.radvis.backend.konsistenz.pruefung.schnittstelle.view.KonsistenzregelView;
 import de.wps.radvis.backend.konsistenz.regeln.domain.Konsistenzregel;
@@ -128,6 +130,7 @@ public class SchichtungTest {
 		.layer("valueObject")
 		.definedBy(JavaClass.Predicates.resideInAnyPackage("..valueObject..", "..valueobject..")
 			.and(DescribedPredicate.not(simpleName("KoordinatenReferenzSystem"))))
+		.layer("annotation").definedBy(JavaClass.Predicates.resideInAnyPackage("..annotation.."))
 		.layer("guard").definedBy(simpleNameEndingWithIncludingGeneratedInnerClasses("Guard"))
 		.layer("event").definedBy(JavaClass.Predicates.resideInAnyPackage("..event.."))
 		.layer("liquibaseMigration").definedBy(simpleNameEndingWithIncludingGeneratedInnerClasses("LiquibaseMigration"))
@@ -160,6 +163,10 @@ public class SchichtungTest {
 		.whereLayer("valueObject")
 		.mayOnlyBeAccessedByLayers("config", "service", "controller", "exportConverter", "entity", "bezug",
 			"repository", "view", "converter", "command", "exception", "repository", "guard", "dbView", "event",
+			"liquibaseMigration", "encodedValues", "configurationProperties", "annotation")
+		.whereLayer("annotation")
+		.mayOnlyBeAccessedByLayers("config", "service", "controller", "exportConverter", "entity", "bezug",
+			"repository", "view", "converter", "command", "exception", "repository", "guard", "dbView", "event",
 			"liquibaseMigration", "encodedValues", "configurationProperties")
 		.whereLayer("configurationProperties")
 		.mayOnlyBeAccessedByLayers("config", "service", "controller", "view", "repository")
@@ -175,9 +182,10 @@ public class SchichtungTest {
 		// Konsistenzregeln machen so eine Art Spagat aus Service und Entity; wir ordnen es als Service ein und ignoren
 		// das hier
 		.ignoreDependency(KonsistenzregelView.class, Konsistenzregel.class)
-		// TODO: Der Job ist laut dieser Einstufung ein Service und darf damit nicht auf einen Converter zugreifen
 		.ignoreDependency(AbstellanlageBRImportJob.class, CoordinateReferenceSystemConverter.class)
-		.ignoreDependency(FahrradzaehlstellenMobiDataImportJob.class, CoordinateReferenceSystemConverter.class);
+		.ignoreDependency(FahrradzaehlstellenMobiDataImportJob.class, CoordinateReferenceSystemConverter.class)
+		// Zu Debug-Zwecken gibt es diese Abhängigkeit, weswegen das nicht als allgemeine Regel eingetragen ist.
+		.ignoreDependency(AttributlueckenSchliessenJob.class, GeoPackageExportConverter.class);
 
 	@ArchTest
 	public static final ArchRule TECHNISCHE_SCHICHTUNG = Architectures.layeredArchitecture()
@@ -189,7 +197,9 @@ public class SchichtungTest {
 		.whereLayer("schnittstelle").mayOnlyBeAccessedByLayers("configuration")
 		// TODO: Der Job liegt in domain und darf somit nicht auf den Converter in Schnittstelle zugreifen
 		.ignoreDependency(AbstellanlageBRImportJob.class, CoordinateReferenceSystemConverter.class)
-		.ignoreDependency(FahrradzaehlstellenMobiDataImportJob.class, CoordinateReferenceSystemConverter.class);
+		.ignoreDependency(FahrradzaehlstellenMobiDataImportJob.class, CoordinateReferenceSystemConverter.class)
+		// Zu Debug-Zwecken gibt es diese Abhängigkeit, weswegen das eine Ausnahme ist und nicht über eine allgemeine Regel erlaubt wird.
+		.ignoreDependency(AttributlueckenSchliessenJob.class, GeoPackageExportConverter.class);
 
 	@ArchTest
 	public static final ArchRule FACHLICHE_SCHICHTUNG = Architectures.layeredArchitecture()
@@ -210,8 +220,8 @@ public class SchichtungTest {
 		.layer("ManuellerImportNetzzugehoerigkeit").definedBy("..manuellerimport.netzzugehoerigkeit..")
 		.layer("ManuellerImportAttributeImport").definedBy("..manuellerimport.attributeimport..")
 		.layer("ManuellerImportCommon").definedBy("..manuellerimport.common..")
-		.layer("IntegrationGrundnetzReimport").definedBy("..integration.grundnetzReimport..")
-		.layer("IntegrationGrundnetz").definedBy("..integration.grundnetz..")
+		.layer("IntegrationDlm").definedBy("..integration.dlm..")
+		.layer("IntegrationOsm").definedBy("..integration.osm..")
 		.layer("IntegrationRadnetz").definedBy("..integration.radnetz..")
 		.layer("IntegrationRadwegeDB").definedBy("..integration.radwegedb..")
 		.layer("IntegrationAttributAbbildung").definedBy("..integration.attributAbbildung..")
@@ -241,6 +251,7 @@ public class SchichtungTest {
 		.layer("Servicestation").definedBy("..servicestation..")
 		.layer("Leihstation").definedBy("..leihstation..")
 		.layer("Fahrradzaehlstelle").definedBy("..fahrradzaehlstelle..")
+		.layer("Systemnachricht").definedBy("..systemnachricht..")
 
 		.whereLayer("Application").mayNotBeAccessedByAnyLayer()
 		.whereLayer("Administration").mayNotBeAccessedByAnyLayer()
@@ -257,54 +268,49 @@ public class SchichtungTest {
 			"ManuellerImportMassnahmenImport")
 		.whereLayer("Konsistenzregeln").mayOnlyBeAccessedByLayers("KonsistenzPruefung")
 		.whereLayer("KonsistenzPruefung").mayOnlyBeAccessedByLayers("Application", "Netzfehler")
-		.whereLayer("IntegrationGrundnetz")
-		.mayOnlyBeAccessedByLayers("IntegrationAttributAbbildung", "IntegrationGrundnetzReimport", "Application")
 		.whereLayer("IntegrationAttributAbbildung")
 		.mayOnlyBeAccessedByLayers("AbfrageNetzausschnitt", "IntegrationRadnetz", "IntegrationRadwegeDB",
-			"IntegrationGrundnetzReimport",
-			"Application")
+			"IntegrationDlm", "Application")
 		.whereLayer("IntegrationRadnetz").mayOnlyBeAccessedByLayers("Application", "IntegrationAttributAbbildung")
 		.whereLayer("IntegrationRadwegeDB").mayOnlyBeAccessedByLayers("Application", "IntegrationAttributAbbildung")
 		.whereLayer("IntegrationNetzbildung")
 		.mayOnlyBeAccessedByLayers("IntegrationAttributAbbildung", "IntegrationRadnetz",
-			"IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport", "Application")
+			"IntegrationRadwegeDB", "IntegrationDlm", "Application")
 		.whereLayer("Matching")
 		.mayOnlyBeAccessedByLayers("IntegrationNetzbildung", "IntegrationAttributAbbildung", "IntegrationRadnetz",
 			"IntegrationRadwegeDB", "ManuellerImportMassnahmenImport", "ManuellerImportNetzzugehoerigkeit",
-			"ManuellerImportAttributeImport", "IntegrationGrundnetzReimport", "Massnahme", "IntegrationGrundnetz",
+			"ManuellerImportAttributeImport", "IntegrationDlm", "Massnahme",
 			"Application", "Fahrradroute", "AbfrageFehlerprotokoll")
 		.whereLayer("Netz")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationNetzbildung", "IntegrationAttributAbbildung",
-			"IntegrationRadnetz", "IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport",
+			"IntegrationRadnetz", "IntegrationRadwegeDB", "IntegrationDlm", "IntegrationOsm",
 			"ManuellerImportNetzzugehoerigkeit", "ManuellerImportAttributeImport", "ManuellerImportCommon",
 			"ManuellerImportMassnahmenImport", "AbfrageNetzausschnitt", "AbfrageSignatur", "AbfrageAuswertung",
 			"Massnahme", "Barriere", "FurtKreuzung", "AbfrageFehlerprotokoll", "Fahrradroute", "AbfrageStatistik",
 			"Application", "Konsistenzregeln", "KonsistenzPruefung", "Abstellanlage", "Servicestation", "Leihstation")
 		.whereLayer("Netzfehler")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationNetzbildung", "IntegrationAttributAbbildung",
-			"IntegrationRadnetz", "IntegrationRadwegeDB", "IntegrationGrundnetz", "AbfrageNetzausschnitt",
+			"IntegrationRadnetz", "IntegrationRadwegeDB", "AbfrageNetzausschnitt", "IntegrationDlm",
 			"Application")
 		.whereLayer("ImportGrundnetz")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationAttributAbbildung", "IntegrationRadnetz",
-			"IntegrationRadwegeDB", "IntegrationGrundnetz", "IntegrationGrundnetzReimport", "AbfrageNetzausschnitt",
+			"IntegrationRadwegeDB", "IntegrationDlm", "AbfrageNetzausschnitt",
 			"AbfrageSignatur", "Application")
 		.whereLayer("ImportRadnetz")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationAttributAbbildung", "IntegrationRadnetz",
-			"IntegrationRadwegeDB",
-			"IntegrationGrundnetz", "Application")
+			"IntegrationRadwegeDB", "Application")
 		.whereLayer("ImportTtsib")
 		.mayOnlyBeAccessedByLayers("Matching", "IntegrationAttributAbbildung", "IntegrationRadnetz",
-			"IntegrationRadwegeDB",
-			"IntegrationGrundnetz", "Application")
+			"IntegrationRadwegeDB", "Application")
 		.whereLayer("ImportCommon")
 		.mayOnlyBeAccessedByLayers("ImportTtsib", "ImportRadnetz", "ImportGrundnetz", "Matching",
 			"IntegrationAttributAbbildung", "IntegrationRadnetz", "IntegrationRadwegeDB",
-			"IntegrationGrundnetz", "IntegrationGrundnetzReimport", "ManuellerImportNetzzugehoerigkeit",
+			"IntegrationDlm", "ManuellerImportNetzzugehoerigkeit",
 			"ManuellerImportAttributeImport", "ManuellerImportCommon",
 			"Application")
 		.whereLayer("Organisation")
 		.mayOnlyBeAccessedByLayers("Netz", "Matching", "IntegrationAttributAbbildung", "IntegrationRadnetz",
-			"IntegrationRadwegeDB", "IntegrationGrundnetz", "ManuellerImportNetzzugehoerigkeit",
+			"IntegrationRadwegeDB", "ManuellerImportNetzzugehoerigkeit",
 			"ManuellerImportAttributeImport", "ManuellerImportMassnahmenImport", "ManuellerImportCommon",
 			"AbfrageNetzausschnitt", "AbfrageSignatur", "Application", "Benutzer", "AbfrageAuswertung",
 			"Authentication", "BasicAuthentication", "Massnahme", "Barriere", "FurtKreuzung", "Fahrradroute",
@@ -313,18 +319,18 @@ public class SchichtungTest {
 			"Abstellanlage", "Fahrradzaehlstelle")
 		.whereLayer("Benutzer")
 		.mayOnlyBeAccessedByLayers("Application", "Administration", "Authentication", "BasicAuthentication", "Netz",
-			"AbfrageNetzausschnitt",
-			"Fahrradroute", "Kommentar", "Dokument", "ManuellerImportCommon", "ManuellerImportAttributeImport",
-			"ManuellerImportMassnahmenImport", "ManuellerImportNetzzugehoerigkeit", "Massnahme", "WeitereKartenebenen",
-			"IntegrationRadnetz", "Netzfehler", "Auditing", "Common", "Barriere", "FurtKreuzung", "Servicestation",
-			"Abstellanlage", "Leihstation", "Matching")
+			"AbfrageNetzausschnitt", "Systemnachricht", "Fahrradroute", "Kommentar", "Dokument",
+			"ManuellerImportCommon", "ManuellerImportAttributeImport", "ManuellerImportMassnahmenImport",
+			"ManuellerImportNetzzugehoerigkeit", "Massnahme", "WeitereKartenebenen", "IntegrationRadnetz", "Netzfehler",
+			"Auditing", "Common", "Barriere", "FurtKreuzung", "Servicestation", "Abstellanlage", "Leihstation",
+			"Matching", "IntegrationDlm")
 		.whereLayer("Ortssuche").mayNotBeAccessedByAnyLayer()
 		.whereLayer("Karte").mayNotBeAccessedByAnyLayer()
 		.whereLayer("Kommentar").mayOnlyBeAccessedByLayers("Massnahme", "ManuellerImportMassnahmenImport", "Netzfehler")
 		.whereLayer("Dokument").mayOnlyBeAccessedByLayers("Massnahme", "ManuellerImportMassnahmenImport",
 			"Servicestation", "Abstellanlage")
-		.whereLayer("Barriere").mayOnlyBeAccessedByLayers("Matching")
-		.whereLayer("FurtKreuzung").mayNotBeAccessedByAnyLayer()
+		.whereLayer("Barriere").mayOnlyBeAccessedByLayers("Matching", "AbfrageFehlerprotokoll")
+		.whereLayer("FurtKreuzung").mayOnlyBeAccessedByLayers("AbfrageFehlerprotokoll")
 		.whereLayer("WegweisendeBeschilderung").mayOnlyBeAccessedByLayers("Application", "Konsistenzregeln")
 		.whereLayer("AbfrageStatistik").mayNotBeAccessedByAnyLayer()
 		.whereLayer("AbfrageAuswertung").mayNotBeAccessedByAnyLayer()
@@ -335,9 +341,13 @@ public class SchichtungTest {
 		.whereLayer("Abstellanlage").mayOnlyBeAccessedByLayers("AbfrageExport", "Application")
 		.whereLayer("Fahrradzaehlstelle").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("AbfrageExport").mayNotBeAccessedByAnyLayer()
-		.whereLayer("IntegrationGrundnetzReimport")
+		.whereLayer("IntegrationDlm")
+		.mayOnlyBeAccessedByLayers("Application", "AbfrageNetzausschnitt", "ManuellerImportCommon",
+			"AbfrageFehlerprotokoll")
+		.whereLayer("IntegrationOsm")
 		.mayOnlyBeAccessedByLayers("Application", "AbfrageNetzausschnitt", "ManuellerImportCommon")
-		.whereLayer("Fahrradroute").mayOnlyBeAccessedByLayers("Application", "AbfrageExport", "AbfrageFehlerprotokoll")
+		.whereLayer("Fahrradroute")
+		.mayOnlyBeAccessedByLayers("Application", "AbfrageExport", "AbfrageFehlerprotokoll", "Massnahme")
 		.whereLayer("Common").mayNotAccessAnyLayer() // right?
 		.whereLayer("BasicAuthentication").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("Authentication").mayOnlyBeAccessedByLayers("Application", "Auditing", "Benutzer")

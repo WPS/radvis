@@ -51,8 +51,8 @@ public class UmsetzungsstandEditView {
 	private final String anmerkung;
 	private final boolean canEdit;
 
-	public UmsetzungsstandEditView(Massnahme massnahme, boolean canEdit) {
-		this.canEdit = canEdit;
+	public UmsetzungsstandEditView(Massnahme massnahme, boolean isBerechtigtZuBearbeiten) {
+		this.canEdit = isBerechtigtZuBearbeiten && !massnahme.isArchiviert();
 		Umsetzungsstand umsetzungsstand = massnahme.getUmsetzungsstand().orElseThrow();
 
 		this.id = umsetzungsstand.getId();

@@ -18,6 +18,7 @@ import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { VerwaltungZugangsdatenService } from 'src/app/shared/services/verwaltung-zugangsdaten.service';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-verwaltung-zugangsdaten',
@@ -37,6 +38,7 @@ export class VerwaltungZugangsdatenComponent {
     private changeDetector: ChangeDetectorRef,
     private verwaltungZugangsdatenService: VerwaltungZugangsdatenService,
     private notifyUserService: NotifyUserService,
+    private matomoTracker: MatomoTracker,
     benutzerDetailsService: BenutzerDetailsService
   ) {
     this.benutzername = benutzerDetailsService.aktuellerBenutzerBasicAuthAnmeldename();
@@ -48,6 +50,8 @@ export class VerwaltungZugangsdatenComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Der Benutzer hat auf "Generieren" geklickt
+        this.matomoTracker.trackEvent('Zugangsdaten', 'Generieren', 'Basic-Auth-Token');
+
         this.isGeneratingPasswort = true;
         this.changeDetector.markForCheck();
 

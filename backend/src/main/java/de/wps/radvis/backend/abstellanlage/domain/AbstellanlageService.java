@@ -14,31 +14,20 @@
 
 package de.wps.radvis.backend.abstellanlage.domain;
 
-import java.util.Set;
-
-import org.springframework.security.core.Authentication;
-
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
-import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
-import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntityService;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
-import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
+@Transactional
 public class AbstellanlageService extends AbstractVersionierteEntityService<Abstellanlage> {
 
-	private final BenutzerResolver benutzerResolver;
-	private final ZustaendigkeitsService zustaendigkeitsService;
+	private AbstellanlageRepository repository;
 
-	public AbstellanlageService(AbstellanlageRepository repository,
-		BenutzerResolver benutzerResolver,
-		ZustaendigkeitsService zustaendigkeitsService) {
+	public AbstellanlageService(AbstellanlageRepository repository) {
 		super(repository);
-		this.benutzerResolver = benutzerResolver;
-		this.zustaendigkeitsService = zustaendigkeitsService;
+		this.repository = repository;
 	}
 
 	public Dokument getDokument(Long abstellanlageId, Long dokumentId) {
@@ -60,13 +49,7 @@ public class AbstellanlageService extends AbstractVersionierteEntityService<Abst
 		abstellanlage.deleteDokument(dokumentId);
 	}
 
-	public boolean darfBenutzerBearbeiten(Authentication authentication, Abstellanlage abstellanlage) {
-		AbstellanlagenQuellSystem quellSystem = abstellanlage.getQuellSystem();
-		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
-		Set<Recht> benutzerRechte = aktiverBenutzer.getRechte();
-
-		return quellSystem.equals(AbstellanlagenQuellSystem.RADVIS) &&
-			benutzerRechte.contains(Recht.SERVICEANGEBOTE_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN) &&
-			zustaendigkeitsService.istImZustaendigkeitsbereich(abstellanlage.getGeometrie(), aktiverBenutzer);
+	public Abstellanlage save(Abstellanlage abstellanlage) {
+		return repository.save(abstellanlage);
 	}
 }

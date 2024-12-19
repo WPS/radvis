@@ -21,4 +21,5 @@ import lombok.Getter;
 @Getter
 public class ExportInfrastrukturCommand {
 	private List<Long> ids;
+	private List<String> fieldsToExclude;
 }

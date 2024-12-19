@@ -62,6 +62,7 @@ import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Attribute
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.ImportLogEintrag;
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.Severity;
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
+import de.wps.radvis.backend.matching.domain.service.GrundnetzMappingService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
@@ -93,7 +94,7 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 		when(factory.create(any(Envelope.class), any(MultiPolygon.class))).thenReturn(inMemoryKantenRepository);
 
 		this.manuellerAttributeImportAbbildungsService = new ManuellerAttributeImportAbbildungsService(factory,
-			matchingService);
+			new GrundnetzMappingService(matchingService));
 	}
 
 	@Test
@@ -354,7 +355,7 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 			factory = new InMemoryKantenRepositoryFactory(kantenRepository);
 
 			manuellerAttributeImportAbbildungsService = new ManuellerAttributeImportAbbildungsService(
-				factory, simpleMatchingService);
+				factory, new GrundnetzMappingService(simpleMatchingService));
 		}
 
 		@Test

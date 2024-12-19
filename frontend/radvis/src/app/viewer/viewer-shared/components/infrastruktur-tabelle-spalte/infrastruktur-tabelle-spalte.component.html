@@ -1,0 +1,19 @@
+<ng-container [matColumnDef]="spaltenDefinition.name">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-' + width">
+    <span rad-filter-header class="header">{{ spaltenDefinition.displayName }}</span>
+  </th>
+  <td mat-cell *matCellDef="let element">
+    <ng-container
+      [ngTemplateOutlet]="cellTemplate ? cellTemplate : defaultCell"
+      [ngTemplateOutletContext]="{ element: element, name: spaltenDefinition.name }">
+    </ng-container>
+  </td>
+</ng-container>
+
+<ng-template #defaultCell let-element="element" let-name="name">
+  @if (expandable) {
+    <rad-expandable-content [content]="getElementValueFn(element, name)"></rad-expandable-content>
+  } @else {
+    {{ getElementValueFn(element, name) }}
+  }
+</ng-template>

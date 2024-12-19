@@ -95,13 +95,18 @@ public class FahrtrichtungAttributGruppe extends VersionierteEntity {
 			.isZweiseitig(false);
 	}
 
-	public void setRichtung(Richtung links, Richtung rechts) {
+	public void update(Richtung links, Richtung rechts) {
 		require(isValid(links, rechts, isZweiseitig()));
 
 		this.fahrtrichtungLinks = links;
 		this.fahrtrichtungRechts = rechts;
 	}
 
+	/**
+	 * @deprecated
+	 * @param richtung
+	 */
+	@Deprecated
 	public void setRichtung(Richtung richtung) {
 		require(richtung, notNullValue());
 

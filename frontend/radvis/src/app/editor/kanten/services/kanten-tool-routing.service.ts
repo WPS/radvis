@@ -24,6 +24,7 @@ import { KantenVerlaufEditorComponent } from 'src/app/editor/kanten/components/k
 import { KantenZustaendigkeitEditorComponent } from 'src/app/editor/kanten/components/kanten-zustaendigkeit-editor/kanten-zustaendigkeit-editor.component';
 import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
 import { kantenSelektionResetGuard } from 'src/app/editor/kanten/services/kanten-selektion-reset.guard';
+import { netzklassenFilterResetGuard } from 'src/app/editor/kanten/services/netzklassen-filter-reset.guard';
 
 @Injectable({
   providedIn: 'root',
@@ -71,6 +72,7 @@ export class KantenToolRoutingService {
       {
         path: EditorRoutingService.EDITOR_CREATE_SUBROUTE,
         component: KantenCreatorComponent,
+        canDeactivate: [netzklassenFilterResetGuard],
       },
     ];
   }

@@ -31,6 +31,7 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.ZustaendigkeitAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
 
@@ -132,8 +133,7 @@ class LinearReferenzierteAttributeTest {
 				LinearReferenzierterAbschnitt.of(0, 0.3),
 				LinearReferenzierterAbschnitt.of(0.3, 0.5),
 				LinearReferenzierterAbschnitt.of(0.5, 0.8),
-				LinearReferenzierterAbschnitt.of(0.8, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0.8, 1.));
 
 		assertAttributeSindSortiertUndCovernFullLine(result);
 	}
@@ -162,15 +162,14 @@ class LinearReferenzierteAttributeTest {
 
 		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute
 			.defragmentiereLinearReferenzierteAttribute(
-				attribute, 10, 1);
+				attribute, Laenge.of(10), Laenge.of(1.0));
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 			.usingComparatorForType(LineareReferenzTestProvider.lenientComparator, LinearReferenzierterAbschnitt.class)
 			.containsExactly(
 				LinearReferenzierterAbschnitt.of(0, 0.2),
-				LinearReferenzierterAbschnitt.of(0.2, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0.2, 1.));
 
 		assertThat(defragmentiert.stream().map(ZustaendigkeitAttribute::getVereinbarungsKennung)
 			.map(Optional::get).collect(Collectors.toList()))
@@ -192,14 +191,13 @@ class LinearReferenzierteAttributeTest {
 
 		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute
 			.defragmentiereLinearReferenzierteAttribute(
-				attribute, 10, 1);
+				attribute, Laenge.of(10), Laenge.of(1.0));
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 			.usingComparatorForType(LineareReferenzTestProvider.lenientComparator, LinearReferenzierterAbschnitt.class)
 			.containsExactly(
-				LinearReferenzierterAbschnitt.of(0, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0, 1.));
 
 		assertThat(defragmentiert.stream().map(ZustaendigkeitAttribute::getVereinbarungsKennung)
 			.map(Optional::get).collect(Collectors.toList()))
@@ -221,14 +219,13 @@ class LinearReferenzierteAttributeTest {
 
 		List<ZustaendigkeitAttribute> defragmentiert = LinearReferenzierteAttribute
 			.defragmentiereLinearReferenzierteAttribute(
-				attribute, 10, 1);
+				attribute, Laenge.of(10), Laenge.of(1.0));
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
 			.usingComparatorForType(LineareReferenzTestProvider.lenientComparator, LinearReferenzierterAbschnitt.class)
 			.containsExactly(
-				LinearReferenzierterAbschnitt.of(0, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0, 1.));
 
 		assertThat(defragmentiert.stream().map(ZustaendigkeitAttribute::getVereinbarungsKennung)
 			.map(Optional::get).collect(Collectors.toList()))
@@ -259,7 +256,7 @@ class LinearReferenzierteAttributeTest {
 
 		List<FuehrungsformAttribute> defragmentiert = LinearReferenzierteAttribute
 			.defragmentiereLinearReferenzierteAttribute(
-				attribute, 10, 1);
+				attribute, Laenge.of(10), Laenge.of(1.0));
 
 		assertThat(defragmentiert)
 			.extracting(LinearReferenzierteAttribute::getLinearReferenzierterAbschnitt)
@@ -268,8 +265,7 @@ class LinearReferenzierteAttributeTest {
 				LinearReferenzierterAbschnitt.of(0, 0.175),
 				LinearReferenzierterAbschnitt.of(0.175, 0.4),
 				LinearReferenzierterAbschnitt.of(0.4, 0.64),
-				LinearReferenzierterAbschnitt.of(0.64, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0.64, 1.));
 
 		assertThat(defragmentiert.stream().map(FuehrungsformAttribute::getBelagArt))
 			.containsExactly(BelagArt.BETON, BelagArt.ASPHALT, BelagArt.BETON, BelagArt.ASPHALT);
@@ -299,13 +295,13 @@ class LinearReferenzierteAttributeTest {
 			.vereinbarungsKennung(VereinbarungsKennung.of("456")).build());
 
 		assertThatThrownBy(() -> LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attributeStueckAmAnfangFehlt, 10, 1)).isInstanceOf(RequireViolation.class);
+			attributeStueckAmAnfangFehlt, Laenge.of(10), Laenge.of(1.0))).isInstanceOf(RequireViolation.class);
 		assertThatThrownBy(() -> LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attributeStueckAmEndeFehlt, 10, 1)).isInstanceOf(RequireViolation.class);
+			attributeStueckAmEndeFehlt, Laenge.of(10), Laenge.of(1.0))).isInstanceOf(RequireViolation.class);
 		assertThatThrownBy(() -> LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			attributeMitIntersection, 10, 1)).isInstanceOf(RequireViolation.class);
+			attributeMitIntersection, Laenge.of(10), Laenge.of(1.0))).isInstanceOf(RequireViolation.class);
 		assertThatThrownBy(() -> LinearReferenzierteAttribute.defragmentiereLinearReferenzierteAttribute(
-			new ArrayList<>(), 10, 1)).isInstanceOf(RequireViolation.class);
+			new ArrayList<>(), Laenge.of(10), Laenge.of(1.0))).isInstanceOf(RequireViolation.class);
 	}
 
 	@Test
@@ -334,8 +330,7 @@ class LinearReferenzierteAttributeTest {
 			.containsExactly(
 				LinearReferenzierterAbschnitt.of(0, 0.5),
 				LinearReferenzierterAbschnitt.of(0.5, 0.8),
-				LinearReferenzierterAbschnitt.of(0.8, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0.8, 1.));
 
 		assertAttributeSindSortiertUndCovernFullLine(result);
 	}
@@ -365,8 +360,7 @@ class LinearReferenzierteAttributeTest {
 			.containsExactly(
 				LinearReferenzierterAbschnitt.of(0, 0.3),
 				LinearReferenzierterAbschnitt.of(0.3, 0.5),
-				LinearReferenzierterAbschnitt.of(0.5, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0.5, 1.));
 
 		assertAttributeSindSortiertUndCovernFullLine(result);
 	}
@@ -396,8 +390,7 @@ class LinearReferenzierteAttributeTest {
 			.containsExactly(
 				LinearReferenzierterAbschnitt.of(0, 0.4999),
 				LinearReferenzierterAbschnitt.of(0.4999, 0.5),
-				LinearReferenzierterAbschnitt.of(0.5, 1.)
-			);
+				LinearReferenzierterAbschnitt.of(0.5, 1.));
 
 		assertAttributeSindSortiertUndCovernFullLine(result);
 	}

@@ -66,16 +66,18 @@ import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
+import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
+import de.wps.radvis.backend.massnahme.domain.MassnahmenConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandabfrageService;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandsabfrageConfigurationProperties;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
 import de.wps.radvis.backend.massnahme.schnittstelle.CreateMassnahmeCommandConverter;
@@ -85,6 +87,7 @@ import de.wps.radvis.backend.massnahme.schnittstelle.SaveMassnahmeCommandConvert
 import de.wps.radvis.backend.massnahme.schnittstelle.SaveUmsetzungsstandCommandConverter;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
@@ -121,7 +124,9 @@ import lombok.NonNull;
 	MailConfigurationProperties.class,
 	UmsetzungsstandsabfrageConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	MassnahmenConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class MassnahmeAuditingTestIT extends AuditingTestIT {
 
@@ -166,6 +171,12 @@ class MassnahmeAuditingTestIT extends AuditingTestIT {
 		@MockBean
 		VerwaltungseinheitService verwaltungseinheitService;
 
+		@MockBean
+		FahrradrouteRepository fahrradrouteRepository;
+
+		@MockBean
+		private CsvRepository csvRepository;
+
 		@Bean
 		public MassnahmeController massnahmeController() {
 			Mockito.when(benutzerResolver.fromAuthentication(Mockito.any()))
@@ -173,11 +184,16 @@ class MassnahmeAuditingTestIT extends AuditingTestIT {
 					BenutzerTestDataProvider.admin(
 						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
-			return new MassnahmeController(massnahmeService, umsetzungsstandabfrageService,
+			return new MassnahmeController(
+				massnahmeService,
+				umsetzungsstandabfrageService,
 				createMassnahmeCommandConverter,
-				saveMassnahmeCommandConverter, saveUmsetzungsstandCommandConverter,
+				saveMassnahmeCommandConverter,
+				saveUmsetzungsstandCommandConverter,
 				massnahmeAuthorizationService,
-				benutzerResolver, verwaltungseinheitService);
+				benutzerResolver,
+				verwaltungseinheitService,
+				csvRepository);
 		}
 
 	}

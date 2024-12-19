@@ -14,6 +14,8 @@
 
 import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { WegweisendeBeschilderungListenView } from 'src/app/viewer/wegweisende-beschilderung/models/wegweisende-beschilderung-listen-view';
 import { WegweisendeBeschilderungFilterService } from 'src/app/viewer/wegweisende-beschilderung/services/wegweisende-beschilderung-filter.service';
@@ -34,27 +36,31 @@ import { WegweisendeBeschilderungRoutingService } from 'src/app/viewer/wegweisen
 export class WegweisendeBeschilderungTabelleComponent {
   selectedBeschilderungsId$: Observable<number | null>;
 
-  displayedColumns: string[] = [
-    'pfostenNr',
-    'wegweiserTyp',
-    'pfostenTyp',
-    'zustandsbewertung',
-    'pfostenzustand',
-    'pfostendefizit',
-    'gemeinde',
-    'kreis',
-    'land',
-    'zustaendig',
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'pfostenNr', displayName: 'Pfostennummer' },
+    { name: 'wegweiserTyp', displayName: 'Wegweisertyp', width: 'large' },
+    { name: 'pfostenTyp', displayName: 'Pfostentyp', width: 'large' },
+    { name: 'zustandsbewertung', displayName: 'Zustandsbewertung' },
+    { name: 'pfostenzustand', displayName: 'Pfostenzustand' },
+    { name: 'pfostendefizit', displayName: 'Pfostendefizit', width: 'large' },
+    { name: 'gemeinde', displayName: 'Gemeinde', width: 'large' },
+    { name: 'kreis', displayName: 'Kreis', width: 'large' },
+    { name: 'land', displayName: 'Land', width: 'large' },
+    { name: 'zustaendig', displayName: 'Zuständige Organisation' },
   ];
 
   data$: Observable<WegweisendeBeschilderungListenView[]>;
   isSmallViewport = false;
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public wegweisendeBeschilderungFilterService: WegweisendeBeschilderungFilterService,
     private wegweisendeBeschilderungRoutingService: WegweisendeBeschilderungRoutingService
   ) {
     this.data$ = this.wegweisendeBeschilderungFilterService.filteredList$;
+    this.filteredSpalten$ = this.wegweisendeBeschilderungFilterService.filter$.pipe(
+      map(filteredFields => filteredFields.map(f => f.field))
+    );
     this.selectedBeschilderungsId$ = wegweisendeBeschilderungRoutingService.selectedInfrastrukturId$;
   }
 

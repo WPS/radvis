@@ -14,17 +14,17 @@
 
 /* eslint-disable @typescript-eslint/dot-notation */
 import { ChangeDetectorRef } from '@angular/core';
+import { fakeAsync, flush, tick } from '@angular/core/testing';
 import { UntypedFormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-import { ViewerModule } from 'src/app/viewer/viewer.module';
-import { anything, capture, instance, mock, when } from 'ts-mockito';
 import { RoutingProfileVerwaltenDialogComponent } from 'src/app/viewer/fahrradroute/components/routing-profile-verwalten-dialog/routing-profile-verwalten-dialog.component';
 import { CustomRoutingProfile } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
 import { RoutingProfileService } from 'src/app/viewer/fahrradroute/services/routing-profile.service';
-import { fakeAsync, flush, tick } from '@angular/core/testing';
+import { ViewerModule } from 'src/app/viewer/viewer.module';
+import { anything, capture, instance, mock, when } from 'ts-mockito';
 
 describe(RoutingProfileVerwaltenDialogComponent.name, () => {
   let component: RoutingProfileVerwaltenDialogComponent;

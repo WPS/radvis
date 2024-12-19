@@ -83,8 +83,8 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteTyp;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.VarianteKategorie;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilMatchResult;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -138,12 +138,15 @@ public class LandesradfernwegeVariantenTfisImportJobTestIT extends DBIntegration
 		ShapeFileRepository shapeFileRepository;
 		@MockBean
 		DlmMatchingRepository dlmMatchingRepository;
+		@PersistenceContext
+		EntityManager entityManager;
 
 		@Bean
 		NetzService netzService() {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
-				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver);
+				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
+				entityManager, 1.0);
 		}
 
 		@Bean

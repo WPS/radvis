@@ -12,6 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+@import 'src/style/colors';
+
 .filter-icon {
   margin: 0;
 }
@@ -40,7 +42,7 @@
   }
 
   &.hovered:not(.aktiv) {
-    opacity: 1;
+    opacity: 0.5;
   }
 }
 
@@ -52,9 +54,13 @@
   display: none;
 }
 
-.mat-icon-button-small {
+button[matSuffix] {
   padding: 0;
   width: 1.5rem;
   height: 1.5rem;
   transform: scale(0.9);
+
+  mat-icon {
+    color: map-get($grayscale, 600);
+  }
 }

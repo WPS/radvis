@@ -34,7 +34,6 @@ import org.springframework.data.domain.Slice;
 import com.google.common.collect.Lists;
 
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.dbView.KanteOsmMatchWithAttribute;
@@ -60,14 +59,9 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 
 	private final FeatureToggleProperties featureToggleProperties;
 
-	private final PostgisConfigurationProperties postgisConfigurationProperties;
-
-	public CustomKantenRepositoryImpl(FeatureToggleProperties featureToggleProperties,
-		PostgisConfigurationProperties postgisConfigurationProperties) {
+	public CustomKantenRepositoryImpl(FeatureToggleProperties featureToggleProperties) {
 		require(featureToggleProperties, notNullValue());
-		require(postgisConfigurationProperties, notNullValue());
 		this.featureToggleProperties = featureToggleProperties;
-		this.postgisConfigurationProperties = postgisConfigurationProperties;
 	}
 
 	@Override
@@ -368,7 +362,8 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	@Override
 	public List<KanteGeometryView> getFuerOsmAbbildungRelevanteKanten(Envelope envelope) {
 		Polygon bereich = EnvelopeAdapter.toPolygon(envelope, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-		// Relevant bedeutet, dass die Kanten in den, fuer die OSM-Ausleitung relevanten Attributen, vom Default abweichen
+		// Relevant bedeutet, dass die Kanten in den, fuer die OSM-Ausleitung relevanten Attributen, vom Default
+		// abweichen
 
 		String hqlString = """
 			SELECT new de.wps.radvis.backend.netz.domain.entity.KanteGeometryView(k.id, k.geometry)
@@ -454,13 +449,12 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 			(Long) objects[1], // osmWayId
 			(String) objects[2], // Status name des Enums
 			(String) objects[3], // netzklassen ; separiert zu String gejoint
-			(String) objects[4],// Radverkehrsfuehrung name des Enums
+			(String) objects[4], // Radverkehrsfuehrung name des Enums
 			objects[5] != null ? ((BigDecimal) objects[5]).doubleValue() : null, // Breite
-			(String) objects[6],// BelagArt name des Enums
+			(String) objects[6], // BelagArt name des Enums
 			(String) objects[7], // Oberflaechenbeschaffenheit name des Enums
 			(Boolean) objects[8] // DRoutenzugehörigkeit
-		)
-		);
+		));
 	}
 
 	@Override
@@ -495,8 +489,7 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 			"geoserver_balm_knoten_view",
 			"geoserver_balm_kanten_view",
 			"geoserver_balm_fahrradrouten_view",
-			"geoserver_balm_wegweisende_beschilderung_view"
-		);
+			"geoserver_balm_wegweisende_beschilderung_view");
 		materializedViews.forEach(materializedView -> {
 			log.info("Refreshing Materialized View {}", materializedView);
 			entityManager.createNativeQuery("REFRESH MATERIALIZED VIEW " + materializedView).executeUpdate();

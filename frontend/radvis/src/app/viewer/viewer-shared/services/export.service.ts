@@ -32,11 +32,16 @@ export class ExportService {
     private notifyUserService: NotifyUserService
   ) {}
 
-  public exportInfrastruktur(typ: string, format: ExportFormat, filteredIds: number[]): Promise<void> {
+  public exportInfrastruktur(
+    typ: string,
+    format: ExportFormat,
+    filteredIds: number[],
+    fieldsToExclude: string[] = []
+  ): Promise<void> {
     return this.http
       .post<Blob>(
         `${this.api}/${format}/infrastruktur/${typ}`,
-        { ids: filteredIds },
+        { ids: filteredIds, fieldsToExclude },
         {
           responseType: 'blob' as 'json',
           observe: 'response',

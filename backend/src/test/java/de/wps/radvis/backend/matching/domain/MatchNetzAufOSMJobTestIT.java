@@ -59,6 +59,8 @@ import de.wps.radvis.backend.matching.domain.entity.OsmAbbildungsFehler;
 import de.wps.radvis.backend.matching.domain.exception.GeometryLaengeMismatchException;
 import de.wps.radvis.backend.matching.domain.exception.GeometryZuWeitEntferntException;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.OsmAbbildungsFehlerRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.service.MatchingJobProtokollService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
 import de.wps.radvis.backend.matching.domain.valueObject.LinearReferenziertesOsmMatchResult;

@@ -374,4 +374,157 @@
       <column name="bemerkung" type="TEXT"/>
     </addColumn>
   </changeSet>
+
+  <changeSet id="RAD-6619" author="was">
+    <addColumn tableName="benutzer">
+      <column name="ablaufdatum" type="DATE"/>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-6637" author="mr">
+    <createTable tableName="systemnachricht">
+      <column name="id" type="bigint"></column>
+      <column name="text" type="text"></column>
+      <column name="vom" type="date"></column>
+    </createTable>
+  </changeSet>
+  
+  <changeSet id="RAD-6611" author="mr">
+  	<addColumn tableName="massnahme">
+  	  <column name="archiviert" type="boolean"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-6611_2" author="mr">
+  	<addColumn tableName="massnahme_aud">
+  	  <column name="archiviert" type="boolean"></column>
+  	</addColumn>
+  	<sql>UPDATE massnahme SET archiviert=false</sql>
+  	<sql>UPDATE massnahme_aud SET archiviert=false</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-6611_3" author="mr">
+  	<addColumn tableName="massnahme">
+  	  <column name="netzbezug_snapshot_lines" type="geometry"></column>
+  	  <column name="netzbezug_snapshot_points" type="geometry"></column>
+  	</addColumn>
+  	<addColumn tableName="massnahme_aud">
+  	  <column name="netzbezug_snapshot_lines" type="geometry"></column>
+  	  <column name="netzbezug_snapshot_points" type="geometry"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-6925" author="mr">
+    <sql>
+      INSERT INTO gt_pk_metadata (table_schema, table_name, pk_column)
+      VALUES('public', 'geoserver_fahrradzaehlstelle_view', 'betreiber_eigene_id');
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-7160_1" author="hst">
+    <!-- Etwas aufräumen bei den anderen Tabellen -->
+    <sql>
+      ALTER TABLE fahrradroute_netz_bezug_aenderung RENAME CONSTRAINT fk_fahrradroute_netz_bezug_aenderung_massnahme_id TO fk_fahrradroute_netz_bezug_aenderung_fahrradroute_id;
+      ALTER INDEX fk_fahrradroute_netz_bezug_aenderung_massnahme_idx RENAME TO fahrradroute_netz_bezug_aenderung_fahrradroute_id_idx;
+      ALTER INDEX fk_fahrradroute_netz_bezug_aenderung_benutzer_idx RENAME TO fahrradroute_netz_bezug_aenderung_benutzer_id_idx;
+    </sql>
+  </changeSet>
+
+  <changeSet id="RAD-7160_2" author="hst">
+    <!-- Fehlerprotokolleinträge für Barrieren  -->
+    <createTable tableName="barriere_netz_bezug_aenderung">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="barriere_netz_bezug_aenderung_pkey"/>
+      </column>
+      <column name="netz_bezug_aenderungs_art" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="netz_entity_id" type="bigint"/>
+      <column name="barriere_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="benutzer_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="datum" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ausloeser" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="geometry" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="barriere_netz_bezug_aenderung" baseColumnNames="barriere_id"
+      constraintName="fk_barriere_netz_bezug_aenderung_barriere_id"
+      referencedTableName="barriere"
+      referencedColumnNames="id"/>
+    <createIndex tableName="barriere_netz_bezug_aenderung"
+      indexName="barriere_netz_bezug_aenderung_idx">
+      <column name="barriere_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="barriere_netz_bezug_aenderung" baseColumnNames="benutzer_id"
+      constraintName="fk_barriere_netz_bezug_aenderung_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+    <createIndex tableName="barriere_netz_bezug_aenderung"
+      indexName="barriere_netz_bezug_aenderung_benutzer_idx">
+      <column name="benutzer_id"/>
+    </createIndex>
+    <createIndex tableName="barriere_netz_bezug_aenderung"
+      indexName="barriere_netz_bezug_aenderung_geometry_idx">
+      <column name="geometry"/>
+    </createIndex>
+
+    <!-- Fehlerprotokolleinträge für Furten/Kreuzungen  -->
+    <createTable tableName="furt_kreuzung_netz_bezug_aenderung">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"
+          primaryKeyName="furt_kreuzung_netz_bezug_aenderung_pkey"/>
+      </column>
+      <column name="netz_bezug_aenderungs_art" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="netz_entity_id" type="bigint"/>
+      <column name="furt_kreuzung_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="benutzer_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="datum" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ausloeser" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="geometry" type="GEOMETRY">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="furt_kreuzung_netz_bezug_aenderung" baseColumnNames="furt_kreuzung_id"
+      constraintName="fk_furt_kreuzung_netz_bezug_aenderung_furt_kreuzung_id"
+      referencedTableName="furt_kreuzung"
+      referencedColumnNames="id"/>
+    <createIndex tableName="furt_kreuzung_netz_bezug_aenderung"
+      indexName="furt_kreuzung_netz_bezug_aenderung_idx">
+      <column name="furt_kreuzung_id"/>
+    </createIndex>
+    <addForeignKeyConstraint baseTableName="furt_kreuzung_netz_bezug_aenderung" baseColumnNames="benutzer_id"
+      constraintName="fk_furt_kreuzung_netz_bezug_aenderung_benutzer_id"
+      referencedTableName="benutzer"
+      referencedColumnNames="id"/>
+    <createIndex tableName="furt_kreuzung_netz_bezug_aenderung"
+      indexName="furt_kreuzung_netz_bezug_aenderung_benutzer_idx">
+      <column name="benutzer_id"/>
+    </createIndex>
+    <createIndex tableName="furt_kreuzung_netz_bezug_aenderung"
+      indexName="furt_kreuzung_netz_bezug_aenderung_geometry_idx">
+      <column name="geometry"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>

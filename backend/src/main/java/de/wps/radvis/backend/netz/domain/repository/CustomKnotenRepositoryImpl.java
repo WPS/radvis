@@ -134,16 +134,6 @@ public class CustomKnotenRepositoryImpl implements CustomKnotenRepository {
 	}
 
 	@Override
-	public int deleteVerwaisteDLMKnoten() {
-		return entityManager.createQuery(
-			"delete from Knoten knoten where " + IS_VERWAISTER_DLM_KNOTEN_CLAUSE
-				+ "	 and knoten.quelle = :dlmQuelle")
-			.setParameter("dlmQuelle", QuellSystem.DLM)
-			.setParameter("radvisQuelle", QuellSystem.RadVis)
-			.executeUpdate();
-	}
-
-	@Override
 	public List<Knoten> findVerwaisteDLMKnoten() {
 		return entityManager.createQuery(
 			"SELECT knoten from Knoten knoten where " + IS_VERWAISTER_DLM_KNOTEN_CLAUSE

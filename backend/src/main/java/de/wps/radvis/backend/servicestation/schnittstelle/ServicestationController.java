@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,55 +41,37 @@ import de.wps.radvis.backend.common.domain.exception.CsvReadException;
 import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
-import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.dokument.schnittstelle.view.DokumenteView;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.servicestation.domain.ServicestationImportService;
 import de.wps.radvis.backend.servicestation.domain.ServicestationRepository;
 import de.wps.radvis.backend.servicestation.domain.ServicestationService;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/servicestation")
 @AllArgsConstructor
-@Transactional
+// kein @Transactional am Controller, da sonst Optimistic Locking für save nicht funktioniert
 public class ServicestationController {
 	private final ServicestationRepository repository;
 	private final ServicestationService service;
 	private final CsvRepository csvRepository;
 	private final ServicestationImportService servicestationImportService;
-	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 	private final BenutzerResolver benutzerResolver;
 	private final ServicestationGuard servicestationGuard;
+	private final SaveServicestationCommandConverter saveServicestationCommandConverter;
 
 	@PostMapping("new")
 	@WithAuditing(context = AuditingContext.SAVE_SERVICESTATION_COMMAND)
 	public Long create(@RequestBody @Valid SaveServicestationCommand command, Authentication authentication) {
 		servicestationGuard.create(command, authentication);
 
-		Servicestation servicestation = new Servicestation(
-			(Point) command.getGeometrie(),
-			command.getName(),
-			command.getGebuehren(),
-			command.getOeffnungszeiten(),
-			command.getBetreiber(),
-			command.getMarke(),
-			command.getLuftpumpe(),
-			command.getKettenwerkzeug(),
-			command.getWerkzeug(),
-			command.getFahrradhalterung(),
-			command.getBeschreibung(),
-			verwaltungseinheitResolver.resolve(command.getOrganisationId()),
-			command.getTyp(),
-			command.getStatus(),
-			new DokumentListe());
-		return repository.save(servicestation).getId();
+		Servicestation servicestation = service.save(saveServicestationCommandConverter.convert(command));
+		return servicestation.getId();
 	}
 
 	@PostMapping("{id}")
@@ -100,44 +81,32 @@ public class ServicestationController {
 		servicestationGuard.save(id, command, authentication);
 
 		Servicestation servicestation = service.loadForModification(id, command.getVersion());
-		servicestation.updateAttribute(
-			(Point) command.getGeometrie(),
-			command.getName(),
-			command.getGebuehren(),
-			command.getOeffnungszeiten(),
-			command.getBetreiber(),
-			command.getMarke(),
-			command.getLuftpumpe(),
-			command.getKettenwerkzeug(),
-			command.getWerkzeug(),
-			command.getFahrradhalterung(),
-			command.getBeschreibung(),
-			verwaltungseinheitResolver.resolve(command.getOrganisationId()),
-			command.getTyp(),
-			command.getStatus()
-		);
-		return new ServicestationView(repository.save(servicestation),
-			service.darfBenutzerBearbeiten(authentication, servicestation));
+
+		saveServicestationCommandConverter.apply(command, servicestation);
+
+		return new ServicestationView(service.save(servicestation),
+			servicestationGuard.darfBenutzerBearbeiten(authentication, servicestation));
 	}
 
 	@GetMapping("")
-	public Stream<ServicestationView> getAll(Authentication authentication) {
+	public Stream<ServicestationListView> getAll(Authentication authentication) {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
-			.map(servicestation -> new ServicestationView(servicestation,
-				service.darfBenutzerBearbeiten(authentication, servicestation)));
+			.map(ServicestationListView::new);
 	}
 
 	@GetMapping("{id}")
 	public ServicestationView get(@PathVariable Long id, Authentication authentication) {
 		Servicestation servicestation = repository.findById(id).orElseThrow(EntityNotFoundException::new);
-		return new ServicestationView(servicestation, service.darfBenutzerBearbeiten(authentication, servicestation));
+		return new ServicestationView(servicestation,
+			servicestationGuard.darfBenutzerBearbeiten(authentication, servicestation));
 	}
 
 	@GetMapping("{servicestationId}/dokumentliste")
 	public DokumenteView getDokumentListe(@PathVariable("servicestationId") Long servicestationId) {
 		return new DokumenteView(
 			repository.findById(servicestationId).orElseThrow(EntityNotFoundException::new).getDokumentListe()
-				.getDokumente(), true);
+				.getDokumente(),
+			true);
 	}
 
 	@GetMapping("{servicestationId}/dokument/{dokumentId}")
@@ -173,8 +142,7 @@ public class ServicestationController {
 				command.getFilename(),
 				benutzerResolver.fromAuthentication(authentication),
 				file.getBytes(),
-				LocalDateTime.now())
-		);
+				LocalDateTime.now()));
 	}
 
 	@DeleteMapping("{servicestationId}/dokument/{dokumentId}")

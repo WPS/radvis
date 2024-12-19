@@ -79,17 +79,16 @@ public abstract class Verwaltungseinheit extends VersionierteEntity {
 		return Optional.ofNullable(uebergeordneteOrganisation);
 	}
 
-	public PreparedGeometry getBereichBuffer(int bufferInMeter) {
+	public Optional<PreparedGeometry> getBereichBuffer(int bufferInMeter) {
 		if (bereichBuffer == null && getBereich().isPresent()) {
 			bereichBuffer = PreparedGeometryFactory.prepare(getBereich().get().buffer(bufferInMeter));
 		}
-		return bereichBuffer;
+		return Optional.ofNullable(bereichBuffer);
 	}
 
-	public Geometry getBereichBufferSimplified(int bufferInMeter, int toleranceInMeter) {
-		Geometry simplifiedGeometry = TopologyPreservingSimplifier
-			.simplify(getBereichBuffer(bufferInMeter).getGeometry(), toleranceInMeter);
-		return simplifiedGeometry;
+	public Optional<Geometry> getBereichBufferSimplified(int bufferInMeter, int toleranceInMeter) {
+		return getBereichBuffer(bufferInMeter).map(buffer -> TopologyPreservingSimplifier
+			.simplify(buffer.getGeometry(), toleranceInMeter));
 	}
 
 	public abstract Optional<MultiPolygon> getBereich();

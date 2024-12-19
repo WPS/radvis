@@ -13,6 +13,9 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { AbstractEventTrackedEditor } from 'src/app/form-elements/components/abstract-event-tracked-editor';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'rad-kanten-attribute-editor-mit-subauswahl',
@@ -23,7 +26,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KantenAttributeEditorMitSubauswahlComponent {
+export class KantenAttributeEditorMitSubauswahlComponent extends AbstractEventTrackedEditor {
   @Input()
   dirty = false;
 
@@ -42,6 +45,10 @@ export class KantenAttributeEditorMitSubauswahlComponent {
   @Output()
   save = new EventEmitter<void>();
 
+  constructor(matomoTracker: MatomoTracker, activatedRoute: ActivatedRoute) {
+    super(matomoTracker, activatedRoute);
+  }
+
   onClose(): void {
     this.dismiss.next();
   }
@@ -51,6 +58,7 @@ export class KantenAttributeEditorMitSubauswahlComponent {
   }
 
   onSave(): void {
+    this.trackSpeichernEvent();
     this.save.next();
   }
 }

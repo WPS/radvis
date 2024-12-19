@@ -43,7 +43,7 @@ class FahrradrouteVarianteTest {
 			.abschnittsweiserKantenBezug(alleBezuege).build();
 
 		// act
-		variante.removeKanteFromNetzbezug(2L);
+		variante.removeKantenFromNetzbezug(List.of(2L));
 
 		// assert
 		assertThat(variante.getAbschnittsweiserKantenBezug()).containsExactly(bezug1, bezug3);

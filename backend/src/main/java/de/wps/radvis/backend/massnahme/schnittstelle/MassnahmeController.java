@@ -15,14 +15,13 @@
 package de.wps.radvis.backend.massnahme.schnittstelle;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.joda.time.LocalDate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,19 +34,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.opencsv.CSVWriter;
-
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.common.domain.CSVEncodingUtility;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.dokument.schnittstelle.view.DokumenteView;
@@ -57,17 +53,16 @@ import de.wps.radvis.backend.kommentar.schnittstelle.AddKommentarCommand;
 import de.wps.radvis.backend.kommentar.schnittstelle.view.KommentarView;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandabfrageService;
-import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
 import de.wps.radvis.backend.massnahme.schnittstelle.view.MassnahmeEditView;
 import de.wps.radvis.backend.massnahme.schnittstelle.view.MassnahmeListenView;
 import de.wps.radvis.backend.massnahme.schnittstelle.view.MassnahmeToolView;
+import de.wps.radvis.backend.massnahme.schnittstelle.view.UmsetzungsstandAbfrageVorschauView;
 import de.wps.radvis.backend.massnahme.schnittstelle.view.UmsetzungsstandEditView;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -85,6 +80,7 @@ public class MassnahmeController {
 	private final MassnahmeGuard massnahmeGuard;
 	private final BenutzerResolver benutzerResolver;
 	private final VerwaltungseinheitService verwaltungseinheitService;
+	private final CsvRepository csvRepository;
 
 	public MassnahmeController(
 		@NonNull MassnahmeService massnahmeService,
@@ -94,7 +90,9 @@ public class MassnahmeController {
 		@NonNull SaveUmsetzungsstandCommandConverter saveUmsetzungsstandCommandConverter,
 		@NonNull MassnahmeGuard massnahmeGuard,
 		@NonNull BenutzerResolver benutzerResolver,
-		@NonNull VerwaltungseinheitService verwaltungseinheitService) {
+		@NonNull VerwaltungseinheitService verwaltungseinheitService,
+		@NonNull CsvRepository csvRepository) {
+		this.csvRepository = csvRepository;
 		this.massnahmeService = massnahmeService;
 		this.umsetzungsstandabfrageService = umsetzungsstandabfrageService;
 		this.createMassnahmeCommandConverter = createMassnahmeCommandConverter;
@@ -109,7 +107,7 @@ public class MassnahmeController {
 	public MassnahmeEditView getMassnahmeForEdit(@PathVariable("id") Long id, Authentication authentication) {
 		Massnahme massnahme = massnahmeService.get(id);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		return new MassnahmeEditView(massnahme, massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme));
+		return new MassnahmeEditView(massnahme, massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme));
 	}
 
 	@WithAuditing(context = AuditingContext.DELETE_MASSNAHME_COMMAND)
@@ -127,7 +125,7 @@ public class MassnahmeController {
 		Authentication authentication) {
 		Massnahme massnahme = massnahmeService.get(id);
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		return new UmsetzungsstandEditView(massnahme, massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme));
+		return new UmsetzungsstandEditView(massnahme, massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme));
 	}
 
 	@GetMapping("{id}/kommentarliste")
@@ -156,7 +154,7 @@ public class MassnahmeController {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 		return new DokumenteView(
 			massnahme.getDokumentListe().getDokumente(),
-			massnahmeGuard.canMassnahmeBearbeiten(benutzer, massnahme));
+			massnahmeGuard.darfMassnahmeBearbeiten(benutzer, massnahme) && !massnahme.isArchiviert());
 	}
 
 	@PostMapping(path = "{massnahmeId}/dokument", consumes = {
@@ -176,6 +174,11 @@ public class MassnahmeController {
 		massnahmeGuard.uploadDatei(massnahmeId, command, file, authentication);
 
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+
+		if (massnahmeService.get(massnahmeId).isArchiviert()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Archivierte Dateien dürfen nicht bearbeitet werden.");
+		}
 
 		massnahmeService.haengeDateiAn(
 			massnahmeId,
@@ -212,7 +215,28 @@ public class MassnahmeController {
 		@PathVariable("dokumentId") Long dokumentId) {
 		massnahmeGuard.deleteDatei(authentication, massnahmeId);
 
+		if (massnahmeService.get(massnahmeId).isArchiviert()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Archivierte Dateien dürfen nicht bearbeitet werden.");
+		}
+
 		massnahmeService.deleteDokument(massnahmeId, dokumentId);
+	}
+
+	@PostMapping("{id}/unarchivieren")
+	@WithAuditing(context = AuditingContext.MASSNAHME_ARCHIVIEREN_COMMAND)
+	public MassnahmeEditView unarchivieren(Authentication authentication, @PathVariable("id") Long id) {
+		massnahmeGuard.unarchivieren(authentication, id);
+		Massnahme massnahme = massnahmeService.archivierungAufheben(id);
+		return new MassnahmeEditView(massnahme,
+			massnahmeGuard.darfMassnahmeBearbeiten(benutzerResolver.fromAuthentication(authentication), massnahme));
+	}
+
+	@PostMapping("archivieren")
+	@WithAuditing(context = AuditingContext.MASSNAHME_ARCHIVIEREN_COMMAND)
+	public void archivieren(Authentication authentication, @RequestBody MassnahmenArchivierenCommand command) {
+		massnahmeGuard.archivieren(authentication, command);
+		massnahmeService.massnahmenArchivieren(command.getIds());
 	}
 
 	@GetMapping("{id}/hasUmsetzungsstand")
@@ -221,30 +245,26 @@ public class MassnahmeController {
 	}
 
 	@PostMapping("/umsetzungsstand/auswertung")
-	public void getUmsetzungsstandAuswertung(
+	public ResponseEntity<byte[]> getUmsetzungsstandAuswertung(
 		Authentication authentication,
-		@RequestBody List<Long> massnahmenIds,
-		HttpServletResponse response) throws IOException {
+		@RequestBody List<Long> massnahmenIds) throws IOException {
 		massnahmeGuard.getUmsetzungsstandAuswertung(authentication);
 
-		String timestamp = LocalDate.now().toString("yyyy-MM-dd");
+		String timestamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+		HttpHeaders headers = new HttpHeaders();
+		String dateiname = timestamp + "_Umsetzungsstand-Export.csv";
+		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + dateiname);
+		headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+		headers.add("Pragma", "no-cache");
+		headers.add("Expires", "0");
 
-		response.setContentType("text/csv;charset=utf-8");
-		response.addHeader(HttpHeaders.CONTENT_DISPOSITION,
-			"attachment; filename=" + timestamp + "_Umsetzungsstand-Export.csv");
-		response.addHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
-		response.addHeader(HttpHeaders.PRAGMA, "no-cache");
-		response.addHeader(HttpHeaders.EXPIRES, "0");
+		byte[] datei = csvRepository.write(massnahmeService.getUmsetzungsstandAuswertung(massnahmenIds));
 
-		CSVEncodingUtility.writeBOMEncoding(response.getOutputStream());
-
-		CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8),
-			';', CSVWriter.DEFAULT_QUOTE_CHARACTER,
-			CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-
-		csvWriter.writeNext(massnahmeService.getUmsetzungsstandAuswertungKopfzeile());
-		csvWriter.writeAll(massnahmeService.getUmsetzungsstandAuswertungCSV(massnahmenIds));
-		csvWriter.close();
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+			.contentLength(datei.length)
+			.headers(headers)
+			.body(datei);
 	}
 
 	@PostMapping("/save")
@@ -254,6 +274,11 @@ public class MassnahmeController {
 		massnahmeGuard.saveMassnahme(authentication, command);
 
 		Massnahme massnahme = massnahmeService.loadForModification(command.getId(), command.getVersion());
+
+		if (massnahme.isArchiviert()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Archivierte Dateien dürfen nicht bearbeitet werden.");
+		}
 
 		saveMassnahmeCommandConverter.apply(authentication, command, massnahme);
 		return new MassnahmeEditView(massnahmeService.saveMassnahme(massnahme), true);
@@ -268,6 +293,11 @@ public class MassnahmeController {
 		Umsetzungsstand umsetzungsstand = massnahmeService.loadUmsetzungsstandForModification(command.getId(),
 			command.getVersion());
 		Massnahme massnahme = massnahmeService.getMassnahmeByUmsetzungsstand(umsetzungsstand);
+
+		if (massnahme.isArchiviert()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Archivierte Dateien dürfen nicht bearbeitet werden.");
+		}
 
 		saveUmsetzungsstandCommandConverter.apply(authentication, command, umsetzungsstand, massnahme);
 		massnahmeService.saveUmsetzungsstand(umsetzungsstand);
@@ -284,30 +314,39 @@ public class MassnahmeController {
 		return massnahmeService.saveMassnahme(massnahme).getId();
 	}
 
-	@GetMapping("/list")
-	public List<MassnahmeListenView> getAlleMassnahme(@RequestParam Optional<Long> organisationId) {
-		List<MassnahmeListenDbView> massnahmenListenViews;
-		if (organisationId.isPresent()) {
-			Verwaltungseinheit organisation = this.verwaltungseinheitService.findById(organisationId.get()).orElseThrow(
-				() -> new EntityNotFoundException(
-					String.format("Eine Organisation mit der ID '%d' existiert nicht.", organisationId.get())));
+	@PostMapping("/list")
+	public List<MassnahmeListenView> getAlleMassnahme(@RequestBody @Valid FilterMassnahmenCommand command) {
+		Optional<Verwaltungseinheit> verwaltungseinheit = command.getVerwaltungseinheitId().map(
+			verwaltungseinheitId -> {
+				return verwaltungseinheitService.findById(verwaltungseinheitId)
+					.orElseThrow(() -> new EntityNotFoundException(String.format(
+						"Eine Verwaltungseinheit mit der ID '%d' existiert nicht.", verwaltungseinheitId)));
+			});
 
-			massnahmenListenViews = massnahmeService.getAlleMassnahmenListenViewsInBereich(organisation);
-		} else {
-			massnahmenListenViews = massnahmeService.getAlleMassnahmenListenViews();
-		}
-		return massnahmenListenViews.stream()
-			.map(MassnahmeListenView::new)
-			.collect(Collectors.toList());
+		return massnahmeService.getAlleMassnahmenListenViews(command.getHistorischeMassnahmenAnzeigen(),
+			verwaltungseinheit, command.getFahrradroutenIds()).stream()
+			.map(MassnahmeListenView::new).collect(Collectors.toList());
 	}
 
-	@PostMapping("/starteUmsetzungsstandsabfrage")
+	@PostMapping("/umsetzungsstandsabfrage/start")
 	@WithAuditing(context = AuditingContext.UMSETZUNGSSTANDSABFRAGE_STARTEN)
 	public void starteUmsetzungsstandsabfrage(Authentication authentication, @RequestBody List<Long> massnahmeIds) {
 		massnahmeGuard.starteUmsetzungsstandsabfrage(authentication);
 		List<Massnahme> angepassteMassnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
 			massnahmeIds);
 		umsetzungsstandabfrageService.benachrichtigeNutzer(angepassteMassnahmen);
+	}
+
+	@PostMapping("/umsetzungsstandsabfrage/vorschau")
+	public UmsetzungsstandAbfrageVorschauView getUmsetzungsstandsabfrageVorschau(Authentication authentication,
+		@RequestBody List<Long> massnahmeIds) {
+		massnahmeGuard.getUmsetzungsstandsabfrageVorschau(authentication);
+
+		String emailVorschau = umsetzungsstandabfrageService.getUmsetzungsstandAbfrageEmailVorschau();
+		List<Benutzer> zuBenachrichtigendeBenutzer = umsetzungsstandabfrageService
+			.getZuBenachrichtigendeBenutzer(massnahmeIds);
+
+		return new UmsetzungsstandAbfrageVorschauView(emailVorschau, zuBenachrichtigendeBenutzer);
 	}
 
 	@GetMapping("{id}/benachrichtigung")

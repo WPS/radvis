@@ -14,9 +14,24 @@
 
 package de.wps.radvis.backend.furtKreuzung.domain.repository;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzung;
 
 public interface FurtKreuzungRepository extends CrudRepository<FurtKreuzung, Long> {
+
+	@Query("SELECT distinct furt FROM FurtKreuzung furt " +
+		"LEFT JOIN furt.netzbezug.abschnittsweiserKantenSeitenBezug aksb " +
+		"LEFT JOIN furt.netzbezug.punktuellerKantenSeitenBezug pksb " +
+		"WHERE aksb.kante.id IN :kantenIds OR pksb.kante.id IN :kantenIds")
+	List<FurtKreuzung> findByKanteInNetzBezug(Collection<Long> kantenIds);
+
+	@Query("SELECT distinct furt FROM FurtKreuzung furt " +
+		"LEFT JOIN furt.netzbezug.knotenBezug kb " +
+		"WHERE kb.id IN :knotenIds")
+	List<FurtKreuzung> findByKnotenInNetzBezug(Collection<Long> knotenIds);
 }

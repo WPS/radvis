@@ -80,15 +80,6 @@ public class SaveFuehrungsformAttributeCommand {
 	@NotNull
 	private Benutzungspflicht benutzungspflicht;
 
-	@Builder(builderMethodName = "privateBuilder")
-	public SaveFuehrungsformAttributeCommand(Benutzungspflicht benutzungspflicht) {
-		this.benutzungspflicht = benutzungspflicht;
-	}
-
-	public static SaveFuehrungsformAttributeCommand.SaveFuehrungsformAttributeCommandBuilder builder() {
-		return privateBuilder().benutzungspflicht(Benutzungspflicht.UNBEKANNT);
-	}
-
 	@AssertTrue(message = "Trennstreifen passt nicht zur Radverkehrsführung oder enthält fehlerhafte Werte")
 	public boolean isTrennstreifenValid() {
 		return FuehrungsformAttribute.isTrennstreifenCorrect(radverkehrsfuehrung, trennstreifenFormLinks,

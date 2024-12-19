@@ -52,6 +52,7 @@ import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
 import de.wps.radvis.backend.matching.domain.service.OsmAuszeichnungsService;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.OsmMatchedGraphHopper;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;

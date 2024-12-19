@@ -19,6 +19,7 @@ import java.util.Optional;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.matching.domain.service.KanteUpdateElevationService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

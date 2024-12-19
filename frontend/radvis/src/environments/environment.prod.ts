@@ -12,7 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-export const environment = {
+import { Environment } from './environment.type';
+
+export const environment: Environment = {
   production: true,
   loginUrl: '', // Im produktiven Betrieb wird die Login-URL nicht vom Frontend aus aufgerufen.
+  matomoConfig: { trackerUrl: '/matomo', siteId: '1' },
 };

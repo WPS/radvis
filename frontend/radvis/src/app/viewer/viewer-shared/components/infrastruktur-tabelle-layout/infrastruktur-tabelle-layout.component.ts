@@ -30,20 +30,25 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatColumnDef, MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { InfrastrukturTabelleSpalteComponent } from 'src/app/viewer/viewer-shared/components/infrastruktur-tabelle-spalte/infrastruktur-tabelle-spalte.component';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
+import { TabellenSpaltenAuswahlService } from 'src/app/viewer/viewer-shared/services/tabellen-spalten-auswahl.service';
 import invariant from 'tiny-invariant';
 
 @Component({
   selector: 'rad-infrastruktur-tabelle-layout',
   templateUrl: './infrastruktur-tabelle-layout.component.html',
   styleUrls: ['./infrastruktur-tabelle-layout.component.scss'],
+  providers: [{ provide: TabellenSpaltenAuswahlService, useExisting: InfrastrukturTabelleLayoutComponent }],
   changeDetection: ChangeDetectionStrategy.Default, //wichtig, damit änderungen an der datasource gerendert werden
 })
-export class InfrastrukturTabelleLayoutComponent implements AfterContentInit, AfterViewInit, OnChanges, OnInit {
-  @Input()
-  displayedColumns!: string[];
+export class InfrastrukturTabelleLayoutComponent
+  implements AfterContentInit, AfterViewInit, OnChanges, OnInit, TabellenSpaltenAuswahlService
+{
   @Input()
   selectedId: number | null = null;
   @Input()
@@ -58,9 +63,15 @@ export class InfrastrukturTabelleLayoutComponent implements AfterContentInit, Af
   titleColumnIndex = 0;
   @Input()
   titleColumnPrefix = '';
+  @Input()
+  spaltenDefinition: SpaltenDefinition[] = [];
+  @Input()
+  filteredSpalten: string[] = [];
 
   @ViewChild(MatTable, { static: true }) table: MatTable<any> | undefined;
-  @ContentChildren(MatColumnDef) columnDefs: QueryList<MatColumnDef> | undefined;
+  @ContentChildren(InfrastrukturTabelleSpalteComponent) tabellenSpalten:
+    | QueryList<InfrastrukturTabelleSpalteComponent>
+    | undefined;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   @ViewChild('filterBereich', { read: ElementRef })
@@ -86,11 +97,24 @@ export class InfrastrukturTabelleLayoutComponent implements AfterContentInit, Af
 
   public dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
-  get displayedColumnsWithEdit(): string[] {
-    return [...this.displayedColumns, 'bearbeiten'];
+  displayedColumnsWithEdit: string[] = [];
+  spaltenAuswahl = new FormArray<
+    FormGroup<{ name: FormControl<string>; selected: FormControl<boolean>; displayName: FormControl<string> }>
+  >([]);
+
+  public get hasFilterOnAusgeblendetenSpalten(): boolean {
+    return this.filteredSpalten.some(f =>
+      this.spaltenAuswahl.value.filter(auswahl => !auswahl.selected).some(auswahl => auswahl.name === f)
+    );
   }
 
-  constructor(private responsive: BreakpointObserver) {}
+  constructor(private responsive: BreakpointObserver) {
+    this.spaltenAuswahl.valueChanges.subscribe(() => this.onSpaltenauswahlChanged());
+  }
+
+  public getCurrentAuswahl(): string[] {
+    return this.spaltenAuswahl.value.filter(v => v.selected).map(v => v.name!);
+  }
 
   @HostListener('document:keydown.control.alt.shift.f')
   onShortcutFilterbereich(): void {
@@ -115,8 +139,8 @@ export class InfrastrukturTabelleLayoutComponent implements AfterContentInit, Af
       'initialFilterValue darf sich nicht ändern!'
     );
     invariant(this.data);
-    invariant(this.displayedColumns);
-    invariant(this.displayedColumns.length > 0, 'Infrastruktur-Tabelle muss mindestens eine Spalte haben');
+    invariant(this.spaltenDefinition);
+    invariant(this.spaltenDefinition.length > 0, 'Infrastruktur-Tabelle muss mindestens eine Spalte haben');
 
     if (changes.data && this.dataSource.paginator) {
       this.dataSource.data = this.data;
@@ -129,13 +153,27 @@ export class InfrastrukturTabelleLayoutComponent implements AfterContentInit, Af
     if (changes.sortingDataAccessor && this.sortingDataAccessor) {
       this.dataSource.sortingDataAccessor = this.sortingDataAccessor;
     }
+
+    if (changes.spaltenDefinition) {
+      this.spaltenAuswahl.clear();
+      this.spaltenDefinition.forEach(spaltenDef => {
+        this.spaltenAuswahl.push(
+          new FormGroup({
+            name: new FormControl(spaltenDef.name, { nonNullable: true }),
+            selected: new FormControl(spaltenDef.defaultVisible ?? true, { nonNullable: true }),
+            displayName: new FormControl(spaltenDef.displayName, { nonNullable: true }),
+          })
+        );
+      });
+    }
   }
 
   ngAfterContentInit(): void {
-    invariant(this.columnDefs);
-    this.columnDefs.forEach(columnDef => {
+    invariant(this.tabellenSpalten);
+    this.tabellenSpalten.forEach(tabellenSpalte => {
       invariant(this.table);
-      this.table.addColumnDef(columnDef);
+      invariant(tabellenSpalte.matColumnDef);
+      this.table.addColumnDef(tabellenSpalte.matColumnDef);
     });
   }
 
@@ -149,5 +187,10 @@ export class InfrastrukturTabelleLayoutComponent implements AfterContentInit, Af
   public onSelectRecord(row: any): void {
     this.selectRow.next(row.id);
     this.selectItem.next(row);
+  }
+
+  public onSpaltenauswahlChanged(): void {
+    const selectedColumns = this.spaltenAuswahl.value.filter(auswahl => auswahl.selected).map(auswahl => auswahl.name!);
+    this.displayedColumnsWithEdit = [...selectedColumns, 'bearbeiten'];
   }
 }

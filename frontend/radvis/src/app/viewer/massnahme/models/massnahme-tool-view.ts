@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
+import { GeometryCollectionGeojson, LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface MassnahmeToolView {
@@ -22,4 +22,6 @@ export interface MassnahmeToolView {
   netzbezug: Netzbezug;
   hasUmsetzungsstand: boolean;
   originalGeometrie: LineStringGeojson | null;
+  archiviert: boolean;
+  netzbezugSnapshot: GeometryCollectionGeojson | null;
 }

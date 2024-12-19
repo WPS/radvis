@@ -30,6 +30,7 @@
     "chart.js": "^3.9.1",
     "custom-model-editor": "git+https://git@github.com/graphhopper/custom-model-editor.git#3a46b6981d170b7eb70d621bbb92caed149e5a97",
     "material-icons": "^1.13.6",
+    "ngx-matomo-client": "^6.3.1",
     "ol": "~6.5.0",
     "proj4": "^2.9.0",
     "rxjs": "^6.6.7",

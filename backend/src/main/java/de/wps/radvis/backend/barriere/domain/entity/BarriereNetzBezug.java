@@ -14,14 +14,19 @@
 
 package de.wps.radvis.backend.barriere.domain.entity;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.AbstractNetzBezug;
+import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
@@ -65,18 +70,60 @@ public class BarriereNetzBezug extends AbstractNetzBezug {
 		this.knotenBezug = new HashSet<>(knotenBezug);
 	}
 
-	@Override
-	protected Set<AbschnittsweiserKantenSeitenBezug> getMutableAbschnittsweiserKantenSeitenBezug() {
-		return abschnittsweiserKantenSeitenBezug;
+	public BarriereNetzBezug withKanteErsetzt(Kante zuErsetzendeKante, Set<Kante> zuErsetzenDurch,
+		double erlaubteAbweichung) {
+		require(zuErsetzenDurch, notNullValue());
+		require(!zuErsetzenDurch.isEmpty());
+
+		return new BarriereNetzBezug(
+			AbschnittsweiserKantenSeitenBezug.ersetzeKanteInAbschnitten(abschnittsweiserKantenSeitenBezug,
+				zuErsetzendeKante,
+				zuErsetzenDurch, erlaubteAbweichung),
+			AbschnittsweiserKantenSeitenBezug.ersetzeKanteInPunkten(punktuellerKantenSeitenBezug, zuErsetzendeKante,
+				zuErsetzenDurch,
+				erlaubteAbweichung),
+			knotenBezug);
 	}
 
 	@Override
-	protected Set<PunktuellerKantenSeitenBezug> getMutablePunktuellerKantenSeitenBezug() {
-		return punktuellerKantenSeitenBezug;
+	public Set<AbschnittsweiserKantenSeitenBezug> getImmutableKantenAbschnittBezug() {
+		return Collections.unmodifiableSet(abschnittsweiserKantenSeitenBezug);
 	}
 
 	@Override
-	protected Set<Knoten> getMutableKnotenBezug() {
-		return knotenBezug;
+	public Set<PunktuellerKantenSeitenBezug> getImmutableKantenPunktBezug() {
+		return Collections.unmodifiableSet(punktuellerKantenSeitenBezug);
+	}
+
+	@Override
+	public Set<Knoten> getImmutableKnotenBezug() {
+		return Collections.unmodifiableSet(knotenBezug);
+	}
+
+	public BarriereNetzBezug withoutKanten(Set<Long> kantenIds) {
+		BarriereNetzBezug result = new BarriereNetzBezug();
+		result.abschnittsweiserKantenSeitenBezug = abschnittsweiserKantenSeitenBezug
+			.stream().filter(
+				kantenBezug -> !kantenIds.contains(kantenBezug.getKante().getId()))
+			.collect(Collectors.toSet());
+		result.punktuellerKantenSeitenBezug = punktuellerKantenSeitenBezug.stream()
+			.filter(punkt -> !kantenIds.contains(punkt.getKante().getId()))
+			.collect(Collectors.toSet());
+		result.knotenBezug = new HashSet<>(knotenBezug);
+		return result;
+	}
+
+	public BarriereNetzBezug withoutKnoten(Set<Long> knotenIds) {
+		BarriereNetzBezug result = new BarriereNetzBezug();
+		result.abschnittsweiserKantenSeitenBezug = new HashSet<>(abschnittsweiserKantenSeitenBezug);
+		result.punktuellerKantenSeitenBezug = new HashSet<>(punktuellerKantenSeitenBezug);
+		result.knotenBezug = knotenBezug.stream().filter(k -> !knotenIds.contains(k.getId()))
+			.collect(Collectors.toSet());
+		return result;
+	}
+
+	public BarriereNetzBezug withKnotenErsetzt(Map<Long, Knoten> ersatzKnoten) {
+		return new BarriereNetzBezug(getImmutableKantenAbschnittBezug(),
+			getImmutableKantenPunktBezug(), ersetzeKnoten(getImmutableKnotenBezug(), ersatzKnoten));
 	}
 }

@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,8 @@ import org.locationtech.jts.geom.Coordinate;
 import de.wps.radvis.backend.common.DlmMatchedGraphhopperTestdataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -42,7 +43,7 @@ public class DlmPbfErstellungUndMatchingIntegrationsTest {
 	public File temp;
 
 	@Test
-	void test() throws KeinMatchGefundenException {
+	void test() throws KeinMatchGefundenException, IOException {
 		List<Kante> kanten = List.of(
 			KanteTestDataProvider.withCoordinatesAndQuelle(400000, 5000000, 400100, 5000100, QuellSystem.DLM)
 				.id(111111L)

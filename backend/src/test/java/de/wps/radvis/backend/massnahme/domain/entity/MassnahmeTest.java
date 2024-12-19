@@ -25,7 +25,9 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -33,20 +35,23 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.valid4j.errors.RequireViolation;
 
+import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
@@ -59,9 +64,11 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.PruefungQualitaetsstan
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
+import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
@@ -259,117 +266,229 @@ class MassnahmeTest {
 		assertThat(Massnahme.hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien)).isFalse();
 	}
 
-	@Test
-	void massnahmeErstellen_RadNETZMassnahmeOhneUmsetzungsstand_wirftRequireViolation() {
-		// arrange
-		Kante kante = KanteTestDataProvider.withDefaultValues().id(1L).build();
-		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
-			kante,
-			LinearReferenzierterAbschnitt.of(0, 1),
-			Seitenbezug.LINKS);
-
-		// act & assert
-		assertThatThrownBy(() -> Massnahme.builder()
-			.bezeichnung(Bezeichnung.of("Bezeichnung"))
-			.massnahmenkategorien(Set.of(Massnahmenkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME))
-			.netzbezug(
-				new MassnahmeNetzBezug(Set.of(abschnittsweiserKantenSeitenBezug), Set.of(), Collections.emptySet()))
-			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.veroeffentlicht(true)
-			.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2021))
-			.baulastZustaendiger(testOrganisation)
-			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
-			.benutzerLetzteAenderung(BenutzerTestDataProvider.admin(testOrganisation).build())
-			.netzklassen(null)
-			.sollStandard(SollStandard.BASISSTANDARD)
-			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
-			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.build()).isInstanceOf(RequireViolation.class);
-
-	}
-
-	@Test
-	void massnahmeErstellen_RadNETZMassnahmeMitUmsetzungsstand_wirdErstellt() {
-		// arrange
-		Kante kante = KanteTestDataProvider.withDefaultValues().id(1L).build();
-		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
-			kante,
-			LinearReferenzierterAbschnitt.of(0, 1),
-			Seitenbezug.LINKS);
-
-		// act & assert
-		assertDoesNotThrow(() -> Massnahme.builder()
-			.bezeichnung(Bezeichnung.of("Bezeichnung"))
-			.massnahmenkategorien(Set.of(Massnahmenkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME))
-			.netzbezug(
-				new MassnahmeNetzBezug(Set.of(abschnittsweiserKantenSeitenBezug), Set.of(), Collections.emptySet()))
-			.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-			.veroeffentlicht(true)
-			.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2021))
-			.baulastZustaendiger(testOrganisation)
-			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
-			.benutzerLetzteAenderung(BenutzerTestDataProvider.admin(testOrganisation).build())
-			.netzklassen(null)
-			.sollStandard(SollStandard.BASISSTANDARD)
-			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
-			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME));
-	}
-
 	@TestFactory
-	Stream<DynamicTest> massnahmeErstellen_KeineRadNETZMassnahmeOhneUmsetzungsstand_wirdErstellt() {
-
-		// act & assert
+	Stream<DynamicTest> update_radnetzQuelleChangeForbidden() {
 		return Arrays.stream(Konzeptionsquelle.values())
-			.filter(konzeptionsquelle -> konzeptionsquelle != Konzeptionsquelle.RADNETZ_MASSNAHME)
+			.filter(konzeptionsquelle -> Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle))
 			.map(konzeptionsquelle -> DynamicTest.dynamicTest(
-				"Massnahme erstellen mit Konzeptionsquelle '" + konzeptionsquelle
-					+ "' ohne Umsetzungsstand: wird erstellt",
-				() -> {
-					// act & assert
-					assertDoesNotThrow(() -> MassnahmeTestDataProvider.withDefaultValues()
-						.konzeptionsquelle(konzeptionsquelle)
-						.sonstigeKonzeptionsquelle(konzeptionsquelle == Konzeptionsquelle.SONSTIGE ? "sonstige" : null)
-						.build());
-				}));
-	}
-
-	@TestFactory
-	Stream<DynamicTest> massnahmeErstellen_KeineRadNETZMassnahmeAberUmsetzungsstand_wirftRequireViolation() {
-
-		// act & assert
-		return Arrays.stream(Konzeptionsquelle.values())
-			.filter(konzeptionsquelle -> konzeptionsquelle != Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.map(konzeptionsquelle -> DynamicTest.dynamicTest(
-				"Massnahme erstellen mit Konzeptionsquelle '" + konzeptionsquelle
-					+ "' ohne Umsetzungsstand wirft RequireViolation",
+				"update Massnahme, Konzeptionsquelle " + konzeptionsquelle
+					+ " zu Kreisnetz not allowed",
 				() -> {
 					// arrange
-					Kante kante = KanteTestDataProvider.withDefaultValues().id(1L).build();
-					AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
-						kante,
-						LinearReferenzierterAbschnitt.of(0, 1),
-						Seitenbezug.LINKS);
-
-					// act & assert
-					assertThatThrownBy(() -> Massnahme.builder()
-						.bezeichnung(Bezeichnung.of("Bezeichnung"))
-						.massnahmenkategorien(Set.of(Massnahmenkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME))
-						.netzbezug(
-							new MassnahmeNetzBezug(Set.of(abschnittsweiserKantenSeitenBezug), Set.of(),
-								Collections.emptySet()))
-						.umsetzungsstatus(Umsetzungsstatus.PLANUNG)
-						.veroeffentlicht(true)
-						.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2021))
-						.baulastZustaendiger(testOrganisation)
-						.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
-						.benutzerLetzteAenderung(BenutzerTestDataProvider.admin(testOrganisation).build())
-						.netzklassen(null)
-						.sollStandard(SollStandard.BASISSTANDARD)
-						.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
+					Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 						.konzeptionsquelle(konzeptionsquelle)
-						.sonstigeKonzeptionsquelle(konzeptionsquelle == Konzeptionsquelle.SONSTIGE ? "sonstige" : null)
-						.build()).isInstanceOf(RequireViolation.class);
+						.id(42L)
+						.build();
+
+					// act + assert
+					assertThat(massnahme.canUpdateKonzeptionsquelle(Konzeptionsquelle.KREISKONZEPT)).isFalse();
 				}));
+	}
+
+	@Nested
+	class KonzeptionsquelleUndUmsetzungsstand {
+
+		private MassnahmeNetzBezug netzbezug;
+		private Verwaltungseinheit zustaendiger;
+		private Benutzer benutzer;
+
+		@BeforeEach
+		void setup() {
+			Verwaltungseinheit organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.name("Coole Organisation")
+				.organisationsArt(OrganisationsArt.BUNDESLAND)
+				.build();
+
+			zustaendiger = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+				.name("Mega coole zuständige Organisation")
+				.organisationsArt(OrganisationsArt.REGIERUNGSBEZIRK)
+				.build();
+
+			benutzer = BenutzerTestDataProvider.admin(organisation).build();
+			Kante kante = KanteTestDataProvider.withDefaultValues().build();
+			netzbezug = new MassnahmeNetzBezug(
+				Set.of(new AbschnittsweiserKantenSeitenBezug(
+					kante, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
+				Set.of(new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG)),
+				Collections.emptySet());
+		}
+
+		@Test
+		void create_NotRadNetzMassnahme_umsetzungsstandIsNull() {
+			// act
+			Massnahme massnahme = new Massnahme(Bezeichnung.of("Test"),
+				Set.of(Massnahmenkategorie.AENDERUNG_DER_VERKEHRSRECHTLICHEN_ANORDNUNG),
+				netzbezug,
+				Umsetzungsstatus.IDEE,
+				false,
+				true,
+				null,
+				zustaendiger,
+				zustaendiger,
+				LocalDateTime.now(),
+				benutzer,
+				SollStandard.BASISSTANDARD,
+				Handlungsverantwortlicher.BAULASTTRAEGER_UND_VERKEHRSBEHORDE_TECHNIK,
+				Konzeptionsquelle.KOMMUNALES_KONZEPT,
+				null);
+
+			// assert
+			assertThat(massnahme.getUmsetzungsstand()).isEmpty();
+		}
+
+		@Test
+		void create_RadNetzMassnahme2024_erstelltUmsetzungsstand() {
+			// act
+			Massnahme massnahme = new Massnahme(Bezeichnung.of("Test"),
+				Set.of(Massnahmenkategorie.AENDERUNG_DER_VERKEHRSRECHTLICHEN_ANORDNUNG),
+				netzbezug,
+				Umsetzungsstatus.IDEE,
+				false,
+				true,
+				null,
+				zustaendiger,
+				zustaendiger,
+				LocalDateTime.now(),
+				benutzer,
+				SollStandard.BASISSTANDARD,
+				Handlungsverantwortlicher.BAULASTTRAEGER_UND_VERKEHRSBEHORDE_TECHNIK,
+				Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
+				null);
+
+			// assert
+			assertThat(massnahme.getUmsetzungsstand()).isPresent();
+		}
+
+		@Test
+		void update_KonzeptionsquelleNachherKeinRadNETZVorherAuchNicht_umsetzungsstandWirdErstellt() {
+			// arrange
+			Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+				.konzeptionsquelle(Konzeptionsquelle.KREISKONZEPT)
+				.id(42L)
+				.build();
+
+			// act
+			massnahme.update(massnahme.getBezeichnung(),
+				massnahme.getMassnahmenkategorien(),
+				massnahme.getNetzbezug(),
+				massnahme.getDurchfuehrungszeitraum().get(),
+				massnahme.getUmsetzungsstatus(),
+				massnahme.getVeroeffentlicht(),
+				massnahme.getPlanungErforderlich(),
+				massnahme.getMaViSID().get(),
+				massnahme.getVerbaID().get(),
+				massnahme.getLGVFGID().get(),
+				massnahme.getPrioritaet().get(),
+				massnahme.getKostenannahme().get(),
+				massnahme.getNetzklassen(),
+				massnahme.getBenutzerLetzteAenderung(),
+				massnahme.getLetzteAenderung(),
+				massnahme.getBaulastZustaendiger().orElse(null),
+				massnahme.getunterhaltsZustaendiger().orElse(null),
+				massnahme.getZustaendiger().orElse(null),
+				massnahme.getMassnahmeKonzeptID().get(),
+				massnahme.getSollStandard(),
+				massnahme.getHandlungsverantwortlicher().get(),
+				Konzeptionsquelle.KOMMUNALES_KONZEPT,
+				null,
+				massnahme.getRealisierungshilfe().get());
+
+			// assert
+			assertThat(massnahme.getUmsetzungsstand()).isEmpty();
+		}
+
+		@TestFactory
+		Stream<DynamicTest> update_zuRadnetzMassnahme_erstelltUmsetzungsstand() {
+			return Arrays.stream(Konzeptionsquelle.values())
+				.filter(konzeptionsquelle -> Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle))
+				.map(konzeptionsquelle -> DynamicTest.dynamicTest(
+					"update Massnahme, Konzeptionsquelle von Kreisnetz zu " + konzeptionsquelle
+						+ " erstellt Umsetzungsstand",
+					() -> {
+						// arrange
+						Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+							.konzeptionsquelle(Konzeptionsquelle.KREISKONZEPT)
+							.id(42L)
+							.build();
+
+						// act
+						massnahme.update(massnahme.getBezeichnung(),
+							massnahme.getMassnahmenkategorien(),
+							massnahme.getNetzbezug(),
+							massnahme.getDurchfuehrungszeitraum().get(),
+							massnahme.getUmsetzungsstatus(),
+							massnahme.getVeroeffentlicht(),
+							massnahme.getPlanungErforderlich(),
+							massnahme.getMaViSID().get(),
+							massnahme.getVerbaID().get(),
+							massnahme.getLGVFGID().get(),
+							massnahme.getPrioritaet().get(),
+							massnahme.getKostenannahme().get(),
+							massnahme.getNetzklassen(),
+							massnahme.getBenutzerLetzteAenderung(),
+							massnahme.getLetzteAenderung(),
+							massnahme.getBaulastZustaendiger().orElse(null),
+							massnahme.getunterhaltsZustaendiger().orElse(null),
+							massnahme.getZustaendiger().orElse(null),
+							massnahme.getMassnahmeKonzeptID().get(),
+							massnahme.getSollStandard(),
+							massnahme.getHandlungsverantwortlicher().get(),
+							konzeptionsquelle,
+							null,
+							massnahme.getRealisierungshilfe().get());
+
+						// assert
+						assertThat(massnahme.getUmsetzungsstand()).isPresent();
+					}));
+		}
+
+		@TestFactory
+		Stream<DynamicTest> update_bleibtRadnetzMassnahme_umsetzungsstandUntouched() {
+			return Arrays.stream(Konzeptionsquelle.values())
+				.filter(konzeptionsquelle -> Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle))
+				.map(konzeptionsquelle -> DynamicTest.dynamicTest(
+					"update Massnahme, Konzeptionsquelle bleibt " + konzeptionsquelle
+						+ ", Umsetzungsstand bleibt erhalten",
+					() -> {
+						// arrange
+						Umsetzungsstand umsetzungsstandVorher = new Umsetzungsstand();
+
+						Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+							.konzeptionsquelle(konzeptionsquelle)
+							.id(42L)
+							.build();
+
+						// act
+						massnahme.update(massnahme.getBezeichnung(),
+							massnahme.getMassnahmenkategorien(),
+							massnahme.getNetzbezug(),
+							massnahme.getDurchfuehrungszeitraum().get(),
+							massnahme.getUmsetzungsstatus(),
+							massnahme.getVeroeffentlicht(),
+							massnahme.getPlanungErforderlich(),
+							massnahme.getMaViSID().get(),
+							massnahme.getVerbaID().get(),
+							massnahme.getLGVFGID().get(),
+							massnahme.getPrioritaet().get(),
+							massnahme.getKostenannahme().get(),
+							massnahme.getNetzklassen(),
+							massnahme.getBenutzerLetzteAenderung(),
+							massnahme.getLetzteAenderung(),
+							massnahme.getBaulastZustaendiger().orElse(null),
+							massnahme.getunterhaltsZustaendiger().orElse(null),
+							massnahme.getZustaendiger().orElse(null),
+							massnahme.getMassnahmeKonzeptID().get(),
+							massnahme.getSollStandard(),
+							massnahme.getHandlungsverantwortlicher().get(),
+							konzeptionsquelle,
+							null,
+							massnahme.getRealisierungshilfe().get());
+
+						// assert
+						assertThat(massnahme.getUmsetzungsstand()).isPresent();
+						assertThat(massnahme.getUmsetzungsstand().get()).isEqualTo(umsetzungsstandVorher);
+					}));
+		}
 	}
 
 	@Test
@@ -507,93 +626,6 @@ class MassnahmeTest {
 	}
 
 	@Test
-	void update_KonzeptionsquelleNachherRadNETZVorherNicht_umsetzungsstandWirdErstellt() {
-		// arrange
-		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
-			.konzeptionsquelle(Konzeptionsquelle.KREISKONZEPT)
-			.id(42L)
-			.build();
-
-		// act
-		massnahme.update(massnahme.getBezeichnung(),
-			massnahme.getMassnahmenkategorien(),
-			massnahme.getNetzbezug(),
-			massnahme.getDurchfuehrungszeitraum().get(),
-			massnahme.getUmsetzungsstatus(),
-			massnahme.getVeroeffentlicht(),
-			massnahme.getPlanungErforderlich(),
-			massnahme.getMaViSID().get(),
-			massnahme.getVerbaID().get(),
-			massnahme.getLGVFGID().get(),
-			massnahme.getPrioritaet().get(),
-			massnahme.getKostenannahme().get(),
-			massnahme.getNetzklassen(),
-			massnahme.getBenutzerLetzteAenderung(),
-			massnahme.getLetzteAenderung(),
-			massnahme.getBaulastZustaendiger().orElse(null),
-			massnahme.getunterhaltsZustaendiger().orElse(null),
-			massnahme.getZustaendiger().orElse(null),
-			massnahme.getMassnahmeKonzeptID().get(),
-			massnahme.getSollStandard(),
-			massnahme.getHandlungsverantwortlicher().get(),
-			Konzeptionsquelle.RADNETZ_MASSNAHME,
-			null,
-			massnahme.getRealisierungshilfe().get());
-
-		// assert
-		assertThat(massnahme.getUmsetzungsstand()).isPresent();
-
-		ArgumentCaptor<MassnahmeChangedEvent> captor = ArgumentCaptor.forClass(MassnahmeChangedEvent.class);
-		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()));
-		assertThat(captor.getValue().getMassnahmeId()).isEqualTo(42L);
-	}
-
-	@Test
-	void update_KonzeptionsquelleNachherRadNETZVorherAuch_umsetzungsstandBleibtErhalten() {
-		// arrange
-		Umsetzungsstand umsetzungsstandVorher = new Umsetzungsstand();
-
-		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
-			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
-			.id(42L)
-			.build();
-
-		// act
-		massnahme.update(massnahme.getBezeichnung(),
-			massnahme.getMassnahmenkategorien(),
-			massnahme.getNetzbezug(),
-			massnahme.getDurchfuehrungszeitraum().get(),
-			massnahme.getUmsetzungsstatus(),
-			massnahme.getVeroeffentlicht(),
-			massnahme.getPlanungErforderlich(),
-			massnahme.getMaViSID().get(),
-			massnahme.getVerbaID().get(),
-			massnahme.getLGVFGID().get(),
-			massnahme.getPrioritaet().get(),
-			massnahme.getKostenannahme().get(),
-			massnahme.getNetzklassen(),
-			massnahme.getBenutzerLetzteAenderung(),
-			massnahme.getLetzteAenderung(),
-			massnahme.getBaulastZustaendiger().orElse(null),
-			massnahme.getunterhaltsZustaendiger().orElse(null),
-			massnahme.getZustaendiger().orElse(null),
-			massnahme.getMassnahmeKonzeptID().get(),
-			massnahme.getSollStandard(),
-			massnahme.getHandlungsverantwortlicher().get(),
-			Konzeptionsquelle.RADNETZ_MASSNAHME,
-			null,
-			massnahme.getRealisierungshilfe().get());
-
-		// assert
-		assertThat(massnahme.getUmsetzungsstand()).isPresent();
-		assertThat(massnahme.getUmsetzungsstand().get()).isEqualTo(umsetzungsstandVorher);
-
-		ArgumentCaptor<MassnahmeChangedEvent> captor = ArgumentCaptor.forClass(MassnahmeChangedEvent.class);
-		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()));
-		assertThat(captor.getValue().getMassnahmeId()).isEqualTo(42L);
-	}
-
-	@Test
 	void add_Dokment() {
 		// Arrange
 		Dokument dokument = DokumentTestDataProvider.withDefaultValues().build();
@@ -622,5 +654,225 @@ class MassnahmeTest {
 
 		assertThatNoException().isThrownBy(() -> massnahme.berechneMittelpunkt());
 		assertThat(massnahme.berechneMittelpunkt()).isEmpty();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void archivieren() {
+		// arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build();
+
+		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
+			kante, LinearReferenzierterAbschnitt.of(0, 0.3), Seitenbezug.LINKS);
+		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug2 = new AbschnittsweiserKantenSeitenBezug(
+			kante, LinearReferenzierterAbschnitt.of(0.5, 0.8), Seitenbezug.LINKS);
+		PunktuellerKantenSeitenBezug punktuellerKantenSeitenBezug = new PunktuellerKantenSeitenBezug(kante,
+			LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG);
+		MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
+			Set.of(abschnittsweiserKantenSeitenBezug, abschnittsweiserKantenSeitenBezug2),
+			Set.of(punktuellerKantenSeitenBezug),
+			Set.of(kante.getVonKnoten()));
+
+		Massnahme massnahme = MassnahmeTestDataProvider
+			.withDefaultValues()
+			.netzbezug(netzbezug)
+			.build();
+
+		// act
+		massnahme.archivieren();
+
+		// assert
+		assertThat(massnahme.isArchiviert()).isTrue();
+		assertThat(massnahme.getNetzbezugSnapshot()).isPresent();
+		assertThat(massnahme.getNetzbezugSnapshot().get().getNumGeometries()).isEqualTo(4);
+		for (int i = 0; i < massnahme.getNetzbezugSnapshot().get().getNumGeometries(); i++) {
+			assertThat(massnahme.getNetzbezugSnapshot().get().getGeometryN(i)).matches(g -> {
+				return g.equals(abschnittsweiserKantenSeitenBezug.getGeometrie())
+					|| g.equals(punktuellerKantenSeitenBezug.getPointGeometry())
+					|| g.equals(kante.getVonKnoten().getPoint())
+					|| g.equals(abschnittsweiserKantenSeitenBezug2.getGeometrie());
+			});
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void archivieren_nurPoints() {
+		// arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build();
+
+		PunktuellerKantenSeitenBezug punktuellerKantenSeitenBezug = new PunktuellerKantenSeitenBezug(kante,
+			LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG);
+		MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
+			Set.of(),
+			Set.of(punktuellerKantenSeitenBezug),
+			Set.of(kante.getVonKnoten()));
+
+		Massnahme massnahme = MassnahmeTestDataProvider
+			.withDefaultValues()
+			.netzbezug(netzbezug)
+			.build();
+
+		// act
+		massnahme.archivieren();
+
+		// assert
+		assertThat(massnahme.isArchiviert()).isTrue();
+		assertThat(massnahme.getNetzbezugSnapshot()).isPresent();
+		assertThat(massnahme.getNetzbezugSnapshotLines()).isNull();
+		assertThat(massnahme.getNetzbezugSnapshot().get().getNumGeometries()).isEqualTo(2);
+		for (int i = 0; i < massnahme.getNetzbezugSnapshot().get().getNumGeometries(); i++) {
+			assertThat(massnahme.getNetzbezugSnapshot().get().getGeometryN(i)).matches(g -> {
+				return g.equals(punktuellerKantenSeitenBezug.getPointGeometry())
+					|| g.equals(kante.getVonKnoten().getPoint());
+			});
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void archivieren_nurLines() {
+		// arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).build();
+
+		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
+			kante, LinearReferenzierterAbschnitt.of(0, 0.3), Seitenbezug.LINKS);
+		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug2 = new AbschnittsweiserKantenSeitenBezug(
+			kante, LinearReferenzierterAbschnitt.of(0.5, 0.8), Seitenbezug.LINKS);
+		MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
+			Set.of(abschnittsweiserKantenSeitenBezug, abschnittsweiserKantenSeitenBezug2),
+			Set.of(),
+			Set.of());
+
+		Massnahme massnahme = MassnahmeTestDataProvider
+			.withDefaultValues()
+			.netzbezug(netzbezug)
+			.build();
+
+		// act
+		massnahme.archivieren();
+
+		// assert
+		assertThat(massnahme.isArchiviert()).isTrue();
+		assertThat(massnahme.getNetzbezugSnapshotPoints()).isNull();
+		assertThat(massnahme.getNetzbezugSnapshot()).isPresent();
+		assertThat(massnahme.getNetzbezugSnapshot().get().getNumGeometries()).isEqualTo(2);
+		for (int i = 0; i < massnahme.getNetzbezugSnapshot().get().getNumGeometries(); i++) {
+			assertThat(massnahme.getNetzbezugSnapshot().get().getGeometryN(i)).matches(g -> {
+				return g.equals(abschnittsweiserKantenSeitenBezug.getGeometrie())
+					|| g.equals(abschnittsweiserKantenSeitenBezug2.getGeometrie());
+			});
+		}
+	}
+
+	@Test
+	void unarchivieren() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().build();
+		massnahme.archivieren();
+
+		// act
+		massnahme.archivierungAufheben();
+
+		// assert
+		assertThat(massnahme.isArchiviert()).isFalse();
+		assertThat(massnahme.getNetzbezugSnapshot()).isEmpty();
+	}
+
+	@Test
+	void ersetzeKanteInNetzbezug() {
+		// arrange
+		Kante zuErsetzendeKante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM)
+			.id(1l)
+			.build();
+		Kante ersatzKante1 = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 50, 0, QuellSystem.DLM).id(2l)
+			.build();
+		Kante ersatzKante2 = KanteTestDataProvider.withCoordinatesAndQuelle(50, 0, 100, 0, QuellSystem.DLM).id(3l)
+			.build();
+
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().netzbezug(new MassnahmeNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(zuErsetzendeKante, LinearReferenzierterAbschnitt.of(0.3, 0.7),
+				Seitenbezug.BEIDSEITIG)),
+			Set.of(new PunktuellerKantenSeitenBezug(zuErsetzendeKante, LineareReferenz.of(0.25),
+				Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet())).build();
+
+		// act
+		massnahme.ersetzeKanteInNetzbezug(zuErsetzendeKante, Set.of(ersatzKante1, ersatzKante2), 1.0);
+
+		// assert
+		assertThat(massnahme.getNetzbezug().getImmutableKantenPunktBezug()).hasSize(1);
+		assertThat(massnahme.getNetzbezug().getImmutableKantenPunktBezug())
+			.contains(new PunktuellerKantenSeitenBezug(ersatzKante1, LineareReferenz.of(0.5),
+				Seitenbezug.BEIDSEITIG));
+
+		assertThat(massnahme.getNetzbezug().getImmutableKantenAbschnittBezug()).hasSize(2);
+		assertThat(massnahme.getNetzbezug().getImmutableKantenAbschnittBezug())
+			.contains(
+				new AbschnittsweiserKantenSeitenBezug(ersatzKante1, LinearReferenzierterAbschnitt.of(0.6, 1),
+					Seitenbezug.BEIDSEITIG),
+				new AbschnittsweiserKantenSeitenBezug(ersatzKante2, LinearReferenzierterAbschnitt.of(0, 0.4),
+					Seitenbezug.BEIDSEITIG));
+	}
+
+	@Test
+	void removeKanteFromNetzbezug() {
+		// arrange
+		Kante zuEntfernendeKante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM)
+			.id(1l)
+			.build();
+
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().netzbezug(new MassnahmeNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(zuEntfernendeKante, LinearReferenzierterAbschnitt.of(0.3, 0.7),
+				Seitenbezug.BEIDSEITIG)),
+			Set.of(new PunktuellerKantenSeitenBezug(zuEntfernendeKante, LineareReferenz.of(0.25),
+				Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet())).build();
+
+		// act
+		massnahme.removeKanteFromNetzbezug(Set.of(zuEntfernendeKante.getId()));
+
+		// assert
+		assertThat(massnahme.getNetzbezug().getImmutableKantenPunktBezug()).isEmpty();
+		assertThat(massnahme.getNetzbezug().getImmutableKantenAbschnittBezug()).isEmpty();
+	}
+
+	@Test
+	void removeKnotenFromNetzbezug() {
+		// arrange
+		Knoten knoten = KnotenTestDataProvider.withDefaultValues().id(1l).build();
+
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().netzbezug(new MassnahmeNetzBezug(
+			Collections.emptySet(),
+			Collections.emptySet(),
+			Set.of(knoten))).build();
+
+		// act
+		massnahme.removeKnotenFromNetzbezug(Set.of(knoten.getId()));
+
+		// assert
+		assertThat(massnahme.getNetzbezug().getImmutableKnotenBezug()).isEmpty();
+	}
+
+	@Test
+	void ersetzeKnotenInNetzbezug() {
+		// arrange
+		Knoten zuErsetzenderKnoten = KnotenTestDataProvider.withDefaultValues().id(1l).build();
+		Knoten knoten2 = KnotenTestDataProvider.withDefaultValues().id(2l).build();
+		Knoten ersatzKnoten = KnotenTestDataProvider.withDefaultValues().id(3l).build();
+
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().netzbezug(new MassnahmeNetzBezug(
+			Collections.emptySet(),
+			Collections.emptySet(),
+			Set.of(zuErsetzenderKnoten, knoten2))).build();
+
+		// act
+		Map<Long, Knoten> ersatzKnotenZuordnung = new HashMap<>();
+		ersatzKnotenZuordnung.put(zuErsetzenderKnoten.getId(), ersatzKnoten);
+		massnahme.ersetzeKnotenInNetzbezug(ersatzKnotenZuordnung);
+
+		// assert
+		assertThat(massnahme.getNetzbezug().getImmutableKnotenBezug()).contains(knoten2, ersatzKnoten);
+		assertThat(massnahme.getNetzbezug().getImmutableKnotenBezug()).doesNotContain(zuErsetzenderKnoten);
 	}
 }

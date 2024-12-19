@@ -20,6 +20,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockComponent } from 'ng-mocks';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { Geometry, LineString } from 'ol/geom';
 import * as olProj from 'ol/proj';
 import { of } from 'rxjs';
@@ -102,6 +103,10 @@ describe(FehlerprotokollLayerComponent.name, () => {
         { provide: FehlerprotokollSelectionService, useValue: fehlerprotokollSelectionService },
         { provide: FehlerprotokollService, useValue: instance(fehlerprotokollService) },
         { provide: FeatureTogglzService, useValue: instance(featureTogglzService) },
+        {
+          provide: MatomoTracker,
+          useValue: instance(mock(MatomoTracker)),
+        },
       ],
     }).compileComponents();
   });

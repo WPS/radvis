@@ -21,15 +21,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import de.wps.radvis.backend.application.domain.InitialImportService;
+import de.wps.radvis.backend.application.domain.RadVISInfoService;
 import de.wps.radvis.backend.application.domain.ScheduleConfigurationProperties;
 import de.wps.radvis.backend.application.schnittstelle.RadVisJobScheduler;
 import de.wps.radvis.backend.application.schnittstelle.RequestLoggingInterceptor;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.AttributProjektionsJob;
-import de.wps.radvis.backend.integration.grundnetz.domain.DLMNetzbildungJob;
+import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungJob;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNETZNetzbildungJob;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNETZSackgassenJob;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungJob;
@@ -49,7 +52,13 @@ public class ApplicationConfiguration {
 	private List<AbstractJob> jobs;
 
 	@Autowired
+	private CommonConfigurationProperties commonConfigurationProperties;
+
+	@Autowired
 	private ScheduleConfigurationProperties scheduleConfigurationProperties;
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	private final RadNETZQuellImportJob radnetzQuellImportJob;
 	private final GenericQuellImportJob radwegeLglTuttlingenImportJob;
@@ -130,6 +139,11 @@ public class ApplicationConfiguration {
 			radwegeDBMatchingAufDLMJob,
 			radNETZProjektionsJob,
 			radwegeDBProjektionsJob);
+	}
+
+	@Bean
+	public RadVISInfoService radVISInfoService() {
+		return new RadVISInfoService(commonConfigurationProperties.getVersion(), jdbcTemplate);
 	}
 
 	@Bean

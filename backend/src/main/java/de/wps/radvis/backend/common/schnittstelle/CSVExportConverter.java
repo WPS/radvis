@@ -34,7 +34,7 @@ public class CSVExportConverter implements ExportConverter {
 	@Override
 	public byte[] convert(List<ExportData> data) {
 		if (data.isEmpty()) {
-			return "Keine Daten zum exportieren".getBytes(StandardCharsets.UTF_8);
+			return "Keine Daten zum Exportieren".getBytes(StandardCharsets.UTF_8);
 		}
 
 		try {

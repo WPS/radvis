@@ -12,49 +12,64 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<form [formGroup]="form" class="form-group">
+<form [formGroup]="formGroup" class="form-group">
   <h2>Benutzer bearbeiten</h2>
 
   <div class="status-box">
     <rad-text-input-control formControlName="status" class="w-100">
       <div class="label">Status</div>
     </rad-text-input-control>
-    <button
-      *ngIf="benutzerStatus === 'WARTE_AUF_FREISCHALTUNG' || benutzerStatus === 'AKTIV' || benutzerStatus === 'INAKTIV'"
-      mat-stroked-button
-      color="primary"
-      class="action-button"
-      (click)="onAblehnen()">
+    <button *ngIf="canAblehnen" mat-stroked-button color="primary" class="action-button" (click)="onAblehnen()">
       Ablehnen
     </button>
-    <button
-      *ngIf="benutzerStatus === 'ABGELEHNT' || benutzerStatus === 'WARTE_AUF_FREISCHALTUNG'"
-      mat-flat-button
-      color="primary"
-      class="action-button"
-      (click)="onAktivieren()">
+    <button *ngIf="canAktivieren" mat-flat-button color="primary" class="action-button" (click)="onAktivieren()">
       Aktivieren
     </button>
   </div>
 
+  <div class="ablaufdatum-box">
+    <mat-checkbox
+      class="w-100"
+      [disabled]="benutzerStatus !== 'AKTIV'"
+      (change)="onToggleAblaufdatum()"
+      [checked]="isAblaufdatumEnabled">
+      <span class="checkbox-beschreibung"> Zeitlich begrenzt freischalten</span>
+    </mat-checkbox>
+
+    <mat-form-field class="w-100">
+      <mat-label>Ablaufdatum</mat-label>
+      <input
+        matInput
+        readonly
+        formControlName="ablaufdatum"
+        tabindex="-1"
+        (click)="picker.open()"
+        [matDatepicker]="picker"
+        [min]="today" />
+      <mat-datepicker-toggle matSuffix [for]="picker">Datum auswählen</mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngFor="let msg of formGroup.get('ablaufdatum')?.errors || null | errorMessage">{{ msg }}</mat-error>
+    </mat-form-field>
+  </div>
+
   <div class="name-box">
-    <rad-text-input-control formControlName="vorname" class="w-100" [errors]="form.get('vorname')?.errors">
+    <rad-text-input-control formControlName="vorname" class="w-100" [errors]="formGroup.get('vorname')?.errors">
       <div class="label">Vorname</div>
     </rad-text-input-control>
 
-    <rad-text-input-control formControlName="nachname" class="w-100" [errors]="form.get('nachname')?.errors">
+    <rad-text-input-control formControlName="nachname" class="w-100" [errors]="formGroup.get('nachname')?.errors">
       <div class="label">Nachname</div>
     </rad-text-input-control>
   </div>
 
-  <rad-text-input-control formControlName="email" [errors]="form.get('email')?.errors">
+  <rad-text-input-control formControlName="email" [errors]="formGroup.get('email')?.errors">
     <div class="label">E-Mail-Adresse</div>
   </rad-text-input-control>
 
   <rad-autocomplete-dropdown
     formControlName="organisation"
     [options]="organisationOptions"
-    [errors]="form.get('organisation')?.errors">
+    [errors]="formGroup.get('organisation')?.errors">
     Organisation
   </rad-autocomplete-dropdown>
 
@@ -63,13 +78,17 @@
     [options]="rollen"
     [nullable]="false"
     [multiple]="true"
-    [errors]="form.get('rollen')?.errors">
+    [errors]="formGroup.get('rollen')?.errors">
     Rollen
   </rad-enum-dropdown-control>
 
   <div class="form-actions">
     <button mat-stroked-button color="primary" class="action-button" (click)="onZurueck()" type="button">Zurück</button>
-    <rad-action-button class="save-button" (action)="onSave()" [dirty]="form.dirty" [waiting]="fetchingNachSpeicherung">
+    <rad-action-button
+      class="save-button"
+      (action)="onSave()"
+      [dirty]="formGroup.dirty"
+      [waiting]="fetchingNachSpeicherung">
       Speichern
     </rad-action-button>
   </div>

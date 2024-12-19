@@ -15,24 +15,32 @@
 package de.wps.radvis.backend.netz.domain.event;
 
 import java.time.LocalDateTime;
-
-import org.locationtech.jts.geom.Point;
+import java.util.List;
 
 import de.wps.radvis.backend.common.domain.RadVisDomainEvent;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.KnotenDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 @EqualsAndHashCode
 public class KnotenDeletedEvent implements RadVisDomainEvent {
-	private final long knotenId;
-
-	private final Point geometry;
-
 	private final NetzAenderungAusloeser ausloeser;
 
 	private final LocalDateTime datum;
+
+	private final KnotenDeleteStatistik statistik;
+
+	private List<Knoten> knoten;
+
+	public KnotenDeletedEvent(List<Knoten> knoten, NetzAenderungAusloeser ausloeser,
+		LocalDateTime datum, KnotenDeleteStatistik statistik) {
+		super();
+		this.knoten = knoten;
+		this.ausloeser = ausloeser;
+		this.datum = datum;
+		this.statistik = statistik;
+	}
 }

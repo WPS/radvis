@@ -18,21 +18,22 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { MockBuilder, MockRender } from 'ng-mocks';
 import { Point } from 'ol/geom';
-import { Subject } from 'rxjs';
+import { NEVER, Subject } from 'rxjs';
 import { map, skip } from 'rxjs/operators';
 import { FehlerprotokollLayerComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-layer/fehlerprotokoll-layer.component';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { MapQueryParams } from 'src/app/shared/models/map-query-params';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import { SignaturTyp } from 'src/app/shared/models/signatur-typ';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { SelectFeatureMenuComponent } from 'src/app/viewer/components/select-feature-menu/select-feature-menu.component';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { NetzdetailRoutingService } from 'src/app/viewer/netz-details/services/netzdetail-routing.service';
+import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { instance, mock, when } from 'ts-mockito';
-import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 
 describe(ViewerComponent.name, () => {
   let mapQueryParams$: Subject<MapQueryParams>;
@@ -57,6 +58,8 @@ describe(ViewerComponent.name, () => {
     when(mapQueryParamsService.signatur$).thenReturn(mapQueryParams$.pipe(map(params => params.signatur)));
     const featureTogglzService = mock(FeatureTogglzService);
     when(featureTogglzService.fehlerprotokoll).thenReturn(true);
+    const infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
+    when(infrastrukturenSelektionService.selektierteInfrastrukturen$).thenReturn(NEVER);
     return MockBuilder(ViewerComponent, ViewerModule)
       .provide({
         provide: ViewerRoutingService,
@@ -79,6 +82,10 @@ describe(ViewerComponent.name, () => {
       .provide({
         provide: ActivatedRoute,
         useValue: instance(activatedRoute),
+      })
+      .provide({
+        provide: InfrastrukturenSelektionService,
+        useValue: instance(infrastrukturenSelektionService),
       })
       .provide({
         provide: FeatureTogglzService,

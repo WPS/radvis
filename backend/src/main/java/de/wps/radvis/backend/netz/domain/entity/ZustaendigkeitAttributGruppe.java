@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -91,5 +92,28 @@ public class ZustaendigkeitAttributGruppe extends VersionierteEntity {
 	public void reset() {
 		this.replaceZustaendigkeitAttribute(
 			List.of(ZustaendigkeitAttribute.builder().build()));
+	}
+
+	/**
+	 * Fügt neue Attribute in die bestehenden ein, indem das Segment eingegliedert wird und zuvor verhandene Werte
+	 * überschrieben werden
+	 * 
+	 * @param attribut
+	 */
+	public void insert(ZustaendigkeitAttribute attribut) {
+		replaceZustaendigkeitAttribute(
+			LinearReferenzierteAttribute.insertInto(getImmutableZustaendigkeitAttribute(), attribut));
+	}
+
+	/**
+	 * Fasst Segmente (echt) kleiner als übergebene Länge mit Nachbarn zusammen
+	 */
+	public void mergeSegmentsKleinerAls(LineareReferenz minimalSegmentLength) {
+		require(minimalSegmentLength.getAbschnittsmarke() > 0.0);
+
+		if (getImmutableZustaendigkeitAttribute().size() > 1) {
+			replaceZustaendigkeitAttribute(LinearReferenzierteAttribute
+				.mergeSegmentsKleinerAls(getImmutableZustaendigkeitAttribute(), minimalSegmentLength));
+		}
 	}
 }

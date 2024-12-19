@@ -30,6 +30,7 @@ import { AutomatischerImportSchritt } from 'src/app/import/models/automatischer-
 import { Severity } from 'src/app/import/models/import-session-view';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { instance, mock, when } from 'ts-mockito';
+import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 
 describe(ImportAttributeAutomatischeAbbildungComponent.name, () => {
   let component: ImportAttributeAutomatischeAbbildungComponent;
@@ -57,13 +58,20 @@ describe(ImportAttributeAutomatischeAbbildungComponent.name, () => {
 
     await TestBed.configureTestingModule({
       declarations: [ImportAttributeAutomatischeAbbildungComponent],
-      imports: [MatIconModule, MatProgressSpinnerModule, MatFormFieldModule, MatExpansionModule, NoopAnimationsModule],
+      imports: [
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatExpansionModule,
+        NoopAnimationsModule,
+        ImportSharedModule,
+      ],
       providers: [
         { provide: NotifyUserService, useValue: instance(mock(NotifyUserService)) },
         { provide: AttributeRoutingService, useValue: instance(mock(AttributeRoutingService)) },
         { provide: AttributeImportService, useValue: instance(attributeImportService) },
       ],
-    });
+    }).compileComponents();
   });
 
   beforeEach(() => {

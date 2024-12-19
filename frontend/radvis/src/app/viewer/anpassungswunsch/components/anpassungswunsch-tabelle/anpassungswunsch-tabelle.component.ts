@@ -15,10 +15,12 @@
 import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { AnpassungswunschListenView } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch-listen-view';
 import { AnpassungenRoutingService } from 'src/app/viewer/anpassungswunsch/services/anpassungen-routing.service';
 import { AnpassungswunschFilterService } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch-filter.service';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 
 @Component({
@@ -33,7 +35,12 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
 export class AnpassungswunschTabelleComponent {
   selectedAnpassungswunschID$: Observable<number | null>;
 
-  displayedColumns: string[] = ['beschreibung', 'status', 'kategorie', 'verantwortlicheOrganisation'];
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'beschreibung', displayName: 'Beschreibung' },
+    { name: 'status', displayName: 'Status' },
+    { name: 'kategorie', displayName: 'Zu ändern in' },
+    { name: 'verantwortlicheOrganisation', displayName: 'Verantwortliche Organisation' },
+  ];
 
   data$: Observable<AnpassungswunschListenView[]>;
 
@@ -43,11 +50,12 @@ export class AnpassungswunschTabelleComponent {
   public isBenutzerBerechtigtAnpassungswunschZuErstellen: boolean;
 
   isSmallViewport = false;
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public anpassungswunschFilterService: AnpassungswunschFilterService,
     private anpassungenRoutingService: AnpassungenRoutingService,
-    private benutzerDetailsService: BenutzerDetailsService
+    benutzerDetailsService: BenutzerDetailsService
   ) {
     this.data$ = this.anpassungswunschFilterService.filteredList$;
 
@@ -59,6 +67,10 @@ export class AnpassungswunschTabelleComponent {
 
     this.fertigeAnpassungswuenscheAusblendenControl = new UntypedFormControl(
       anpassungswunschFilterService.abgeschlosseneSindAusgeblendet
+    );
+
+    this.filteredSpalten$ = this.anpassungswunschFilterService.filter$.pipe(
+      map(filteredFields => filteredFields.map(f => f.field))
     );
 
     this.fertigeAnpassungswuenscheAusblendenControl.valueChanges.subscribe(active => {
@@ -81,4 +93,15 @@ export class AnpassungswunschTabelleComponent {
   onFilterReset(): void {
     this.anpassungswunschFilterService.reset();
   }
+
+  getElementValue: (item: AnpassungswunschListenView, key: string) => string | string[] = (
+    item: AnpassungswunschListenView,
+    key: string
+  ) => {
+    const value = this.anpassungswunschFilterService.getInfrastrukturValueForKey(item, key);
+    if (key === 'beschreibung' && value.length > 50) {
+      return value.slice(0, 47) + '...';
+    }
+    return value;
+  };
 }

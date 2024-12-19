@@ -58,6 +58,7 @@ import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
@@ -69,21 +70,24 @@ import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataPro
 import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.dokument.schnittstelle.view.DokumentListView;
 import de.wps.radvis.backend.dokument.schnittstelle.view.DokumenteView;
+import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
+import de.wps.radvis.backend.massnahme.domain.MassnahmenConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandabfrageService;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandsabfrageConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
 import de.wps.radvis.backend.massnahme.schnittstelle.view.MassnahmeEditView;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -122,7 +126,9 @@ import jakarta.persistence.EntityManager;
 	MailConfigurationProperties.class,
 	UmsetzungsstandsabfrageConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	MassnahmenConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 
@@ -147,6 +153,9 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 		VerwaltungseinheitService verwaltungseinheitService;
 
 		@MockBean
+		FahrradrouteRepository fahrradrouteRepository;
+
+		@MockBean
 		private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 
 		@Autowired
@@ -160,6 +169,9 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 		@Autowired
 		MassnahmeGuard massnahmeGuard;
 
+		@MockBean
+		private CsvRepository csvRepository;
+
 		@Bean
 		public MassnahmeController massnahmeController() {
 			when(benutzerResolver.fromAuthentication(any()))
@@ -167,14 +179,16 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 					BenutzerTestDataProvider.admin(
 						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
-			return new MassnahmeController(massnahmeService,
+			return new MassnahmeController(
+				massnahmeService,
 				umsetzungsstandabfrageService,
 				createMassnahmeCommandConverter,
 				saveMassnahmeCommandConverter,
 				saveUmsetzungsstandCommandConverter,
 				massnahmeGuard,
 				benutzerResolver,
-				verwaltungseinheitService);
+				verwaltungseinheitService,
+				csvRepository);
 		}
 	}
 
@@ -227,8 +241,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 			massnahmeID,
 			new AddDokumentCommand("datei.jpg"),
 			mockedMultipartFile,
-			authentication
-		);
+			authentication);
 
 		entityManager.flush();
 		entityManager.clear();
@@ -265,8 +278,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 			massnahmeID,
 			new AddDokumentCommand("datei.jpg"),
 			mockedMultipartFile,
-			authentication
-		);
+			authentication);
 
 		entityManager.flush();
 		entityManager.clear();

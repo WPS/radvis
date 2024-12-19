@@ -12,13 +12,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { MatomoConfiguration } from 'ngx-matomo-client';
+import { Environment } from './environment.type';
+
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-export const environment = {
+export const environment: Environment = {
   production: false,
   loginUrl: 'http://localhost:4200/saml2/authenticate/SSO',
+  matomoConfig: {} as MatomoConfiguration,
 };
 
 /*

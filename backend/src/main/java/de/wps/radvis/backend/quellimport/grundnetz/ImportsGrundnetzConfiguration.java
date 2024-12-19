@@ -23,7 +23,8 @@ import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMBasisQuellImportJob;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
-import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMWFSImportRepository;
+import de.wps.radvis.backend.quellimport.grundnetz.domain.DlmRepository;
+import de.wps.radvis.backend.quellimport.grundnetz.schnittstelle.repositoryImpl.DlmRepositoryImpl;
 
 @Configuration
 public class ImportsGrundnetzConfiguration {
@@ -35,19 +36,19 @@ public class ImportsGrundnetzConfiguration {
 	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
 	@Autowired
-	private CommonConfigurationProperties commonConfigurationProperties;
-
-	@Autowired
 	private DLMConfigurationProperties dlmConfigurationProperties;
 
-	@Bean
-	public DLMWFSImportRepository dlmwfsImportRepository() {
-		return new DLMWFSImportRepository(commonConfigurationProperties, dlmConfigurationProperties);
-	}
+	@Autowired
+	private CommonConfigurationProperties commonConfigurationProperties;
 
 	@Bean
 	public DLMBasisQuellImportJob dlmBasisQuellImportJob() {
 		return new DLMBasisQuellImportJob(jobExecutionDescriptionRepository, importedFeatureRepository,
-			dlmwfsImportRepository());
+			dlmRepository());
+	}
+
+	@Bean
+	public DlmRepository dlmRepository() {
+		return new DlmRepositoryImpl(dlmConfigurationProperties, commonConfigurationProperties);
 	}
 }

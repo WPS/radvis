@@ -19,6 +19,6 @@ export const FURTEN_KREUZUNGEN = new Infrastruktur(
   'icon-kreuzung.svg',
   'furten-kreuzungen',
   undefined,
-  'oben',
+  undefined,
   'Furten und Kreuzungen'
 );

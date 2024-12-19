@@ -15,14 +15,17 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
-import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
+import { ServicestationListView } from 'src/app/viewer/servicestation/models/servicestation-list-view';
 import { ServicestationFilterService } from 'src/app/viewer/servicestation/services/servicestation-filter.service';
 import { ServicestationRoutingService } from 'src/app/viewer/servicestation/services/servicestation-routing.service';
 import { ServicestationService } from 'src/app/viewer/servicestation/services/servicestation.service';
 import { CsvImportDialogComponent } from 'src/app/viewer/viewer-shared/components/csv-import-dialog/csv-import-dialog.component';
+import { ExportEvent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { CsvImportService } from 'src/app/viewer/viewer-shared/services/csv-import.service';
 import { ExportService } from 'src/app/viewer/viewer-shared/services/export.service';
@@ -42,27 +45,27 @@ import { ExportService } from 'src/app/viewer/viewer-shared/services/export.serv
 })
 export class ServicestationTabelleComponent implements CsvImportService {
   public csvImportFeatureToggl = false;
-  data$: Observable<Servicestation[]>;
-  displayedColumns: string[];
+  data$: Observable<ServicestationListView[]>;
   selectedID$: Observable<number | null>;
   exporting = false;
   exportFormate = [ExportFormat.CSV];
   isSmallViewport = false;
 
-  private columnMapping: Map<string, string> = new Map([
-    ['name', 'Name'],
-    ['quellSystem', 'Quellsystem'],
-    ['gebuehren', 'Gebühren'],
-    ['betreiber', 'Betreiber'],
-    ['marke', 'Marke'],
-    ['luftpumpe', 'Luftpumpe'],
-    ['kettenwerkzeug', 'Kettenwerkzeug'],
-    ['werkzeug', 'Werkzeug'],
-    ['fahrradhalterung', 'Fahrradhalterung'],
-    ['organisation', 'Zuständig in RadVIS'],
-    ['typ', 'Servicestation-Typ'],
-    ['status', 'Status'],
-  ]);
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'name', displayName: 'Name', width: 'large' },
+    { name: 'quellSystem', displayName: 'Quellsystem' },
+    { name: 'gebuehren', displayName: 'Gebühren' },
+    { name: 'betreiber', displayName: 'Betreiber' },
+    { name: 'marke', displayName: 'Marke' },
+    { name: 'luftpumpe', displayName: 'Luftpumpe' },
+    { name: 'kettenwerkzeug', displayName: 'Kettenwerkzeug' },
+    { name: 'werkzeug', displayName: 'Werkzeug' },
+    { name: 'fahrradhalterung', displayName: 'Fahrradhalterung' },
+    { name: 'organisation', displayName: 'Zuständig in RadVIS', width: 'large' },
+    { name: 'typ', displayName: 'Servicestation-Typ', width: 'large' },
+    { name: 'status', displayName: 'Status' },
+  ];
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public filterService: ServicestationFilterService,
@@ -77,7 +80,7 @@ export class ServicestationTabelleComponent implements CsvImportService {
   ) {
     this.data$ = this.filterService.filteredList$;
     this.selectedID$ = this.routingService.selectedInfrastrukturId$;
-    this.displayedColumns = Array.from(this.columnMapping.keys());
+    this.filteredSpalten$ = this.filterService.filter$.pipe(map(filteredFields => filteredFields.map(f => f.field)));
     this.csvImportFeatureToggl = featureTogglzService.isToggledOn(
       FeatureTogglzService.TOGGLZ_SERVICESTATIONEN_CSV_IMPORT
     );
@@ -99,10 +102,6 @@ export class ServicestationTabelleComponent implements CsvImportService {
     this.manualRoutingService.openManualServicestationenImport();
   }
 
-  getHeader(key: string): string {
-    return this.columnMapping.get(key) ?? '';
-  }
-
   onCreate(): void {
     this.routingService.toCreator();
   }
@@ -115,13 +114,18 @@ export class ServicestationTabelleComponent implements CsvImportService {
     this.filterService.reset();
   }
 
-  public onExport(format: ExportFormat): void {
+  public onExport(exportEvent: ExportEvent): void {
     const currentFilter = this.filterService.currentFilteredList.map(m => m.id);
+    const fieldNamesToExclude = this.spaltenDefinition
+      .filter(def => !exportEvent.felder.includes(def.name))
+      .map(def => def.displayName);
     this.exporting = true;
-    this.exportService.exportInfrastruktur('SERVICESTATION', format, currentFilter).finally(() => {
-      this.exporting = false;
-      this.changeDetector.markForCheck();
-    });
+    this.exportService
+      .exportInfrastruktur('SERVICESTATION', exportEvent.format, currentFilter, fieldNamesToExclude)
+      .finally(() => {
+        this.exporting = false;
+        this.changeDetector.markForCheck();
+      });
   }
 
   public onOpenCsvImportDialog(): void {

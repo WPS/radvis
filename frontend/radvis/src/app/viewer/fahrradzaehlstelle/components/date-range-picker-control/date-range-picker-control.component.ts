@@ -32,9 +32,9 @@ import {
 } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { ArtDerAuswertungSelectionStrategy } from './art-der-auswertung-selection-strategy';
-import { RadvisMatDatepickerIntl } from './radvis-mat-datepicker-intl';
+import { RadvisMatDatepickerIntl } from 'src/app/shared/components/radvis-mat-datepicker-intl';
 import { ArtDerAuswertung } from 'src/app/viewer/fahrradzaehlstelle/models/art-der-auswertung';
-import { DeLocaleDateAdapter } from './de-locale-date-adapter';
+import { DeLocaleDateAdapter } from 'src/app/shared/components/de-locale-date-adapter';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({

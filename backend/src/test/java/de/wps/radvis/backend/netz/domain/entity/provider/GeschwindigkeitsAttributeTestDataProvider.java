@@ -20,6 +20,7 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
+import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
 
 public class GeschwindigkeitsAttributeTestDataProvider {
 	public static GeschwindigkeitAttribute.GeschwindigkeitAttributeBuilder withGrundnetzDefaultwerte() {
@@ -37,5 +38,14 @@ public class GeschwindigkeitsAttributeTestDataProvider {
 		return GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
 			List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte().build())
 		);
+	}
+
+	public static GeschwindigkeitAttribute.GeschwindigkeitAttributeBuilder createWithValues() {
+		return GeschwindigkeitAttribute
+			.builder()
+			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+			.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_50_KMH)
+			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_30_KMH)
+			.ortslage(KantenOrtslage.INNERORTS);
 	}
 }

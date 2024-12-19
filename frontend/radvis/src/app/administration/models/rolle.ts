@@ -19,6 +19,7 @@ export enum Rolle {
   KREISKOORDINATOREN = 'KREISKOORDINATOREN',
   RADVERKEHRSBEAUFTRAGTER = 'RADVERKEHRSBEAUFTRAGTER',
   BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN = 'BEARBEITERIN_VM_RADNETZ_ADMINISTRATORIN',
+  KREISNETZBEARBEITERIN = 'KREISNETZBEARBEITERIN',
   RADVIS_BETRACHTER = 'RADVIS_BETRACHTER',
   RADROUTEN_BEARBEITERIN = 'RADROUTEN_BEARBEITERIN',
   EXTERNER_DIENSTLEISTER = 'EXTERNER_DIENSTLEISTER',
@@ -46,6 +47,8 @@ export namespace Rolle {
         return { name: k, displayText: 'Externer Dienstleister' };
       case Rolle.RADVIS_BETRACHTER:
         return { name: k, displayText: 'BetrachterIn' };
+      case Rolle.KREISNETZBEARBEITERIN:
+        return { name: k, displayText: 'KreisnetzbearbeiterIn' };
       case Rolle.RADNETZ_QUALITAETSSICHERIN:
         return { name: k, displayText: 'RadNETZ-QualitätssicherIn' };
       case Rolle.LGL_MITARBEITERIN:
@@ -57,4 +60,13 @@ export namespace Rolle {
     }
     throw new Error('Beschreibung für enum Rolle fehlt: ' + k);
   });
+
+  export const getDisplayName = (rolle: Rolle): string => {
+    return options.find(o => o.name === rolle)?.displayText ?? rolle;
+  };
+
+  export const getDisplayNames = (rollen: Rolle[]): string => {
+    const EMPTY_FIELD_INDICATOR = '';
+    return rollen.map(rolle => getDisplayName(rolle)).join(', ') ?? EMPTY_FIELD_INDICATOR;
+  };
 }

@@ -15,7 +15,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { MockBuilder } from 'ng-mocks';
+import { MockBuilder, MockRender } from 'ng-mocks';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { EditorModule } from 'src/app/editor/editor.module';
@@ -23,9 +23,14 @@ import { KantenCreatorComponent } from 'src/app/editor/kanten/components/kanten-
 import { Kante } from 'src/app/editor/kanten/models/kante';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NotifyGeometryChangedService } from 'src/app/editor/kanten/services/notify-geometry-changed.service';
+import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
+import { MapQueryParams } from 'src/app/shared/models/map-query-params';
+import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
+import { CreateAnpassungswunschRouteProvider } from 'src/app/shared/services/create-anpassungswunsch-route.provider';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
-import { anyString, anything, instance, mock, verify, when } from 'ts-mockito';
+import { AnpassungenRoutingService } from 'src/app/viewer/anpassungswunsch/services/anpassungen-routing.service';
+import { anyString, anything, capture, instance, mock, reset, verify, when } from 'ts-mockito';
 
 describe(KantenCreatorComponent.name, () => {
   let component: KantenCreatorComponent;
@@ -36,6 +41,7 @@ describe(KantenCreatorComponent.name, () => {
   let notifyUserServiceMock: NotifyUserService;
   let notifyGeometryChangedService: NotifyGeometryChangedService;
   let kanteSelektionService: KantenSelektionService;
+  let mapQueryParamsService: MapQueryParamsService;
 
   beforeEach(() => {
     editorRoutingServiceMock = mock(EditorRoutingService);
@@ -44,6 +50,8 @@ describe(KantenCreatorComponent.name, () => {
     notifyUserServiceMock = mock(NotifyUserService);
     notifyGeometryChangedService = mock(NotifyGeometryChangedService);
     kanteSelektionService = mock(KantenSelektionService);
+    mapQueryParamsService = mock(MapQueryParamsService);
+    when(mapQueryParamsService.mapQueryParamsSnapshot).thenReturn({ netzklassen: [] } as unknown as MapQueryParams);
     return MockBuilder(KantenCreatorComponent, EditorModule)
       .provide({
         provide: EditorRoutingService,
@@ -66,6 +74,14 @@ describe(KantenCreatorComponent.name, () => {
         useValue: instance(notifyGeometryChangedService),
       })
       .provide({
+        provide: MapQueryParamsService,
+        useValue: instance(mapQueryParamsService),
+      })
+      .provide({
+        provide: CreateAnpassungswunschRouteProvider,
+        useValue: instance(mock(AnpassungenRoutingService)),
+      })
+      .provide({
         provide: KantenSelektionService,
         useValue: instance(kanteSelektionService),
       });
@@ -75,6 +91,43 @@ describe(KantenCreatorComponent.name, () => {
     fixture = TestBed.createComponent(KantenCreatorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  describe('alle Netzklassen einblenden', () => {
+    it('should set currentNetzklassen for guard', () => {
+      reset(mapQueryParamsService);
+      const previousNetzklassenFilter = [Netzklassefilter.KREISNETZ];
+      when(mapQueryParamsService.mapQueryParamsSnapshot).thenReturn({
+        netzklassen: previousNetzklassenFilter,
+      } as MapQueryParams);
+      const fixture2 = MockRender(KantenCreatorComponent, {}, { reset: true });
+
+      expect(fixture2.point.componentInstance.previousNetzklassenfilter).toEqual(previousNetzklassenFilter);
+    });
+
+    it('should add all Netzklassen to existing selection', () => {
+      reset(mapQueryParamsService);
+      when(mapQueryParamsService.mapQueryParamsSnapshot).thenReturn({
+        netzklassen: [Netzklassefilter.KREISNETZ],
+      } as MapQueryParams);
+      MockRender(KantenCreatorComponent, {}, { reset: true });
+
+      verify(mapQueryParamsService.update(anything())).once();
+      expect(capture(mapQueryParamsService.update).last()[0]).toEqual({
+        netzklassen: Netzklassefilter.getAll(),
+      });
+    });
+
+    it('should not do anything if all Netzklassen already visible', () => {
+      reset(mapQueryParamsService);
+      when(mapQueryParamsService.mapQueryParamsSnapshot).thenReturn({
+        netzklassen: Netzklassefilter.getAll(),
+      } as MapQueryParams);
+      MockRender(KantenCreatorComponent, {}, { reset: true });
+
+      verify(mapQueryParamsService.update(anything())).never();
+      expect().nothing();
+    });
   });
 
   describe('selection', () => {
@@ -137,15 +190,15 @@ describe(KantenCreatorComponent.name, () => {
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function getVonKnotenText(fixture: ComponentFixture<KantenCreatorComponent>): string {
-  return fixture.debugElement.queryAll(By.css('.knoten-info > span.italic'))[0].nativeElement.textContent;
+  return fixture.debugElement.queryAll(By.css('.knoten-info > span.italic'))[0].nativeElement.textContent.trim();
 }
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function getBisKnotenText(fixture: ComponentFixture<KantenCreatorComponent>): string {
-  return fixture.debugElement.queryAll(By.css('.knoten-info > span.italic'))[1].nativeElement.textContent;
+  return fixture.debugElement.queryAll(By.css('.knoten-info > span.italic'))[1].nativeElement.textContent.trim();
 }
 
 // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function getValidationMessage(fixture: ComponentFixture<KantenCreatorComponent>): string | undefined {
-  return fixture.debugElement.queryAll(By.css('.fehlertext'))[0]?.nativeElement.textContent;
+  return fixture.debugElement.queryAll(By.css('.fehlertext'))[0]?.nativeElement.textContent.trim();
 }

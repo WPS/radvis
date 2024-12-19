@@ -45,7 +45,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Importiert D-Routen aus der konfigurierten Shapefile.
+ * Importiert D-Routen aus der konfigurierten Shapefile. Es wird keine Aktualisierung bestehender Daten vorgenommen.
  *
  * Anforderungen an die Shapefile:
  * <ol>
@@ -120,8 +120,7 @@ public class DRouteImportJob extends AbstractJob {
 					geometry,
 					KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 						.createPoint(geometry.getCoordinates()[0]),
-					importDate
-				);
+					importDate);
 				fahrradrouteRepository.save(fahrradroute);
 				importStatistik.anzahlFahrradroutenErstellt++;
 			});

@@ -14,23 +14,26 @@
 
 package de.wps.radvis.backend.application.schnittstelle;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.application.domain.RadVISInfoService;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("info")
 public class RadVISInfoController {
 
-	@Autowired
-	private CommonConfigurationProperties commonConfigurationProperties;
+	private final RadVISInfoService radVISInfoService;
 
-	@GetMapping(value = "version", produces = MediaType.TEXT_PLAIN_VALUE)
-	public String getVersion() {
-		return commonConfigurationProperties.getVersion();
+	@GetMapping(value = "version")
+	public ResponseEntity<Map<String, String>> getVersion() {
+		Map<String, String> jsonMap = radVISInfoService.getVersion();
+		return ResponseEntity.ok(jsonMap);
 	}
 }

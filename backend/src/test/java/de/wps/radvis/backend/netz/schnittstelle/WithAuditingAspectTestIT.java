@@ -38,6 +38,7 @@ import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
@@ -86,7 +87,7 @@ class WithAuditingAspectTestIT {
 					.build());
 		netzController = new NetzController(netzService, netzAutorisierungsService, benutzerResolver,
 			Mockito.mock(ZustaendigkeitsService.class), Mockito.mock(SaveKanteCommandConverter.class),
-			Mockito.mock(NetzToFeatureDetailsConverter.class));
+			Mockito.mock(NetzToFeatureDetailsConverter.class), Mockito.mock(NetzConfigurationProperties.class));
 
 	}
 
@@ -111,7 +112,8 @@ class WithAuditingAspectTestIT {
 					new RadVisUserDetails(
 						BenutzerTestDataProvider
 							.externerDienstleister(
-								VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()).build(),
+								VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
+							.build(),
 						new ArrayList<>())),
 				List.of(command));
 

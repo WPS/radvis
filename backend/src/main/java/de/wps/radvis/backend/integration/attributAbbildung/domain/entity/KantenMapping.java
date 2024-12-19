@@ -18,6 +18,9 @@ import static org.valid4j.Assertive.require;
 
 import java.util.List;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import jakarta.persistence.CollectionTable;
@@ -45,6 +48,8 @@ public class KantenMapping extends AbstractEntity {
 	@Getter
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "mapped_kante")
+	// Das @Cascade ist hier relevant um die Einträge aus der MappedKanten-Tabelle über die deleteAllBy... Methode im Repo zu löschen.
+	@Cascade(CascadeType.REMOVE)
 	private List<MappedKante> abgebildeteKanten;
 
 	public KantenMapping(Long grundnetzKantenId, QuellSystem quellsystem, List<MappedKante> abgebildeteKanten) {

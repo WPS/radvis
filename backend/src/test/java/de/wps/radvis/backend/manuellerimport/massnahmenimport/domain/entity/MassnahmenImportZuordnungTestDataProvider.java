@@ -9,8 +9,8 @@ import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.service.ManuellerMassnahmenImportService;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MassnahmenImportZuordnungStatus;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 
 public class MassnahmenImportZuordnungTestDataProvider {
 	public static MassnahmenImportZuordnung neuWithQuellAttribute(Map<String, String> attribute) {

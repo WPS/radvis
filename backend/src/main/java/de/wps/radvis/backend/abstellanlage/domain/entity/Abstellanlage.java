@@ -67,7 +67,7 @@ public class Abstellanlage extends VersionierteEntity {
 		public static final String POSITION_X_UTM32_N = "Position X (UTM32_N)";
 		public static final String POSITION_Y_UTM32_N = "Position Y (UTM32_N)";
 		public static final String BETREIBER = "Betreiber";
-		public static final String EXTERNE_ID = "Externe Id";
+		public static final String EXTERNE_ID = "Externe ID";
 		public static final String QUELLSYSTEM = "Quellsystem";
 		public static final String ZUSTAENDIG_IN_RAD_VIS = "Zuständig in RadVIS";
 		public static final String ANZAHL_STELLPLAETZE = "Anzahl Stellplätze";
@@ -292,8 +292,7 @@ public class Abstellanlage extends VersionierteEntity {
 		GebuehrenProJahr gebuehrenProJahr,
 		AbstellanlagenBeschreibung beschreibung,
 		AbstellanlagenWeitereInformation weitereInformation,
-		AbstellanlagenStatus status
-	) {
+		AbstellanlagenStatus status) {
 		require(geometrie, notNullValue());
 		require(betreiber, notNullValue());
 		require(anzahlStellplaetze, notNullValue());

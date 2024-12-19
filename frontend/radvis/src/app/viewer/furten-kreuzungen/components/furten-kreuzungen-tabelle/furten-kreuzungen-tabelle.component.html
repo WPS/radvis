@@ -15,7 +15,8 @@
 <rad-infrastruktur-tabelle-layout
   *ngIf="data$ | async as data"
   [data]="data"
-  [displayedColumns]="displayedColumns"
+  [spaltenDefinition]="spaltenDefinition"
+  [filteredSpalten]="(filteredSpalten$ | async) ?? []"
   titleColumnPrefix="Furt/Kreuzung mit Id"
   [selectedId]="selectedFurtKreuzungId$ | async"
   [fetching]="furtenKreuzungenFilterService.fetching"
@@ -41,61 +42,8 @@
     Alle Filter zurücksetzen
   </button>
 
-  <ng-container matColumnDef="id">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Id</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'id') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="verantwortlich">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Verantwortliche Organisation</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'verantwortlich') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="typ">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Typ</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'typ') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="radnetzKonform">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Radnetz konform</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'radnetzKonform') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="kommentar">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Kommentar</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{
-        furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'kommentar').length > 50
-          ? (furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'kommentar') | slice: 0 : 50) + '...'
-          : furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'kommentar')
-      }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="knotenForm">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Knoten Form</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ furtenKreuzungenFilterService.getInfrastrukturValueForKey(element, 'knotenForm') }}
-    </td>
-  </ng-container>
+  <rad-infrastruktur-tabelle-spalte
+    *ngFor="let def of spaltenDefinition"
+    [spaltenDefinition]="def"
+    [getElementValueFn]="getElementValue"></rad-infrastruktur-tabelle-spalte>
 </rad-infrastruktur-tabelle-layout>

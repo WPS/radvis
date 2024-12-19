@@ -14,26 +14,36 @@
 
 package de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.service;
 
+import de.wps.radvis.backend.barriere.domain.BarriereService;
 import de.wps.radvis.backend.common.domain.service.FehlerprotokollService;
 import de.wps.radvis.backend.common.domain.valueObject.FehlerprotokollTyp;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradrouteService;
+import de.wps.radvis.backend.furtKreuzung.domain.FurtKreuzungService;
+import de.wps.radvis.backend.integration.dlm.domain.AttributlueckenService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
-import de.wps.radvis.backend.matching.domain.OsmAbbildungsFehlerService;
+import de.wps.radvis.backend.matching.domain.service.OsmAbbildungsFehlerService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FehlerprotokollServiceFactory {
 
 	private final MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+	private final AttributlueckenService attributlueckenService;
 	private final FahrradrouteService fahrradrouteService;
-
+	private final BarriereService barriereService;
+	private final FurtKreuzungService furtKreuzungService;
 	private final OsmAbbildungsFehlerService osmAbbildungsFehlerService;
 
 	public FehlerprotokollServiceFactory(
 		MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService,
-		FahrradrouteService fahrradrouteService, OsmAbbildungsFehlerService osmAbbildungsFehlerService) {
+		AttributlueckenService attributlueckenService, FahrradrouteService fahrradrouteService,
+		BarriereService barriereService, FurtKreuzungService furtKreuzungService,
+		OsmAbbildungsFehlerService osmAbbildungsFehlerService) {
 		this.massnahmeNetzbezugAenderungProtokollierungsService = massnahmeNetzbezugAenderungProtokollierungsService;
+		this.attributlueckenService = attributlueckenService;
 		this.fahrradrouteService = fahrradrouteService;
+		this.barriereService = barriereService;
+		this.furtKreuzungService = furtKreuzungService;
 		this.osmAbbildungsFehlerService = osmAbbildungsFehlerService;
 	}
 
@@ -41,6 +51,12 @@ public class FehlerprotokollServiceFactory {
 		switch (fehlerprotokollTyp) {
 		case DLM_REIMPORT_JOB_MASSNAHMEN:
 			return massnahmeNetzbezugAenderungProtokollierungsService;
+		case DLM_REIMPORT_JOB_BARRIEREN:
+			return barriereService;
+		case DLM_REIMPORT_JOB_FURTEN_KREUZUNGEN:
+			return furtKreuzungService;
+		case ATTRIBUTLUECKEN_SCHLIESSEN:
+			return attributlueckenService;
 		case TOUBIZ_IMPORT_FAHRRADROUTEN:
 		case TFIS_IMPORT_LRFW:
 		case DLM_REIMPORT_JOB_FAHRRADROUTEN:

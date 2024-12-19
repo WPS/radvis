@@ -40,12 +40,14 @@ class GeschwindigkeitAttributeTest {
 			.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(Hoechstgeschwindigkeit.MAX_20_KMH)
 			.build();
 
-		assertThat(g1.vertauscht()).isEqualTo(g1);
-		assertThat(g2.vertauscht().vertauscht()).isEqualTo(g2);
-		assertThat(g2.vertauscht().getHoechstgeschwindigkeit()).isEqualTo(Hoechstgeschwindigkeit.MAX_50_KMH);
-		assertThat(g2.vertauscht().getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
-			.contains(Hoechstgeschwindigkeit.MAX_20_KMH);
-		assertThat(g3.vertauscht()).isEqualTo(g3);
+		assertThat(g1.withUmgekehrterStationierungsrichtung()).isEqualTo(g1);
+		assertThat(g2.withUmgekehrterStationierungsrichtung().withUmgekehrterStationierungsrichtung()).isEqualTo(g2);
+		assertThat(g2.withUmgekehrterStationierungsrichtung().getHoechstgeschwindigkeit()).isEqualTo(
+			Hoechstgeschwindigkeit.MAX_50_KMH);
+		assertThat(g2.withUmgekehrterStationierungsrichtung()
+			.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung())
+				.contains(Hoechstgeschwindigkeit.MAX_20_KMH);
+		assertThat(g3.withUmgekehrterStationierungsrichtung()).isEqualTo(g3);
 	}
 
 }

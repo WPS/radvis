@@ -33,8 +33,8 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweis;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweisText;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import lombok.Getter;
 
 public class MassnahmenImportZuordnung {

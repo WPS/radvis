@@ -15,11 +15,13 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, forwardRef, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ImportprotokollListView } from 'src/app/viewer/importprotokolle/models/importprotokoll-list-view';
 import { ImportprotokollTyp } from 'src/app/viewer/importprotokolle/models/importprotokoll-typ';
 import { IMPORTPROTOKOLLE } from 'src/app/viewer/importprotokolle/models/importprotokoll.infrastruktur';
 import { ImportprotokollRoutingService } from 'src/app/viewer/importprotokolle/services/importprotokoll-routing.service';
 import { ImportprotokollService } from 'src/app/viewer/importprotokolle/services/importprotokoll.service';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/filter-query-params.service';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
@@ -37,15 +39,14 @@ export class ImportprotokolleTabelleComponent
   extends AbstractInfrastrukturenFilterService<ImportprotokollListView>
   implements OnDestroy
 {
-  displayedColumns: string[];
-
   public selectedImportprotokollId$: Observable<number | null>;
 
-  private columnMapping: Map<string, string> = new Map([
-    ['importprotokollTyp', 'Typ'],
-    ['importQuelle', 'Import aus'],
-    ['startZeit', 'Gestartet am'],
-  ]);
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'importprotokollTyp', displayName: 'Typ' },
+    { name: 'importQuelle', displayName: 'Import aus' },
+    { name: 'startZeit', displayName: 'Gestartet am' },
+  ];
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     private importprotokollService: ImportprotokollService,
@@ -55,12 +56,8 @@ export class ImportprotokolleTabelleComponent
   ) {
     super(infrastrukturenSelektionService, IMPORTPROTOKOLLE, filterQueryParamsService);
     this.selectedImportprotokollId$ = importprotokollRoutingService.selectedInfrastrukturId$;
-    this.displayedColumns = Array.from(this.columnMapping.keys());
+    this.filteredSpalten$ = this.filter$.pipe(map(filteredFields => filteredFields.map(f => f.field)));
     this.init();
-  }
-
-  getHeader(key: string): string {
-    return this.columnMapping.get(key) ?? '';
   }
 
   ngOnDestroy(): void {

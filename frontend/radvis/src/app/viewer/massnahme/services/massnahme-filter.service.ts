@@ -23,11 +23,27 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
 import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/filter-query-params.service';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ErweiterterMassnahmenFilter } from 'src/app/viewer/massnahme/models/erweiterter-massnahmen-filter';
+
 @Injectable({
   providedIn: 'root',
 })
 export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService<MassnahmeListenView> {
-  public organisation: Verwaltungseinheit | null = null;
+  private readonly defaultErweiterterFilter: ErweiterterMassnahmenFilter;
+
+  private _erweiterterFilter!: ErweiterterMassnahmenFilter;
+  public set erweiterterFilter(value: ErweiterterMassnahmenFilter) {
+    this._erweiterterFilter = value;
+    this.erweiterterFilterAktiv$$.next(!ErweiterterMassnahmenFilter.isEmpty(value));
+  }
+  public get erweiterterFilter(): ErweiterterMassnahmenFilter {
+    return { ...this._erweiterterFilter };
+  }
+  private erweiterterFilterAktiv$$ = new BehaviorSubject<boolean>(false);
+  get erweiterterFilterAktiv$(): Observable<boolean> {
+    return this.erweiterterFilterAktiv$$.asObservable();
+  }
 
   constructor(
     private massnahmeService: MassnahmeService,
@@ -38,15 +54,43 @@ export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService
     super(infrastrukturenSelektionService, MASSNAHMEN, filterQueryParamsService);
     const benutzerOrganisation = benutzerDetailsService.aktuellerBenutzerOrganisation();
 
-    if (benutzerOrganisation) {
-      if (Verwaltungseinheit.isLandesOderBundesweit(benutzerOrganisation)) {
-        this.organisation = null;
-      } else {
-        this.organisation = benutzerOrganisation;
-      }
+    let erweiterterFilterDefaultOrganisation: Verwaltungseinheit | null = null;
+    if (benutzerOrganisation && !Verwaltungseinheit.isLandesOderBundesweit(benutzerOrganisation)) {
+      erweiterterFilterDefaultOrganisation = benutzerOrganisation;
     }
 
+    this.defaultErweiterterFilter = {
+      historischeMassnahmenAnzeigen: false,
+      fahrradrouteFilterKategorie: null,
+      fahrradroute: null,
+      fahrradroutenIds: [],
+      organisation: erweiterterFilterDefaultOrganisation,
+    };
+    this.erweiterterFilter = this.defaultErweiterterFilter;
+
     this.init();
+  }
+
+  public override reset(): void {
+    super.reset();
+
+    const isErweiterterFilterInDefaultState: boolean =
+      this.erweiterterFilter.historischeMassnahmenAnzeigen ===
+        this.defaultErweiterterFilter.historischeMassnahmenAnzeigen &&
+      this.erweiterterFilter.fahrradrouteFilterKategorie ===
+        this.defaultErweiterterFilter.fahrradrouteFilterKategorie &&
+      this.erweiterterFilter.organisation === this.defaultErweiterterFilter.organisation;
+
+    if (!isErweiterterFilterInDefaultState) {
+      this.erweiterterFilter = this.defaultErweiterterFilter;
+      this.refetchData();
+    }
+  }
+
+  public updateErweiterterFilter(value: ErweiterterMassnahmenFilter): void {
+    this.erweiterterFilter = value;
+
+    this.refetchData();
   }
 
   public onMassnahmeDeleted(id: number): void {
@@ -54,7 +98,7 @@ export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService
   }
 
   protected getAll(): Promise<MassnahmeListenView[]> {
-    return this.massnahmeService.getAll(this.organisation?.id);
+    return this.massnahmeService.getAll(this.erweiterterFilter);
   }
 
   protected getInfrastrukturValueForKey(item: MassnahmeListenView, key: string): string | string[] {

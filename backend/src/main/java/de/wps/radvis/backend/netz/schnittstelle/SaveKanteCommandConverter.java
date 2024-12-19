@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
-import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
+import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute.KantenAttributeBuilder;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveFuehrungsformAttributeCommand;
@@ -48,8 +48,7 @@ public class SaveKanteCommandConverter {
 			command.getLinearReferenzierterAbschnitt(),
 			command.getOrtslage(),
 			command.getHoechstgeschwindigkeit(),
-			command.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung()
-		);
+			command.getAbweichendeHoechstgeschwindigkeitGegenStationierungsrichtung());
 	}
 
 	public ZustaendigkeitAttribute convertZustaendigkeitsAttributeCommand(
@@ -90,12 +89,11 @@ public class SaveKanteCommandConverter {
 			command.getTrennstreifenTrennungZuRechts(),
 			command.getTrennstreifenTrennungZuLinks(),
 			command.getTrennstreifenFormRechts(),
-			command.getTrennstreifenFormLinks()
-		);
+			command.getTrennstreifenFormLinks());
 	}
 
-	public KantenAttribute convertKantenAttributeCommand(SaveKanteAttributeCommand command) {
-		KantenAttributeBuilder builder = KantenAttribute.builder()
+	public KantenAttributGruppe apply(KantenAttributGruppe kantenAttributGruppe, SaveKanteAttributeCommand command) {
+		KantenAttributeBuilder kantenAttributeBuilder = kantenAttributGruppe.getKantenAttribute().toBuilder()
 			.beleuchtung(command.getBeleuchtung())
 			.dtvFussverkehr(command.getDtvFussverkehr())
 			.dtvPkw(command.getDtvPkw())
@@ -111,9 +109,15 @@ public class SaveKanteCommandConverter {
 		Verwaltungseinheit gemeindeLoaded = null;
 		if (command.getGemeinde() != null) {
 			gemeindeLoaded = verwaltungseinheitResolver.resolve(command.getGemeinde());
-			builder.gemeinde(gemeindeLoaded);
+			kantenAttributeBuilder.gemeinde(gemeindeLoaded);
 		}
 
-		return builder.build();
+		return KantenAttributGruppe.builder()
+			.id(command.getGruppenId())
+			.version(command.getGruppenVersion())
+			.netzklassen(command.getNetzklassen())
+			.istStandards(command.getIstStandards())
+			.kantenAttribute(kantenAttributeBuilder.build())
+			.build();
 	}
 }

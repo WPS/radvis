@@ -38,6 +38,8 @@ import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import de.wps.radvis.backend.common.domain.valueObject.FehlerprotokollTyp;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.matching.domain.entity.OsmAbbildungsFehler;
+import de.wps.radvis.backend.matching.domain.repository.OsmAbbildungsFehlerRepository;
+import de.wps.radvis.backend.matching.domain.service.OsmAbbildungsFehlerService;
 
 @Tag("group4")
 @ContextConfiguration(classes = {

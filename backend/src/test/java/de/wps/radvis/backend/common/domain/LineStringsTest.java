@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -37,8 +38,7 @@ class LineStringsTest {
 	@MethodSource("findeKehrtwendenTest_testParamProvider")
 	void findeKehrtwenden_paramTest(
 		LineString lineString,
-		List<Coordinate> expectedKehrtwendenCoordinates
-	) {
+		List<Coordinate> expectedKehrtwendenCoordinates) {
 		// act
 		MultiPoint kehrtwenden = LineStrings.findeKehrtwenden(lineString);
 
@@ -53,32 +53,28 @@ class LineStringsTest {
 				GeometryTestdataProvider.createLineString(
 					new Coordinate(0, 0),
 					new Coordinate(1, 0)),
-				List.of()
-			),
+				List.of()),
 			// rechterWinkel -> keineKehrtwende
 			Arguments.of(
 				GeometryTestdataProvider.createLineString(
 					new Coordinate(0, 0),
 					new Coordinate(1, 0),
 					new Coordinate(1, 1)),
-				List.of()
-			),
+				List.of()),
 			// spitzerWinkel -> keineKehrtwende
 			Arguments.of(
 				GeometryTestdataProvider.createLineString(
 					new Coordinate(0, 0),
 					new Coordinate(1, 0),
 					new Coordinate(0, 0.1)),
-				List.of()
-			),
+				List.of()),
 			// hinZurueck -> einfacheKehrtwende
 			Arguments.of(
 				GeometryTestdataProvider.createLineString(
 					new Coordinate(0, 0),
 					new Coordinate(1, 0),
 					new Coordinate(0, 0)),
-				List.of(new Coordinate(1, 0))
-			),
+				List.of(new Coordinate(1, 0))),
 			// hinZurueckHin -> zweiKehrtwenden
 			Arguments.of(
 				GeometryTestdataProvider.createLineString(
@@ -87,9 +83,7 @@ class LineStringsTest {
 					new Coordinate(0, 0),
 					new Coordinate(1, 0)),
 				List.of(new Coordinate(1, 0),
-					new Coordinate(0, 0))
-			)
-		);
+					new Coordinate(0, 0))));
 	}
 
 	@DisplayName("entferneArtifizielleKehrtwenden: Parametrisierter Test")
@@ -98,8 +92,7 @@ class LineStringsTest {
 	void entferneArtifizielleKehrtwenden_paramTest(
 		LineString lineStringAusRoutingOderMatching,
 		LineString originalLineString,
-		List<Coordinate> expectedCoordinates
-	) {
+		List<Coordinate> expectedCoordinates) {
 		// act
 		LineString bereinigt = LineStrings.entferneArtifizielleKehrtwenden(lineStringAusRoutingOderMatching,
 			originalLineString);
@@ -119,8 +112,7 @@ class LineStringsTest {
 					new Coordinate(0, 0),
 					new Coordinate(11, 101)),
 				List.of(new Coordinate(0, 0),
-					new Coordinate(10, 100))
-			),
+					new Coordinate(10, 100))),
 			// kehrtwende mit Gegenstück im originalLineString: wird nicht entfernt
 			Arguments.of(
 				GeometryTestdataProvider.createLineString(
@@ -133,8 +125,7 @@ class LineStringsTest {
 					new Coordinate(0, 0)),
 				List.of(new Coordinate(0, 0),
 					new Coordinate(10, 100),
-					new Coordinate(0, 0))
-			),
+					new Coordinate(0, 0))),
 			// kehrtwende ohne Gegenstück im originalLineString: wird entfernt
 			Arguments.of(
 				GeometryTestdataProvider.createLineString(
@@ -146,9 +137,7 @@ class LineStringsTest {
 					new Coordinate(1, 1),
 					new Coordinate(101, 9)),
 				List.of(new Coordinate(0, 0),
-					new Coordinate(100, 10))
-			)
-		);
+					new Coordinate(100, 10))));
 	}
 
 	@DisplayName("Abweichende Segmente: Parametrisierter Test")
@@ -157,8 +146,7 @@ class LineStringsTest {
 	void findeSegmenteZweierLinestringsMitAbstandGroesserAls_paramTest(
 		LineString referenz,
 		LineString abweichung,
-		List<Coordinate> expectedCoordinates
-	) {
+		List<Coordinate> expectedCoordinates) {
 		// act
 		MultiLineString abweichendeSegmente = LineStrings.findeSegmenteZweierLinestringsMitAbstandGroesserAls(
 			abweichung,
@@ -191,8 +179,7 @@ class LineStringsTest {
 				GeometryTestdataProvider.createLineString(
 					new Coordinate(0, 0),
 					new Coordinate(10, 0)),
-				List.of()
-			),
+				List.of()),
 			// LineStringNurZweiPunkte_abw
 			Arguments.of(
 				referenzLineString2Coords,
@@ -200,8 +187,7 @@ class LineStringsTest {
 					new Coordinate(0, 0),
 					new Coordinate(10, 10)),
 				List.of(new Coordinate(0, 0),
-					new Coordinate(10, 10))
-			),
+					new Coordinate(10, 10))),
 			// ersteVonZweiKoordinatenWeichtAb
 			Arguments.of(
 				referenzLineString2Coords,
@@ -209,8 +195,7 @@ class LineStringsTest {
 					new Coordinate(0, 10),
 					new Coordinate(10, 0)),
 				List.of(new Coordinate(0, 10),
-					new Coordinate(10, 0))
-			),
+					new Coordinate(10, 0))),
 			// zweiteVonZweiKoordinatenWeichtAb
 			Arguments.of(
 				referenzLineString2Coords,
@@ -218,8 +203,7 @@ class LineStringsTest {
 					new Coordinate(0, 0),
 					new Coordinate(10, 10)),
 				List.of(new Coordinate(0, 0),
-					new Coordinate(10, 10))
-			),
+					new Coordinate(10, 10))),
 			// ******************** LineString aus 2 Koordinaten **************************
 			// ersteKoordinateWeichtAb
 			Arguments.of(
@@ -229,8 +213,7 @@ class LineStringsTest {
 					new Coordinate(10, 0),
 					new Coordinate(20, 0)),
 				List.of(new Coordinate(0, 10),
-					new Coordinate(10, 0))
-			),
+					new Coordinate(10, 0))),
 			// letzteKoordinateWeichtAb
 			Arguments.of(
 				referenzLineString3Coords,
@@ -239,8 +222,7 @@ class LineStringsTest {
 					new Coordinate(10, 0),
 					new Coordinate(20, 10)),
 				List.of(new Coordinate(10, 0),
-					new Coordinate(20, 10))
-			),
+					new Coordinate(20, 10))),
 			// mittlereKoordinateWeichtAb
 			Arguments.of(
 				referenzLineString3Coords,
@@ -250,8 +232,7 @@ class LineStringsTest {
 					new Coordinate(20, 0)),
 				List.of(new Coordinate(0, 0),
 					new Coordinate(10, 10),
-					new Coordinate(20, 0))
-			),
+					new Coordinate(20, 0))),
 			// ******************** LineString aus vielen Koordinaten **************************
 			// mittlereKoordinateWeichtAb
 			Arguments.of(
@@ -263,8 +244,7 @@ class LineStringsTest {
 					new Coordinate(30, 0),
 					new Coordinate(40, 0),
 					new Coordinate(50, 0)),
-				List.of()
-			),
+				List.of()),
 			// mittlereKoordinateWeichtAb
 			Arguments.of(
 				referenzLineString5Coords,
@@ -278,8 +258,77 @@ class LineStringsTest {
 				List.of(new Coordinate(10, 0),
 					new Coordinate(20, 10),
 					new Coordinate(30, 10),
-					new Coordinate(40, 0))
-			)
-		);
+					new Coordinate(40, 0))));
 	}
+
+	@Test
+	void haveSameStationierungsrichtung_sameLineString_true() {
+		// arrange
+		LineString lineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(100, 100));
+
+		// act + assert
+		assertThat(LineStrings.haveSameStationierungsrichtung(lineString, lineString)).isTrue();
+	}
+
+	@Test
+	void haveSameStationierungsrichtung_reverseLineString_false() {
+		// arrange
+		LineString lineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(100, 100));
+
+		// act + assert
+		assertThat(LineStrings.haveSameStationierungsrichtung(lineString, lineString.reverse())).isFalse();
+	}
+
+	@Test
+	void haveSameStationierungsrichtung_sameLineStringUeberschneidungEnde_true() {
+		// arrange
+		LineString lineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(100, 100));
+		LineString lineStringUeberschneidung = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(50, 150));
+
+		// act + assert
+		assertThat(LineStrings.haveSameStationierungsrichtung(lineString, lineStringUeberschneidung)).isTrue();
+	}
+
+	@Test
+	void haveSameStationierungsrichtung_reverseLineStringUeberschneidungEnde_false() {
+		// arrange
+		LineString lineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(100, 100));
+		LineString lineStringUeberschneidung = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(50, 150));
+
+		// act + assert
+		assertThat(LineStrings.haveSameStationierungsrichtung(lineString, lineStringUeberschneidung.reverse()))
+			.isFalse();
+	}
+
+	@Test
+	void haveSameStationierungsrichtung_sameLineStringUeberschneidungAnfang_true() {
+		// arrange
+		LineString lineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(100, 100));
+		LineString lineStringUeberschneidung = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(50, 150));
+
+		// act + assert
+		assertThat(LineStrings.haveSameStationierungsrichtung(lineString, lineStringUeberschneidung)).isTrue();
+	}
+
+	@Test
+	void haveSameStationierungsrichtung_reverseLineStringUeberschneidungAnfang_false() {
+		// arrange
+		LineString lineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(100, 100));
+		LineString lineStringUeberschneidung = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(50, 150));
+
+		// act + assert
+		assertThat(LineStrings.haveSameStationierungsrichtung(lineString, lineStringUeberschneidung.reverse()))
+			.isFalse();
+	}
+
 }

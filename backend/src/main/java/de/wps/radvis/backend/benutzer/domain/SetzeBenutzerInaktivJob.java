@@ -16,6 +16,9 @@ package de.wps.radvis.backend.benutzer.domain;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.SetzeBenutzerInaktivJobStatistik;
@@ -48,12 +51,21 @@ public class SetzeBenutzerInaktivJob extends AbstractJob {
 	protected Optional<JobStatistik> doRun() {
 		SetzeBenutzerInaktivJobStatistik setzeBenutzerInaktivJobStatistik = new SetzeBenutzerInaktivJobStatistik();
 
-		List<Benutzer> benutzerListe = benutzerService.ermittleAktiveBenutzerInaktivLaengerAls(
+		List<Benutzer> benutzerZuLangeNichtEingeloggt = benutzerService.ermittleAktiveBenutzerInaktivLaengerAls(
 			inaktivitaetsTimeoutInTagen
 		);
-		setzeBenutzerInaktivJobStatistik.anzahlInaktivZuSetzenderBenutzer = benutzerListe.size();
+		setzeBenutzerInaktivJobStatistik.anzahlBenutzerZuLangeNichtEingeloggt = benutzerZuLangeNichtEingeloggt.size();
 
-		benutzerListe.forEach(benutzer -> {
+		List<Benutzer> benutzerAblaufdatumUeberschritten = benutzerService.ermittleBenutzerAblaufdatumUeberschritten();
+		setzeBenutzerInaktivJobStatistik.anzahlBenutzerAblaufdatumUeberschritten = benutzerAblaufdatumUeberschritten
+			.size();
+
+		Set<Benutzer> benutzerInaktivZuSetzen = Stream.concat(
+			benutzerZuLangeNichtEingeloggt.stream(),
+			benutzerAblaufdatumUeberschritten.stream()
+		).collect(Collectors.toSet());
+
+		benutzerInaktivZuSetzen.forEach(benutzer -> {
 			try {
 				benutzerService.aendereBenutzerstatus(benutzer.getId(), benutzer.getVersion(), BenutzerStatus.INAKTIV);
 				setzeBenutzerInaktivJobStatistik.anzahlErfolgreicherInaktivsetzungen++;

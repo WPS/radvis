@@ -42,6 +42,7 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import jakarta.persistence.EntityManager;
@@ -70,7 +71,7 @@ class ManuellerAttributeImportUebernahmeServiceTest {
 	void setup() {
 		openMocks(this);
 		this.manuellerAttributeImportUebernahmeService = new ManuellerAttributeImportUebernahmeService(
-			inMemoryKantenRepositoryFactory, mappingService, entityManager);
+			inMemoryKantenRepositoryFactory, mappingService, entityManager, Laenge.of(1.0));
 	}
 
 	@Test
@@ -145,8 +146,7 @@ class ManuellerAttributeImportUebernahmeServiceTest {
 		FeatureMapping featureMapping1 = FeatureMappingTestDataProvider
 			.withCoordinates(new Coordinate(0.1, 0), new Coordinate(120.1, 120))
 			.properties(Map.of(
-				"seite", "LINKS"
-			))
+				"seite", "LINKS"))
 			.build();
 
 		Kante kante1 = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0.2, 80, 80., QuellSystem.DLM)

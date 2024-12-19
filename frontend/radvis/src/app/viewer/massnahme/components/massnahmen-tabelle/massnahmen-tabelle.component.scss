@@ -21,27 +21,26 @@
   height: 100%;
 }
 
-:host ::ng-deep .toolbar {
-  padding: 0 0.8rem !important;
+.filter-active mat-icon {
+  overflow: visible;
+
+  &:after {
+    display: block;
+    content: '';
+    border-radius: 50%;
+    position: absolute;
+    left: 10px;
+    top: -2px;
+    border: 4px solid map-get($radvis-accent-palette, 500);
+  }
 }
 
-.w-medium {
-  min-width: 192px;
+.filter-active.mat-mdc-menu-item mat-icon:after {
+  left: 32px;
+  top: 12px;
 }
 
-.w-large {
-  min-width: 224px;
-}
-
-.w-huge {
-  min-width: 288px;
-}
-
-th {
-  white-space: nowrap;
-}
-
-.bereich-filter {
-  margin-left: auto;
-  width: 20rem;
+.icon-button-spinner {
+  margin-left: -4px;
+  margin-right: 8px;
 }

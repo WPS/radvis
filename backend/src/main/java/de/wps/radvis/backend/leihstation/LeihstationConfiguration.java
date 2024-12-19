@@ -26,6 +26,7 @@ import de.wps.radvis.backend.leihstation.domain.LeihstationImportService;
 import de.wps.radvis.backend.leihstation.domain.LeihstationRepository;
 import de.wps.radvis.backend.leihstation.domain.LeihstationService;
 import de.wps.radvis.backend.leihstation.schnittstelle.LeihstationGuard;
+import de.wps.radvis.backend.leihstation.schnittstelle.SaveLeihstationCommandConverter;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import lombok.AllArgsConstructor;
@@ -48,13 +49,18 @@ public class LeihstationConfiguration {
 
 	@Bean
 	public LeihstationService leihstationService() {
-		return new LeihstationService(repository, benutzerResolver, zustaendigkeitsService);
+		return new LeihstationService(repository);
 	}
 
 	@Bean
 	public LeihstationImportService leihstationImportService() {
 		return new LeihstationImportService(repository, verwaltungseinheitService,
 			zustaendigkeitsService, commonConfigurationProperties.getBasisUrl());
+	}
+
+	@Bean
+	public SaveLeihstationCommandConverter saveLeihstationCommandConverter() {
+		return new SaveLeihstationCommandConverter();
 	}
 
 	@Bean

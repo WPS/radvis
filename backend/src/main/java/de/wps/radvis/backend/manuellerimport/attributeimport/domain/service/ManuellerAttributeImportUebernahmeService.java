@@ -35,6 +35,7 @@ import de.wps.radvis.backend.manuellerimport.common.FortschrittLogger;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepository;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -47,12 +48,13 @@ public class ManuellerAttributeImportUebernahmeService {
 	private final InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory;
 	private final MappingService mappingService;
 	private final EntityManager entityManager;
+	private Laenge minimaleSegmentLaenge;
 
 	public ManuellerAttributeImportUebernahmeService(
 		@NonNull InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory,
 		MappingService mappingService,
-		EntityManager entityManager
-	) {
+		EntityManager entityManager, Laenge minimaleSegmentLaenge) {
+		this.minimaleSegmentLaenge = minimaleSegmentLaenge;
 		this.inMemoryKantenRepositoryFactory = inMemoryKantenRepositoryFactory;
 		this.mappingService = mappingService;
 		this.entityManager = entityManager;
@@ -89,7 +91,7 @@ public class ManuellerAttributeImportUebernahmeService {
 			if (!kantenKonfliktProtokoll.getKonflikte().isEmpty()) {
 				kantenKonfliktProtokolle.addKonflikt(kantenKonfliktProtokoll);
 			}
-			kantenMapping.getKante().defragmentiereLinearReferenzierteAttribute();
+			kantenMapping.getKante().defragmentiereLinearReferenzierteAttribute(minimaleSegmentLaenge);
 
 			FortschrittLogger.logProgressInPercent(kantenMappings.size(), fortschritt, 5);
 		}
@@ -133,8 +135,7 @@ public class ManuellerAttributeImportUebernahmeService {
 						featureMapping.getProperties(),
 						mappedGrundnetzkante.getLinearReferenzierterAbschnitt(),
 						geometrischeHaendigkeit,
-						attributierterSeitenbezug.orElse(null)
-					));
+						attributierterSeitenbezug.orElse(null)));
 				} else {
 					throw new RuntimeException("Gemappte GrundnetzKante mit id " + mappedGrundnetzkante.getKanteId()
 						+ " nicht im ImMemoryKantenRepo vorhanden!");
@@ -149,8 +150,7 @@ public class ManuellerAttributeImportUebernahmeService {
 		if (attributeMapper instanceof AttributivSeitenbezogenerMapper attributivSeitenbezogenerMapper) {
 			if (featureProperties.containsKey(attributivSeitenbezogenerMapper.getSeiteAttributName())) {
 				return attributivSeitenbezogenerMapper.mapSeiteIfPresentAndValid(
-					(String) featureProperties.get(attributivSeitenbezogenerMapper.getSeiteAttributName())
-				);
+					(String) featureProperties.get(attributivSeitenbezogenerMapper.getSeiteAttributName()));
 			}
 		}
 		return Optional.empty();

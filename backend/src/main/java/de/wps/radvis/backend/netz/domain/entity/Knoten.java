@@ -63,6 +63,15 @@ public class Knoten extends VersionierteEntity {
 	@Audited(targetAuditMode = NOT_AUDITED)
 	private Verwaltungseinheit gemeinde;
 
+	/**
+	 * Für Grundnetz-Knoten
+	 * 
+	 * @param point
+	 */
+	public Knoten(Point point) {
+		this(point, QuellSystem.DLM);
+	}
+
 	public Knoten(Point point, QuellSystem quelle) {
 		require(point, notNullValue());
 		require(point.getSRID() == KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid(),

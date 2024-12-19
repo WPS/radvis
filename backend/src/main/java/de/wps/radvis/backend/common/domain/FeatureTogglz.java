@@ -39,9 +39,6 @@ public enum FeatureTogglz implements Feature {
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-4100")
 	USE_LGL_HOEHENDATEN,
 
-	@InfoLink("https://radviswps.atlassian.net/browse/RAD-4183")
-	DLM_REIMPORT_FIX,
-
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-6118")
 	IMPORT_MASSNAHMEN,
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-6118")
@@ -83,9 +80,6 @@ public enum FeatureTogglz implements Feature {
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-4773")
 	WEGWEISENDE_BESCHILDERUNG,
 
-	@InfoLink("https://radviswps.atlassian.net/browse/RAD-4472")
-	VERNETZUNG_KORREKTUR,
-
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-4813")
 	LEIHSTATIONEN_CSV_IMPORT,
 
@@ -118,6 +112,9 @@ public enum FeatureTogglz implements Feature {
 
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-2659")
 	DATEILAYER_HOCHLADEN_ANZEIGEN,
+
+	@InfoLink("https://radviswps.atlassian.net/browse/RAD-7081")
+	NETZBEZUG_REMATCH,
 
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-5105")
 	BASIC_AUTH_VERWALTEN_ANZEIGEN;

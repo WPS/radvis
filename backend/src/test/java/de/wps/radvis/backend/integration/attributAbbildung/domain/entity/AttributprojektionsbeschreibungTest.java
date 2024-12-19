@@ -49,11 +49,11 @@ class AttributprojektionsbeschreibungTest {
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe1 = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppe1.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppe1.setRichtung(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
+		fahrtrichtungAttributGruppe1.update(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe2 = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppe2.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppe2.setRichtung(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
+		fahrtrichtungAttributGruppe2.update(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
 
 		KantenAttribute kantenAttribute1 = KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 			.beleuchtung(Beleuchtung.VORHANDEN).build();
@@ -155,11 +155,11 @@ class AttributprojektionsbeschreibungTest {
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe1 = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppe1.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppe1.setRichtung(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
+		fahrtrichtungAttributGruppe1.update(Richtung.IN_RICHTUNG, Richtung.GEGEN_RICHTUNG);
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe2 = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppe2.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppe2.setRichtung(Richtung.GEGEN_RICHTUNG, Richtung.IN_RICHTUNG);
+		fahrtrichtungAttributGruppe2.update(Richtung.GEGEN_RICHTUNG, Richtung.IN_RICHTUNG);
 
 		KantenAttribute kantenAttribute1 = KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 			.beleuchtung(Beleuchtung.NICHT_VORHANDEN).build();

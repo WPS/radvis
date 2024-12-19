@@ -12,11 +12,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockComponent, MockedComponentFixture, MockModule, MockRender } from 'ng-mocks';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 import { Rolle } from 'src/app/administration/models/rolle';
+import { FormElementsModule } from 'src/app/form-elements/form-elements.module';
 import { MaterialDesignModule } from 'src/app/material-design.module';
 import { RegistriereBenutzerCommand } from 'src/app/registrierung/registriere-benutzer-command';
 import { RegistrierungService } from 'src/app/registrierung/registrierung.service';
@@ -24,8 +27,6 @@ import { OrganisationenDropdownControlComponent } from 'src/app/shared/component
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { RegistrierungComponent } from './registrierung.component';
-import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
-import { FormElementsModule } from 'src/app/form-elements/form-elements.module';
 
 describe('RegistrierungComponent', () => {
   let component: RegistrierungComponent;
@@ -36,7 +37,13 @@ describe('RegistrierungComponent', () => {
     registrierungService = mock(RegistrierungService);
     return TestBed.configureTestingModule({
       declarations: [RegistrierungComponent, MockComponent(OrganisationenDropdownControlComponent)],
-      providers: [{ provide: RegistrierungService, useValue: instance(registrierungService) }],
+      providers: [
+        { provide: RegistrierungService, useValue: instance(registrierungService) },
+        {
+          provide: MatomoTracker,
+          useValue: instance(mock(MatomoTracker)),
+        },
+      ],
       imports: [
         RouterTestingModule,
         FormElementsModule,

@@ -17,6 +17,7 @@ package de.wps.radvis.backend.matching.schnittstelle;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
@@ -36,8 +37,8 @@ import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
-import de.wps.radvis.backend.matching.domain.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.LinearReferenziertesOsmMatchResult;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.OsmMatchedGraphHopper;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.OsmMatchingCacheRepositoryImpl;
@@ -49,12 +50,8 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
-import jakarta.persistence.EntityManager;
 
 public class OsmMatchingRepositoryImplWithCustomPbfTest {
-
-	@Mock
-	private EntityManager entityManager;
 
 	@Mock
 	private BarriereRepository barriereRepository;
@@ -76,11 +73,11 @@ public class OsmMatchingRepositoryImplWithCustomPbfTest {
 	public File temp;
 
 	@BeforeEach
-	void setup() {
+	void setup() throws IOException {
 		MockitoAnnotations.openMocks(this);
 
 		PbfErstellungsRepositoryImpl pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(
-			coordinateReferenceSystemConverter, entityManager, barriereRepository, kantenRepository);
+			coordinateReferenceSystemConverter, barriereRepository, kantenRepository);
 
 		kanten = List.of(
 			KanteTestDataProvider.withDefaultValues().geometry(

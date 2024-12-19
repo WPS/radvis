@@ -18,7 +18,7 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockBuilder, MockRender, NG_MOCKS_GUARDS, ngMocks } from 'ng-mocks';
 import { Coordinate } from 'ol/coordinate';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
@@ -30,6 +30,7 @@ import { kanteDetailsResolver } from 'src/app/viewer/netz-details/services/kante
 import { NetzdetailRoutingService } from 'src/app/viewer/netz-details/services/netzdetail-routing.service';
 import { NetzdetailService } from 'src/app/viewer/netz-details/services/netzdetail.service';
 import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
+import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, instance, mock, when } from 'ts-mockito';
 
@@ -43,8 +44,10 @@ describe(kanteDetailsResolver.name, () => {
     when(mapQueryParamsService.signatur$).thenReturn(of(null));
   });
 
-  beforeEach(() =>
-    MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
+  beforeEach(() => {
+    const infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
+    when(infrastrukturenSelektionService.selektierteInfrastrukturen$).thenReturn(NEVER);
+    return MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
       .keep(ViewerComponent)
       .keep(NetzdetailRoutingService)
       .exclude(NG_MOCKS_GUARDS)
@@ -56,7 +59,11 @@ describe(kanteDetailsResolver.name, () => {
         provide: MapQueryParamsService,
         useValue: instance(mapQueryParamsService),
       })
-  );
+      .provide({
+        provide: InfrastrukturenSelektionService,
+        useValue: instance(infrastrukturenSelektionService),
+      });
+  });
 
   // It is important to run routing tests in fakeAsync.
   it('provides data to on the route', fakeAsync(() => {

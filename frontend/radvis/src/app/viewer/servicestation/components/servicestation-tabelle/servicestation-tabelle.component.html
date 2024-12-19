@@ -15,7 +15,8 @@
 <rad-infrastruktur-tabelle-layout
   *ngIf="data$ | async as data"
   [data]="data"
-  [displayedColumns]="displayedColumns"
+  [spaltenDefinition]="spaltenDefinition"
+  [filteredSpalten]="(filteredSpalten$ | async) ?? []"
   titleColumnPrefix="Servicestation"
   [selectedId]="selectedID$ | async"
   [fetching]="filterService.fetching"
@@ -57,10 +58,8 @@
     Alle Filter zurücksetzen
   </button>
 
-  <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
-    <th mat-header-cell *matHeaderCellDef [mat-sort-header]="column">
-      <span rad-filter-header>{{ getHeader(column) }}</span>
-    </th>
-    <td mat-cell *matCellDef="let element">{{ filterService.getInfrastrukturValueForKey(element, column) }}</td>
-  </ng-container>
+  <rad-infrastruktur-tabelle-spalte
+    *ngFor="let def of spaltenDefinition"
+    [spaltenDefinition]="def"
+    [getElementValueFn]="filterService.getInfrastrukturValueForKey"></rad-infrastruktur-tabelle-spalte>
 </rad-infrastruktur-tabelle-layout>

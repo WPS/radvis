@@ -12,11 +12,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS, MatSlideToggleDefaultOptions } from '@angular/material/slide-toggle';
+import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
+import { delay, filter } from 'rxjs/operators';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { AbstractAttributGruppeEditor } from 'src/app/editor/kanten/components/abstract-attribut-gruppe-editor';
@@ -27,10 +29,14 @@ import { KantenAttributGruppe } from 'src/app/editor/kanten/models/kanten-attrib
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { SaveKantenAttributGruppeCommand } from 'src/app/editor/kanten/models/save-kanten-attribut-gruppe-command';
 import { Status } from 'src/app/editor/kanten/models/status';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { StrassenquerschnittRASt06 } from 'src/app/editor/kanten/models/strassenquerschnittrast06';
 import { Umfeld } from 'src/app/editor/kanten/models/umfeld';
 import { WegeNiveau } from 'src/app/editor/kanten/models/wege-niveau';
-import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
+import {
+  fillFormWithMultipleValues,
+  hasMultipleValues,
+} from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NotifyGeometryChangedService } from 'src/app/editor/kanten/services/notify-geometry-changed.service';
 import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equal-values-from-form';
@@ -43,7 +49,6 @@ import {
 import { IstStandard } from 'src/app/shared/models/ist-standard';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { NetzklasseFlatUndertermined } from 'src/app/shared/models/netzklasse-flat';
-import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
@@ -51,7 +56,6 @@ import { NetzklassenConverterService } from 'src/app/shared/services/netzklassen
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import invariant from 'tiny-invariant';
-import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 
 interface IstStandardFlat {
   radnetzStartstandard: boolean | UndeterminedValue;
@@ -77,7 +81,9 @@ interface IstStandardFlat {
     },
   ],
 })
-export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor implements OnInit {
+export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor implements OnInit, OnDestroy {
+  private static readonly ZWISCHENABLAGE_KEY = 'kanteAttributeZwischenablage';
+
   public wegeniveauOptions = WegeNiveau.options;
   public beleuchtungsOptions = Beleuchtung.options;
   public umfeldOptions = Umfeld.options;
@@ -95,6 +101,12 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
   seitenbezogenUndetermined = false;
   seitenbezogen = false;
   showRadNetzHinweis = false;
+  copyDisabled = false;
+  hasClipboard = false;
+
+  private subscriptions: Subscription[] = [];
+  private copyPasteHinweis: MatSnackBarRef<TextOnlySnackBar> | undefined;
+  copiedKanteId: number | null = null;
 
   constructor(
     netzService: NetzService,
@@ -106,7 +118,8 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     kanteSelektionService: KantenSelektionService,
     private notifyGeometryChangedService: NotifyGeometryChangedService,
     private dialog: MatDialog,
-    private benutzerDetailsService: BenutzerDetailsService
+    private benutzerDetailsService: BenutzerDetailsService,
+    private snackbar: MatSnackBar
   ) {
     super(
       netzService,
@@ -122,6 +135,12 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     this.alleOrganisationenOptions = this.organisationenService.getOrganisationen();
     this.gemeindeOptions = this.organisationenService.getGemeinden();
 
+    this.hasClipboard = Boolean(localStorage.getItem(KantenAttributeEditorComponent.ZWISCHENABLAGE_KEY));
+    if (this.hasClipboard) {
+      this.copiedKanteId = JSON.parse(localStorage.getItem(KantenAttributeEditorComponent.ZWISCHENABLAGE_KEY)!).id;
+      this.showCopyPasteHinweis();
+    }
+
     this.subscribeToGemeindeChanges();
   }
 
@@ -133,31 +152,28 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
   }
 
   ngOnInit(): void {
-    this.kanteSelektionService.selektion$.subscribe(selektion => {
-      const allKantenInZustaendigkeitsbereich = selektion.every(
-        kantenSelektion => kantenSelektion.kante.liegtInZustaendigkeitsbereich
-      );
-
-      if (selektion.length > 0) {
-        Promise.resolve(selektion.some(kantenSelektion => kantenSelektion.kante.quelle === QuellSystem.RadNETZ)).then(
-          radNetzSelected => {
-            return this.organisationenService
-              .liegenAlleInQualitaetsgesichertenLandkreisen(selektion.map(kantenSelektion => kantenSelektion.kante.id))
-              .then(canEditRadnetz => {
-                const disableAll =
-                  (!allKantenInZustaendigkeitsbereich && !this.benutzerDetailsService.canEditGesamtesNetz()) ||
-                  (radNetzSelected && !canEditRadnetz);
-                const disableRadNetzKlasse = !canEditRadnetz;
-                this.showRadNetzHinweis = !canEditRadnetz;
-                this.resetAndDisable(selektion, disableAll, !disableRadNetzKlasse);
-                this.changeDetectorRef.markForCheck();
-              });
-          }
+    this.subscriptions.push(
+      this.kanteSelektionService.selektion$.subscribe(selektion => {
+        const allKantenInZustaendigkeitsbereich = selektion.every(
+          kantenSelektion => kantenSelektion.kante.liegtInZustaendigkeitsbereich
         );
-      } else {
-        this.resetAndDisable(selektion, false, true);
-      }
-    });
+
+        if (selektion.length > 0) {
+          const disableAll = !allKantenInZustaendigkeitsbereich && !this.benutzerDetailsService.canEditGesamtesNetz();
+          const canEditRadnetzNetzklassen = this.benutzerDetailsService.canRadNetzVerlegen();
+
+          this.resetAndDisable(selektion, disableAll, canEditRadnetzNetzklassen);
+          this.changeDetectorRef.markForCheck();
+        } else {
+          this.resetAndDisable(selektion, false, true);
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+    this.copyPasteHinweis?.dismiss();
   }
 
   onSeitenbezugChange(): void {
@@ -205,6 +221,28 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
     }
   }
 
+  onCopy(): void {
+    this.copiedKanteId = this.kanteSelektionService.selektierteKanten[0].id;
+    localStorage.setItem(
+      KantenAttributeEditorComponent.ZWISCHENABLAGE_KEY,
+      JSON.stringify({ id: this.copiedKanteId, ...this.formGroup.value })
+    );
+    if (!this.hasClipboard) {
+      this.showCopyPasteHinweis();
+    }
+    this.hasClipboard = true;
+  }
+
+  onPaste(): void {
+    const values = localStorage.getItem(KantenAttributeEditorComponent.ZWISCHENABLAGE_KEY);
+    if (!values) {
+      this.notifyUserService.warn('Die Zwischenablage enthält keine Werte.');
+      return;
+    }
+    this.formGroup.patchValue(JSON.parse(values));
+    this.formGroup.markAsDirty();
+  }
+
   onDelete(): void {
     invariant(this.canDelete);
 
@@ -212,8 +250,8 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
       data: {
         question:
           'Wollen Sie die Kante wirklich löschen? Durch das Löschen der Kante kann es zur Anpassung des Netzbezugs von anderen Objekten (z.B. Maßnahmen) kommen.',
-        labelYes: 'Ja',
-        labelNo: 'Nein',
+        labelYes: 'Löschen',
+        labelNo: 'Abbrechen',
       } as QuestionYesNo,
     });
     dialogRef.afterClosed().subscribe(yes => {
@@ -295,6 +333,8 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
       this.seitenbezogenUndetermined = false;
     }
 
+    this.copyDisabled = hasMultipleValues(this.formGroup) || this.seitenbezogenUndetermined;
+
     this.netzklassenSubscription = this.subscribeToNetzklassenChanges();
   }
 
@@ -350,6 +390,10 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
       this.getNetzklassenFromGroup().get('radnetzAlltag')?.disable({ emitEvent: false });
       this.getNetzklassenFromGroup().get('radnetzFreizeit')?.disable({ emitEvent: false });
       this.getNetzklassenFromGroup().get('radnetzZielnetz')?.disable({ emitEvent: false });
+    }
+    if (!this.benutzerDetailsService.canKreisnetzVerlegen()) {
+      this.getNetzklassenFromGroup().get('kreisnetzAlltag')?.disable({ emitEvent: false });
+      this.getNetzklassenFromGroup().get('kreisnetzFreizeit')?.disable({ emitEvent: false });
     }
   }
 
@@ -527,6 +571,34 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
         radvorrangrouten: new UntypedFormControl(null),
       }),
     });
+  }
+
+  private showCopyPasteHinweis(): void {
+    this.copyPasteHinweis = this.snackbar.open(
+      'Kantenattribute wurden in die Zwischenablage kopiert. Wählen Sie andere Kanten aus, um die Attribute einzufügen. Mit Klick auf Beenden leeren Sie die Zwischenablage.',
+      'Beenden'
+    );
+    this.subscriptions.push(
+      this.copyPasteHinweis.onAction().subscribe(() => {
+        localStorage.removeItem(KantenAttributeEditorComponent.ZWISCHENABLAGE_KEY);
+        this.hasClipboard = false;
+        this.copiedKanteId = null;
+        this.changeDetectorRef.markForCheck();
+      })
+    );
+    this.subscriptions.push(
+      this.copyPasteHinweis
+        .afterDismissed()
+        .pipe(
+          filter(v => !v.dismissedByAction),
+          delay(NotifyUserService.DURATION)
+        )
+        .subscribe(() => {
+          if (this.hasClipboard) {
+            this.showCopyPasteHinweis();
+          }
+        })
+    );
   }
 
   private resetAndDisable(selektion: KantenSelektion[], disable: boolean, allowRadNetzKlasse: boolean): void {

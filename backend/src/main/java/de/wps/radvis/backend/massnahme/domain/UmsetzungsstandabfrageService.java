@@ -88,40 +88,38 @@ public class UmsetzungsstandabfrageService {
 		String allIds = massnahmeIds.stream().sorted().map(Object::toString).collect(Collectors.joining(", "));
 		log.info("Umsetzungsstandsabfrage für folgende {} Maßnahmen angestoßen:\n{}", massnahmeIds.size(), allIds);
 
-		return this.getMassnahmenStream(massnahmeIds)
+		List<Massnahme> allMassnahmenToUpdate = getAllMassnahmenToUpdate(massnahmeIds);
+		allMassnahmenToUpdate
+			.forEach(massnahme -> massnahme.getUmsetzungsstand().get().fordereAktualisierungAn());
+		return allMassnahmenToUpdate;
+	}
+
+	List<Massnahme> getAllMassnahmenToUpdate(List<Long> massnahmeIds) {
+		List<List<Long>> partitionierteIDs = Lists.partition(massnahmeIds,
+			postgisConfigurationProperties.getArgumentLimit());
+
+		return partitionierteIDs.stream().flatMap(massnahmeRepository::findAllByIdInAndGeloeschtFalse)
 			.filter(massnahme -> massnahme.getUmsetzungsstatus() != Umsetzungsstatus.STORNIERT
 				&& massnahme.getUmsetzungsstatus() != Umsetzungsstatus.UMGESETZT
-				&& massnahme.getUmsetzungsstand().isPresent())
-			.peek(massnahme -> massnahme.getUmsetzungsstand().get().fordereAktualisierungAn())
+				&& massnahme.getUmsetzungsstand().isPresent()
+				&& !massnahme.isArchiviert())
 			.collect(Collectors.toList());
 	}
 
 	public void benachrichtigeNutzer(List<Massnahme> massnahmen) {
-		String beantwortungsFrist = bestimmeUndFormattiereBeantwortungsfrist(LocalDateTime.now(),
-			umsetzungsstandsabfrageConfigurationProperties.getFrist());
+		String beantwortungsFrist = getBeantwortungsfrist(LocalDateTime.now());
 		Map<Benutzer, Set<Benutzer>> kreiskoordinatorToMailempfaenger = new HashMap<>();
 		Set<Verwaltungseinheit> verwaltungseinheitOhneZustaendigeBearbeiter = new HashSet<>();
 
 		log.info("Versende Benachrichtigungen zur Beantwortung der Umsetzungsstandsabfragen basierend auf {} Maßnahmen",
 			massnahmen.size());
 
-		massnahmen
-			.stream()
-			.flatMap(massnahme -> {
-				List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
-					.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
-						massnahme);
-				if (massnahme.getZustaendiger().isPresent() && zustaendigeBearbeiter.isEmpty()) {
-					verwaltungseinheitOhneZustaendigeBearbeiter.add(massnahme.getZustaendiger().get());
-				}
-				return zustaendigeBearbeiter.stream();
-			})
-			.distinct()
+		getZuBenachrichtigendeBenutzer(massnahmen, verwaltungseinheitOhneZustaendigeBearbeiter)
 			.forEach(benutzer -> {
 				mailService.sendHtmlMail(
 					List.of(benutzer.getMailadresse().toString()),
 					"[RadVIS] Umsetzungsstandabfrage der RadNETZ Maßnahmen",
-					generateUmsetzungsstandAbfrageEmail(benutzer.getOrganisation(), beantwortungsFrist));
+					generateUmsetzungsstandAbfrageEmail(getRadvisLink(benutzer.getOrganisation()), beantwortungsFrist));
 
 				if (FeatureTogglz.UMSETZUNGSSTANDABFRAGE_KREISKOORDINATOREN_BENACHRICHTIGEN.isActive()) {
 					getAlleKreiskoordinatorenInUndUeber(benutzer.getOrganisation())
@@ -138,10 +136,34 @@ public class UmsetzungsstandabfrageService {
 		}
 	}
 
+	public List<Benutzer> getZuBenachrichtigendeBenutzer(List<Long> massnahmenIds) {
+		return getZuBenachrichtigendeBenutzer(getAllMassnahmenToUpdate(massnahmenIds), new HashSet<>())
+			.collect(Collectors.toList());
+	}
+
+	public String getUmsetzungsstandAbfrageEmailVorschau() {
+		return this.generateUmsetzungsstandAbfrageEmail(commonConfigurationProperties.getBasisUrl(),
+			getBeantwortungsfrist(LocalDateTime.now()));
+	}
+
+	private Stream<Benutzer> getZuBenachrichtigendeBenutzer(List<Massnahme> massnahmen,
+		Set<Verwaltungseinheit> verwaltungseinheitOhneZustaendigeBearbeiter) {
+		return massnahmen
+			.stream()
+			.flatMap(massnahme -> {
+				List<Benutzer> zustaendigeBearbeiter = massnahmenZustaendigkeitsService
+					.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(massnahme);
+				if (massnahme.getZustaendiger().isPresent() && zustaendigeBearbeiter.isEmpty()) {
+					verwaltungseinheitOhneZustaendigeBearbeiter.add(massnahme.getZustaendiger().get());
+				}
+				return zustaendigeBearbeiter.stream();
+			})
+			.distinct();
+	}
+
 	private List<Benutzer> getAlleKreiskoordinatorenInUndUeber(Verwaltungseinheit verwaltungseinheit) {
 		List<Benutzer> alleKreiskoordinatorinnen = new ArrayList<>(
-			massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(verwaltungseinheit)
-		);
+			massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(verwaltungseinheit));
 
 		// Uebergeordnete Orgas bis hin zur einschliesslich Kreisebene durchsuchen
 		Optional<Verwaltungseinheit> zuDurchsuchendeVerwaltungseinheit = verwaltungseinheit
@@ -152,8 +174,7 @@ public class UmsetzungsstandabfrageService {
 			!zuDurchsuchendeVerwaltungseinheit.get().getOrganisationsArt().equals(OrganisationsArt.BUNDESLAND)) {
 			alleKreiskoordinatorinnen.addAll(
 				massnahmenZustaendigkeitsService.getZustaendigeKreiskoordinatoren(
-					zuDurchsuchendeVerwaltungseinheit.get())
-			);
+					zuDurchsuchendeVerwaltungseinheit.get()));
 			zuDurchsuchendeVerwaltungseinheit = zuDurchsuchendeVerwaltungseinheit.get()
 				.getUebergeordneteVerwaltungseinheit();
 		}
@@ -173,8 +194,8 @@ public class UmsetzungsstandabfrageService {
 				.filter(
 					verwaltungseinheit -> verwaltungseinheitService.istUebergeordnet(
 						kreiskoordinator.getOrganisation(),
-						verwaltungseinheit)
-				).collect(Collectors.toSet());
+						verwaltungseinheit))
+				.collect(Collectors.toSet());
 
 			String email = generateUmsetzungsstandAbfrageEmailAnKreiskoordinatorinnen(kreiskoordinator,
 				gruppierteMailempfaenger, kreiskoordinatorZustaendigAberOhneZustaendigeBearbeiter, beantwortungsFrist);
@@ -205,10 +226,9 @@ public class UmsetzungsstandabfrageService {
 		return this.templateEngine.process("umsetzungsstand-kreiskoordinator-benachrichtigung-template.html", ctx);
 	}
 
-	private String generateUmsetzungsstandAbfrageEmail(Verwaltungseinheit organisation, String beantwortungsFrist) {
+	private String generateUmsetzungsstandAbfrageEmail(String radvisLink, String beantwortungsFrist) {
 
 		String radvisSupportMail = mailConfigurationProperties.getRadvisSupportMail();
-		String radvisLink = getRadvisLink(organisation);
 
 		Context ctx = new Context();
 		ctx.setVariable("beantwortungsfrist", beantwortungsFrist);
@@ -218,7 +238,8 @@ public class UmsetzungsstandabfrageService {
 		return this.templateEngine.process("umsetzungsstand-abfrage-mail-template.html", ctx);
 	}
 
-	protected String bestimmeUndFormattiereBeantwortungsfrist(LocalDateTime now, int frist) {
+	protected String getBeantwortungsfrist(LocalDateTime now) {
+		int frist = umsetzungsstandsabfrageConfigurationProperties.getFrist();
 		return now.plusWeeks(frist).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 	}
 
@@ -229,12 +250,5 @@ public class UmsetzungsstandabfrageService {
 
 		return commonConfigurationProperties.getBasisUrl() + FrontendLinks.infrastrukturTabelleWithFilter("massnahmen",
 			massnahmenFilterQuery);
-	}
-
-	public Stream<Massnahme> getMassnahmenStream(List<Long> massnahmeIds) {
-		List<List<Long>> partitionierteIDs = Lists.partition(massnahmeIds,
-			postgisConfigurationProperties.getArgumentLimit());
-
-		return partitionierteIDs.stream().flatMap(massnahmeRepository::findAllByIdInAndGeloeschtFalse);
 	}
 }

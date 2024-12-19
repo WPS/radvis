@@ -14,10 +14,29 @@
 
 package de.wps.radvis.backend.netz.domain.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.history.RevisionRepository;
 
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 
-public interface FuehrungsformAttributGruppeRepository extends CrudRepository<FuehrungsformAttributGruppe, Long> {
-
+public interface FuehrungsformAttributGruppeRepository extends CrudRepository<FuehrungsformAttributGruppe, Long>,
+	RevisionRepository<FuehrungsformAttributGruppe, Long, Long> {
+	@Query(value = "with "
+		+ "	abschnitte_links AS "
+		+ "		(SELECT fa.fuehrungsform_attribut_gruppe_id, ST_Length(st_linesubstring(k.geometry, fa.von, fa.bis)) as laenge "
+		+ "		 	FROM fuehrungsform_attribut_gruppe_attribute_links fa JOIN kante k ON k.fuehrungsform_attribut_gruppe_id=fa.fuehrungsform_attribut_gruppe_id "
+		+ "		 	WHERE (k.quelle='DLM' OR k.quelle='RadVis')"
+		+ "		),"
+		+ "	abschnitte_rechts AS "
+		+ "		(SELECT fa.fuehrungsform_attribut_gruppe_id, ST_Length(st_linesubstring(k.geometry, fa.von, fa.bis)) as laenge "
+		+ "		 	FROM fuehrungsform_attribut_gruppe_attribute_rechts fa JOIN kante k ON k.fuehrungsform_attribut_gruppe_id=fa.fuehrungsform_attribut_gruppe_id "
+		+ "		 	WHERE (k.quelle='DLM' OR k.quelle='RadVis')"
+		+ "		),"
+		+ "	abschnitte AS"
+		+ "		(SELECT * from abschnitte_links UNION SELECT * FROM abschnitte_rechts)"
+		+ "SELECT * from fuehrungsform_attribut_gruppe where id in (select fuehrungsform_attribut_gruppe_id from abschnitte WHERE laenge < ?1)", nativeQuery = true)
+	List<FuehrungsformAttributGruppe> findAllWithSegmenteKleinerAls(double maximaleSegmentLaenge);
 }

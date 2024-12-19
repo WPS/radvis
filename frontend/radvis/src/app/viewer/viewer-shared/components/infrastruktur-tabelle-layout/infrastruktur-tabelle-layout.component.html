@@ -14,8 +14,7 @@
 
 <div class="toolbar display-flex align-items-center">
   <button *ngIf="isSmallViewport" mat-stroked-button [matMenuTriggerFor]="weitereAktionenMenu">
-    <mat-icon>expand_more</mat-icon>
-    Weitere Aktionen
+    <span class="display-flex align-items-center"> Weitere Aktionen<mat-icon>arrow_drop_down</mat-icon> </span>
   </button>
   <mat-menu #weitereAktionenMenu="matMenu">
     <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
@@ -23,6 +22,19 @@
   <ng-container *ngIf="!isSmallViewport">
     <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
   </ng-container>
+  <button mat-stroked-button [matMenuTriggerFor]="spaltenauswahl" class="ml-auto">
+    <span class="display-flex align-items-center"> Spaltenauswahl <mat-icon>arrow_drop_down</mat-icon> </span>
+  </button>
+  <mat-menu #spaltenauswahl="matMenu">
+    <button mat-menu-item *ngFor="let control of spaltenAuswahl.controls" (click)="$event.stopPropagation()">
+      <mat-checkbox [formControl]="control.controls.selected">
+        <div class="spalten-auswahl-item">
+          <div>{{ control.value.displayName }}</div>
+          <mat-icon [inline]="true" *ngIf="filteredSpalten.includes(control.value.name!)"> filter_alt </mat-icon>
+        </div>
+      </mat-checkbox>
+    </button>
+  </mat-menu>
   <ng-content select=".action-search"></ng-content>
 </div>
 
@@ -68,6 +80,10 @@
 </div>
 
 <div [hidden]="dataSource.data.length === 0" class="pagination-container">
+  <rad-warnhinweis *ngIf="hasFilterOnAusgeblendetenSpalten">
+    Es sind Filter an ausgeblendeten Spalten gesetzt
+  </rad-warnhinweis>
+  <div class="flex-grow"></div>
   <mat-paginator
     [pageSizeOptions]="[10, 20, 50]"
     showFirstLastButtons

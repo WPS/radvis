@@ -16,22 +16,25 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Coordinate } from 'ol/coordinate';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
+import { ChangeFahrradrouteVeroeffentlichtCommand } from 'src/app/viewer/fahrradroute/models/change-fahrradroute-veroeffentlicht-command';
 import { CreateFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/create-fahrradroute-command';
+import { DEFAULT_PROFILE_ID } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
 import { DeleteFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/delete-fahrradroute-command';
 import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
-import { FahrradrouteListenView } from 'src/app/viewer/fahrradroute/models/fahrradroute-listen-view';
 import { RoutingResult } from 'src/app/viewer/fahrradroute/models/routing-result';
 import { SaveFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/save-fahrradroute-command';
-import { ChangeFahrradrouteVeroeffentlichtCommand } from 'src/app/viewer/fahrradroute/models/change-fahrradroute-veroeffentlicht-command';
-import { DEFAULT_PROFILE_ID } from 'src/app/viewer/fahrradroute/models/custom-routing-profile';
+import { FahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view';
+import { FahrradroutenProviderService } from 'src/app/viewer/viewer-shared/services/fahrradrouten-provider.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class FahrradrouteService {
+export class FahrradrouteService extends FahrradroutenProviderService {
   private readonly api = '/api/fahrradroute';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    super();
+  }
 
   getFahrradroute(id: number): Promise<FahrradrouteDetailView> {
     return this.http.get<FahrradrouteDetailView>(`${this.api}/${id}`).toPromise();

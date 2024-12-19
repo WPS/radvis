@@ -14,7 +14,10 @@
 
 package de.wps.radvis.backend.massnahme.schnittstelle.view;
 
+import java.util.Optional;
+
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.netz.schnittstelle.view.NetzbezugView;
@@ -29,6 +32,8 @@ public class MassnahmeToolView {
 	private final NetzbezugView netzbezug;
 	private final boolean hasUmsetzungsstand;
 	private final Geometry originalGeometrie;
+	private final boolean archiviert;
+	private final Optional<GeometryCollection> netzbezugSnapshot;
 
 	public MassnahmeToolView(Massnahme massnahme, boolean canMassnahmeLoeschen) {
 		this.canDelete = canMassnahmeLoeschen;
@@ -37,5 +42,7 @@ public class MassnahmeToolView {
 		this.netzbezug = new NetzbezugView(massnahme.getNetzbezug());
 		this.hasUmsetzungsstand = massnahme.getUmsetzungsstand().isPresent();
 		this.originalGeometrie = massnahme.getOriginalRadNETZGeometrie();
+		this.archiviert = massnahme.isArchiviert();
+		this.netzbezugSnapshot = massnahme.getNetzbezugSnapshot();
 	}
 }

@@ -23,8 +23,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.service.GraphhopperUpdateService;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
 
@@ -53,8 +53,8 @@ class GraphhopperUpdateServiceImplTest {
 		InOrder inOrder2 = Mockito.inOrder(dlmMatchedGraphHopperFactory, dlmMatchingRepository);
 
 		inOrder1.verify(dlmMatchedGraphHopperFactory, times(1)).updateDlmGraphHopper();
-		inOrder1.verify(graphhopperRoutingRepository, times(1)).swapGraphHopper();
+		inOrder1.verify(graphhopperRoutingRepository, times(1)).updateGraphHopper();
 		inOrder2.verify(dlmMatchedGraphHopperFactory, times(1)).updateDlmGraphHopper();
-		inOrder2.verify(dlmMatchingRepository, times(1)).swapGraphHopper();
+		inOrder2.verify(dlmMatchingRepository, times(1)).updateGraphHopper();
 	}
 }

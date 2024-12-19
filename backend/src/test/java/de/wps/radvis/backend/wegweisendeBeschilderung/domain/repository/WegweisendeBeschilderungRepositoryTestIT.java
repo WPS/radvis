@@ -41,6 +41,7 @@ import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -76,7 +77,8 @@ import de.wps.radvis.backend.wegweisendeBeschilderung.domain.valueObject.Zustand
 	TechnischerBenutzerConfigurationProperties.class,
 	MailConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class WegweisendeBeschilderungRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -94,7 +96,8 @@ class WegweisendeBeschilderungRepositoryTestIT extends DBIntegrationTestIT {
 		badenWuerttemberg = gebietskoerperschaftRepository.save(
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Baden-Württemberg")
 				.organisationsArt(
-					OrganisationsArt.BUNDESLAND).build());
+					OrganisationsArt.BUNDESLAND)
+				.build());
 	}
 
 	@Test
@@ -154,7 +157,6 @@ class WegweisendeBeschilderungRepositoryTestIT extends DBIntegrationTestIT {
 			.containsExactlyInAnyOrder(
 				PfostenNr.of("Gleicher PfostenNr"),
 				PfostenNr.of("Gleicher PfostenNr"),
-				PfostenNr.of("Andere PfostenNr")
-			);
+				PfostenNr.of("Andere PfostenNr"));
 	}
 }

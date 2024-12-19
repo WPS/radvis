@@ -16,7 +16,11 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { DokumentModule } from 'src/app/viewer/dokument/dokument.module';
 import { KommentareModule } from 'src/app/viewer/kommentare/kommentare.module';
+import { ErweiterterMassnahmenFilterDialogComponent } from 'src/app/viewer/massnahme/components/erweiterter-massnahmen-filter-dialog/erweiterter-massnahmen-filter-dialog.component';
+import { FahrradroutenDropdownControlComponent } from 'src/app/viewer/massnahme/components/fahrradrouten-dropdown-control/fahrradrouten-dropdown-control.component';
+import { MassnahmeNetzbezugSnapshotLayerComponent } from 'src/app/viewer/massnahme/components/massnahme-netzbezug-snapshot-layer/massnahme-netzbezug-snapshot-layer.component';
 import { MassnahmenUmsetzungsstandComponent } from 'src/app/viewer/massnahme/components/massnahme-umsetzungsstand/massnahmen-umsetzungsstand.component';
 import { MassnahmenAttributeEditorComponent } from 'src/app/viewer/massnahme/components/massnahmen-attribute-editor/massnahmen-attribute-editor.component';
 import { MassnahmenCreatorComponent } from 'src/app/viewer/massnahme/components/massnahmen-creator/massnahmen-creator.component';
@@ -24,12 +28,12 @@ import { MassnahmenLayerComponent } from 'src/app/viewer/massnahme/components/ma
 import { MassnahmenTabelleComponent } from 'src/app/viewer/massnahme/components/massnahmen-tabelle/massnahmen-tabelle.component';
 import { MassnahmenToolComponent } from 'src/app/viewer/massnahme/components/massnahmen-tool/massnahmen-tool.component';
 import { MassnahmenkategorienDropdownControlComponent } from 'src/app/viewer/massnahme/components/massnahmenkategorien-dropdown-control/massnahmenkategorien-dropdown-control.component';
+import { UmsetzungsstandAbfrageVorschauDialogComponent } from 'src/app/viewer/massnahme/components/umsetzungsstand-abfrage-vorschau-dialog/umsetzungsstand-abfrage-vorschau-dialog.component';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { InfrastrukturToken } from 'src/app/viewer/viewer-shared/models/infrastruktur';
 import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
 import { MassnahmeUmsetzungsstandButtonMenuComponent } from './components/massnahme-umsetzungsstand-button-menu/massnahme-umsetzungsstand-button-menu.component';
 import { MassnahmeUmsetzungsstandDialogComponent } from './components/massnahme-umsetzungsstand-dialog/massnahme-umsetzungsstand-dialog.component';
-import { DokumentModule } from 'src/app/viewer/dokument/dokument.module';
 
 @NgModule({
   declarations: [
@@ -42,6 +46,10 @@ import { DokumentModule } from 'src/app/viewer/dokument/dokument.module';
     MassnahmenToolComponent,
     MassnahmeUmsetzungsstandButtonMenuComponent,
     MassnahmeUmsetzungsstandDialogComponent,
+    ErweiterterMassnahmenFilterDialogComponent,
+    FahrradroutenDropdownControlComponent,
+    UmsetzungsstandAbfrageVorschauDialogComponent,
+    MassnahmeNetzbezugSnapshotLayerComponent,
   ],
   imports: [CommonModule, SharedModule, ViewerSharedModule, RouterModule, KommentareModule, DokumentModule],
   exports: [MassnahmenTabelleComponent, MassnahmenLayerComponent],

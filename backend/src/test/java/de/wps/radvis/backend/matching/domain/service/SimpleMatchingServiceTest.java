@@ -32,12 +32,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
 import de.wps.radvis.backend.matching.domain.exception.GeometryLaengeMismatchException;
 import de.wps.radvis.backend.matching.domain.exception.GeometryZuWeitEntferntException;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
 import de.wps.radvis.backend.matching.domain.exception.LinestringInvalidException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 
 class SimpleMatchingServiceTest {

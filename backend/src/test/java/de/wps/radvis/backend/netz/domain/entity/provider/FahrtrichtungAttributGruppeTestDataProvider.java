@@ -15,9 +15,17 @@
 package de.wps.radvis.backend.netz.domain.entity.provider;
 
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
+import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 
 public class FahrtrichtungAttributGruppeTestDataProvider {
 	public static FahrtrichtungAttributGruppe.FahrtrichtungAttributGruppeBuilder withGrundnetzDefaultwerte() {
 		return FahrtrichtungAttributGruppe.builder();
+	}
+
+	public static FahrtrichtungAttributGruppe.FahrtrichtungAttributGruppeBuilder createWithValues() {
+		return FahrtrichtungAttributGruppe.builder()
+			.isZweiseitig(false)
+			.fahrtrichtungLinks(Richtung.IN_RICHTUNG)
+			.fahrtrichtungRechts(Richtung.IN_RICHTUNG);
 	}
 }

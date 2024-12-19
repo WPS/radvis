@@ -22,9 +22,7 @@
   <div>Bereits umgesetzte oder stornierte Maßnahmen werden bei der Abfrage ignoriert.</div>
 </div>
 
-<div mat-dialog-actions class="display-flex justify-content-flex-end">
-  <ng-container>
-    <button [mat-dialog-close]="false" class="border-primary" mat-stroked-button>Abbrechen</button>
-    <button [mat-dialog-close]="true" color="primary" mat-flat-button>Abfrage starten</button>
-  </ng-container>
+<div mat-dialog-actions>
+  <button [mat-dialog-close]="false" mat-stroked-button>Abbrechen</button>
+  <button [mat-dialog-close]="true" cdkFocusInitial color="primary" mat-flat-button>Abfrage starten</button>
 </div>

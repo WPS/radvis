@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.massnahme.domain.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -55,12 +56,12 @@ public interface MassnahmeRepository extends CrudRepository<Massnahme, Long> {
 		"SELECT distinct massnahme FROM Massnahme massnahme " +
 			"LEFT JOIN massnahme.netzbezug.abschnittsweiserKantenSeitenBezug aksb " +
 			"LEFT JOIN massnahme.netzbezug.punktuellerKantenSeitenBezug pksb " +
-			"WHERE aksb.kante.id = :kanteId OR pksb.kante.id = :kanteId")
-	List<Massnahme> findByKanteInNetzBezug(Long kanteId);
+			"WHERE aksb.kante.id IN :kantenIds OR pksb.kante.id IN :kantenIds")
+	List<Massnahme> findByKantenInNetzBezug(Collection<Long> kantenIds);
 
 	@Query(
 		"SELECT distinct massnahme FROM Massnahme massnahme " +
 			"LEFT JOIN massnahme.netzbezug.knotenBezug kb " +
-			"WHERE kb.id = :knotenId")
-	List<Massnahme> findByKnotenInNetzBezug(long knotenId);
+			"WHERE kb.id IN :knotenIds")
+	List<Massnahme> findByKnotenInNetzBezug(List<Long> knotenIds);
 }

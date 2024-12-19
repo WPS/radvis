@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
 import de.wps.radvis.backend.matching.domain.entity.CustomRoutingProfile;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
 import de.wps.radvis.backend.matching.domain.service.CustomRoutingProfileService;
 import jakarta.transaction.Transactional;
 

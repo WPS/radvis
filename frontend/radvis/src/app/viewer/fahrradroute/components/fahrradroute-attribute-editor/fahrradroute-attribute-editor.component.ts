@@ -14,7 +14,7 @@
 
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Feature } from 'ol';
@@ -45,20 +45,20 @@ import {
   flatRadverkehrsfuehrungOptions,
   radverkehrsfuehrungLegende,
 } from 'src/app/viewer/fahrradroute/components/fahrradroute-profil/strecken-eigenschaften-legende.config';
+import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/fahrradroute/models/abschnittsweiser-kanten-netzbezug';
 import { ChangeFahrradrouteVeroeffentlichtCommand } from 'src/app/viewer/fahrradroute/models/change-fahrradroute-veroeffentlicht-command';
+import { DeleteFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/delete-fahrradroute-command';
 import { FahrradrouteDetailView } from 'src/app/viewer/fahrradroute/models/fahrradroute-detail-view';
 import { FahrradrouteProfil } from 'src/app/viewer/fahrradroute/models/fahrradroute-profil';
 import { FAHRRADROUTE } from 'src/app/viewer/fahrradroute/models/fahrradroute.infrastruktur';
 import { FahrradrouteNetzbezug } from 'src/app/viewer/fahrradroute/models/fahrradroute.netzbezug';
-import { Kategorie } from 'src/app/viewer/fahrradroute/models/kategorie';
 import { SaveFahrradrouteCommand } from 'src/app/viewer/fahrradroute/models/save-fahrradroute-command';
 import { Tourenkategorie } from 'src/app/viewer/fahrradroute/models/tourenkategorie';
 import { VarianteKategorie } from 'src/app/viewer/fahrradroute/models/variante-kategorie';
 import { FahrradrouteFilterService } from 'src/app/viewer/fahrradroute/services/fahrradroute-filter.service';
 import { FahrradrouteProfilService } from 'src/app/viewer/fahrradroute/services/fahrradroute-profil.service';
 import { FahrradrouteService } from 'src/app/viewer/fahrradroute/services/fahrradroute.service';
-import { DeleteMassnahmeCommand } from 'src/app/viewer/massnahme/models/delete-massnahme-command';
-import { AbschnittsweiserKantenNetzbezug } from 'src/app/viewer/viewer-shared/models/abschnittsweiser-kanten-netzbezug';
+import { FahrradrouteKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-kategorie';
 import { FahrradrouteTyp } from 'src/app/viewer/viewer-shared/models/fahrradroute-typ';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
@@ -83,9 +83,48 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
   public readonly HAUPTSTRECKE = 'Hauptstrecke';
 
   public tourenkategorieOptions = Tourenkategorie.options;
-  public kategorieOptions = Kategorie.options;
+  public kategorieOptions = FahrradrouteKategorie.options;
 
-  public formGroup: UntypedFormGroup;
+  formGroup = new FormGroup({
+    name: new FormControl<string | null>(null, [
+      RadvisValidators.isNotNullOrEmpty,
+      RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
+    ]),
+    kurzbeschreibung: new FormControl<string | null>(null, [
+      RadvisValidators.maxLength(this.MAX_LENGTH_KURZBESCHREIBUNG),
+    ]),
+    beschreibung: new FormControl<string | null>(null, [RadvisValidators.maxLength(this.MAX_LENGTH_BESCHREIBUNG)]),
+    fahrradrouteKategorie: new FormControl<FahrradrouteKategorie | null>(null),
+    tourenkategorie: new FormControl<Tourenkategorie | null>(null),
+    laengeHauptstrecke: new FormControl<number | null>({ value: null, disabled: true }),
+    offizielleLaenge: new FormControl<number | null>(null),
+    verantwortlich: new FormControl<Verwaltungseinheit | null>(null),
+    homepage: new FormControl<string | null>(null, [
+      RadvisValidators.url,
+      RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
+    ]),
+    emailAnsprechpartner: new FormControl<string | null>(null, [
+      RadvisValidators.email,
+      RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
+    ]),
+    lizenz: new FormControl<string | null>(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
+    lizenzNamensnennung: new FormControl<string | null>(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
+    anstieg: new FormControl<string | null>({ value: null, disabled: true }),
+    abstieg: new FormControl<string | null>({ value: null, disabled: true }),
+    toubizId: new FormControl<string | null>({ value: null, disabled: true }),
+    info: new FormControl<string | null>({ value: null, disabled: true }),
+    zuletztBearbeitet: new FormControl<string | null>({ value: '', disabled: true }),
+    varianten: new FormArray<
+      FormGroup<{
+        id: FormControl<number | null>;
+        kategorie: FormControl<VarianteKategorie | null>;
+        netzbezug: FormControl<FahrradrouteNetzbezug | null>;
+        kantenBezug: FormControl<AbschnittsweiserKantenNetzbezug[] | null>;
+      }>
+    >([]),
+    netzbezug: new FormControl<FahrradrouteNetzbezug | null>(null),
+  });
+
   public currentFahrradroute: FahrradrouteDetailView | null = null;
   public featureTogglzFehlerAnzeigen: boolean;
   public alleOrganisationenOptions: Promise<Verwaltungseinheit[]>;
@@ -123,34 +162,6 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     private dialog: MatDialog,
     private fahrradrouteProfilService: FahrradrouteProfilService
   ) {
-    this.formGroup = new UntypedFormGroup({
-      name: new UntypedFormControl(null, [
-        RadvisValidators.isNotNullOrEmpty,
-        RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
-      ]),
-      kurzbeschreibung: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_KURZBESCHREIBUNG)]),
-      beschreibung: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_BESCHREIBUNG)]),
-      kategorie: new UntypedFormControl(null),
-      tourenkategorie: new UntypedFormControl(null),
-      laengeHauptstrecke: new UntypedFormControl({ disabled: true }),
-      offizielleLaenge: new UntypedFormControl(null),
-      verantwortlich: new UntypedFormControl(null),
-      homepage: new UntypedFormControl(null, [RadvisValidators.url, RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
-      emailAnsprechpartner: new UntypedFormControl(null, [
-        RadvisValidators.email,
-        RadvisValidators.maxLength(this.MAX_LENGTH_TEXT),
-      ]),
-      lizenz: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
-      lizenzNamensnennung: new UntypedFormControl(null, [RadvisValidators.maxLength(this.MAX_LENGTH_TEXT)]),
-      anstieg: new UntypedFormControl({ value: null, disabled: true }),
-      abstieg: new UntypedFormControl({ value: null, disabled: true }),
-      toubizId: new UntypedFormControl({ value: null, disabled: true }),
-      info: new UntypedFormControl({ value: null, disabled: true }),
-      zuletztBearbeitet: new UntypedFormControl({ value: '', disabled: true }),
-      varianten: new UntypedFormArray([]),
-      netzbezug: new UntypedFormControl(null),
-    });
-
     this.alleOrganisationenOptions = organisationenService.getOrganisationen();
 
     this.subscriptions.push(
@@ -183,9 +194,9 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     );
 
     this.subscriptions.push(
-      (this.formGroup.get('kategorie') as AbstractControl).valueChanges.subscribe(value => {
-        const toubizIdField = this.formGroup.get('toubizId');
-        if (value === Kategorie.LANDESRADFERNWEG) {
+      (this.formGroup.controls.fahrradrouteKategorie as AbstractControl).valueChanges.subscribe(value => {
+        const toubizIdField = this.formGroup.controls.toubizId;
+        if (value === FahrradrouteKategorie.LANDESRADFERNWEG) {
           toubizIdField?.enable();
         } else {
           toubizIdField?.patchValue(null, { emitEvent: false });
@@ -214,19 +225,12 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     this.fahrradrouteProfilService.hideCurrentRouteProfile();
   }
 
-  get variantenFormArray(): UntypedFormArray {
-    return this.formGroup.get('varianten') as UntypedFormArray;
-  }
-
-  get selectedNetzbezugControl(): UntypedFormControl | null {
+  get selectedNetzbezugControl(): FormControl | null {
     if (this.isHauptstreckeSelected) {
-      return (this.formGroup.get('netzbezug') as UntypedFormControl) ?? null;
+      return this.formGroup.controls.netzbezug;
     }
 
-    return (
-      (this.variantenFormArray.controls[this.selectedVarianteControl.value]?.get('netzbezug') as UntypedFormControl) ??
-      null
-    );
+    return this.formGroup.controls.varianten.controls[this.selectedVarianteControl.value]?.controls.netzbezug ?? null;
   }
 
   get isHauptstreckeSelected(): boolean {
@@ -235,8 +239,8 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
 
   get deleteSelectedStreckeForbidden(): boolean {
     return (
-      (this.currentFahrradroute?.kategorie === Kategorie.LANDESRADFERNWEG ||
-        this.currentFahrradroute?.kategorie === Kategorie.D_ROUTE) &&
+      (this.currentFahrradroute?.fahrradrouteKategorie === FahrradrouteKategorie.LANDESRADFERNWEG ||
+        this.currentFahrradroute?.fahrradrouteKategorie === FahrradrouteKategorie.D_ROUTE) &&
       this.isHauptstreckeSelected
     );
   }
@@ -264,38 +268,37 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     return MapStyles.FEATURE_SELECT_COLOR_TRANSPARENT;
   }
 
-  get fahrradrouteNetzbezug(): FahrradrouteNetzbezug {
-    return this.formGroup.get('netzbezug')?.value as FahrradrouteNetzbezug;
+  get fahrradrouteNetzbezug(): FahrradrouteNetzbezug | null {
+    return this.formGroup.controls.netzbezug.value;
   }
 
-  get selectedVarianteNetzbezug(): FahrradrouteNetzbezug | undefined {
+  get selectedVarianteNetzbezug(): FahrradrouteNetzbezug | null {
     if (this.isHauptstreckeSelected) {
-      return undefined;
+      return null;
     }
 
     if (this.editStreckeEnabled) {
       // dann wird das schon über das Control dargestellt
-      return undefined;
+      return null;
     }
 
     if (!this.selectedNetzbezugControl?.value.geometrie) {
-      return undefined;
+      return null;
     }
 
     return this.selectedNetzbezugControl?.value;
   }
 
-  get selectedVarianteKantenBezug(): AbschnittsweiserKantenNetzbezug[] | undefined {
+  get selectedVarianteKantenBezug(): AbschnittsweiserKantenNetzbezug[] | null {
     if (this.isHauptstreckeSelected) {
-      return undefined;
+      return null;
     }
 
     if (this.editStreckeEnabled) {
       // dann wird das schon über das Control dargestellt
-      return undefined;
+      return null;
     }
-    const value = this.variantenFormArray.controls[this.selectedVarianteControl.value]?.get('kantenBezug')?.value;
-    return value;
+    return this.formGroup.controls.varianten.controls[this.selectedVarianteControl.value]?.controls.kantenBezug.value;
   }
 
   get gpxDownloadTooltip(): string {
@@ -354,33 +357,36 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     let initialNetzbezug: FahrradrouteNetzbezug | null = null;
     this.netzbezugSubscription?.unsubscribe();
     if (kategorie === VarianteKategorie.GEGENRICHTUNG) {
-      const fahrradrouteNetzbezug = this.formGroup.get('netzbezug')?.value as FahrradrouteNetzbezug;
-      const stuetzpunkte: Coordinate[] = fahrradrouteNetzbezug.stuetzpunkte?.slice() || [];
+      const fahrradrouteNetzbezug = this.formGroup.controls.netzbezug.value;
+      if (!Boolean(fahrradrouteNetzbezug)) {
+        return;
+      }
+      const stuetzpunkte: Coordinate[] = fahrradrouteNetzbezug!.stuetzpunkte?.slice() || [];
       stuetzpunkte.reverse();
       const routingResult = await this.fahrradrouteService.routeFahrradroutenVerlauf(
         stuetzpunkte,
-        fahrradrouteNetzbezug.customProfileId
+        fahrradrouteNetzbezug!.customProfileId
       );
       initialNetzbezug = {
         geometrie: routingResult.routenGeometrie,
         kantenIDs: routingResult.kantenIDs,
         stuetzpunkte,
         profilEigenschaften: routingResult.profilEigenschaften,
-        customProfileId: fahrradrouteNetzbezug.customProfileId,
+        customProfileId: fahrradrouteNetzbezug!.customProfileId,
       };
     }
-    this.variantenFormArray.push(
-      new UntypedFormGroup({
-        id: new UntypedFormControl(null),
-        kategorie: new UntypedFormControl(kategorie),
-        netzbezug: new UntypedFormControl(initialNetzbezug, RadvisValidators.isNotNullOrEmpty),
-        kantenBezug: new UntypedFormControl(null),
+    this.formGroup.controls.varianten.push(
+      new FormGroup({
+        id: new FormControl<number | null>(null),
+        kategorie: new FormControl(kategorie),
+        netzbezug: new FormControl(initialNetzbezug, RadvisValidators.isNotNullOrEmpty),
+        kantenBezug: new FormControl<AbschnittsweiserKantenNetzbezug[] | null>(null),
       })
     );
     // passiert offenbar nicht automatisch beim push
-    this.variantenFormArray.markAsDirty();
+    this.formGroup.controls.varianten.markAsDirty();
     this.editStreckeEnabled = true;
-    this.selectedVarianteControl.setValue(this.variantenFormArray.length - 1);
+    this.selectedVarianteControl.setValue(this.formGroup.controls.varianten.length - 1);
 
     // manchmal sind wir hier async unterwegs, weil wir den initialNetzbezug in Gegenrichtung aus dem Backend abwarten
     this.changeDetector.markForCheck();
@@ -406,7 +412,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
       name,
       kurzbeschreibung,
       beschreibung,
-      kategorie,
+      fahrradrouteKategorie,
       tourenkategorie,
       homepage,
       emailAnsprechpartner,
@@ -423,24 +429,24 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
       name,
       kurzbeschreibung,
       beschreibung,
-      kategorie,
+      kategorie: fahrradrouteKategorie,
       tourenkategorie,
-      offizielleLaenge: this.formGroup.get('offizielleLaenge')?.value
-        ? this.formGroup.get('offizielleLaenge')?.value * 1000
+      offizielleLaenge: this.formGroup.controls.offizielleLaenge.value
+        ? this.formGroup.controls.offizielleLaenge.value * 1000
         : null,
       homepage: homepage || null,
-      verantwortlichId: this.formGroup.get('verantwortlich')?.value
-        ? this.formGroup.get('verantwortlich')?.value.id
+      verantwortlichId: this.formGroup.controls.verantwortlich.value
+        ? this.formGroup.controls.verantwortlich.value.id
         : null,
       emailAnsprechpartner: emailAnsprechpartner || null,
       lizenz,
       lizenzNamensnennung,
-      toubizId: kategorie === Kategorie.LANDESRADFERNWEG ? toubizId : undefined,
+      toubizId: fahrradrouteKategorie === FahrradrouteKategorie.LANDESRADFERNWEG ? toubizId : undefined,
       stuetzpunkte: netzbezug ? { coordinates: fahrradrouteNetzbezug.stuetzpunkte, type: 'LineString' } : null,
       kantenIDs: fahrradrouteNetzbezug?.kantenIDs || [],
       routenVerlauf: fahrradrouteNetzbezug?.geometrie || null,
       profilEigenschaften: fahrradrouteNetzbezug?.profilEigenschaften || [],
-      varianten: this.variantenFormArray.value.map((variante: any) => {
+      varianten: this.formGroup.controls.varianten.value.map((variante: any) => {
         return {
           id: variante.id,
           kategorie: variante.kategorie,
@@ -487,27 +493,38 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     // erwarten eher einen GPX-Track.
     const geometry = new MultiLineString([coords]).transform('EPSG:25832', 'EPSG:4326');
     const geometryAsGpxStr = this.gpxFormatter.writeFeatures([new Feature(geometry)]);
-    const selectedVarianteName = this.isHauptstreckeSelected
-      ? this.HAUPTSTRECKE
-      : VarianteKategorie.getName(
-          this.variantenFormArray.controls[this.selectedVarianteControl.value]?.get('kategorie')?.value
-        );
+    let selectedVarianteName: string = '';
+    if (this.isHauptstreckeSelected) {
+      selectedVarianteName = this.HAUPTSTRECKE;
+    } else {
+      const selectedVarianteKategorie =
+        this.formGroup.controls.varianten.controls[this.selectedVarianteControl.value]?.controls.kategorie.value;
+      if (selectedVarianteKategorie) {
+        selectedVarianteName = VarianteKategorie.getName(selectedVarianteKategorie);
+      }
+    }
     const fileName = this.currentFahrradroute?.name + ' - ' + selectedVarianteName + '.gpx';
     this.fileHandlingService.download(geometryAsGpxStr, fileName, 'text/gpx-xml');
   }
 
-  getDisplayText(varianteControl: AbstractControl): string {
-    const kategorie = varianteControl.get('kategorie')?.value;
+  getDisplayText(
+    varianteControl: FormGroup<{
+      id: FormControl<number | null>;
+      kategorie: FormControl<VarianteKategorie | null>;
+      netzbezug: FormControl<FahrradrouteNetzbezug | null>;
+      kantenBezug: FormControl<AbschnittsweiserKantenNetzbezug[] | null>;
+    }>
+  ): string {
+    const kategorie = varianteControl.controls.kategorie.value;
     invariant(kategorie);
-    const index = this.variantenFormArray.controls
-      .filter(control => control.get('kategorie')?.value === kategorie)
+    const index = this.formGroup.controls.varianten.controls
+      .filter(control => control.controls.kategorie.value === kategorie)
       .indexOf(varianteControl);
     return VarianteKategorie.getName(kategorie) + (index > 0 ? ' (' + index + ')' : '');
   }
 
   onOeffneHoehenprofil(): void {
     this.fahrradrouteProfilService.showCurrentRouteProfile();
-    this.infrastrukturenSelektionService.showTabelle();
   }
 
   onSelectedStreckeLoeschen(): void {
@@ -532,7 +549,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
       if (yes) {
         if (this.isHauptstreckeSelected) {
           invariant(this.currentFahrradroute);
-          const deleteCommand: DeleteMassnahmeCommand = {
+          const deleteCommand: DeleteFahrradrouteCommand = {
             id: this.currentFahrradroute?.id,
             version: this.currentFahrradroute?.version,
           };
@@ -542,8 +559,8 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
             this.onClose();
           });
         } else {
-          this.variantenFormArray.removeAt(this.selectedVarianteControl.value);
-          this.variantenFormArray.markAsDirty();
+          this.formGroup.controls.varianten.removeAt(this.selectedVarianteControl.value);
+          this.formGroup.controls.varianten.markAsDirty();
           this.selectedVarianteControl.setValue(this.HAUPTSTRECKE);
         }
       }
@@ -658,15 +675,15 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
       netzbezug,
     });
 
-    this.variantenFormArray.clear();
+    this.formGroup.controls.varianten.clear();
 
     this.currentFahrradroute.varianten.sort((vA, vB) => vA.id - vB.id);
 
     this.currentFahrradroute?.varianten.forEach(v => {
-      this.variantenFormArray.push(
-        new UntypedFormGroup({
-          id: new UntypedFormControl(v.id),
-          netzbezug: new UntypedFormControl(
+      this.formGroup.controls.varianten.push(
+        new FormGroup({
+          id: new FormControl(v.id),
+          netzbezug: new FormControl(
             {
               kantenIDs: v.kantenIDs,
               stuetzpunkte: v.stuetzpunkte?.coordinates,
@@ -676,8 +693,8 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
             } as FahrradrouteNetzbezug,
             RadvisValidators.isNotNullOrEmpty
           ),
-          kantenBezug: new UntypedFormControl(v.kantenBezug),
-          kategorie: new UntypedFormControl(v.kategorie),
+          kantenBezug: new FormControl(v.kantenBezug),
+          kategorie: new FormControl(v.kategorie),
         })
       );
     });
@@ -685,8 +702,8 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     this.formGroup.disable({ emitEvent: false });
     if (this.currentFahrradroute.canEditAttribute) {
       this.enableForm();
-      if (this.currentFahrradroute.kategorie === Kategorie.LANDESRADFERNWEG) {
-        this.formGroup.get('toubizId')?.enable({ emitEvent: false });
+      if (this.currentFahrradroute.fahrradrouteKategorie === FahrradrouteKategorie.LANDESRADFERNWEG) {
+        this.formGroup.controls.toubizId.enable({ emitEvent: false });
       }
     }
 
@@ -701,12 +718,12 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
 
   private enableForm(): void {
     this.formGroup.enable({ emitEvent: false });
-    this.formGroup.get('laengeHauptstrecke')?.disable({ emitEvent: false });
-    this.formGroup.get('toubizId')?.disable({ emitEvent: false });
-    this.formGroup.get('anstieg')?.disable({ emitEvent: false });
-    this.formGroup.get('abstieg')?.disable({ emitEvent: false });
-    this.formGroup.get('info')?.disable({ emitEvent: false });
-    this.formGroup.get('zuletztBearbeitet')?.disable({ emitEvent: false });
+    this.formGroup.controls.laengeHauptstrecke.disable({ emitEvent: false });
+    this.formGroup.controls.toubizId.disable({ emitEvent: false });
+    this.formGroup.controls.anstieg.disable({ emitEvent: false });
+    this.formGroup.controls.abstieg.disable({ emitEvent: false });
+    this.formGroup.controls.info.disable({ emitEvent: false });
+    this.formGroup.controls.zuletztBearbeitet.disable({ emitEvent: false });
   }
 
   private updateNetzbezugSubscription(): void {

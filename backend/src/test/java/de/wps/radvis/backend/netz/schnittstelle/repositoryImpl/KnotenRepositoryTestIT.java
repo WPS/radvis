@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.assertj.core.util.IterableUtil;
 import org.junit.jupiter.api.Tag;
@@ -45,6 +43,7 @@ import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
+import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.PostGisHelper;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
@@ -62,6 +61,7 @@ import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteReposito
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -99,7 +99,8 @@ import jakarta.validation.constraints.NotNull;
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 @MockBeans({
 	@MockBean(MailService.class),
@@ -296,7 +297,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void test_deleteVerwaisteDLMKnoten() {
+	void test_findVerwaisteDLMKnoten() {
 		// assert
 		Knoten knoten1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(1, 1), QuellSystem.DLM)
 			.build();
@@ -319,17 +320,15 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 			.quelle(QuellSystem.DLM).build());
 
 		// act
-		int numberOfDeletions = this.knotenRepository.deleteVerwaisteDLMKnoten();
+		List<Knoten> verwaisteDlmKnoten = this.knotenRepository.findVerwaisteDLMKnoten();
 
 		// assert
-		assertThat(numberOfDeletions).isEqualTo(2);
-		List<Knoten> remainingKnoten = StreamSupport.stream(knotenRepository.findAll().spliterator(), false)
-			.collect(Collectors.toList());
-		assertThat(remainingKnoten).containsExactlyInAnyOrder(knoten1, knoten2, knoten3);
+		assertThat(verwaisteDlmKnoten).hasSize(2);
+		assertThat(verwaisteDlmKnoten).containsExactlyInAnyOrder(knoten4, knoten5);
 	}
 
 	@Test
-	void test_deleteVerwaisteDLMKnoten_loeschtNurDLMKnoten() {
+	void test_findVerwaisteDLMKnoten_loeschtNurDLMKnoten() {
 		// assert
 		Knoten knoten1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(1, 1), QuellSystem.DLM)
 			.build();
@@ -352,17 +351,15 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 			.quelle(QuellSystem.DLM).build());
 
 		// act
-		int numberOfDeletions = this.knotenRepository.deleteVerwaisteDLMKnoten();
+		List<Knoten> verwaisteDlmKnoten = this.knotenRepository.findVerwaisteDLMKnoten();
 
 		// assert
-		assertThat(numberOfDeletions).isEqualTo(1);
-		List<Knoten> remainingKnoten = StreamSupport.stream(knotenRepository.findAll().spliterator(), false)
-			.collect(Collectors.toList());
-		assertThat(remainingKnoten).containsExactlyInAnyOrder(knoten1, knoten2, knoten3, knoten5);
+		assertThat(verwaisteDlmKnoten).hasSize(1);
+		assertThat(verwaisteDlmKnoten).containsExactlyInAnyOrder(knoten4);
 	}
 
 	@Test
-	void test_deleteVerwaisteDLMKnoten_knotenMitNurRadVisKantenWerdenNichtGeloescht() {
+	void test_findVerwaisteDLMKnoten_knotenMitNurRadVisKantenWerdenNichtGeloescht() {
 		// assert
 		Knoten knoten1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(1, 1), QuellSystem.DLM)
 			.build();
@@ -385,13 +382,45 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 			.build());
 
 		// act
-		int numberOfDeletions = this.knotenRepository.deleteVerwaisteDLMKnoten();
+		List<Knoten> verwaisteDlmKnoten = this.knotenRepository.findVerwaisteDLMKnoten();
 
-		// assert that nur Knoten 5 wurde geloescht
-		assertThat(numberOfDeletions).isEqualTo(1);
-		List<Knoten> remainingKnoten = StreamSupport.stream(knotenRepository.findAll().spliterator(), false)
-			.collect(Collectors.toList());
-		assertThat(remainingKnoten).containsExactlyInAnyOrder(knoten1, knoten2, knoten3, knoten4);
+		// assert
+		assertThat(verwaisteDlmKnoten).hasSize(1);
+		assertThat(verwaisteDlmKnoten).containsExactlyInAnyOrder(knoten5);
+	}
+
+	@Test
+	void findErsatzKnoten_multipleKnotenWithinTolerance_returnsOrderedByDistance() {
+		// arrange
+		Knoten ersatzKnoten2 = knotenRepository.save(KnotenTestDataProvider.withDefaultValues()
+			.point(GeometryTestdataProvider.createPoint(new Coordinate(100.3, 10))).build());
+		Knoten ersatzKnoten1 = knotenRepository.save(KnotenTestDataProvider.withDefaultValues()
+			.point(GeometryTestdataProvider.createPoint(new Coordinate(100.1, 10))).build());
+		Knoten zuErsetzenderKnoten = knotenRepository.save(KnotenTestDataProvider.withDefaultValues()
+			.point(GeometryTestdataProvider.createPoint(new Coordinate(100, 10))).build());
+
+		// act
+		List<Knoten> ersatzKnotenCandidates = knotenRepository.findErsatzKnotenCandidates(zuErsetzenderKnoten.getId(),
+			1);
+
+		// assert
+		assertThat(ersatzKnotenCandidates).containsExactly(ersatzKnoten1, ersatzKnoten2);
+	}
+
+	@Test
+	void findErsatzKnoten_noKnotenWithinTolerance_returnEmpty() {
+		// arrange
+		// Knoten außerhalb Toleranz
+		knotenRepository.save(KnotenTestDataProvider.withDefaultValues()
+			.point(GeometryTestdataProvider.createPoint(new Coordinate(105, 10))).build());
+		Knoten zuErsetzenderKnoten = knotenRepository.save(KnotenTestDataProvider.withDefaultValues()
+			.point(GeometryTestdataProvider.createPoint(new Coordinate(100, 10))).build());
+
+		// act
+		List<Knoten> findErsatzKnoten = knotenRepository.findErsatzKnotenCandidates(zuErsetzenderKnoten.getId(), 1);
+
+		// assert
+		assertThat(findErsatzKnoten).isEmpty();
 	}
 
 	@Test
@@ -439,9 +468,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteRadnetzFreizeit = kantenRepository.save(
@@ -450,9 +477,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_FREIZEIT)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteRadnetzZielnetz = kantenRepository.save(
@@ -461,9 +486,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteRadnetzFreizeitZielnetz = kantenRepository.save(
@@ -472,9 +495,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_FREIZEIT, Netzklasse.RADNETZ_ZIELNETZ)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteRadnetzKreisnetz = kantenRepository.save(
@@ -483,9 +504,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.KREISNETZ_ALLTAG)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Kante kanteOhneNetzklasse = kantenRepository.save(
@@ -494,9 +513,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		// Act
@@ -557,9 +574,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.fuehrungsformAttributGruppe(
 					new FuehrungsformAttributGruppe(
 						List.of(
@@ -574,11 +589,8 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 							FuehrungsformAttribute.builder()
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.4, 1.0))
 								.belagArt(BelagArt.NATURSTEINPFLASTER)
-								.build()
-						),
-						false
-					)
-				)
+								.build()),
+						false))
 				.build());
 
 		Kante kanteRadnetzZielnetz = kantenRepository.save(
@@ -587,9 +599,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				// Führungsformattribute wie oben
 				.fuehrungsformAttributGruppe(
 					new FuehrungsformAttributGruppe(
@@ -605,11 +615,8 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 							FuehrungsformAttribute.builder()
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.4, 1.0))
 								.belagArt(BelagArt.NATURSTEINPFLASTER)
-								.build()
-						),
-						false
-					)
-				)
+								.build()),
+						false))
 				.build());
 
 		Kante kanteOhneNetzklasse = kantenRepository.save(
@@ -618,9 +625,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				// Führungsformattribute wie oben
 				.fuehrungsformAttributGruppe(
 					new FuehrungsformAttributGruppe(
@@ -636,11 +641,8 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 							FuehrungsformAttribute.builder()
 								.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.4, 1.0))
 								.belagArt(BelagArt.NATURSTEINPFLASTER)
-								.build()
-						),
-						false
-					)
-				)
+								.build()),
+						false))
 				.build());
 
 		// Act
@@ -682,9 +684,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Knoten kanteRadnetzAlltagNach = knotenRepository.save(
@@ -695,9 +695,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ALLTAG)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Knoten kanteKommunalnetzFreizeitNach = knotenRepository.save(
@@ -708,9 +706,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.KOMMUNALNETZ_FREIZEIT)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Knoten kanteRadnetzZielnetzNach = knotenRepository.save(
@@ -721,9 +717,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		// Act
@@ -760,9 +754,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Knoten kanteOhneNetzklasse2Nach = knotenRepository.save(
@@ -773,9 +765,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Knoten kanteRadnetzZielnetz1Nach = knotenRepository.save(
@@ -786,9 +776,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Knoten kanteRadnetzZielnetz2Nach = knotenRepository.save(
@@ -799,9 +787,7 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 					new KantenAttributGruppe(
 						KantenAttribute.builder().build(),
 						new HashSet<>(Set.of(Netzklasse.RADNETZ_ZIELNETZ)),
-						new HashSet<>()
-					)
-				)
+						new HashSet<>()))
 				.build());
 
 		Verwaltungseinheit gebietskoerperschaft = gebietskoerperschaftRepository.save(

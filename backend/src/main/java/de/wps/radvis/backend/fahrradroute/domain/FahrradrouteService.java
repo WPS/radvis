@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.fahrradroute.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.springframework.context.event.EventListener;
@@ -31,6 +33,7 @@ import org.springframework.data.util.Lazy;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.BatchedCollectionIterator;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import de.wps.radvis.backend.common.domain.entity.Importprotokoll;
@@ -53,14 +56,14 @@ import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteNetzBezu
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteViewRepository;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteTyp;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.event.CustomRoutingProfilesDeletedEvent;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilRoutingResult;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
-import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
+import de.wps.radvis.backend.netz.domain.event.KanteErsetztEvent;
+import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
@@ -78,13 +81,14 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 	private final JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 	private final BenutzerService benutzerService;
 	private SackgassenService sackgassenService;
+	private final double erlaubteAbweichungKantenRematch;
 
 	public FahrradrouteService(FahrradrouteRepository fahrradrouteRepository,
 		FahrradrouteViewRepository fahrradrouteViewRepository,
 		Lazy<GraphhopperRoutingRepository> graphhopperRoutingRepositorySupplier,
 		FahrradrouteNetzBezugAenderungRepository netzBezugAenderungRepository,
 		JobExecutionDescriptionRepository jobExecutionDescriptionRepository, BenutzerService benutzerService,
-		SackgassenService sackgassenService) {
+		SackgassenService sackgassenService, double erlaubteAbweichungKantenRematch) {
 		super(fahrradrouteRepository);
 		this.fahrradrouteRepository = fahrradrouteRepository;
 		this.fahrradrouteViewRepository = fahrradrouteViewRepository;
@@ -93,6 +97,7 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 		this.jobExecutionDescriptionRepository = jobExecutionDescriptionRepository;
 		this.benutzerService = benutzerService;
 		this.sackgassenService = sackgassenService;
+		this.erlaubteAbweichungKantenRematch = erlaubteAbweichungKantenRematch;
 	}
 
 	public List<FahrradrouteListenDbView> getAlleFahrradrouteListenViews() {
@@ -105,7 +110,8 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 
 	@Override
 	public Fahrradroute get(Long id) {
-		return fahrradrouteRepository.findByIdAndGeloeschtFalse(id).orElseThrow(EntityNotFoundException::new);
+		return fahrradrouteRepository.findByIdAndGeloeschtFalse(id).orElseThrow(() -> new EntityNotFoundException(
+			String.format("Eine Fahrradroute mit der ID '%d' existiert nicht.", id)));
 	}
 
 	public Fahrradroute saveFahrradroute(Fahrradroute fahrradroute) {
@@ -116,40 +122,75 @@ public class FahrradrouteService extends AbstractVersionierteEntityService<Fahrr
 		return fahrradroute.getFahrradrouteTyp() == FahrradrouteTyp.RADVIS_ROUTE;
 	}
 
-	private void netzbezugAenderungProtokollierenUndGgfNetzbezugBereinigen(Benutzer technischerBenutzer,
-		long betroffeneKanteId, LocalDateTime datum, NetzAenderungAusloeser ausloeser, LineString geometry,
-		NetzBezugAenderungsArt netzBezugAenderungsArt) {
-		List<Fahrradroute> fahrradrouten = fahrradrouteRepository.findByKanteIdInNetzBezug(betroffeneKanteId);
+	@EventListener
+	public void onKanteErsetzt(KanteErsetztEvent event) {
+		List<Fahrradroute> fahrradroutenOnKante = fahrradrouteRepository
+			.findByKanteIdInNetzBezug(List.of(event.getZuErsetzendeKante().getId()));
+
+		fahrradroutenOnKante.forEach(f -> {
+			log.debug("Kante {} in Fahrradroute {} wird ersetzt...", event.getZuErsetzendeKante().getId(), f.getId());
+			f.ersetzeKanteInNetzbezug(event.getZuErsetzendeKante(), event.getErsetztDurch(),
+				erlaubteAbweichungKantenRematch);
+
+			if (!f.getAbschnittsweiserKantenBezug().stream()
+				.anyMatch(abschn -> abschn.getKante().equals(event.getZuErsetzendeKante()))) {
+				event.getStatistik().anzahlAngepassterNetzbezuege++;
+				log.debug("Kante {} in Fahrradoute {} wurde erfolgreich ersetzt.", event.getZuErsetzendeKante().getId(),
+					f.getId());
+			}
+		});
+
+		fahrradrouteRepository.saveAll(fahrradroutenOnKante);
+	}
+
+	@EventListener
+	public void onKantenGeloescht(KantenDeletedEvent event) {
+		log.debug("Protokolliere und ändere Netzbezug für Fahrradrouten");
+
+		Benutzer technischerBenutzer = benutzerService.getTechnischerBenutzer();
+		List<Long> kantenIds = event.getKantenIds();
+		NetzAenderungAusloeser ausloeser = event.getAusloeser();
+
+		ArrayList<Fahrradroute> fahrradrouten = new ArrayList<>();
+
+		// Batching, da Hibernate/Postgres nur eine gewisse Anzahl an Parametern in "someId IN (...)"-Queries zulässt.
+		BatchedCollectionIterator.iterate(
+			event.getKantenIds(),
+			1000,
+			(kantenIdBatch, startIndex, endIndex) -> {
+				log.debug("Lade Fahrradrouten für Kanten-Batch {} bis {}", startIndex, endIndex);
+				fahrradrouten.addAll(fahrradrouteRepository.findByKanteIdInNetzBezug(kantenIdBatch));
+			});
+
+		log.debug("Protokolliere und ändere Netzbezug für {} Fahrradrouten mit IDs {}", fahrradrouten.size(),
+			fahrradrouten.stream().map(f -> f.getId() + "").collect(Collectors.joining(", ")));
+
 		for (Fahrradroute fahrradroute : fahrradrouten) {
-			if (!ausloeser.equals(NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN) &&
-				isNetzBezugAenderungProtokollNoetig(fahrradroute)) {
-				boolean aenderungIstInHauptroute = fahrradroute.getAbschnittsweiserKantenBezug().stream().anyMatch(
-					abschnittsweiserKantenBezug -> abschnittsweiserKantenBezug.getKante().getId()
-						.equals(betroffeneKanteId));
-				FahrradrouteNetzBezugAenderung fahrradrouteNetzBezugAenderung = new FahrradrouteNetzBezugAenderung(
-					netzBezugAenderungsArt, betroffeneKanteId, fahrradroute, technischerBenutzer, datum, ausloeser,
-					geometry, aenderungIstInHauptroute);
-				netzBezugAenderungRepository.save(fahrradrouteNetzBezugAenderung);
+			for (int i = 0; i < event.getKantenIds().size(); i++) {
+				Long kanteId = event.getKantenIds().get(i);
+				Geometry geometry = event.getGeometries().get(i);
+
+				if (!ausloeser.equals(NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN) &&
+					isNetzBezugAenderungProtokollNoetig(fahrradroute) &&
+					fahrradroute.containsKanteInHauptrouteOrVariante(kanteId)) {
+					boolean aenderungIstInHauptroute = fahrradroute.containsKante(kanteId);
+					FahrradrouteNetzBezugAenderung fahrradrouteNetzBezugAenderung = new FahrradrouteNetzBezugAenderung(
+						NetzBezugAenderungsArt.KANTE_GELOESCHT, kanteId, fahrradroute, technischerBenutzer,
+						event.getDatum(), ausloeser,
+						(LineString) geometry, aenderungIstInHauptroute);
+					netzBezugAenderungRepository.save(fahrradrouteNetzBezugAenderung);
+				}
 			}
-			if (netzBezugAenderungsArt == NetzBezugAenderungsArt.KANTE_GELOESCHT) {
-				fahrradroute.removeKanteFromNetzbezug(betroffeneKanteId);
-				fahrradrouteRepository.save(fahrradroute);
-			}
+
+			fahrradroute.removeKantenFromNetzbezug(kantenIds);
+
+			event.getStatistik().anzahlAngepassterNetzbezuege++;
 		}
-	}
 
-	@EventListener
-	public void onKanteGeloescht(KanteDeletedEvent event) {
-		netzbezugAenderungProtokollierenUndGgfNetzbezugBereinigen(benutzerService.getTechnischerBenutzer(),
-			event.getKanteId(), event.getDatum(), event.getAusloeser(), event.getGeometry(),
-			NetzBezugAenderungsArt.KANTE_GELOESCHT);
-	}
+		log.debug("Speichere Fahrradrouten");
+		fahrradrouteRepository.saveAll(fahrradrouten);
 
-	@EventListener
-	public void onKanteTopologieChanged(KanteTopologieChangedEvent event) {
-		netzbezugAenderungProtokollierenUndGgfNetzbezugBereinigen(benutzerService.getTechnischerBenutzer(),
-			event.getKanteId(), event.getDatum(), event.getAusloeser(), event.getGeometry(),
-			NetzBezugAenderungsArt.KANTE_VERAENDERT);
+		log.debug("Netzbezugänderung beendet");
 	}
 
 	@EventListener

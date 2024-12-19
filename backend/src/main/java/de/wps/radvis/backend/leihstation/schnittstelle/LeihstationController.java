@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -47,14 +46,13 @@ import de.wps.radvis.backend.leihstation.domain.entity.Leihstation;
 import de.wps.radvis.backend.leihstation.domain.valueObject.LeihstationQuellSystem;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/leihstation")
 @AllArgsConstructor
-@Transactional
+// kein @Transactional am Controller, da sonst Optimistic Locking für save nicht funktioniert
 public class LeihstationController {
 	private final LeihstationRepository repository;
 	private final LeihstationService service;
@@ -62,24 +60,15 @@ public class LeihstationController {
 	private final LeihstationImportService leihstationImportService;
 	private final LeihstationGuard leihstationGuard;
 	private final BenutzerResolver benutzerResolver;
+	private final SaveLeihstationCommandConverter saveLeihstationCommandConverter;
 
 	@PostMapping("new")
 	@WithAuditing(context = AuditingContext.SAVE_LEIHSTATION_COMMAND)
 	public Long create(@RequestBody @Valid SaveLeihstationCommand command, Authentication authentication) {
 		leihstationGuard.create(command, authentication);
 
-		Leihstation leihstation = new Leihstation(
-			(Point) command.getGeometrie(),
-			command.getBetreiber(),
-			command.getAnzahlFahrraeder(),
-			command.getAnzahlPedelecs(),
-			command.getAnzahlAbstellmoeglichkeiten(),
-			command.isFreiesAbstellen(),
-			command.getBuchungsUrl(),
-			command.getStatus(),
-			LeihstationQuellSystem.RADVIS,
-			null);
-		return repository.save(leihstation).getId();
+		Leihstation leihstation = saveLeihstationCommandConverter.convert(command);
+		return service.save(leihstation).getId();
 	}
 
 	@PostMapping("{id}")
@@ -92,30 +81,22 @@ public class LeihstationController {
 		if (!leihstation.getQuellSystem().equals(LeihstationQuellSystem.RADVIS)) {
 			throw new AccessDeniedException("Es dürfen nur Leihstationen mit Quellsystem RadVIS bearbeitet werden.");
 		}
-		leihstation.update(
-			(Point) command.getGeometrie(),
-			command.getBetreiber(),
-			command.getAnzahlFahrraeder(),
-			command.getAnzahlPedelecs(),
-			command.getAnzahlAbstellmoeglichkeiten(),
-			command.isFreiesAbstellen(),
-			command.getBuchungsUrl(),
-			command.getStatus());
-		return new LeihstationView(repository.save(leihstation),
-			service.darfBenutzerBearbeiten(authentication, leihstation));
+		saveLeihstationCommandConverter.apply(leihstation, command);
+		return new LeihstationView(service.save(leihstation),
+			leihstationGuard.darfBenutzerBearbeiten(authentication, leihstation));
 	}
 
 	@GetMapping("")
 	public Stream<LeihstationView> getAll(Authentication authentication) {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
 			.map(leihstation -> new LeihstationView(leihstation,
-				service.darfBenutzerBearbeiten(authentication, leihstation)));
+				leihstationGuard.darfBenutzerBearbeiten(authentication, leihstation)));
 	}
 
 	@GetMapping("{id}")
 	public LeihstationView get(@PathVariable Long id, Authentication authentication) {
 		Leihstation leihstation = repository.findById(id).orElseThrow(EntityNotFoundException::new);
-		return new LeihstationView(leihstation, service.darfBenutzerBearbeiten(authentication, leihstation));
+		return new LeihstationView(leihstation, leihstationGuard.darfBenutzerBearbeiten(authentication, leihstation));
 	}
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

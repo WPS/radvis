@@ -27,8 +27,8 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
@@ -61,7 +61,7 @@ public class MassnahmeGuard {
 		assertDarfMassnahmenBearbeiten(aktiverBenutzer, command.getNetzbezug());
 	}
 
-	public boolean canMassnahmeBearbeiten(Benutzer benutzer, Massnahme massnahme) {
+	public boolean darfMassnahmeBearbeiten(Benutzer benutzer, Massnahme massnahme) {
 		if (benutzer.hatRecht(Recht.ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN)) {
 			return true;
 		}
@@ -99,7 +99,7 @@ public class MassnahmeGuard {
 	}
 
 	public boolean canMassnahmeLoeschen(Benutzer benutzer, Massnahme massnahme) {
-		return canMassnahmeBearbeiten(benutzer, massnahme) && !massnahme.isRadNETZMassnahme();
+		return darfMassnahmeBearbeiten(benutzer, massnahme) && !massnahme.isRadNETZMassnahme();
 	}
 
 	public void deleteMassnahme(Authentication authentication, Massnahme massnahme) {
@@ -225,5 +225,27 @@ public class MassnahmeGuard {
 		MassnahmeNetzBezug netzbezug = massnahmeService.get(massnahmeId).getNetzbezug();
 
 		assertZustaendigkeitsbereich(benutzer, netzbezug);
+	}
+
+	public void getUmsetzungsstandsabfrageVorschau(Authentication authentication) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		if (!(benutzer.hatRecht(Recht.UMSETZUNGSSTANDSABFRAGEN_STARTEN))) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt Umsetzungsstandsabfragen zu starten.");
+		}
+
+	}
+
+	public void archivieren(Authentication authentication, MassnahmenArchivierenCommand command) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		if (!benutzer.hatRecht(Recht.MASSNAHMEN_ARCHIVIEREN)) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt Maßnahmen zu archivieren.");
+		}
+	}
+
+	public void unarchivieren(Authentication authentication, Long id) {
+		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
+		if (!benutzer.hatRecht(Recht.MASSNAHMEN_ARCHIVIEREN)) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt, die Archivierung für Maßnahmen aufzuheben.");
+		}
 	}
 }

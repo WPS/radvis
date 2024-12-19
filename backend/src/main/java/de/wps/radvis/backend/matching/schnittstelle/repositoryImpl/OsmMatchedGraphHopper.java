@@ -28,7 +28,7 @@ import java.util.Map;
 import com.graphhopper.GraphHopper;
 
 import de.wps.radvis.backend.matching.domain.CustomBikeFlagEncoderFactory;
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

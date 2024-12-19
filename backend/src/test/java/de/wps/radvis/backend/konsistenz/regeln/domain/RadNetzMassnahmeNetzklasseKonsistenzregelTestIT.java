@@ -47,7 +47,7 @@ import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
@@ -160,13 +160,14 @@ public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKon
 		// fehler
 		Massnahme streckenMassnahmeKreisnetz = massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse).benutzerLetzteAenderung(benutzer)
-				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).zustaendiger(gebietskoerperschaft).build());
+				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).zustaendiger(gebietskoerperschaft)
+				.build());
 
 		// ok
 		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse).umsetzungsstatus(Umsetzungsstatus.STORNIERT)
 				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
-				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
+				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build());
 
 		// ok
 		massnahmeRepository
@@ -243,40 +244,56 @@ public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKon
 
 		assertThat(result.size()).isEqualTo(5);
 		assertThat(result).extracting(KonsistenzregelVerletzungsDetails::getIdentity)
-			.containsExactly(streckenMassnahmeKreisnetz.getId().toString(),
+			.containsExactlyInAnyOrder(streckenMassnahmeKreisnetz.getId().toString(),
 				streckenMassnahmeGemischt.getId().toString(), streckenMassnahmeDoppelterFehler.getId().toString(),
-				knotenMassnahmeKreisnetz.getId().toString(),
-				multipleKnotenMassnahme.getId().toString());
+				knotenMassnahmeKreisnetz.getId().toString(), multipleKnotenMassnahme.getId().toString());
 
-		assertThat(result.get(0).getPosition()).isEqualTo(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
-			.createPoint(LineStrings.getMidPoint(kanteOhneNetzklasse.getGeometry())));
-		assertThat(result.get(1).getPosition())
+		KonsistenzregelVerletzungsDetails konsistenzregelVerletzungsDetailsStreckenMassnahmeKreisnetz = result.stream()
+			.filter(k -> k.getIdentity().equals(streckenMassnahmeKreisnetz.getId().toString())).findAny().get();
+		KonsistenzregelVerletzungsDetails konsistenzregelVerletzungsDetailsStreckenMassnahmeGemischt = result.stream()
+			.filter(k -> k.getIdentity().equals(streckenMassnahmeGemischt.getId().toString())).findAny().get();
+		KonsistenzregelVerletzungsDetails konsistenzregelVerletzungsDetailsStreckenMassnahmeDoppelterFehler = result
+			.stream().filter(k -> k.getIdentity().equals(streckenMassnahmeDoppelterFehler.getId().toString())).findAny()
+			.get();
+		KonsistenzregelVerletzungsDetails konsistenzregelVerletzungsDetailsKnotenMassnahmeKreisnetz = result.stream()
+			.filter(k -> k.getIdentity().equals(knotenMassnahmeKreisnetz.getId().toString())).findAny().get();
+		KonsistenzregelVerletzungsDetails konsistenzregelVerletzungsDetailsMultipleKnotenMassnahme = result.stream()
+			.filter(k -> k.getIdentity().equals(multipleKnotenMassnahme.getId().toString())).findAny().get();
+
+		assertThat(konsistenzregelVerletzungsDetailsStreckenMassnahmeKreisnetz.getPosition())
+			.isEqualTo(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+				.createPoint(LineStrings.getMidPoint(kanteOhneNetzklasse.getGeometry())));
+		assertThat(konsistenzregelVerletzungsDetailsStreckenMassnahmeGemischt.getPosition())
 			.isEqualTo(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(
 				LineStrings.getMidPoint(kanteOhneNetzklasse.getGeometry())));
-		assertThat(result.get(2).getPosition()).satisfiesAnyOf(
+		assertThat(konsistenzregelVerletzungsDetailsStreckenMassnahmeDoppelterFehler.getPosition()).satisfiesAnyOf(
 			pos -> assertThat(pos).isEqualTo(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 				.createPoint(LineStrings.getMidPoint(kanteOhneNetzklasse.getGeometry()))),
 			pos -> assertThat(pos).isEqualTo(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 				.createPoint(LineStrings.getMidPoint(kanteKreisnetz.getGeometry()))));
-		assertThat(result.get(3).getPosition()).isEqualTo(knotenOhneNetzklasse.getPoint());
-		assertThat(result.get(4).getPosition()).isEqualTo(knotenOhneNetzklasse.getPoint());
+		assertThat(konsistenzregelVerletzungsDetailsKnotenMassnahmeKreisnetz.getPosition())
+			.isEqualTo(knotenOhneNetzklasse.getPoint());
+		assertThat(konsistenzregelVerletzungsDetailsMultipleKnotenMassnahme.getPosition())
+			.isEqualTo(knotenOhneNetzklasse.getPoint());
 
-		assertThat(result.get(0).getBeschreibung())
+		assertThat(konsistenzregelVerletzungsDetailsStreckenMassnahmeKreisnetz.getBeschreibung())
 			.isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel.createBeschreibungFuerStreckenmassnahme(
 				streckenMassnahmeKreisnetz.getId(), kanteOhneNetzklasse.getId()));
-		assertThat(result.get(1).getBeschreibung())
+		assertThat(konsistenzregelVerletzungsDetailsStreckenMassnahmeGemischt.getBeschreibung())
 			.isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel.createBeschreibungFuerStreckenmassnahme(
 				streckenMassnahmeGemischt.getId(), kanteOhneNetzklasse.getId()));
-		assertThat(result.get(2).getBeschreibung()).satisfiesAnyOf(
+		assertThat(konsistenzregelVerletzungsDetailsStreckenMassnahmeDoppelterFehler.getBeschreibung()).satisfiesAnyOf(
 			pos -> assertThat(pos)
 				.isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel.createBeschreibungFuerStreckenmassnahme(
 					streckenMassnahmeDoppelterFehler.getId(), kanteOhneNetzklasse.getId())),
 			pos -> assertThat(pos)
 				.isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel.createBeschreibungFuerStreckenmassnahme(
 					streckenMassnahmeDoppelterFehler.getId(), kanteKreisnetz.getId())));
-		assertThat(result.get(3).getBeschreibung()).isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel
-			.createBeschreibungFuerKnotenmassnahme(knotenMassnahmeKreisnetz.getId(), knotenOhneNetzklasse.getId()));
-		assertThat(result.get(4).getBeschreibung()).isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel
-			.createBeschreibungFuerKnotenmassnahme(multipleKnotenMassnahme.getId(), knotenOhneNetzklasse.getId()));
+		assertThat(konsistenzregelVerletzungsDetailsKnotenMassnahmeKreisnetz.getBeschreibung())
+			.isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel
+				.createBeschreibungFuerKnotenmassnahme(knotenMassnahmeKreisnetz.getId(), knotenOhneNetzklasse.getId()));
+		assertThat(konsistenzregelVerletzungsDetailsMultipleKnotenMassnahme.getBeschreibung())
+			.isEqualTo(RadNetzMassnahmenNetzklasseKonsistenzregel
+				.createBeschreibungFuerKnotenmassnahme(multipleKnotenMassnahme.getId(), knotenOhneNetzklasse.getId()));
 	}
 }

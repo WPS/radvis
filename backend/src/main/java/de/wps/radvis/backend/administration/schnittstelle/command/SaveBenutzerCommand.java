@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.administration.schnittstelle.command;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +38,7 @@ public class SaveBenutzerCommand {
 	private long id;
 	@NotNull
 	private long version;
+	private LocalDate ablaufdatum;
 	@NotNull
 	private Name vorname;
 	@NotNull

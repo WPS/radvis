@@ -43,6 +43,8 @@ import de.wps.radvis.backend.matching.domain.exception.GeometryZuWeitEntferntExc
 import de.wps.radvis.backend.matching.domain.exception.KanteNichtGematchedException;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
 import de.wps.radvis.backend.matching.domain.exception.MatchingFehlerException;
+import de.wps.radvis.backend.matching.domain.repository.OsmAbbildungsFehlerRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.service.MatchingJobProtokollService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
 import de.wps.radvis.backend.netz.domain.entity.KanteGeometryView;

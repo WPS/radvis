@@ -24,6 +24,14 @@ public class FrontendLinks {
 		return String.format("/viewer/massnahmen/%d", id);
 	}
 
+	public static String barriereDetailView(Long id) {
+		return String.format("/viewer/barriere/%d", id);
+	}
+
+	public static String furtKreuzungDetailView(Long id) {
+		return String.format("/viewer/furten-kreuzungen/%d", id);
+	}
+
 	public static String infrastrukturTabelleWithFilter(String infrastruktur, String filter) {
 		return String.format("/viewer?infrastrukturen=%s&tabellenVisible=true&filter_massnahmen=%s", infrastruktur,
 			filter);
@@ -31,6 +39,10 @@ public class FrontendLinks {
 
 	public static String kanteDetailView(Long id) {
 		return String.format("/viewer/kante/%d", id);
+	}
+
+	public static String knotenDetailView(Long id) {
+		return String.format("/viewer/knoten/%d", id);
 	}
 
 	public static String leihstationDetails(Long id) {

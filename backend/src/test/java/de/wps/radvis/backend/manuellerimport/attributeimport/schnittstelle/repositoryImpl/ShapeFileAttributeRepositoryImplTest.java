@@ -18,12 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -105,8 +106,10 @@ public class ShapeFileAttributeRepositoryImplTest {
 		Stream<String> attributWerte = shpAttributeRepository.getAttributWerte(shp, "datum");
 
 		// assert
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2022, 1, 14, 0, 0, 0);
 		assertThat(attributWerte.collect(Collectors.toSet())).containsExactlyInAnyOrder(
-			new DateTime("2022-02-14").toString("EEE MMM d HH:mm:ss zzz yyyy", Locale.US),
+			new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy", Locale.US).format(calendar.getTime()),
 			null);
 	}
 

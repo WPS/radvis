@@ -22,13 +22,13 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 import org.springframework.data.util.Lazy;
 
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
 import de.wps.radvis.backend.matching.domain.exception.GeometryLaengeMismatchException;
 import de.wps.radvis.backend.matching.domain.exception.GeometryZuWeitEntferntException;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
 import de.wps.radvis.backend.matching.domain.exception.LinestringInvalidException;
 import de.wps.radvis.backend.matching.domain.exception.MatchingFehlerException;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
 
 public class SimpleMatchingService {

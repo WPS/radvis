@@ -64,7 +64,7 @@ export class MapStyles {
 
   public static getDefaultNetzStyleFunction(
     color: Color | ColorLike = MapStyles.FEATURE_COLOR
-  ): (feature: FeatureLike, resolution: number) => Style | Style[] {
+  ): (feature: FeatureLike, resolution: number) => Style {
     return (feature: FeatureLike, resolution: number): Style => {
       if (resolution < MapStyles.RESOLUTION_SMALL) {
         if (feature.getGeometry()?.getType() === GeometryType.POINT) {

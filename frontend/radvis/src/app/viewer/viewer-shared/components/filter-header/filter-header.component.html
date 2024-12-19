@@ -14,5 +14,5 @@
 
 <div class="filter-header-container">
   <ng-content></ng-content>
-  <rad-filter-menu [field]="filterColumn!" [hovered]="isHovered"></rad-filter-menu>
+  <rad-filter-menu [field]="filterColumn!" [hovered]="isHovered" (click)="$event.stopPropagation()"></rad-filter-menu>
 </div>

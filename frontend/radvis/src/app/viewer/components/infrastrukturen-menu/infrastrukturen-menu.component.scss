@@ -1,0 +1,133 @@
+/*!
+ * Copyright (c) 2023 WPS - Workplace Solutions GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+@import 'src/style/colors';
+
+$abgesetzter-hintergrund: #fafafa;
+
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+  box-shadow:
+    3px 0 3px -2px rgb(0 0 0 / 20%),
+    3px 0 4px 0 rgb(0 0 0 / 14%),
+    1px 0 8px 0 rgb(0 0 0 / 12%);
+  overflow: hidden;
+}
+
+@media print {
+  .collapsed {
+    display: none;
+  }
+}
+
+.container.ng-animating {
+  .header {
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+  .text-column {
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+}
+
+.collapse-toggle-area {
+  display: flex;
+  border-bottom: 1px solid map-get($grayscale, 300);
+}
+
+.collapsed {
+  .linien-farbe {
+    width: 0.4rem;
+  }
+
+  .scrollable-bereich {
+    background-color: $abgesetzter-hintergrund;
+  }
+
+  rad-infrastrukturen-sub-menu {
+    display: none;
+  }
+}
+
+rad-infrastrukturen-sub-menu {
+  border-bottom: 1px solid map-get($grayscale, 300);
+  border-top: 1px solid map-get($grayscale, 300);
+}
+
+rad-infrastrukturen-sub-menu + rad-infrastrukturen-sub-menu {
+  border-top: none;
+}
+
+.linien-farbe {
+  background-color: rgba(0, 0, 0, 0);
+  width: 1rem;
+  height: 0.4rem;
+}
+
+.infrastruktur-selection-group {
+  background-color: $abgesetzter-hintergrund;
+}
+
+.scrollable-bereich {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overflow-x: hidden;
+}
+
+tr {
+  // Fix fuer Layout Bug im Zusammenspiel mit MatCheckbox
+  height: 2.8em;
+
+  &:hover {
+    background: map-get($radvis-accent-palette, 50);
+    cursor: pointer;
+  }
+}
+
+td {
+  vertical-align: center;
+}
+
+.selected {
+  & .icon-column {
+    filter: brightness(0) saturate(100%) invert(19%) sepia(100%) saturate(3336%) hue-rotate(327deg) brightness(87%)
+      contrast(93%);
+  }
+
+  & .text-column {
+    color: $secondary-color;
+  }
+}
+
+.text-column {
+  word-break: break-word;
+}
+
+.icon-column {
+  filter: brightness(0) saturate(100%);
+}
+
+.icon-with-badge-container {
+  width: 2rem;
+}

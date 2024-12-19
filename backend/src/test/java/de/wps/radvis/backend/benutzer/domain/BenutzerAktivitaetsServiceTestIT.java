@@ -2,17 +2,15 @@ package de.wps.radvis.backend.benutzer.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.transaction.BeforeTransaction;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
@@ -44,6 +44,7 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 
 @Tag("group4")
 @ContextConfiguration(classes = {
@@ -77,66 +78,114 @@ class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 	@Autowired
 	ApplicationEventPublisher publisher;
 
-	Benutzer benutzer;
+	@Autowired
+	EntityManager entityManager;
 
-	@BeforeEach
-	void setup() {
-		openMocks(this);
-	}
-
-	@BeforeTransaction
-	void fillDatabase() {
-		Verwaltungseinheit verwaltungseinheit = gebietskoerperschaftRepository.save(
-			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
-
-		benutzer = benutzerRepository.save(BenutzerTestDataProvider
-			.defaultBenutzer()
-			.organisation(verwaltungseinheit)
-			.serviceBwId(ServiceBwId.of("testId"))
-			.letzteAktivitaet(LocalDate.now().minusDays(2))
-			.build());
-	}
+	@Autowired
+	PlatformTransactionManager platformTransactionManager;
 
 	@AfterEach
-	void cleanupDataBase(@Autowired EntityManager entityManager) {
-		benutzerRepository.deleteAll();
-		entityManager.createNativeQuery(
-			"DELETE FROM organisation"
-		).executeUpdate();
+	void cleanupDataBase() {
+	}
+
+	@Test
+	@Transactional(value = Transactional.TxType.NEVER)
+	void testOnAuthenticationSuccess_handleOptimisticLockingException()
+		throws InterruptedException, ExecutionException {
+		// arrange
+		ServiceBwId serviceBwId = ServiceBwId.of("testId");
+		new TransactionTemplate(platformTransactionManager).executeWithoutResult((status) -> {
+			Verwaltungseinheit verwaltungseinheit = gebietskoerperschaftRepository.save(
+				VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
+
+			benutzerRepository.save(BenutzerTestDataProvider
+				.defaultBenutzer()
+				.organisation(verwaltungseinheit)
+				.serviceBwId(serviceBwId)
+				.letzteAktivitaet(LocalDate.now().minusDays(2))
+				.build());
+
+			entityManager.flush();
+			entityManager.clear();
+		});
+
+		Benutzer benutzer1 = benutzerRepository.findByServiceBwId(serviceBwId).get();
+		entityManager.clear();
+		Benutzer benutzer2 = benutzerRepository.findByServiceBwId(serviceBwId).get();
+		entityManager.clear();
+
+		Authentication authentication = new RadVisAuthentication(
+			new RadVisUserDetails(benutzer1, new ArrayList<>()));
+		publisher.publishEvent(new AuthenticationSuccessEvent(authentication));
+
+		// act + assert
+
+		Authentication authentication2 = new RadVisAuthentication(
+			new RadVisUserDetails(benutzer2, new ArrayList<>()));
+		assertThatNoException()
+			.isThrownBy(() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication2)));
+
+		entityManager.clear();
+
+		new TransactionTemplate(platformTransactionManager).executeWithoutResult((status) -> {
+			benutzerRepository.deleteAll();
+			entityManager.createNativeQuery("DELETE FROM organisation").executeUpdate();
+		});
 	}
 
 	@Test
 	void testOnAuthenticationSuccess_RadVisAuthConcurrentEvents_aktualisiertLetzteAktivitaetNurEinmal()
 		throws InterruptedException, ExecutionException {
 		// arrange
-		Authentication authentication = new RadVisAuthentication(new RadVisUserDetails(benutzer, new ArrayList<>()));
+		Verwaltungseinheit verwaltungseinheit = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
+
+		Benutzer benutzer = benutzerRepository.save(BenutzerTestDataProvider
+			.defaultBenutzer()
+			.organisation(verwaltungseinheit)
+			.serviceBwId(ServiceBwId.of("testId"))
+			.letzteAktivitaet(LocalDate.now().minusDays(2))
+			.build());
+
+		TestTransaction.flagForCommit();
+		TestTransaction.end();
+		TestTransaction.start();
+
+		Authentication authentication = new RadVisAuthentication(
+			new RadVisUserDetails(benutzer, new ArrayList<>()));
 
 		// act
-		Future<?> future1;
-		Future<?> future2;
-		ExecutorService es = null;
-		try {
-			es = Executors.newFixedThreadPool(2);
-			future1 = es.submit(() -> {
-				assertThatNoException().isThrownBy(
-					() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication)));
-				return null;
-			});
+		ExecutorService executorService = Executors.newFixedThreadPool(2);
+		executorService.execute(() -> {
+			assertThatNoException().isThrownBy(
+				() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication)));
+		});
 
-			future2 = es.submit(() -> {
-				assertThatNoException().isThrownBy(
-					() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication)));
-				return null;
-			});
-		} finally {
-			if (es != null)
-				es.shutdown();
+		executorService.execute(() -> {
+			assertThatNoException().isThrownBy(
+				() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication)));
+		});
+
+		executorService.shutdown();
+		try {
+			if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+				executorService.shutdownNow();
+			}
+		} catch (InterruptedException e) {
+			executorService.shutdownNow();
 		}
 
-		future1.get();
-		future2.get();
-
 		// assert
-		assertThat(benutzer.getLetzteAktivitaet()).isEqualTo(LocalDate.now());
+		assertThat(benutzerRepository.findByServiceBwId(benutzer.getServiceBwId()).get().getLetzteAktivitaet())
+			.isEqualTo(LocalDate.now());
+
+		entityManager.clear();
+
+		// cleanup
+		benutzerRepository.deleteAll();
+		entityManager.createNativeQuery("DELETE FROM organisation").executeUpdate();
+
+		TestTransaction.flagForCommit();
+		TestTransaction.end();
 	}
 }

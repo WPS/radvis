@@ -29,8 +29,8 @@ import { Observable, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 import { OrganisationenVerwaltungService } from 'src/app/administration/services/organisationen-verwaltung.service';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 
 @Component({
@@ -113,6 +113,7 @@ export class OrganisationListComponent implements AfterViewInit, OnDestroy {
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     this.organisationDataSource.sortingDataAccessor = (value, key) =>
       Verwaltungseinheit.getSortingValueForKey(value, key);
+    this.organisationDataSource.filterPredicate = this.filter;
   }
 
   ngOnDestroy(): void {
@@ -134,6 +135,12 @@ export class OrganisationListComponent implements AfterViewInit, OnDestroy {
   onCreate(): void {
     this.administrationRoutingService.toOrganisationCreator();
   }
+
+  private filter = (data: Verwaltungseinheit, filter: string): boolean => {
+    return this.headerColumns.some(key => {
+      return Verwaltungseinheit.getSortingValueForKey(data, key).toLowerCase().includes(filter.toLowerCase());
+    });
+  };
 
   private updateQueryParams(): void {
     const urlTree = this.router.parseUrl(this.router.url);

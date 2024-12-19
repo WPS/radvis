@@ -19,6 +19,7 @@ import static org.valid4j.Assertive.require;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,9 @@ public class Benutzer extends VersionierteEntity {
 	@Enumerated(EnumType.STRING)
 	private BenutzerStatus status;
 
+	@Setter
+	private LocalDate ablaufdatum;
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@Setter
 	private Verwaltungseinheit organisation;
@@ -87,13 +91,14 @@ public class Benutzer extends VersionierteEntity {
 
 	public Benutzer(Name vorname, Name nachname, BenutzerStatus status,
 		Verwaltungseinheit organisation, Mailadresse mailadresse, ServiceBwId serviceBwId, Set<Rolle> rollen) {
-		this(null, null, vorname, nachname, status, organisation, mailadresse, serviceBwId, rollen, LocalDate.now());
+		this(null, null, vorname, nachname, status, organisation, mailadresse, serviceBwId, rollen, LocalDate.now(),
+			null);
 	}
 
 	@Builder
 	private Benutzer(Long id, Long version, Name vorname, Name nachname, BenutzerStatus status,
 		Verwaltungseinheit organisation, Mailadresse mailadresse, ServiceBwId serviceBwId, Set<Rolle> rollen,
-		LocalDate letzteAktivitaet) {
+		LocalDate letzteAktivitaet, LocalDate ablaufdatum) {
 		super(id, version);
 		require(vorname, notNullValue());
 		require(nachname, notNullValue());
@@ -113,6 +118,7 @@ public class Benutzer extends VersionierteEntity {
 		this.serviceBwId = serviceBwId;
 		this.rollen = rollen;
 		this.letzteAktivitaet = letzteAktivitaet;
+		this.ablaufdatum = ablaufdatum;
 	}
 
 	public Set<Recht> getRechte() {
@@ -124,6 +130,10 @@ public class Benutzer extends VersionierteEntity {
 		require(recht, notNullValue());
 
 		return getRechte().contains(recht);
+	}
+
+	public Optional<LocalDate> getAblaufdatum() {
+		return Optional.ofNullable(ablaufdatum);
 	}
 
 	public String getVollerName() {

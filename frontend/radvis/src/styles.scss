@@ -89,6 +89,10 @@ $sides: (top, bottom, left, right); // all positions
   position: relative;
 }
 
+.ml-auto {
+  margin-left: auto;
+}
+
 .w-100 {
   width: 100%;
 }
@@ -385,4 +389,19 @@ td.group-header,
   font-size: small;
   line-height: 1.2em;
   letter-spacing: 0;
+}
+
+// Für Dialoge mit einem div als title (weil schließen-button) wollen wir keinen riesigen Abstand davor
+.mdc-dialog__title > div {
+  margin-top: -40px;
+}
+
+.mat-mdc-dialog-actions {
+  justify-content: flex-end !important;
+  padding: 0px 24px 20px 24px !important;
+  gap: 12px;
+
+  button {
+    margin-left: 0px !important;
+  }
 }

@@ -22,11 +22,14 @@
 <p th:text="'Sehr geehrte Dame, sehr geehrter Herr ' + ${vorname} + ' ' + ${nachname}"></p>
 <p>
   Sie haben in RadVIS Benachrichtigungen für die Maßnahme
-  '<span th:text="${bezeichnung}"></span>' aktiviert. So eben wurde die Maßnahme
+  '<span th:text="${bezeichnung}"></span>' aktiviert. Soeben wurde die Maßnahme
   aktualisiert.
 <p>
     Öffnen Sie die Maßnahme in RadVIS: <a th:href="${radvisLink}">Link zur Maßnahme</a>
 </p>
+<p><i>
+Falls Sie über die angegebenen Links nicht direkt an die korrekte Stelle in RadVIS geleitet werden, so melden Sie sich zuvor bitte bei RadVIS an und klicken anschließend erneut auf den jeweiligen Link.
+</i></p>
 <p>
     Möchten Sie keine Benachrichtigungen für diese Maßnahme
     erhalten, können Sie die Benachrichtigungsfunktion für die

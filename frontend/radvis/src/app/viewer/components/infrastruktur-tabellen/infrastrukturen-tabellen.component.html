@@ -18,84 +18,54 @@
     aria-label="Tabellenansicht"
     aria-keyshortcuts="Control+Alt+Shift+T"
     class="tab-container"
-    *ngIf="selektierteInfrastrukturen.length > 0"
     [class.dialog]="asDialog"
     #tabContainer>
-    <mat-tab-group class="infrastrukturen-tabs" color="accent" mat-stretch-tabs="false">
-      <mat-tab
-        [aria-label]="MASSNAHMEN.displayName"
-        [label]="MASSNAHMEN.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(MASSNAHMEN)">
-        <rad-massnahmen-tabelle></rad-massnahmen-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="FAHRRADROUTE.displayName"
-        [label]="FAHRRADROUTE.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(FAHRRADROUTE)">
-        <rad-fahrradroute-tabelle></rad-fahrradroute-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="IMPORTPROTOKOLLE.displayName"
-        [label]="IMPORTPROTOKOLLE.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(IMPORTPROTOKOLLE)">
-        <rad-importprotokolle-tabelle></rad-importprotokolle-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="ANPASSUNGSWUNSCH.displayName"
-        [label]="ANPASSUNGSWUNSCH.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(ANPASSUNGSWUNSCH)">
-        <rad-anpassungswunsch-tabelle></rad-anpassungswunsch-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="FURTEN_KREUZUNGEN.displayName"
-        [label]="FURTEN_KREUZUNGEN.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(FURTEN_KREUZUNGEN)">
-        <rad-furten-kreuzungen-tabelle></rad-furten-kreuzungen-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="BARRIEREN.displayName"
-        [label]="BARRIEREN.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(BARRIEREN)">
-        <rad-barrieren-tabelle></rad-barrieren-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="WEGWEISENDE_BESCHILDERUNG.displayName"
-        [label]="WEGWEISENDE_BESCHILDERUNG.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(WEGWEISENDE_BESCHILDERUNG)">
-        <rad-wegweisende-beschilderung-tabelle></rad-wegweisende-beschilderung-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="ABSTELLANLAGEN.displayName"
-        [label]="ABSTELLANLAGEN.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(ABSTELLANLAGEN)">
-        <rad-abstellanlage-tabelle></rad-abstellanlage-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="SERVICESTATIONEN.displayName"
-        [label]="SERVICESTATIONEN.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(SERVICESTATIONEN)">
-        <rad-servicestation-tabelle></rad-servicestation-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="LEIHSTATIONEN.displayName"
-        [label]="LEIHSTATIONEN.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(LEIHSTATIONEN)">
-        <rad-leihstation-tabelle></rad-leihstation-tabelle>
-      </mat-tab>
-      <mat-tab
-        [aria-label]="FAHRRADZAEHLSTELLE.displayName"
-        [label]="FAHRRADZAEHLSTELLE.displayName"
-        *ngIf="selektierteInfrastrukturen.includes(FAHRRADZAEHLSTELLE)">
-        <rad-fahrradzaehlstelle-tabelle></rad-fahrradzaehlstelle-tabelle>
-      </mat-tab>
-    </mat-tab-group>
-    <button
-      *ngIf="!asDialog"
-      matTooltip="Als Vollbild öffnen"
-      (click)="onFullScreen()"
-      mat-icon-button
-      class="full-screen-button">
-      <mat-icon>fullscreen</mat-icon>
-    </button>
+    <div class="header-row">
+      <nav mat-tab-nav-bar [tabPanel]="tabPanel" color="accent">
+        @for (infrastruktur of selektierteInfrastrukturen; track infrastruktur) {
+          <a
+            mat-tab-link
+            (click)="activeInfrastruktur = infrastruktur"
+            [active]="activeInfrastruktur === infrastruktur">
+            <rad-infrastruktur-icon
+              [size]="20"
+              [infrastruktur]="infrastruktur"
+              class="mr-5 header-icon"
+              [class.selected]="activeInfrastruktur === infrastruktur"></rad-infrastruktur-icon>
+            {{ infrastruktur.displayName }}
+          </a>
+        }
+      </nav>
+      <div class="display-flex">
+        <rad-collapse-down-button
+          *ngIf="!asDialog"
+          [matTooltip]="minimized ? 'Maximieren' : 'Minimieren'"
+          [attr.aria-label]="minimized ? 'Maximieren' : 'Minimieren'"
+          (toggle)="onToggleMinimization()"
+          [expanded]="minimized">
+        </rad-collapse-down-button>
+        <button *ngIf="!asDialog" matTooltip="Als Vollbild öffnen" (click)="onFullScreen()" mat-icon-button>
+          <mat-icon>fullscreen</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-tab-nav-panel #tabPanel>
+      <div class="tab-body" [@easeInOut]="!minimized || asDialog ? 'out' : 'in'">
+        <rad-massnahmen-tabelle *ngIf="activeInfrastruktur === MASSNAHMEN"></rad-massnahmen-tabelle>
+        <rad-fahrradroute-tabelle *ngIf="activeInfrastruktur === FAHRRADROUTE"></rad-fahrradroute-tabelle>
+        <rad-importprotokolle-tabelle *ngIf="activeInfrastruktur === IMPORTPROTOKOLLE"></rad-importprotokolle-tabelle>
+        <rad-anpassungswunsch-tabelle *ngIf="activeInfrastruktur === ANPASSUNGSWUNSCH"></rad-anpassungswunsch-tabelle>
+        <rad-furten-kreuzungen-tabelle
+          *ngIf="activeInfrastruktur === FURTEN_KREUZUNGEN"></rad-furten-kreuzungen-tabelle>
+        <rad-barrieren-tabelle *ngIf="activeInfrastruktur === BARRIEREN"></rad-barrieren-tabelle>
+        <rad-wegweisende-beschilderung-tabelle
+          *ngIf="activeInfrastruktur === WEGWEISENDE_BESCHILDERUNG"></rad-wegweisende-beschilderung-tabelle>
+        <rad-abstellanlage-tabelle *ngIf="activeInfrastruktur === ABSTELLANLAGEN"></rad-abstellanlage-tabelle>
+        <rad-servicestation-tabelle *ngIf="activeInfrastruktur === SERVICESTATIONEN"></rad-servicestation-tabelle>
+        <rad-leihstation-tabelle *ngIf="activeInfrastruktur === LEIHSTATIONEN"></rad-leihstation-tabelle>
+        <rad-fahrradzaehlstelle-tabelle
+          *ngIf="activeInfrastruktur === FAHRRADZAEHLSTELLE"></rad-fahrradzaehlstelle-tabelle>
+      </div>
+    </mat-tab-nav-panel>
   </div>
 </ng-container>

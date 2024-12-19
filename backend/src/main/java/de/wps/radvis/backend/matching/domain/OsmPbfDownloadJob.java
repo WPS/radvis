@@ -27,11 +27,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@WithFehlercode(Fehlercode.OSM_DOWNLOAD)
 public class OsmPbfDownloadJob extends AbstractJob {
 
 	private final String osmBasisDatenDownloadLink;
@@ -57,13 +60,11 @@ public class OsmPbfDownloadJob extends AbstractJob {
 		} catch (MalformedURLException e) {
 			log.error(
 				"Der angegebene Downloadlink ist keine gültige Url. Im weiteren Verlauf wird die letzte bekannte OsmPbfDatei verwendet: {}",
-				osmBasisDaten.getAbsolutePath()
-			);
+				osmBasisDaten.getAbsolutePath());
 		} catch (IOException e) {
 			log.error(
 				"Fehler beim Download der aktuellen Osm Basis Pbf. Im weiteren Verlauf wird die letzte bekannte OsmPbfDatei verwendet: {}",
-				osmBasisDaten.getAbsolutePath()
-			);
+				osmBasisDaten.getAbsolutePath());
 		}
 
 		return Optional.empty();

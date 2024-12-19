@@ -15,10 +15,10 @@
 package de.wps.radvis.backend.netz.domain.entity;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.ensure;
 import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -27,12 +27,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.linearref.LengthIndexedLine;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -42,10 +40,11 @@ import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 @EqualsAndHashCode
+@Slf4j
 public abstract class AbstractNetzBezug {
-
 	public Optional<Point> getDisplayGeometry() {
 		if (getImmutableKnotenBezug()
 			.stream().findFirst().isPresent()) {
@@ -188,60 +187,74 @@ public abstract class AbstractNetzBezug {
 		return groupbyKante.values().stream().noneMatch(AbschnittsweiserKantenSeitenBezug::ueberlappenSichBezuege);
 	}
 
+	public List<LineString> getLineStrings() {
+		return getImmutableKantenAbschnittBezug().stream().map(kantenSeitenAbschnitt -> {
+			return kantenSeitenAbschnitt.getGeometrie();
+		}).toList();
+	}
+
+	public List<Point> getPoints() {
+		List<Point> points = new ArrayList<>();
+
+		getImmutableKantenPunktBezug().stream().forEach(punkt -> {
+			points.add(punkt.getPointGeometry());
+		});
+
+		getImmutableKnotenBezug().stream().map(Knoten::getPoint).forEach(points::add);
+
+		return points;
+	}
+
 	public GeometryCollection getGeometrie() {
 		List<Geometry> geometries = new ArrayList<>();
-		getMutableAbschnittsweiserKantenSeitenBezug().stream().map(kantenSeitenAbschnitt -> {
-			LineString geometry = kantenSeitenAbschnitt.getKante().getGeometry();
-			LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(geometry);
-			LinearReferenzierterAbschnitt linearReferenzierterAbschnitt = kantenSeitenAbschnitt
-				.getLinearReferenzierterAbschnitt();
-			return lengthIndexedLine.extractLine(
-				linearReferenzierterAbschnitt.getVonValue() * geometry.getLength(),
-				linearReferenzierterAbschnitt.getBisValue() * geometry.getLength());
-		}).forEach(geometries::add);
 
-		getMutablePunktuellerKantenSeitenBezug().stream().map(kantenpunkt -> {
-			LineString geometry = kantenpunkt.getKante().getGeometry();
-			LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(geometry);
-			LineareReferenz lineareReferenz = kantenpunkt.getLineareReferenz();
-			Coordinate punktkoodinate = lengthIndexedLine.extractPoint(
-				lineareReferenz.getAbschnittsmarke() * geometry.getLength());
-			return KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(punktkoodinate);
-		}).forEach(geometries::add);
+		geometries.addAll(getPoints());
 
-		getMutableKnotenBezug().stream().map(Knoten::getPoint).forEach(geometries::add);
+		geometries.addAll(getLineStrings());
+
 		return KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createGeometryCollection(geometries.toArray(new Geometry[0]));
 	}
 
-	public void removeKante(Long kanteId) {
+	public boolean containsKante(Long kanteId) {
 		require(kanteId, notNullValue());
-		getMutableAbschnittsweiserKantenSeitenBezug().removeIf(
-			kantenBezug -> kantenBezug.getKante().getId().equals(kanteId));
-		getMutablePunktuellerKantenSeitenBezug().removeIf(punkt -> punkt.getKante().getId().equals(kanteId));
+		boolean containsAbschnittWithKantenId = getImmutableKantenAbschnittBezug().stream()
+			.anyMatch(kantenBezug -> kantenBezug.getKante().getId().equals(kanteId));
+		boolean containsPunkbezugWithKantenId = getImmutableKantenPunktBezug().stream()
+			.anyMatch(punkt -> punkt.getKante().getId().equals(kanteId));
+		return containsAbschnittWithKantenId || containsPunkbezugWithKantenId;
 	}
 
-	public void removeKnoten(Long knotenId) {
-		require(knotenId, notNullValue());
-		getMutableKnotenBezug().removeIf(knoten -> knoten.getId().equals(knotenId));
+	public boolean containsKnoten(long knotenId) {
+		return getImmutableKnotenBezug().stream().anyMatch(knoten -> knoten.getId().equals(knotenId));
 	}
 
-	public Set<AbschnittsweiserKantenSeitenBezug> getImmutableKantenAbschnittBezug() {
-		return Collections.unmodifiableSet(new HashSet<>(getMutableAbschnittsweiserKantenSeitenBezug()));
+	public abstract Set<AbschnittsweiserKantenSeitenBezug> getImmutableKantenAbschnittBezug();
+
+	public abstract Set<PunktuellerKantenSeitenBezug> getImmutableKantenPunktBezug();
+
+	public abstract Set<Knoten> getImmutableKnotenBezug();
+
+	protected Set<Knoten> ersetzeKnoten(Set<Knoten> alterKnotenBezug, Map<Long, Knoten> ersatzKnoten) {
+		Set<Knoten> neuerKnotenBezug = new HashSet<>(alterKnotenBezug);
+		int sizeBefore = neuerKnotenBezug.size();
+
+		for (Long zuErsetzenderKnoten : ersatzKnoten.keySet()) {
+			Knoten neuerKnoten = ersatzKnoten.get(zuErsetzenderKnoten);
+			if (!neuerKnotenBezug.contains(neuerKnoten)) {
+				if (neuerKnotenBezug.removeIf(kn -> kn.getId().equals(zuErsetzenderKnoten))) {
+					neuerKnotenBezug.add(neuerKnoten);
+				}
+			} else if (neuerKnotenBezug.stream().anyMatch(kb -> kb.getId().equals(zuErsetzenderKnoten))) {
+				log.debug(
+					"Knoten {} konnte nicht ersetzt werden, da Ersatzknoten {} bereits im Netzbezug enthalten ist. "
+						+ "Bitte stattdessen den Knoten aus dem Netzbezug löschen.",
+					zuErsetzenderKnoten, neuerKnoten.getId());
+			}
+		}
+
+		ensure(sizeBefore == neuerKnotenBezug.size());
+
+		return neuerKnotenBezug;
 	}
-
-	public Set<PunktuellerKantenSeitenBezug> getImmutableKantenPunktBezug() {
-		return Collections.unmodifiableSet(new HashSet<>(getMutablePunktuellerKantenSeitenBezug()));
-	}
-
-	public Set<Knoten> getImmutableKnotenBezug() {
-		return Collections.unmodifiableSet(new HashSet<>(getMutableKnotenBezug()));
-	}
-
-	protected abstract Set<AbschnittsweiserKantenSeitenBezug> getMutableAbschnittsweiserKantenSeitenBezug();
-
-	protected abstract Set<PunktuellerKantenSeitenBezug> getMutablePunktuellerKantenSeitenBezug();
-
-	protected abstract Set<Knoten> getMutableKnotenBezug();
-
 }

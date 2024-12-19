@@ -15,21 +15,27 @@
 package de.wps.radvis.backend.massnahme.domain.dbView;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Kostenannahme;
 import de.wps.radvis.backend.massnahme.domain.valueObject.LGVFGID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
@@ -116,6 +122,11 @@ public class MassnahmeListenDbView {
 	MaViSID maViSID;
 	VerbaID verbaID;
 	LGVFGID lgvfgID;
+	@Enumerated(EnumType.STRING)
+	Konzeptionsquelle konzeptionsquelle;
+	boolean archiviert;
+	private MultiPoint netzbezugSnapshotPoints;
+	private MultiLineString netzbezugSnapshotLines;
 
 	public Set<Netzklasse> getNetzklassen() {
 		return netzklassen == null ? Collections.emptySet()
@@ -134,23 +145,45 @@ public class MassnahmeListenDbView {
 			.collect(Collectors.toSet());
 	}
 
+	public GeometryCollection getGeometry() {
+		if (!archiviert) {
+			return geometry;
+		}
+
+		List<Geometry> netzbezugSnapshots = new ArrayList<>();
+		if (netzbezugSnapshotLines != null) {
+			netzbezugSnapshots.add(netzbezugSnapshotLines);
+		}
+		if (netzbezugSnapshotPoints != null) {
+			netzbezugSnapshots.add(netzbezugSnapshotPoints);
+		}
+
+		return new GeometryCollection(netzbezugSnapshots.toArray(new Geometry[] {}),
+			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory());
+	}
+
 	public String getMasshnahmenkategorienString() {
 		return this.massnahmenkategorien;
 	}
 
+	/**
+	 * Vom FE erwartet: LineString | MultiLineString | Point
+	 *
+	 * @return
+	 */
 	public Geometry getDisplayGeometry() {
-		if (geometry == null) {
+		if (getGeometry() == null) {
 			return null;
 		}
 
-		if (geometry.getNumGeometries() == 0) {
+		if (getGeometry().getNumGeometries() == 0) {
 			return null;
 		}
 
-		if (geometry.getGeometryN(0).getGeometryType() == Geometry.TYPENAME_MULTIPOINT) {
-			return geometry.getGeometryN(0).getGeometryN(0);
+		if (getGeometry().getGeometryN(0).getGeometryType() == Geometry.TYPENAME_MULTIPOINT) {
+			return getGeometry().getGeometryN(0).getGeometryN(0);
 		}
 
-		return geometry.getGeometryN(0);
+		return getGeometry().getGeometryN(0);
 	}
 }

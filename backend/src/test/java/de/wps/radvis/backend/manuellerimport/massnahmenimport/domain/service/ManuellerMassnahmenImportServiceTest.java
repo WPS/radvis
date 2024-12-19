@@ -80,7 +80,8 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.NetzbezugHinweisText;
 import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
@@ -89,7 +90,6 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
@@ -617,6 +617,87 @@ class ManuellerMassnahmenImportServiceTest {
 				MappingFehler.of(
 					ManuellerMassnahmenImportService.MASSNAHME_ID_ATTRIBUTENAME,
 					MappingFehlermeldung.LOESCHUNG_QUELLE_RADNETZ_UNGUELTIG.getText()))
+			.hasStatus(MassnahmenImportZuordnungStatus.FEHLERHAFT)
+			.doesNotHaveAnyMassnahme()
+			.hasMassnahmeId(MassnahmeKonzeptID.of(massnahmeId));
+	}
+
+	@Test
+	void testLadeFeatures_geloeschtFlagTrueVorhandeneMassnahmenIdAndRadNetzMassnahme2024_statusFehlerhaft()
+		throws ReadGeoJSONException {
+		// Arrange
+		MassnahmenImportSession session = new MassnahmenImportSession(
+			BenutzerTestDataProvider.defaultBenutzer().build(),
+			GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100), "testBereichName", List.of(1L),
+			Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
+			null);
+
+		String massnahmeId = "M ID 4.0";
+		when(geoJsonImportRepository.readFeaturesFromByteArray(any())).thenReturn(Stream.of(
+			SimpleFeatureTestDataProvider.withGeometryAndAttributes(
+				Map.of(
+					ManuellerMassnahmenImportService.MASSNAHME_ID_ATTRIBUTENAME, massnahmeId,
+					ManuellerMassnahmenImportService.GELOESCHT_ATTRIBUTENAME, "ja"),
+				GeometryTestdataProvider.createMultiLineString(GeometryTestdataProvider.createLineString()))));
+
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().id(1L)
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build();
+		when(massnahmeRepository.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
+			MassnahmeKonzeptID.of(massnahmeId), session.getKonzeptionsquelle())).thenReturn(List.of(massnahme));
+
+		// Act
+		service.ladeFeatures(session, new byte[0]);
+
+		// Assert
+		assertThat(session.isExecuting()).isFalse();
+		assertThat(session.getZuordnungen()).hasSize(1);
+		MassnahmenImportZuordnung zuordnung = session.getZuordnungen().get(0);
+		assertThatMassnahmenImportZuordnung(zuordnung)
+			.hasExactlyMappingFehler(
+				MappingFehler.of(
+					ManuellerMassnahmenImportService.MASSNAHME_ID_ATTRIBUTENAME,
+					MappingFehlermeldung.LOESCHUNG_QUELLE_RADNETZ_UNGUELTIG.getText()))
+			.hasStatus(MassnahmenImportZuordnungStatus.FEHLERHAFT)
+			.doesNotHaveAnyMassnahme()
+			.hasMassnahmeId(MassnahmeKonzeptID.of(massnahmeId));
+	}
+
+	@Test
+	void testLadeFeatures_vorhandeneMassnahmeIstArchiviert_statusFehlerhaft()
+		throws ReadGeoJSONException {
+		// Arrange
+		MassnahmenImportSession session = new MassnahmenImportSession(
+			BenutzerTestDataProvider.defaultBenutzer().build(),
+			GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100), "testBereichName", List.of(1L),
+			Konzeptionsquelle.RADNETZ_MASSNAHME,
+			null);
+
+		String massnahmeId = "M ID 4.0";
+		when(geoJsonImportRepository.readFeaturesFromByteArray(any())).thenReturn(Stream.of(
+			SimpleFeatureTestDataProvider.withGeometryAndAttributes(
+				Map.of(
+					ManuellerMassnahmenImportService.MASSNAHME_ID_ATTRIBUTENAME, massnahmeId,
+					ManuellerMassnahmenImportService.GELOESCHT_ATTRIBUTENAME, "nein"),
+				GeometryTestdataProvider.createMultiLineString(GeometryTestdataProvider.createLineString()))));
+
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().id(1L).build();
+		massnahme.archivieren();
+
+		when(massnahmeRepository.findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
+			MassnahmeKonzeptID.of(massnahmeId), session.getKonzeptionsquelle())).thenReturn(List.of(massnahme));
+
+		// Act
+		service.ladeFeatures(session, new byte[0]);
+
+		// Assert
+		assertThat(session.isExecuting()).isFalse();
+		assertThat(session.getZuordnungen()).hasSize(1);
+		MassnahmenImportZuordnung zuordnung = session.getZuordnungen().get(0);
+		assertThatMassnahmenImportZuordnung(zuordnung)
+			.hasExactlyMappingFehler(
+				MappingFehler.of(
+					ManuellerMassnahmenImportService.MASSNAHME_ID_ATTRIBUTENAME,
+					MappingFehlermeldung.UPDATE_ARCHIVIERT_NICHT_MOEGLICH.getText()))
 			.hasStatus(MassnahmenImportZuordnungStatus.FEHLERHAFT)
 			.doesNotHaveAnyMassnahme()
 			.hasMassnahmeId(MassnahmeKonzeptID.of(massnahmeId));

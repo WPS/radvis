@@ -17,6 +17,7 @@ package de.wps.radvis.backend.fahrradroute.domain.entity;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -135,9 +136,15 @@ public class FahrradrouteVariante extends AbstractEntity {
 		return Collections.unmodifiableList(abschnittsweiserKantenBezug);
 	}
 
-	public void removeKanteFromNetzbezug(Long kanteId) {
+	public boolean containsKante(Long kanteId) {
 		require(kanteId, notNullValue());
-		abschnittsweiserKantenBezug.removeIf(kantenBezug -> kantenBezug.getKante().getId().equals(kanteId));
+		return abschnittsweiserKantenBezug.stream().anyMatch(kantenBezug -> kantenBezug.getKante().getId().equals(
+			kanteId));
+	}
+
+	public void removeKantenFromNetzbezug(Collection<Long> kantenIds) {
+		require(kantenIds, notNullValue());
+		abschnittsweiserKantenBezug.removeIf(kantenBezug -> kantenIds.contains(kantenBezug.getKante().getId()));
 	}
 
 	public void updateAbgeleiteteRoutenInformationen(Hoehenunterschied anstieg, Hoehenunterschied abstieg) {

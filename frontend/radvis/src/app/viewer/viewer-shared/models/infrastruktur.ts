@@ -25,7 +25,7 @@ export class Infrastruktur {
     public readonly iconFileName: string,
     public readonly pathElement: string,
     public readonly linienFarbe: Color | undefined = undefined,
-    public readonly position: 'oben' | 'unten' = 'oben',
+    public readonly gruppe: 'Analyse' | 'Allgemein' = 'Allgemein',
     public readonly abweichenderDisplayName: string | undefined = undefined
   ) {}
 }

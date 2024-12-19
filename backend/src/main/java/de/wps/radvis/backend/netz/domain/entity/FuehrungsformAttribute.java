@@ -64,16 +64,14 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 		Radverkehrsfuehrung.RADFAHRSTREIFEN,
 		Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
 		Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-		Radverkehrsfuehrung.MEHRZWECKSTREIFEN
-	);
+		Radverkehrsfuehrung.MEHRZWECKSTREIFEN);
 
 	private static final Collection<Radverkehrsfuehrung> trennstreifenNurParkenRadverkehrsfuehrungen = Set.of(
 		Radverkehrsfuehrung.SCHUTZSTREIFEN,
 		Radverkehrsfuehrung.RADFAHRSTREIFEN,
 		Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
 		Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-		Radverkehrsfuehrung.MEHRZWECKSTREIFEN
-	);
+		Radverkehrsfuehrung.MEHRZWECKSTREIFEN);
 
 	@Getter
 	@Enumerated(EnumType.STRING)
@@ -137,8 +135,7 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 		TrennungZu trennstreifenTrennungZuRechts,
 		TrennungZu trennstreifenTrennungZuLinks,
 		TrennstreifenForm trennstreifenFormRechts,
-		TrennstreifenForm trennstreifenFormLinks
-	) {
+		TrennstreifenForm trennstreifenFormLinks) {
 		super(linearReferenzierterAbschnitt);
 
 		require(belagArt, notNullValue());
@@ -152,14 +149,12 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			radverkehrsfuehrung,
 			trennstreifenFormRechts,
 			trennstreifenBreiteRechts,
-			trennstreifenTrennungZuRechts
-		);
+			trennstreifenTrennungZuRechts);
 		assertTrennstreifenCorrectness(
 			radverkehrsfuehrung,
 			trennstreifenFormLinks,
 			trennstreifenBreiteLinks,
-			trennstreifenTrennungZuLinks
-		);
+			trennstreifenTrennungZuLinks);
 
 		this.belagArt = belagArt;
 		this.oberflaechenbeschaffenheit = oberflaechenbeschaffenheit;
@@ -218,8 +213,7 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			this.trennstreifenTrennungZuRechts,
 			this.trennstreifenTrennungZuLinks,
 			this.trennstreifenFormRechts,
-			this.trennstreifenFormLinks
-		);
+			this.trennstreifenFormLinks);
 	}
 
 	@Override
@@ -294,8 +288,8 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 	}
 
 	/*
-	 * Achtung: hier werden die Trennstreifen nicht beachtet, aber das ist ok
-	 * da diese Methode nur aus dem (veralteten) RadwegeDBImport aufgerufen wird
+	 * Achtung: hier werden die Trennstreifen nicht beachtet, aber das ist ok da diese Methode nur aus dem (veralteten)
+	 * RadwegeDBImport aufgerufen wird
 	 */
 	private FuehrungsformAttribute mergeAttributeNimmErstenNichtDefaultWert(FuehrungsformAttribute other,
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
@@ -374,19 +368,15 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 		} else if (TrennungZu.nullableWiderspruchZu(trennstreifenTrennungZuRechts,
 			other.trennstreifenTrennungZuRechts)) {
 			return true;
-		} else if (
-			trennstreifenBreiteLinks == null && other.trennstreifenBreiteLinks != null ||
-				trennstreifenBreiteLinks != null && other.trennstreifenBreiteLinks == null ||
-				(trennstreifenBreiteLinks != null && other.trennstreifenBreiteLinks != null &&
-					!trennstreifenBreiteLinks.equals(other.trennstreifenBreiteLinks))
-		) {
+		} else if (trennstreifenBreiteLinks == null && other.trennstreifenBreiteLinks != null ||
+			trennstreifenBreiteLinks != null && other.trennstreifenBreiteLinks == null ||
+			(trennstreifenBreiteLinks != null && other.trennstreifenBreiteLinks != null &&
+				!trennstreifenBreiteLinks.equals(other.trennstreifenBreiteLinks))) {
 			return true;
-		} else if (
-			trennstreifenBreiteRechts == null && other.trennstreifenBreiteRechts != null ||
-				trennstreifenBreiteRechts != null && other.trennstreifenBreiteRechts == null ||
-				(trennstreifenBreiteRechts != null && other.trennstreifenBreiteRechts != null &&
-					!trennstreifenBreiteRechts.equals(other.trennstreifenBreiteRechts))
-		) {
+		} else if (trennstreifenBreiteRechts == null && other.trennstreifenBreiteRechts != null ||
+			trennstreifenBreiteRechts != null && other.trennstreifenBreiteRechts == null ||
+			(trennstreifenBreiteRechts != null && other.trennstreifenBreiteRechts != null &&
+				!trennstreifenBreiteRechts.equals(other.trennstreifenBreiteRechts))) {
 			return true;
 		} else {
 			return breite != null && other.breite != null && !this.breite.equals(other.breite);
@@ -435,14 +425,13 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			trennstreifenBreite == null;
 		if (allFieldsAreNull) {
 			/*
-				Seit RAD-4719 gibt es Sicherheitstrennstreifen an jeder Kante, deren Werte aber initial "null" sind.
-				Damit ein Nutzer nicht bei jeden Führungsform-Attributen gezwungen wird auch den Trennstreifen zu setzen
-				(was vielleicht gar nicht möglich ist, weil nicht bekannt o.Ä.), erlauben wir explizit, dass alle drei
-				Felder "null"-Werte halten.
-				Eigentlich möchte man die Regel haben "wenn vorher UND hinterher alles null, dann OK". Allerdings können
-				wir die Führungsform-Attribute der Kante und des command nicht aufeinander abbilden, da die
-				Führungsform-Attribute keine ID haben. Daher erlauben wir hier generell die Regel "wenn alles null, dann
-				OK".
+			 * Seit RAD-4719 gibt es Sicherheitstrennstreifen an jeder Kante, deren Werte aber initial "null" sind.
+			 * Damit ein Nutzer nicht bei jeden Führungsform-Attributen gezwungen wird auch den Trennstreifen zu setzen
+			 * (was vielleicht gar nicht möglich ist, weil nicht bekannt o.Ä.), erlauben wir explizit, dass alle drei
+			 * Felder "null"-Werte halten. Eigentlich möchte man die Regel haben
+			 * "wenn vorher UND hinterher alles null, dann OK". Allerdings können wir die Führungsform-Attribute der
+			 * Kante und des command nicht aufeinander abbilden, da die Führungsform-Attribute keine ID haben. Daher
+			 * erlauben wir hier generell die Regel "wenn alles null, dann OK".
 			 */
 			return;
 		}
@@ -475,5 +464,18 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 				require(trennstreifenBreite, nullValue());
 			}
 		}
+	}
+
+	public FuehrungsformAttribute withUmgekehrterStationierungsrichtung() {
+		return toBuilder().trennstreifenBreiteLinks(trennstreifenBreiteRechts)
+			.trennstreifenFormLinks(trennstreifenFormRechts)
+			.trennstreifenTrennungZuLinks(trennstreifenTrennungZuRechts)
+			.trennstreifenBreiteRechts(trennstreifenBreiteLinks).trennstreifenFormRechts(trennstreifenFormLinks)
+			.trennstreifenTrennungZuRechts(trennstreifenTrennungZuLinks).build();
+	}
+
+	@Override
+	protected boolean hasOnlyDefaultAttribute() {
+		return sindAttributeGleich(FuehrungsformAttribute.builder().build());
 	}
 }

@@ -27,7 +27,7 @@ import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.reader.dem.SRTMProvider;
 
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
-import de.wps.radvis.backend.matching.domain.DlmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingCacheRepository;
 import de.wps.radvis.backend.matching.schnittstelle.encodedValues.BarriereFormEncodedValue;
 import de.wps.radvis.backend.matching.schnittstelle.encodedValues.BelagArtEncodedValue;
 import de.wps.radvis.backend.matching.schnittstelle.encodedValues.BeleuchtungEncodedValue;

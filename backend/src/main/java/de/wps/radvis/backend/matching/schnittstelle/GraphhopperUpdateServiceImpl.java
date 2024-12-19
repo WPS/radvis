@@ -14,8 +14,8 @@
 
 package de.wps.radvis.backend.matching.schnittstelle;
 
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.service.GraphhopperUpdateService;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +39,11 @@ public class GraphhopperUpdateServiceImpl implements GraphhopperUpdateService {
 	@Override
 	public void update() {
 		log.info("Der aktuell genutzte Graphhopper wird aktualisiert...");
+
 		dlmMatchedGraphHopperFactory.updateDlmGraphHopper();
-		dlmMatchingRepository.swapGraphHopper();
-		graphhopperRoutingRepository.swapGraphHopper();
+		dlmMatchingRepository.updateGraphHopper();
+		graphhopperRoutingRepository.updateGraphHopper();
+
+		log.info("Graphhopper aktualisiert");
 	}
 }

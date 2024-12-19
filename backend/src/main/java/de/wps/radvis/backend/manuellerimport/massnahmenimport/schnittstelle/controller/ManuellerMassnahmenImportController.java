@@ -49,7 +49,7 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.view
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.view.MassnahmenImportSessionView;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.view.MassnahmenImportZuordnungAttributfehlerView;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.schnittstelle.view.MassnahmenImportZuordnungUeberpruefungView;
-import de.wps.radvis.backend.netz.domain.bezug.MassnahmeNetzBezug;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 

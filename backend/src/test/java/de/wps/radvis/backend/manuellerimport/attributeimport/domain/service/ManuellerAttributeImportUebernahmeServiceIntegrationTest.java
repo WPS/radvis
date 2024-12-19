@@ -120,7 +120,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		openMocks(this);
 		this.mappingService = new MappingService();
 		this.manuellerAttributeImportUebernahmeService = new ManuellerAttributeImportUebernahmeService(
-			inMemoryKantenRepositoryFactory, mappingService, entityManager);
+			inMemoryKantenRepositoryFactory, mappingService, entityManager, Laenge.of(1.0));
 
 	}
 
@@ -348,13 +348,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 				.fuehrungsformAttributeLinks(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
-						.build())
-				)
+						.build()))
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
-						.build())
-				)
+						.build()))
 				.isZweiseitig(true)
 				.build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder()
@@ -450,13 +448,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 				.fuehrungsformAttributeLinks(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-						.build())
-				)
+						.build()))
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.radverkehrsfuehrung(Radverkehrsfuehrung.RADFAHRSTREIFEN)
-						.build())
-				)
+						.build()))
 				.isZweiseitig(true)
 				.build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder()
@@ -554,13 +550,11 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 				.fuehrungsformAttributeLinks(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
-						.build())
-				)
+						.build()))
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
-						.build())
-				)
+						.build()))
 				.isZweiseitig(true)
 				.build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder()
@@ -660,14 +654,12 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						// Hier ist ein STS vorgesehen
 						.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
-						.build())
-				)
+						.build()))
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						// Diese Fuehrungsform erlaubt keinen STS
 						.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-						.build())
-				)
+						.build()))
 				.isZweiseitig(true)
 				.build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder()
@@ -745,8 +737,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(konflikt.getNichtUebernommeneWerte()).contains(
 			"TrennstreifenForm: " + TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
 			"TrennungZu: " + TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
-			"TrennstreifenBreite: " + Laenge.of(0.8)
-		);
+			"TrennstreifenBreite: " + Laenge.of(0.8));
 
 	}
 
@@ -846,8 +837,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			"erhalts_zu",
 			"vereinbaru",
 			// FahrtrichtungsAttributGruppe
-			"fahrtricht"
-		);
+			"fahrtricht");
 		final AttributeImportSession session = new AttributeImportSession(
 			BenutzerTestDataProvider.defaultBenutzer().build(),
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
@@ -895,8 +885,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		assertThat(kante.isZweiseitig()).isFalse();
 		KantenAttributGruppe kag = kante.getKantenAttributGruppe();
 		assertThat(kag.getIstStandards()).containsExactlyInAnyOrder(
-			IstStandard.STARTSTANDARD_RADNETZ, IstStandard.ZIELSTANDARD_RADNETZ
-		);
+			IstStandard.STARTSTANDARD_RADNETZ, IstStandard.ZIELSTANDARD_RADNETZ);
 		KantenAttribute ka = kag.getKantenAttribute();
 		assertThat(ka.getDtvFussverkehr().get()).isEqualTo(VerkehrStaerke.of("12"));
 		assertThat(ka.getDtvPkw().get()).isEqualTo(VerkehrStaerke.of("13"));
@@ -1044,14 +1033,12 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.belagArt(BelagArt.BETON)
 						.breite(Laenge.of(123))
-						.build())
-				)
+						.build()))
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.belagArt(BelagArt.ASPHALT)
 						.breite(Laenge.of(456))
-						.build())
-				)
+						.build()))
 				.isZweiseitig(true)
 				.build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder()
@@ -1139,14 +1126,12 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.belagArt(BelagArt.BETON)
 						.breite(Laenge.of(123))
-						.build())
-				)
+						.build()))
 				.fuehrungsformAttributeRechts(
 					List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 						.belagArt(BelagArt.ASPHALT)
 						.breite(Laenge.of(456))
-						.build())
-				)
+						.build()))
 				.isZweiseitig(true)
 				.build())
 			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppe.builder()
@@ -1239,8 +1224,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 					.isZweiseitig(false)
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformAttribute))
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformAttribute))
-					.build()
-			)
+					.build())
 			.build();
 
 		featureMapping1.add(new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineString1));
@@ -1254,8 +1238,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			"sts_t_l",
 			"sts_f_r",
 			"sts_b_r",
-			"sts_t_r"
-		);
+			"sts_t_r");
 		final AttributeImportSession session = new AttributeImportSession(
 			BenutzerTestDataProvider.defaultBenutzer().build(),
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
@@ -1328,8 +1311,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 					.isZweiseitig(false)
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformAttribute))
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformAttribute))
-					.build()
-			)
+					.build())
 			.build();
 
 		featureMapping1.add(new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineString1));
@@ -1343,8 +1325,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			"sts_t_l",
 			"sts_f_r",
 			"sts_b_r",
-			"sts_t_r"
-		);
+			"sts_t_r");
 		final AttributeImportSession session = new AttributeImportSession(
 			BenutzerTestDataProvider.defaultBenutzer().build(),
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,
@@ -1411,8 +1392,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 					.isZweiseitig(false)
 					.fuehrungsformAttributeRechts(List.of(fuehrungsformAttribute))
 					.fuehrungsformAttributeLinks(List.of(fuehrungsformAttribute))
-					.build()
-			)
+					.build())
 			.build();
 
 		featureMapping1.add(new MappedGrundnetzkante(kante.getGeometry(), kante.getId(), featureMatchedLineString1));
@@ -1420,8 +1400,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		List<FeatureMapping> featureMappings = List.of(featureMapping1);
 
 		final List<String> attributliste = List.of(
-			"radverkehr"
-		);
+			"radverkehr");
 		final AttributeImportSession session = new AttributeImportSession(
 			BenutzerTestDataProvider.defaultBenutzer().build(),
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build(), attributliste,

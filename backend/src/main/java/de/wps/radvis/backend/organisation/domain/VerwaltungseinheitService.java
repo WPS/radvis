@@ -198,4 +198,20 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	public List<Long> findAllUntergeordnetIds(Long verwaltungseinheitId) {
 		return verwaltungseinheitRepository.findAllUntergeordnetIds(verwaltungseinheitId);
 	}
+
+	public long getAnzahlVerwaltungseinheitOfOrganisationsArt(OrganisationsArt organisationsArt) {
+		return verwaltungseinheitRepository.countByOrganisationsArt(organisationsArt);
+	}
+
+	public long getAnzahlVerwaltungseinheitOfOrganisationsArtMitAktivenBenutzern(OrganisationsArt organisationsArt) {
+		return verwaltungseinheitRepository.countVerwaltungseinheitenWithAtLeastOneActiveBenutzer(organisationsArt);
+	}
+
+	public List<Verwaltungseinheit> getAllKreiseWithKreisnetzGreaterOrEqual(Integer laengeInMetern) {
+		return verwaltungseinheitRepository.findAllKreiseWithKreisnetzGreaterOrEqual(laengeInMetern);
+	}
+
+	public List<Verwaltungseinheit> getAllKommunenWIthKommunalnetzGreaterOrEqual(Integer laengeInMetern) {
+		return verwaltungseinheitRepository.findAllKommunenWithKommunalnetzGreaterOrEqual(laengeInMetern);
+	}
 }

@@ -21,8 +21,8 @@
       <div class="dokument-dateiname">{{ dokument.dateiname }}</div>
       <div class="dokument-upload-datum">Hochgeladen am: {{ dokument.datum | date: 'dd.MM.yyyy' }}</div>
     </div>
-    <div class="row-right-side">
-      <span>{{ (dokument.dateigroesseInBytes / 1024 / 1024).toFixed(2).replace('.', ',') }} MB</span>
+    <div class="display-flex">
+      <span class="m-5">{{ (dokument.dateigroesseInBytes / 1024 / 1024).toFixed(2).replace('.', ',') }} MB</span>
       <button
         *ngIf="dokumentListeView.canEdit"
         [attr.aria-label]="dokument.dateiname + ' löschen'"

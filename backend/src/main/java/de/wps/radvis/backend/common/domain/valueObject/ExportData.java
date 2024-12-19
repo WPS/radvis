@@ -16,6 +16,7 @@ package de.wps.radvis.backend.common.domain.valueObject;
 
 import static org.valid4j.Assertive.require;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,6 +51,16 @@ public class ExportData {
 		require(properties.keySet().containsAll(headers));
 		this.geometry = geometry;
 		this.properties = properties;
-		this.headers = headers;
+		this.headers = new ArrayList<>(headers);
+	}
+
+	public void removeField(String feldname) {
+		require(hasHeader(feldname));
+		headers.remove(feldname);
+		properties.remove(feldname);
+	}
+
+	public boolean hasHeader(String feldname) {
+		return headers.contains(feldname);
 	}
 }

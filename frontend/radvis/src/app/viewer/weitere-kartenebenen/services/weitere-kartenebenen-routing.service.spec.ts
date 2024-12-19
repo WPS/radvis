@@ -20,13 +20,14 @@ import { RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockBuilder, MockRender, NG_MOCKS_GUARDS, ngMocks } from 'ng-mocks';
 import { LineString } from 'ol/geom';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import { ViewerComponent } from 'src/app/viewer/components/viewer/viewer.component';
 import { ViewerRoutingModule } from 'src/app/viewer/viewer-routing.module';
 import { DetailFeatureTableComponent } from 'src/app/viewer/viewer-shared/components/detail-feauture-table/detail-feature-table.component';
+import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { WeitereKartenebenenDetailViewComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-detail-view/weitere-kartenebenen-detail-view.component';
 import { WeitereWfsKartenebenenComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-wfs-kartenebenen/weitere-wfs-kartenebenen.component';
@@ -46,8 +47,10 @@ describe(WeitereKartenebenenRoutingService.name, () => {
     weitereKartenebenenService = mock(WeitereKartenebenenService);
   });
 
-  beforeEach(() =>
-    MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
+  beforeEach(() => {
+    const infrastrukturenSelektionService = mock(InfrastrukturenSelektionService);
+    when(infrastrukturenSelektionService.selektierteInfrastrukturen$).thenReturn(NEVER);
+    return MockBuilder([ViewerRoutingModule, RouterTestingModule.withRoutes([])], ViewerModule)
       .keep(ViewerComponent)
       .keep(WeitereKartenebenenDetailViewComponent)
       .keep(DetailFeatureTableComponent)
@@ -60,10 +63,14 @@ describe(WeitereKartenebenenRoutingService.name, () => {
         useValue: instance(mapQueryParamsService),
       })
       .provide({
+        provide: InfrastrukturenSelektionService,
+        useValue: instance(infrastrukturenSelektionService),
+      })
+      .provide({
         provide: WeitereKartenebenenService,
         useValue: instance(weitereKartenebenenService),
-      })
-  );
+      });
+  });
 
   // It is important to run routing tests in fakeAsync.
   it('should invoke detail view with data', fakeAsync(() => {

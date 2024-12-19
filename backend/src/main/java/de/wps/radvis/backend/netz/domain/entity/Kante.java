@@ -20,6 +20,7 @@ import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.event.KanteGeometrieChangedEvent;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
@@ -77,8 +79,6 @@ import lombok.extern.slf4j.Slf4j;
 @ToString(callSuper = true)
 @Slf4j
 public class Kante extends VersionierteEntity {
-
-	private static final double MINIMALE_LAENGE_LINEAR_REFERENZIERTER_SEGMENTE = 1.;
 
 	@Getter
 	@JsonIgnore
@@ -124,7 +124,6 @@ public class Kante extends VersionierteEntity {
 	private boolean isZweiseitig;
 
 	@Getter
-	@Setter
 	private boolean isGrundnetz;
 
 	@Setter
@@ -162,23 +161,26 @@ public class Kante extends VersionierteEntity {
 	@NonNull
 	private FuehrungsformAttributGruppe fuehrungsformAttributGruppe;
 
-	public Kante(String ursprungsfeatureTechnischeID, Knoten vonKnoten, Knoten nachKnoten, LineString geometry,
-		boolean isZweiseitig,
-		QuellSystem quelle,
-		KantenAttributGruppe kantenAttributGruppe, FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe,
-		ZustaendigkeitAttributGruppe zustaendigkeitAttributGruppe,
-		GeschwindigkeitAttributGruppe geschwindigkeitAttributGruppe,
-		FuehrungsformAttributGruppe fuehrungsformAttributGruppe) {
-		this(null, ursprungsfeatureTechnischeID, vonKnoten, nachKnoten, geometry, isZweiseitig, quelle,
-			kantenAttributGruppe,
-			fahrtrichtungAttributGruppe,
-			zustaendigkeitAttributGruppe,
-			geschwindigkeitAttributGruppe,
-			fuehrungsformAttributGruppe);
+	/**
+	 * Für Grundnetz-Kanten
+	 * 
+	 * @param dlmId
+	 */
+	public Kante(DlmId dlmId, Knoten vonKnoten, Knoten bisKnoten, LineString geometry,
+		Optional<StrassenName> strassenName, Optional<StrassenNummer> strassenNummer) {
+		this(null, dlmId.getValue(), vonKnoten, bisKnoten, QuellSystem.DLM, geometry, geometry, false,
+			KantenAttributGruppe.builder()
+				.kantenAttribute(KantenAttribute.builder().strassenName(strassenName.orElse(null))
+					.strassenNummer(strassenNummer.orElse(null)).build())
+				.build(),
+			FahrtrichtungAttributGruppe.builder().build(), ZustaendigkeitAttributGruppe.builder().build(),
+			GeschwindigkeitAttributGruppe.builder().build(), FuehrungsformAttributGruppe.builder().build(), null, null,
+			null, dlmId, true);
 		// Wenn wir das in den allgemeinen Konstruktor ziehen, müssen wir 200+ Tests fixen
-		require(isTopologieValid(geometry));
+		require(isGeometryUpdateValid(geometry));
 	}
 
+	@Deprecated
 	public Kante(DlmId dlmId, String ursprungsfeatureTechnischeID, Knoten vonKnoten, Knoten nachKnoten,
 		LineString geometry, boolean isZweiseitig, QuellSystem quelle, KantenAttributGruppe kantenAttributGruppe,
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe,
@@ -189,39 +191,7 @@ public class Kante extends VersionierteEntity {
 			kantenAttributGruppe, fahrtrichtungAttributGruppe, zustaendigkeitAttributGruppe,
 			geschwindigkeitAttributGruppe, fuehrungsformAttributGruppe, null, null, null, dlmId, false);
 		// Wenn wir das in den allgemeinen Konstruktor ziehen, müssen wir 200+ Tests fixen
-		require(isTopologieValid(geometry));
-	}
-
-	public static boolean isVerlaufValid(LineString verlaufLinks, LineString verlaufRechts, boolean isZweiseitig) {
-		if (!isZweiseitig) {
-			return Objects.equals(verlaufLinks, verlaufRechts);
-		}
-
-		return true;
-	}
-
-	public static boolean isZweiseitigkeitKonsistent(boolean isZweiseitig,
-		FuehrungsformAttributGruppe fuehrungsformAttributGruppe,
-		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe) {
-		return isZweiseitig == fuehrungsformAttributGruppe.isZweiseitig()
-			&& isZweiseitig == fahrtrichtungAttributGruppe.isZweiseitig();
-	}
-
-	public static List<Kante> distinktiereUndSortiereNachMinYDerGeometrie(Set<Kante> inputList) {
-		Map<LineString, Kante> distinkteKanten = new HashMap<>();
-		for (Kante kante : inputList) {
-			distinkteKanten.putIfAbsent(kante.getGeometry(), kante);
-		}
-
-		return distinkteKanten.values()
-			.stream()
-			.sorted(Comparator.comparing(kante -> kante.getZugehoerigeDlmGeometrie().getEnvelopeInternal().getMinY()))
-			.collect(Collectors.toList());
-	}
-
-	private boolean isKoordinatenSystemValid(Geometry geometry) {
-		require(geometry, notNullValue());
-		return geometry.getSRID() == KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid();
+		require(isGeometryUpdateValid(geometry));
 	}
 
 	@Builder
@@ -277,17 +247,53 @@ public class Kante extends VersionierteEntity {
 		this.isGrundnetz = isGrundnetz;
 	}
 
+	/**
+	 * Für RadVis-Kanten
+	 * 
+	 * @param vonKnoten
+	 * @param bisKnoten
+	 */
 	public Kante(Knoten vonKnoten, Knoten bisKnoten) {
-		this(null, vonKnoten, bisKnoten,
-			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createLineString(
-				new Coordinate[] { vonKnoten.getKoordinate(), bisKnoten.getKoordinate() }),
-			false,
-			QuellSystem.RadVis,
-			KantenAttributGruppe.builder().build(),
-			FahrtrichtungAttributGruppe.builder().build(),
-			ZustaendigkeitAttributGruppe.builder().build(),
-			GeschwindigkeitAttributGruppe.builder().build(),
-			FuehrungsformAttributGruppe.builder().build());
+		this(null, null, vonKnoten, bisKnoten, QuellSystem.RadVis,
+			KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
+				.createLineString(new Coordinate[] { vonKnoten.getKoordinate(), bisKnoten.getKoordinate() }),
+			null, false, KantenAttributGruppe.builder().build(), FahrtrichtungAttributGruppe.builder().build(),
+			ZustaendigkeitAttributGruppe.builder().build(), GeschwindigkeitAttributGruppe.builder().build(),
+			FuehrungsformAttributGruppe.builder().build(), null, null, null, null, false);
+		// Wenn wir das in den allgemeinen Konstruktor ziehen, müssen wir 200+ Tests fixen
+		require(isGeometryUpdateValid(geometry));
+	}
+
+	public static boolean isVerlaufValid(LineString verlaufLinks, LineString verlaufRechts, boolean isZweiseitig) {
+		if (!isZweiseitig) {
+			return Objects.equals(verlaufLinks, verlaufRechts);
+		}
+
+		return true;
+	}
+
+	public static boolean isZweiseitigkeitKonsistent(boolean isZweiseitig,
+		FuehrungsformAttributGruppe fuehrungsformAttributGruppe,
+		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppe) {
+		return isZweiseitig == fuehrungsformAttributGruppe.isZweiseitig()
+			&& isZweiseitig == fahrtrichtungAttributGruppe.isZweiseitig();
+	}
+
+	public static List<Kante> distinktiereUndSortiereNachMinYDerGeometrie(Set<Kante> inputList) {
+		Map<LineString, Kante> distinkteKanten = new HashMap<>();
+		for (Kante kante : inputList) {
+			distinkteKanten.putIfAbsent(kante.getGeometry(), kante);
+		}
+
+		return distinkteKanten.values()
+			.stream()
+			.sorted(Comparator.comparing(kante -> kante.getZugehoerigeDlmGeometrie().getEnvelopeInternal().getMinY()))
+			.collect(Collectors.toList());
+	}
+
+	private boolean isKoordinatenSystemValid(Geometry geometry) {
+		require(geometry, notNullValue());
+		return geometry.getSRID() == KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid();
 	}
 
 	public ZustaendigkeitAttribute getZustaendigkeitAttributeAnPunkt(Coordinate punkt) {
@@ -296,10 +302,24 @@ public class Kante extends VersionierteEntity {
 			punkt);
 	}
 
+	public ZustaendigkeitAttribute getZustaendigkeitAttributeAnKnoten(Knoten knoten) {
+		require(vonKnoten.equals(knoten) || nachKnoten.equals(knoten));
+		return getLinearReferenzierteAttributeAnReferenz(
+			zustaendigkeitAttributGruppe.getImmutableZustaendigkeitAttribute(),
+			vonKnoten.equals(knoten) ? 0 : 1);
+	}
+
 	public GeschwindigkeitAttribute getGeschwindigkeitAttributeAnPunkt(Coordinate punkt) {
 		return getLinearReferenzierteAttributeAnPunkt(
 			geschwindigkeitAttributGruppe.getImmutableGeschwindigkeitAttribute(),
 			punkt);
+	}
+
+	public GeschwindigkeitAttribute getGeschwindigkeitAttributeAnKnoten(Knoten knoten) {
+		require(vonKnoten.equals(knoten) || nachKnoten.equals(knoten));
+		return getLinearReferenzierteAttributeAnReferenz(
+			geschwindigkeitAttributGruppe.getImmutableGeschwindigkeitAttribute(),
+			vonKnoten.equals(knoten) ? 0 : 1);
 	}
 
 	private <T extends LinearReferenzierteAttribute> T getLinearReferenzierteAttributeAnPunkt(List<T> list,
@@ -307,11 +327,17 @@ public class Kante extends VersionierteEntity {
 
 		LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(this.geometry);
 		double distanceFromStart = lengthIndexedLine.project(punkt);
-		double percentageOfPoint = distanceFromStart / this.geometry.getLength();
+		double lineareReferenz = distanceFromStart / this.geometry.getLength();
 
+		return getLinearReferenzierteAttributeAnReferenz(list, lineareReferenz);
+	}
+
+	private <T extends LinearReferenzierteAttribute> T getLinearReferenzierteAttributeAnReferenz(Collection<T> list,
+		double lineareReferenz) {
+		require(lineareReferenz >= 0 && lineareReferenz <= 1);
 		return list.stream().filter(
-			attr -> attr.getLinearReferenzierterAbschnitt().getVonValue() <= percentageOfPoint
-				&& attr.getLinearReferenzierterAbschnitt().getBisValue() >= percentageOfPoint)
+			attr -> attr.getLinearReferenzierterAbschnitt().getVonValue() <= lineareReferenz
+				&& attr.getLinearReferenzierterAbschnitt().getBisValue() >= lineareReferenz)
 			.min(Comparator.comparing(attribut -> attribut.getLinearReferenzierterAbschnitt().getVonValue()))
 			.get();
 	}
@@ -331,12 +357,30 @@ public class Kante extends VersionierteEntity {
 			punkt);
 	}
 
+	public FuehrungsformAttribute getFuehrungsformAttributeAnKnoten(Knoten knoten, KantenSeite kantenSeite) {
+		require(vonKnoten.equals(knoten) || nachKnoten.equals(knoten));
+		List<FuehrungsformAttribute> immutableFuehrungsformAttribute = kantenSeite == KantenSeite.LINKS
+			? fuehrungsformAttributGruppe.getImmutableFuehrungsformAttributeLinks()
+			: fuehrungsformAttributGruppe.getImmutableFuehrungsformAttributeRechts();
+		return getLinearReferenzierteAttributeAnReferenz(
+			immutableFuehrungsformAttribute,
+			vonKnoten.equals(knoten) ? 0 : 1);
+	}
+
 	public Laenge getLaengeBerechnet() {
 		return Laenge.of(geometry.getLength());
 	}
 
 	public boolean isAbgebildet() {
 		return getZugehoerigeDlmGeometrie() != null;
+	}
+
+	@Deprecated
+	/**
+	 * @deprecated Bitte entsprechenden Konstruktor benutzen
+	 */
+	public void setGrundnetz(boolean isGrundnetz) {
+		this.isGrundnetz = isGrundnetz;
 	}
 
 	public LineString getZugehoerigeDlmGeometrie() {
@@ -443,7 +487,7 @@ public class Kante extends VersionierteEntity {
 
 	public void ueberschreibeFahrtrichtungAttribute(boolean istZweiseitig, Richtung links, Richtung rechts) {
 		this.getFahrtrichtungAttributGruppe().changeSeitenbezug(istZweiseitig);
-		this.getFahrtrichtungAttributGruppe().setRichtung(links, rechts);
+		this.getFahrtrichtungAttributGruppe().update(links, rechts);
 	}
 
 	public void ueberschreibeZustaendigketisAttribute(ZustaendigkeitAttribute zustaendigkeitAttribute) {
@@ -470,46 +514,33 @@ public class Kante extends VersionierteEntity {
 			korrigiereStartAndEndpointOfLinestring();
 		}
 
-		ensure(isTopologieValid(geometry));
+		ensure(isGeometryUpdateValid(geometry));
 	}
 
 	public void korrigiereStartAndEndpointOfLinestring() {
 		require(isManuelleGeometrieAenderungErlaubt());
-		boolean startPointCorrect = geometry.getStartPoint()
-			.equals(vonKnoten.getPoint());
-		boolean endPointCorrect = geometry.getEndPoint()
-			.equals(nachKnoten.getPoint());
+
+		boolean startPointCorrect = geometry.getStartPoint().equals(vonKnoten.getPoint());
+		boolean endPointCorrect = geometry.getEndPoint().equals(nachKnoten.getPoint());
 		if (startPointCorrect && endPointCorrect) {
 			return;
 		}
 		List<Coordinate> existingCoordinates = new ArrayList<>(Arrays.asList(geometry.getCoordinates()));
 		if (!startPointCorrect) {
-			log.info("Startpunkt der Geometrie wurde korrigiert.");
+			log.trace("Startpunkt der Geometrie von Kante {} wurde korrigiert.", id);
 			existingCoordinates.add(0, vonKnoten.getKoordinate());
 		}
 		if (!endPointCorrect) {
-			log.info("Endpunkt der Geometrie wurde korrigiert.");
+			log.trace("Endpunkt der Geometrie von Kante {} wurde korrigiert.", id);
 			existingCoordinates.add(nachKnoten.getKoordinate());
 		}
-		aendereGeometrieManuell(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
-			.createLineString(existingCoordinates.toArray(new Coordinate[existingCoordinates.size()])));
 
-		ensure(isTopologieValid(geometry));
-	}
+		LineString neueKantenGeometrie = KoordinatenReferenzSystem.ETRS89_UTM32_N
+			.getGeometryFactory()
+			.createLineString(existingCoordinates.toArray(new Coordinate[existingCoordinates.size()]));
+		aendereGeometrieManuell(neueKantenGeometrie);
 
-	public void updateDLMGeometryUndTopology(LineString neueGeometry, Knoten neuVon, Knoten neuNach) {
-		require(quelle == QuellSystem.DLM);
-
-		if (!neuVon.equals(vonKnoten)) {
-			this.vonKnoten = neuVon;
-		}
-		if (!neuNach.equals(nachKnoten)) {
-			this.nachKnoten = neuNach;
-		}
-
-		updateDLMGeometry(neueGeometry);
-
-		ensure(isTopologieValid(geometry));
+		ensure(isGeometryUpdateValid(geometry));
 	}
 
 	public void updateDLMGeometry(LineString neueGeometry) {
@@ -517,11 +548,13 @@ public class Kante extends VersionierteEntity {
 		require(isKoordinatenSystemValid(geometry),
 			"Geometrie muss in UTM32 (SRID: %s) kodiert sein, gesetzte SRID ist %s.",
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid(), geometry.getSRID());
-		require(isTopologieValid(neueGeometry));
+		require(isGeometryUpdateValid(neueGeometry));
 
 		this.geometry = neueGeometry;
 		this.kantenLaengeInCm = (int) Math.round(geometry.getLength() * 100);
 		this.aufDlmAbgebildeteGeometry = neueGeometry;
+		this.vonKnoten.updatePoint(neueGeometry.getStartPoint());
+		this.nachKnoten.updatePoint(neueGeometry.getEndPoint());
 	}
 
 	public void aendereGeometrieManuell(LineString newGeometry) {
@@ -532,15 +565,22 @@ public class Kante extends VersionierteEntity {
 		require(isKoordinatenSystemValid(geometry),
 			"Geometrie muss in UTM32 (SRID: %s) kodiert sein, gesetzte SRID ist %s.",
 			KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid(), geometry.getSRID());
-		require(isTopologieValid(newGeometry));
+		require(isGeometryUpdateValid(newGeometry));
 
 		this.aufDlmAbgebildeteGeometry = null;
 		this.geometry = newGeometry;
 		this.kantenLaengeInCm = (int) Math.round(newGeometry.getLength() * 100);
-		RadVisDomainEventPublisher.publish(new KanteGeometrieChangedEvent(this.id));
+
+		if (this.id != null) {
+			RadVisDomainEventPublisher.publish(new KanteGeometrieChangedEvent(this.id));
+		}
 	}
 
-	public boolean isTopologieValid(LineString neueGeometry) {
+	/**
+	 * Prüft, ob ein Update der Geometry gültig ist. Hier bedeutet "gültig", dass Start- und Endknoten weiterhin
+	 * unterschiedlich sein müssen und Knoten nicht signifikant verschoben werden dürfen.
+	 */
+	public boolean isGeometryUpdateValid(LineString neueGeometry) {
 		return !vonKnoten.getKoordinate().equals(nachKnoten.getKoordinate()) &&
 			neueGeometry.getStartPoint().getCoordinate()
 				.distance(vonKnoten.getPoint().getCoordinate()) <= KnotenIndex.SNAPPING_DISTANCE
@@ -577,15 +617,14 @@ public class Kante extends VersionierteEntity {
 		this.fuehrungsformAttributGruppe.reset();
 	}
 
-	public void defragmentiereLinearReferenzierteAttribute() {
-
+	public void defragmentiereLinearReferenzierteAttribute(Laenge minimaleSegmentLaenge) {
 		// Defragmentiere Zustaendigkeit
 		List<ZustaendigkeitAttribute> zustaendigkeit = new ArrayList<>(
 			zustaendigkeitAttributGruppe.getImmutableZustaendigkeitAttribute());
 
 		List<ZustaendigkeitAttribute> zustaendigkeitDefragmentiert = LinearReferenzierteAttribute
-			.defragmentiereLinearReferenzierteAttribute(zustaendigkeit, geometry.getLength(),
-				MINIMALE_LAENGE_LINEAR_REFERENZIERTER_SEGMENTE);
+			.defragmentiereLinearReferenzierteAttribute(zustaendigkeit, getLaengeBerechnet(),
+				minimaleSegmentLaenge);
 
 		zustaendigkeitAttributGruppe.replaceZustaendigkeitAttribute(zustaendigkeitDefragmentiert);
 
@@ -594,8 +633,8 @@ public class Kante extends VersionierteEntity {
 			geschwindigkeitAttributGruppe.getImmutableGeschwindigkeitAttribute());
 
 		List<GeschwindigkeitAttribute> geschwindigkeitDefragmentiert = LinearReferenzierteAttribute
-			.defragmentiereLinearReferenzierteAttribute(geschwindigkeit, geometry.getLength(),
-				MINIMALE_LAENGE_LINEAR_REFERENZIERTER_SEGMENTE);
+			.defragmentiereLinearReferenzierteAttribute(geschwindigkeit, getLaengeBerechnet(),
+				minimaleSegmentLaenge);
 
 		geschwindigkeitAttributGruppe.replaceGeschwindigkeitAttribute(geschwindigkeitDefragmentiert);
 
@@ -604,16 +643,16 @@ public class Kante extends VersionierteEntity {
 			fuehrungsformAttributGruppe.getImmutableFuehrungsformAttributeLinks());
 
 		List<FuehrungsformAttribute> defragmentierteFuehrungsformLinks = LinearReferenzierteAttribute
-			.defragmentiereLinearReferenzierteAttribute(fuehrungsformLinks, geometry.getLength(),
-				MINIMALE_LAENGE_LINEAR_REFERENZIERTER_SEGMENTE);
+			.defragmentiereLinearReferenzierteAttribute(fuehrungsformLinks, getLaengeBerechnet(),
+				minimaleSegmentLaenge);
 
 		if (fuehrungsformAttributGruppe.isZweiseitig()) {
 			List<FuehrungsformAttribute> fuehrungsformRechts = new ArrayList<>(
 				fuehrungsformAttributGruppe.getImmutableFuehrungsformAttributeRechts());
 
 			List<FuehrungsformAttribute> defragmentierteFuehrungsformRechts = LinearReferenzierteAttribute
-				.defragmentiereLinearReferenzierteAttribute(fuehrungsformRechts, geometry.getLength(),
-					MINIMALE_LAENGE_LINEAR_REFERENZIERTER_SEGMENTE);
+				.defragmentiereLinearReferenzierteAttribute(fuehrungsformRechts, getLaengeBerechnet(),
+					minimaleSegmentLaenge);
 
 			fuehrungsformAttributGruppe.replaceFuehrungsformAttribute(defragmentierteFuehrungsformLinks,
 				defragmentierteFuehrungsformRechts);
@@ -632,7 +671,32 @@ public class Kante extends VersionierteEntity {
 			fuehrungsformAttributGruppe.getBelagArtWertMitGroesstemAnteilLinks(),
 			fuehrungsformAttributGruppe.getBelagArtWertMitGroesstemAnteilRechts(),
 			fuehrungsformAttributGruppe.getRadverkehrsfuehrungWertMitGroesstemAnteilLinks(),
-			fuehrungsformAttributGruppe.getRadverkehrsfuehrungWertMitGroesstemAnteilRechts()
-		);
+			fuehrungsformAttributGruppe.getRadverkehrsfuehrungWertMitGroesstemAnteilRechts());
+	}
+
+	public boolean isGeometryEqual(LineString geometrie) {
+		return geometry.equalsExact(geometrie, 0.3);
+	}
+
+	/**
+	 * Fasst kleine Segmente mit größeren zusammen
+	 * 
+	 * @param minimaleSegmentLaenge
+	 *     absoluter Abstand, Abstände dieser Länge bleiben (nur echt kleinere werden zusammengefasst)
+	 */
+	public void mergeSegmenteKleinerAls(Laenge minimaleSegmentLaenge) {
+		LineareReferenz relativeMinimaleSegmentLaenge = LineareReferenz.of(Math
+			.min(minimaleSegmentLaenge.getValue() / getLaengeBerechnet().getValue(), 1.0));
+
+		log.debug("mergeSegmenteKleinerAls {}m, Kantenlänge: {}m, relative Länge: {} für Kante ID {} ({})",
+			minimaleSegmentLaenge, getLaengeBerechnet().getValue(), relativeMinimaleSegmentLaenge, id,
+			isZweiseitig ? "zweiseitig" : "einseitig");
+		fuehrungsformAttributGruppe.mergeSegmentsKleinerAls(relativeMinimaleSegmentLaenge);
+		zustaendigkeitAttributGruppe.mergeSegmentsKleinerAls(relativeMinimaleSegmentLaenge);
+		geschwindigkeitAttributGruppe.mergeSegmentsKleinerAls(relativeMinimaleSegmentLaenge);
+	}
+
+	public void updateDlmInformationen(StrassenName neuerStrassenName, StrassenNummer neueStrassenNummer) {
+		kantenAttributGruppe.updateStrassenInfo(neuerStrassenName, neueStrassenNummer);
 	}
 }

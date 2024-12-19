@@ -19,6 +19,8 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
   providedIn: 'root',
 })
 export class NotifyUserService {
+  public static readonly DURATION = 5000;
+
   constructor(private snackBar: MatSnackBar) {}
 
   public warn(msg: string, btnText: string = 'Ok'): void {
@@ -26,6 +28,6 @@ export class NotifyUserService {
   }
 
   public inform(msg: string): void {
-    this.snackBar.open(msg, '', { duration: 5000 } as MatSnackBarConfig);
+    this.snackBar.open(msg, '', { duration: NotifyUserService.DURATION } as MatSnackBarConfig);
   }
 }

@@ -53,7 +53,7 @@ import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.PruefungQualitaetsstandardsErfolgt;
@@ -471,8 +471,7 @@ class UmsetzungsstandabfrageServiceTest {
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
-			List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId())
-		);
+			List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
@@ -532,10 +531,6 @@ class UmsetzungsstandabfrageServiceTest {
 			.build();
 		Benutzer radwegeErfasserin = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(verwaltungseinheit).id(1L)
 			.vorname(Name.of("radwegeErfasserin"))
-			.build();
-		Benutzer radwegeErfasserinOhneMassnahme = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(
-			verwaltungseinheitMitBenutzerOhneMassnahme).id(2L)
-			.vorname(Name.of("radwegeErfasserinOhneMassnahme"))
 			.build();
 		Benutzer kreiskoordinatorin = BenutzerTestDataProvider.kreiskoordinator(verwaltungseinheit).id(3L)
 			.vorname(Name.of("kreiskoordinatorin"))
@@ -656,8 +651,7 @@ class UmsetzungsstandabfrageServiceTest {
 
 		// act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(
-			List.of(betroffeneMassnahme1.getId())
-		);
+			List.of(betroffeneMassnahme1.getId()));
 		umsetzungsstandabfrageService.benachrichtigeNutzer(massnahmen);
 
 		// assert
@@ -718,11 +712,13 @@ class UmsetzungsstandabfrageServiceTest {
 		Benutzer benutzer1 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(1L)
 			.vorname(Name.of("BenutzerA")).mailadresse(
-				Mailadresse.of("benutzerA@testRadvis.com")).build();
+				Mailadresse.of("benutzerA@testRadvis.com"))
+			.build();
 		Benutzer benutzer2 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(2L)
 			.vorname(Name.of("BenutzerB")).mailadresse(
-				Mailadresse.of("benutzerB@testRadvis.com")).build();
+				Mailadresse.of("benutzerB@testRadvis.com"))
+			.build();
 
 		Massnahme betroffeneMassnahme1 = MassnahmeTestDataProvider.withDefaultValues()
 			.id(1L)
@@ -840,26 +836,28 @@ class UmsetzungsstandabfrageServiceTest {
 	@Test
 	void beantwortungsFristIstJetztPlusXWochen() {
 		// arrange
+		when(umsetzungsstandsabfrageConfigurationProperties.getFrist()).thenReturn(8);
 		LocalDateTime now = LocalDateTime.of(2022, 7, 4, 0, 0);
-		int frist = 8;
 
 		// act
-		String achtWochenSpaeterUndFormattiert = umsetzungsstandabfrageService.bestimmeUndFormattiereBeantwortungsfrist(
-			now, frist);
+		String achtWochenSpaeterUndFormattiert = umsetzungsstandabfrageService.getBeantwortungsfrist(
+			now);
 
 		// assert
 		assertThat(achtWochenSpaeterUndFormattiert).isEqualTo("29.08.2022");
 	}
 
 	@Test
-	void testeGetMassnahmenStream() {
+	void getAllMassnahmenToUpdate() {
 		List<Long> allIndices = new ArrayList<>();
 		List<Massnahme> alle = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
 			List<Massnahme> mlist = new ArrayList<>();
 			for (int j = i * postgisConfigurationProperties.getArgumentLimit(); j < (i + 1)
 				* postgisConfigurationProperties.getArgumentLimit(); j++) {
-				Massnahme m = MassnahmeTestDataProvider.withDefaultValues().id((long) j).build();
+				Massnahme m = MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(Umsetzungsstatus.IDEE)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.id((long) j).build();
 				mlist.add(m);
 				allIndices.add((long) j);
 			}
@@ -869,12 +867,114 @@ class UmsetzungsstandabfrageServiceTest {
 		}
 
 		// act
-		List<Massnahme> result = umsetzungsstandabfrageService.getMassnahmenStream(allIndices)
-			.collect(Collectors.toList());
+		List<Massnahme> result = umsetzungsstandabfrageService.getAllMassnahmenToUpdate(allIndices);
 
+		// assert
 		assertThat(alle.size()).isEqualTo(3 * postgisConfigurationProperties.getArgumentLimit());
 		assertThat(result.size()).isEqualTo(3 * postgisConfigurationProperties.getArgumentLimit());
 		assertThat(result).containsExactlyElementsOf(alle);
+	}
+
+	@Test
+	void getAllMassnahmenToUpdate_filtersArchivierte() {
+		List<Long> allIndices = new ArrayList<>();
+		List<Massnahme> alle = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			List<Massnahme> mlist = new ArrayList<>();
+			for (int j = i * postgisConfigurationProperties.getArgumentLimit(); j < (i + 1)
+				* postgisConfigurationProperties.getArgumentLimit(); j++) {
+				Massnahme m = MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(Umsetzungsstatus.IDEE)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.id((long) j).build();
+				m.archivieren();
+				mlist.add(m);
+				allIndices.add((long) j);
+			}
+			when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(
+				mlist.stream().map(AbstractEntity::getId).collect(Collectors.toList())))).thenReturn(mlist.stream());
+			alle.addAll(mlist);
+		}
+
+		// act
+		List<Massnahme> result = umsetzungsstandabfrageService.getAllMassnahmenToUpdate(allIndices);
+
+		// assert
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void getAllMassnahmenToUpdate_filtersUmgesetzt() {
+		List<Long> allIndices = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			List<Massnahme> mlist = new ArrayList<>();
+			for (int j = i * postgisConfigurationProperties.getArgumentLimit(); j < (i + 1)
+				* postgisConfigurationProperties.getArgumentLimit(); j++) {
+				Massnahme m = MassnahmeTestDataProvider.withPflichtfelderAbPlanung()
+					.umsetzungsstatus(Umsetzungsstatus.UMGESETZT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.id((long) j).build();
+				mlist.add(m);
+				allIndices.add((long) j);
+			}
+			when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(
+				mlist.stream().map(AbstractEntity::getId).collect(Collectors.toList())))).thenReturn(mlist.stream());
+		}
+
+		// act
+		List<Massnahme> result = umsetzungsstandabfrageService.getAllMassnahmenToUpdate(allIndices);
+
+		// assert
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void getAllMassnahmenToUpdate_filtersStorniert() {
+		List<Long> allIndices = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			List<Massnahme> mlist = new ArrayList<>();
+			for (int j = i * postgisConfigurationProperties.getArgumentLimit(); j < (i + 1)
+				* postgisConfigurationProperties.getArgumentLimit(); j++) {
+				Massnahme m = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.id((long) j).build();
+				mlist.add(m);
+				allIndices.add((long) j);
+			}
+			when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(
+				mlist.stream().map(AbstractEntity::getId).collect(Collectors.toList())))).thenReturn(mlist.stream());
+		}
+
+		// act
+		List<Massnahme> result = umsetzungsstandabfrageService.getAllMassnahmenToUpdate(allIndices);
+
+		// assert
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void getAllMassnahmenToUpdate_filtersNoUmsetzungsstand() {
+		List<Long> allIndices = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			List<Massnahme> mlist = new ArrayList<>();
+			for (int j = i * postgisConfigurationProperties.getArgumentLimit(); j < (i + 1)
+				* postgisConfigurationProperties.getArgumentLimit(); j++) {
+				Massnahme m = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.id((long) j).build();
+				mlist.add(m);
+				allIndices.add((long) j);
+			}
+			when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(
+				mlist.stream().map(AbstractEntity::getId).collect(Collectors.toList())))).thenReturn(mlist.stream());
+		}
+
+		// act
+		List<Massnahme> result = umsetzungsstandabfrageService.getAllMassnahmenToUpdate(allIndices);
+
+		// assert
+		assertThat(result).isEmpty();
 	}
 
 	private void setzeUmsetzungsstandStatusAufAktualisiert(Massnahme massnahme, Benutzer benutzer) {

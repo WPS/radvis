@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import de.wps.radvis.backend.matching.domain.DlmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingCacheRepository;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchingCacheRepositoryImpl;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;

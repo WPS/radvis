@@ -38,6 +38,7 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { anything, instance, mock, when } from 'ts-mockito';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 describe(ImportAttributeAbschliessenComponent.name, () => {
   let component: ImportAttributeAbschliessenComponent;
@@ -45,7 +46,8 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
   let attributeImportService: AttributeImportService;
   let radVisNetzFeatureService: NetzausschnittService;
   let adapter: ImportAttributeAbschliessenTestAdapter;
-  let organisationenService;
+  let organisationenService: OrganisationenService;
+  let matomoTracker: MatomoTracker;
 
   const defaultAttributeImportSessionView: AttributeImportSessionView = {
     aktuellerImportSchritt: AutomatischerImportSchritt.AUTOMATISCHE_ABBILDUNG_ABGESCHLOSSEN,
@@ -65,6 +67,7 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
     attributeImportService = mock(AttributeImportService);
     radVisNetzFeatureService = mock(NetzausschnittService);
     organisationenService = mock(OrganisationenService);
+    matomoTracker = mock(MatomoTracker);
 
     when(attributeImportService.getImportSession()).thenReturn(of(defaultAttributeImportSessionView));
     when(radVisNetzFeatureService.getKantenFuerZustaendigkeitsbereich(anything())).thenResolve({
@@ -83,6 +86,7 @@ describe(ImportAttributeAbschliessenComponent.name, () => {
         { provide: NotifyUserService, useValue: instance(mock(NotifyUserService)) },
         { provide: OrganisationenService, useValue: instance(organisationenService) },
         { provide: FehlerprotokollService, useValue: instance(mock(FehlerprotokollService)) },
+        { provide: MatomoTracker, useValue: instance(matomoTracker) },
       ],
     });
   });

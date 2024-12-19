@@ -33,13 +33,6 @@ public interface CustomKnotenRepository {
 
 	List<Knoten> getKnotenInBereichFuerQuelle(Envelope sichtbereich, QuellSystem quelle);
 
-	/**
-	 * Stattdessen unbedingt NetzService nutzen!!!
-	 *
-	 * @return
-	 */
-	int deleteVerwaisteDLMKnoten();
-
 	List<Knoten> findVerwaisteDLMKnoten();
 
 	List<Knoten> getKnotenInBereichNachQuellen(Envelope envelope, Set<QuellSystem> dlm);

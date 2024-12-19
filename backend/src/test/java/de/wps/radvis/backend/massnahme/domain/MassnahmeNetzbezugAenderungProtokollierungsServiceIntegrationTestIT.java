@@ -47,17 +47,19 @@ import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
+import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezugAenderung;
-import de.wps.radvis.backend.massnahme.domain.entity.provider.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeNetzBezugAenderungRepository;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
@@ -98,7 +100,9 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	GraphhopperDlmConfigurationProperties.class,
 	DLMConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	MassnahmenConfigurationProperties.class,
+	NetzConfigurationProperties.class
 })
 class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTestIT extends DBIntegrationTestIT {
 
@@ -125,18 +129,21 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTestIT extend
 	@MockBean
 	NetzfehlerRepository netzfehlerRepository;
 
+	@MockBean
+	FahrradrouteRepository fahrradrouteRepository;
+
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 
 	@BeforeEach
 	void setUp() {
 		massnahmeNetzbezugAenderungProtokollierungsService = new MassnahmeNetzbezugAenderungProtokollierungsService(
-			benutzerService,
 			massnahmeNetzBezugAenderungRepository);
 
 		testVerwaltungseinheit = gebietskoerperschaftRepository.save(
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Coole Organisation")
 				.organisationsArt(
-					OrganisationsArt.BUNDESLAND).build());
+					OrganisationsArt.BUNDESLAND)
+				.build());
 		testBenutzer = benutzerService.save(BenutzerTestDataProvider.admin(testVerwaltungseinheit).serviceBwId(
 			ServiceBwId.of("testBenutzer")).build());
 		kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
@@ -161,22 +168,15 @@ class MassnahmeNetzbezugAenderungProtokollierungsServiceIntegrationTestIT extend
 			NetzBezugAenderungsArt.KNOTEN_GELOESCHT, 2L, massnahme,
 			testBenutzer, aktuellerZeitpunkt.minusDays(7),
 			NetzAenderungAusloeser.DLM_REIMPORT_JOB, GeometryTestdataProvider.createLineString());
-		MassnahmeNetzBezugAenderung massnahmeNetzBezugAenderung3 = new MassnahmeNetzBezugAenderung(
-			NetzBezugAenderungsArt.KANTE_VERAENDERT, 3L, massnahme,
-			testBenutzer, aktuellerZeitpunkt,
-			NetzAenderungAusloeser.DLM_REIMPORT_JOB, GeometryTestdataProvider.createLineString());
 
 		massnahmeNetzBezugAenderungRepository.save(massnahmeNetzBezugAenderung1);
 		massnahmeNetzBezugAenderungRepository.save(massnahmeNetzBezugAenderung2);
-		massnahmeNetzBezugAenderungRepository.save(massnahmeNetzBezugAenderung3);
 
 		// act
 		List<MassnahmeNetzBezugAenderung> result = massnahmeNetzbezugAenderungProtokollierungsService
-			.getAllMassnahmeNetzBezugAenderungenAfter(
-				aktuellerZeitpunkt.minusDays(1));
+			.getAllMassnahmeNetzBezugAenderungenAfter(aktuellerZeitpunkt.minusDays(1));
 
 		// assert
-		assertThat(result).containsExactlyInAnyOrder(massnahmeNetzBezugAenderung1, massnahmeNetzBezugAenderung3);
+		assertThat(result).containsExactly(massnahmeNetzBezugAenderung1);
 	}
-
 }

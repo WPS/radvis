@@ -21,8 +21,11 @@ import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
 
 public class FuehrungsformAttributeTestDataProvider {
 	public static FuehrungsformAttribute.FuehrungsformAttributeBuilder withGrundnetzDefaultwerte() {
@@ -47,5 +50,28 @@ public class FuehrungsformAttributeTestDataProvider {
 	public static FuehrungsformAttribute.FuehrungsformAttributeBuilder withLineareReferenz(double von, double bis) {
 		return withGrundnetzDefaultwerte()
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(von, bis));
+	}
+
+	public static FuehrungsformAttribute.FuehrungsformAttributeBuilder createWithValuesButWithoutTrennstreifen() {
+		return FuehrungsformAttribute.builder()
+			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0., 1.))
+			.bordstein(Bordstein.KEINE_ABSENKUNG)
+			.belagArt(BelagArt.BETON)
+			.oberflaechenbeschaffenheit(Oberflaechenbeschaffenheit.NEUWERTIG)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+			.parkenForm(KfzParkenForm.FAHRBAHNPARKEN_MARKIERT)
+			.parkenTyp(KfzParkenTyp.LAENGS_PARKEN)
+			.breite(Laenge.of(3.45))
+			.benutzungspflicht(Benutzungspflicht.VORHANDEN);
+	}
+
+	public static FuehrungsformAttribute.FuehrungsformAttributeBuilder createWithValues() {
+		return createWithValuesButWithoutTrennstreifen()
+			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
+			.trennstreifenBreiteLinks(Laenge.of(0.5))
+			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
+			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
+			.trennstreifenBreiteRechts(Laenge.of(1.23))
+			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN);
 	}
 }

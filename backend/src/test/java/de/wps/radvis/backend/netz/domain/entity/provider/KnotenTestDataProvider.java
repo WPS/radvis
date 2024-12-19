@@ -29,6 +29,10 @@ public class KnotenTestDataProvider {
 		return Knoten.builder().point(geometryFactory.createPoint(coordinate)).quelle(quelle);
 	}
 
+	public static Knoten.KnotenBuilder withPosition(double x, double y) {
+		return Knoten.builder().point(geometryFactory.createPoint(new Coordinate(x, y))).quelle(QuellSystem.DLM);
+	}
+
 	public static Knoten.KnotenBuilder withDefaultValues() {
 		return Knoten.builder().point(geometryFactory.createPoint(new Coordinate(0, 0))).quelle(QuellSystem.LGL);
 	}

@@ -16,8 +16,9 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarDismiss, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { MockBuilder } from 'ng-mocks';
-import { of, Subject } from 'rxjs';
+import { NEVER, of, Subject } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { KantenAttributeEditorComponent } from 'src/app/editor/kanten/components/kanten-attribute-editor/kanten-attribute-editor.component';
@@ -27,10 +28,10 @@ import { anotherKante, defaultKante } from 'src/app/editor/kanten/models/kante-t
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { SaveKantenAttributGruppeCommand } from 'src/app/editor/kanten/models/save-kanten-attribut-gruppe-command';
 import { Status } from 'src/app/editor/kanten/models/status';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { StrassenquerschnittRASt06 } from 'src/app/editor/kanten/models/strassenquerschnittrast06';
 import { Umfeld } from 'src/app/editor/kanten/models/umfeld';
 import { WegeNiveau } from 'src/app/editor/kanten/models/wege-niveau';
-import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NotifyGeometryChangedService } from 'src/app/editor/kanten/services/notify-geometry-changed.service';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
@@ -41,9 +42,10 @@ import {
   defaultOrganisation,
   defaultUebergeordneteOrganisation,
 } from 'src/app/shared/models/organisation-test-data-provider.spec';
-import { QuellSystem } from 'src/app/shared/models/quell-system';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
-import { anything, capture, instance, mock, objectContaining, verify, when } from 'ts-mockito';
+import { anything, capture, instance, mock, objectContaining, resetCalls, verify, when } from 'ts-mockito';
 
 describe(KantenAttributeEditorComponent.name, () => {
   let component: KantenAttributeEditorComponent;
@@ -55,6 +57,8 @@ describe(KantenAttributeEditorComponent.name, () => {
   let kantenSelektionSubject$: Subject<KantenSelektion[]>;
   let notifyGeometryChangedService: NotifyGeometryChangedService;
   let dialog: MatDialog;
+  let snackbar: MatSnackBar;
+  let benutzerDetailsService: BenutzerDetailsService;
   const defaultLandkreis = defaultUebergeordneteOrganisation;
 
   // Bitte wieder component.formGroup.value nutzen, wenn RadNETZ-Klassen an Grundnetzkanten gesetzt werden können!
@@ -71,13 +75,20 @@ describe(KantenAttributeEditorComponent.name, () => {
     kantenSelektionService = mock(KantenSelektionService);
     notifyGeometryChangedService = mock(NotifyGeometryChangedService);
     dialog = mock(MatDialog);
+    snackbar = mock(MatSnackBar);
     kantenSubject$ = new Subject();
     kantenSelektionSubject$ = new Subject();
     when(kantenSelektionService.selektierteKanten$).thenReturn(kantenSubject$);
     when(kantenSelektionService.selektion$).thenReturn(kantenSelektionSubject$);
     when(organisationenService.getOrganisation(defaultLandkreis.id)).thenResolve(defaultLandkreis);
     when(organisationenService.liegenAlleInQualitaetsgesichertenLandkreisen(anything())).thenResolve(false);
+    benutzerDetailsService = mock(BenutzerDetailsService);
+    when(benutzerDetailsService.canRadNetzVerlegen()).thenReturn(true);
     return MockBuilder(KantenAttributeEditorComponent, EditorModule)
+      .provide({
+        provide: BenutzerDetailsService,
+        useValue: instance(benutzerDetailsService),
+      })
       .provide({
         provide: NetzService,
         useValue: instance(netzService),
@@ -94,6 +105,10 @@ describe(KantenAttributeEditorComponent.name, () => {
         provide: MatDialog,
         useValue: instance(dialog),
       })
+      .provide({
+        provide: MatSnackBar,
+        useValue: instance(snackbar),
+      })
       .provide({ provide: KantenSelektionService, useValue: instance(kantenSelektionService) });
   });
 
@@ -103,7 +118,411 @@ describe(KantenAttributeEditorComponent.name, () => {
     fixture.detectChanges();
   });
 
+  beforeEach(() => {
+    localStorage.removeItem(KantenAttributeEditorComponent['ZWISCHENABLAGE_KEY']);
+  });
+
+  afterEach(() => {
+    localStorage.removeItem(KantenAttributeEditorComponent['ZWISCHENABLAGE_KEY']);
+  });
+
+  describe('Copy Paste Hinweis', () => {
+    let snackbarRef: MatSnackBarRef<TextOnlySnackBar>;
+    let action$: Subject<void>;
+    let dismissed$: Subject<MatSnackBarDismiss>;
+    beforeEach(() => {
+      snackbarRef = mock(MatSnackBarRef<TextOnlySnackBar>);
+      action$ = new Subject();
+      dismissed$ = new Subject();
+      when(snackbarRef.onAction()).thenReturn(action$.asObservable());
+      when(snackbarRef.afterDismissed()).thenReturn(dismissed$.asObservable());
+      when(snackbar.open(anything(), anything())).thenReturn(instance(snackbarRef));
+      updateSelektierteKanten([defaultKante]);
+    });
+
+    it('should not overwrite itself on multiple copy', fakeAsync(() => {
+      component.onCopy();
+      verify(snackbar.open(anything(), anything())).once();
+
+      component.onCopy();
+      // wir stellen sicher, dass die Snackbar nicht durch sich selbst geschlossen und
+      // automatisch geöffnet wird, wodurch ein schwingender Zustand entsteht.
+      tick(NotifyUserService.DURATION);
+
+      verify(snackbar.open(anything(), anything())).once();
+    }));
+
+    it('should resume after dismissed by other snackbar', fakeAsync(() => {
+      component.onCopy();
+      resetCalls(snackbar);
+
+      dismissed$.next({ dismissedByAction: false });
+
+      tick(NotifyUserService.DURATION);
+
+      verify(snackbar.open(anything(), anything())).once();
+      expect().nothing();
+    }));
+
+    it('should close and clear on action', () => {
+      component.onCopy();
+
+      action$.next();
+
+      expect(component.hasClipboard).toBeFalse();
+      expect(localStorage.getItem(KantenAttributeEditorComponent['ZWISCHENABLAGE_KEY'])).toBeFalsy();
+    });
+
+    it('should be closed onDestroy', () => {
+      component.onCopy();
+
+      fixture.destroy();
+
+      verify(snackbarRef.dismiss()).once();
+      expect().nothing();
+    });
+  });
+
+  describe('with initial clipboard', () => {
+    let snackbarRef: MatSnackBarRef<TextOnlySnackBar>;
+    const copiedKanteId = 234;
+    let component2: KantenAttributeEditorComponent;
+    beforeEach(() => {
+      snackbarRef = mock(MatSnackBarRef<TextOnlySnackBar>);
+      when(snackbarRef.onAction()).thenReturn(NEVER);
+      when(snackbarRef.afterDismissed()).thenReturn(NEVER);
+      when(snackbar.open(anything(), anything())).thenReturn(instance(snackbarRef));
+      updateSelektierteKanten([{ ...defaultKante, id: copiedKanteId }]);
+      // Wir nutzen die bestehende Component, um das Clipboard zu befüllen
+      // und erzeugen anschließend eine neue Component, um die Initialisierung zu testen
+      component.onCopy();
+      resetCalls(snackbar);
+
+      fixture = TestBed.createComponent(KantenAttributeEditorComponent);
+      component2 = fixture.componentInstance;
+    });
+
+    it('should set copiedKanteId', () => {
+      expect(component2.copiedKanteId).toBe(copiedKanteId);
+    });
+
+    it('should show copy paste hinweis', () => {
+      verify(snackbar.open(anything(), anything())).once();
+      expect(component2['copyPasteHinweis']).toBeDefined();
+    });
+
+    it('hasClipboard should be true', () => {
+      expect(component2.hasClipboard).toBeTrue();
+    });
+  });
+
+  describe('copyDisabled', () => {
+    it('should be false if no undetermined Values', fakeAsync(() => {
+      updateSelektierteKanten([defaultKante, defaultKante]);
+      tick();
+      expect(component.copyDisabled).toBeFalse();
+    }));
+
+    it('should ignore disabled fields', fakeAsync(() => {
+      updateSelektierteKanten([
+        { ...defaultKante, kantenAttributGruppe: { ...defaultKante.kantenAttributGruppe, laengeBerechnet: 123 } },
+        { ...defaultKante, kantenAttributGruppe: { ...defaultKante.kantenAttributGruppe, laengeBerechnet: 456 } },
+      ]);
+      tick();
+      expect(component.copyDisabled).toBeFalse();
+    }));
+
+    it('should be true if undetermined values in form', fakeAsync(() => {
+      updateSelektierteKanten([
+        { ...defaultKante, kantenAttributGruppe: { ...defaultKante.kantenAttributGruppe, status: Status.IN_BAU } },
+        { ...defaultKante, kantenAttributGruppe: { ...defaultKante.kantenAttributGruppe, status: Status.KONZEPTION } },
+      ]);
+      tick();
+      expect(component.copyDisabled).toBeTrue();
+    }));
+
+    it('should be true if seitenbezugUndetermined', fakeAsync(() => {
+      updateSelektierteKanten([
+        { ...defaultKante, zweiseitig: true },
+        { ...defaultKante, zweiseitig: false },
+      ]);
+      tick();
+      expect(component.copyDisabled).toBeTrue();
+    }));
+  });
+
+  it('should use first id if multiple kanten copied', fakeAsync(() => {
+    const snackbarRef = mock(MatSnackBarRef<TextOnlySnackBar>);
+    when(snackbarRef.onAction()).thenReturn(NEVER);
+    when(snackbarRef.afterDismissed()).thenReturn(NEVER);
+    when(snackbar.open(anything(), anything())).thenReturn(instance(snackbarRef));
+
+    updateSelektierteKanten([
+      {
+        ...defaultKante,
+        id: 345,
+        kantenAttributGruppe: {
+          ...defaultKante.kantenAttributGruppe,
+          status: Status.KONZEPTION,
+          laengeBerechnet: 123,
+          netzklassen: [],
+          istStandards: [],
+        },
+      },
+      {
+        ...defaultKante,
+        id: 789,
+        kantenAttributGruppe: {
+          ...defaultKante.kantenAttributGruppe,
+          status: Status.KONZEPTION,
+          laengeBerechnet: 123,
+          netzklassen: [],
+          istStandards: [],
+        },
+      },
+    ]);
+    tick();
+    component.onCopy();
+    expect(component.copiedKanteId).toBe(345);
+
+    fixture = TestBed.createComponent(KantenAttributeEditorComponent);
+    component = fixture.componentInstance;
+
+    expect(component.copiedKanteId).toBe(345);
+  }));
+
+  describe('copy/paste', () => {
+    beforeEach(() => {
+      const snackbarRef = mock(MatSnackBarRef<TextOnlySnackBar>);
+      when(snackbarRef.onAction()).thenReturn(NEVER);
+      when(snackbarRef.afterDismissed()).thenReturn(NEVER);
+      when(snackbar.open(anything(), anything())).thenReturn(instance(snackbarRef));
+    });
+
+    it('should copy values to next kanten selektion', fakeAsync(() => {
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          id: 345,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            status: Status.KONZEPTION,
+            laengeBerechnet: 123,
+            netzklassen: [Netzklasse.RADNETZ_ALLTAG],
+            istStandards: [],
+          },
+        },
+      ]);
+      tick();
+      component.onCopy();
+      expect(component.hasClipboard).toBeTrue();
+      verify(snackbar.open(anything(), anything())).once();
+      expect(component['copyPasteHinweis']).toBeDefined();
+      expect(component.copiedKanteId).toBe(345);
+
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            status: Status.IN_BAU,
+            laengeBerechnet: 456,
+            netzklassen: [],
+            istStandards: [],
+          },
+        },
+      ]);
+      tick();
+
+      component.onPaste();
+
+      const { id, version, ...expectedValues } = defaultKante.kantenAttributGruppe;
+
+      expect(component.formGroup.dirty).toBeTrue();
+      expect(component.formGroup.getRawValue()).toEqual({
+        ...expectedValues,
+        status: Status.KONZEPTION,
+        netzklassen: {
+          radnetzAlltag: true,
+          radnetzFreizeit: false,
+          radnetzZielnetz: false,
+          kreisnetzAlltag: false,
+          kreisnetzFreizeit: false,
+          kommunalnetzAlltag: false,
+          kommunalnetzFreizeit: false,
+          radschnellverbindung: false,
+          radvorrangrouten: false,
+        },
+        istStandards: {
+          radnetzStartstandard: false,
+          radnetzZielstandard: false,
+          radschnellverbindung: false,
+          basisstandard: false,
+          radvorrangrouten: false,
+        },
+        laengeBerechnet: '100,23',
+        landkreis: defaultLandkreis.name,
+      });
+    }));
+
+    it('should not insert radNETZ if Nutzer not allowed', fakeAsync(() => {
+      when(benutzerDetailsService.canRadNetzVerlegen()).thenReturn(false);
+
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [Netzklasse.RADNETZ_ALLTAG, Netzklasse.KOMMUNALNETZ_ALLTAG],
+            istStandards: [],
+          },
+        },
+      ]);
+      tick();
+      component.onCopy();
+
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [],
+            istStandards: [],
+          },
+        },
+      ]);
+      tick();
+
+      component.onPaste();
+
+      const { id, version, ...expectedValues } = defaultKante.kantenAttributGruppe;
+
+      expect(component.formGroup.getRawValue()).toEqual({
+        ...expectedValues,
+        netzklassen: {
+          radnetzAlltag: false,
+          radnetzFreizeit: false,
+          radnetzZielnetz: false,
+          kreisnetzAlltag: false,
+          kreisnetzFreizeit: false,
+          kommunalnetzAlltag: true,
+          kommunalnetzFreizeit: false,
+          radschnellverbindung: false,
+          radvorrangrouten: false,
+        },
+        istStandards: {
+          radnetzStartstandard: false,
+          radnetzZielstandard: false,
+          radschnellverbindung: false,
+          basisstandard: false,
+          radvorrangrouten: false,
+        },
+        laengeBerechnet: '100,23',
+        landkreis: defaultLandkreis.name,
+      });
+    }));
+
+    it('should not remove radNETZ if Nutzer not allowed', fakeAsync(() => {
+      when(benutzerDetailsService.canRadNetzVerlegen()).thenReturn(false);
+
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [Netzklasse.KOMMUNALNETZ_ALLTAG],
+            istStandards: [],
+          },
+        },
+      ]);
+      tick();
+      component.onCopy();
+
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [Netzklasse.RADNETZ_ALLTAG],
+            istStandards: [],
+          },
+        },
+      ]);
+      tick();
+
+      component.onPaste();
+
+      const { id, version, ...expectedValues } = defaultKante.kantenAttributGruppe;
+
+      expect(component.formGroup.getRawValue()).toEqual({
+        ...expectedValues,
+        netzklassen: {
+          radnetzAlltag: true,
+          radnetzFreizeit: false,
+          radnetzZielnetz: false,
+          kreisnetzAlltag: false,
+          kreisnetzFreizeit: false,
+          kommunalnetzAlltag: true,
+          kommunalnetzFreizeit: false,
+          radschnellverbindung: false,
+          radvorrangrouten: false,
+        },
+        istStandards: {
+          radnetzStartstandard: false,
+          radnetzZielstandard: false,
+          radschnellverbindung: false,
+          basisstandard: false,
+          radvorrangrouten: false,
+        },
+        laengeBerechnet: '100,23',
+        landkreis: defaultLandkreis.name,
+      });
+    }));
+  });
+
   describe('fill form', () => {
+    it('should disable RadNETZ Netzklassen if not allowed', fakeAsync(() => {
+      when(benutzerDetailsService.canRadNetzVerlegen()).thenReturn(false);
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [],
+            istStandards: [],
+          },
+          kantenVersion: 1,
+        },
+      ]);
+
+      tick();
+
+      expect(component.formGroup.get('netzklassen')?.get('radnetzZielnetz')?.disabled).toBeTrue();
+      expect(component.formGroup.get('netzklassen')?.get('radnetzFreizeit')?.disabled).toBeTrue();
+      expect(component.formGroup.get('netzklassen')?.get('radnetzAlltag')?.disabled).toBeTrue();
+    }));
+
+    it('should enable RadNETZ Netzklassen if allowed', fakeAsync(() => {
+      when(benutzerDetailsService.canRadNetzVerlegen()).thenReturn(true);
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [],
+            istStandards: [],
+          },
+          kantenVersion: 1,
+        },
+      ]);
+
+      tick();
+
+      expect(component.formGroup.get('netzklassen')?.get('radnetzZielnetz')?.disabled).toBeFalse();
+      expect(component.formGroup.get('netzklassen')?.get('radnetzFreizeit')?.disabled).toBeFalse();
+      expect(component.formGroup.get('netzklassen')?.get('radnetzAlltag')?.disabled).toBeFalse();
+    }));
+
     it('should set values correctly', fakeAsync(() => {
       const expectedValues = {
         wegeNiveau: WegeNiveau.FAHRBAHN,
@@ -783,6 +1202,38 @@ describe(KantenAttributeEditorComponent.name, () => {
   });
 
   describe('netzklassen', () => {
+    it('should enable changing Netzklasse Kreisnetz when authorized', fakeAsync(() => {
+      // arrange
+      when(benutzerDetailsService.canKreisnetzVerlegen()).thenReturn(true);
+
+      // act
+      updateSelektierteKanten([defaultKante]);
+      tick();
+
+      // assert
+      const kreisnetzAlltagControl = component.formGroup.get('netzklassen')?.get('kreisnetzAlltag');
+      const kreisnetzFreizeitControl = component.formGroup.get('netzklassen')?.get('kreisnetzFreizeit');
+
+      expect(kreisnetzAlltagControl?.enabled).toBeTrue();
+      expect(kreisnetzFreizeitControl?.enabled).toBeTrue();
+    }));
+
+    it('should disable changing Netzklasse Kreisnetz when not authorized', fakeAsync(() => {
+      // arrange
+      when(benutzerDetailsService.canKreisnetzVerlegen()).thenReturn(false);
+
+      // act
+      updateSelektierteKanten([defaultKante]);
+      tick();
+
+      // assert
+      const kreisnetzAlltagControl = component.formGroup.get('netzklassen')?.get('kreisnetzAlltag');
+      const kreisnetzFreizeitControl = component.formGroup.get('netzklassen')?.get('kreisnetzFreizeit');
+
+      expect(kreisnetzAlltagControl?.enabled).toBeFalse();
+      expect(kreisnetzFreizeitControl?.enabled).toBeFalse();
+    }));
+
     it('should flat netzklassen', fakeAsync(() => {
       const kante: Kante = {
         ...defaultKante,
@@ -993,8 +1444,11 @@ describe(KantenAttributeEditorComponent.name, () => {
       ]);
     }));
 
-    // Bitte wieder aktivieren, wenn RadNETZ-Klassen an Grundnetzkanten gesetzt werden können!
-    xdescribe('disable forbidden IstStandards', () => {
+    describe('disable forbidden IstStandards', () => {
+      beforeEach(() => {
+        when(organisationenService.liegenAlleInQualitaetsgesichertenLandkreisen(anything())).thenResolve(true);
+      });
+
       it('should disable RadNetzStandards when no Radnetz', fakeAsync(() => {
         const kante: Kante = {
           ...defaultKante,
@@ -1041,33 +1495,43 @@ describe(KantenAttributeEditorComponent.name, () => {
       }));
 
       describe('with Undetermined values', () => {
-        beforeEach(fakeAsync(() => {
-          const kante1: Kante = {
+        let kante1: Kante;
+        let kante2: Kante;
+        beforeEach(() => {
+          kante1 = {
             ...defaultKante,
             kantenAttributGruppe: {
               ...defaultKante.kantenAttributGruppe,
               netzklassen: [Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT],
             },
           };
-          const kante2: Kante = {
+          kante2 = {
             ...defaultKante,
             kantenAttributGruppe: {
               ...defaultKante.kantenAttributGruppe,
               netzklassen: [Netzklasse.RADNETZ_ALLTAG],
             },
           };
-
-          updateSelektierteKanten([kante1, kante2]);
-          tick();
-        }));
+        });
 
         it('should not disable RadNetzStandards when all have RadNetz', fakeAsync(() => {
+          updateSelektierteKanten([kante1, kante2]);
+          tick();
+
+          expect(component.formGroup.get('netzklassen')?.get('radnetzAlltag')?.disabled).toBeFalse();
+          expect(component.formGroup.get('netzklassen')?.get('radnetzFreizeit')?.disabled).toBeFalse();
+          expect(component.formGroup.get('netzklassen')?.get('radnetzZielnetz')?.disabled).toBeFalse();
+
           expect(component.formGroup.get('istStandards')?.get('radnetzStartstandard')?.disabled).toBeFalse();
           expect(component.formGroup.get('istStandards')?.get('radnetzZielstandard')?.disabled).toBeFalse();
         }));
 
         it('should not disable RadNetzStandards when other netz selected', fakeAsync(() => {
+          updateSelektierteKanten([kante1, kante2]);
+          tick();
+
           component.formGroup.get('netzklassen')?.get('kommunalnetzAlltag')?.setValue(true);
+
           tick();
 
           expect(component.formGroup.get('istStandards')?.get('radnetzStartstandard')?.disabled).toBeFalse();
@@ -1075,6 +1539,9 @@ describe(KantenAttributeEditorComponent.name, () => {
         }));
 
         it('should disable RadNetzStandards when last radnetz for one ist unselected', fakeAsync(() => {
+          updateSelektierteKanten([kante1, kante2]);
+          tick();
+
           component.formGroup.get('netzklassen')?.get('radnetzAlltag')?.setValue(false);
           tick();
 
@@ -1083,6 +1550,9 @@ describe(KantenAttributeEditorComponent.name, () => {
         }));
 
         it('should disable RadNetzStandards after deselect radnetz when others still exist', fakeAsync(() => {
+          updateSelektierteKanten([kante1, kante2]);
+          tick();
+
           component.formGroup.get('netzklassen')?.get('radnetzZielnetz')?.setValue(true);
           tick();
 
@@ -1206,43 +1676,7 @@ describe(KantenAttributeEditorComponent.name, () => {
       }));
     });
   });
-  describe('edit RadNETZ', () => {
-    it('should disable form if RadNETZ-Kante is selected', fakeAsync(() => {
-      const kante: Kante = {
-        ...defaultKante,
-        quelle: QuellSystem.RadNETZ,
-      };
-      updateSelektierteKanten([kante]);
 
-      tick();
-
-      expect(component.formGroup.disabled).toBeTrue();
-    }));
-
-    it('should reanable correct controls when last RadNETZ-Kante is deselected', fakeAsync(() => {
-      const kanteRadNETZ: Kante = {
-        ...defaultKante,
-        quelle: QuellSystem.RadNETZ,
-      };
-      const kanteDLM: Kante = {
-        ...defaultKante,
-        quelle: QuellSystem.DLM,
-      };
-      updateSelektierteKanten([kanteRadNETZ, kanteDLM]);
-
-      tick();
-
-      expect(component.formGroup.disabled).toBeTrue();
-
-      updateSelektierteKanten([kanteDLM]);
-
-      tick();
-
-      expect(component.formGroup.disabled).toBeFalse();
-      expect(component.formGroup.get('landkreis')?.disabled).toBeTrue();
-      expect(component.formGroup.get('laengeBerechnet')?.disabled).toBeTrue();
-    }));
-  });
   describe('handle readOnly-Kanten', () => {
     it('should disable form if Kante is readonly', fakeAsync(() => {
       const kante: Kante = {

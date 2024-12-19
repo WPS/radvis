@@ -14,9 +14,11 @@
 
 package de.wps.radvis.backend.integration.attributAbbildung.domain;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -33,5 +35,9 @@ public interface KantenMappingRepository extends CrudRepository<KantenMapping, L
 
 	void deleteByGrundnetzKantenIdAndQuellsystem(Long dlmnetzKanteId, QuellSystem quellSystem);
 
-	void deleteByGrundnetzKantenId(Long dlmnetzKanteId);
+	// Eigene Query in Verbindung mit @Cascade in der Entity um zu verhindern, dass für jedes MappedKante-Objekt der
+	// ElementCollection eine SELECT-Anfrage an die Datenbank geht.
+	@Modifying
+	@Query("DELETE FROM KantenMapping f WHERE f.grundnetzKantenId IN :kantenIds")
+	void deleteAllByGrundnetzKantenIdIn(Collection<Long> kantenIds);
 }

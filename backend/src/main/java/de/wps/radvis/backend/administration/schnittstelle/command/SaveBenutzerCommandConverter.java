@@ -25,6 +25,7 @@ public class SaveBenutzerCommandConverter {
 	}
 
 	public void apply(Benutzer benutzer, SaveBenutzerCommand command) {
+		benutzer.setAblaufdatum(command.getAblaufdatum());
 		benutzer.setNachname(command.getNachname());
 		benutzer.setVorname(command.getVorname());
 		benutzer.setMailadresse(command.getEmail());

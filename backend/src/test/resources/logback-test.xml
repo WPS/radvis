@@ -16,6 +16,9 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%clr(%X{fehlercode:-000})] %logger{100}_%M:%L - %msg%n"/>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>

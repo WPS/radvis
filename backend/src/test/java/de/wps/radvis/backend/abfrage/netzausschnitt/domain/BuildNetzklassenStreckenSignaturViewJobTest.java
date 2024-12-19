@@ -15,7 +15,6 @@
 package de.wps.radvis.backend.abfrage.netzausschnitt.domain;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +35,6 @@ import org.mockito.MockitoAnnotations;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
-import de.wps.radvis.backend.integration.grundnetzReimport.domain.event.PostDlmReimportJobEvent;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.NetzklassenStreckeVonKanten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -49,31 +47,6 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 import jakarta.persistence.EntityManager;
 
 class BuildNetzklassenStreckenSignaturViewJobTest {
-
-	@Nested
-	class WithMockedBuildNetzklassenStreckenSignatureViewJob {
-
-		@Mock
-		BuildNetzklassenStreckenSignaturViewJob buildNetzklassenStreckenSignaturViewJob;
-
-		@BeforeEach
-		void beforeEach() {
-			MockitoAnnotations.openMocks(this);
-		}
-
-		@Test
-		void onPostDlmReimport() {
-			// Arrange
-			doCallRealMethod().when(buildNetzklassenStreckenSignaturViewJob)
-				.onPostDlmReimport(any(PostDlmReimportJobEvent.class));
-
-			// Act
-			buildNetzklassenStreckenSignaturViewJob.onPostDlmReimport(new PostDlmReimportJobEvent());
-
-			// Assert
-			verify(buildNetzklassenStreckenSignaturViewJob).doRun();
-		}
-	}
 
 	@Nested
 	class WithBuildNetzklassenStreckenSignatureViewJob {

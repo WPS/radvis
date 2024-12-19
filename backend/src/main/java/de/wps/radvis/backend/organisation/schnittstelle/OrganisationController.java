@@ -43,8 +43,7 @@ public class OrganisationController {
 
 	public OrganisationController(
 		@NonNull VerwaltungseinheitService verwaltungseinheitService,
-		@NonNull OrganisationConfigurationProperties organisationConfigurationProperties
-	) {
+		@NonNull OrganisationConfigurationProperties organisationConfigurationProperties) {
 		this.verwaltungseinheitService = verwaltungseinheitService;
 		this.organisationConfigurationProperties = organisationConfigurationProperties;
 	}
@@ -114,10 +113,9 @@ public class OrganisationController {
 	@GetMapping("/bereichAlsString/{id}")
 	public String getBereichVonOrganisationAlsString(@PathVariable("id") Long id) {
 		return verwaltungseinheitService.findById(id)
-			.map(verwaltungseinheit -> verwaltungseinheit.getBereichBufferSimplified(
+			.flatMap(verwaltungseinheit -> verwaltungseinheit.getBereichBufferSimplified(
 				organisationConfigurationProperties.getZustaendigkeitBufferInMeter(),
-				organisationConfigurationProperties.getZustaendigkeitSimplificationToleranceInMeter()
-			))
+				organisationConfigurationProperties.getZustaendigkeitSimplificationToleranceInMeter()))
 			.orElseThrow(EntityNotFoundException::new).toText();
 	}
 

@@ -20,6 +20,7 @@ export interface Benutzer {
   nachname: string;
   vorname: string;
   status: BenutzerStatus;
+  ablaufdatum: string | null;
   email: string;
   organisation: Verwaltungseinheit;
   version: number;

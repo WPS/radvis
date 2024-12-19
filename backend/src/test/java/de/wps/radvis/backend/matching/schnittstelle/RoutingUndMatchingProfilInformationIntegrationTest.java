@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,11 +40,11 @@ import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbsch
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteProfilEigenschaften;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierteProfilEigenschaften;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
-import de.wps.radvis.backend.matching.domain.DlmMatchingRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
+import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilMatchResult;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilRoutingResult;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
@@ -59,12 +60,8 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
-import jakarta.persistence.EntityManager;
 
 public class RoutingUndMatchingProfilInformationIntegrationTest {
-
-	@Mock
-	private EntityManager entityManager;
 
 	@Mock
 	private BarriereRepository barriereRepository;
@@ -88,11 +85,11 @@ public class RoutingUndMatchingProfilInformationIntegrationTest {
 	public File temp;
 
 	@BeforeEach
-	void setup() {
+	void setup() throws IOException {
 		MockitoAnnotations.openMocks(this);
 
 		PbfErstellungsRepositoryImpl pbfErstellungsRepository = new PbfErstellungsRepositoryImpl(
-			coordinateReferenceSystemConverter, entityManager, barriereRepository, kantenRepository);
+			coordinateReferenceSystemConverter, barriereRepository, kantenRepository);
 
 		kanten = List.of(
 			KanteTestDataProvider.withDefaultValuesAndZweiseitig().geometry(

@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.LineString;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -68,7 +70,8 @@ public class SaveFahrradrouteCommandConverter {
 				.abschnittsweiserKantenBezug(netzbezug)
 				.geometrie(Optional.ofNullable(varianteSaveCommand.getGeometrie()).map(
 					geom -> GeoJsonConverter.create3DJtsLineStringFromGeoJson(geom,
-						KoordinatenReferenzSystem.ETRS89_UTM32_N)).orElse(null))
+						KoordinatenReferenzSystem.ETRS89_UTM32_N))
+					.orElse(null))
 				.linearReferenzierteProfilEigenschaften(
 					LinearReferenzierteProfilEigenschaftenCommandConverter.convert(
 						varianteSaveCommand.getProfilEigenschaften()))
@@ -82,7 +85,12 @@ public class SaveFahrradrouteCommandConverter {
 			List<Kante> allById = kanteResolver.getKanten(new HashSet<>(kantenIDs));
 			netzbezug = kantenIDs.stream()
 				.map(kanteId -> allById.stream()
-					.filter(kante -> kante.getId().equals(kanteId)).findFirst().orElseThrow())
+					.filter(kante -> kante.getId().equals(kanteId)).findFirst()
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						"Die angefragte Kante konnte nicht gefunden werden. "
+							+ "Dies kann passieren, wenn die fragliche Kante zwischenzeitlich gelöscht wurde. "
+							+ "Die Anpassung des Routings an den neuen Datenstand kann einige Zeit in Anspruch nehmen. "
+							+ "Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.")))
 				.map(kante -> new AbschnittsweiserKantenBezug(kante, LinearReferenzierterAbschnitt.of(0.0, 1.0)))
 				.toList();
 		}
@@ -116,7 +124,6 @@ public class SaveFahrradrouteCommandConverter {
 			(LineString) command.getStuetzpunkte(),
 			netzbezugLineString,
 			LinearReferenzierteProfilEigenschaftenCommandConverter.convert(command.getProfilEigenschaften()),
-			command.getCustomProfileId()
-		);
+			command.getCustomProfileId());
 	}
 }

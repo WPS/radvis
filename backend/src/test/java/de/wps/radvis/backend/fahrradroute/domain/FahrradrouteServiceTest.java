@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
@@ -56,6 +57,7 @@ import de.wps.radvis.backend.common.domain.entity.JobExecutionDescriptionTestDat
 import de.wps.radvis.backend.common.domain.valueObject.ImportprotokollTyp;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteNetzBezugAenderung;
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteVariante;
@@ -74,15 +76,17 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.Hoehenunterschied;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierteProfilEigenschaften;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.TfisId;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.VarianteKategorie;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilRoutingResult;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
+import de.wps.radvis.backend.netz.domain.entity.KanteDeleteStatistik;
+import de.wps.radvis.backend.netz.domain.entity.KanteErsetzenStatistik;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
-import de.wps.radvis.backend.netz.domain.event.KanteDeletedEvent;
-import de.wps.radvis.backend.netz.domain.event.KanteTopologieChangedEvent;
+import de.wps.radvis.backend.netz.domain.event.KanteErsetztEvent;
+import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.service.SackgassenService;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
@@ -119,7 +123,7 @@ class FahrradrouteServiceTest {
 		domainPublisherMock = mockStatic(RadVisDomainEventPublisher.class);
 		service = new FahrradrouteService(fahrradrouteRepository, fahrradrouteViewRepository,
 			Lazy.of(graphhopperRoutingRepository), fahrradrouteNetzBezugAenderungRepository,
-			jobExecutionDescriptionRepository, benutzerService, sackgassenService);
+			jobExecutionDescriptionRepository, benutzerService, sackgassenService, 1.0);
 	}
 
 	@AfterEach
@@ -138,23 +142,26 @@ class FahrradrouteServiceTest {
 		Fahrradroute tfisRoute = FahrradrouteTestDataProvider.onKante(kante).id(4L)
 			.fahrradrouteTyp(FahrradrouteTyp.TFIS_ROUTE).build();
 
-		when(fahrradrouteRepository.findByKanteIdInNetzBezug(kante.getId()))
+		when(fahrradrouteRepository.findByKanteIdInNetzBezug(List.of(kante.getId())))
 			.thenReturn(List.of(radvisRoute, toubizRoute, tfisRoute));
 
-		KanteDeletedEvent deleteEvent = new KanteDeletedEvent(
-			kante.getId(), GeometryTestdataProvider.createLineString(), NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-			LocalDateTime.now());
+		KanteDeleteStatistik statistik = new KanteDeleteStatistik();
+		KantenDeletedEvent deleteEvent = new KantenDeletedEvent(
+			List.of(kante.getId()), List.of(GeometryTestdataProvider.createLineString()),
+			NetzAenderungAusloeser.DLM_REIMPORT_JOB,
+			LocalDateTime.now(), statistik);
 		ArgumentCaptor<FahrradrouteNetzBezugAenderung> captor = ArgumentCaptor
 			.forClass(FahrradrouteNetzBezugAenderung.class);
 		when(fahrradrouteNetzBezugAenderungRepository.save(captor.capture())).thenReturn(null);
 
 		// act
-		service.onKanteGeloescht(deleteEvent);
+		service.onKantenGeloescht(deleteEvent);
 
 		// assert
 		verify(fahrradrouteNetzBezugAenderungRepository, times(1)).save(any());
 		assertThat(captor.getValue().getFahrradroute().getFahrradrouteTyp()).isEqualTo(FahrradrouteTyp.RADVIS_ROUTE);
 		assertThat(captor.getValue().isAenderungInHauptroute()).isTrue();
+		assertThat(statistik.anzahlAngepassterNetzbezuege).isEqualTo(3);
 	}
 
 	@Test
@@ -175,89 +182,28 @@ class FahrradrouteServiceTest {
 			List.of(FahrradrouteVarianteTestDataProvider.defaultTfis().abschnittsweiserKantenBezug(bezuege)
 				.build()));
 
-		when(fahrradrouteRepository.findByKanteIdInNetzBezug(idVonKanteInVariante)).thenReturn(List.of(fahrradroute));
+		when(fahrradrouteRepository.findByKanteIdInNetzBezug(List.of(idVonKanteInVariante))).thenReturn(List.of(
+			fahrradroute));
 
 		// Kante in Variante soll entfernt werden
-		KanteDeletedEvent deleteEvent = new KanteDeletedEvent(idVonKanteInVariante,
-			GeometryTestdataProvider.createLineString(), NetzAenderungAusloeser.DLM_REIMPORT_JOB, LocalDateTime.now());
+		KanteDeleteStatistik statistik = new KanteDeleteStatistik();
+		KantenDeletedEvent deleteEvent = new KantenDeletedEvent(List.of(idVonKanteInVariante),
+			List.of(GeometryTestdataProvider.createLineString()), NetzAenderungAusloeser.DLM_REIMPORT_JOB, LocalDateTime
+				.now(),
+			statistik);
 		ArgumentCaptor<FahrradrouteNetzBezugAenderung> captor = ArgumentCaptor.forClass(
 			FahrradrouteNetzBezugAenderung.class);
 
 		when(fahrradrouteNetzBezugAenderungRepository.save(captor.capture())).thenReturn(null);
 
 		// act
-		service.onKanteGeloescht(deleteEvent);
+		service.onKantenGeloescht(deleteEvent);
 
 		// assert
 		verify(fahrradrouteNetzBezugAenderungRepository, times(1)).save(any());
 		assertThat(captor.getValue().getFahrradroute()).isEqualTo(fahrradroute);
 		assertThat(captor.getValue().isAenderungInHauptroute()).isFalse();
-	}
-
-	@Test
-	void protokolliereNetzbezugAenderungNurFuerRadVisTyp_geometrieAendern() {
-		// arrange
-		Kante kante = KanteTestDataProvider.withDefaultValues().id(123L).build();
-		Fahrradroute radvisRoute = FahrradrouteTestDataProvider.onKante(kante).id(2L)
-			.fahrradrouteTyp(FahrradrouteTyp.RADVIS_ROUTE).build();
-		Fahrradroute toubizRoute = FahrradrouteTestDataProvider.onKante(kante).id(3L)
-			.fahrradrouteTyp(FahrradrouteTyp.TOUBIZ_ROUTE).build();
-		Fahrradroute tfisRoute = FahrradrouteTestDataProvider.onKante(kante).id(4L)
-			.fahrradrouteTyp(FahrradrouteTyp.TFIS_ROUTE).build();
-
-		when(fahrradrouteRepository.findByKanteIdInNetzBezug(kante.getId()))
-			.thenReturn(List.of(radvisRoute, toubizRoute, tfisRoute));
-
-		KanteTopologieChangedEvent event = new KanteTopologieChangedEvent(
-			kante.getId(), GeometryTestdataProvider.createLineString(), NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-			LocalDateTime.now());
-		ArgumentCaptor<FahrradrouteNetzBezugAenderung> captor = ArgumentCaptor
-			.forClass(FahrradrouteNetzBezugAenderung.class);
-		when(fahrradrouteNetzBezugAenderungRepository.save(captor.capture())).thenReturn(null);
-
-		// act
-		service.onKanteTopologieChanged(event);
-
-		// assert
-		verify(fahrradrouteNetzBezugAenderungRepository, times(1)).save(any());
-		assertThat(captor.getValue().getFahrradroute().getFahrradrouteTyp()).isEqualTo(FahrradrouteTyp.RADVIS_ROUTE);
-		assertThat(captor.getValue().isAenderungInHauptroute()).isTrue();
-	}
-
-	@Test
-	void protokolliereNetzbezugAenderungAuchFuerVarianten_geometrieAendern() {
-		// arrange
-		// Hauptroute ist unveraendert
-		Kante kanteInHauptroute = KanteTestDataProvider.withDefaultValues().id(1L).build();
-		// aber Variante hat sich schon veraendert
-		long idVonKanteInVariante = 2L;
-		Kante kanteInVariante = KanteTestDataProvider.withDefaultValues().id(idVonKanteInVariante).build();
-
-		Fahrradroute fahrradroute = FahrradrouteTestDataProvider.onKante(kanteInHauptroute).id(42L)
-			.fahrradrouteTyp(FahrradrouteTyp.RADVIS_ROUTE).build();
-
-		fahrradroute.replaceFahrradrouteVarianten(List.of(FahrradrouteVarianteTestDataProvider.defaultTfis()
-			.abschnittsweiserKantenBezug(
-				List.of(new AbschnittsweiserKantenBezug(kanteInVariante, LinearReferenzierterAbschnitt.of(0, 1))))
-			.build()));
-
-		when(fahrradrouteRepository.findByKanteIdInNetzBezug(idVonKanteInVariante))
-			.thenReturn(List.of(fahrradroute));
-
-		KanteTopologieChangedEvent event = new KanteTopologieChangedEvent(
-			idVonKanteInVariante, GeometryTestdataProvider.createLineString(), NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-			LocalDateTime.now());
-		ArgumentCaptor<FahrradrouteNetzBezugAenderung> captor = ArgumentCaptor
-			.forClass(FahrradrouteNetzBezugAenderung.class);
-		when(fahrradrouteNetzBezugAenderungRepository.save(captor.capture())).thenReturn(null);
-
-		// act
-		service.onKanteTopologieChanged(event);
-
-		// assert
-		verify(fahrradrouteNetzBezugAenderungRepository, times(1)).save(any());
-		assertThat(captor.getValue().getFahrradroute()).isEqualTo(fahrradroute);
-		assertThat(captor.getValue().isAenderungInHauptroute()).isFalse();
+		assertThat(statistik.anzahlAngepassterNetzbezuege).isEqualTo(1);
 	}
 
 	@Nested
@@ -551,21 +497,56 @@ class FahrradrouteServiceTest {
 			.fahrradrouteTyp(FahrradrouteTyp.RADVIS_ROUTE).build();
 		assertThat(radvisRoute.getAbschnittsweiserKantenBezug()).hasSize(1);
 
-		when(fahrradrouteRepository.findByKanteIdInNetzBezug(kante.getId()))
+		when(fahrradrouteRepository.findByKanteIdInNetzBezug(List.of(kante.getId())))
 			.thenReturn(List.of(radvisRoute));
 
-		KanteDeletedEvent deleteEvent = new KanteDeletedEvent(
-			kante.getId(),
-			GeometryTestdataProvider.createLineString(),
+		KanteDeleteStatistik statistik = new KanteDeleteStatistik();
+		KantenDeletedEvent deleteEvent = new KantenDeletedEvent(
+			List.of(kante.getId()),
+			List.of(GeometryTestdataProvider.createLineString()),
 			NetzAenderungAusloeser.RADVIS_KANTE_LOESCHEN,
-			LocalDateTime.now());
+			LocalDateTime.now(), statistik);
 
 		// act
-		service.onKanteGeloescht(deleteEvent);
+		service.onKantenGeloescht(deleteEvent);
 
 		// assert
 		verify(fahrradrouteNetzBezugAenderungRepository, never()).save(any());
 		assertThat(radvisRoute.getAbschnittsweiserKantenBezug()).isEmpty();
+		assertThat(statistik.anzahlAngepassterNetzbezuege).isEqualTo(1);
+	}
+
+	@Test
+	void onKanteErsetzt_ersetztNurWennKeineGeometrischeAenderung() {
+		// arrange
+		Kante zuErsetzendeKante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0, QuellSystem.DLM).id(1l)
+			.build();
+		Kante ersatzKante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 50, 0, QuellSystem.DLM).id(2l)
+			.build();
+		Fahrradroute fahrradrouteCanErsetzen = FahrradrouteTestDataProvider.withDefaultValues()
+			.abschnittsweiserKantenBezug(
+				List.of(new AbschnittsweiserKantenBezug(zuErsetzendeKante,
+					LinearReferenzierterAbschnitt.of(0, 0.3))))
+			.id(3l).build();
+		Fahrradroute fahrradrouteCannotErsetzen = FahrradrouteTestDataProvider.withDefaultValues()
+			.abschnittsweiserKantenBezug(
+				List.of(new AbschnittsweiserKantenBezug(zuErsetzendeKante,
+					LinearReferenzierterAbschnitt.of(0, 1))))
+			.id(4l).build();
+		when(fahrradrouteRepository.findByKanteIdInNetzBezug(any())).thenReturn(
+			List.of(fahrradrouteCanErsetzen, fahrradrouteCannotErsetzen));
+
+		// act
+		KanteErsetzenStatistik statistik = new KanteErsetzenStatistik();
+		service.onKanteErsetzt(new KanteErsetztEvent(zuErsetzendeKante, Set.of(ersatzKante), statistik));
+
+		// assert
+		assertThat(statistik.anzahlAngepassterNetzbezuege).isEqualTo(1);
+
+		assertThat(fahrradrouteCanErsetzen.getAbschnittsweiserKantenBezug())
+			.containsExactly(new AbschnittsweiserKantenBezug(ersatzKante, LinearReferenzierterAbschnitt.of(0, 0.6)));
+		assertThat(fahrradrouteCannotErsetzen.getAbschnittsweiserKantenBezug()).containsExactly(
+			new AbschnittsweiserKantenBezug(zuErsetzendeKante, LinearReferenzierterAbschnitt.of(0, 1)));
 	}
 
 }

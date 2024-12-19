@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.massnahme.domain.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.MultiPolygon;
@@ -22,23 +23,44 @@ import org.locationtech.jts.geom.MultiPolygon;
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 public class CustomMassnahmeViewRepositoryImpl implements CustomMassnahmeViewRepository {
-
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Override
-	public List<MassnahmeListenDbView> findAllInBereich(MultiPolygon bereich) {
+	public List<MassnahmeListenDbView> findAllWithFilters(Optional<MultiPolygon> innerhalbBereich,
+		Boolean historischeMassnahmenAnzeigen) {
 
 		StringBuilder hqlStringBuilder = new StringBuilder();
-		hqlStringBuilder.append("SELECT massnahmeListenDbView  FROM MassnahmeListenDbView massnahmeListenDbView ")
-			.append(" WHERE ")
-			.append(
-				"intersects(CAST(massnahmeListenDbView.geometry AS org.locationtech.jts.geom.Geometry), CAST(:bereich as org.locationtech.jts.geom.Geometry)) = true");
+		hqlStringBuilder.append("SELECT massnahmeListenDbView FROM MassnahmeListenDbView massnahmeListenDbView");
 
-		return entityManager.createQuery(hqlStringBuilder.toString(), MassnahmeListenDbView.class)
-			.setParameter("bereich", bereich)
-			.getResultStream().collect(Collectors.toList());
+		if (innerhalbBereich.isPresent() || !historischeMassnahmenAnzeigen) {
+			hqlStringBuilder.append(" WHERE ");
+		}
+
+		if (innerhalbBereich.isPresent()) {
+			hqlStringBuilder.append(
+				"intersects(CAST(massnahmeListenDbView.geometry AS org.locationtech.jts.geom.Geometry), CAST(:bereich as org.locationtech.jts.geom.Geometry)) = true");
+		}
+
+		if (innerhalbBereich.isPresent() && !historischeMassnahmenAnzeigen) {
+			hqlStringBuilder.append(" AND ");
+		}
+
+		if (!historischeMassnahmenAnzeigen) {
+			hqlStringBuilder.append(
+				"massnahmeListenDbView.umsetzungsstatus != 'UMGESETZT' AND massnahmeListenDbView.umsetzungsstatus != 'STORNIERT' AND massnahmeListenDbView.archiviert = false");
+		}
+
+		TypedQuery<MassnahmeListenDbView> query = entityManager.createQuery(hqlStringBuilder.toString(),
+			MassnahmeListenDbView.class);
+
+		if (innerhalbBereich.isPresent()) {
+			query.setParameter("bereich", innerhalbBereich.get());
+		}
+
+		return query.getResultStream().collect(Collectors.toList());
 	}
 }

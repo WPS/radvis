@@ -17,23 +17,23 @@ import { ActivatedRoute } from '@angular/router';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
+import { defaultGemeinden, defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
+import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
+import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
 import { ServicestationEditorComponent } from 'src/app/viewer/servicestation/components/servicestation-editor/servicestation-editor.component';
 import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
+import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
+import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
 import { defaultServicestation } from 'src/app/viewer/servicestation/models/servicestation-testdata-provider.spec';
+import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 import { ServicestationRoutingService } from 'src/app/viewer/servicestation/services/servicestation-routing.service';
+import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/services/servicestation-updated.service';
 import { ServicestationService } from 'src/app/viewer/servicestation/services/servicestation.service';
 import { ServicestationModule } from 'src/app/viewer/servicestation/servicestation.module';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
-import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { defaultGemeinden, defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
-import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
-import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
-import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/services/servicestation-updated.service';
-import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
-import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
 
 class TestServicestationUpdateService extends ServicestationUpdatedService {
   updateServicestation(): void {}
@@ -202,6 +202,24 @@ describe(ServicestationEditorComponent.name, () => {
     beforeEach(() => {
       data$.next({ isCreator: false, servicestation: defaultServicestation });
     });
+
+    it('should update optimistic locking info after save', fakeAsync(() => {
+      when(servicestationService.save(anything(), anything())).thenCall((id, command) =>
+        Promise.resolve({ ...defaultServicestation, version: command.version + 1 })
+      );
+      component.formGroup.reset(defaultServicestation);
+      component.formGroup.markAsDirty();
+      component.onSave();
+
+      verify(servicestationService.save(anything(), anything())).once();
+      tick();
+
+      component.formGroup.markAsDirty();
+      component.onSave();
+
+      verify(servicestationService.save(anything(), anything())).twice();
+      expect(capture(servicestationService.save).last()[1].version).toEqual(defaultServicestation.version + 1);
+    }));
 
     it('should disable quellSystem control', () => {
       expect(component.formGroup.get('quellSystem')?.disabled).toBeTrue();

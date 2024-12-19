@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.karte.domain.HintergrundKarteConfigurationProperties;
 import de.wps.radvis.backend.karte.domain.HintergrundKartenService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +38,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/hintergrundkarte")
+@WithFehlercode(Fehlercode.HINTERGRUNDKARTEN)
 public class HintergrundKartenController {
 
 	private final HintergrundKartenService hintergrundKartenService;

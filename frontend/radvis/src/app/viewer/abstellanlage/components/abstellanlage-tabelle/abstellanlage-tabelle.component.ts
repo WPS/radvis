@@ -15,6 +15,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { ManualRoutingService } from 'src/app/shared/services/manual-routing.service';
 import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage';
@@ -22,7 +23,9 @@ import { AbstellanlageFilterService } from 'src/app/viewer/abstellanlage/service
 import { AbstellanlageRoutingService } from 'src/app/viewer/abstellanlage/services/abstellanlage-routing.service';
 import { AbstellanlageService } from 'src/app/viewer/abstellanlage/services/abstellanlage.service';
 import { CsvImportDialogComponent } from 'src/app/viewer/viewer-shared/components/csv-import-dialog/csv-import-dialog.component';
+import { ExportEvent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { CsvImportService } from 'src/app/viewer/viewer-shared/services/csv-import.service';
 import { ExportService } from 'src/app/viewer/viewer-shared/services/export.service';
@@ -44,23 +47,23 @@ export class AbstellanlageTabelleComponent implements CsvImportService {
   public csvImportFeatureToggl = false;
 
   data$: Observable<Abstellanlage[]>;
-  displayedColumns: string[];
   selectedID$: Observable<number | null>;
   exporting = false;
   exportFormate = [ExportFormat.CSV];
   isSmallViewport = false;
 
-  private columnMapping: Map<string, string> = new Map([
-    ['betreiber', 'Betreiber'],
-    ['externeId', 'Externe ID'],
-    ['quellSystem', 'Quellsystem'],
-    ['zustaendig', 'Zuständig in RadVIS'],
-    ['anzahlStellplaetze', 'Anzahl Stellplätze'],
-    ['abstellanlagenOrt', 'Ort'],
-    ['groessenklasse', 'Größenklasse'],
-    ['stellplatzart', 'Stellplatzart'],
-    ['status', 'Status'],
-  ]);
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'betreiber', displayName: 'Betreiber' },
+    { name: 'externeId', displayName: 'Externe ID', width: 'large' },
+    { name: 'quellSystem', displayName: 'Quellsystem' },
+    { name: 'zustaendig', displayName: 'Zuständig in RadVIS' },
+    { name: 'anzahlStellplaetze', displayName: 'Anzahl Stellplätze' },
+    { name: 'abstellanlagenOrt', displayName: 'Ort' },
+    { name: 'groessenklasse', displayName: 'Größenklasse' },
+    { name: 'stellplatzart', displayName: 'Stellplatzart' },
+    { name: 'status', displayName: 'Status' },
+  ];
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public dialog: MatDialog,
@@ -75,10 +78,10 @@ export class AbstellanlageTabelleComponent implements CsvImportService {
   ) {
     this.data$ = this.filterService.filteredList$;
     this.selectedID$ = this.routingService.selectedInfrastrukturId$;
-    this.displayedColumns = Array.from(this.columnMapping.keys());
     this.csvImportFeatureToggl = featureTogglzService.isToggledOn(
       FeatureTogglzService.TOGGLZ_ABSTELLANLAGEN_CSV_IMPORT
     );
+    this.filteredSpalten$ = this.filterService.filter$.pipe(map(filteredFields => filteredFields.map(f => f.field)));
   }
 
   onChangeBreakpointState(isSmall: boolean): void {
@@ -99,10 +102,6 @@ export class AbstellanlageTabelleComponent implements CsvImportService {
     this.manualRoutingService.openManualAbstellanlageImport();
   }
 
-  getHeader(key: string): string {
-    return this.columnMapping.get(key) ?? '';
-  }
-
   onCreate(): void {
     this.routingService.toCreator();
   }
@@ -115,13 +114,18 @@ export class AbstellanlageTabelleComponent implements CsvImportService {
     this.filterService.reset();
   }
 
-  public onExport(format: ExportFormat): void {
+  public onExport(exportEvent: ExportEvent): void {
     const currentFilter = this.filterService.currentFilteredList.map(m => m.id);
     this.exporting = true;
-    this.exportService.exportInfrastruktur('ABSTELLANLAGE', format, currentFilter).finally(() => {
-      this.exporting = false;
-      this.changeDetector.markForCheck();
-    });
+    const fieldNamesToExclude = this.spaltenDefinition
+      .filter(def => !exportEvent.felder.includes(def.name))
+      .map(def => def.displayName);
+    this.exportService
+      .exportInfrastruktur('ABSTELLANLAGE', exportEvent.format, currentFilter, fieldNamesToExclude)
+      .finally(() => {
+        this.exporting = false;
+        this.changeDetector.markForCheck();
+      });
   }
 
   public onOpenCsvImportDialog(): void {

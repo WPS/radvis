@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -113,12 +114,15 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 		private KantenAttributGruppeRepository kantenAttributGruppenRepository;
 		@MockBean
 		private VerwaltungseinheitResolver verwaltungseinheitResolver;
+		@PersistenceContext
+		EntityManager entityManager;
 
 		@Bean
 		NetzService netzService() {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
-				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver);
+				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
+				entityManager, 1.0);
 		}
 
 	}
@@ -157,7 +161,8 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 			.save(FahrradrouteTestDataProvider.onKante(kante1).verantwortlich(gebietskoerperschaft).build());
 
 		// act
-		List<Fahrradroute> findByKanteIdInNetzBezug = fahrradrouteRepository.findByKanteIdInNetzBezug(kante1.getId());
+		List<Fahrradroute> findByKanteIdInNetzBezug = fahrradrouteRepository.findByKanteIdInNetzBezug(List.of(kante1
+			.getId()));
 
 		// assert
 		assertThat(findByKanteIdInNetzBezug).containsExactlyInAnyOrder(fahrradroute1, fahrradroute3);
@@ -210,7 +215,8 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 		fahrradrouteRepository.save(fahrradroute);
 
 		// act
-		List<Fahrradroute> findByKanteIdInNetzBezug = fahrradrouteRepository.findByKanteIdInNetzBezug(kante2.getId());
+		List<Fahrradroute> findByKanteIdInNetzBezug = fahrradrouteRepository.findByKanteIdInNetzBezug(List.of(kante2
+			.getId()));
 
 		// assert
 		assertThat(findByKanteIdInNetzBezug).containsExactlyInAnyOrder(fahrradroute);
@@ -898,6 +904,76 @@ public class FahrradrouteRepositoryTestIT extends DBIntegrationTestIT {
 			expectedDrouteKommunalnetz,
 			expectedOrigGeoNull,
 			expectedNetzbezugLineStringNull);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void getAllGeometries_shouldFilter() {
+		// arrange
+		LineString lineStringInnerhalb = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(0, 100));
+		Fahrradroute fahrradroute1 = FahrradrouteTestDataProvider.withDefaultValues().netzbezugLineString(
+			lineStringInnerhalb).build();
+
+		LineString lineStringAusserhalb = GeometryTestdataProvider.createLineString(new Coordinate(0, 100),
+			new Coordinate(100, 100));
+		Fahrradroute fahrradroute2 = FahrradrouteTestDataProvider.withDefaultValues().netzbezugLineString(
+			lineStringAusserhalb).build();
+
+		saveInRepoOrgaKantenUndFahrradrouteFrom(List.of(fahrradroute1, fahrradroute2));
+
+		// act
+		List<Geometry> result = fahrradrouteRepository.getAllGeometries(List.of(fahrradroute1.getId()));
+
+		// assert
+		assertThat(result).hasSize(1);
+		assertThat(result.get(0).getNumGeometries()).isEqualTo(1);
+		assertThat(result.get(0).getGeometryN(0)).isEqualTo(lineStringInnerhalb);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void getAllGeometries_shouldFallBackToOriginalGeometry() {
+		// arrange
+		LineString netzBezugLinestring = GeometryTestdataProvider.createLineString(new Coordinate(0, 0),
+			new Coordinate(0, 100));
+		Fahrradroute fahrradroute1 = FahrradrouteTestDataProvider.withDefaultValues().netzbezugLineString(
+			netzBezugLinestring).build();
+
+		LineString originalLineString = GeometryTestdataProvider.createLineString(new Coordinate(0, 100),
+			new Coordinate(100, 100));
+		Fahrradroute fahrradroute2 = FahrradrouteTestDataProvider.withDefaultValues().netzbezugLineString(null)
+			.originalGeometrie(
+				originalLineString)
+			.build();
+
+		saveInRepoOrgaKantenUndFahrradrouteFrom(List.of(fahrradroute1, fahrradroute2));
+
+		// act
+		List<Geometry> result = fahrradrouteRepository
+			.getAllGeometries(List.of(fahrradroute1.getId(), fahrradroute2.getId()));
+
+		// assert
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getNumGeometries()).isEqualTo(1);
+		assertThat(result.get(0).getGeometryN(0)).isEqualTo(netzBezugLinestring);
+		assertThat(result.get(1).getNumGeometries()).isEqualTo(1);
+		assertThat(result.get(1).getGeometryN(0)).isEqualTo(originalLineString);
+	}
+
+	@Test
+	void getAllGeometries_shouldFilterNullGeometry() {
+		// arrange
+		Fahrradroute fahrradroute1 = FahrradrouteTestDataProvider.withDefaultValues().netzbezugLineString(
+			null).originalGeometrie(null).build();
+
+		saveInRepoOrgaKantenUndFahrradrouteFrom(List.of(fahrradroute1));
+
+		// act
+		List<Geometry> result = fahrradrouteRepository.getAllGeometries(List.of(fahrradroute1.getId()));
+
+		// assert
+		assertThat(result).isEmpty();
 	}
 
 	private void saveInRepoOrgaKantenUndFahrradrouteFrom(List<Fahrradroute> fahrradrouten) {

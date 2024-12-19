@@ -43,11 +43,13 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
+import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
@@ -71,15 +73,15 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Importiert die Servicestationen von MobiDataBW. Die Stationen werden über den Namen
- * (in Verbindung mit dem Quellsystem MobiData) und die Verortung (ein Versatz von max. 10 Metern
- * wird toleriert) identifiziert und entsprechend geupdatet oder neu angelegt.
- * Wenn in einem Datensatz ein Name doppelt vorhanden ist und beide Datensätze auf dieselbe vorhandene
- * Station gemappt werden, dann wir die zweite Station neu angelegt. In jedem Fall entspricht der Datenstand
- * nach dem Update den importierten Daten. Wenn die Identität der Stationen beim Import tatsächlich
+ * Importiert die Servicestationen von MobiDataBW. Die Stationen werden über den Namen (in Verbindung mit dem
+ * Quellsystem MobiData) und die Verortung (ein Versatz von max. 10 Metern wird toleriert) identifiziert und
+ * entsprechend geupdatet oder neu angelegt. Wenn in einem Datensatz ein Name doppelt vorhanden ist und beide Datensätze
+ * auf dieselbe vorhandene Station gemappt werden, dann wir die zweite Station neu angelegt. In jedem Fall entspricht
+ * der Datenstand nach dem Update den importierten Daten. Wenn die Identität der Stationen beim Import tatsächlich
  * komplett stabil bleiben soll, bräuchten wir in den Daten von MobiDataBW eine ID. Diese fehlt dort allerdings.
  */
 @Slf4j
+@WithFehlercode(Fehlercode.SERVICESTATIONEN_IMPORT)
 public class ServicestationMobiDataImportJob extends AbstractJob {
 	public static final String JOB_NAME = "ServicestationMobiDataImportJob";
 	static final double MAX_VERSCHIEBUNG_VORHANDENER_STATION = 10.0;
@@ -118,8 +120,7 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 		ServicestationRepository servicestationRepository,
 		VerwaltungseinheitService verwaltungseinheitService,
 		VerwaltungseinheitRepository verwaltungseinheitRepository,
-		String servicestationenMobiDataImportUrl
-	) {
+		String servicestationenMobiDataImportUrl) {
 		super(repository);
 		this.geoJsonImportRepository = geoJsonImportRepository;
 		this.servicestationRepository = servicestationRepository;
@@ -261,8 +262,7 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 				servicestationName,
 				ServicestationenQuellSystem.MOBIDATABW,
 				point,
-				MAX_VERSCHIEBUNG_VORHANDENER_STATION
-			);
+				MAX_VERSCHIEBUNG_VORHANDENER_STATION);
 		return servicestationOptional.map(Servicestation::toBuilder).orElse(
 			Servicestation.builder()
 				.dokumentListe(new DokumentListe())
@@ -345,7 +345,8 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 							operatorName,
 							OrganisationsArt.GEMEINDE);
 				}
-				// 1. operatorString ist Exakter Name , 2. Name enthält den operatorString, 3.operatorString mit Bindestrich -> Name entspricht dem Teil VOR dem Bindestrich
+				// 1. operatorString ist Exakter Name , 2. Name enthält den operatorString, 3.operatorString mit
+				// Bindestrich -> Name entspricht dem Teil VOR dem Bindestrich
 			} else if (!operatorString.isBlank()) {
 				passendeVerwaltungseinheiten = verwaltungseinheitRepository.findAllByName(operatorString);
 

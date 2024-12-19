@@ -73,7 +73,7 @@ export const isFeatureCollection = (geometry: Geojson): geometry is GeoJSONFeatu
 
 export const isFeature = (geometry: Geojson): geometry is GeoJSONFeature => geometry && geometry.type === 'Feature';
 
-export const geojsonGeometryToFeatureGeometry = (geojson: Geojson): Feature | null => {
+export const geojsonGeometryToFeature = (geojson: Geojson): Feature | null => {
   if (isLineString(geojson)) {
     return new Feature(new LineString(geojson.coordinates));
   }
@@ -88,7 +88,7 @@ export const geojsonGeometryToFeatureGeometry = (geojson: Geojson): Feature | nu
   }
   if (isGeometryCollection(geojson)) {
     const geometries = (geojson as GeometryCollectionGeojson).geometries
-      .map(g => geojsonGeometryToFeatureGeometry(g)?.getGeometry())
+      .map(g => geojsonGeometryToFeature(g)?.getGeometry())
       .filter(g => !!g) as Geometry[];
     return new Feature(new GeometryCollection(geometries));
   }

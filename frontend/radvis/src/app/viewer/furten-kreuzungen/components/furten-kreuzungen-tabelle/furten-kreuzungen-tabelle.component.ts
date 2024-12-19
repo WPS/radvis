@@ -14,10 +14,12 @@
 
 import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { FurtKreuzungListenView } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung-listen-view';
 import { FurtenKreuzungenFilterService } from 'src/app/viewer/furten-kreuzungen/services/furten-kreuzungen-filter.service';
 import { FurtenKreuzungenRoutingService } from 'src/app/viewer/furten-kreuzungen/services/furten-kreuzungen-routing.service';
+import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 
 @Component({
@@ -32,22 +34,44 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
 export class FurtenKreuzungenTabelleComponent {
   selectedFurtKreuzungId$: Observable<number | null>;
 
-  displayedColumns: string[] = ['id', 'verantwortlich', 'typ', 'radnetzKonform', 'kommentar', 'knotenForm'];
+  spaltenDefinition: SpaltenDefinition[] = [
+    { name: 'id', displayName: 'Id' },
+    { name: 'verantwortlich', displayName: 'Verantwortliche Organisation' },
+    { name: 'typ', displayName: 'Typ' },
+    { name: 'radnetzKonform', displayName: 'Radnetz konform' },
+    { name: 'kommentar', displayName: 'Kommentar', width: 'large' },
+    { name: 'knotenForm', displayName: 'Knoten-Form' },
+  ];
 
   data$: Observable<FurtKreuzungListenView[]>;
   public isBenutzerBerechtigtFurtenKreuzungenZuErstellen: boolean;
 
   isSmallViewport = false;
+  filteredSpalten$: Observable<string[]>;
 
   constructor(
     public furtenKreuzungenFilterService: FurtenKreuzungenFilterService,
     private furtenKreuzungenRoutingService: FurtenKreuzungenRoutingService,
-    private benutzerDetailsService: BenutzerDetailsService
+    benutzerDetailsService: BenutzerDetailsService
   ) {
     this.isBenutzerBerechtigtFurtenKreuzungenZuErstellen = benutzerDetailsService.canCreateFurtenKreuzungen();
     this.data$ = this.furtenKreuzungenFilterService.filteredList$;
     this.selectedFurtKreuzungId$ = furtenKreuzungenRoutingService.selectedInfrastrukturId$;
+    this.filteredSpalten$ = this.furtenKreuzungenFilterService.filter$.pipe(
+      map(filteredFields => filteredFields.map(f => f.field))
+    );
   }
+
+  getElementValue: (item: FurtKreuzungListenView, key: string) => string | string[] = (
+    item: FurtKreuzungListenView,
+    key: string
+  ) => {
+    const value = this.furtenKreuzungenFilterService.getInfrastrukturValueForKey(item, key);
+    if (key === 'kommentar' && value.length > 50) {
+      return value.slice(0, 47) + '...';
+    }
+    return value;
+  };
 
   onChangeBreakpointState(isSmall: boolean): void {
     this.isSmallViewport = isSmall;

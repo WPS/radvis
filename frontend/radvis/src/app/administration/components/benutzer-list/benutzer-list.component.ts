@@ -23,6 +23,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { BenutzerListView } from 'src/app/administration/models/benutzer-list-view';
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
+import { Rolle } from 'src/app/administration/models/rolle';
 
 @Component({
   selector: 'rad-benutzer-list',
@@ -39,9 +40,10 @@ export class BenutzerListComponent implements AfterViewInit, OnDestroy {
 
   benutzerDataSource: MatTableDataSource<BenutzerListView>;
   // muss den keys am BenutzerListView entsprechen, damit sorting funktioniert
-  headerColumns = ['nachname', 'vorname', 'status', 'organisation', 'email'];
+  headerColumns = ['nachname', 'vorname', 'status', 'organisation', 'email', 'rollen'];
   formControl: UntypedFormControl;
   BenutzerStatus = BenutzerStatus;
+  Rolle = Rolle;
 
   private subscriptions: Subscription[] = [];
 
@@ -61,6 +63,14 @@ export class BenutzerListComponent implements AfterViewInit, OnDestroy {
     this.data = activatedRoute.snapshot.data.benutzer;
     this.data.sort((b, a) => a.status.localeCompare(b.status));
     this.benutzerDataSource = new MatTableDataSource<BenutzerListView>([]);
+    this.benutzerDataSource.sortingDataAccessor = (item: BenutzerListView, property: string): string => {
+      if (property === 'status') {
+        return BenutzerStatus.getDisplayName(item.status);
+      } else if (property === 'rollen') {
+        return Rolle.getDisplayNames(item.rollen).toLowerCase();
+      }
+      return (item as never)[property];
+    };
     this.applyFilter();
     this.formControl = new UntypedFormControl('');
     this.formControl.valueChanges.pipe(debounceTime(100)).subscribe(() => this.updateQueryParams());

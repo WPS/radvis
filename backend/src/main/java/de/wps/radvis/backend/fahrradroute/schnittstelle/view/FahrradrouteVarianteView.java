@@ -21,7 +21,7 @@ import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.fahrradroute.domain.entity.FahrradrouteVariante;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.VarianteKategorie;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import lombok.Getter;
 
 @Getter

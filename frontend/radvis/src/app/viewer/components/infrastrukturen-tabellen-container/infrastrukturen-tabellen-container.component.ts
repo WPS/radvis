@@ -22,6 +22,7 @@ import {
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { InfrastrukturenTabellenComponent } from 'src/app/viewer/components/infrastruktur-tabellen/infrastrukturen-tabellen.component';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 
@@ -72,13 +73,18 @@ export class InfrastrukturenTabellenContainerComponent implements OnDestroy {
             this.infrastrukturenTabellenRef.setInput('asDialog', false);
           });
       }),
-      infrastrukturenSelectionService.tabellenVisible$.subscribe(visible => {
-        if (visible) {
-          this.viewContainer.insert(this.infrastrukturenTabellenRef.hostView);
-        } else {
-          this.viewContainer.detach(0);
-        }
-      })
+      infrastrukturenSelectionService.selektierteInfrastrukturen$
+        .pipe(
+          map(i => i.length > 0),
+          distinctUntilChanged()
+        )
+        .subscribe(visible => {
+          if (visible) {
+            this.viewContainer.insert(this.infrastrukturenTabellenRef.hostView);
+          } else {
+            this.viewContainer.detach(0);
+          }
+        })
     );
   }
   get asDialog(): boolean {
@@ -87,6 +93,9 @@ export class InfrastrukturenTabellenContainerComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+    if (!this.matDialogData) {
+      this.infrastrukturenTabellenRef.destroy();
+    }
   }
 
   onCloseDialog(): void {

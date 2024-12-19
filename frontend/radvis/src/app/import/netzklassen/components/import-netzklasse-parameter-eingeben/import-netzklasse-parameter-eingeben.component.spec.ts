@@ -27,6 +27,7 @@ import { NetzklassenRoutingService } from 'src/app/import/netzklassen/services/n
 import { CreateSessionStateService } from 'src/app/import/services/create-session.state.service';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 
 describe(ImportNetzklasseParameterEingebenComponent.name, () => {
   let fixture: MockedComponentFixture<ImportNetzklasseParameterEingebenComponent>;
@@ -34,6 +35,7 @@ describe(ImportNetzklasseParameterEingebenComponent.name, () => {
   let netzklassenImportService: NetzklassenImportService;
   let netzklassenRoutingService: NetzklassenRoutingService;
   let createSessionStateService: CreateSessionStateService;
+  let benutzerDetailsService: BenutzerDetailsService;
 
   const organisationsId = 65;
   const importTyp: ImportTyp = ImportTyp.NETZKLASSE_ZUWEISEN;
@@ -45,11 +47,13 @@ describe(ImportNetzklasseParameterEingebenComponent.name, () => {
     netzklassenRoutingService = mock(NetzklassenRoutingService);
     netzklassenImportService = mock(NetzklassenImportService);
     createSessionStateService = mock(CreateSessionStateService);
+    benutzerDetailsService = mock(BenutzerDetailsService);
 
     return MockBuilder(ImportNetzklasseParameterEingebenComponent, ImportModule)
       .provide({ provide: NetzklassenRoutingService, useValue: instance(netzklassenRoutingService) })
       .provide({ provide: NetzklassenImportService, useValue: instance(netzklassenImportService) })
-      .provide({ provide: CreateSessionStateService, useValue: instance(createSessionStateService) });
+      .provide({ provide: CreateSessionStateService, useValue: instance(createSessionStateService) })
+      .provide({ provide: BenutzerDetailsService, useValue: instance(benutzerDetailsService) });
   });
 
   // Aufteilen in drei describe Bloecke, da schon im Konstruktor der Komponente die formGroup gefuellt wird
@@ -98,6 +102,30 @@ describe(ImportNetzklasseParameterEingebenComponent.name, () => {
       expect(component.sessionExists).toBeFalse();
       expect(component.formControl.disabled).toBeFalse();
       expect(component.formControl.value).toEqual(netzklasse);
+    });
+
+    describe('Validation', () => {
+      it('should invalidate formControl when Kreisnetz is selected but the user is not authorized for it', () => {
+        // arrange
+        when(benutzerDetailsService.canKreisnetzVerlegen()).thenReturn(false);
+
+        // act
+        component.formControl.patchValue(Netzklasse.KREISNETZ_ALLTAG);
+
+        // assert
+        expect(component.formControl.invalid).toBeTrue();
+      });
+
+      it('should validate formControl when Kreisnetz is selected and the user is authorized for it', () => {
+        // arrange
+        when(benutzerDetailsService.canKreisnetzVerlegen()).thenReturn(true);
+
+        // act
+        component.formControl.patchValue(Netzklasse.KREISNETZ_ALLTAG);
+
+        // assert
+        expect(component.formControl.valid).toBeTrue();
+      });
     });
 
     describe('onAbort', () => {

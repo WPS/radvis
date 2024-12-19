@@ -53,9 +53,9 @@ import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConve
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.OsmMatchingCacheRepository;
-import de.wps.radvis.backend.matching.domain.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.exception.KeinMatchGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingCacheRepository;
+import de.wps.radvis.backend.matching.domain.repository.OsmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.LinearReferenziertesOsmMatchResult;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.OsmMatchingRepositoryImpl;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
@@ -107,7 +107,7 @@ class OsmMatchingRepositoryImplTest {
 			null,
 			"test",
 			"https://radvis-dev.landbw.de/",
-			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources");
+			"DLM", "Baden-Württemberg", OrganisationsArt.BUNDESLAND, "resources", 1.0, 1.0);
 		GraphhopperOsmConfigurationProperties graphhopperOsmConfigurationProperties = new GraphhopperOsmConfigurationProperties(
 			cacheVerzeichnis, mappingCacheVerzeichnis, 0.6d);
 		GraphhopperDlmConfigurationProperties graphhopperDlmConfigurationProperties = Mockito.mock(

@@ -14,19 +14,51 @@
 
 package de.wps.radvis.backend.furtKreuzung.domain;
 
+import static org.valid4j.Assertive.require;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
+import org.hibernate.spatial.jts.EnvelopeAdapter;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
-import de.wps.radvis.backend.common.domain.service.AbstractVersionierteEntityService;
+import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
+import de.wps.radvis.backend.common.domain.service.FehlerprotokollService;
+import de.wps.radvis.backend.common.domain.valueObject.FehlerprotokollTyp;
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzung;
+import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzungNetzBezugAenderung;
+import de.wps.radvis.backend.furtKreuzung.domain.repository.FurtKreuzungNetzBezugAenderungRepository;
 import de.wps.radvis.backend.furtKreuzung.domain.repository.FurtKreuzungRepository;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.service.AbstractEntityWithNetzbezugService;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
+import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
+import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import lombok.extern.slf4j.Slf4j;
 
-public class FurtKreuzungService extends AbstractVersionierteEntityService<FurtKreuzung> {
+@Slf4j
+public class FurtKreuzungService extends AbstractEntityWithNetzbezugService<FurtKreuzung> implements
+	FehlerprotokollService {
 	private final VerwaltungseinheitService verwaltungseinheitService;
+	private FurtKreuzungRepository repository;
+	private FurtKreuzungNetzBezugAenderungRepository netzBezugAenderungRepository;
+	private BenutzerService benutzerService;
 
-	public FurtKreuzungService(FurtKreuzungRepository repository, VerwaltungseinheitService verwaltungseinheitService) {
-		super(repository);
+	public FurtKreuzungService(FurtKreuzungRepository repository, VerwaltungseinheitService verwaltungseinheitService,
+		NetzService netzService, double erlaubteAbweichungKantenRematch,
+		FurtKreuzungNetzBezugAenderungRepository netzBezugAenderungRepository, BenutzerService benutzerService) {
+		super(repository, netzService, erlaubteAbweichungKantenRematch);
+		this.repository = repository;
 		this.verwaltungseinheitService = verwaltungseinheitService;
+		this.netzBezugAenderungRepository = netzBezugAenderungRepository;
+		this.benutzerService = benutzerService;
 	}
 
 	public boolean darfNutzerBearbeiten(Benutzer benutzer, FurtKreuzung furtKreuzung) {
@@ -35,5 +67,55 @@ public class FurtKreuzungService extends AbstractVersionierteEntityService<FurtK
 				furtKreuzung.getVerantwortlicheOrganisation());
 		}
 		return false;
+	}
+
+	@Override
+	protected void protokolliereNetzBezugAenderungFuerGeloeschteKnoten(List<FurtKreuzung> entitiesWithKnotenInNetzbezug,
+		Knoten knoten, LocalDateTime datum, NetzAenderungAusloeser ausloeser) {
+		log.debug("Erstelle Protokoll-Einträge für Löschung von Knoten {} in Furt/Kreuzungen {}", knoten.getId(),
+			entitiesWithKnotenInNetzbezug.stream().map(e -> e.getId()).toList());
+		entitiesWithKnotenInNetzbezug.stream()
+			.forEach(e -> netzBezugAenderungRepository
+				.save(new FurtKreuzungNetzBezugAenderung(NetzBezugAenderungsArt.KNOTEN_GELOESCHT, knoten.getId(), e,
+					benutzerService.getTechnischerBenutzer(), datum, ausloeser, e.getNetzbezug().getGeometrie())));
+
+	}
+
+	@Override
+	protected Collection<? extends FurtKreuzung> findByKnotenInNetzbezug(List<Long> knotenIds) {
+		return repository.findByKnotenInNetzBezug(knotenIds);
+	}
+
+	@Override
+	protected void protokolliereNetzBezugAenderungFuerGeloeschteKanten(List<FurtKreuzung> entitiesWithKanteInNetzbezug,
+		Long kanteId, Geometry geometry, LocalDateTime datum, NetzAenderungAusloeser ausloeser) {
+		log.debug("Erstelle Protokoll-Einträge für Löschung von Kante {} in Furt/Kreuzungen {}", kanteId,
+			entitiesWithKanteInNetzbezug.stream().map(e -> e.getId()).toList());
+		entitiesWithKanteInNetzbezug.stream()
+			.forEach(e -> netzBezugAenderungRepository
+				.save(new FurtKreuzungNetzBezugAenderung(NetzBezugAenderungsArt.KANTE_GELOESCHT, kanteId, e,
+					benutzerService.getTechnischerBenutzer(), datum, ausloeser, e.getNetzbezug().getGeometrie())));
+
+	}
+
+	@Override
+	protected List<FurtKreuzung> findByKantenIdsInNetzBezug(Collection<Long> ids) {
+		return repository.findByKanteInNetzBezug(ids);
+	}
+
+	@Override
+	public List<? extends FehlerprotokollEintrag> getAktuelleFehlerprotokolle(FehlerprotokollTyp fehlerprotokollTyp) {
+		require(fehlerprotokollTyp == FehlerprotokollTyp.DLM_REIMPORT_JOB_FURTEN_KREUZUNGEN);
+		return netzBezugAenderungRepository.findFurtKreuzungNetzBezugAenderungByDatumAfter(LocalDateTime.now()
+			.minusDays(1));
+	}
+
+	@Override
+	public List<? extends FehlerprotokollEintrag> getAktuelleFehlerprotokolleInBereich(
+		FehlerprotokollTyp fehlerprotokollTyp, Envelope bereich) {
+		require(fehlerprotokollTyp == FehlerprotokollTyp.DLM_REIMPORT_JOB_FURTEN_KREUZUNGEN);
+		return netzBezugAenderungRepository.findFurtKreuzungNetzBezugAenderungByDatumAfterInBereich(
+			LocalDateTime.now().minusDays(1),
+			EnvelopeAdapter.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()));
 	}
 }

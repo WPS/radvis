@@ -13,6 +13,7 @@
  */
 
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
+import { Rolle } from 'src/app/administration/models/rolle';
 
 export interface BenutzerListView {
   nachname: string;
@@ -21,4 +22,5 @@ export interface BenutzerListView {
   organisation: string;
   id: number;
   email: string;
+  rollen: Rolle[];
 }

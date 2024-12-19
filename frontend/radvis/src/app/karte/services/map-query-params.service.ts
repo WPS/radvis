@@ -13,7 +13,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Extent } from 'ol/extent';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
@@ -37,49 +37,49 @@ export class MapQueryParamsService extends AbstractQueryParamsService<MapQueryPa
   mitVerlauf$: Observable<boolean>;
 
   constructor(
-    private activRoute: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     router: Router
   ) {
     super(router);
-    this.mapQueryParams$ = this.activRoute.queryParams.pipe(
+    this.mapQueryParams$ = this.activatedRoute.queryParams.pipe(
       map(params => {
         return MapQueryParams.fromRoute(params);
       })
     );
-    this.layers$ = this.activRoute.queryParams.pipe(
+    this.layers$ = this.activatedRoute.queryParams.pipe(
       map(params => params.layers),
       distinctUntilChanged(),
       map((layers: string) => {
         return MapQueryParams.paramToLayers(layers);
       })
     );
-    this.view$ = this.activRoute.queryParams.pipe(
+    this.view$ = this.activatedRoute.queryParams.pipe(
       map(params => params.view),
       distinctUntilChanged(),
       map((view: string) => {
         return MapQueryParams.paramToExtent(view);
       })
     );
-    this.netzklassen$ = this.activRoute.queryParams.pipe(
+    this.netzklassen$ = this.activatedRoute.queryParams.pipe(
       map(params => params.netzklassen),
       distinctUntilChanged(),
       map((netzklassen: string) => {
         return MapQueryParams.paramToNetzklassen(netzklassen);
       })
     );
-    this.hintergrund$ = this.activRoute.queryParams.pipe(
+    this.hintergrund$ = this.activatedRoute.queryParams.pipe(
       map(params => params.hintergrund),
       distinctUntilChanged(),
       map((hintergrundLayer: string) => {
         return MapQueryParams.paramToLayers(hintergrundLayer)[0];
       })
     );
-    this.signatur$ = this.activRoute.queryParams.pipe(
+    this.signatur$ = this.activatedRoute.queryParams.pipe(
       map(params => params.signatur),
       distinctUntilChanged(),
       map(signatur => MapQueryParams.paramToSignatur(signatur) || null)
     );
-    this.mitVerlauf$ = this.activRoute.queryParams.pipe(
+    this.mitVerlauf$ = this.activatedRoute.queryParams.pipe(
       map(params => params.mitVerlauf),
       distinctUntilChanged(),
       map(param => AbstractQueryParams.paramToBoolean(param) ?? false)
@@ -87,7 +87,7 @@ export class MapQueryParamsService extends AbstractQueryParamsService<MapQueryPa
   }
 
   public get mapQueryParamsSnapshot(): MapQueryParams {
-    return MapQueryParams.fromRoute(this.activRoute.snapshot.queryParams);
+    return MapQueryParams.fromRoute(this.activatedRoute.snapshot.queryParams);
   }
 
   public update(
@@ -101,8 +101,23 @@ export class MapQueryParamsService extends AbstractQueryParamsService<MapQueryPa
     },
     merge = true
   ): void {
-    const queryParams = merge
-      ? MapQueryParams.merge(opt, this.mapQueryParamsSnapshot)
+    this.updateInUrl(this.updateQueryParams(opt, this.activatedRoute.snapshot, merge));
+  }
+
+  public updateQueryParams(
+    opt: {
+      layers?: LayerId[];
+      netzklassen?: Netzklassefilter[];
+      view?: Extent;
+      hintergrund?: string;
+      mitVerlauf?: boolean;
+      signatur?: Signatur;
+    },
+    activateRouteSnapshot: ActivatedRouteSnapshot,
+    merge: boolean
+  ): MapQueryParams {
+    return merge
+      ? MapQueryParams.merge(opt, MapQueryParams.fromRoute(activateRouteSnapshot.queryParams))
       : new MapQueryParams(
           opt.layers || [],
           opt.netzklassen || [],
@@ -111,6 +126,5 @@ export class MapQueryParamsService extends AbstractQueryParamsService<MapQueryPa
           opt.hintergrund || null,
           opt.signatur || null
         );
-    this.updateInUrl(queryParams);
   }
 }

@@ -818,7 +818,7 @@ public class AttributeAnreicherungsService_KantenAttributeMergeServiceIntegratio
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppeGrundnetz = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppeGrundnetz.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppeGrundnetz.setRichtung(Richtung.BEIDE_RICHTUNGEN, Richtung.GEGEN_RICHTUNG);
+		fahrtrichtungAttributGruppeGrundnetz.update(Richtung.BEIDE_RICHTUNGEN, Richtung.GEGEN_RICHTUNG);
 		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig()
 			.fahrtrichtungAttributGruppe(fahrtrichtungAttributGruppeGrundnetz)
 			.build();
@@ -866,7 +866,7 @@ public class AttributeAnreicherungsService_KantenAttributeMergeServiceIntegratio
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppeGrundnetz = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppeGrundnetz.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppeGrundnetz.setRichtung(Richtung.BEIDE_RICHTUNGEN, Richtung.GEGEN_RICHTUNG);
+		fahrtrichtungAttributGruppeGrundnetz.update(Richtung.BEIDE_RICHTUNGEN, Richtung.GEGEN_RICHTUNG);
 		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig()
 			.fahrtrichtungAttributGruppe(fahrtrichtungAttributGruppeGrundnetz)
 			.geometry(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createLineString(new Coordinate[] {
@@ -956,7 +956,7 @@ public class AttributeAnreicherungsService_KantenAttributeMergeServiceIntegratio
 		FahrtrichtungAttributGruppe fahrtrichtungAttributGruppeGrundnetz = FahrtrichtungAttributGruppeTestDataProvider
 			.withGrundnetzDefaultwerte().build();
 		fahrtrichtungAttributGruppeGrundnetz.changeSeitenbezug(true);
-		fahrtrichtungAttributGruppeGrundnetz.setRichtung(Richtung.GEGEN_RICHTUNG, Richtung.BEIDE_RICHTUNGEN);
+		fahrtrichtungAttributGruppeGrundnetz.update(Richtung.GEGEN_RICHTUNG, Richtung.BEIDE_RICHTUNGEN);
 		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig()
 			.fahrtrichtungAttributGruppe(fahrtrichtungAttributGruppeGrundnetz)
 			.geometry(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createLineString(new Coordinate[] {

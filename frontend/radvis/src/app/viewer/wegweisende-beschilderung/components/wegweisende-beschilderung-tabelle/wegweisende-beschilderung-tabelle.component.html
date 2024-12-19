@@ -15,7 +15,8 @@
 <rad-infrastruktur-tabelle-layout
   *ngIf="data$ | async as data"
   [data]="data"
-  [displayedColumns]="displayedColumns"
+  [spaltenDefinition]="spaltenDefinition"
+  [filteredSpalten]="(filteredSpalten$ | async) ?? []"
   titleColumnPrefix="Beschilderung mit Pfostennummer"
   [selectedId]="selectedBeschilderungsId$ | async"
   [fetching]="wegweisendeBeschilderungFilterService.fetching"
@@ -33,93 +34,10 @@
     Alle Filter zurücksetzen
   </button>
 
-  <ng-container matColumnDef="pfostenNr">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Pfostennummer</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'pfostenNr') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="wegweiserTyp">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Wegweisertyp</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'wegweiserTyp') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="pfostenTyp">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Pfostentyp</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'pfostenTyp') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="zustandsbewertung">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Zustandsbewertung</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'zustandsbewertung') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="pfostenzustand">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Pfostenzustand</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'pfostenzustand') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="pfostendefizit">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Pfostendefizit</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'pfostendefizit') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="gemeinde">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Gemeinde</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'gemeinde') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="kreis">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Kreis</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'kreis') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="land">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Land</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'land') }}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="zustaendig">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      <span rad-filter-header>Zuständige Organisation</span>
-    </th>
-    <td mat-cell *matCellDef="let element">
-      {{ wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey(element, 'zustaendig') }}
-    </td>
-  </ng-container>
+  <rad-infrastruktur-tabelle-spalte
+    *ngFor="let def of spaltenDefinition"
+    [spaltenDefinition]="def"
+    [getElementValueFn]="
+      wegweisendeBeschilderungFilterService.getInfrastrukturValueForKey
+    "></rad-infrastruktur-tabelle-spalte>
 </rad-infrastruktur-tabelle-layout>

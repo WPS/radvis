@@ -45,10 +45,10 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Hoehenunterschied;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.LinearReferenzierteProfilEigenschaften;
-import de.wps.radvis.backend.matching.domain.CustomRoutingProfileRepository;
-import de.wps.radvis.backend.matching.domain.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.entity.CustomRoutingProfile;
 import de.wps.radvis.backend.matching.domain.exception.KeineRouteGefundenException;
+import de.wps.radvis.backend.matching.domain.repository.CustomRoutingProfileRepository;
+import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.matching.domain.valueObject.ProfilRoutingResult;
 import de.wps.radvis.backend.matching.domain.valueObject.RoutingResult;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
@@ -217,7 +217,7 @@ public class GraphhopperRoutingRepositoryImpl implements GraphhopperRoutingRepos
 	}
 
 	@Override
-	public void swapGraphHopper() {
+	public void updateGraphHopper() {
 		log.info("Swapping Graphhopper for DLM-Routing");
 		// darf nur mir graphHopperFactory.getDlmGraphHopper überschrieben werden, da die factory das clean-up handelt
 		this.graphHopper = graphHopperFactory.getDlmGraphHopper();

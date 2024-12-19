@@ -71,6 +71,22 @@ public class LineStrings {
 		}
 	}
 
+	public static boolean haveSameStationierungsrichtung(LineString geometry1, LineString geometry2) {
+		LocationIndexedLine locationIndexedKantenGeometrie = new LocationIndexedLine(
+			geometry1);
+		LinearLocation anfangUeberschneidung = locationIndexedKantenGeometrie
+			.project(geometry2.getStartPoint().getCoordinate());
+		LinearLocation endeUeberschneidung = locationIndexedKantenGeometrie
+			.project(geometry2.getEndPoint().getCoordinate());
+
+		double abstandZumAnfangUeberschneidung = anfangUeberschneidung.getCoordinate(geometry1)
+			.distance(geometry1.getStartPoint().getCoordinate());
+		double abstandZumEndeUeberschneidung = endeUeberschneidung.getCoordinate(geometry1)
+			.distance(geometry1.getStartPoint().getCoordinate());
+
+		return abstandZumAnfangUeberschneidung < abstandZumEndeUeberschneidung;
+	}
+
 	private static LineString projiziereAufLineString(LineString aufLS, LineString vonLS) {
 		LocationIndexedLine locationIndexedGrundnetzGeometrie = new LocationIndexedLine(aufLS);
 

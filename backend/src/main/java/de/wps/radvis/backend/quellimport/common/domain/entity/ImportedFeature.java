@@ -65,8 +65,7 @@ public class ImportedFeature extends AbstractEntity {
 	private Double anteilProjiziert;
 
 	public ImportedFeature(String technischeId, Geometry geometrie, Map<String, Object> attribute,
-		LocalDateTime importDatum,
-		QuellSystem quelle, Art art) {
+		LocalDateTime importDatum, QuellSystem quelle, Art art) {
 		require(technischeId, notNullValue());
 		require(geometrie, notNullValue());
 		require(geometrie.getSRID() == KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid(),
