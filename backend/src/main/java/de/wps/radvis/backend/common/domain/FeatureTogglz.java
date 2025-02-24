@@ -104,9 +104,6 @@ public enum FeatureTogglz implements Feature {
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-5064")
 	KANTE_LOESCHEN_ENDPUNKT,
 
-	@InfoLink("https://radviswps.atlassian.net/browse/RAD-5901")
-	REFRESH_MATERIALIZED_VIEWS_ENDPUNKT,
-
 	@InfoLink("https://radviswps.atlassian.net/browse/RAD-4719")
 	SICHERHEITSTRENNSTREIFEN,
 

@@ -506,9 +506,6 @@ togglz:
     KANTE_LOESCHEN_ENDPUNKT:
       # Aktiviert das Löschen von in RadVIS angelegten Kanten per API
       enabled: false
-    REFRESH_MATERIALIZED_VIEWS_ENDPUNKT:
-      # Aktiviert das Refreshen der Materialized Views und 3D Geometrien von Kanten per API
-      enabled: false
     UMSETZUNGSSTANDABFRAGE_KREISKOORDINATOREN_BENACHRICHTIGEN:
       # Aktiviert das Versenden der Benachrichtigungs-E-Mail an die Kreiskoordinatoren beim Start einer Umsetzungsstandabfrage
       enabled: false

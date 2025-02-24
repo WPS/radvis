@@ -121,8 +121,6 @@ public class AttributlueckenSchliessenJob extends AbstractJob {
 
 		log.info("JobStatistik:\n{}", statistik.toPrettyJSON());
 
-		netzService.refreshNetzMaterializedViews();
-
 		return Optional.of(statistik);
 	}
 

@@ -34,7 +34,6 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionSort;
@@ -69,7 +68,6 @@ import de.wps.radvis.backend.netz.domain.entity.KnotenDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.KnotenIndex;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
-import de.wps.radvis.backend.netz.domain.event.GrundnetzAktualisiertEvent;
 import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.KnotenDeletedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitEntferntEvent;
@@ -575,15 +573,10 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		});
 	}
 
-	@EventListener
-	public void onPostDlmReimport(GrundnetzAktualisiertEvent event) {
-		log.info("Refreshing RadVisNetz-Materialized-Views");
-		refreshNetzMaterializedViews();
-		log.info("Finished refreshing RadVisNetz-Materialized-Views");
-	}
-
 	public void refreshNetzMaterializedViews() {
+		log.info("Refreshing RadVisNetz-Materialized-Views");
 		kantenRepository.refreshNetzMaterializedViews();
+		log.info("Finished refreshing RadVisNetz-Materialized-Views");
 	}
 
 	public void aktualisiereKnoten(long knotenId, long knotenVersion, Long gemeinde, Kommentar kommentar,

@@ -428,14 +428,6 @@ public class NetzController {
 				benutzerResolver.fromAuthentication(authentication)));
 	}
 
-	/*
-	 * Dieser Endpunkt wird nicht im RadVIS-Frontend aufgerufen. Er ist zur Vereinfachung des Loeschens durch
-	 * Entwickler:innen da und kann z.B. ueber curl angesprochen werden. Dabei muessen die Authorization, die SessionID
-	 * und ein XSRF-TOKEN aus einer anderen Anfrage im Browser herausgefunden werden.
-	 *
-	 * curl "<baseUrl>/api/netz/kante/<id>" -X DELETE -H "X-XSRF-TOKEN: <xsrf-token>" -H
-	 * "Authorization: <authorization>" -H "Cookie: JSESSIONID=<session id>; XSRF-TOKEN=<nochmal das xsrf-token>"
-	 */
 	@DeleteMapping("kante/{id}")
 	@WithAuditing(context = AuditingContext.DELETE_KANTE)
 	public void deleteRadVISKanteById(@PathVariable("id") Long id, Authentication authentication) {
@@ -455,25 +447,6 @@ public class NetzController {
 			log.warn("Die Kante mit der id {} konnte nicht gelöscht werden, da sie nicht Quellsystem \"RadVIS\" ist",
 				kante.getId());
 		}
-	}
-	/*
-	 * Dieser Endpunkt wird nicht im RadVIS-Frontend aufgerufen. Er ist zur aktualisierung der Materialized Views durch
-	 * Entwickler:innen da und kann z.B. ueber curl angesprochen werden. Dabei muessen die Authorization, die SessionID
-	 * und ein XSRF-TOKEN aus einer anderen Anfrage im Browser herausgefunden werden (analog zu Kante loeschen)
-	 */
-
-	@GetMapping(path = "refreshMatViews")
-	public void refreshRadVisNetzMaterializedViews(Authentication authentication) {
-		if (!FeatureTogglz.REFRESH_MATERIALIZED_VIEWS_ENDPUNKT.isActive()) {
-			throw new AccessDeniedException(
-				"Diese Funktion ist derzeit deaktiviert: refreshMatViews");
-		}
-
-		netzGuard.refreshRadVisNetzMaterializedViews(authentication);
-
-		log.info("RefreshRadVisNetzMaterializedViews Endpunkt getriggert.");
-		netzService.refreshNetzMaterializedViews();
-		log.info("RefreshRadVisNetzMaterializedViews Endpunkt Done.");
 	}
 
 	private List<KanteEditView> createKantenEditViews(Authentication authentication, Set<Long> kanteIds) {

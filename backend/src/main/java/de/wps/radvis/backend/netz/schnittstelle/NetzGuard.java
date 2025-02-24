@@ -181,15 +181,6 @@ public class NetzGuard {
 		}
 	}
 
-	public void refreshRadVisNetzMaterializedViews(Authentication authentication) {
-		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
-		if (!aktiverBenutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
-			throw new AccessDeniedException(
-				" Nur Benutzer:innen mit der Rolle Administrator:in dürfen die Materialized Views refreshen.");
-
-		}
-	}
-
 	private void authorizeEditKanten(Set<Long> kanteIds, Benutzer benutzer) {
 
 		if (!benutzer.hatRecht(Recht.BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT)

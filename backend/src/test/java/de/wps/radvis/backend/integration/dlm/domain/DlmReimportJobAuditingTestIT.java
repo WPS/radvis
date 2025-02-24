@@ -531,7 +531,7 @@ class DlmReimportJobAuditingTestIT extends AuditingTestIT {
 	}
 
 	@Test
-	void refreshMaterializedViews() {
+	void materializedViewsNotRefreshedWithinThisJob() {
 		// arrange
 		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -582,6 +582,6 @@ class DlmReimportJobAuditingTestIT extends AuditingTestIT {
 		List<Map<String, Object>> allViewEntriesAfterRefresh = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
 
-		assertThat(allViewEntriesAfterRefresh).hasSize(5);
+		assertThat(allViewEntriesAfterRefresh).hasSize(4);
 	}
 }

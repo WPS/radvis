@@ -24,6 +24,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.netz.domain.LineareReferenzenDefragmentierungJob;
+import de.wps.radvis.backend.netz.domain.MaterializedViewsUpdateJob;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.repository.FahrtrichtungAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.repository.FuehrungsformAttributGruppeRepository;
@@ -146,5 +147,10 @@ public class NetzConfiguration {
 			zustaendigkeitAttributGruppeRepository, fuehrungsformAttributGruppeRepository,
 			geschwindigkeitAttributGruppeRepository, kantenRepository,
 			netzConfigurationProperties.getMinimaleSegmentLaenge());
+	}
+
+	@Bean
+	public MaterializedViewsUpdateJob materializedViewsUpdateJob() {
+		return new MaterializedViewsUpdateJob(jobExecutionDescriptionRepository, netzService());
 	}
 }
