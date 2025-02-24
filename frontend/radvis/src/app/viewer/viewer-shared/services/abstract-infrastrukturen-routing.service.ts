@@ -38,7 +38,7 @@ export abstract class AbstractInfrastrukturenRoutingService {
   public getIdFromRoute(): number | null {
     const match = new RegExp(`${this.infrastrukturArt.pathElement}/(\\d+)($|/|\\?)`).exec(this.router.url);
 
-    if (!match || !match[1] || isNaN(Number(match[1]))) {
+    if (!match?.[1] || isNaN(Number(match[1]))) {
       return null;
     }
     return Number(match[1]);

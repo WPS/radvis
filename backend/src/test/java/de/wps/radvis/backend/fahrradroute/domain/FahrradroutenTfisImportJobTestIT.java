@@ -53,10 +53,10 @@ import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
@@ -113,17 +113,17 @@ public class FahrradroutenTfisImportJobTestIT extends DBIntegrationTestIT {
 		private KantenRepository kantenRepository;
 		@Autowired
 		private KnotenRepository knotenRepository;
-		@MockBean
+		@MockitoBean
 		private ZustaendigkeitAttributGruppeRepository zustaendigkeitAttributGruppenRepository;
-		@MockBean
+		@MockitoBean
 		private FahrtrichtungAttributGruppeRepository fahrtrichtungAttributGruppeRepository;
-		@MockBean
+		@MockitoBean
 		private GeschwindigkeitAttributGruppeRepository geschwindigkeitAttributGruppeRepository;
-		@MockBean
+		@MockitoBean
 		private FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppenRepository;
-		@MockBean
+		@MockitoBean
 		private KantenAttributGruppeRepository kantenAttributGruppenRepository;
-		@MockBean
+		@MockitoBean
 		private VerwaltungseinheitResolver verwaltungseinheitResolver;
 		@PersistenceContext
 		EntityManager entityManager;
@@ -133,7 +133,7 @@ public class FahrradroutenTfisImportJobTestIT extends DBIntegrationTestIT {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
 				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
-				entityManager, 1.0);
+				entityManager, 1.0, Laenge.of(10), 10, 15.0, 0.5);
 		}
 
 	}

@@ -24,6 +24,7 @@ export interface WeitereKartenebene {
   zindex: number; // muss durchgehend kleingeschrieben werden. zIndex wird nicht korrekt vom BE ans FE uebergeben.
   farbe?: string;
   quellangabe: string;
+  defaultLayer: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace

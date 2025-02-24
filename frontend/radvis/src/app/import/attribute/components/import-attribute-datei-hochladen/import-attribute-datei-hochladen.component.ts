@@ -36,6 +36,7 @@ import { OrganisationenService } from 'src/app/shared/services/organisationen.se
   templateUrl: './import-attribute-datei-hochladen.component.html',
   styleUrls: ['./import-attribute-datei-hochladen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeDateiHochladenComponent {
   private static readonly STEP = 1;

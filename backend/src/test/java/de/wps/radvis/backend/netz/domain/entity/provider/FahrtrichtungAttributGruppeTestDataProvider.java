@@ -23,9 +23,13 @@ public class FahrtrichtungAttributGruppeTestDataProvider {
 	}
 
 	public static FahrtrichtungAttributGruppe.FahrtrichtungAttributGruppeBuilder createWithValues() {
+		return createEinseitig(Richtung.IN_RICHTUNG);
+	}
+
+	public static FahrtrichtungAttributGruppe.FahrtrichtungAttributGruppeBuilder createEinseitig(Richtung richtung) {
 		return FahrtrichtungAttributGruppe.builder()
 			.isZweiseitig(false)
-			.fahrtrichtungLinks(Richtung.IN_RICHTUNG)
-			.fahrtrichtungRechts(Richtung.IN_RICHTUNG);
+			.fahrtrichtungLinks(richtung)
+			.fahrtrichtungRechts(richtung);
 	}
 }

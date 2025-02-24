@@ -94,7 +94,8 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import jakarta.persistence.EntityManager;
@@ -117,7 +118,7 @@ class ManuellerMassnahmenImportServiceTest {
 	MassnahmeRepository massnahmeRepository;
 
 	@Mock
-	VerwaltungseinheitRepository verwaltungseinheitRepository;
+	VerwaltungseinheitService verwaltungseinheitService;
 
 	@Mock
 	CsvRepository csvRepository;
@@ -130,7 +131,7 @@ class ManuellerMassnahmenImportServiceTest {
 		openMocks(this);
 		when(entityManager.merge(any())).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 		service = new ManuellerMassnahmenImportService(manuellerImportService, massnahmeNetzbezugService,
-			geoJsonImportRepository, verwaltungseinheitRepository, massnahmeRepository, entityManager, csvRepository,
+			geoJsonImportRepository, verwaltungseinheitService, massnahmeRepository, entityManager, csvRepository,
 			10);
 	}
 
@@ -975,12 +976,13 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testAttributeValidieren_neueMassnahmenurPflichtattributeAusgewaehltalleEintraegeKorrekt_keineHinweise() {
+	void testAttributeValidieren_neueMassnahmenurPflichtattributeAusgewaehltalleEintraegeKorrekt_keineHinweise()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValuesAndOrganisation(verwaltungseinheit).build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1001,12 +1003,13 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testAttributeValidieren_neueMassnahmealleAttributeAusgewaehltalleEintraegeKorrekt_keineHinweise() {
+	void testAttributeValidieren_neueMassnahmealleAttributeAusgewaehltalleEintraegeKorrekt_keineHinweise()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValuesAndOrganisation(verwaltungseinheit).build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1054,12 +1057,13 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testAttributeValidieren_neueMassanahmealleAttributeAusgewaehltquervalidierungenInkorrekt_hinweiseFuerQuervalidierungen() {
+	void testAttributeValidieren_neueMassanahmealleAttributeAusgewaehltquervalidierungenInkorrekt_hinweiseFuerQuervalidierungen()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValuesAndOrganisation(verwaltungseinheit).build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1091,7 +1095,7 @@ class ManuellerMassnahmenImportServiceTest {
 			.map(attribut -> MappingFehler.of(
 				attribut.toString(),
 				attribut == MassnahmenImportAttribute.KATEGORIEN
-					? MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE.getText()
+					? MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE_OBERKATEGORIE.getText()
 					: MappingFehlermeldung.QUERVALIDIERUNG_PFLICHTATTRIBUTE.getText(
 						Umsetzungsstatus.PLANUNG)))
 			.toList();
@@ -1099,6 +1103,41 @@ class ManuellerMassnahmenImportServiceTest {
 		assertThatMassnahmenImportZuordnung(zuordnung)
 			.hasFehlerSize(erwarteteFehler.size())
 			.hasExactlyInAnyOrderMappingFehler(erwarteteFehler);
+	}
+
+	@Test
+	void testAttributeValidieren_neueMassanahmealleAttributeAusgewaehltKategorienFuerKonzeptionsquelleInkorrekt_hinweiseFuerQuervalidierungen()
+		throws OrganisationsartUndNameNichtEindeutigException {
+		// Arrange
+		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.build();
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValuesAndOrganisation(verwaltungseinheit).build();
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
+			verwaltungseinheit.getOrganisationsArt())).thenReturn(
+				Optional.of(verwaltungseinheit));
+
+		Map<String, String> quellAttribute = MassnahmenImportAttributeMapTestDataProvider.fromMassnahme(massnahme);
+		quellAttribute.put(MassnahmenImportAttribute.KATEGORIEN.toString(),
+			Set.of(
+				Massnahmenkategorie.NEUBAU_WEG_NACH_RADNETZ_QUALITAETSSTANDARD)
+				.stream()
+				.map(Massnahmenkategorie::name)
+				.collect(Collectors.joining(";")));
+		MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+			.gemapptWithQuellAttributeAndMassnahme(quellAttribute, massnahme);
+
+		MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+		List<MassnahmenImportAttribute> ausgewaehlteAttribute = List.of(MassnahmenImportAttribute.KATEGORIEN);
+
+		// Act
+		service.attributeValidieren(session, ausgewaehlteAttribute);
+
+		// Assert
+		assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+
+		assertThat(zuordnung.getMappingFehler()).containsExactly(MappingFehler.of(
+			MassnahmenImportAttribute.KATEGORIEN.toString(),
+			MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE_KONZEPTIONSQUELLE.getText()));
 	}
 
 	@Test
@@ -1123,12 +1162,13 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testAttributeValidieren_gemappteMassanahmeattributeWerdenAusgelesen_keineHinweiseFuerQuervalidierungen() {
+	void testAttributeValidieren_gemappteMassanahmeattributeWerdenAusgelesen_keineHinweiseFuerQuervalidierungen()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValuesAndOrganisation(verwaltungseinheit).build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1150,7 +1190,8 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testAttributeValidieren_gemappteMassanahmepflichtfelderAbPlanungVergessen_hinweiseFuerQuervalidierungen() {
+	void testAttributeValidieren_gemappteMassanahmepflichtfelderAbPlanungVergessen_hinweiseFuerQuervalidierungen()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
@@ -1159,7 +1200,7 @@ class ManuellerMassnahmenImportServiceTest {
 			.baulastZustaendiger(null)
 			.handlungsverantwortlicher(null)
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1367,13 +1408,14 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusNeu_wirdErzeugtUndGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_statusNeu_wirdErzeugtUndGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.name("Großoberkleinmitteluntenbach")
 			.organisationsArt(OrganisationsArt.GEMEINDE)
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
 			eq(verwaltungseinheit.getName()),
 			eq(verwaltungseinheit.getOrganisationsArt())))
 				.thenReturn(Optional.of(verwaltungseinheit));
@@ -1430,7 +1472,8 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusNeu_keinNetzbezug_wirdNichtGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_statusNeu_keinNetzbezug_wirdNichtGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		MassnahmenImportSession session = createSessionWithDummyMassnahme(MassnahmenImportZuordnungStatus.NEU);
 
@@ -1447,7 +1490,8 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusNeu_attributfehler_wirdNichtGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_statusNeu_attributfehler_wirdNichtGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		MassnahmenImportSession session = createSessionWithDummyMassnahme(MassnahmenImportZuordnungStatus.NEU);
 
@@ -1464,7 +1508,8 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusNeu_netzbezugFehler_wirdNichtGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_statusNeu_netzbezugFehler_wirdNichtGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		MassnahmenImportSession session = createSessionWithDummyMassnahme(MassnahmenImportZuordnungStatus.NEU);
 
@@ -1482,11 +1527,12 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusZugeordnet_wirdErzeugtUndGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_statusZugeordnet_wirdErzeugtUndGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1531,11 +1577,12 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_sonstigeKonzeptionsquelle_neuWirdGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_sonstigeKonzeptionsquelle_neuWirdGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1586,11 +1633,12 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_sonstigeKonzeptionsquelle_bearbeitetWirdGespeichert() {
+	void testMassnahmenDerZuordnungenSpeichern_sonstigeKonzeptionsquelle_bearbeitetWirdGespeichert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1652,11 +1700,12 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusZugeordnet_beiExceptionBrichtNichtAllesAb() {
+	void testMassnahmenDerZuordnungenSpeichern_statusZugeordnet_beiExceptionBrichtNichtAllesAb()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1722,11 +1771,12 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
-	void testMassnahmenDerZuordnungenSpeichern_statusGeloescht_wirdNurAlsGeloeschtMarkiert() {
+	void testMassnahmenDerZuordnungenSpeichern_statusGeloescht_wirdNurAlsGeloeschtMarkiert()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 
@@ -1746,10 +1796,10 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	private @NotNull MassnahmenImportSession createSessionWithDummyMassnahme(
-		MassnahmenImportZuordnungStatus zuordnungStatus) {
+		MassnahmenImportZuordnungStatus zuordnungStatus) throws OrganisationsartUndNameNichtEindeutigException {
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt())).thenReturn(
 				Optional.of(verwaltungseinheit));
 

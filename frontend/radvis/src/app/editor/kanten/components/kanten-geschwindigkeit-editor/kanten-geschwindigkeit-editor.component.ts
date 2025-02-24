@@ -48,6 +48,7 @@ import invariant from 'tiny-invariant';
     '../lineare-referenz-tabelle.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenGeschwindigkeitEditorComponent
   extends AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor<
@@ -111,9 +112,9 @@ export class KantenGeschwindigkeitEditorComponent
       const attributeCommand = attributgruppe.geschwindigkeitAttribute.map(attribute =>
         this.convertAttributeToAttributeCommand(attribute)
       );
-      const associatedKantenSelektion = this.currentSelektion?.find(
+      const associatedKantenSelektion = this.currentSelektion!.find(
         kantenSelektion => this.getAttributGruppeFrom(kantenSelektion.kante).id === attributgruppe.id
-      ) as KantenSelektion;
+      )!;
       return {
         gruppenID: attributgruppe.id,
         gruppenVersion: attributgruppe.version,

@@ -42,6 +42,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './leihstation-editor.component.html',
   styleUrls: ['./leihstation-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LeihstationEditorComponent extends SimpleEditorCreatorComponent<Leihstation> {
   public MOBIDATA_DATENSATZ_URL = 'https://www.mobidata-bw.de/dataset/bikesh';

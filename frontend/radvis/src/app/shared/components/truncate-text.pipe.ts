@@ -17,9 +17,10 @@ import invariant from 'tiny-invariant';
 
 @Pipe({
   name: 'truncateText',
+  standalone: false,
 })
 export class TruncateTextPipe implements PipeTransform {
-  transform(value: string, anzahlZeichen: number = 10): string {
+  transform(value: string, anzahlZeichen = 10): string {
     invariant(anzahlZeichen >= 3);
     if (value && value.length > anzahlZeichen) {
       return value.substring(0, anzahlZeichen - 3) + '...';

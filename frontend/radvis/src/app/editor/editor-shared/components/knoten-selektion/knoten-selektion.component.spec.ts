@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ActivatedRoute, ActivatedRouteSnapshot, Event, NavigationEnd, Router } from '@angular/router';
 import { MockBuilder } from 'ng-mocks';
@@ -214,12 +213,10 @@ describe('KnotenSelektionComponent', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummySnapshotRoute(): ActivatedRouteSnapshot {
   return { firstChild: { params: { id: 2 } } } as unknown as ActivatedRouteSnapshot;
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatureCollection(): GeoJSONFeatureCollection {
   return {
     type: 'FeatureCollection',

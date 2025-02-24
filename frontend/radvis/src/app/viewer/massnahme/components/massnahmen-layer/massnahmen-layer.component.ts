@@ -50,6 +50,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   templateUrl: './massnahmen-layer.component.html',
   styleUrls: ['./massnahmen-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenLayerComponent
   extends AbstractInfrastrukturLayerComponent<MassnahmeListenView>
@@ -160,7 +161,6 @@ export class MassnahmenLayerComponent
     return [feature];
   }
 
-  // eslint-disable-next-line prettier/prettier
   protected override addIconColorAttribute(infrastrukturen: MassnahmeListenView[]): void {
     const styleFunction = this.signaturLayer.getStyleFunction();
 
@@ -179,8 +179,7 @@ export class MassnahmenLayerComponent
         const styleFunctionResult = styleFunction(massnahmeFeature, 0);
 
         if (styleFunctionResult) {
-          const styleForFeature =
-            styleFunctionResult instanceof Style ? [styleFunctionResult] : (styleFunctionResult as Style[]);
+          const styleForFeature = styleFunctionResult instanceof Style ? [styleFunctionResult] : styleFunctionResult;
 
           if (styleForFeature.length > 0) {
             const strokeColor = styleForFeature

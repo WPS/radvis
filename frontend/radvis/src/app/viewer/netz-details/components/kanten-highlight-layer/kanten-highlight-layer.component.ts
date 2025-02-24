@@ -41,6 +41,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-kanten-highlight-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
   public static LAYER_ID = `${RADVIS_NETZ_LAYER_PREFIX}_KantenDetailHighlightLayer`;

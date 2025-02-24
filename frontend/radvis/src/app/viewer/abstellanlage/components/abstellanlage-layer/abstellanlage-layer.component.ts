@@ -29,6 +29,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   selector: 'rad-abstellanlage-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AbstellanlageLayerComponent
   extends AbstractInfrastrukturLayerComponent<Abstellanlage>
@@ -66,7 +67,6 @@ export class AbstellanlageLayerComponent
   }
 
   protected extractIdFromFeature(hf: RadVisFeature): number {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return hf.id!;
   }
 }

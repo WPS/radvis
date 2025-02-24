@@ -14,7 +14,23 @@
 
 package de.wps.radvis.backend.netz.domain.valueObject;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum WegeNiveau {
-	GEHWEG,
-	FAHRBAHN
+	GEHWEG("Gehweg"),
+	FAHRBAHN("Fahrbahn"),
+	HOEHER_ALS_GEHWEG("Höher als Gehwegniveau (z.B. \"Dammradweg\")"),
+	UNTERHALB_FAHRBAHN("Unterhalb des Fahrbahnniveaus"),
+	;
+
+	@NonNull
+	private final String displayText;
+
+	@Override
+	public String toString() {
+		return this.displayText;
+	}
 }

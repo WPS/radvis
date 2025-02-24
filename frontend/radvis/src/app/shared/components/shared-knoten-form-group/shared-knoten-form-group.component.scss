@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+label {
+  color: var(--mdc-filled-text-field-label-text-color);
+  font-family: var(--mdc-filled-text-field-label-text-font);
+  font-size: var(--mdc-filled-text-field-label-text-size);
+  font-weight: var(--mdc-filled-text-field-label-text-weight);
+  letter-spacing: var(--mdc-filled-text-field-label-text-tracking);
+  margin-left: 16px;
+
+  &.disabled {
+    color: var(--mdc-filled-text-field-disabled-label-text-color);
+  }
+}

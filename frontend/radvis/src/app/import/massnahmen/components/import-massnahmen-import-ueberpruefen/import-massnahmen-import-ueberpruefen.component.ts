@@ -62,6 +62,7 @@ export interface MassnahmenImportUeberpruefenRow {
     },
     MassnahmenImportZuordnungenService,
   ],
+  standalone: false,
 })
 export class ImportMassnahmenImportUeberpruefenComponent
   implements NetzbezugAuswahlModusService, OnInit, OnDestroy, DiscardableComponent
@@ -82,7 +83,7 @@ export class ImportMassnahmenImportUeberpruefenComponent
   public netzbezugSelektionAktiv = false;
   public netzbezugSelektionLayerName = 'massnahmenImportNetzbezugSelektionLayer';
   public originalGeometrie: Geojson | null = null;
-  public executing: boolean = false;
+  public executing = false;
 
   constructor(
     private massnahmenImportService: MassnahmenImportService,
@@ -359,7 +360,7 @@ export class ImportMassnahmenImportUeberpruefenComponent
         )
         .subscribe({
           next: session => {
-            this.session = session as MassnahmenImportSessionView;
+            this.session = session!;
             if (this.schrittAbgeschlossen) {
               this.navigateToNextStep();
             }

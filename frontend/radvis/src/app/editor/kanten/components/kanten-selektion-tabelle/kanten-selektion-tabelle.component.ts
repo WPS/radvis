@@ -31,6 +31,7 @@ import { KantenSeite } from 'src/app/shared/models/kantenSeite';
   providers: [
     { provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: { clickAction: 'noop' } as MatCheckboxDefaultOptions },
   ],
+  standalone: false,
 })
 export class KantenSelektionTabelleComponent implements OnDestroy, OnInit {
   @Input()
@@ -69,9 +70,7 @@ export class KantenSelektionTabelleComponent implements OnDestroy, OnInit {
   }
 
   onSelect(kanteId: number, kantenSeite?: KantenSeite): void {
-    const clickedKantenSelektion = this.selektion.find(
-      kantenSelektion => kantenSelektion.kante.id === kanteId
-    ) as KantenSelektion;
+    const clickedKantenSelektion = this.selektion.find(kantenSelektion => kantenSelektion.kante.id === kanteId)!;
     if (kantenSeite) {
       if (clickedKantenSelektion.istSeiteSelektiert(kantenSeite)) {
         this.kantenSelektionService.deselect(kanteId, kantenSeite);

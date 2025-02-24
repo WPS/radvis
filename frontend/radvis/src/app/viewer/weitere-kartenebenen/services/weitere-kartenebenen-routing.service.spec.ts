@@ -110,6 +110,7 @@ describe(WeitereKartenebenenRoutingService.name, () => {
         zoomstufe: 8,
         quellangabe: 'Testquelle',
         zindex: 1,
+        defaultLayer: false,
       },
     ]);
     // Now we can initialize navigation.

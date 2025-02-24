@@ -33,6 +33,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './ol-popup.component.html',
   styleUrls: ['./ol-popup.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class OlPopupComponent implements OnDestroy, OnChanges {
   @Input()

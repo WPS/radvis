@@ -24,6 +24,7 @@ import { LayerId } from 'src/app/shared/models/layers/rad-vis-layer';
   templateUrl: './hintergrund-auswahl.component.html',
   styleUrls: ['./hintergrund-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HintergrundAuswahlComponent {
   @ViewChildren(MatRadioButton) radioButtons: QueryList<MatRadioButton> | null = null;

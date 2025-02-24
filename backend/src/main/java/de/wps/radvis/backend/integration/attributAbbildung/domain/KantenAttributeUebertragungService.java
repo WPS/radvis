@@ -425,6 +425,47 @@ public class KantenAttributeUebertragungService {
 					null),
 			value -> fuehrungsformLinks.breite(value));
 
+		uebertrage(
+			vonKanten,
+			k -> k.getFuehrungsformAttributeAnKnoten(
+				knoten, k.getNachKnoten().equals(knoten) ? KantenSeite.RECHTS : KantenSeite.LINKS).getAbsenkung(),
+			value -> fuehrungsformRechts.absenkung(value));
+		uebertrage(
+			vonKanten,
+			k -> k.getFuehrungsformAttributeAnKnoten(
+				knoten, k.getNachKnoten().equals(knoten) ? KantenSeite.LINKS : KantenSeite.RECHTS).getAbsenkung(),
+			value -> fuehrungsformLinks.absenkung(value));
+
+		uebertrage(
+			vonKanten,
+			k -> k.getFuehrungsformAttributeAnKnoten(
+				knoten, k.getNachKnoten().equals(knoten) ? KantenSeite.RECHTS : KantenSeite.LINKS).getSchaeden(),
+			value -> fuehrungsformRechts.schaeden(value));
+		uebertrage(
+			vonKanten,
+			k -> k.getFuehrungsformAttributeAnKnoten(
+				knoten, k.getNachKnoten().equals(knoten) ? KantenSeite.LINKS : KantenSeite.RECHTS).getSchaeden(),
+			value -> fuehrungsformLinks.schaeden(value));
+
+		uebertrage(
+			vonKanten,
+			k -> k.getFuehrungsformAttributeAnKnoten(
+				knoten, k.getNachKnoten().equals(knoten) ? KantenSeite.RECHTS : KantenSeite.LINKS).getBeschilderung(),
+			value -> {
+				if (value.isValidForRadverkehrsfuehrung(radverkehrsfuehrungRechts.get())) {
+					fuehrungsformRechts.beschilderung(value);
+				}
+			});
+		uebertrage(
+			vonKanten,
+			k -> k.getFuehrungsformAttributeAnKnoten(
+				knoten, k.getNachKnoten().equals(knoten) ? KantenSeite.LINKS : KantenSeite.RECHTS).getBeschilderung(),
+			value -> {
+				if (value.isValidForRadverkehrsfuehrung(radverkehrsfuehrungRechts.get())) {
+					fuehrungsformLinks.beschilderung(value);
+				}
+			});
+
 		// Übertrage STS Informationen nur, wenn sie zusammen mit der Radverkehrsführung gültig sind. Daher diese
 		// Attribute erst einmal sammeln, dann prüfen und erst dann in den Builder schreiben.
 		AtomicReference<TrennstreifenForm> stsForm = new AtomicReference<>();

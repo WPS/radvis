@@ -22,6 +22,7 @@ import { WMSLegende } from 'src/app/shared/models/wms-legende';
   templateUrl: './legende.component.html',
   styleUrls: ['./legende.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LegendeComponent implements OnChanges {
   @Input()

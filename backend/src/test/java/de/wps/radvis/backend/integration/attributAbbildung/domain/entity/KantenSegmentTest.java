@@ -17,6 +17,7 @@ package de.wps.radvis.backend.integration.attributAbbildung.domain.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -45,8 +46,10 @@ import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KantenAttributeTestDataProvider;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
@@ -99,13 +102,15 @@ class KantenSegmentTest {
 				KfzParkenForm.PARKBUCHTEN,
 				Laenge.of(2),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			),
+				TrennstreifenForm.UNBEKANNT),
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.1, 0.4),
 				BelagArt.SONSTIGER_BELAG,
 				Oberflaechenbeschaffenheit.UNBEKANNT,
@@ -115,13 +120,15 @@ class KantenSegmentTest {
 				KfzParkenForm.PARKBUCHTEN,
 				Laenge.of(2),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			),
+				TrennstreifenForm.UNBEKANNT),
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.4, 0.7),
 				BelagArt.UNGEBUNDENE_DECKE,
 				Oberflaechenbeschaffenheit.UNBEKANNT,
@@ -131,13 +138,15 @@ class KantenSegmentTest {
 				KfzParkenForm.PARKBUCHTEN,
 				Laenge.of(2),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			),
+				TrennstreifenForm.UNBEKANNT),
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.7, 1),
 				BelagArt.BETONSTEINPFLASTER_PLATTENBELAG,
 				Oberflaechenbeschaffenheit.UNBEKANNT,
@@ -147,13 +156,15 @@ class KantenSegmentTest {
 				KfzParkenForm.PARKBUCHTEN,
 				Laenge.of(2),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			));
+				TrennstreifenForm.UNBEKANNT));
 
 		List<ZustaendigkeitAttribute> zustaendigkeitAttribute = List
 			.of(new ZustaendigkeitAttribute(
@@ -215,14 +226,14 @@ class KantenSegmentTest {
 		assertThat(geschwindigkeitAttributeNormalisiertAufSegment)
 			.usingElementComparator((lr1, lr2) -> lr1.sindAttributeGleich(lr2) ? 0 : 1)
 			.containsExactlyInAnyOrderElementsOf(
-				//Müssen wir hier neu erstellen, da umgedreht wird und somit die Höchstgeschwindigkeiten vertauscht sind
+				// Müssen wir hier neu erstellen, da umgedreht wird und somit die Höchstgeschwindigkeiten vertauscht
+				// sind
 				List.of(GeschwindigkeitAttribute.builder()
 					.ortslage(KantenOrtslage.INNERORTS)
 					.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_50_KMH)
 					.abweichendeHoechstgeschwindigkeitGegenStationierungsrichtung(
 						Hoechstgeschwindigkeit.KFZ_NICHT_ZUGELASSEN)
-					.build())
-			);
+					.build()));
 
 		Set<Netzklasse> netzklassen = kantenSegment
 			.getNetzklassen();
@@ -253,47 +264,55 @@ class KantenSegmentTest {
 				Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER,
 				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
 				KfzParkenTyp.UNBEKANNT, KfzParkenForm.PARKBUCHTEN, Laenge.of(2), Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			),
+				TrennstreifenForm.UNBEKANNT),
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.1, 0.4), BelagArt.SONSTIGER_BELAG,
 				Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER,
 				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
 				KfzParkenTyp.UNBEKANNT, KfzParkenForm.PARKBUCHTEN, Laenge.of(2), Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			),
+				TrennstreifenForm.UNBEKANNT),
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.4, 0.7), BelagArt.UNGEBUNDENE_DECKE,
 				Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER,
 				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
 				KfzParkenTyp.UNBEKANNT, KfzParkenForm.PARKBUCHTEN, Laenge.of(2), Benutzungspflicht.NICHT_VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			),
+				TrennstreifenForm.UNBEKANNT),
 			new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.7, 1),
 				BelagArt.BETONSTEINPFLASTER_PLATTENBELAG,
 				Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER,
 				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
 				KfzParkenTyp.UNBEKANNT, KfzParkenForm.PARKBUCHTEN, Laenge.of(2), Benutzungspflicht.NICHT_VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			));
+				TrennstreifenForm.UNBEKANNT));
 
 		List<ZustaendigkeitAttribute> zustaendigkeitAttribute = List
 			.of(new ZustaendigkeitAttribute(LinearReferenzierterAbschnitt.of(0, 1), null,

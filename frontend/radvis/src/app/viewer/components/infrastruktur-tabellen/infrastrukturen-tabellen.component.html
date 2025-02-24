@@ -41,7 +41,7 @@
           *ngIf="!asDialog"
           [matTooltip]="minimized ? 'Maximieren' : 'Minimieren'"
           [attr.aria-label]="minimized ? 'Maximieren' : 'Minimieren'"
-          (toggle)="onToggleMinimization()"
+          (toggleExpansion)="onToggleMinimization()"
           [expanded]="minimized">
         </rad-collapse-down-button>
         <button *ngIf="!asDialog" matTooltip="Als Vollbild öffnen" (click)="onFullScreen()" mat-icon-button>

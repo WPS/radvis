@@ -87,9 +87,7 @@ export const geojsonGeometryToFeature = (geojson: Geojson): Feature | null => {
     return new Feature(new Point(geojson.coordinates));
   }
   if (isGeometryCollection(geojson)) {
-    const geometries = (geojson as GeometryCollectionGeojson).geometries
-      .map(g => geojsonGeometryToFeature(g)?.getGeometry())
-      .filter(g => !!g) as Geometry[];
+    const geometries = geojson.geometries.map(g => geojsonGeometryToFeature(g)?.getGeometry()).filter(g => !!g);
     return new Feature(new GeometryCollection(geometries));
   }
   return null;

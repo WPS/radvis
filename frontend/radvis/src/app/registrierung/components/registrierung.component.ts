@@ -28,6 +28,7 @@ import { ManualRoutingService } from 'src/app/shared/services/manual-routing.ser
   templateUrl: './registrierung.component.html',
   styleUrls: ['./registrierung.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RegistrierungComponent {
   registrierungForm: UntypedFormGroup;

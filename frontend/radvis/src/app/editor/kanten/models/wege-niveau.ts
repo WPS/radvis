@@ -17,6 +17,8 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
 export enum WegeNiveau {
   GEHWEG = 'GEHWEG',
   FAHRBAHN = 'FAHRBAHN',
+  HOEHER_ALS_GEHWEG = 'HOEHER_ALS_GEHWEG',
+  UNTERHALB_FAHRBAHN = 'UNTERHALB_FAHRBAHN',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -27,6 +29,10 @@ export namespace WegeNiveau {
         return { name: k, displayText: 'Fahrbahn' };
       case WegeNiveau.GEHWEG:
         return { name: k, displayText: 'Gehweg' };
+      case WegeNiveau.HOEHER_ALS_GEHWEG:
+        return { name: k, displayText: 'Höher als Gehwegniveau (z.B. "Dammradweg")' };
+      case WegeNiveau.UNTERHALB_FAHRBAHN:
+        return { name: k, displayText: 'Unterhalb des Fahrbahnniveaus' };
     }
     throw new Error('Beschreibung für enum WegeNiveau fehlt: ' + k);
   });

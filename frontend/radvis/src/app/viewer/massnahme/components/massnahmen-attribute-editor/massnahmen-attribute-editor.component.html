@@ -44,8 +44,9 @@
       <div class="label">Bezeichnung</div>
     </rad-text-input-control>
 
-    <rad-massnahmenkategorien-dropdown-control formControlName="massnahmenkategorien">
-      Kategorien
+    <rad-massnahmenkategorien-dropdown-control
+      formControlName="massnahmenkategorien"
+      [massnahmeKategorienOptions]="massnahmeKategorienOptions">
     </rad-massnahmenkategorien-dropdown-control>
     <rad-validation-error-anzeige
       [errors]="formGroup.get('massnahmenkategorien')?.errors || null"></rad-validation-error-anzeige>

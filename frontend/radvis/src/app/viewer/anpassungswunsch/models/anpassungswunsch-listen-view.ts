@@ -24,4 +24,6 @@ export interface AnpassungswunschListenView {
   geometrie: PointGeojson;
   kategorie: AnpassungswunschKategorie;
   verantwortlicheOrganisation: Verwaltungseinheit | null;
+  erstelltAm: string;
+  zuletztGeaendertAm: string;
 }

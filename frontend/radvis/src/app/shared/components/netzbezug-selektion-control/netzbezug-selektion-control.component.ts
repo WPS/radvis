@@ -50,6 +50,7 @@ enum SelektionsModus {
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class NetzbezugSelektionControlComponent
   extends AbstractFormControl<Netzbezug>

@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input, OnChanges } from '@angular/core';
-import { UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, UntypedFormControl } from '@angular/forms';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
@@ -29,6 +29,7 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class AutocompleteEnumDropdownControlComponent extends AbstractFormControl<string> implements OnChanges {
   @Input()

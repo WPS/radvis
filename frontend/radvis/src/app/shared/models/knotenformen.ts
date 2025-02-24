@@ -26,14 +26,22 @@ export const KNOTENFORMEN: GroupedEnumOptions = {
         name: 'UNTERFUEHRUNG_TUNNEL',
         displayText: 'Unterführung/Tunnel',
       },
+      {
+        name: 'KFZ_BAUWERK',
+        displayText: 'Kfz-Bauwerk (Über-/Unterführung)',
+      },
     ],
   },
   KNOTEN_MIT_KREISVERKEHR: {
     displayText: 'Knoten mit Kreisverkehr',
     options: [
       {
-        name: 'MINIKREISVERKEHR_24_M',
-        displayText: 'Minikreisverkehr (< 24 m)',
+        name: 'MINIKREISVERKEHR_NICHT_UEBERFAHRBAR',
+        displayText: 'Minikreisverkehr: Kreisverkehrsinsel für Kfz nicht überfahrbar',
+      },
+      {
+        name: 'MINIKREISVERKEHR_UEBERFAHRBAR',
+        displayText: 'Minikreisverkehr: Kreisverkehrsinsel für Kfz überfahrbar',
       },
       {
         name: 'KOMPAKTKREISVERKEHR_FUEHRUNG_NUR_UEBER_KREISFAHRBAHN',
@@ -95,8 +103,12 @@ export const KNOTENFORMEN: GroupedEnumOptions = {
     displayText: 'Querung einer übergeordneten Straße',
     options: [
       {
-        name: 'MITTELINSEL',
-        displayText: 'Mittelinsel',
+        name: 'MITTELINSEL_EINFACH',
+        displayText: 'Mittelinsel (einfache Querungshilfe)',
+      },
+      {
+        name: 'MITTELINSEL_GETEILT',
+        displayText: 'Mittelinsel (geteilte Querungshilfe)',
       },
       {
         name: 'FAHRBAHNEINENGUNG',
@@ -110,6 +122,14 @@ export const KNOTENFORMEN: GroupedEnumOptions = {
         name: 'FUSSGAENGERUEBERWEG',
         displayText: 'Fußgängerüberweg',
       },
+      {
+        name: 'FUSSGAENGERUEBERWEG_RADNETZ_OHNE_FURT',
+        displayText: 'Fußgängerüberweg (im Zuge des Radnetzes) ohne Furt',
+      },
+      {
+        name: 'FUSSGAENGERUEBERWEG_RADNETZ_FURT',
+        displayText: 'Fußgängerüberweg (im Zuge des Radnetzes) mit Furt',
+      },
     ],
   },
   KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN: {
@@ -120,12 +140,28 @@ export const KNOTENFORMEN: GroupedEnumOptions = {
         displayText: 'rechts-vor-links Regelung',
       },
       {
-        name: 'ABKNICKENDE_VORFAHRT',
-        displayText: 'Abknickende Vorfahrt',
+        name: 'ABKNICKENDE_VORFAHRT_OHNE_LSA',
+        displayText: 'Abknickende Vorfahrt ohne LSA',
       },
       {
-        name: 'NICHT_ABKNICKENDE_VORFAHRT',
-        displayText: 'Nicht-abknickende Vorfahrt',
+        name: 'NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA',
+        displayText: 'Nicht-abknickende Vorfahrt ohne LSA',
+      },
+      {
+        name: 'ABKNICKENDE_VORFAHRT_LSA',
+        displayText: 'Abknickende Vorfahrt mit LSA',
+      },
+      {
+        name: 'NICHT_ABKNICKENDE_VORFAHRT_LSA',
+        displayText: 'Nicht-abknickende Vorfahrt mit LSA',
+      },
+      {
+        name: 'ABKNICKENDE_VORFAHRT_ZUFAHRT',
+        displayText: 'Abknickende Vorfahrt mit Fußg.-/Radfahrer-LSA in einer Zufahrt',
+      },
+      {
+        name: 'NICHT_ABKNICKENDE_VORFAHRT_ZUFAHRT',
+        displayText: 'Nicht-abknickende Vorfahrt mit Fußg.-/Radfahrer-LSA in einer Zufahrt',
       },
     ],
   },
@@ -135,6 +171,14 @@ export const KNOTENFORMEN: GroupedEnumOptions = {
       {
         name: 'SONSTIGER_KNOTEN',
         displayText: 'Sonstiger Knoten',
+      },
+      {
+        name: 'FEHLENDE_FURT',
+        displayText: 'Fehlende / verblasste Furt',
+      },
+      {
+        name: 'GLEISQUERUNG',
+        displayText: 'Gleisquerung',
       },
     ],
   },

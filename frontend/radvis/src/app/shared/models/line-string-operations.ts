@@ -62,7 +62,7 @@ export class LineStringOperations {
       const startFraction = segmentierung[i];
       const endFraction = segmentierung[i + 1];
       const pointsBetween: Coordinate[] = [];
-      // eslint-disable-next-line @typescript-eslint/prefer-for-of
+
       for (let j = 0; j < lineStringFractions.length; j++) {
         if (lineStringFractions[j] >= startFraction && lineStringFractions[j] <= endFraction) {
           pointsBetween.push(geometry.getCoordinates()[j]);

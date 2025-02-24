@@ -12,8 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-options';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
+import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-options';
 
 export enum Radverkehrsfuehrung {
   // Selbstständig
@@ -37,15 +37,21 @@ export enum Radverkehrsfuehrung {
   BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND = 'BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND',
 
   // FAHRBAHNFUEHRUNG
-  PIKTOGRAMMKETTE = 'PIKTOGRAMMKETTE',
+  PIKTOGRAMMKETTE_BEIDSEITIG = 'PIKTOGRAMMKETTE_BEIDSEITIG',
+  PIKTOGRAMMKETTE_EINSEITIG = 'PIKTOGRAMMKETTE_EINSEITIG',
   SCHUTZSTREIFEN = 'SCHUTZSTREIFEN',
+  SCHUTZSTREIFEN_IN_TEMPOZONE = 'SCHUTZSTREIFEN_IN_TEMPOZONE',
+  SCHUTZSTREIFEN_MIT_GEHWEG = 'SCHUTZSTREIFEN_MIT_GEHWEG',
+  SCHUTZSTREIFEN_MIT_GEHWEG_IN_TEMPOZONE = 'SCHUTZSTREIFEN_MIT_GEHWEG_IN_TEMPOZONE',
   RADFAHRSTREIFEN = 'RADFAHRSTREIFEN',
   RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR = 'RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR',
   BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR = 'BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR',
-  MEHRZWECKSTREIFEN = 'MEHRZWECKSTREIFEN',
+  MEHRZWECKSTREIFEN_BEIDSEITIG = 'MEHRZWECKSTREIFEN_BEIDSEITIG',
+  MEHRZWECKSTREIFEN_EINSEITIG = 'MEHRZWECKSTREIFEN_EINSEITIG',
   FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN = 'FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN',
   FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN = 'FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN',
   FUEHRUNG_IN_T30_ZONE = 'FUEHRUNG_IN_T30_ZONE',
+  FUEHRUNG_IN_T30_ZONE_VORFAHRTSGEREGELT = 'FUEHRUNG_IN_T30_ZONE_VORFAHRTSGEREGELT',
   FUEHRUNG_IN_T20_ZONE = 'FUEHRUNG_IN_T20_ZONE',
   FUEHRUNG_IN_VERKEHRSBERUHIGTER_BEREICH = 'FUEHRUNG_IN_VERKEHRSBERUHIGTER_BEREICH',
   FUEHRUNG_IN_FUSSG_ZONE_RAD_FREI = 'FUEHRUNG_IN_FUSSG_ZONE_RAD_FREI',
@@ -57,6 +63,8 @@ export enum Radverkehrsfuehrung {
   EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_ALS_30 = 'EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_ALS_30',
   EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_WENIGER_30 = 'EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_WENIGER_30',
   EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30 = 'EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30',
+
+  GEMEINDEVERBINDUNGSSTRASSE = 'GEMEINDEVERBINDUNGSSTRASSE',
   SONSTIGE_STRASSE_WEG = 'SONSTIGE_STRASSE_WEG',
 
   // Unbekannt
@@ -99,8 +107,10 @@ export namespace Radverkehrsfuehrung {
         return { name: k, displayText: 'Gem. Rad-/Gehweg mit Gehweg (Rad frei in Gegenrichtung) (straßenbegleitend)' };
       case Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND:
         return { name: k, displayText: 'Betriebsweg Landwirtschaft (straßenbegleitend)' };
-      case Radverkehrsfuehrung.PIKTOGRAMMKETTE:
-        return { name: k, displayText: 'Piktogrammkette' };
+      case Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG:
+        return { name: k, displayText: 'Piktogrammkette (beidseitig)' };
+      case Radverkehrsfuehrung.PIKTOGRAMMKETTE_EINSEITIG:
+        return { name: k, displayText: 'Piktogrammkette (einseitig)' };
       case Radverkehrsfuehrung.SCHUTZSTREIFEN:
         return { name: k, displayText: 'Schutzstreifen' };
       case Radverkehrsfuehrung.RADFAHRSTREIFEN:
@@ -109,8 +119,10 @@ export namespace Radverkehrsfuehrung {
         return { name: k, displayText: 'Radfahrstreifen (mit Freigabe Busverkehr)' };
       case Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR:
         return { name: k, displayText: 'Busfahrstreifen (mit Freigabe Radverkehr)' };
-      case Radverkehrsfuehrung.MEHRZWECKSTREIFEN:
-        return { name: k, displayText: 'Mehrzweckstreifen' };
+      case Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG:
+        return { name: k, displayText: 'Mehrzweckstreifen (beidseitig)' };
+      case Radverkehrsfuehrung.MEHRZWECKSTREIFEN_EINSEITIG:
+        return { name: k, displayText: 'Mehrzweckstreifen (einseitig)' };
       case Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN:
         return { name: k, displayText: 'Führung auf Fahrbahn (30 - 100 km/h) zweistreifige Fahrbahn' };
       case Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN:
@@ -143,8 +155,17 @@ export namespace Radverkehrsfuehrung {
         return { name: k, displayText: 'Sonstige Straße / Weg' };
       case Radverkehrsfuehrung.UNBEKANNT:
         return { name: k, displayText: 'Unbekannt' };
+      case Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE_VORFAHRTSGEREGELT:
+        return { name: k, displayText: 'Führung in T30-Zone (vorfahrtsgeregelt)' };
+      case Radverkehrsfuehrung.GEMEINDEVERBINDUNGSSTRASSE:
+        return { name: k, displayText: 'Gemeindeverbindungsstraße' };
+      case Radverkehrsfuehrung.SCHUTZSTREIFEN_IN_TEMPOZONE:
+        return { name: k, displayText: 'Schutzstreifen in Tempozone' };
+      case Radverkehrsfuehrung.SCHUTZSTREIFEN_MIT_GEHWEG:
+        return { name: k, displayText: 'Schutzstreifen mit Gehweg (Rad frei)' };
+      case Radverkehrsfuehrung.SCHUTZSTREIFEN_MIT_GEHWEG_IN_TEMPOZONE:
+        return { name: k, displayText: 'Schutzstreifen mit Gehweg (Rad frei) in Tempozone' };
     }
-    throw new Error('Beschreibung für enum Benutzungspflicht fehlt: ' + k);
   };
 
   export const allSelbststaendig: Radverkehrsfuehrung[] = [
@@ -170,12 +191,14 @@ export namespace Radverkehrsfuehrung {
   ];
 
   export const allFahrbahnbegleitend: Radverkehrsfuehrung[] = [
-    Radverkehrsfuehrung.PIKTOGRAMMKETTE,
+    Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG,
+    Radverkehrsfuehrung.PIKTOGRAMMKETTE_EINSEITIG,
     Radverkehrsfuehrung.SCHUTZSTREIFEN,
     Radverkehrsfuehrung.RADFAHRSTREIFEN,
     Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
     Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-    Radverkehrsfuehrung.MEHRZWECKSTREIFEN,
+    Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG,
+    Radverkehrsfuehrung.MEHRZWECKSTREIFEN_EINSEITIG,
     Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN,
     Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN,
     Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE,
@@ -191,6 +214,11 @@ export namespace Radverkehrsfuehrung {
     Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
     Radverkehrsfuehrung.EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
     Radverkehrsfuehrung.SONSTIGE_STRASSE_WEG,
+    Radverkehrsfuehrung.GEMEINDEVERBINDUNGSSTRASSE,
+    Radverkehrsfuehrung.SCHUTZSTREIFEN_IN_TEMPOZONE,
+    Radverkehrsfuehrung.SCHUTZSTREIFEN_MIT_GEHWEG,
+    Radverkehrsfuehrung.SCHUTZSTREIFEN_MIT_GEHWEG_IN_TEMPOZONE,
+    Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE_VORFAHRTSGEREGELT,
   ];
 
   export const all: Radverkehrsfuehrung[] = [

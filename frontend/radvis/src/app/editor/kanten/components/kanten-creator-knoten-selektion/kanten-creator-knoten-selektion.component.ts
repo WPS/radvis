@@ -39,6 +39,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './kanten-creator-knoten-selektion.component.html',
   styleUrls: ['./kanten-creator-knoten-selektion.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
   @Output()

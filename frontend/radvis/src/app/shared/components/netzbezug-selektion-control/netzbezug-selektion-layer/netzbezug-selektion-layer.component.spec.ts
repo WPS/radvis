@@ -12,8 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MockBuilder } from 'ng-mocks';
@@ -153,12 +151,8 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
         netzbezug: new SimpleChange(initialNetzbezug, neuerNetzbezug, false),
       } as unknown as SimpleChanges);
 
-      expect((component['kantenNetzLayer'] as KantenNetzVectorlayer)['ausgeblendeteKantenIds']).toEqual(
-        new Set([42, 55])
-      );
-      expect((component['knotenNetzLayer'] as KnotenNetzVectorLayer)['highlightedKnotenIDs']).toEqual(
-        new Set([20, 40])
-      );
+      expect(component['kantenNetzLayer']!['ausgeblendeteKantenIds']).toEqual(new Set([42, 55]));
+      expect(component['knotenNetzLayer']!['highlightedKnotenIDs']).toEqual(new Set([20, 40]));
       expect(component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures().length).toEqual(1);
       const feature = component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures()[0];
       expect(feature?.get(PunktuellerKantenBezuegeVectorLayer.KANTE_ID_PROPERTY_KEY)).toEqual(

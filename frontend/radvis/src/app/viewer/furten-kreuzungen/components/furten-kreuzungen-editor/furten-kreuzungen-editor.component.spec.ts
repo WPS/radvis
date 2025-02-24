@@ -18,18 +18,24 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
+import { Bauwerksmangel } from 'src/app/shared/models/bauwerksmangel';
+import { BauwerksmangelArt } from 'src/app/shared/models/bauwerksmangel-art';
 import { KNOTENFORMEN } from 'src/app/shared/models/knotenformen';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
+import { QuerungshilfeDetails } from 'src/app/shared/models/querungshilfe-details';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { FurtenKreuzungenModule } from 'src/app/viewer/furten-kreuzungen/furten-kreuzungen.module';
-import { FurtKreuzung } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung';
+import {
+  defaultFurtKreuzung,
+  defaultMusterloesungOption,
+} from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung-test-data-provider.spec';
 import { FurtKreuzungTyp } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung-typ';
 import { GruenAnforderung } from 'src/app/viewer/furten-kreuzungen/models/gruen-anforderung';
 import { Linksabbieger } from 'src/app/viewer/furten-kreuzungen/models/linksabbieger';
 import { Rechtsabbieger } from 'src/app/viewer/furten-kreuzungen/models/rechtsabbieger';
 import { SaveFurtKreuzungCommand } from 'src/app/viewer/furten-kreuzungen/models/save-furt-kreuzung-command';
 import { FurtenKreuzungenService } from 'src/app/viewer/furten-kreuzungen/services/furten-kreuzungen.service';
-import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { FurtenKreuzungenEditorComponent } from './furten-kreuzungen-editor.component';
 
@@ -38,12 +44,11 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
   let fixture: MockedComponentFixture<FurtenKreuzungenEditorComponent>;
   let data$: BehaviorSubject<Data>;
   let furtKreuzungService: FurtenKreuzungenService;
-  const musterloesungOption = { name: 'TEST', displayText: 'Testmusterlösung' };
 
   beforeEach(() => {
     data$ = new BehaviorSubject<Data>({ isCreator: true });
     furtKreuzungService = mock(FurtenKreuzungenService);
-    when(furtKreuzungService.getAllMusterloesungen()).thenResolve([musterloesungOption]);
+    when(furtKreuzungService.getAllMusterloesungen()).thenResolve([defaultMusterloesungOption]);
 
     return MockBuilder(FurtenKreuzungenEditorComponent, FurtenKreuzungenModule)
       .replace(RouterModule, RouterTestingModule)
@@ -82,11 +87,11 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
     });
 
     it('should disable if radNetzKonform change', () => {
-      component.formGroup.get('radnetzKonform')?.setValue(true);
-      expect(component.formGroup.get('furtKreuzungMusterloesung')?.disabled).toBeFalse();
+      component.formGroup.controls.radnetzKonform.setValue(true);
+      expect(component.formGroup.controls.furtKreuzungMusterloesung.disabled).toBeFalse();
 
-      component.formGroup.get('radnetzKonform')?.setValue(false);
-      expect(component.formGroup.get('furtKreuzungMusterloesung')?.disabled).toBeTrue();
+      component.formGroup.controls.radnetzKonform.setValue(false);
+      expect(component.formGroup.controls.furtKreuzungMusterloesung.disabled).toBeTrue();
     });
 
     it('should be null in command if disabled', fakeAsync(() => {
@@ -95,25 +100,29 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
         netzbezug: defaultNetzbezug,
         kommentar: 'test Kommentar',
         radnetzKonform: true,
-        knotenForm: 'Überführung',
+        shared: {
+          knotenForm: 'UEBERFUEHRUNG',
+        },
         typ: FurtKreuzungTyp.FURT,
       });
-      component.formGroup.get('radnetzKonform')?.setValue(false);
+      component.formGroup.controls.radnetzKonform.setValue(false);
       component.formGroup.markAsDirty();
+      spyOnProperty(component.formGroup, 'valid').and.returnValue(true);
       when(furtKreuzungService.createFurtKreuzung(anything())).thenResolve(1);
 
       component.onSave();
       tick();
 
+      verify(furtKreuzungService.createFurtKreuzung(anything())).once();
       expect(capture(furtKreuzungService.createFurtKreuzung).last()[0].furtKreuzungMusterloesung).toBeNull();
     }));
 
     it('should be reset if radNetzKonform change to false', () => {
-      component.formGroup.get('radnetzKonform')?.setValue(true);
-      component.formGroup.get('furtKreuzungMusterloesung')?.setValue(musterloesungOption.name);
+      component.formGroup.controls.radnetzKonform.setValue(true);
+      component.formGroup.controls.furtKreuzungMusterloesung.setValue(defaultMusterloesungOption.name);
 
-      component.formGroup.get('radnetzKonform')?.setValue(false);
-      expect(component.formGroup.get('furtKreuzungMusterloesung')?.value).toBeFalsy();
+      component.formGroup.controls.radnetzKonform.setValue(false);
+      expect(component.formGroup.controls.furtKreuzungMusterloesung.value).toBeFalsy();
     });
   });
 
@@ -123,17 +132,17 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
     });
 
     it('disable & hide LSA-Eigenschaften initially', () => {
-      expect(component.formGroup.get('lichtsignalAnlageEigenschaften')?.disabled).toBeTrue();
+      expect(component.formGroup.controls.lichtsignalAnlageEigenschaften.disabled).toBeTrue();
       expect(component.isLSAKnotenForm).toBeFalse();
     });
 
     it('disable & hide LSA-Eigenschaften if KnotenForm is not LSA', () => {
-      component.formGroup.get('knotenForm')?.setValue(KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name);
-      expect(component.formGroup.get('lichtsignalAnlageEigenschaften')?.disabled).toBeFalse();
+      component.formGroup.controls.shared.controls.knotenForm.setValue(KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name);
+      expect(component.formGroup.controls.lichtsignalAnlageEigenschaften.disabled).toBeFalse();
       expect(component.isLSAKnotenForm).toBeTrue();
 
-      component.formGroup.get('knotenForm')?.setValue(KNOTENFORMEN.BAUWERK.options[0].name);
-      expect(component.formGroup.get('lichtsignalAnlageEigenschaften')?.disabled).toBeTrue();
+      component.formGroup.controls.shared.controls.knotenForm.setValue(KNOTENFORMEN.BAUWERK.options[0].name);
+      expect(component.formGroup.controls.lichtsignalAnlageEigenschaften.disabled).toBeTrue();
       expect(component.isLSAKnotenForm).toBeFalse();
     });
 
@@ -143,7 +152,9 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
         netzbezug: defaultNetzbezug,
         kommentar: 'test Kommentar',
         radnetzKonform: true,
-        knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+        shared: {
+          knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+        },
         typ: FurtKreuzungTyp.FURT,
         lichtsignalAnlageEigenschaften: {
           linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
@@ -157,19 +168,20 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           umlaufzeit: null,
         },
       });
-      component.formGroup.get('knotenForm')?.setValue(KNOTENFORMEN.BAUWERK.options[0].name);
+      component.formGroup.controls.shared.controls.knotenForm.setValue(KNOTENFORMEN.BAUWERK.options[2].name);
       component.formGroup.markAsDirty();
       when(furtKreuzungService.createFurtKreuzung(anything())).thenResolve(1);
 
       component.onSave();
       tick();
 
+      verify(furtKreuzungService.createFurtKreuzung(anything())).once();
       expect(capture(furtKreuzungService.createFurtKreuzung).last()[0].lichtsignalAnlageEigenschaften).toBeNull();
     }));
 
     it('should reset LSA-Eigenschaften if knotenForm changes to non-LSA', () => {
-      component.formGroup.get('knotenForm')?.setValue(KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name);
-      component.formGroup.get('lichtsignalAnlageEigenschaften')?.setValue({
+      component.formGroup.controls.shared.controls.knotenForm.setValue(KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name);
+      component.formGroup.controls.lichtsignalAnlageEigenschaften.setValue({
         linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
         rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
         gruenAnforderung: GruenAnforderung.AUTOMATISCH,
@@ -181,17 +193,17 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
         umlaufzeit: null,
       });
 
-      component.formGroup.get('knotenForm')?.setValue(KNOTENFORMEN.BAUWERK.options[0].name);
+      component.formGroup.controls.shared.controls.knotenForm.setValue(KNOTENFORMEN.BAUWERK.options[0].name);
       expect(component.formGroup.value.lichtsignalAnlageEigenschaften).toBeUndefined();
-      expect(component.formGroup.get('lichtsignalAnlageEigenschaften')?.value).toEqual({
+      expect(component.formGroup.controls.lichtsignalAnlageEigenschaften.value).toEqual({
         linksabbieger: null,
         rechtsabbieger: null,
         gruenAnforderung: null,
-        radAufstellflaeche: null,
-        getrenntePhasen: null,
-        fahrradSignal: null,
-        gruenVorlauf: null,
-        vorgezogeneHalteLinie: null,
+        radAufstellflaeche: false,
+        getrenntePhasen: false,
+        fahrradSignal: false,
+        gruenVorlauf: false,
+        vorgezogeneHalteLinie: false,
         umlaufzeit: null,
       });
     });
@@ -206,18 +218,26 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
       data$.next({ isCreator: true });
     });
 
-    describe('fillForm', () => {
-      it('should reset', () => {
-        expect(component.formGroup.dirty).toBeFalse();
-        expect(component.formGroup.value).toEqual({
-          netzbezug: null,
-          verantwortlicheOrganisation: null,
-          kommentar: null,
+    it('should set isCreator correct from Route', () => {
+      data$.next({ isCreator: true });
+      expect(component.isCreator).toBeTrue();
+    });
+
+    it('should fill form', () => {
+      expect(component.formGroup.dirty).toBeFalse();
+      expect(component.formGroup.value).toEqual({
+        netzbezug: null,
+        verantwortlicheOrganisation: null,
+        kommentar: null,
+        shared: {
           knotenForm: null,
-          radnetzKonform: null,
-          typ: null,
-        });
+        },
+        radnetzKonform: null,
+        typ: null,
       });
+      expect(component.formGroup.controls.shared.controls.querungshilfeDetails.enabled).toBeFalse();
+      expect(component.formGroup.controls.shared.controls.bauwerksmangel.enabled).toBeFalse();
+      expect(component.formGroup.controls.lichtsignalAnlageEigenschaften.enabled).toBeFalse();
     });
 
     describe('onSave', () => {
@@ -227,7 +247,12 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           netzbezug: defaultNetzbezug,
           kommentar: 'test Kommentar',
           radnetzKonform: true,
-          knotenForm: 'Überführung',
+          shared: {
+            knotenForm: 'UEBERFUEHRUNG',
+            bauwerksmangel: {
+              vorhanden: Bauwerksmangel.NICHT_VORHANDEN,
+            },
+          },
           typ: FurtKreuzungTyp.FURT,
         });
         component.formGroup.markAsDirty();
@@ -240,10 +265,13 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           verantwortlicheOrganisation: 3456,
           kommentar: 'test Kommentar',
           radnetzKonform: true,
-          knotenForm: 'Überführung',
+          knotenForm: 'UEBERFUEHRUNG',
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,
           lichtsignalAnlageEigenschaften: null,
+          bauwerksmangel: Bauwerksmangel.NICHT_VORHANDEN,
+          bauwerksmangelArt: null,
+          querungshilfeDetails: null,
         };
         verify(furtKreuzungService.createFurtKreuzung(anything())).once();
         expect(capture(furtKreuzungService.createFurtKreuzung).last()[0]).toEqual(createCommand);
@@ -254,7 +282,12 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 3456 },
           netzbezug: defaultNetzbezug,
           kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
+          shared: {
+            knotenForm: 'UEBERFUEHRUNG',
+            bauwerksmangel: {
+              vorhanden: Bauwerksmangel.NICHT_VORHANDEN,
+            },
+          },
           typ: FurtKreuzungTyp.FURT,
         });
         component.formGroup.markAsDirty();
@@ -267,10 +300,13 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           verantwortlicheOrganisation: 3456,
           kommentar: 'test Kommentar',
           radnetzKonform: false,
-          knotenForm: 'Überführung',
+          knotenForm: 'UEBERFUEHRUNG',
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,
           lichtsignalAnlageEigenschaften: null,
+          bauwerksmangel: Bauwerksmangel.NICHT_VORHANDEN,
+          bauwerksmangelArt: null,
+          querungshilfeDetails: null,
         };
         verify(furtKreuzungService.createFurtKreuzung(anything())).once();
         expect(capture(furtKreuzungService.createFurtKreuzung).last()[0]).toEqual(createCommand);
@@ -292,7 +328,9 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           netzbezug: null,
           verantwortlicheOrganisation: null,
           kommentar: null,
-          knotenForm: null,
+          shared: {
+            knotenForm: null,
+          },
           radnetzKonform: null,
           typ: null,
         });
@@ -301,93 +339,131 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
   });
 
   describe('as Editor', () => {
-    const furtKreuzung: FurtKreuzung = {
-      netzbezug: defaultNetzbezug,
-      verantwortlicheOrganisation: defaultOrganisation,
-      version: 2,
-      kommentar: 'test Kommentar',
-      knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
-      radnetzKonform: true,
-      typ: FurtKreuzungTyp.FURT,
-      furtKreuzungMusterloesung: musterloesungOption.name,
-      benutzerDarfBearbeiten: true,
-      lichtsignalAnlageEigenschaften: {
-        linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
-        rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
-        gruenAnforderung: GruenAnforderung.AUTOMATISCH,
-        radAufstellflaeche: false,
-        getrenntePhasen: true,
-        fahrradSignal: true,
-        gruenVorlauf: false,
-        vorgezogeneHalteLinie: true,
-        umlaufzeit: null,
-      },
-    };
-
-    beforeEach(() => {
-      component.formGroup.patchValue({
-        verantwortlicheOrganisation: { ...defaultOrganisation, id: 3456 },
-      });
-      component.formGroup.markAsDirty();
-
-      data$.next({ isCreator: false, furtKreuzung });
+    it('should set isCreator correct from Route', () => {
+      data$.next({ isCreator: false, furtKreuzung: { ...defaultFurtKreuzung } });
+      expect(component.isCreator).toBeFalse();
     });
 
     describe('fillForm', () => {
-      it('should reset', () => {
+      it('should set bauwerksmangel correct', () => {
+        data$.next({
+          isCreator: false,
+          furtKreuzung: {
+            ...defaultFurtKreuzung,
+            knotenForm: 'UEBERFUEHRUNG',
+            bauwerksmangel: Bauwerksmangel.VORHANDEN,
+            bauwerksmangelArt: [BauwerksmangelArt.GELAENDER_ZU_NIEDRIG],
+          },
+        });
+
+        expect(component.formGroup.value.shared?.bauwerksmangel).toEqual({
+          vorhanden: Bauwerksmangel.VORHANDEN,
+          bauwerksmangelArt: [BauwerksmangelArt.GELAENDER_ZU_NIEDRIG],
+        });
+      });
+
+      it('should set querungshilfeDetails correct', () => {
+        data$.next({
+          isCreator: false,
+          furtKreuzung: {
+            ...defaultFurtKreuzung,
+            knotenForm: 'MITTELINSEL_EINFACH',
+            querungshilfeDetails: QuerungshilfeDetails.ANDERE_ANMERKUNG_MITTELINSEL,
+          },
+        });
+
+        expect(component.formGroup.value.shared?.querungshilfeDetails).toEqual(
+          QuerungshilfeDetails.ANDERE_ANMERKUNG_MITTELINSEL
+        );
+      });
+
+      it('should set lsa correct', () => {
+        data$.next({
+          isCreator: false,
+          furtKreuzung: {
+            ...defaultFurtKreuzung,
+            knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+            lichtsignalAnlageEigenschaften: {
+              linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
+              rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
+              gruenAnforderung: GruenAnforderung.AUTOMATISCH,
+              radAufstellflaeche: false,
+              getrenntePhasen: true,
+              fahrradSignal: true,
+              gruenVorlauf: false,
+              vorgezogeneHalteLinie: true,
+              umlaufzeit: null,
+            },
+          },
+        });
+
+        expect(component.formGroup.value.lichtsignalAnlageEigenschaften).toEqual({
+          linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
+          rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
+          gruenAnforderung: GruenAnforderung.AUTOMATISCH,
+          radAufstellflaeche: false,
+          getrenntePhasen: true,
+          fahrradSignal: true,
+          gruenVorlauf: false,
+          vorgezogeneHalteLinie: true,
+          umlaufzeit: null,
+        });
+      });
+
+      it('should mark form as not dirty', () => {
+        component.formGroup.markAsDirty();
+        data$.next({ isCreator: false, furtKreuzung: { ...defaultFurtKreuzung } });
         expect(component.formGroup.dirty).toBeFalse();
+      });
+
+      it('should fill correct values', () => {
+        data$.next({
+          isCreator: false,
+          furtKreuzung: {
+            ...defaultFurtKreuzung,
+            netzbezug: defaultNetzbezug,
+            verantwortlicheOrganisation: defaultOrganisation,
+            kommentar: 'test Kommentar',
+            radnetzKonform: true,
+            typ: FurtKreuzungTyp.FURT,
+            furtKreuzungMusterloesung: defaultMusterloesungOption.name,
+            knotenForm: KNOTENFORMEN.BAUWERK.options[2].name,
+            lichtsignalAnlageEigenschaften: null,
+          },
+        });
+
         expect(component.formGroup.value).toEqual({
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: defaultOrganisation,
           kommentar: 'test Kommentar',
-          knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+          shared: {
+            knotenForm: KNOTENFORMEN.BAUWERK.options[2].name,
+          },
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
-          furtKreuzungMusterloesung: musterloesungOption.name,
-          lichtsignalAnlageEigenschaften: {
-            linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
-            rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
-            gruenAnforderung: GruenAnforderung.AUTOMATISCH,
-            radAufstellflaeche: false,
-            getrenntePhasen: true,
-            fahrradSignal: true,
-            gruenVorlauf: false,
-            vorgezogeneHalteLinie: true,
-            umlaufzeit: null,
-          },
+          furtKreuzungMusterloesung: defaultMusterloesungOption.name,
         });
       });
     });
 
     describe('onSave', () => {
       it('should create correct command', () => {
+        component.currentFurtKreuzung = { ...defaultFurtKreuzung };
+        component.isCreator = false;
         component.formGroup.patchValue({
+          netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 3456 },
+          kommentar: 'test Kommentar',
+          radnetzKonform: true,
+          typ: FurtKreuzungTyp.FURT,
+          furtKreuzungMusterloesung: defaultMusterloesungOption.name,
+          shared: {
+            knotenForm: KNOTENFORMEN.BAUWERK.options[2].name,
+          },
         });
 
         component.formGroup.markAsDirty();
-        when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({
-          netzbezug: defaultNetzbezug,
-          verantwortlicheOrganisation: { ...defaultOrganisation, id: 78645 },
-          version: 3,
-          kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
-          radnetzKonform: true,
-          typ: FurtKreuzungTyp.FURT,
-          furtKreuzungMusterloesung: null,
-          benutzerDarfBearbeiten: true,
-          lichtsignalAnlageEigenschaften: {
-            linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
-            rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
-            gruenAnforderung: GruenAnforderung.AUTOMATISCH,
-            radAufstellflaeche: false,
-            getrenntePhasen: true,
-            fahrradSignal: true,
-            gruenVorlauf: false,
-            vorgezogeneHalteLinie: true,
-            umlaufzeit: null,
-          },
-        });
+        when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({ ...defaultFurtKreuzung });
         spyOnProperty(component, 'selectedId').and.returnValue(2345);
 
         component.onSave();
@@ -397,10 +473,25 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           verantwortlicheOrganisation: 3456,
           version: 2,
           kommentar: 'test Kommentar',
-          knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+          knotenForm: KNOTENFORMEN.BAUWERK.options[2].name,
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
-          furtKreuzungMusterloesung: musterloesungOption.name,
+          furtKreuzungMusterloesung: defaultMusterloesungOption.name,
+          lichtsignalAnlageEigenschaften: null,
+          bauwerksmangel: null,
+          bauwerksmangelArt: null,
+          querungshilfeDetails: null,
+        };
+        verify(furtKreuzungService.updateFurtKreuzung(anything(), anything())).once();
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[0]).toEqual(2345);
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[1]).toEqual(updateCommand);
+      });
+
+      it('should create correct command - mit lsa', () => {
+        component.currentFurtKreuzung = { ...defaultFurtKreuzung };
+        component.isCreator = false;
+        component.formGroup.patchValue({
+          ...defaultFurtKreuzung,
           lichtsignalAnlageEigenschaften: {
             linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
             rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
@@ -412,24 +503,105 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
             vorgezogeneHalteLinie: true,
             umlaufzeit: null,
           },
-        };
+          shared: {
+            knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+          },
+        });
+
+        component.formGroup.markAsDirty();
+        when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({ ...defaultFurtKreuzung });
+        spyOnProperty(component, 'selectedId').and.returnValue(2345);
+
+        component.onSave();
+
+        verify(furtKreuzungService.updateFurtKreuzung(anything(), anything())).once();
         expect(capture(furtKreuzungService.updateFurtKreuzung).last()[0]).toEqual(2345);
-        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[1]).toEqual(updateCommand);
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[1].lichtsignalAnlageEigenschaften).toEqual({
+          linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
+          rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
+          gruenAnforderung: GruenAnforderung.AUTOMATISCH,
+          radAufstellflaeche: false,
+          getrenntePhasen: true,
+          fahrradSignal: true,
+          gruenVorlauf: false,
+          vorgezogeneHalteLinie: true,
+          umlaufzeit: null,
+        });
       });
 
-      it('should reset form', fakeAsync(() => {
+      it('should create correct command - mit bauwerksmangel', () => {
+        component.currentFurtKreuzung = { ...defaultFurtKreuzung };
+        component.isCreator = false;
+        component.formGroup.patchValue({
+          ...defaultFurtKreuzung,
+          lichtsignalAnlageEigenschaften: undefined,
+          shared: {
+            knotenForm: KNOTENFORMEN.BAUWERK.options[0].name,
+            bauwerksmangel: {
+              vorhanden: Bauwerksmangel.VORHANDEN,
+              bauwerksmangelArt: [BauwerksmangelArt.ANDERER_MANGEL],
+            },
+          },
+        });
+
+        component.formGroup.markAsDirty();
+        when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({ ...defaultFurtKreuzung });
+        spyOnProperty(component, 'selectedId').and.returnValue(2345);
+
+        component.onSave();
+
+        verify(furtKreuzungService.updateFurtKreuzung(anything(), anything())).once();
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[0]).toEqual(2345);
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[1].bauwerksmangel).toEqual(
+          Bauwerksmangel.VORHANDEN
+        );
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[1].bauwerksmangelArt).toEqual([
+          BauwerksmangelArt.ANDERER_MANGEL,
+        ]);
+      });
+
+      it('should create correct command - mit querungshilfe', () => {
+        component.currentFurtKreuzung = { ...defaultFurtKreuzung };
+        component.isCreator = false;
+        component.formGroup.patchValue({
+          ...defaultFurtKreuzung,
+          lichtsignalAnlageEigenschaften: undefined,
+          shared: {
+            knotenForm: 'MITTELINSEL_EINFACH',
+            querungshilfeDetails: QuerungshilfeDetails.ANDERE_ANMERKUNG_MITTELINSEL,
+          },
+        });
+
+        component.formGroup.markAsDirty();
+        when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({ ...defaultFurtKreuzung });
+        spyOnProperty(component, 'selectedId').and.returnValue(2345);
+
+        component.onSave();
+
+        verify(furtKreuzungService.updateFurtKreuzung(anything(), anything())).once();
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[0]).toEqual(2345);
+        expect(capture(furtKreuzungService.updateFurtKreuzung).last()[1].querungshilfeDetails).toEqual(
+          QuerungshilfeDetails.ANDERE_ANMERKUNG_MITTELINSEL
+        );
+      });
+
+      it('should reset form after save', fakeAsync(() => {
+        data$.next({ isCreator: false, furtKreuzung: { ...defaultFurtKreuzung } });
         component.formGroup.markAsDirty();
         when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 78645 },
           version: 3,
           kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
+          knotenForm: 'UEBERFUEHRUNG',
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,
           lichtsignalAnlageEigenschaften: null,
           benutzerDarfBearbeiten: true,
+          bauwerksmangel: Bauwerksmangel.NICHT_VORHANDEN,
+          bauwerksmangelArt: null,
+          querungshilfeDetails: null,
         });
         spyOnProperty(component, 'selectedId').and.returnValue(2345);
 
@@ -441,7 +613,12 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 78645 },
           kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
+          shared: {
+            knotenForm: 'UEBERFUEHRUNG',
+            bauwerksmangel: {
+              vorhanden: Bauwerksmangel.NICHT_VORHANDEN,
+            },
+          },
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,
@@ -449,19 +626,24 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
       }));
 
       it('should use correct version', fakeAsync(() => {
+        data$.next({ isCreator: false, furtKreuzung: { ...defaultFurtKreuzung } });
         component.formGroup.markAsDirty();
         when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 78645 },
           version: 3,
           kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
+          knotenForm: 'UEBERFUEHRUNG',
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,
           lichtsignalAnlageEigenschaften: null,
           benutzerDarfBearbeiten: true,
+          bauwerksmangel: null,
+          bauwerksmangelArt: null,
+          querungshilfeDetails: null,
         });
+        spyOnProperty(component.formGroup, 'valid').and.returnValue(true);
         spyOnProperty(component, 'selectedId').and.returnValue(2345);
 
         component.onSave();
@@ -476,8 +658,16 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
 
     describe('onReset', () => {
       it('should reset form', () => {
+        data$.next({ isCreator: false, furtKreuzung: { ...defaultFurtKreuzung } });
+
         component.formGroup.patchValue({
-          verantwortlicheOrganisation: { ...defaultOrganisation, id: 3456 },
+          shared: {
+            knotenForm: KNOTENFORMEN.BAUWERK.options[0].name,
+            bauwerksmangel: {
+              vorhanden: Bauwerksmangel.VORHANDEN,
+              bauwerksmangelArt: [BauwerksmangelArt.GELAENDER_ZU_NIEDRIG],
+            },
+          },
         });
 
         component.formGroup.markAsDirty();
@@ -489,10 +679,12 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: defaultOrganisation,
           kommentar: 'test Kommentar',
-          knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+          shared: {
+            knotenForm: KNOTENFORMEN.KNOTEN_MIT_LSA.options[0].name,
+          },
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
-          furtKreuzungMusterloesung: musterloesungOption.name,
+          furtKreuzungMusterloesung: defaultMusterloesungOption.name,
           lichtsignalAnlageEigenschaften: {
             linksabbieger: Linksabbieger.EIGENES_SIGNALISIEREN,
             rechtsabbieger: Rechtsabbieger.RECHTSABBIEGER,
@@ -508,18 +700,22 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
       });
 
       it('should reset after previous save', fakeAsync(() => {
+        data$.next({ isCreator: false, furtKreuzung: { ...defaultFurtKreuzung } });
         component.formGroup.markAsDirty();
         when(furtKreuzungService.updateFurtKreuzung(anything(), anything())).thenResolve({
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 78645 },
           version: 3,
           kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
+          knotenForm: 'UEBERFUEHRUNG',
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,
           lichtsignalAnlageEigenschaften: null,
           benutzerDarfBearbeiten: true,
+          bauwerksmangel: Bauwerksmangel.NICHT_VORHANDEN,
+          bauwerksmangelArt: null,
+          querungshilfeDetails: null,
         });
         spyOnProperty(component, 'selectedId').and.returnValue(2345);
 
@@ -539,7 +735,10 @@ describe(FurtenKreuzungenEditorComponent.name, () => {
           netzbezug: defaultNetzbezug,
           verantwortlicheOrganisation: { ...defaultOrganisation, id: 78645 },
           kommentar: 'test Kommentar',
-          knotenForm: 'Überführung',
+          shared: {
+            knotenForm: 'UEBERFUEHRUNG',
+            bauwerksmangel: { vorhanden: Bauwerksmangel.NICHT_VORHANDEN },
+          },
           radnetzKonform: true,
           typ: FurtKreuzungTyp.FURT,
           furtKreuzungMusterloesung: null,

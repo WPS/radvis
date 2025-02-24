@@ -37,6 +37,7 @@ import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-
   selector: 'rad-netzbezug-highlight-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class NetzbezugHighlightLayerComponent implements OnInit, OnChanges, OnDestroy {
   private static readonly HIGHLIGHTED_PROPERTY = 'highlighted';

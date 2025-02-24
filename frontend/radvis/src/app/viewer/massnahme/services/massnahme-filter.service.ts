@@ -24,7 +24,9 @@ import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 
 import { BehaviorSubject, Observable } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { ErweiterterMassnahmenFilter } from 'src/app/viewer/massnahme/models/erweiterter-massnahmen-filter';
+import { FahrradrouteFilter } from 'src/app/viewer/viewer-shared/models/fahrradroute-filter';
 
 @Injectable({
   providedIn: 'root',
@@ -32,17 +34,13 @@ import { ErweiterterMassnahmenFilter } from 'src/app/viewer/massnahme/models/erw
 export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService<MassnahmeListenView> {
   private readonly defaultErweiterterFilter: ErweiterterMassnahmenFilter;
 
-  private _erweiterterFilter!: ErweiterterMassnahmenFilter;
-  public set erweiterterFilter(value: ErweiterterMassnahmenFilter) {
-    this._erweiterterFilter = value;
-    this.erweiterterFilterAktiv$$.next(!ErweiterterMassnahmenFilter.isEmpty(value));
-  }
+  private _erweiterterFilter: ErweiterterMassnahmenFilter;
   public get erweiterterFilter(): ErweiterterMassnahmenFilter {
     return { ...this._erweiterterFilter };
   }
-  private erweiterterFilterAktiv$$ = new BehaviorSubject<boolean>(false);
+  private erweiterterFilterAktiv$$: BehaviorSubject<boolean>;
   get erweiterterFilterAktiv$(): Observable<boolean> {
-    return this.erweiterterFilterAktiv$$.asObservable();
+    return this.erweiterterFilterAktiv$$.asObservable().pipe(distinctUntilChanged());
   }
 
   constructor(
@@ -61,12 +59,14 @@ export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService
 
     this.defaultErweiterterFilter = {
       historischeMassnahmenAnzeigen: false,
-      fahrradrouteFilterKategorie: null,
-      fahrradroute: null,
-      fahrradroutenIds: [],
+      fahrradrouteFilter: null,
       organisation: erweiterterFilterDefaultOrganisation,
     };
-    this.erweiterterFilter = this.defaultErweiterterFilter;
+    this._erweiterterFilter = this.defaultErweiterterFilter;
+
+    this.erweiterterFilterAktiv$$ = new BehaviorSubject<boolean>(
+      !ErweiterterMassnahmenFilter.isEmpty(this.defaultErweiterterFilter)
+    );
 
     this.init();
   }
@@ -74,27 +74,25 @@ export class MassnahmeFilterService extends AbstractInfrastrukturenFilterService
   public override reset(): void {
     super.reset();
 
-    const isErweiterterFilterInDefaultState: boolean =
-      this.erweiterterFilter.historischeMassnahmenAnzeigen ===
-        this.defaultErweiterterFilter.historischeMassnahmenAnzeigen &&
-      this.erweiterterFilter.fahrradrouteFilterKategorie ===
-        this.defaultErweiterterFilter.fahrradrouteFilterKategorie &&
-      this.erweiterterFilter.organisation === this.defaultErweiterterFilter.organisation;
-
-    if (!isErweiterterFilterInDefaultState) {
-      this.erweiterterFilter = this.defaultErweiterterFilter;
-      this.refetchData();
-    }
-  }
-
-  public updateErweiterterFilter(value: ErweiterterMassnahmenFilter): void {
-    this.erweiterterFilter = value;
-
-    this.refetchData();
+    this.updateErweiterterFilter(this.defaultErweiterterFilter);
   }
 
   public onMassnahmeDeleted(id: number): void {
     this.onAlleInfrastrukturenChanged(this.alleInfrastrukturen.filter((value: MassnahmeListenView) => value.id !== id));
+  }
+
+  public updateErweiterterFilter(value: ErweiterterMassnahmenFilter): void {
+    const valueChanged =
+      this._erweiterterFilter.historischeMassnahmenAnzeigen !== value.historischeMassnahmenAnzeigen ||
+      this._erweiterterFilter.organisation?.id !== value.organisation?.id ||
+      !FahrradrouteFilter.equal(this.erweiterterFilter.fahrradrouteFilter, value.fahrradrouteFilter);
+
+    this._erweiterterFilter = value;
+    this.erweiterterFilterAktiv$$.next(!ErweiterterMassnahmenFilter.isEmpty(value));
+
+    if (valueChanged) {
+      this.refetchData();
+    }
   }
 
   protected getAll(): Promise<MassnahmeListenView[]> {

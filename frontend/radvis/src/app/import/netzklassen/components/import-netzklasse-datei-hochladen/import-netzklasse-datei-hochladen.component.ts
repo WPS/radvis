@@ -33,6 +33,7 @@ import { OrganisationenService } from 'src/app/shared/services/organisationen.se
   templateUrl: './import-netzklasse-datei-hochladen.component.html',
   styleUrls: ['./import-netzklasse-datei-hochladen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseDateiHochladenComponent {
   private static readonly STEP = 1;

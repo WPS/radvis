@@ -15,14 +15,16 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { AdministrationRoutingModule } from 'src/app/administration/administration-routing.module';
+import { AdministrationMenuComponent } from 'src/app/administration/components/administration-menu/administration-menu.component';
+import { DateiLayerVerwaltungComponent } from 'src/app/administration/components/datei-layer-verwaltung/datei-layer-verwaltung.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { BenutzerEditorComponent } from './components/benutzer-editor/benutzer-editor.component';
 import { BenutzerListComponent } from './components/benutzer-list/benutzer-list.component';
 import { OrganisationEditorComponent } from './components/organisation-editor/organisation-editor.component';
 import { OrganisationListComponent } from './components/organisation-list/organisation-list.component';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
   imports: [
@@ -38,6 +40,9 @@ import { MatNativeDateModule } from '@angular/material/core';
     BenutzerEditorComponent,
     OrganisationListComponent,
     OrganisationEditorComponent,
+    DateiLayerVerwaltungComponent,
+    AdministrationMenuComponent,
   ],
+  exports: [AdministrationMenuComponent],
 })
 export class AdministrationModule {}

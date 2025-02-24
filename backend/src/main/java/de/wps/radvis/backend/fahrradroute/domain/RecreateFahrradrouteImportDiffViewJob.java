@@ -16,7 +16,6 @@ package de.wps.radvis.backend.fahrradroute.domain;
 
 import java.util.Optional;
 
-import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -27,15 +26,16 @@ public class RecreateFahrradrouteImportDiffViewJob extends AbstractJob {
 	private static final String JOB_NAME = "RecreateFahrradrouteImportDiffViewJob";
 
 	protected final FahrradrouteRepository fahrradrouteRepository;
-	private final CommonConfigurationProperties commonConfigurationProperties;
+	private final int anzahlTageImportprotokolle;
+	private final int maximaleAnzahlKoordinatenFuerImportDiff;
 
-	public RecreateFahrradrouteImportDiffViewJob(
-		JobExecutionDescriptionRepository repository,
-		FahrradrouteRepository fahrradrouteRepository,
-		CommonConfigurationProperties fahrradrouteConfigurationProperties) {
+	public RecreateFahrradrouteImportDiffViewJob(JobExecutionDescriptionRepository repository,
+		FahrradrouteRepository fahrradrouteRepository, int anzahlTageImportprotokolle,
+		int maximaleAnzahlKoordinatenFuerImportDiff) {
 		super(repository);
 		this.fahrradrouteRepository = fahrradrouteRepository;
-		this.commonConfigurationProperties = fahrradrouteConfigurationProperties;
+		this.anzahlTageImportprotokolle = anzahlTageImportprotokolle;
+		this.maximaleAnzahlKoordinatenFuerImportDiff = maximaleAnzahlKoordinatenFuerImportDiff;
 	}
 
 	@Override
@@ -46,8 +46,8 @@ public class RecreateFahrradrouteImportDiffViewJob extends AbstractJob {
 	@Transactional
 	@Override
 	protected Optional<JobStatistik> doRun() {
-		fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-			commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten());
+		fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(anzahlTageImportprotokolle,
+			maximaleAnzahlKoordinatenFuerImportDiff);
 		return Optional.empty();
 	}
 }

@@ -20,9 +20,9 @@ import { SystembenachrichtigungComponent } from './systembenachrichtigung.compon
 
 describe('SystembenachrichtigungComponent', () => {
   let systembenachrichtigungService: SystembenachrichtigungService;
-  beforeEach(async () => {
+  beforeEach(() => {
     systembenachrichtigungService = mock(SystembenachrichtigungService);
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       declarations: [SystembenachrichtigungComponent],
       imports: [SharedModule],
       providers: [

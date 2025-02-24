@@ -44,6 +44,7 @@ import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FahrtrichtungAttributGruppeTestDataProvider;
@@ -55,6 +56,7 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -143,6 +145,37 @@ public class RadVisNetzAusleitungTestIT extends DBIntegrationTestIT {
 				2 + kantenAttribute.size() + geschwindigkeitsAttribute.size() + fuehrungsformAttribute.size()
 					+ zustaendigkeitsAttribute.size() + anzahlAttributeFuerZustaendigenOrganisationsArt
 					+ fahrtrichtungsAttribute.size()));
+	}
+
+	@Test
+	public void RadvisNetzAusleitungGeoserverView_concatenateSchadensart() {
+		kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.fuehrungsformAttributGruppe(
+				new FuehrungsformAttributGruppe(List
+					.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
+						.schaeden(Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER, Schadenart.AUSSPUELUNGEN_RINNEN))
+						.build()),
+					false))
+			.build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		kantenRepository.refreshNetzMaterializedViews();
+
+		List<Map<String, Object>> allViewEntries = jdbcTemplate
+			.queryForList("SELECT * FROM geoserver_radvisnetz_kante_materialized_view");
+
+		assertThat(allViewEntries).hasSize(1);
+		Map<String, Object> entry = allViewEntries.get(0);
+		assertThat(entry.get("schaeden"))
+			.satisfiesAnyOf(schadenarten -> assertThat(schadenarten).isEqualTo(
+				Schadenart.ABPLATZUNGEN_SCHLAGLOECHER.name() + ";"
+					+ Schadenart.AUSSPUELUNGEN_RINNEN.name()),
+				schadenarten -> assertThat(schadenarten).isEqualTo(
+					Schadenart.AUSSPUELUNGEN_RINNEN.name() + ";"
+						+ Schadenart.ABPLATZUNGEN_SCHLAGLOECHER.name()));
+
 	}
 
 	@Test

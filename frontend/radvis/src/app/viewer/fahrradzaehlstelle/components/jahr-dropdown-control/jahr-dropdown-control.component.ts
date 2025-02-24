@@ -31,6 +31,7 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
   styleUrls: ['./jahr-dropdown-control.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JahrDropdownControlComponent), multi: true }],
+  standalone: false,
 })
 export class JahrDropdownControlComponent extends AbstractFormControl<Date> implements OnChanges {
   @Input()

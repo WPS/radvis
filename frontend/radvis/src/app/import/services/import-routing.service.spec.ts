@@ -14,7 +14,6 @@
 import { ImportRoutingService } from 'src/app/import/services/import-routing.service';
 
 describe(ImportRoutingService.name, () => {
-  // eslint-disable-next-line no-unused-vars
   let service: ImportRoutingService;
 
   beforeEach(() => {

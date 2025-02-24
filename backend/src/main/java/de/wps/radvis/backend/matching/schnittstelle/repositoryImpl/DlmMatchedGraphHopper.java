@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.osm.OSMReader;
 
 import de.wps.radvis.backend.matching.domain.repository.DlmMatchingCacheRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
@@ -64,7 +65,7 @@ public class DlmMatchedGraphHopper extends GraphHopper {
 				+ " but also cannot use file for DataReader as it wasn't specified!");
 
 		log.info("start creating graph from {}.", getOSMFile());
-		OsmWayReader reader = new OsmWayReader(
+		OSMReader reader = new OsmWayReader(
 			getGraphHopperStorage(),
 			graphHopperEdgesAufOsmWays,
 			graphHopperEdgesAufProfilEigenschaften,

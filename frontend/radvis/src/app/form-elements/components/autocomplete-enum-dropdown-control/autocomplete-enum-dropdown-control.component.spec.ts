@@ -21,6 +21,7 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { provideLocationMocks } from '@angular/common/testing';
 import { AutocompleteEnumDropdownControlComponent } from './autocomplete-enum-dropdown-control.component';
 
 describe('AutocompleteEnumDropdownControlComponent', () => {
@@ -33,6 +34,7 @@ describe('AutocompleteEnumDropdownControlComponent', () => {
       .keep(MatFormFieldModule)
       .keep(MatAutocompleteModule)
       .keep(MatInputModule)
+      .provide(provideLocationMocks())
       .keep(BreakpointObserver);
   });
 

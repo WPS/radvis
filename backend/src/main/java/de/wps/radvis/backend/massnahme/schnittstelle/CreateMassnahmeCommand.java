@@ -92,4 +92,14 @@ public class CreateMassnahmeCommand {
 	public boolean isErlaubteKonzeptionsquelle() {
 		return !konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME);
 	}
+
+	@AssertTrue(message = "Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt.")
+	public boolean isKategorieValidForKonzeptionsquelle() {
+		if (massnahmenkategorien == null) {
+			// wird woanders validiert
+			return true;
+		}
+
+		return Massnahme.areKategorienValidForKonzeptionsquelle(konzeptionsquelle, massnahmenkategorien);
+	}
 }

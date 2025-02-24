@@ -19,6 +19,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   templateUrl: './action-button.component.html',
   styleUrls: ['./action-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ActionButtonComponent {
   @Input()

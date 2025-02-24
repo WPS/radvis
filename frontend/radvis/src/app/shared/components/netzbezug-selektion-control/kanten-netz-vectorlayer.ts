@@ -19,14 +19,14 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Style, { StyleFunction } from 'ol/style/Style';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { getRadvisNetzStyleFunction } from 'src/app/shared/models/radvis-netz-style';
-import { KantenSeite } from 'src/app/shared/models/kantenSeite';
+import { kantenNetzVectorlayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { createVectorSource } from 'src/app/shared/services/vector-source.factory';
-import { kantenNetzVectorlayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 
 export class KantenNetzVectorlayer extends VectorLayer {
   private static HIGHLIGHT_PROPERTY = 'highlighted';
@@ -112,7 +112,7 @@ export class KantenNetzVectorlayer extends VectorLayer {
     features.forEach(feature => {
       feature.set(
         KantenNetzVectorlayer.HIGHLIGHT_PROPERTY,
-        !feature.get(KantenNetzVectorlayer.HIGHLIGHT_PROPERTY) ?? true
+        !Boolean(feature.get(KantenNetzVectorlayer.HIGHLIGHT_PROPERTY))
       );
       feature.changed();
     });

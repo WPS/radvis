@@ -19,6 +19,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   templateUrl: './original-geometrie-anzeigen-button.component.html',
   styleUrls: ['./original-geometrie-anzeigen-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class OriginalGeometrieAnzeigenButtonComponent {
   @Input()

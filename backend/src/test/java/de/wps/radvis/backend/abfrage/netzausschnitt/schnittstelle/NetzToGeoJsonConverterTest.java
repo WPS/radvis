@@ -17,6 +17,7 @@ package de.wps.radvis.backend.abfrage.netzausschnitt.schnittstelle;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -57,9 +58,11 @@ import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
@@ -237,36 +240,42 @@ class NetzToGeoJsonConverterTest {
 			BelagArt.ASPHALT, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
 			Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND, KfzParkenTyp.PARKEN_VERBOTEN,
 			KfzParkenForm.PARKBUCHTEN, Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			Beschilderung.UNBEKANNT,
+			Collections.emptySet(),
+			Absenkung.UNBEKANNT,
 			null,
 			null,
 			null,
 			null,
 			TrennstreifenForm.UNBEKANNT,
-			TrennstreifenForm.UNBEKANNT
-		);
+			TrennstreifenForm.UNBEKANNT);
 		FuehrungsformAttribute atMiddle = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.3, 0.4),
 			BelagArt.BETON,
 			Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT, Radverkehrsfuehrung.RADFAHRSTREIFEN,
 			KfzParkenTyp.PARKEN_VERBOTEN,
 			KfzParkenForm.PARKBUCHTEN, Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			Beschilderung.UNBEKANNT,
+			Collections.emptySet(),
+			Absenkung.UNBEKANNT,
 			null,
 			null,
 			null,
 			null,
 			TrennstreifenForm.UNBEKANNT,
-			TrennstreifenForm.UNBEKANNT
-		);
+			TrennstreifenForm.UNBEKANNT);
 		FuehrungsformAttribute atEnd = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.4, 1),
 			BelagArt.BETONSTEINPFLASTER_PLATTENBELAG, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
 			Radverkehrsfuehrung.SCHUTZSTREIFEN, KfzParkenTyp.PARKEN_VERBOTEN, KfzParkenForm.PARKBUCHTEN,
 			Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			Beschilderung.UNBEKANNT,
+			Collections.emptySet(),
+			Absenkung.UNBEKANNT,
 			null,
 			null,
 			null,
 			null,
 			TrennstreifenForm.UNBEKANNT,
-			TrennstreifenForm.UNBEKANNT
-		);
+			TrennstreifenForm.UNBEKANNT);
 
 		FuehrungsformAttributGruppe gruppe = FuehrungsformAttributGruppe.builder()
 			.fuehrungsformAttributeLinks(List.of(atStart, atMiddle, atEnd))
@@ -320,36 +329,42 @@ class NetzToGeoJsonConverterTest {
 			BelagArt.ASPHALT, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
 			Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND, KfzParkenTyp.PARKEN_VERBOTEN,
 			KfzParkenForm.PARKBUCHTEN, Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			Beschilderung.UNBEKANNT,
+			Collections.emptySet(),
+			Absenkung.UNBEKANNT,
 			null,
 			null,
 			null,
 			null,
 			TrennstreifenForm.UNBEKANNT,
-			TrennstreifenForm.UNBEKANNT
-		);
+			TrennstreifenForm.UNBEKANNT);
 		FuehrungsformAttribute wholeRight = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.0, 1.0),
 			BelagArt.BETON,
 			Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT, Radverkehrsfuehrung.RADFAHRSTREIFEN,
 			KfzParkenTyp.PARKEN_VERBOTEN,
 			KfzParkenForm.PARKBUCHTEN, Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			Beschilderung.UNBEKANNT,
+			Collections.emptySet(),
+			Absenkung.UNBEKANNT,
 			null,
 			null,
 			null,
 			null,
 			TrennstreifenForm.UNBEKANNT,
-			TrennstreifenForm.UNBEKANNT
-		);
+			TrennstreifenForm.UNBEKANNT);
 		FuehrungsformAttribute atEndLeft = new FuehrungsformAttribute(LinearReferenzierterAbschnitt.of(0.2, 1),
 			BelagArt.BETONSTEINPFLASTER_PLATTENBELAG, Oberflaechenbeschaffenheit.UNBEKANNT, Bordstein.UNBEKANNT,
 			Radverkehrsfuehrung.SCHUTZSTREIFEN, KfzParkenTyp.PARKEN_VERBOTEN, KfzParkenForm.PARKBUCHTEN,
 			Laenge.of(1), Benutzungspflicht.VORHANDEN,
+			Beschilderung.UNBEKANNT,
+			Collections.emptySet(),
+			Absenkung.UNBEKANNT,
 			null,
 			null,
 			null,
 			null,
 			TrennstreifenForm.UNBEKANNT,
-			TrennstreifenForm.UNBEKANNT
-		);
+			TrennstreifenForm.UNBEKANNT);
 
 		FuehrungsformAttributGruppe gruppe = FuehrungsformAttributGruppe.builder()
 			.isZweiseitig(true)
@@ -383,8 +398,7 @@ class NetzToGeoJsonConverterTest {
 			.containsExactly(
 				Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
 				Radverkehrsfuehrung.RADFAHRSTREIFEN,
-				Radverkehrsfuehrung.SCHUTZSTREIFEN
-			);
+				Radverkehrsfuehrung.SCHUTZSTREIFEN);
 		assertThat(features).extracting(p -> p.getProperty(NetzToGeoJsonConverter.KANTE_ID_KEY))
 			.containsExactly("1234", "1234", "1234");
 		assertThat(features).extracting(p -> p.getProperty(NetzToGeoJsonConverter.SEITE_PROPERTY_NAME))

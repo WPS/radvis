@@ -12,8 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-
 import { HttpClient, HttpEvent } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ImageTile } from 'ol';

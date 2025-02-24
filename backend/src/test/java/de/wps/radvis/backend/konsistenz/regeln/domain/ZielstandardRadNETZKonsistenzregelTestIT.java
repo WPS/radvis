@@ -26,12 +26,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
@@ -59,9 +56,6 @@ import jakarta.persistence.EntityManager;
 @Tag("group7")
 @EnableConfigurationProperties(value = {
 	OrganisationConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
 })
 class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 
@@ -108,8 +102,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_60_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -120,8 +113,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -134,8 +126,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.kantenAttribute(
 							KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 								.sv(VerkehrStaerke.of(900))
-								.build()
-						)
+								.build())
 						.build())
 				.geschwindigkeitAttributGruppe(
 					GeschwindigkeitAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -143,8 +134,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_30_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -155,8 +145,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -169,8 +158,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.kantenAttribute(
 							KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 								.dtvPkw(VerkehrStaerke.of(5500))
-								.build()
-						)
+								.build())
 						.build())
 				.geschwindigkeitAttributGruppe(
 					GeschwindigkeitAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -178,8 +166,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_40_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -190,8 +177,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -204,8 +190,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.kantenAttribute(
 							KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 								.sv(VerkehrStaerke.of(900))
-								.build()
-						)
+								.build())
 						.build())
 				.geschwindigkeitAttributGruppe(
 					GeschwindigkeitAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -213,8 +198,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_30_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -225,8 +209,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -239,8 +222,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.kantenAttribute(
 							KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 								.sv(VerkehrStaerke.of(1100))
-								.build()
-						)
+								.build())
 						.build())
 				.geschwindigkeitAttributGruppe(
 					GeschwindigkeitAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -248,8 +230,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_9_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -260,8 +241,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -274,8 +254,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.kantenAttribute(
 							KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 								.sv(VerkehrStaerke.of(900))
-								.build()
-						)
+								.build())
 						.build())
 				.geschwindigkeitAttributGruppe(
 					GeschwindigkeitAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -283,8 +262,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_9_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -295,8 +273,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -318,8 +295,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 			new KonsistenzregelVerletzungsDetails(tempoKleiner20.getGeometry().getCentroid(),
 				tempoKleiner20.getGeometry(),
 				"Verletzung der Konsistenzregel: “Zielstandard: Wenn (Strecke Landesradfernweg oder RadNETZ) und Mischverkehr innerorts und Tempo <= 20: DTV <= 12.000 Fz/Tag und SV <= 1.000 Fz/Tag“",
-				tempoKleiner20.getId() + "_0-1")
-		);
+				tempoKleiner20.getId() + "_0-1"));
 	}
 
 	@Test
@@ -351,8 +327,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 									.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.5, 1))
 									.ortslage(KantenOrtslage.AUSSERORTS)
 									.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_80_KMH)
-									.build())
-						)
+									.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -363,8 +338,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.fuehrungsformAttributeRechts(
 							List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN)
-								.build())
-						)
+								.build()))
 						.build())
 				.build());
 
@@ -377,8 +351,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 						.kantenAttribute(
 							KantenAttributeTestDataProvider.withLeereGrundnetzAttribute()
 								.dtvPkw(VerkehrStaerke.of(5500))
-								.build()
-						)
+								.build())
 						.build())
 				.geschwindigkeitAttributGruppe(
 					GeschwindigkeitAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -386,8 +359,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 							List.of(GeschwindigkeitsAttributeTestDataProvider.withGrundnetzDefaultwerte()
 								.ortslage(KantenOrtslage.INNERORTS)
 								.hoechstgeschwindigkeit(Hoechstgeschwindigkeit.MAX_40_KMH)
-								.build())
-						)
+								.build()))
 						.build())
 				.fuehrungsformAttributGruppe(
 					FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -401,8 +373,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 								FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 									.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.33, 1))
 									.radverkehrsfuehrung(Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR)
-									.build()
-							))
+									.build()))
 						.fuehrungsformAttributeRechts(
 							List.of(
 								FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
@@ -413,9 +384,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 								FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 									.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0.33, 1))
 									.radverkehrsfuehrung(Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR)
-									.build()
-							)
-						)
+									.build()))
 						.build())
 				.build());
 
@@ -436,8 +405,7 @@ class ZielstandardRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTe
 			new KonsistenzregelVerletzungsDetails(drittelMischverkehrAbschnitt.getCentroid(),
 				drittelMischverkehrAbschnitt,
 				"Verletzung der Konsistenzregel: “Zielstandard: Wenn (Strecke Landesradfernweg oder RadNETZ) und Mischverkehr innerorts und Tempo > 30 und Tempo <= 50: DTV <= 5000 Fz/Tag und SV <= 500 Fz/Tag“",
-				drittelMischverkehr.getId() + "_0-0.33")
-		);
+				drittelMischverkehr.getId() + "_0-0.33"));
 	}
 
 }

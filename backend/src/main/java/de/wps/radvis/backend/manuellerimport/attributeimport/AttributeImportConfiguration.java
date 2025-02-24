@@ -37,6 +37,7 @@ import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImpo
 import de.wps.radvis.backend.matching.domain.service.GrundnetzMappingService;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -44,16 +45,19 @@ import jakarta.persistence.PersistenceContext;
 @Configuration
 public class AttributeImportConfiguration {
 	@Autowired
-	VerwaltungseinheitService verwaltungseinheitService;
+	private VerwaltungseinheitService verwaltungseinheitService;
 
 	@Autowired
-	BenutzerResolver benutzerResolver;
+	private BenutzerResolver benutzerResolver;
 
 	@Autowired
-	KantenRepository kantenRepository;
+	private KantenRepository kantenRepository;
 
 	@Autowired
-	ManuellerImportFehlerRepository manuellerImportFehlerRepository;
+	private NetzService netzService;
+
+	@Autowired
+	private ManuellerImportFehlerRepository manuellerImportFehlerRepository;
 
 	@Autowired
 	private GrundnetzMappingService grundnetzMappingService;
@@ -117,7 +121,7 @@ public class AttributeImportConfiguration {
 
 	@Bean
 	public AttributMapperFactory attributMapperFactory() {
-		return new AttributMapperFactory(verwaltungseinheitService);
+		return new AttributMapperFactory(verwaltungseinheitService, netzService);
 	}
 
 	@Bean

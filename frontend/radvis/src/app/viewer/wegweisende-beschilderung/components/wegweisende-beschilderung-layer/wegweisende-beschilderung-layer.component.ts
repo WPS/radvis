@@ -34,6 +34,7 @@ import { WegweisendeBeschilderungRoutingService } from 'src/app/viewer/wegweisen
   templateUrl: './wegweisende-beschilderung-layer.component.html',
   styleUrls: ['./wegweisende-beschilderung-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WegweisendeBeschilderungLayerComponent
   extends AbstractInfrastrukturLayerComponent<WegweisendeBeschilderungListenView>

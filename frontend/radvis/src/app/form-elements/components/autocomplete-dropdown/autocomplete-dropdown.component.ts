@@ -45,6 +45,7 @@ export interface AutoCompleteOption {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteDropdownComponent), multi: true },
   ],
+  standalone: false,
 })
 export class AutocompleteDropdownComponent
   extends AbstractUndeterminedFormControl<AutoCompleteOption>

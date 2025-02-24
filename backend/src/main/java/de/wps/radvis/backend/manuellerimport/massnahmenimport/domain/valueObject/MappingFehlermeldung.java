@@ -27,7 +27,9 @@ public enum MappingFehlermeldung {
 	ATTRIBUT_WERT_UNGUELTIG("'%s' ist kein gültiger Wert."),
 	VERWALTUNGSEINHEIT_NICHT_GEFUNDEN("Verwaltungseinheit '%s' existiert nicht."),
 	QUERVALIDIERUNG_PFLICHTATTRIBUTE("Pflichtattribut für Umsetzungsstatus '%s' fehlt."),
-	QUERVALIDIERUNG_MASSNAHMENKATEGORIE("Nur eine Kategorie pro Oberkategorie erlaubt."),
+	QUERVALIDIERUNG_MASSNAHMENKATEGORIE_OBERKATEGORIE("Nur eine Kategorie pro Oberkategorie erlaubt."),
+	QUERVALIDIERUNG_MASSNAHMENKATEGORIE_KONZEPTIONSQUELLE(
+		"Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt."),
 	LOESCHUNG_QUELLE_RADNETZ_UNGUELTIG("Maßnahme hat Quelle RadNETZ und kann daher nicht gelöscht werden."),
 	MASSNAHME_ID_INVALID(
 		"Die ID %s ist ungültig: Erlaubt sind alphanumerische Zeichen sowie Punkt, Leerzeichen und Unterstrich."),

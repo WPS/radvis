@@ -40,6 +40,7 @@ import { OrganisationenService } from 'src/app/shared/services/organisationen.se
   templateUrl: './landkreis-erledigt-markieren.component.html',
   styleUrls: ['./landkreis-erledigt-markieren.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LandkreisErledigtMarkierenComponent implements OnChanges, OnDestroy {
   @Input()

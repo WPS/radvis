@@ -17,6 +17,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'colorToCss',
+  standalone: false,
 })
 export class ColorToCssPipe implements PipeTransform {
   public static convertToCss = (baseColor: Color | undefined): any => {

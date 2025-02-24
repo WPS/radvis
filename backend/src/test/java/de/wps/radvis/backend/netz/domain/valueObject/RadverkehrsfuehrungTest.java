@@ -25,14 +25,14 @@ class RadverkehrsfuehrungTest {
 
 	@Test
 	void anzahlGesamt() {
-		assertThat(Radverkehrsfuehrung.values()).hasSize(38);
+		assertThat(Radverkehrsfuehrung.values()).hasSize(45);
 	}
 
 	@Test
 	void anzahlFahrbahnfuehrung() {
 		assertThat(Arrays.stream(Radverkehrsfuehrung.values())
 			.filter(p -> RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG.equals(p.getRadverkehrsfuehrungKategorie()))
-			.collect(Collectors.toList()).size()).isEqualTo(21);
+			.collect(Collectors.toList()).size()).isEqualTo(28);
 	}
 
 	@Test

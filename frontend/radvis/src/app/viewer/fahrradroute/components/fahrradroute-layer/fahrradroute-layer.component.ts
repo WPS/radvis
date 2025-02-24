@@ -42,6 +42,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   templateUrl: './fahrradroute-layer.component.html',
   styleUrls: ['./fahrradroute-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradrouteLayerComponent
   extends AbstractInfrastrukturLayerComponent<FahrradrouteListenView>
@@ -124,7 +125,6 @@ export class FahrradrouteLayerComponent
       .filter(feature => String(id) === String(feature.get(FeatureProperties.FAHRRADROUTE_ID_PROPERTY_NAME)));
   }
 
-  // eslint-disable-next-line prettier/prettier
   protected override setFeatureHighlighted(id: number, highlighted: boolean): void {
     const currentSelectedFeatures = this.getFeatureByFahrradroutenId(id);
     if (currentSelectedFeatures && currentSelectedFeatures.length > 0) {
@@ -145,7 +145,6 @@ export class FahrradrouteLayerComponent
     }
   }
 
-  // eslint-disable-next-line prettier/prettier
   protected override initServiceSubscriptions(): void {
     // Wir überschreiben nur die subscription auf dem FilterService
     this.subscriptions.push(
@@ -227,7 +226,6 @@ export class FahrradrouteLayerComponent
             // damit sie ggf. onHover gehighlighted werden können.
             Promise.all(features.map(f => this.getFeatureWithGeometry(f.get('id')))).then(fs => {
               this.vectorSource.clear(true);
-              // @ts-expect-error Migration von ts-ignore filter undefined
               this.vectorSource.addFeatures(fs.filter(f => !!f));
             });
             return features;

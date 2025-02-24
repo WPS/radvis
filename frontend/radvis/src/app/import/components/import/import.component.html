@@ -16,17 +16,19 @@
 <mat-tab-nav-panel class="h-100" #tabPanel>
   <div class="import-tools-wrapper">
     <div class="stepper mat-elevation-z3">
-      <a
-        *ngFor="let step of steps | keyvalue"
-        class="step"
-        [class.flex-grow]="step.key !== 1"
-        [class.activated]="step.key === activeStepIndex"
-        [class.done]="step.key < activeStepIndex"
-        [attr.aria-current]="step.key === activeStepIndex ? 'step' : false">
-        <hr *ngIf="step.key !== 1" class="horizontal-line" />
-        <div class="step-number">{{ step.key }}</div>
-        {{ step.value.bezeichnung }}
-      </a>
+      <ng-container *ngFor="let step of steps | keyvalue">
+        <a
+          *ngIf="!step.value.hiddenStep"
+          class="step"
+          [class.flex-grow]="step.key !== 1"
+          [class.activated]="step.key === activeStepIndex"
+          [class.done]="step.key < activeStepIndex"
+          [attr.aria-current]="step.key === activeStepIndex ? 'step' : false">
+          <hr *ngIf="step.key !== 1" class="horizontal-line" />
+          <div class="step-number">{{ step.key }}</div>
+          {{ step.value.bezeichnung }}
+        </a>
+      </ng-container>
     </div>
     <div class="map-wrapper">
       <div class="flex-grow position-relative">

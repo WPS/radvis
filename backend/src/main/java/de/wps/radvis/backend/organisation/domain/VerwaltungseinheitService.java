@@ -20,8 +20,10 @@ import static org.valid4j.Assertive.require;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 
@@ -32,7 +34,9 @@ import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 
 	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
@@ -68,6 +72,17 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 		return verwaltungseinheitRepository.findAllAktiveAsView();
 	}
 
+	public String getAllNames(List<Long> gebietskoerperschaftIds) {
+		return verwaltungseinheitRepository.findAllDbViewsById(gebietskoerperschaftIds)
+			.stream()
+			.map(gK -> String.format("%s (%s)", gK.getName(), gK.getOrganisationsArt()))
+			.collect(Collectors.joining(", "));
+	}
+
+	public MultiPolygon getVereintenBereich(List<Long> gebietskoerperschaftIds) {
+		return verwaltungseinheitRepository.getVereintenBereich(gebietskoerperschaftIds);
+	}
+
 	/**
 	 * Verwaltungseinheit nicht casten!
 	 * Stattdessen dedizierte Repositories fuer Organisation / Gebietskoerperschaft verwenden!
@@ -89,8 +104,18 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	}
 
 	public Optional<Verwaltungseinheit> getObersteGebietskoerperschaft() {
-		return verwaltungseinheitRepository.findByNameAndOrganisationsArt(obersteGebietskoerperschaftName,
+		List<Verwaltungseinheit> list = verwaltungseinheitRepository.findByNameAndOrganisationsArt(
+			obersteGebietskoerperschaftName,
 			obersteGebietskoerperschaftOrganisationsArt);
+		if (list.isEmpty()) {
+			return Optional.empty();
+		}
+
+		if (list.size() > 1) {
+			log.warn("Oberste Gebietskörperschaft anhand {} ({}) nicht eindeutig", obersteGebietskoerperschaftName,
+				obersteGebietskoerperschaftOrganisationsArt);
+		}
+		return Optional.of(list.get(0));
 	}
 
 	public boolean istUebergeordnet(@NonNull Verwaltungseinheit uebergeordnet,
@@ -103,8 +128,7 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 			Organisation uebergeordneteOrganisation = organisationRepository.findById(uebergeordnet.getId())
 				.orElseThrow();
 			return uebergeordneteOrganisation.getZustaendigFuerBereichOf().stream().anyMatch(
-				gebietskoerperschaft -> istUebergeordnet(gebietskoerperschaft, untergeordnet)
-			);
+				gebietskoerperschaft -> istUebergeordnet(gebietskoerperschaft, untergeordnet));
 		} else {
 			Verwaltungseinheit aktuelleOrganisation = untergeordnet;
 			while (aktuelleOrganisation.getUebergeordneteVerwaltungseinheit().isPresent()) {
@@ -179,14 +203,25 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	}
 
 	/***
-	 * Findet anhand von Names und Organisationsart einer Verwaltugnseinheit die dazugehörige Entity
+	 * Findet anhand von Names und Organisationsart einer Verwaltugnseinheit die dazugehörige Entity.
 	 *
-	 * @param name inklusive Organisationsart als String, organisationsArt als OrganisationsArt
+	 * @param name
+	 *     inklusive Organisationsart als String, organisationsArt als OrganisationsArt
 	 * @return Verwaltungseinheit
+	 * @throws OrganisationsartUndNameNichtEindeutigException
 	 */
-	public Optional<Verwaltungseinheit> getVerwaltungseinheitnachNameUndArt(String name,
-		OrganisationsArt organisationsArt) {
-		return verwaltungseinheitRepository.findByNameAndOrganisationsArt(name, organisationsArt);
+	public Optional<Verwaltungseinheit> getVerwaltungseinheitNachNameUndArt(String name,
+		OrganisationsArt organisationsArt) throws OrganisationsartUndNameNichtEindeutigException {
+		List<Verwaltungseinheit> findByNameAndOrganisationsArt = verwaltungseinheitRepository
+			.findByNameAndOrganisationsArt(name, organisationsArt);
+		if (findByNameAndOrganisationsArt.size() > 1) {
+			throw new OrganisationsartUndNameNichtEindeutigException(name, organisationsArt);
+		}
+		return findByNameAndOrganisationsArt.stream().findAny();
+	}
+
+	public boolean hasVerwaltungseinheitNachNameUndArt(String name, OrganisationsArt organisationsArt) {
+		return !verwaltungseinheitRepository.findByNameAndOrganisationsArt(name, organisationsArt).isEmpty();
 	}
 
 	public PreparedGeometry getBundeslandBereichPrepared() {

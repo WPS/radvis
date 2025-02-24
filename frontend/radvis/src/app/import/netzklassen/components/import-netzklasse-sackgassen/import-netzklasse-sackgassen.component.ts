@@ -21,6 +21,7 @@ import { NetzklassenImportService } from 'src/app/import/netzklassen/services/ne
   templateUrl: './import-netzklasse-sackgassen.component.html',
   styleUrls: ['./import-netzklasse-sackgassen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseSackgassenComponent {
   public sackgassenFeatures$: Promise<GeoJSONFeatureCollection> | undefined;

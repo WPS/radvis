@@ -16,6 +16,8 @@ package de.wps.radvis.backend.weitereKartenebenen.domain.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +115,7 @@ class WeitereKartenebenenRepositoryTestIT extends DBIntegrationTestIT {
 		// Farbe & Deckkraft updaten
 		saved.update(Name.of("Dienst A"), "localhost", WeitereKartenebeneTyp.WFS,
 			Deckkraft.of(0.5), Zoomstufe.of(6), Zindex.of(2000),
-			HexColor.of("#000000"), Quellangabe.of("Quellenangabe"));
+			HexColor.of("#000000"), Quellangabe.of("Quellenangabe"), false);
 
 		// assert
 		assertThat(weitereKartenebenenRepository.findById(saved.getId())).contains(saved);
@@ -123,6 +125,33 @@ class WeitereKartenebenenRepositoryTestIT extends DBIntegrationTestIT {
 			Deckkraft.of(0.5));
 		assertThat(weitereKartenebenenRepository.findById(saved.getId()).get().getZindex()).isEqualTo(
 			Zindex.of(2000));
+	}
+
+	@Test
+	void findAllDefault() {
+		// arrange
+		Gebietskoerperschaft gebietskoerperschaft = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.build();
+		gebietskoerperschaftRepository.save(gebietskoerperschaft);
+
+		Benutzer ich = BenutzerTestDataProvider.defaultBenutzer().serviceBwId(ServiceBwId.of("sbwid1"))
+			.organisation(gebietskoerperschaft).build();
+		benutzerRepository.save(ich);
+
+		WeitereKartenebene benutzerLayer = weitereKartenebenenRepository
+			.save(WeitereKartenebenenTestDataProvider.defaultValue().benutzer(ich)
+				.defaultLayer(false).build());
+		WeitereKartenebene defaultLayer = weitereKartenebenenRepository
+			.save(WeitereKartenebenenTestDataProvider.defaultValue().benutzer(ich)
+				.defaultLayer(true).build());
+
+		// act
+		List<WeitereKartenebene> allDefault = weitereKartenebenenRepository.findAllDefault();
+
+		// assert
+		assertThat(allDefault).hasSize(1);
+		assertThat(allDefault).contains(defaultLayer);
+		assertThat(allDefault).doesNotContain(benutzerLayer);
 	}
 
 	@Test
@@ -175,11 +204,11 @@ class WeitereKartenebenenRepositoryTestIT extends DBIntegrationTestIT {
 		// act
 		l2.update(Name.of("Mein Layer 2 updated"), "localhost", WeitereKartenebeneTyp.WMS, Deckkraft.of(1.0),
 			Zoomstufe.of(8.7), Zindex.of(1011), null,
-			Quellangabe.of("Quellenangabe"));
+			Quellangabe.of("Quellenangabe"), false);
 		weitereKartenebenenRepository.save(l2);
 		l1.update(Name.of("Mein Layer 1 updated"), "localhost", WeitereKartenebeneTyp.WMS, Deckkraft.of(1.0),
 			Zoomstufe.of(8.7), Zindex.of(1011), null,
-			Quellangabe.of("Quellenangabe"));
+			Quellangabe.of("Quellenangabe"), false);
 		weitereKartenebenenRepository.save(l1);
 
 		// assert

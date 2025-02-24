@@ -38,6 +38,7 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
   templateUrl: './radvis-signatur-auswahl.component.html',
   styleUrls: ['./radvis-signatur-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RadvisSignaturAuswahlComponent implements OnInit, OnDestroy {
   @Output()

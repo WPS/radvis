@@ -40,6 +40,7 @@ import {
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class TextInputControlComponent extends AbstractUndeterminedFormControl<string> implements OnChanges {
   @Input()
@@ -70,7 +71,7 @@ export class TextInputControlComponent extends AbstractUndeterminedFormControl<s
     super();
     this.formControl = new FormControl('', { nonNullable: true });
     this.formControl.valueChanges.subscribe(value => {
-      this.onChange((value as string).trim());
+      this.onChange(value.trim());
     });
   }
 

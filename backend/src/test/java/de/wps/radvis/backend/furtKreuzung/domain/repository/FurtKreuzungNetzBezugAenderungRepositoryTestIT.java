@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
@@ -37,7 +35,6 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.furtKreuzung.FurtKreuzungConfiguration;
@@ -61,11 +58,9 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @ContextConfiguration(classes = { CommonConfiguration.class, GeoConverterConfiguration.class, NetzConfiguration.class,
 	BenutzerConfiguration.class, OrganisationConfiguration.class, FurtKreuzungConfiguration.class })
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
-	PostgisConfigurationProperties.class, OrganisationConfigurationProperties.class, NetzConfigurationProperties.class,
+	PostgisConfigurationProperties.class, OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class,
 	TechnischerBenutzerConfigurationProperties.class })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
@@ -90,8 +85,7 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 		FurtKreuzung furtKreuzung = furtKreuzungRepository.save(
 			FurtKreuzungTestDataProvider.onKante(kante)
 				.verantwortlicheOrganisation(gebietskoerperschaft)
-				.build()
-		);
+				.build());
 
 		Benutzer technischerBenutzer = benutzerRepository.save(
 			BenutzerTestDataProvider.admin(gebietskoerperschaft).build());
@@ -105,9 +99,7 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 12, 9, 59),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				GeometryTestdataProvider.createLineString()
-			)
-		);
+				GeometryTestdataProvider.createLineString()));
 
 		// aktuelle Aenderung
 		FurtKreuzungNetzBezugAenderung expectedAenderung = furtKreuzungNetzBezugAenderungRepository.save(
@@ -118,9 +110,7 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 13, 10, 0),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				GeometryTestdataProvider.createLineString()
-			)
-		);
+				GeometryTestdataProvider.createLineString()));
 
 		// act
 		List<FurtKreuzungNetzBezugAenderung> result = furtKreuzungNetzBezugAenderungRepository
@@ -144,8 +134,7 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 		FurtKreuzung furtKreuzung = furtKreuzungRepository.save(
 			FurtKreuzungTestDataProvider.onKante(kante)
 				.verantwortlicheOrganisation(gebietskoerperschaft)
-				.build()
-		);
+				.build());
 
 		Benutzer technischerBenutzer = benutzerRepository.save(
 			BenutzerTestDataProvider.admin(gebietskoerperschaft).build());
@@ -159,9 +148,7 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 12, 9, 59),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				GeometryTestdataProvider.createLineString()
-			)
-		);
+				GeometryTestdataProvider.createLineString()));
 
 		// aktuelle Aenderung
 		FurtKreuzungNetzBezugAenderung expectedAenderung = furtKreuzungNetzBezugAenderungRepository.save(
@@ -172,16 +159,13 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 13, 10, 0),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				GeometryTestdataProvider.createLineString()
-			)
-		);
+				GeometryTestdataProvider.createLineString()));
 
 		// act & assert (Netzbezugänderung außerhalb des Bereiches)
 		List<FurtKreuzungNetzBezugAenderung> result = furtKreuzungNetzBezugAenderungRepository
 			.findFurtKreuzungNetzBezugAenderungByDatumAfterInBereich(
 				LocalDateTime.of(2022, 10, 12, 10, 0),
-				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(10, 10, 20, 20)
-			);
+				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(10, 10, 20, 20));
 
 		assertThat(furtKreuzungNetzBezugAenderungRepository.findAll()).hasSize(2);
 		assertThat(result).hasSize(0);
@@ -190,8 +174,7 @@ class FurtKreuzungNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT
 		result = furtKreuzungNetzBezugAenderungRepository
 			.findFurtKreuzungNetzBezugAenderungByDatumAfterInBereich(
 				LocalDateTime.of(2022, 10, 12, 10, 0),
-				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(0, 0, 20, 20)
-			);
+				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(0, 0, 20, 20));
 
 		assertThat(furtKreuzungNetzBezugAenderungRepository.findAll()).hasSize(2);
 		assertThat(result).hasSize(1);

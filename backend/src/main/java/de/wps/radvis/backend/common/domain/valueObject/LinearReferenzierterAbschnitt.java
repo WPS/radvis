@@ -14,11 +14,13 @@
 
 package de.wps.radvis.backend.common.domain.valueObject;
 
+import static org.valid4j.Assertive.ensure;
 import static org.valid4j.Assertive.require;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -258,6 +260,44 @@ public class LinearReferenzierterAbschnitt implements Serializable {
 
 		return LinearReferenzierterAbschnitt.of(startlocationDerUeberschneidung, endlocationDerUeberschneidung,
 			locationIndexedAufLineString);
+	}
+
+	/**
+	 * Berechnet die summierte relative Länge aller Abschnitte, wobei Überlappungen nicht doppelt gezählt werden.
+	 *
+	 * Beispiel: [0.2, 0.4] + [0.3, 0.5] -> Gibt 0.3 zurück
+	 *
+	 * @param linearReferenzierteAbschnitte
+	 *     Liste von Abschnitten, darf Lücken enthalten. Muss mindestens ein Element enthalten.
+	 * @return Relative Länge >0 und <=1.
+	 */
+	public static double getSummierteRelativeLaenge(List<LinearReferenzierterAbschnitt> linearReferenzierteAbschnitte) {
+		require(!linearReferenzierteAbschnitte.isEmpty());
+
+		List<LinearReferenzierterAbschnitt> sortedLinearReferenzierteAbschnitte = new ArrayList<>(
+			linearReferenzierteAbschnitte);
+		sortedLinearReferenzierteAbschnitte.sort(LinearReferenzierterAbschnitt.vonZuerst);
+
+		double relativeLaengeDerAbbildung = 0;
+
+		LinearReferenzierterAbschnitt vorangegangenerAbschnitt = sortedLinearReferenzierteAbschnitte.get(0);
+
+		for (int i = 1; i < sortedLinearReferenzierteAbschnitte.size(); i++) {
+			LinearReferenzierterAbschnitt betrachteterAbschnitt = sortedLinearReferenzierteAbschnitte.get(i);
+			if (betrachteterAbschnitt.intersects(vorangegangenerAbschnitt)) {
+				vorangegangenerAbschnitt = vorangegangenerAbschnitt.union(betrachteterAbschnitt).get();
+			} else {
+				relativeLaengeDerAbbildung += vorangegangenerAbschnitt.relativeLaenge();
+				vorangegangenerAbschnitt = betrachteterAbschnitt;
+			}
+		}
+
+		relativeLaengeDerAbbildung += vorangegangenerAbschnitt.relativeLaenge();
+
+		ensure(relativeLaengeDerAbbildung > 0);
+		ensure(relativeLaengeDerAbbildung <= 1.0);
+
+		return relativeLaengeDerAbbildung;
 	}
 
 	public static final Comparator<LinearReferenzierterAbschnitt> vonZuerst = (s1, s2) -> {

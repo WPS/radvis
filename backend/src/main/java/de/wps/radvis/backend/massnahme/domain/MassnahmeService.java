@@ -18,7 +18,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -27,19 +26,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.index.strtree.STRtree;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
+import de.wps.radvis.backend.common.domain.service.FahrradrouteFilter;
 import de.wps.radvis.backend.common.domain.valueObject.CsvData;
-import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
-import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
@@ -72,7 +66,7 @@ public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnah
 	private final MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 	private final KantenRepository kantenRepository;
 	private final BenutzerService benutzerService;
-	private final FahrradrouteRepository fahrradrouteRepository;
+	private final FahrradrouteFilterRepository fahrradrouteFilterRepository;
 	private final double distanzMassnahmeZuFahrradrouteInMetern;
 
 	public MassnahmeService(MassnahmeRepository massnahmeRepository,
@@ -82,7 +76,7 @@ public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnah
 		KantenRepository kantenRepository,
 		MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService,
 		BenutzerService benutzerService,
-		FahrradrouteRepository fahrradrouteRepository,
+		FahrradrouteFilterRepository fahrradrouteFilterRepository,
 		NetzService netzService,
 		double distanzMassnahmeZuFahrradrouteInMetern,
 		double erlaubteAbweichungKantenRematch) {
@@ -94,7 +88,7 @@ public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnah
 		this.umsetzungsstandRepository = umsetzungsstandRepository;
 		this.kantenRepository = kantenRepository;
 		this.benutzerService = benutzerService;
-		this.fahrradrouteRepository = fahrradrouteRepository;
+		this.fahrradrouteFilterRepository = fahrradrouteFilterRepository;
 		this.distanzMassnahmeZuFahrradrouteInMetern = distanzMassnahmeZuFahrradrouteInMetern;
 	}
 
@@ -153,7 +147,6 @@ public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnah
 		return massnahmeRepository.findAllMassnahmenPaketIds();
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<MassnahmeListenDbView> getAlleMassnahmenListenViews(
 		Boolean historischeMassnahmenAnzeigen,
 		Optional<Verwaltungseinheit> innerhalbVerwaltungseinheit,
@@ -164,61 +157,14 @@ public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnah
 			historischeMassnahmenAnzeigen);
 
 		if (!nebenFahrradroutenIds.isEmpty()) {
-			List<Geometry> allGeometries = fahrradrouteRepository.getAllGeometries(nebenFahrradroutenIds);
+			List<Geometry> allGeometries = fahrradrouteFilterRepository.getAllGeometries(nebenFahrradroutenIds);
 			if (!allGeometries.isEmpty()) {
-				// Die einzelnen MultiLineStrings aufteilen und jedes einzelne Segment (also Strecke zwischen zwei
-				// Koordinaten) in den Index einfügen, statt ganze (Multi)LineStrings einzufügen. Diese Segmente sind
-				// natürlich wesentlich kleiner als die Fahrradroute selbst. Weiter unten nutzen wir die Envelopes von
-				// Routen und Maßnahmen um diejenigen Maßnahmen in er Nähe von Routen zu finden. Ist nun eine gesamte
-				// Fahrradroute mit ihrem riesigen Envelope (bei LRFW teilweise halb BW) im Index, dann ist so ziemlich
-				// jede Maßnahme "in der Nähe", was die Idee von räumlichen Queries irgendwo absurd macht. Denn für jede
-				// Maßnahme muss man nochmal exakt die Distanz berechnen um wirklich sicherzugehen, dass sie innerhalb
-				// des konfigurierten Radius ist. Diese Distanzberechnung ist aber sehr teuer und wir wollen so wenig
-				// davon wie möglich machen.
-				// Deswegen fügen wir die kleineren Segmente ein. Die Query ist dann ein Stück weit genauer, heißt ganz
-				// viele Maßnahmen werden direkt aussortiert, weil sie weit abseits der angefragten Fahrradrouten sind.
-				// Wir brauchen dann also nur noch wenige exakte Distanzberechnungen, was uns viel zeit spart. Es mag
-				// kontraintuitiv sein mehr Objekte in den Index einzufügen um schneller zu sein, aber so ist das
-				// nunmal.
-				STRtree strTree = new STRtree();
-				allGeometries.stream()
-					.flatMap(geom -> unwrap(geom).stream())
-					.forEach(geom -> {
-						Coordinate[] coordinates = geom.getCoordinates();
-
-						for (int i = 0; i < coordinates.length - 1; i++) {
-							Coordinate[] segmentCoords = new Coordinate[2];
-							segmentCoords[0] = coordinates[i];
-							segmentCoords[1] = coordinates[i + 1];
-
-							LineString segment = KoordinatenReferenzSystem.ETRS89_UTM32_N
-								.getGeometryFactory()
-								.createLineString(segmentCoords);
-
-							strTree.insert(segment.getEnvelopeInternal(), segment);
-						}
-					});
+				FahrradrouteFilter fahrradrouteFilter = new FahrradrouteFilter(allGeometries,
+					distanzMassnahmeZuFahrradrouteInMetern);
 
 				List<MassnahmeListenDbView> result = allInBereich.stream()
 					.filter(m -> {
-						if (m.getGeometry() == null) {
-							return false;
-						}
-
-						// Zunächst holen wir alle Fahrradrouten-Segmente, deren Envelopes mit dem erweiterten Envelope
-						// der Maßnahme überlappen. Das ist eine sehr schnelle aber auch sehr ungenaue Operation. Daher
-						// müssen alle Segmente nochmal durchgegangen werden, ob die Maßnahme wirklich innerhalb von
-						// x Metern an einem der Segmente dran ist. Das ist eine verhältnißmäßig teure Operation,
-						// deswegen die Vorfilterung nach Envelope auf den kleinen Segmenten, um möglichst wenig exakte
-						// aber teure Berechnungen der Distanz machen zu müssen.
-						Envelope bufferedMassnahmeEnvelope = m.getGeometry().getEnvelopeInternal();
-						bufferedMassnahmeEnvelope.expandBy(distanzMassnahmeZuFahrradrouteInMetern);
-						return strTree.query(bufferedMassnahmeEnvelope)
-							.stream()
-							.anyMatch(routeSegment -> {
-								return ((Geometry) routeSegment).isWithinDistance(m.getGeometry(),
-									distanzMassnahmeZuFahrradrouteInMetern);
-							});
+						return m.getGeometry() != null && fahrradrouteFilter.contains(m.getGeometry());
 					})
 					.toList();
 
@@ -227,24 +173,6 @@ public class MassnahmeService extends AbstractEntityWithNetzbezugService<Massnah
 		}
 
 		return allInBereich;
-	}
-
-	private List<LineString> unwrap(Geometry multiLineString) {
-		ArrayList<LineString> result = new ArrayList<>();
-
-		for (int i = 0; i < multiLineString.getNumGeometries(); i++) {
-			Geometry childGeometry = multiLineString.getGeometryN(i);
-			if (childGeometry instanceof MultiLineString) {
-				result.addAll(unwrap((MultiLineString) childGeometry));
-			} else if (childGeometry instanceof LineString) {
-				result.add((LineString) childGeometry);
-			} else {
-				throw new RuntimeException("Unsupported geometry type " + childGeometry.getGeometryType()
-					+ " during unwrap of MultiLineString.");
-			}
-		}
-
-		return result;
 	}
 
 	public void haengeDateiAn(Long id, Dokument dokument) {

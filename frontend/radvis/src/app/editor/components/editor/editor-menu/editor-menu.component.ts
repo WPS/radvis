@@ -25,6 +25,7 @@ import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
   templateUrl: './editor-menu.component.html',
   styleUrls: ['./editor-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class EditorMenuComponent {
   @Input()

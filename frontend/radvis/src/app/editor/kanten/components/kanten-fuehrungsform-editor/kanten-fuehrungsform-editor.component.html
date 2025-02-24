@@ -39,12 +39,32 @@
         Bordstein
       </rad-enum-dropdown-control>
 
+      <rad-enum-dropdown-control formControlName="absenkung" [options]="absenkungOptions" [nullable]="false">
+        Absenkung
+      </rad-enum-dropdown-control>
+
       <rad-grouped-enum-dropdown-control
         formControlName="radverkehrsfuehrung"
         [groupedOptions]="radverkehrsfuehrungOptions"
         [nullable]="false">
         Radverkehrsführung
       </rad-grouped-enum-dropdown-control>
+
+      <rad-enum-dropdown-control
+        formControlName="beschilderung"
+        [options]="beschilderungOptions"
+        [nullable]="false"
+        [errors]="displayedAttributeformGroup.controls.beschilderung.errors">
+        Beschilderung
+      </rad-enum-dropdown-control>
+
+      <rad-enum-dropdown-control
+        formControlName="schaeden"
+        [options]="schadenartOptions"
+        [nullable]="false"
+        [multiple]="true">
+        Vorhandene Schäden
+      </rad-enum-dropdown-control>
 
       <rad-enum-dropdown-control formControlName="benutzungspflicht" [options]="benutzungspflicht" [nullable]="false">
         Benutzungspflicht
@@ -67,15 +87,15 @@
     <div class="group attribute" *ngIf="isTrennstreifenFeatureEnabled">
       <div class="header">Sicherheitstrennstreifen</div>
 
-      <i *ngIf="!isTrennstreifenFormVisible()" class="trennstreifen-hinweis"
-        >Für die ausgewählte Radverkehrsführung ist kein Sicherheitstrennstreifen vorgesehen.</i
-      >
+      <i *ngIf="!isTrennstreifenFormVisible()" class="trennstreifen-hinweis">
+        Für die ausgewählte Radverkehrsführung ist kein Sicherheitstrennstreifen vorgesehen.
+      </i>
 
       <div *ngIf="isTrennstreifenFormVisible()" class="trennstreifen-form">
-        <i class="trennstreifen-hinweis"
-          >Klicken Sie in das Querschnittsprofil, um potentiell vorhandene Sicherheitstrennstreifen auszuwählen oder
-          nutzen Sie das Dropdown-Menü.</i
-        >
+        <i class="trennstreifen-hinweis">
+          Klicken Sie in das Querschnittsprofil, um potentiell vorhandene Sicherheitstrennstreifen auszuwählen oder
+          nutzen Sie das Dropdown-Menü.
+        </i>
 
         <rad-sicherheitstrennstreifen-anzeige-komplett
           (selectedSeiteChange)="onTrennstreifenSeiteSelectionChanged($event)"
@@ -115,12 +135,10 @@
 
           <rad-enum-dropdown-control
             formControlName="trennstreifenTrennungZuLinks"
-            [options]="trennstreifenTrennungZuOptions">
+            [options]="trennstreifenTrennungZuOptions"
+            [errors]="trennstreifenFormGroupLinks.get('trennstreifenTrennungZuLinks')?.errors">
             Trennung zu
           </rad-enum-dropdown-control>
-          <rad-validation-error-anzeige
-            [errors]="trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.errors">
-          </rad-validation-error-anzeige>
 
           <rad-number-input-control
             formControlName="trennstreifenBreiteLinks"
@@ -150,12 +168,10 @@
 
           <rad-enum-dropdown-control
             formControlName="trennstreifenTrennungZuRechts"
-            [options]="trennstreifenTrennungZuOptions">
+            [options]="trennstreifenTrennungZuOptions"
+            [errors]="trennstreifenFormGroupRechts.get('trennstreifenTrennungZuRechts')?.errors">
             Trennung zu
           </rad-enum-dropdown-control>
-          <rad-validation-error-anzeige
-            [errors]="trennstreifenFormGroupRechts.controls.trennstreifenTrennungZuRechts.errors">
-          </rad-validation-error-anzeige>
 
           <rad-number-input-control
             formControlName="trennstreifenBreiteRechts"

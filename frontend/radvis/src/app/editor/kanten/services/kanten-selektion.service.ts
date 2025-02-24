@@ -45,7 +45,7 @@ export class KantenSelektionService {
     this.selektion$ = this.selektionSubject.asObservable();
     bearbeitungModusService.getAktiveKantenGruppe().subscribe(newGruppe => {
       this.activeAttributGruppe = newGruppe;
-      this.adjustSelectionForNewAttributgruppe(this.activeAttributGruppe as AttributGruppe);
+      this.adjustSelectionForNewAttributgruppe(this.activeAttributGruppe!);
     });
   }
 
@@ -77,7 +77,7 @@ export class KantenSelektionService {
     invariant(this.isKanteSelektiert(kanteId), 'Deselect für nicht selektierte Kante nicht möglich');
     if (segmentIndex !== undefined) {
       invariant(this.isKantenelementSelektiert(kanteId, segmentIndex, kantenSeite));
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       if (this.isLastSelectedElement(kanteId, kantenSeite)) {
         this.deselectGesamteKante(kanteId);
       } else {
@@ -135,7 +135,7 @@ export class KantenSelektionService {
     );
 
     const updatedKantenSelektion: KantenSelektion[] = this.selektionSubject.value.map(kantenSelektion =>
-      kantenSelektion.updateKante(updated.find(({ id }) => id === kantenSelektion.kante.id) as Kante)
+      kantenSelektion.updateKante(updated.find(({ id }) => id === kantenSelektion.kante.id)!)
     );
 
     this.selektionSubject.next(updatedKantenSelektion);
@@ -164,7 +164,7 @@ export class KantenSelektionService {
 
   private canDeactivate(): Promise<boolean> {
     if (this.discardableComponent) {
-      return (this.discardGuardService.canDeactivate(this.discardableComponent) as Observable<boolean>).toPromise();
+      return this.discardGuardService.canDeactivate(this.discardableComponent).toPromise();
     }
     return Promise.resolve(true);
   }
@@ -243,13 +243,9 @@ export class KantenSelektionService {
     this.canDeactivate().then(proceed => {
       if (proceed) {
         this.fetchKante(kanteId).then(newKante => {
-          const anzahlSegmenteLinks = Kante.getAnzahlSegmente(
-            this.activeAttributGruppe as AttributGruppe,
-            newKante,
-            KantenSeite.LINKS
-          );
+          const anzahlSegmenteLinks = Kante.getAnzahlSegmente(this.activeAttributGruppe!, newKante, KantenSeite.LINKS);
           const anzahlSegmenteRechts = Kante.getAnzahlSegmente(
-            this.activeAttributGruppe as AttributGruppe,
+            this.activeAttributGruppe!,
             newKante,
             KantenSeite.RECHTS
           );
@@ -274,7 +270,7 @@ export class KantenSelektionService {
       // Kante nicht nachladen
       const bestehendeKantenSelektion = this.selektion[bestehendeKantenSelektionIndex];
       const anzahlSegmente = Kante.getAnzahlSegmente(
-        this.activeAttributGruppe as AttributGruppe,
+        this.activeAttributGruppe!,
         bestehendeKantenSelektion.kante,
         kantenSeite
       );
@@ -303,11 +299,7 @@ export class KantenSelektionService {
       this.canDeactivate().then(proceed => {
         if (proceed) {
           this.fetchKante(kanteId).then(newKante => {
-            const anzahlSegmente = Kante.getAnzahlSegmente(
-              this.activeAttributGruppe as AttributGruppe,
-              newKante,
-              kantenSeite
-            );
+            const anzahlSegmente = Kante.getAnzahlSegmente(this.activeAttributGruppe!, newKante, kantenSeite);
             if (additiv) {
               this.selektionSubject.next([
                 ...this.resetSegmentIndices(this.selektion),

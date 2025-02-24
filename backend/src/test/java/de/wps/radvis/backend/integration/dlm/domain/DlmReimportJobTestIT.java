@@ -43,9 +43,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.thymeleaf.TemplateEngine;
 
@@ -68,7 +68,6 @@ import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -79,6 +78,7 @@ import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConve
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
 import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
+import de.wps.radvis.backend.fahrradroute.domain.FahrradrouteConfigurationProperties;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.provider.FahrradrouteTestDataProvider;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
@@ -180,42 +180,42 @@ class DlmReimportJobTestIT extends DBIntegrationTestIT {
 	@Autowired
 	protected PlatformTransactionManager transactionManager;
 
-	@MockBean
+	@MockitoBean
 	BenutzerResolver benutzerResolver;
-	@MockBean
+	@MockitoBean
 	FeatureToggleProperties featureToggleProperties;
-	@MockBean
+	@MockitoBean
 	PostgisConfigurationProperties postgisConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	OrganisationConfigurationProperties organisationConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
-	@MockBean
+	@MockitoBean
 	private DlmPbfErstellungService dlmPbfErstellungService;
-	@MockBean
+	@MockitoBean
 	private CustomDlmMatchingRepositoryFactory customDlmMatchingRepositoryFactory;
-	@MockBean
+	@MockitoBean
 	private CustomGrundnetzMappingServiceFactory customGrundnetzMappingServiceFactory;
-	@MockBean
+	@MockitoBean
 	private SimpleMatchingService simpleMatchingService;
-	@MockBean
+	@MockitoBean
 	private VerwaltungseinheitService verwaltungseinheitService;
-	@MockBean
+	@MockitoBean
 	private BenutzerService benutzerService;
-	@MockBean
-	private MailService mailService;
-	@MockBean
+	@MockitoBean
 	private TemplateEngine templateEngine;
-	@MockBean
+	@MockitoBean
 	private MailConfigurationProperties mailConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	private UmsetzungsstandsabfrageConfigurationProperties umsetzungsstandsabfrageConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	private ToubizConfigurationProperties toubizConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	private GraphhopperRoutingRepository graphhopperRoutingRepository;
-	@MockBean
+	@MockitoBean
 	private KanteUpdateElevationService elevationUpdateService;
+	@MockitoBean
+	private FahrradrouteConfigurationProperties fahrradrouteConfigurationProperties;
 
 	private Gebietskoerperschaft gebietskoerperschaft;
 	private Benutzer benutzer;

@@ -26,8 +26,6 @@ import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
@@ -42,10 +40,11 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -62,6 +61,8 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.schnittstelle.NetzToFeatureDetailsConverter;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
@@ -87,21 +88,12 @@ import jakarta.persistence.PersistenceContext;
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 
 	@Configuration
-	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.netz", })
-	@EntityScan({
-		"de.wps.radvis.backend.netz.domain.entity",
-		"de.wps.radvis.backend.netz.domain.valueObject",
-		"de.wps.radvis.backend.organisation.domain.entity",
-		"de.wps.radvis.backend.common.domain.entity",
-		"de.wps.radvis.backend.organisation.domain.valueObject",
-		"de.wps.radvis.backend.common.domain.valueObject",
-	})
+	@EnableEnversRepositories(basePackageClasses = NetzConfiguration.class)
+	@EntityScan(basePackageClasses = { NetzConfiguration.class, OrganisationConfiguration.class,
+		CommonConfiguration.class })
 	public static class TestConfiguration {
 
 		@Autowired
@@ -146,7 +138,7 @@ public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppeRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
 				fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver,
-				entityManager, 1.0);
+				entityManager, 1.0, Laenge.of(10), 10, 15.0, 0.5);
 		}
 	}
 
@@ -238,4 +230,67 @@ public class NetzServiceIntegrationTestIT extends DBIntegrationTestIT {
 		assertThat(netzService.existsKante(lineString, kantenAttribute2)).isFalse();
 	}
 
+	@Test
+	void getSeiteMitParallelenStrassenKanten_beidseitig() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 100, 100,
+			QuellSystem.DLM).build());
+
+		// Kanten links von der Basiskante
+		kantenRepository.save(
+			KanteTestDataProvider
+				.withCoordinatesAndRadverkehrsfuehrung(90, 0, 90, 100, Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.build());
+
+		// Kanten rechts von der Basiskante
+		kantenRepository.save(
+			KanteTestDataProvider
+				.withCoordinatesAndRadverkehrsfuehrung(105, 0, 105, 100, Radverkehrsfuehrung.BEGEGNUNBSZONE).build());
+
+		// Act
+		Optional<Seitenbezug> result = netzService.getSeiteMitParallelenStrassenKanten(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// assert
+		assertThat(result).contains(Seitenbezug.BEIDSEITIG);
+	}
+
+	@Test
+	void getSeiteMitParallelenStrassenKanten_rechts() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 100, 100,
+			QuellSystem.DLM).build());
+
+		// Kanten rechts von der Basiskante
+		kantenRepository.save(
+			KanteTestDataProvider
+				.withCoordinatesAndRadverkehrsfuehrung(105, 0, 105, 100, Radverkehrsfuehrung.BEGEGNUNBSZONE).build());
+
+		// Act
+		Optional<Seitenbezug> result = netzService.getSeiteMitParallelenStrassenKanten(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// assert
+		assertThat(result).contains(Seitenbezug.RECHTS);
+	}
+
+	@Test
+	void getSeiteMitParallelenStrassenKanten_links() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 100, 100,
+			QuellSystem.DLM).build());
+
+		// Kanten links von der Basiskante
+		kantenRepository.save(
+			KanteTestDataProvider
+				.withCoordinatesAndRadverkehrsfuehrung(90, 0, 90, 100, Radverkehrsfuehrung.BEGEGNUNBSZONE)
+				.build());
+
+		// Act
+		Optional<Seitenbezug> result = netzService.getSeiteMitParallelenStrassenKanten(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// assert
+		assertThat(result).contains(Seitenbezug.LINKS);
+	}
 }

@@ -19,5 +19,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './massnahme-umsetzungsstand-dialog.component.html',
   styleUrls: ['./massnahme-umsetzungsstand-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmeUmsetzungsstandDialogComponent {}

@@ -61,6 +61,7 @@ import { WEGWEISENDE_BESCHILDERUNG } from 'src/app/viewer/wegweisende-beschilder
       transition('in <=> out', [animate('0.25s')]),
     ]),
   ],
+  standalone: false,
 })
 export class InfrastrukturenTabellenComponent {
   @ViewChild('tabContainer', { read: ElementRef })

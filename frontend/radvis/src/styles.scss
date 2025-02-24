@@ -178,6 +178,10 @@ $sides: (top, bottom, left, right); // all positions
   flex-shrink: 0;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .border-primary {
   border-color: map-get($radvis-accent-palette, 500);
 }
@@ -299,8 +303,6 @@ td.group-header,
   padding-bottom: 0.5rem;
 }
 
-/* TODO(mdc-migration, jg): invalides CSS durch +. Entfällt sobald rad-validation-error-anzeige in die jeweiligen input controls integriert wird.
-*/
 :is(
     mat-form-field,
     rad-organisationen-dropdown-control,
@@ -308,8 +310,8 @@ td.group-header,
     rad-text-input-control,
     rad-massnahmenkategorien-dropdown-control,
     rad-enum-dropdown-control
-  ),
-+ rad-validation-error-anzeige {
+  )
+  + rad-validation-error-anzeige {
   position: relative;
   top: -1rem;
 }

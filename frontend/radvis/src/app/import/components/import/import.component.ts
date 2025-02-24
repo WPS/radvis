@@ -33,6 +33,7 @@ import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service
   templateUrl: './import.component.html',
   styleUrl: './import.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportComponent implements OnDestroy {
   @ViewChild('toolContainer', { read: ElementRef })

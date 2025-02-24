@@ -26,6 +26,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-kanten-attribute-copied-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenAttributeCopiedLayerComponent implements OnChanges, OnDestroy, OnInit {
   @Input()

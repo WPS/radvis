@@ -21,10 +21,12 @@ import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
+import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.WARN;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.HttpBasicAuthHeaderRemoverInterceptorConfigurer.httpBasicAuthHeaderRemoverInterceptor;
+import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.WrapExceptionToHttpStatusNotFoundInterceptorConfigurer.wrapExceptionToHttpStatusNotFound;
 import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.XForwardedPathHeaderAdderInterceptorConfigurer.xForwardedPathHeaderAdderInterceptor;
 import static de.wps.radvis.backend.reverseproxy.CharonConfiguration.XForwardedUriHeaderInterceptorConfigurer.xForwardedUriHeaderInterceptor;
 import static java.time.Duration.ofMinutes;
@@ -37,8 +39,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
+import com.github.mkopylec.charon.forwarding.RequestForwardingException;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
@@ -72,9 +76,9 @@ class CharonConfiguration {
 			.filterOrder(20)
 			.set(forwardingLogger()
 				.successLogLevel(DEBUG)
-				.clientErrorLogLevel(DEBUG)
-				.serverErrorLogLevel(DEBUG)
-				.unexpectedErrorLogLevel(DEBUG))
+				.clientErrorLogLevel(WARN)
+				.serverErrorLogLevel(WARN)
+				.unexpectedErrorLogLevel(WARN))
 			.set(restTemplate().set(timeout().connection(ofSeconds(5)).read(ofMinutes(10)).write(ofMinutes(10))))
 			.set(httpBasicAuthHeaderRemoverInterceptor())
 			.add(
@@ -87,6 +91,16 @@ class CharonConfiguration {
 							.paths("api/geoserver/saml/(?<path>.*)", "geoserver/<path>"))
 					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/saml")))
 			.add(
+				requestMapping("geoserver status")
+					.pathRegex("/health-check/geoserver")
+					.set(requestServerNameRewriter().outgoingServers(
+						reverseproxyConfiguarationProperties.getGeoserverUrl()))
+					.set(
+						regexRequestPathRewriter()
+							.paths(".*",
+								"geoserver/" + reverseproxyConfiguarationProperties.getGeoserverHealthCheckUrl()))
+					.set(wrapExceptionToHttpStatusNotFound()))
+			.add(
 				requestMapping("geoserver saml (datei-layer)")
 					.pathRegex("/api/geoserver/saml/datei-layer/.*")
 					.set(requestServerNameRewriter().outgoingServers(
@@ -95,6 +109,16 @@ class CharonConfiguration {
 						regexRequestPathRewriter()
 							.paths("api/geoserver/saml/(?<path>.*)", "geoserver/<path>"))
 					.set(xForwardedPathHeaderAdderInterceptor().basePath("api/geoserver/saml")))
+			.add(
+				requestMapping("geoserver status (datei-layer)")
+					.pathRegex("/health-check/geoserver-datei-layer")
+					.set(requestServerNameRewriter().outgoingServers(
+						reverseproxyConfiguarationProperties.getGeoserverDateiLayerUrl()))
+					.set(
+						regexRequestPathRewriter()
+							.paths(".*",
+								"geoserver/" + reverseproxyConfiguarationProperties.getGeoserverHealthCheckUrl()))
+					.set(wrapExceptionToHttpStatusNotFound()))
 			.add(
 				requestMapping("geoserver toubiz")
 					.pathRegex("/api/geoserver/basic/toubiz/.*")
@@ -247,6 +271,35 @@ class CharonConfiguration {
 		XForwardedUriHeaderInterceptorConfigurer basePath(String basePath) {
 			configuredObject.setBasePath(basePath);
 			return this;
+		}
+	}
+
+	static class WrapExceptionToHttpStatusNotFoundInterceptor implements RequestForwardingInterceptor {
+
+		@Override
+		public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
+			try {
+				return execution.execute(request);
+			} catch (RequestForwardingException e) {
+				return new HttpResponse(HttpStatus.NOT_FOUND);
+			}
+		}
+
+		@Override
+		public RequestForwardingInterceptorType getType() {
+			return new RequestForwardingInterceptorType(2000);
+		}
+	}
+
+	static class WrapExceptionToHttpStatusNotFoundInterceptorConfigurer
+		extends RequestForwardingInterceptorConfigurer<WrapExceptionToHttpStatusNotFoundInterceptor> {
+
+		private WrapExceptionToHttpStatusNotFoundInterceptorConfigurer() {
+			super(new WrapExceptionToHttpStatusNotFoundInterceptor());
+		}
+
+		static WrapExceptionToHttpStatusNotFoundInterceptorConfigurer wrapExceptionToHttpStatusNotFound() {
+			return new WrapExceptionToHttpStatusNotFoundInterceptorConfigurer();
 		}
 	}
 

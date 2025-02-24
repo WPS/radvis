@@ -12,6 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Bauwerksmangel } from 'src/app/shared/models/bauwerksmangel';
+import { BauwerksmangelArt } from 'src/app/shared/models/bauwerksmangel-art';
+import { QuerungshilfeDetails } from 'src/app/shared/models/querungshilfe-details';
+
 export interface SaveKnotenCommand {
   id: number;
   gemeinde: number | null;
@@ -19,4 +23,7 @@ export interface SaveKnotenCommand {
   zustandsbeschreibung: string | null;
   knotenVersion: number;
   knotenForm: string | null;
+  querungshilfeDetails: QuerungshilfeDetails | null;
+  bauwerksmangel: Bauwerksmangel | null;
+  bauwerksmangelArt: BauwerksmangelArt[] | null;
 }

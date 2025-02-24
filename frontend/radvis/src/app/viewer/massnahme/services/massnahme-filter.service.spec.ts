@@ -21,19 +21,19 @@ import {
   defaultOrganisation,
 } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
-import { FahrradrouteFilterKategorie } from 'src/app/viewer/massnahme/models/fahrradroute-filter-kategorie';
 import { MassnahmeListenView } from 'src/app/viewer/massnahme/models/massnahme-listen-view';
 import { getTestMassnahmeListenViews } from 'src/app/viewer/massnahme/models/massnahme-listen-view-test-data-provider.spec';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
+import { FahrradrouteFilterKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-filter-kategorie';
 import { FieldFilter } from 'src/app/viewer/viewer-shared/models/field-filter';
 import { FilterQueryParams } from 'src/app/viewer/viewer-shared/models/filter-query-params';
 import { Infrastruktur } from 'src/app/viewer/viewer-shared/models/infrastruktur';
 import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/filter-query-params.service';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
-import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
+import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
 
 describe(MassnahmeFilterService.name, () => {
   let massnahmeFilterService: MassnahmeFilterService;
@@ -86,9 +86,7 @@ describe(MassnahmeFilterService.name, () => {
 
       massnahmeFilterService.updateErweiterterFilter({
         historischeMassnahmenAnzeigen: true,
-        fahrradrouteFilterKategorie: null,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: null,
         organisation: null,
       });
 
@@ -101,9 +99,7 @@ describe(MassnahmeFilterService.name, () => {
 
       massnahmeFilterService.updateErweiterterFilter({
         historischeMassnahmenAnzeigen: true,
-        fahrradrouteFilterKategorie: null,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: null,
         organisation: defaultOrganisation,
       });
 
@@ -116,9 +112,7 @@ describe(MassnahmeFilterService.name, () => {
 
       massnahmeFilterService.updateErweiterterFilter({
         historischeMassnahmenAnzeigen: false,
-        fahrradrouteFilterKategorie: null,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: null,
         organisation: null,
       });
 
@@ -131,9 +125,11 @@ describe(MassnahmeFilterService.name, () => {
 
       massnahmeFilterService.updateErweiterterFilter({
         historischeMassnahmenAnzeigen: true,
-        fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: {
+          fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
+          fahrradroute: null,
+          fahrradroutenIds: [],
+        },
         organisation: null,
       });
 
@@ -149,15 +145,15 @@ describe(MassnahmeFilterService.name, () => {
     it('should reset erweiterterFilter to have no organisation ', fakeAsync(() => {
       massnahmeFilterService.updateErweiterterFilter({
         historischeMassnahmenAnzeigen: false,
-        fahrradrouteFilterKategorie: null,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: null,
         organisation: defaultOrganisation,
       });
 
+      resetCalls(massnahmeService);
       massnahmeFilterService.reset();
 
       expect(massnahmeFilterService.erweiterterFilter.organisation).toBeNull();
+      verify(massnahmeService.getAll(anything())).once();
     }));
 
     describe('selektierteInfrastrukturen$', () => {
@@ -355,12 +351,21 @@ describe(MassnahmeFilterService.name, () => {
     });
 
     describe('updateErweiterterFilter', () => {
+      it('should not refetch data if unchanged', () => {
+        massnahmeFilterService.updateErweiterterFilter(massnahmeFilterService.erweiterterFilter);
+
+        verify(massnahmeService.getAll(anything())).never();
+        expect().nothing();
+      });
+
       it('should refetch data', () => {
         const neuerErweiterterFilter = {
           historischeMassnahmenAnzeigen: true,
-          fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
-          fahrradroute: null,
-          fahrradroutenIds: [1, 2],
+          fahrradrouteFilter: {
+            fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
+            fahrradroute: null,
+            fahrradroutenIds: [1, 2],
+          },
           organisation: defaultOrganisation,
         };
         massnahmeFilterService.updateErweiterterFilter(neuerErweiterterFilter);
@@ -370,15 +375,19 @@ describe(MassnahmeFilterService.name, () => {
       });
 
       it('should trigger filterActive$', (done: DoneFn) => {
+        massnahmeFilterService.updateErweiterterFilter({
+          historischeMassnahmenAnzeigen: true,
+          fahrradrouteFilter: null,
+          organisation: null,
+        });
         massnahmeFilterService.erweiterterFilterAktiv$.pipe(skip(1)).subscribe(v => {
           expect(v).toBe(true);
           done();
         });
+        //observable triggert nur, wenn sich der wert ändert
         massnahmeFilterService.updateErweiterterFilter({
           historischeMassnahmenAnzeigen: false,
-          fahrradrouteFilterKategorie: null,
-          fahrradroute: null,
-          fahrradroutenIds: [],
+          fahrradrouteFilter: null,
           organisation: defaultOrganisation,
         });
       });
@@ -398,23 +407,21 @@ describe(MassnahmeFilterService.name, () => {
       });
 
       it('should not activate Fahrradroute filters initially', () => {
-        expect(massnahmeFilterService.erweiterterFilter.fahrradrouteFilterKategorie).toBeNull();
-        expect(massnahmeFilterService.erweiterterFilter.fahrradroute).toBeNull();
-        expect(massnahmeFilterService.erweiterterFilter.fahrradroutenIds).toEqual([]);
+        expect(massnahmeFilterService.erweiterterFilter.fahrradrouteFilter).toBeNull();
       });
 
       it('should reset erweiterterFilter to have the initial organisation ', fakeAsync(() => {
         massnahmeFilterService.updateErweiterterFilter({
           historischeMassnahmenAnzeigen: false,
-          fahrradrouteFilterKategorie: null,
-          fahrradroute: null,
-          fahrradroutenIds: [],
+          fahrradrouteFilter: null,
           organisation: null,
         });
 
+        resetCalls(massnahmeService);
         massnahmeFilterService.reset();
 
         expect(massnahmeFilterService.erweiterterFilter.organisation).toEqual(defaultOrganisation);
+        verify(massnahmeService.getAll(anything())).once();
       }));
     });
 
@@ -429,17 +436,13 @@ describe(MassnahmeFilterService.name, () => {
       }));
 
       it('should not activate Fahrradroute filters initially', () => {
-        expect(massnahmeFilterService.erweiterterFilter.fahrradrouteFilterKategorie).toBeNull();
-        expect(massnahmeFilterService.erweiterterFilter.fahrradroute).toBeNull();
-        expect(massnahmeFilterService.erweiterterFilter.fahrradroutenIds).toEqual([]);
+        expect(massnahmeFilterService.erweiterterFilter.fahrradrouteFilter).toBeNull();
       });
 
       it('should reset erweiterterFilter to have no organisation ', fakeAsync(() => {
         massnahmeFilterService.updateErweiterterFilter({
           historischeMassnahmenAnzeigen: false,
-          fahrradrouteFilterKategorie: null,
-          fahrradroute: null,
-          fahrradroutenIds: [],
+          fahrradrouteFilter: null,
           organisation: defaultOrganisation,
         });
 

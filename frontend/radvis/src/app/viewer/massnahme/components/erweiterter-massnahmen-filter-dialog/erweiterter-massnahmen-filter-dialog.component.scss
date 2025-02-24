@@ -17,7 +17,6 @@
 
 :host {
   display: block;
-  --mdc-typography-body2-font-size: 16px; // Für Checkbox-Label
 }
 
 .content {
@@ -25,14 +24,4 @@
   height: 100%;
   overflow: hidden;
   flex-direction: column;
-}
-
-.fahrradrouten-filter-box {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.error-placeholder {
-  height: 20px;
 }

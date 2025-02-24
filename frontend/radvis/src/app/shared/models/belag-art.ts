@@ -16,10 +16,13 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
 export enum BelagArt {
   ASPHALT = 'ASPHALT',
+  ASPHALT_MIT_GRUENSTREIFEN = 'ASPHALT_MIT_GRUENSTREIFEN',
   BETON = 'BETON',
+  BETON_MIT_GRUENSTREIFEN = 'BETON_MIT_GRUENSTREIFEN',
   NATURSTEINPFLASTER = 'NATURSTEINPFLASTER',
   BETONSTEINPFLASTER_PLATTENBELAG = 'BETONSTEINPFLASTER_PLATTENBELAG',
   WASSERGEBUNDENE_DECKE = 'WASSERGEBUNDENE_DECKE',
+  WASSERGEBUNDENE_DECKE_MIT_GRUENSTREIFEN = 'WASSERGEBUNDENE_DECKE_MIT_GRUENSTREIFEN',
   UNGEBUNDENE_DECKE = 'UNGEBUNDENE_DECKE',
   SONSTIGER_BELAG = 'SONSTIGER_BELAG',
   UNBEKANNT = 'UNBEKANNT',
@@ -45,6 +48,12 @@ export namespace BelagArt {
         return { name: k, displayText: 'Sonstiger Belag' };
       case BelagArt.UNBEKANNT:
         return { name: k, displayText: 'Unbekannt' };
+      case BelagArt.ASPHALT_MIT_GRUENSTREIFEN:
+        return { name: k, displayText: 'Asphalt mit Rasengittersteinen / Grünstreifen mittig' };
+      case BelagArt.BETON_MIT_GRUENSTREIFEN:
+        return { name: k, displayText: 'Beton mit Rasengittersteinen / Grünstreifen mittig' };
+      case BelagArt.WASSERGEBUNDENE_DECKE_MIT_GRUENSTREIFEN:
+        return { name: k, displayText: 'Wassergebundene Decke mit Grünstreifen mittig' };
     }
     throw new Error('Beschreibung für enum BelagArt fehlt: ' + k);
   });

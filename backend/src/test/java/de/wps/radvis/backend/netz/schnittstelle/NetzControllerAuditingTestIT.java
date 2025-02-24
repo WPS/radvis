@@ -39,8 +39,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -48,6 +46,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -80,13 +79,11 @@ import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
-import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenAttributeMergeService;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingService;
@@ -98,10 +95,6 @@ import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungProtokollServi
 import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungService;
 import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
 import de.wps.radvis.backend.integration.radwegedb.IntegrationRadwegeDBConfiguration;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
@@ -127,9 +120,11 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
@@ -143,6 +138,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
@@ -160,7 +156,6 @@ import de.wps.radvis.backend.netz.schnittstelle.command.SaveKanteVerlaufCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveKnotenCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveZustaendigkeitAttributGruppeCommand;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveZustaendigkeitAttributeCommand;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -186,16 +181,12 @@ import jakarta.persistence.EntityManager;
 	BenutzerConfiguration.class,
 	WithAuditingAspect.class,
 	JacksonConfiguration.class,
-	NetzfehlerConfiguration.class,
-	KommentarConfiguration.class,
 	ImportsCommonConfiguration.class,
 	CommonConfiguration.class,
 	ImportsGrundnetzConfiguration.class,
 	IntegrationAttributAbbildungConfiguration.class,
 	IntegrationRadNetzConfiguration.class,
 	IntegrationRadwegeDBConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
@@ -203,15 +194,22 @@ import jakarta.persistence.EntityManager;
 	DLMConfigurationProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-	@MockBean(FahrradrouteRepository.class)
-})
 public class NetzControllerAuditingTestIT extends AuditingTestIT {
+
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
+
+	@MockitoBean
+	NetzGuard netzAutorisierungsService;
+
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
+
+	@MockitoBean
+	ZustaendigkeitsService zustaendigkeitsService;
 
 	// Der NetzController wird dort, wo es um Berechtigungen geht mit Mocks bestückt,
 	// um die enstprechenden Prüfungen auszuhebeln
@@ -226,10 +224,10 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		@Autowired
 		NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
 
-		@MockBean
+		@Autowired
 		BenutzerResolver benutzerResolver;
 
-		@MockBean
+		@Autowired
 		NetzGuard netzAutorisierungsService;
 
 		@Autowired
@@ -238,7 +236,7 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 		@Autowired
 		KantenMappingService kantenMappingService;
 
-		@MockBean
+		@Autowired
 		ZustaendigkeitsService zustaendigkeitsService;
 
 		@Autowired
@@ -763,17 +761,20 @@ public class NetzControllerAuditingTestIT extends AuditingTestIT {
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
 			.parkenForm(KfzParkenForm.UNBEKANNT)
 			.parkenTyp(KfzParkenTyp.UNBEKANNT)
-			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND)
 			.bordstein(Bordstein.UNBEKANNT)
 			.oberflaechenbeschaffenheit(Oberflaechenbeschaffenheit.UNBEKANNT)
 			.belagArt(BelagArt.BETON)
+			.beschilderung(Beschilderung.UNBEKANNT)
 			.benutzungspflicht(Benutzungspflicht.UNBEKANNT)
+			.absenkung(Absenkung.GRUNDSTUECKSZUFAHRTEN_ABGESENKT)
 			.trennstreifenBreiteRechts(Laenge.of(123))
 			.trennstreifenBreiteLinks(Laenge.of(234))
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
+			.schaeden(Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER))
 			.build();
 
 		SaveFuehrungsformAttributGruppeCommand command = SaveFuehrungsformAttributGruppeCommand.builder()

@@ -21,6 +21,7 @@ import { ManualRoutingService } from 'src/app/shared/services/manual-routing.ser
   templateUrl: './info.component.html',
   styleUrls: ['./info.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class InfoComponent implements AfterViewInit {
   // workaround for https://github.com/angular/components/issues/14759

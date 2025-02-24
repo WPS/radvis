@@ -17,6 +17,7 @@ package de.wps.radvis.backend.netz.domain.entity.provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 
@@ -24,13 +25,18 @@ public class FuehrungsformAttributGruppeTestDataProvider {
 	public static FuehrungsformAttributGruppe.FuehrungsformAttributGruppeBuilder withGrundnetzDefaultwerte() {
 		return FuehrungsformAttributGruppe.builder()
 			.fuehrungsformAttributeLinks(new ArrayList<>(
-				(List.of(withDefaultValues().build()))))
+				(List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte().build()))))
 			.fuehrungsformAttributeRechts(new ArrayList<>(
-				(List.of(withDefaultValues().build()))));
+				(List.of(FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte().build()))));
 	}
 
-	private static FuehrungsformAttribute.FuehrungsformAttributeBuilder withDefaultValues() {
-		return FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte();
+	public static FuehrungsformAttributGruppe.FuehrungsformAttributGruppeBuilder withAttribute(
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder attribute) {
+		return FuehrungsformAttributGruppe.builder()
+			.fuehrungsformAttributeLinks(new ArrayList<>(
+				(List.of(attribute.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1)).build()))))
+			.fuehrungsformAttributeRechts(new ArrayList<>(
+				(List.of(attribute.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1)).build()))));
 	}
 
 	public static FuehrungsformAttribute.FuehrungsformAttributeBuilder withLineareReferenz(double von, double bis) {

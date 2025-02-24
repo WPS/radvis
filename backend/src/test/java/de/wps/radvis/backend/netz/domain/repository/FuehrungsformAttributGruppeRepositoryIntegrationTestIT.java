@@ -18,15 +18,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
@@ -39,6 +40,7 @@ import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import jakarta.persistence.EntityManager;
 
@@ -47,7 +49,6 @@ import jakarta.persistence.EntityManager;
 	OrganisationConfiguration.class })
 @EnableJpaRepositories(basePackageClasses = { NetzConfiguration.class, BenutzerConfiguration.class,
 	OrganisationConfiguration.class }, repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
-@MockBean({ FeatureToggleProperties.class, NetzConfigurationProperties.class })
 @EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.netz", })
 class FuehrungsformAttributGruppeRepositoryIntegrationTestIT extends DBIntegrationTestIT {
 	@Autowired
@@ -56,6 +57,10 @@ class FuehrungsformAttributGruppeRepositoryIntegrationTestIT extends DBIntegrati
 	FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppeRepository;
 	@Autowired
 	EntityManager entityManager;
+	@MockitoBean
+	private FeatureToggleProperties featureToggleProperties;
+	@MockitoBean
+	private NetzConfigurationProperties netzConfigurationProperties;
 
 	@Test
 	void findById_returnsExisting() {
@@ -267,5 +272,29 @@ class FuehrungsformAttributGruppeRepositoryIntegrationTestIT extends DBIntegrati
 		// assert
 		assertThat(findAllWithSegmenteKleinerAls).hasSize(1);
 		assertThat(findAllWithSegmenteKleinerAls).contains(kanteWithMiniSegment.getFuehrungsformAttributGruppe());
+	}
+
+	@Test
+	void saveSchadenartCorrectly() {
+		// arrange
+		Kante kanteWithMultipleSchaeden = kantenRepository
+			.save(KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100, QuellSystem.DLM)
+				.fuehrungsformAttributGruppe(new FuehrungsformAttributGruppe(
+					List.of(FuehrungsformAttributeTestDataProvider.createWithValues()
+						.schaeden(Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER, Schadenart.AUSSPUELUNGEN_RINNEN))
+						.build()),
+					false))
+				.build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		// act
+		Optional<FuehrungsformAttributGruppe> result = fuehrungsformAttributGruppeRepository
+			.findById(kanteWithMultipleSchaeden.getFuehrungsformAttributGruppe().getId());
+
+		// assert
+		assertThat(result.get().getImmutableFuehrungsformAttributeLinks().get(0).getSchaeden())
+			.containsExactlyInAnyOrder(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER, Schadenart.AUSSPUELUNGEN_RINNEN);
 	}
 }

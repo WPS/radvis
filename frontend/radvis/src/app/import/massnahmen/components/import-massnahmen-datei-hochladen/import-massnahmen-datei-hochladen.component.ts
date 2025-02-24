@@ -35,6 +35,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './import-massnahmen-datei-hochladen.component.html',
   styleUrl: './import-massnahmen-datei-hochladen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
   private static readonly STEP = 1;
@@ -53,7 +54,7 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
 
   uploading = false;
   session: MassnahmenImportSessionView | null = null;
-  sessionCreated: boolean = false;
+  sessionCreated = false;
 
   get massnahmenSessionExists(): boolean {
     return Boolean(this.session);
@@ -190,7 +191,7 @@ export class ImportMassnahmenDateiHochladenComponent implements OnDestroy {
       )
       .subscribe({
         next: session => {
-          this.session = session as MassnahmenImportSessionView;
+          this.session = session!;
           this.sessionExists = true;
           if (this.schrittAbgeschlossen) {
             this.navigateToNextStep();

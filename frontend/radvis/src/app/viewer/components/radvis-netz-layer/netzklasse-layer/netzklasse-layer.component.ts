@@ -47,6 +47,7 @@ import invariant from 'tiny-invariant';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './netzklasse-layer.component.html',
   selector: 'rad-netzklasse-layer',
+  standalone: false,
 })
 export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
   @Input()

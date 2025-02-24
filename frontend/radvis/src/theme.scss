@@ -14,24 +14,21 @@
 
 @use '@angular/material' as mat;
 @import 'style/colors';
-@include mat.core();
-
-// @formatter:off
-mat.$theme-ignore-duplication-warnings: true;
-// @formatter:on
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Available color palettes: https://material.io/design/color/
-$radvis-app-primary: mat.define-palette($radvis-primary-palette);
-$radvis-app-accent: mat.define-palette($radvis-accent-palette);
-$radvis-app-warn: mat.define-palette($radvis-app-red-palette, 400);
+$radvis-app-primary: mat.m2-define-palette($radvis-primary-palette);
+$radvis-app-accent: mat.m2-define-palette($radvis-accent-palette);
+$radvis-app-warn: mat.m2-define-palette($radvis-app-red-palette, 400);
 
-$radvis-app-typography: mat.define-typography-config(
+$radvis-app-typography: mat.m2-define-typography-config(
   $font-family: 'Roboto, "Helvetica Neue", sans-serif',
 );
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as `color` or `typography`.
-$radvis-app-theme: mat.define-light-theme(
+$radvis-app-theme: mat.m2-define-light-theme(
   (
     color: (
       primary: $radvis-app-primary,

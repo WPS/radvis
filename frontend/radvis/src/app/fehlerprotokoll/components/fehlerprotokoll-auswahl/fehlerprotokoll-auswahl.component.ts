@@ -49,6 +49,7 @@ import { OrganisationenService } from 'src/app/shared/services/organisationen.se
   templateUrl: './fehlerprotokoll-auswahl.component.html',
   styleUrls: ['./fehlerprotokoll-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FehlerprotokollAuswahlComponent implements OnDestroy, OnInit {
   @Input()

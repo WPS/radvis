@@ -16,6 +16,7 @@ package de.wps.radvis.backend.netzfehler.schnittstelle;
 
 import static de.wps.radvis.backend.benutzer.domain.valueObject.Recht.ANPASSUNGSWUENSCHE_BEARBEITEN;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -76,8 +77,11 @@ public class AnpassungswunschController {
 
 	@GetMapping("/list")
 	public List<AnpassungswunschListenView> getAlleAnpassungswuensche(
-		@RequestParam Optional<Boolean> abgeschlosseneAusblenden) {
-		return anpassungswunschService.getAlleAnpassungswuensche(abgeschlosseneAusblenden.orElse(true))
+		@RequestParam Optional<Boolean> abgeschlosseneAusblenden,
+		@RequestParam Optional<List<Long>> nebenFahrradrouten) {
+		return anpassungswunschService
+			.getAlleAnpassungswuensche(abgeschlosseneAusblenden.orElse(true),
+				nebenFahrradrouten.orElse(Collections.emptyList()))
 			.map(AnpassungswunschListenView::new)
 			.collect(Collectors.toList());
 	}
@@ -89,7 +93,8 @@ public class AnpassungswunschController {
 		Anpassungswunsch anpassungswunsch = anpassungswunschService.getAnpassungswunsch(id);
 		return new AnpassungswunschView(anpassungswunsch,
 			anpassungswunschService.getUrsaechlicheKonsistenzregelVerletzung(
-				anpassungswunsch.getKonsistenzregelVerletzungReferenz().orElse(null)), canEdit);
+				anpassungswunsch.getKonsistenzregelVerletzungReferenz().orElse(null)),
+			canEdit);
 	}
 
 	@PostMapping("/create")
@@ -124,7 +129,8 @@ public class AnpassungswunschController {
 
 		return new AnpassungswunschView(anpassungswunschRepository.save(anpassungswunsch),
 			anpassungswunschService.getUrsaechlicheKonsistenzregelVerletzung(
-				anpassungswunsch.getKonsistenzregelVerletzungReferenz().orElse(null)), true);
+				anpassungswunsch.getKonsistenzregelVerletzungReferenz().orElse(null)),
+			true);
 	}
 
 	@GetMapping("{id}/kommentarliste")

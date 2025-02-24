@@ -17,7 +17,6 @@ import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { Geometry, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
-import { isPoint } from 'src/app/shared/models/geojson-geometrie';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { BarriereListenView } from 'src/app/viewer/barriere/models/barriere-listen-view';
@@ -32,6 +31,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   templateUrl: './barriere-layer.component.html',
   styleUrls: ['./barriere-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class BarriereLayerComponent
   extends AbstractInfrastrukturLayerComponent<BarriereListenView>
@@ -59,9 +59,10 @@ export class BarriereLayerComponent
   }
 
   protected convertToFeature(infrastruktur: BarriereListenView): Feature<Geometry>[] {
-    if (!infrastruktur.iconPosition || !isPoint(infrastruktur.iconPosition)) {
-      throw new Error('Icongeometrie ist nicht vorhanden oder kein Punkt');
+    if (!infrastruktur.iconPosition) {
+      return [];
     }
+
     const feature = new Feature(new Point(infrastruktur.iconPosition.coordinates as unknown as Coordinate));
     feature.setId(infrastruktur.id);
     feature.set(AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME, 'Barriere');

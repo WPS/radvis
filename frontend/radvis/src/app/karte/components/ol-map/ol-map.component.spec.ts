@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClientModule } from '@angular/common/http';
 import { Component, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -36,6 +35,7 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { OrtsSucheComponent } from 'src/app/karte/components/orts-suche/orts-suche.component';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
 import { MapQueryParams } from 'src/app/shared/models/map-query-params';
+import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { instance, mock, when } from 'ts-mockito';
 
@@ -45,6 +45,7 @@ import { instance, mock, when } from 'ts-mockito';
     <div style="height:150px;" class="unten"></div>
     <div style="width:250px" class="left-menu"></div>
   </rad-ol-map>`,
+  standalone: false,
 })
 class TestWrapperComponent {
   @ViewChild('component')
@@ -78,8 +79,11 @@ describe(OlMapComponent.name, () => {
           LegendeComponent
         ),
       ],
-      imports: [ReactiveFormsModule, HttpClientModule, MatIconModule],
-      providers: [{ provide: MapQueryParamsService, useValue: instance(mapQueryParamsService) }],
+      imports: [ReactiveFormsModule, MatIconModule],
+      providers: [
+        { provide: MapQueryParamsService, useValue: instance(mapQueryParamsService) },
+        { provide: FeatureTogglzService, useValue: instance(mock(FeatureTogglzService)) },
+      ],
     }).compileComponents();
   });
 

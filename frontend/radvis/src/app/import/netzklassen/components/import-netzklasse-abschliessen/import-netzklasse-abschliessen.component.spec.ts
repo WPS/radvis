@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { DebugElement } from '@angular/core';
 import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,9 +19,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { of, Subscription } from 'rxjs';
 import { FehlerprotokollService } from 'src/app/fehlerprotokoll/services/fehlerprotokoll.service';
+import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
 import { AutomatischerImportSchritt } from 'src/app/import/models/automatischer-import-schritt';
 import { ImportLogEintrag, Severity } from 'src/app/import/models/import-session-view';
 import { ImportNetzklasseAbschliessenComponent } from 'src/app/import/netzklassen/components/import-netzklasse-abschliessen/import-netzklasse-abschliessen.component';
@@ -35,9 +37,6 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { anything, instance, mock, when } from 'ts-mockito';
-import { MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
-import { ImportSharedModule } from 'src/app/import/import-shared/import-shared.module';
-import { MatomoTracker } from 'ngx-matomo-client';
 
 describe(ImportNetzklasseAbschliessenComponent.name, () => {
   let component: ImportNetzklasseAbschliessenComponent;
@@ -302,7 +301,6 @@ describe(ImportNetzklasseAbschliessenComponent.name, () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function doesSpeicherButtonExist(component: DebugElement): boolean {
   const speicherButton = buttons(component)?.[2];
   return (
@@ -310,23 +308,19 @@ function doesSpeicherButtonExist(component: DebugElement): boolean {
   );
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function isSpeicherButtonDisabled(component: DebugElement): boolean {
   return buttons(component)?.[2].nativeElement.disabled || false;
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function doesFertigButtonExist(component: DebugElement): boolean {
   const doneButton = buttons(component)?.[0];
   return doneButton !== undefined && (doneButton.nativeElement as HTMLElement).textContent?.trim() === 'Fertig';
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function isFertigButtonDisabled(component: DebugElement): boolean {
   return buttons(component)?.[0].nativeElement.disabled || false;
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function isAnyErrorDisplayed(component: DebugElement): boolean {
   return (
     (component.query(By.css('.error'))?.children[0]?.nativeElement as HTMLElement)?.textContent ===
@@ -334,14 +328,12 @@ function isAnyErrorDisplayed(component: DebugElement): boolean {
   );
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function isErrorDisplayed(component: DebugElement, expectedErrormessage: string): boolean {
   return (
     (component.query(By.css('.error'))?.children[1]?.nativeElement as HTMLElement)?.textContent === expectedErrormessage
   );
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function isSuccessMessageDisplayed(component: DebugElement): boolean {
   return (
     (component.query(By.css('span'))?.nativeElement as HTMLElement)?.textContent?.includes(

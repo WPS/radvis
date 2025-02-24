@@ -47,6 +47,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './fehlerprotokoll-layer.component.html',
   styleUrls: ['./fehlerprotokoll-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
   public static readonly LAYER_ID = 'fehlerprotokoll';
@@ -184,7 +185,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
     feature.set('datum', fehlerprotokoll.datum);
     feature.set(
       FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME,
-      this.selectedFeature?.attributes.get(FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME) === id ?? false
+      this.selectedFeature?.attributes.get(FehlerprotokollLayerComponent.PROTOKOLL_ID_PROPERTYNAME) === id
     );
     return feature;
   }

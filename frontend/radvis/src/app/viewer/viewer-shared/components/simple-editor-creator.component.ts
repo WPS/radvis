@@ -20,6 +20,7 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
 
 @Component({
   template: '',
+  standalone: false,
 })
 export abstract class SimpleEditorCreatorComponent<T> implements DiscardableComponent {
   public isCreator = false;

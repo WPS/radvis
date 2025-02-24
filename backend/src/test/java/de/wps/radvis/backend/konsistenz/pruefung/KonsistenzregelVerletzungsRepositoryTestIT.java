@@ -28,9 +28,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
@@ -48,24 +47,19 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group2")
-@ContextConfiguration(classes = { KonsistenzregelVerletzungsRepositoryTestIT.TestConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class, KonsistenzregelnConfiguration.class,
-})
+@ContextConfiguration(classes = { KonsistenzregelPruefungsConfiguration.class, KonsistenzregelnConfiguration.class, })
 class KonsistenzregelVerletzungsRepositoryTestIT extends DBIntegrationTestIT {
-	@Configuration
-	public static class TestConfiguration {
-		@MockBean
-		public KantenRepository kantenRepository;
+	@MockitoBean
+	public KantenRepository kantenRepository;
 
-		@MockBean
-		public SackgassenService sackgassenService;
+	@MockitoBean
+	public SackgassenService sackgassenService;
 
-		@MockBean
-		public JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
+	@MockitoBean
+	public JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
-		@MockBean
-		public KonsistenzregelnConfigurationProperties konsistenzregelnConfigurationProperties;
-	}
+	@MockitoBean
+	public KonsistenzregelnConfigurationProperties konsistenzregelnConfigurationProperties;
 
 	@Autowired
 	private KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository;

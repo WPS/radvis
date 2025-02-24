@@ -32,6 +32,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './modify-geometry-layer.component.html',
   styleUrls: ['./modify-geometry-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ModifyGeometryLayerComponent implements OnChanges, OnDestroy {
   @Input()

@@ -32,6 +32,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './kanten-creator.component.html',
   styleUrls: ['./kanten-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenCreatorComponent implements OnInit {
   isFetching = false;

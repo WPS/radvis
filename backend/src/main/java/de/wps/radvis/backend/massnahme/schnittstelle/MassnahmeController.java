@@ -315,7 +315,7 @@ public class MassnahmeController {
 	}
 
 	@PostMapping("/list")
-	public List<MassnahmeListenView> getAlleMassnahme(@RequestBody @Valid FilterMassnahmenCommand command) {
+	public List<MassnahmeListenView> getAlleMassnahmen(@RequestBody @Valid FilterMassnahmenCommand command) {
 		Optional<Verwaltungseinheit> verwaltungseinheit = command.getVerwaltungseinheitId().map(
 			verwaltungseinheitId -> {
 				return verwaltungseinheitService.findById(verwaltungseinheitId)

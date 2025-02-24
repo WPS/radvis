@@ -21,6 +21,7 @@ import { AttributeRoutingService } from 'src/app/import/attribute/services/attri
   templateUrl: './import-attribute-tool.component.html',
   styleUrl: './import-attribute-tool.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeToolComponent {
   constructor(attributeImportService: AttributeImportService, attributeImportRoutingService: AttributeRoutingService) {

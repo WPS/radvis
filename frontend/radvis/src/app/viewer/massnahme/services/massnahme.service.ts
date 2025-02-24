@@ -98,7 +98,7 @@ export class MassnahmeService {
   getAll(erweiterterFilter: ErweiterterMassnahmenFilter): Promise<MassnahmeListenView[]> {
     const filterCommand: FilterMassnahmenCommand = {
       historischeMassnahmenAnzeigen: erweiterterFilter.historischeMassnahmenAnzeigen,
-      fahrradroutenIds: erweiterterFilter.fahrradroutenIds,
+      fahrradroutenIds: erweiterterFilter.fahrradrouteFilter?.fahrradroutenIds ?? [],
       verwaltungseinheitId: erweiterterFilter.organisation?.id ?? null,
     };
 

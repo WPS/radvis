@@ -34,6 +34,7 @@ import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
   templateUrl: './massnahmen-dateianhaenge-datei-hochladen.component.html',
   styleUrl: './massnahmen-dateianhaenge-datei-hochladen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy {
   private static readonly STEP = 1;
@@ -49,7 +50,7 @@ export class MassnahmenDateianhaengeDateiHochladenComponent implements OnDestroy
 
   uploading = false;
   session: MassnahmenDateianhaengeImportSessionView | null = null;
-  sessionCreated: boolean = false;
+  sessionCreated = false;
 
   get massnahmenDateianhaengeSessionExists(): boolean {
     return !!this.session;

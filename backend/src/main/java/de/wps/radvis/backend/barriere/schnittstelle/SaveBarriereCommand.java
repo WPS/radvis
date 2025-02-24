@@ -19,11 +19,13 @@ import org.springframework.validation.annotation.Validated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.barriere.domain.valueObject.BarriereBegruendung;
+import de.wps.radvis.backend.barriere.domain.valueObject.BarriereFormDetails;
 import de.wps.radvis.backend.barriere.domain.valueObject.BarrierenForm;
 import de.wps.radvis.backend.barriere.domain.valueObject.Markierung;
 import de.wps.radvis.backend.barriere.domain.valueObject.Sicherung;
 import de.wps.radvis.backend.barriere.domain.valueObject.VerbleibendeDurchfahrtsbreite;
 import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,8 +48,19 @@ public class SaveBarriereCommand {
 	Long version;
 	@NotNull
 	private BarrierenForm barrierenForm;
+	private BarriereFormDetails barriereFormDetails;
 	private VerbleibendeDurchfahrtsbreite verbleibendeDurchfahrtsbreite;
 	private Sicherung sicherung;
 	private Markierung markierung;
 	private BarriereBegruendung begruendung;
+
+	@AssertTrue
+	public boolean isBarriereFormDetailsValid() {
+		if (barrierenForm == null) {
+			// wird an anderer Stelle validiert
+			return true;
+		}
+
+		return barriereFormDetails == null || barriereFormDetails.isValidForBarrierenForm(barrierenForm);
+	}
 }

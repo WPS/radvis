@@ -685,7 +685,7 @@ public class RadNetzAttributMapper {
 					+ kutyp + "' (kutyp) und '" + kuutyp + "' (kuutyp)");
 			}
 		case "Minikreisverkehr (<24m)":
-			return KnotenForm.MINIKREISVERKEHR_24_M;
+			return KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR;
 		case "Unterführung":
 		case "Unterführung / Tunnel":
 		case "Unterführung/Tunnel":
@@ -694,13 +694,13 @@ public class RadNetzAttributMapper {
 			return KnotenForm.UEBERFUEHRUNG;
 		case "Abknickende Vorfahrt":
 		case "abnkickende Vorfahrt":
-			return KnotenForm.ABKNICKENDE_VORFAHRT;
+			return KnotenForm.ABKNICKENDE_VORFAHRT_OHNE_LSA;
 		case "Nicht-abknickende Vorfahrt":
-			return KnotenForm.NICHT_ABKNICKENDE_VORFAHRT;
+			return KnotenForm.NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA;
 		case "Fahrbahneinengung":
 			return KnotenForm.FAHRBAHNEINENGUNG;
 		case "Mittelinsel":
-			return KnotenForm.MITTELINSEL;
+			return KnotenForm.MITTELINSEL_EINFACH;
 		case "Querungsstelle ohne Sicherung":
 			return KnotenForm.QUERUNGSSTELLE_OHNE_SICHERUNG;
 		case "Großkreisel/Sonderform (mehrstreifig/Turbokreisel)":

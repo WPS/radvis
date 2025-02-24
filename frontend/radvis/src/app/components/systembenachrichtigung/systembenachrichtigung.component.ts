@@ -22,6 +22,7 @@ export interface Systemnachricht {
   templateUrl: './systembenachrichtigung.component.html',
   styleUrl: './systembenachrichtigung.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SystembenachrichtigungComponent {
   protected readonly WIRD_GELADEN = 'wird geladen ...';

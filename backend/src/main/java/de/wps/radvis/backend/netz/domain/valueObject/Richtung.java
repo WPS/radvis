@@ -22,6 +22,7 @@ public enum Richtung {
 	BEIDE_RICHTUNGEN("Beide Richtungen"),
 	IN_RICHTUNG("In Stationierungsrichtung"),
 	GEGEN_RICHTUNG("Gegen Stationierungsrichtung"),
+	KEINE("Nicht fahren"),
 	UNBEKANNT("Unbekannt");
 
 	private String displayText;

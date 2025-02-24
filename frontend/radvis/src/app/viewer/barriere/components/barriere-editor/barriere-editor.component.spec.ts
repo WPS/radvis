@@ -20,10 +20,12 @@ import { BehaviorSubject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { BarriereModule } from 'src/app/viewer/barriere/barriere.module';
+import { Barriere } from 'src/app/viewer/barriere/models/barriere';
+import { BarriereFormDetails } from 'src/app/viewer/barriere/models/barriere-form-details';
 import { defaultBarriere, otherBarriere } from 'src/app/viewer/barriere/models/barriere-test-data-provider.spec';
 import { SaveBarriereCommand } from 'src/app/viewer/barriere/models/save-barriere-command';
 import { BarrierenService } from 'src/app/viewer/barriere/services/barrieren.service';
-import { anything, capture, instance, mock, when } from 'ts-mockito';
+import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
 import { BarriereEditorComponent } from './barriere-editor.component';
 
 describe(BarriereEditorComponent.name, () => {
@@ -138,9 +140,9 @@ describe(BarriereEditorComponent.name, () => {
     // eslint-disable-next-line no-unused-vars
     const { version, darfBenutzerBearbeiten, ...defaultBarriereFormValues } = defaultBarriere;
     const {
-      // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-shadow
+      // eslint-disable-next-line no-unused-vars
       version: versionOther,
-      // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-shadow
+      // eslint-disable-next-line no-unused-vars
       darfBenutzerBearbeiten: darfBenutzerBearbeitenOther,
       ...otherBarriereFormValues
     } = otherBarriere;
@@ -157,7 +159,80 @@ describe(BarriereEditorComponent.name, () => {
     describe('fillForm', () => {
       it('should reset', () => {
         expect(component.formGroup.dirty).toBeFalse();
-        expect(component.formGroup.value).toEqual(defaultBarriereFormValues);
+        expect(component.formGroup.getRawValue()).toEqual(defaultBarriereFormValues);
+        expect(component.formGroup.controls.barriereFormDetails.disabled).toBeTrue();
+      });
+
+      it('should enable barriereFormDetails', () => {
+        const barriere: Barriere = {
+          ...defaultBarriere,
+          barrierenForm: 'SPERRPFOSTEN',
+          barriereFormDetails: BarriereFormDetails.SPERRPFOSTEN_GESICHERT,
+        };
+        data$.next({
+          isCreator: false,
+          barriere: barriere,
+        });
+
+        expect(component.formGroup.controls.barriereFormDetails.enabled).toBeTrue();
+      });
+    });
+
+    describe('onBarriereFormChanged', () => {
+      it('should reset barriereFormDetails', () => {
+        component.formGroup.patchValue({
+          barrierenForm: 'SPERRPFOSTEN',
+          barriereFormDetails: BarriereFormDetails.SPERRPFOSTEN_GESICHERT,
+        });
+
+        component.formGroup.controls.barrierenForm.setValue('ANORDNUNG_VZ_220');
+
+        expect(component.formGroup.controls.barriereFormDetails.value).toBeFalsy();
+      });
+
+      it('should enable barriereFormDetails', () => {
+        component.formGroup.controls.barriereFormDetails.disable();
+
+        component.formGroup.patchValue({
+          barrierenForm: 'SPERRPFOSTEN',
+        });
+
+        expect(component.formGroup.controls.barriereFormDetails.enabled).toBeTrue();
+      });
+
+      it('should disable barriereFormDetails', () => {
+        component.formGroup.controls.barriereFormDetails.enable();
+
+        component.formGroup.patchValue({
+          barrierenForm: 'ANORDNUNG_VZ_220',
+        });
+
+        expect(component.formGroup.controls.barriereFormDetails.enabled).toBeFalse();
+      });
+
+      it('should reset barriereFormDetailsOptions', () => {
+        component.barriereFormDetailsOptions = [];
+
+        component.formGroup.patchValue({
+          barrierenForm: 'SPERRPFOSTEN',
+        });
+
+        expect(component.barriereFormDetailsOptions).toEqual(
+          BarriereFormDetails.getOptionsForBarriereForm('SPERRPFOSTEN')
+        );
+      });
+
+      it('should handle null correctly', () => {
+        component.formGroup.patchValue({
+          barrierenForm: 'SPERRPFOSTEN',
+          barriereFormDetails: BarriereFormDetails.SPERRPFOSTEN_GESICHERT,
+        });
+
+        component.formGroup.controls.barrierenForm.reset();
+
+        expect(component.barriereFormDetailsOptions).toEqual([]);
+        expect(component.formGroup.controls.barriereFormDetails.enabled).toBeFalse();
+        expect(component.formGroup.controls.barriereFormDetails.value).toBeFalsy();
       });
     });
 
@@ -185,9 +260,34 @@ describe(BarriereEditorComponent.name, () => {
           markierung: otherBarriere.markierung,
           begruendung: otherBarriere.begruendung,
           verantwortlicheOrganisation: otherBarriere.verantwortlicheOrganisation.id,
+          barriereFormDetails: otherBarriere.barriereFormDetails,
         };
+
+        verify(barrierenService.updateBarriere(anything(), anything())).once();
         expect(capture(barrierenService.updateBarriere).last()[0]).toEqual(2345);
         expect(capture(barrierenService.updateBarriere).last()[1]).toEqual(updateCommand);
+      });
+
+      it('should create correct command with barriereFormDetails', () => {
+        component.formGroup.patchValue({
+          ...otherBarriere,
+          barrierenForm: 'SPERRPFOSTEN',
+          barriereFormDetails: BarriereFormDetails.SPERRPFOSTEN_GESICHERT,
+        });
+
+        component.formGroup.markAsDirty();
+        when(barrierenService.updateBarriere(anything(), anything())).thenResolve({
+          ...otherBarriere,
+          version: 3,
+        });
+        spyOnProperty(component, 'selectedId').and.returnValue(2345);
+
+        component.onSave();
+
+        verify(barrierenService.updateBarriere(anything(), anything())).once();
+        expect(capture(barrierenService.updateBarriere).last()[1].barriereFormDetails).toEqual(
+          BarriereFormDetails.SPERRPFOSTEN_GESICHERT
+        );
       });
 
       it('should reset form', fakeAsync(() => {
@@ -202,9 +302,10 @@ describe(BarriereEditorComponent.name, () => {
         tick();
 
         expect(component.formGroup.dirty).toBeFalse();
-        expect(component.formGroup.value).toEqual({
+        expect(component.formGroup.getRawValue()).toEqual({
           ...otherBarriereFormValues,
         });
+        expect(component.formGroup.controls.barriereFormDetails.disabled).toBeTrue();
       }));
 
       it('should use correct version', fakeAsync(() => {
@@ -217,10 +318,12 @@ describe(BarriereEditorComponent.name, () => {
 
         component.onSave();
         tick();
+        verify(barrierenService.updateBarriere(anything(), anything())).once();
         expect(capture(barrierenService.updateBarriere).last()[1].version).toEqual(2);
 
         component.onSave();
         tick();
+        verify(barrierenService.updateBarriere(anything(), anything())).twice();
         expect(capture(barrierenService.updateBarriere).last()[1].version).toEqual(3);
       }));
     });
@@ -236,7 +339,8 @@ describe(BarriereEditorComponent.name, () => {
         component.onReset();
 
         expect(component.formGroup.dirty).toBeFalse();
-        expect(component.formGroup.value).toEqual(defaultBarriereFormValues);
+        expect(component.formGroup.getRawValue()).toEqual(defaultBarriereFormValues);
+        expect(component.formGroup.controls.barriereFormDetails.disabled).toBeTrue();
       });
 
       it('should reset after previous save', fakeAsync(() => {
@@ -259,7 +363,8 @@ describe(BarriereEditorComponent.name, () => {
         component.onReset();
 
         expect(component.formGroup.dirty).toBeFalse();
-        expect(component.formGroup.value).toEqual(otherBarriereFormValues);
+        expect(component.formGroup.getRawValue()).toEqual(otherBarriereFormValues);
+        expect(component.formGroup.controls.barriereFormDetails.disabled).toBeTrue();
       }));
     });
   });

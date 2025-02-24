@@ -38,12 +38,12 @@ export const radverkehrsfuehrungLegende: Map<string, Color> = new Map([
   [Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN, [165, 0, 38, 1]],
   [Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN, [165, 0, 38, 1]],
 
-  [Radverkehrsfuehrung.PIKTOGRAMMKETTE, [215, 48, 39, 1]],
+  [Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG, [215, 48, 39, 1]],
   [Radverkehrsfuehrung.SCHUTZSTREIFEN, [215, 48, 39, 1]],
   [Radverkehrsfuehrung.RADFAHRSTREIFEN, [215, 48, 39, 1]],
   [Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR, [215, 48, 39, 1]],
   [Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR, [215, 48, 39, 1]],
-  [Radverkehrsfuehrung.MEHRZWECKSTREIFEN, [215, 48, 39, 1]],
+  [Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG, [215, 48, 39, 1]],
 
   [Radverkehrsfuehrung.FUEHRUNG_IN_T20_ZONE, [244, 109, 67, 1]],
   [Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE, [244, 109, 67, 1]],

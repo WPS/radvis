@@ -36,6 +36,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core
       transition('in <=> out', [animate('0.2s')]),
     ]),
   ],
+  standalone: false,
 })
 export class InfrastrukturenSubMenuComponent implements OnInit {
   @Input()

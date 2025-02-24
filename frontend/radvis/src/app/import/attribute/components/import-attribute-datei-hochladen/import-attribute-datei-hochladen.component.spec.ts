@@ -136,7 +136,7 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
         it('should say Weiter and be enabled if session exists', () => {
           component.sessionExists = true;
           component.attributeSessionExists = true;
-          // eslint-disable-next-line @typescript-eslint/dot-notation
+
           component['changeDetectorRef'].markForCheck();
           fixture.detectChanges();
           expect(adapter.getWeiterButtonText()).toEqual('Weiter');
@@ -148,7 +148,7 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
           component.sessionExists = false;
 
           validSpy.and.returnValue(true);
-          // eslint-disable-next-line @typescript-eslint/dot-notation
+
           component['changeDetectorRef'].markForCheck();
           fixture.detectChanges();
           expect(adapter.isWeiterButtonDisabled()).toBeFalse();
@@ -159,7 +159,7 @@ describe(ImportAttributeDateiHochladenComponent.name, () => {
           component.sessionExists = false;
 
           validSpy.and.returnValue(true);
-          // eslint-disable-next-line @typescript-eslint/dot-notation
+
           component['changeDetectorRef'].markForCheck();
           fixture.detectChanges();
           expect(adapter.isWeiterButtonDisabled()).toBeFalse();

@@ -17,6 +17,8 @@ import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { MockBuilder } from 'ng-mocks';
 import { of } from 'rxjs';
 import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
+import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
 import { OrganisationsArt } from 'src/app/shared/models/organisations-art';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
@@ -29,10 +31,9 @@ import { MassnahmenCreatorComponent } from 'src/app/viewer/massnahme/components/
 import { CreateMassnahmeCommand } from 'src/app/viewer/massnahme/models/create-massnahme-command';
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
+import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
-import { Netzbezug } from 'src/app/shared/models/netzbezug';
-import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anyString, anything, capture, instance, mock, verify, when } from 'ts-mockito';
@@ -99,6 +100,46 @@ describe(MassnahmenCreatorComponent.name, () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('onKategorieChanged', () => {
+    it('should update options', () => {
+      component.massnahmenkategorieOptions = Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY;
+      component.formGroup.controls.konzeptionsquelle.setValue(Konzeptionsquelle.RADNETZ_MASSNAHME);
+      expect(component.massnahmenkategorieOptions).toEqual(Massnahmenkategorien.ALL);
+    });
+
+    [
+      Konzeptionsquelle.KOMMUNALES_KONZEPT,
+      Konzeptionsquelle.KREISKONZEPT,
+      Konzeptionsquelle.RADNETZ_MASSNAHME,
+      Konzeptionsquelle.SONSTIGE,
+    ].forEach(quelle => {
+      it(`should show all options for konzeptionsquelle=${quelle}`, () => {
+        component.massnahmenkategorieOptions = [];
+        component.formGroup.controls.konzeptionsquelle.setValue(quelle);
+        expect(component.massnahmenkategorieOptions).toEqual(Massnahmenkategorien.ALL);
+      });
+    });
+
+    it('should show filtered options for konzeptionsquelle=RADNETZ_MASSNAHME_2024', () => {
+      component.massnahmenkategorieOptions = [];
+      component.formGroup.controls.konzeptionsquelle.setValue(Konzeptionsquelle.RADNETZ_MASSNAHME_2024);
+      expect(component.massnahmenkategorieOptions).toEqual(Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY);
+    });
+
+    it('should validate kategorien', () => {
+      component.formGroup.patchValue({
+        konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
+        massnahmenkategorien: [Massnahmenkategorien.kategorienNotAllowedForRadnetz2024[0]],
+      });
+
+      expect(component.formGroup.controls.massnahmenkategorien.valid).toBeTrue();
+
+      component.formGroup.controls.konzeptionsquelle.setValue(Konzeptionsquelle.RADNETZ_MASSNAHME_2024);
+
+      expect(component.formGroup.controls.massnahmenkategorien.valid).toBeFalse();
+    });
   });
 
   describe('save', () => {

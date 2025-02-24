@@ -28,6 +28,7 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
   styleUrls: ['./barrieren-tabelle.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: AbstractInfrastrukturenFilterService, useExisting: forwardRef(() => BarriereFilterService) }],
+  standalone: false,
 })
 export class BarrierenTabelleComponent {
   selectedBarriereId$: Observable<number | null>;

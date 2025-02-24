@@ -32,9 +32,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -129,6 +129,36 @@ import lombok.NonNull;
 	NetzConfigurationProperties.class
 })
 class MassnahmeAuditingTestIT extends AuditingTestIT {
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
+
+	@MockitoBean
+	@NonNull
+	MassnahmeGuard massnahmeAuthorizationService;
+
+	@MockitoBean
+	ShapeFileRepository shapeFileRepository;
+
+	@MockitoBean
+	JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
+
+	@MockitoBean
+	SimpleMatchingService simpleMatchingService;
+
+	@MockitoBean
+	UmsetzungsstandabfrageService umsetzungsstandabfrageService;
+
+	@MockitoBean
+	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+
+	@MockitoBean
+	VerwaltungseinheitService verwaltungseinheitService;
+
+	@MockitoBean
+	FahrradrouteRepository fahrradrouteRepository;
+
+	@MockitoBean
+	private CsvRepository csvRepository;
 
 	// Der MassnahmeController wird dort, wo es um Berechtigungen geht mit Mocks bestückt,
 	// um die enstprechenden Prüfungen auszuhebeln
@@ -146,35 +176,32 @@ class MassnahmeAuditingTestIT extends AuditingTestIT {
 		@Autowired
 		SaveUmsetzungsstandCommandConverter saveUmsetzungsstandCommandConverter;
 
-		@MockBean
+		@Autowired
 		BenutzerResolver benutzerResolver;
 
-		@MockBean
+		@Autowired
 		@NonNull
 		MassnahmeGuard massnahmeAuthorizationService;
 
-		@MockBean
+		@Autowired
 		ShapeFileRepository shapeFileRepository;
 
-		@MockBean
+		@Autowired
 		JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
-		@MockBean
+		@Autowired
 		SimpleMatchingService simpleMatchingService;
 
-		@MockBean
+		@Autowired
 		UmsetzungsstandabfrageService umsetzungsstandabfrageService;
 
-		@MockBean
-		private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
-
-		@MockBean
+		@Autowired
 		VerwaltungseinheitService verwaltungseinheitService;
 
-		@MockBean
+		@Autowired
 		FahrradrouteRepository fahrradrouteRepository;
 
-		@MockBean
+		@Autowired
 		private CsvRepository csvRepository;
 
 		@Bean

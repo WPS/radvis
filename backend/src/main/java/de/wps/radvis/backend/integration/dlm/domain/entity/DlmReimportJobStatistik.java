@@ -20,7 +20,8 @@ public class DlmReimportJobStatistik extends JobStatistik {
 	public int anzahlGeloeschterKnoten;
 	public int anzahlVernetzungsfehlerNachJobausfuehrung;
 	public int anzahlMoeglicherKollisionen;
-	public int anzahlKantenOhneMatch;
+	public int anzahlKantenOhneAttributuebertragung;
+	public int anzahlKantenMitAttributuebertragung;
 	public final UpdateDlmNetzStatistik updateDlmNetzStatistik = new UpdateDlmNetzStatistik();
 	public final RadvisKantenVernetzungStatistik radvisKantenVernetzungStatistik = new RadvisKantenVernetzungStatistik();
 	public final NetzbezugAnpassungStatistik netzbezugAnpassungStatistik = new NetzbezugAnpassungStatistik();

@@ -25,68 +25,40 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
-import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
-import de.wps.radvis.backend.common.GeoConverterConfiguration;
-import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
-import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
-import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
-import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
-import de.wps.radvis.backend.integration.radwegedb.IntegrationRadwegeDBConfiguration;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
-import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
 import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
-import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
-import de.wps.radvis.backend.quellimport.common.ImportsCommonConfiguration;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group6")
-@ContextConfiguration(classes = { NetzConfiguration.class, OrganisationConfiguration.class, BenutzerConfiguration.class,
-	IntegrationAttributAbbildungConfiguration.class, IntegrationRadNetzConfiguration.class,
-	IntegrationRadwegeDBConfiguration.class, KommentarConfiguration.class,
-	GeoConverterConfiguration.class, NetzfehlerConfiguration.class, ImportsCommonConfiguration.class,
-	CommonConfiguration.class, KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class })
-@EnableConfigurationProperties(value = {
-	FeatureToggleProperties.class,
-	CommonConfigurationProperties.class,
-	TechnischerBenutzerConfigurationProperties.class,
-	PostgisConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class,
-	NetzConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
-})
-@ActiveProfiles(profiles = "test")
+@EnableEnversRepositories(basePackageClasses = NetzConfiguration.class)
+@EntityScan(basePackageClasses = { NetzConfiguration.class, OrganisationConfiguration.class,
+	BenutzerConfiguration.class })
+@EnableConfigurationProperties({ FeatureToggleProperties.class })
+@ContextConfiguration(classes = { CommonConfiguration.class })
 class AttributProjektionsJobTestIT extends DBIntegrationTestIT {
-
+	@MockitoBean
+	private CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
 	@Mock
 	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 

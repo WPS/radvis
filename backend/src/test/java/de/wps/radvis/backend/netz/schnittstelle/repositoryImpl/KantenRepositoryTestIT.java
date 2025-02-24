@@ -42,8 +42,6 @@ import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -58,12 +56,12 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.PostGisHelper;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
@@ -88,6 +86,7 @@ import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.NahegelegeneneKantenDbView;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.FahrtrichtungAttributGruppeTestDataProvider;
@@ -97,9 +96,11 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KantenAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
@@ -116,6 +117,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
@@ -155,9 +157,6 @@ import lombok.extern.slf4j.Slf4j;
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
 })
 class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -229,6 +228,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 					KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 					Laenge.of(1),
 					Benutzungspflicht.VORHANDEN,
+					Beschilderung.UNBEKANNT,
+					Collections.emptySet(),
+					Absenkung.UNBEKANNT,
 					null,
 					null,
 					null,
@@ -318,7 +320,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void testgetKantenInBereichNachQuelleNachOsmGematcht() {
+	void testGetKantenInBereichNachQuelleNachOsmGematcht() {
 		// Arrange
 		LineString osmLineString = GEO_FACTORY
 			.createLineString(new Coordinate[] { new Coordinate(2, 2), new Coordinate(3, 3) });
@@ -357,7 +359,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void testgetKantenInBereichNachQuelle() {
+	void testGetKantenInBereichNachQuelle() {
 		// Arrange
 		LineString osmLineString = GEO_FACTORY
 			.createLineString(new Coordinate[] { new Coordinate(2, 2), new Coordinate(3, 3) });
@@ -384,10 +386,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		Envelope bereich = new Envelope(0, 30, 0, 30);
 		// Act
-		Set<Kante> resultDLM = kantenRepository.getKantenInBereichNachQuelle(bereich, QuellSystem.DLM).collect(
+		Set<Kante> resultDLM = kantenRepository.getKantenInBereichNachQuellen(bereich, Set.of(QuellSystem.DLM)).collect(
 			Collectors.toSet());
-		Set<Kante> resultRadNETZ = kantenRepository.getKantenInBereichNachQuelle(bereich,
-			QuellSystem.RadNETZ).collect(Collectors.toSet());
+		Set<Kante> resultRadNETZ = kantenRepository.getKantenInBereichNachQuellen(bereich,
+			Set.of(QuellSystem.RadNETZ)).collect(Collectors.toSet());
 
 		// Assert
 		assertThat(resultDLM).hasSize(2);
@@ -607,6 +609,247 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
+	void testGetNahegelegeneKanten() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 100, 100,
+			QuellSystem.DLM).build());
+
+		// Kanten links von der Basiskante
+		Kante kanteLinks = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(90, 0, 90, 100, QuellSystem.DLM).build()
+		);
+
+		// Kanten rechts von der Basiskante
+		Kante kanteRechts1 = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(105, 0, 105, 100, QuellSystem.DLM).build()
+		);
+		Kante kanteRechts2 = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(110, 100, 110, 0, QuellSystem.DLM).build()
+		);
+
+		// Act & Assert
+		List<NahegelegeneneKantenDbView> result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.RECHTS, Laenge.of(15));
+
+		assertThat(result).hasSize(2);
+		assertThat(result.stream().map(k -> k.getNahegelegeneKante())).containsExactlyInAnyOrder(kanteRechts1,
+			kanteRechts2);
+		assertThat(result.stream().map(k -> k.getNahegelegeneKanteSegment())).containsExactlyInAnyOrder(kanteRechts1
+			.getGeometry(), kanteRechts2.getGeometry());
+		assertThat(result.stream().map(k -> k.getBasisKanteSegment())).containsExactlyInAnyOrder(baseKante
+			.getGeometry(), baseKante.getGeometry());
+
+		// Act & Assert
+		result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.LINKS, Laenge.of(15));
+
+		assertThat(result).hasSize(1);
+		assertThat(result.stream().map(k -> k.getNahegelegeneKante())).containsExactlyInAnyOrder(kanteLinks);
+		assertThat(result.stream().map(k -> k.getNahegelegeneKanteSegment())).containsExactlyInAnyOrder(kanteLinks
+			.getGeometry());
+		assertThat(result.stream().map(k -> k.getBasisKanteSegment())).containsExactlyInAnyOrder(baseKante
+			.getGeometry());
+
+		// Act & Assert
+		result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.LINKS, Laenge.of(1));
+		assertThat(result).isEmpty();
+
+		result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.RECHTS, Laenge.of(1));
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testGetNahegelegeneKanten_ergebnisMitNichtLineStringGeometrien() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 100, 100,
+			QuellSystem.DLM).build());
+
+		// Berührt die Basiskante, macht einen Bogen und führt dann parallel entlang der Basiskante. Die Geometrie ist
+		// also quasi ein "J". Daher liefert die Query einen Punkt (an dem gemeinsamen Knoten) und einen LineString für
+		// das tatsächlich parallel verlaufende Segment zurück.
+		Kante nahegelegeneKante = kantenRepository.save(
+			KanteTestDataProvider
+				.withCoordinates(new Coordinate[] {
+					new Coordinate(100, 0),
+					new Coordinate(100, -30),
+					new Coordinate(110, -30),
+					new Coordinate(110, 100),
+				})
+				.build()
+		);
+
+		// Act & Assert
+		List<NahegelegeneneKantenDbView> result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.RECHTS, Laenge.of(15)).stream().toList();
+
+		LineString expectedNahegelegeneKanteLineString = GeometryTestdataProvider.createLineString(new Coordinate(110,
+			0), new Coordinate(110, 100));
+
+		assertThat(result).hasSize(1);
+		assertThat(result.get(0).getNahegelegeneKante()).isEqualTo(nahegelegeneKante);
+		assertThat(result.get(0).getNahegelegeneKanteSegment()).isEqualTo(expectedNahegelegeneKanteLineString);
+
+		// Act & Assert
+		result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.LINKS, Laenge.of(15))
+			.stream().toList();
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testGetNahegelegeneKanten_leereGeometrieBeiBufferBerechnungen() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(100, 0, 100, 100,
+			QuellSystem.DLM).build());
+
+		// Liegt technisch gesehen innerhalb des Buffers. Allerdings besteht der Buffer am Ende von LineStrings aus
+		// Rundungen, die durch mehrere Segmente abstrahiert werden um ein normales Polygon zu bilden. In diesem Fall
+		// liegt dadurch die baseKante nicht mehr im Buffer-Polygon, sondern leicht außerhalb.
+		Kante nahegelegeneKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 90.001,
+			100, QuellSystem.DLM).build());
+
+		// Act & Assert
+		List<NahegelegeneneKantenDbView> result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.LINKS, Laenge.of(10))
+			.stream().toList();
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testGetNahegelegeneKanten_ergebnisIstMultiLineString() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 100, 0,
+			QuellSystem.DLM).build());
+
+		// Ist an zwei Stellen (ca. 20-30 und 70-80) nahe genug an der Basiskante dran, wodruch sich ein MultiLineString ergibt.
+		Kante nahegelegeneKante = kantenRepository.save(
+			KanteTestDataProvider
+				.withCoordinates(new Coordinate[] {
+					new Coordinate(0, 16),
+					new Coordinate(20, 14),
+					new Coordinate(30, 14),
+					new Coordinate(50, 16),
+					new Coordinate(70, 14),
+					new Coordinate(80, 14),
+					new Coordinate(100, 16),
+				})
+				.build()
+		);
+
+		// Act & Assert
+		List<NahegelegeneneKantenDbView> result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante,
+			LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS, Laenge.of(15)).stream().toList();
+
+		assertThat(result).hasSize(2);
+		assertThat(result.stream().map(k -> k.getNahegelegeneKante())).containsExactlyInAnyOrder(nahegelegeneKante,
+			nahegelegeneKante);
+		assertThat(result.stream().map(k -> k.getNahegelegeneKanteSegment())).containsExactlyInAnyOrder(
+			GeometryTestdataProvider.createLineString(new Coordinate(10, 15), new Coordinate(20, 14), new Coordinate(30,
+				14), new Coordinate(40, 15)),
+			GeometryTestdataProvider.createLineString(new Coordinate(60, 15), new Coordinate(70, 14), new Coordinate(80,
+				14), new Coordinate(90, 15))
+		);
+
+		// Act & Assert
+		result = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.RECHTS, Laenge.of(15)).stream()
+			.toList();
+		assertThat(result).isEmpty();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void testGetNahegelegeneKanten_linearReferenzierterAbschnitt() {
+		// Arrange
+		Kante baseKante = kantenRepository.save(KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100,
+			QuellSystem.DLM).build());
+
+		// Kanten links von der Basiskante
+		Kante kanteLinks1 = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(-10, 0, -10, 25, QuellSystem.DLM).build()
+		);
+
+		// Kanten rechts von der Basiskante
+		Kante kanteRechts1 = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(10, 25, 10, 50, QuellSystem.DLM).build()
+		);
+
+		// Kanten auf beiden Seiten von der Basiskante
+		Kante kanteLinks2 = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(-10, 50, -10, 75, QuellSystem.DLM).build()
+		);
+		Kante kanteRechts2 = kantenRepository.save(
+			KanteTestDataProvider.withCoordinatesAndQuelle(10, 50, 10, 75, QuellSystem.DLM).build()
+		);
+
+		// Act & Assert (0 - 0,25)
+		LinearReferenzierterAbschnitt abschnitt = LinearReferenzierterAbschnitt.of(0, 0.25);
+
+		List<NahegelegeneneKantenDbView> resultRechts = kantenRepository.getNahegelegeneKantenAufSeite(baseKante,
+			abschnitt, Seitenbezug.RECHTS, Laenge.of(15));
+		assertThat(resultRechts).isEmpty();
+
+		List<NahegelegeneneKantenDbView> resultLinks = kantenRepository.getNahegelegeneKantenAufSeite(baseKante,
+			abschnitt, Seitenbezug.LINKS, Laenge.of(15));
+		assertThat(resultLinks).hasSize(1);
+		assertThat(resultLinks.get(0).getNahegelegeneKante()).isEqualTo(kanteLinks1);
+		assertThat(resultLinks.get(0).getNahegelegeneKanteSegment()).isEqualTo(kanteLinks1.getGeometry());
+		assertThat(resultLinks.get(0).getBasisKante()).isEqualTo(baseKante);
+		assertThat(resultLinks.get(0).getBasisKanteSegment()).isEqualTo(abschnitt.toSegment(baseKante.getGeometry()));
+
+		// Act & Assert (0,25 - 0,5)
+		abschnitt = LinearReferenzierterAbschnitt.of(0.25, 0.5);
+
+		resultRechts = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, abschnitt, Seitenbezug.RECHTS, Laenge
+			.of(15));
+		assertThat(resultRechts).hasSize(1);
+		assertThat(resultRechts.get(0).getNahegelegeneKante()).isEqualTo(kanteRechts1);
+		assertThat(resultRechts.get(0).getNahegelegeneKanteSegment()).isEqualTo(kanteRechts1.getGeometry());
+		assertThat(resultRechts.get(0).getBasisKante()).isEqualTo(baseKante);
+		assertThat(resultRechts.get(0).getBasisKanteSegment()).isEqualTo(abschnitt.toSegment(baseKante.getGeometry()));
+
+		resultLinks = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, abschnitt, Seitenbezug.LINKS, Laenge.of(
+			15));
+		assertThat(resultLinks).isEmpty();
+
+		// Act & Assert (0,5 - 0,75)
+		abschnitt = LinearReferenzierterAbschnitt.of(0.5, 0.75);
+
+		resultRechts = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, abschnitt, Seitenbezug.RECHTS, Laenge
+			.of(15));
+		assertThat(resultRechts).hasSize(1);
+		assertThat(resultRechts.get(0).getNahegelegeneKante()).isEqualTo(kanteRechts2);
+		assertThat(resultRechts.get(0).getNahegelegeneKanteSegment()).isEqualTo(kanteRechts2.getGeometry());
+		assertThat(resultRechts.get(0).getBasisKante()).isEqualTo(baseKante);
+		assertThat(resultRechts.get(0).getBasisKanteSegment()).isEqualTo(abschnitt.toSegment(baseKante.getGeometry()));
+
+		resultLinks = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, abschnitt, Seitenbezug.LINKS, Laenge.of(
+			15));
+		assertThat(resultLinks).hasSize(1);
+		assertThat(resultLinks.get(0).getNahegelegeneKante()).isEqualTo(kanteLinks2);
+		assertThat(resultLinks.get(0).getNahegelegeneKanteSegment()).isEqualTo(kanteLinks2.getGeometry());
+		assertThat(resultLinks.get(0).getBasisKante()).isEqualTo(baseKante);
+		assertThat(resultLinks.get(0).getBasisKanteSegment()).isEqualTo(abschnitt.toSegment(baseKante.getGeometry()));
+
+		// Act & Assert (0,75 - 1)
+		abschnitt = LinearReferenzierterAbschnitt.of(0.75, 1);
+
+		resultRechts = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, abschnitt, Seitenbezug.RECHTS, Laenge
+			.of(15));
+		assertThat(resultRechts).isEmpty();
+
+		resultLinks = kantenRepository.getNahegelegeneKantenAufSeite(baseKante, abschnitt, Seitenbezug.LINKS, Laenge.of(
+			15));
+		assertThat(resultLinks).isEmpty();
+	}
+
+	@Test
 	void testFindKanteByQuelle() {
 		// Arrange
 		Kante kanteRN1 = createKante(new Coordinate(1, 10), new Coordinate(2, 20), QuellSystem.RadNETZ);
@@ -634,47 +877,6 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		List<Kante> resultDLM = kantenRepository.findKanteByQuelle(QuellSystem.DLM)
 			.collect(Collectors.toList());
 		List<Kante> resultRadNETZ = kantenRepository.findKanteByQuelle(QuellSystem.RadNETZ)
-			.collect(Collectors.toList());
-
-		// Assert
-		assertThat(resultDLM)
-			.isNotEmpty()
-			.containsExactlyInAnyOrder(kanteTF1, kanteTF2);
-		assertThat(resultRadNETZ)
-			.isNotEmpty()
-			.containsExactlyInAnyOrder(kanteRN1, kanteRN2);
-	}
-
-	@Test
-	void testGetKnotenEagerly() {
-		// Arrange
-		Kante kanteRN1 = createKante(new Coordinate(1, 10), new Coordinate(2, 20), QuellSystem.RadNETZ);
-		Kante kanteRN2 = createKante(new Coordinate(2, 20), new Coordinate(3, 30), QuellSystem.RadNETZ);
-
-		Kante kanteTF1 = createKante(new Coordinate(1, 10), new Coordinate(2, 20), QuellSystem.DLM);
-		Kante kanteTF2 = createKante(new Coordinate(2, 20), new Coordinate(3, 30), QuellSystem.DLM);
-		Kante kanteTF3 = createKante(new Coordinate(3, 30), new Coordinate(4, 40), QuellSystem.DLM);
-		Kante kanteTF4 = createKante(new Coordinate(4, 40), new Coordinate(5, 50), QuellSystem.DLM);
-
-		kantenRepository.save(kanteRN1);
-		kantenRepository.save(kanteRN2);
-		kantenRepository.save(kanteTF1);
-		kantenRepository.save(kanteTF2);
-		kantenRepository.save(kanteTF3);
-		kantenRepository.save(kanteTF4);
-
-		kantenRepository.delete(kanteTF3);
-		kantenRepository.delete(kanteTF4);
-
-		entityManager.flush();
-		entityManager.clear();
-
-		// Act
-		List<Kante> resultDLM = kantenRepository
-			.getKantenInBereichNachQuelleEagerFetchKnoten(new Envelope(0, 300, 0, 300), QuellSystem.DLM)
-			.collect(Collectors.toList());
-		List<Kante> resultRadNETZ = kantenRepository
-			.getKantenInBereichNachQuelleEagerFetchKnoten(new Envelope(0, 300, 0, 300), QuellSystem.RadNETZ)
 			.collect(Collectors.toList());
 
 		// Assert
@@ -806,26 +1008,6 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThatNoException().isThrownBy(() -> kantenRepository.buildIndex());
 	}
 
-	@Test
-	void testGetAlleKantenEinesKnotens() {
-		// arrange
-		Knoten n1 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(10, 10), QuellSystem.DLM).build();
-		Knoten n2 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(20, 10), QuellSystem.DLM).build();
-		Knoten n3 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(30, 10), QuellSystem.DLM).build();
-		Knoten n4 = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(20, 20), QuellSystem.DLM).build();
-
-		Kante k1 = kantenRepository.save(KanteTestDataProvider.fromKnoten(n1, n2).build());
-		Kante k2 = kantenRepository.save(KanteTestDataProvider.fromKnoten(n2, n3).build());
-		kantenRepository.save(KanteTestDataProvider.fromKnoten(n3, n4).build());
-		Kante k4 = kantenRepository.save(KanteTestDataProvider.fromKnoten(n4, n2).build());
-
-		// act
-		Set<Kante> result = kantenRepository.getAlleKantenEinesKnotens(k2.getVonKnoten());
-
-		// assert
-		assertThat(result).containsExactlyInAnyOrder(k1, k2, k4);
-	}
-
 	@SuppressWarnings("unused")
 	@Test
 	void testGetKantenInBereich() {
@@ -845,7 +1027,7 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 		Envelope bereich = new Envelope(0, 30, 0, 30);
 		// Act
-		Set<Kante> result = kantenRepository.getKantenimBereich(bereich);
+		Set<Kante> result = kantenRepository.getKantenInBereich(bereich);
 
 		// Assert
 		assertThat(result).hasSize(2);
@@ -1054,6 +1236,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 						KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 						Laenge.of(1),
 						Benutzungspflicht.VORHANDEN,
+						Beschilderung.UNBEKANNT,
+						Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER),
+						Absenkung.UNBEKANNT,
 						null,
 						null,
 						null,
@@ -1118,6 +1303,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 				put("parken_form", KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT.name());
 				put("bordstein", Bordstein.KEINE_ABSENKUNG.name());
 				put("belag_art", BelagArt.ASPHALT.name());
+				put("beschilderung", Beschilderung.UNBEKANNT.name());
+				put("absenkung", Absenkung.UNBEKANNT.name());
+				put("schaeden", Schadenart.ABPLATZUNGEN_SCHLAGLOECHER.name());
 				put("oberflaechenbeschaffenheit",
 					Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE.name());
 				put("benutzungspflicht", Benutzungspflicht.VORHANDEN.name());
@@ -1318,11 +1506,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								BelagArt.ASPHALT,
 								Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 								Bordstein.KEINE_ABSENKUNG,
-								Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+								Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
 								KfzParkenTyp.LAENGS_PARKEN,
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								Laenge.of(3.5),
 								Laenge.of(2.5),
 								TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1336,11 +1527,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								BelagArt.BETON,
 								Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 								Bordstein.KEINE_ABSENKUNG,
-								Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+								Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
 								KfzParkenTyp.LAENGS_PARKEN,
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								Laenge.of(3.5),
 								Laenge.of(2.5),
 								TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1356,11 +1550,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								BelagArt.NATURSTEINPFLASTER,
 								Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 								Bordstein.KEINE_ABSENKUNG,
-								Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+								Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
 								KfzParkenTyp.LAENGS_PARKEN,
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								Laenge.of(3.5),
 								Laenge.of(2.5),
 								TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1374,11 +1571,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								BelagArt.WASSERGEBUNDENE_DECKE,
 								Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 								Bordstein.KEINE_ABSENKUNG,
-								Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+								Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
 								KfzParkenTyp.LAENGS_PARKEN,
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								Laenge.of(3.5),
 								Laenge.of(2.5),
 								TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1437,7 +1637,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 						.collect(Collectors.joining(";")));
 
 				// fuehrungsform attribute
-				put("radverkehrsfuehrung", Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND.name());
+				put("radverkehrsfuehrung", Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND.name());
+				put("absenkung", "UNBEKANNT");
+				put("beschilderung", "UNBEKANNT");
+				put("schaeden", "");
 				put("breite", BigDecimal.valueOf(Laenge.of(1).getValue()));
 				put("parken_typ", KfzParkenTyp.LAENGS_PARKEN.name());
 				put("parken_form", KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT.name());
@@ -1794,11 +1997,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							BelagArt.ASPHALT,
 							Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 							Bordstein.KEINE_ABSENKUNG,
-							Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+							Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
 							KfzParkenTyp.LAENGS_PARKEN,
 							KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 							Laenge.of(1),
 							Benutzungspflicht.VORHANDEN,
+							Beschilderung.UNBEKANNT,
+							Collections.emptySet(),
+							Absenkung.UNBEKANNT,
 							Laenge.of(3.5),
 							Laenge.of(2.5),
 							TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1812,11 +2018,14 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							BelagArt.BETON,
 							Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 							Bordstein.KEINE_ABSENKUNG,
-							Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+							Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
 							KfzParkenTyp.LAENGS_PARKEN,
 							KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 							Laenge.of(1),
 							Benutzungspflicht.VORHANDEN,
+							Beschilderung.UNBEKANNT,
+							Collections.emptySet(),
+							Absenkung.UNBEKANNT,
 							Laenge.of(3.5),
 							Laenge.of(2.5),
 							TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1873,7 +2082,10 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 						.collect(Collectors.joining(";")));
 
 				// fuehrungsform attribute
-				put("radverkehrsfuehrung", Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND.name());
+				put("radverkehrsfuehrung", Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND.name());
+				put("absenkung", "UNBEKANNT");
+				put("beschilderung", "UNBEKANNT");
+				put("schaeden", "");
 				put("breite", BigDecimal.valueOf(Laenge.of(1).getValue()));
 				put("parken_typ", KfzParkenTyp.LAENGS_PARKEN.name());
 				put("parken_form", KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT.name());
@@ -2114,6 +2326,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 							Laenge.of(1),
 							Benutzungspflicht.VORHANDEN,
+							Beschilderung.UNBEKANNT,
+							Collections.emptySet(),
+							Absenkung.UNBEKANNT,
 							null,
 							null,
 							null,
@@ -2132,6 +2347,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 							KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 							Laenge.of(1),
 							Benutzungspflicht.VORHANDEN,
+							Beschilderung.UNBEKANNT,
+							Collections.emptySet(),
+							Absenkung.UNBEKANNT,
 							null,
 							null,
 							null,
@@ -2506,6 +2724,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -2524,6 +2745,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -2544,6 +2768,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -2562,6 +2789,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -3053,6 +3283,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -3071,6 +3304,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -3089,6 +3325,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -3109,6 +3348,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -3127,6 +3369,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 								KfzParkenForm.HALBES_GEHWEGPARKEN_UNMARKIERT,
 								Laenge.of(1),
 								Benutzungspflicht.VORHANDEN,
+								Beschilderung.UNBEKANNT,
+								Collections.emptySet(),
+								Absenkung.UNBEKANNT,
 								null,
 								null,
 								null,
@@ -4311,5 +4556,24 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 			.geometry(lineStringInnerhalb).aufDlmAbgebildeteGeometry(null).kantenAttributGruppe(
 				KantenAttributGruppeTestDataProvider.defaultValue().build())
 			.build();
+	}
+
+	private static void assertThatLineStringsAreSimilar(LineString lineStringA, LineString lineStringB,
+		double similarityThreshold) {
+		assertThat(lineStringA.getCoordinates().length).isEqualTo(lineStringB.getCoordinates().length);
+
+		double cummulatedError = 0d;
+
+		for (int i = 0; i < lineStringA.getCoordinates().length; i++) {
+			Coordinate coordA = lineStringA.getCoordinates()[i];
+			Coordinate coordB = lineStringB.getCoordinates()[i];
+			cummulatedError += coordA.distance(coordB);
+		}
+
+		double similarity = cummulatedError / lineStringA.getCoordinates().length;
+		if (similarity < similarityThreshold) {
+			log.info("Similarity: {}", similarity);
+		}
+		assertThat(similarity).isLessThan(similarityThreshold);
 	}
 }

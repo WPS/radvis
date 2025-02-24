@@ -12,11 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
+import { BarriereFormDetails } from 'src/app/viewer/barriere/models/barriere-form-details';
 import { Markierung } from 'src/app/viewer/barriere/models/markierung';
 import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
 import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/verbleibende-durchfahrtsbreite';
-import { Netzbezug } from 'src/app/shared/models/netzbezug';
 
 export interface Barriere {
   verantwortlicheOrganisation: Verwaltungseinheit;
@@ -28,4 +29,5 @@ export interface Barriere {
   begruendung: string | null;
   version: number;
   darfBenutzerBearbeiten: boolean | null;
+  barriereFormDetails: BarriereFormDetails | null;
 }

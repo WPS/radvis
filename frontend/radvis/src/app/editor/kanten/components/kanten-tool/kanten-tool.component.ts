@@ -26,6 +26,7 @@ import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.ser
   templateUrl: './kanten-tool.component.html',
   styleUrls: ['./kanten-tool.component.scss', '../../../editor-tool-styles.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenToolComponent {
   @ViewChild('toolContainer', { read: ElementRef })

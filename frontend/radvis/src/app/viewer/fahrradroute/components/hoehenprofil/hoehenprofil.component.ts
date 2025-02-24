@@ -39,6 +39,7 @@ Chart.register(...registerables);
   templateUrl: './hoehenprofil.component.html',
   styleUrls: ['./hoehenprofil.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HoehenprofilComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('chartCanvas', { static: true })
@@ -177,7 +178,7 @@ export class HoehenprofilComponent implements OnInit, OnDestroy, OnChanges {
       invariant(this.route);
       const hoehen = this.route.getCoordinates().map(coor => coor[2]);
       this.distanzen = this.distancesToStart;
-      invariant(this.lineChartOptions.scales && this.lineChartOptions.scales.x);
+      invariant(this.lineChartOptions.scales?.x);
       this.lineChartOptions.scales.x.max = Math.max(...this.distanzen);
       this.lineChartDatasets[0].data = hoehen.map((hoehe, index) => {
         return { x: this.distanzen[index], y: hoehe };

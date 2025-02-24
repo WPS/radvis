@@ -103,7 +103,11 @@ public class NetzConfiguration {
 		return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppeRepository,
 			fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
 			fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver,
-			entityManager, commonConfigurationProperties.getErlaubteAbweichungFuerKnotenNetzbezugRematch());
+			entityManager, commonConfigurationProperties.getErlaubteAbweichungFuerKnotenNetzbezugRematch(),
+			netzConfigurationProperties.getNahegelegeneKantenDistanzInM(),
+			netzConfigurationProperties.getKantenParallelitaetSegmente(),
+			netzConfigurationProperties.getKantenParallelitaetToleranz(),
+			netzConfigurationProperties.getNahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge());
 	}
 
 	@Bean

@@ -43,6 +43,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
     '../../../../form-elements/components/attribute-editor/attribut-editor.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenUmsetzungsstandComponent
   extends AbstractEventTrackedEditor

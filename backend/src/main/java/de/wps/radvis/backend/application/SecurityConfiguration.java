@@ -45,7 +45,7 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
-import org.springframework.security.saml2.provider.service.metadata.OpenSamlMetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
@@ -134,6 +134,7 @@ public class SecurityConfiguration {
 			http.sessionManagement(session -> session.maximumSessions(-1).sessionRegistry(sessionRegistry()))
 				.securityMatcher(NOT_API_MATCHER)
 				.authorizeHttpRequests(authorizer -> authorizer
+					.requestMatchers("/health-check/**").permitAll()
 					.requestMatchers("/actuator/health").permitAll()
 					.requestMatchers("/actuator/prometheus")
 					.access((authentication, c) -> new AuthorizationDecision(
@@ -185,9 +186,7 @@ public class SecurityConfiguration {
 		private Saml2MetadataFilter createSaml2MetadataFilter() {
 			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
 				this.relyingPartyRegistrationRepository);
-			return new Saml2MetadataFilter(
-				relyingPartyRegistrationResolver,
-				new OpenSamlMetadataResolver());
+			return new Saml2MetadataFilter(relyingPartyRegistrationResolver, new OpenSaml4MetadataResolver());
 		}
 
 		private String getAktuellerBenutzerServiceBwId(Authentication authentication) {

@@ -61,6 +61,7 @@ import invariant from 'tiny-invariant';
   styleUrls: ['./ol-map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: OlMapService, useExisting: forwardRef(() => OlMapComponent) }],
+  standalone: false,
 })
 export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
   public static readonly CLICK_HIT_TOLERANCE = 20;
@@ -232,7 +233,6 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
 
       this.map.on('click', event => {
         if (!environment.production) {
-          // eslint-disable-next-line no-console
           console.debug('coordinate', event.coordinate);
         }
 
@@ -274,7 +274,7 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
                       id ? +id : null,
                       feature.getProperties(),
                       layer.get(OlMapService.LAYER_ID),
-                      feature.getGeometry() as Geometry
+                      feature.getGeometry()!
                     );
                   });
                 }

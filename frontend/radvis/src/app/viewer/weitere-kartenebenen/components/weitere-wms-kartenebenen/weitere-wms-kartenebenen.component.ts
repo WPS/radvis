@@ -26,19 +26,20 @@ import invariant from 'tiny-invariant';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
 import Geometry from 'ol/geom/Geometry';
 import { Feature } from 'ol';
-import { WMSGetFeatureInfo } from 'ol/format';
 import { HttpClient } from '@angular/common/http';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import VectorLayer from 'ol/layer/Vector';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import VectorSource from 'ol/source/Vector';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import GeoJSON from 'ol/format/GeoJSON';
 
 @Component({
   selector: 'rad-weitere-wms-kartenebenen',
   templateUrl: './weitere-wms-kartenebenen.component.html',
   styleUrls: ['./weitere-wms-kartenebenen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
   @Input()
@@ -180,7 +181,8 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
 
   private getFeaturesCallback = (coordinate: number[], resolution: number): Promise<Feature<Geometry>[]> => {
     const featureInfoUrl = this.source?.getFeatureInfoUrl(coordinate, resolution, 'EPSG:25832', {
-      INFO_FORMAT: 'application/vnd.ogc.gml',
+      // Explizit GeoJSON anfragen, um Fehler in encoding oder Feature-Typen zu vermeiden, da GeoJSON am flexibelsten ist.
+      INFO_FORMAT: 'application/json',
       FEATURE_COUNT: 3,
     });
     if (featureInfoUrl) {
@@ -191,8 +193,8 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
         .get(url.toString(), { responseType: 'text' })
         .toPromise()
         .then(
-          gml => {
-            const allFeatures = new WMSGetFeatureInfo().readFeatures(gml);
+          responseText => {
+            const allFeatures = new GeoJSON().readFeatures(responseText);
             return allFeatures.map(feature => {
               feature.set(WeitereKartenebene.EXTERNE_WMS_FEATURE_ID_PROPERTY_NAME, feature.getId());
               feature.set(WeitereKartenebene.LAYER_ID_KEY, this.layerId);

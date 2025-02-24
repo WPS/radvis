@@ -23,6 +23,7 @@ import { RADVIS_NETZ_LAYER_PREFIX } from 'src/app/viewer/viewer-shared/models/ra
   templateUrl: './radvis-netz-layer.component.html',
   styleUrls: ['./radvis-netz-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RadvisNetzLayerComponent {
   @Input()

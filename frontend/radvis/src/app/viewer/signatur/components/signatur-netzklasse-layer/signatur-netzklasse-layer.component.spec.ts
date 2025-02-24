@@ -59,9 +59,7 @@ describe(SignaturNetzklasseLayerComponent.name, () => {
 
   describe('ngOnChanges', () => {
     it('should refresh source when signature changed', () => {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       const refreshSpy = spyOn(component['olLayer'].getSource(), 'refresh');
-      // eslint-disable-next-line @typescript-eslint/dot-notation
 
       component.generatedStyleFunction = (): Style => {
         return new Style({});

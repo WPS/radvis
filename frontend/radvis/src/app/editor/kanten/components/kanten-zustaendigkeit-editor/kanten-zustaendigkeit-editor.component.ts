@@ -43,6 +43,7 @@ import invariant from 'tiny-invariant';
     '../lineare-referenz-tabelle.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenZustaendigkeitEditorComponent
   extends AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEditor<
@@ -100,9 +101,9 @@ export class KantenZustaendigkeitEditorComponent
       const attributeCommand = attributgruppe.zustaendigkeitAttribute.map(attribute =>
         this.convertAttributeToAttributeCommand(attribute)
       );
-      const associatedKantenSelektion = this.currentSelektion?.find(
+      const associatedKantenSelektion = this.currentSelektion!.find(
         kantenSelektion => this.getAttributGruppeFrom(kantenSelektion.kante).id === attributgruppe.id
-      ) as KantenSelektion;
+      )!;
       return {
         gruppenID: attributgruppe.id,
         gruppenVersion: attributgruppe.version,
@@ -123,7 +124,6 @@ export class KantenZustaendigkeitEditorComponent
     return result;
   }
 
-  // eslint-disable-next-line prettier/prettier
   protected override resetDisplayedAttribute(selektion: KantenSelektion[]): void {
     super.resetDisplayedAttribute(selektion);
     if (selektion.length > 0) {

@@ -42,6 +42,7 @@ import invariant from 'tiny-invariant';
       useExisting: forwardRef(() => AnpassungswunschToolComponent),
     },
   ],
+  standalone: false,
 })
 export class AnpassungswunschToolComponent implements KommentarService {
   eigenschaftenRoute = './' + AnpassungenRoutingService.EIGENSCHAFTEN;

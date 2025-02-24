@@ -14,6 +14,8 @@
 
 package de.wps.radvis.backend.netz.domain.entity.provider;
 
+import java.util.Set;
+
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
@@ -24,6 +26,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
 
@@ -62,6 +65,7 @@ public class FuehrungsformAttributeTestDataProvider {
 			.parkenForm(KfzParkenForm.FAHRBAHNPARKEN_MARKIERT)
 			.parkenTyp(KfzParkenTyp.LAENGS_PARKEN)
 			.breite(Laenge.of(3.45))
+			.schaeden(Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER, Schadenart.ABSACKUNG_SETZUNG))
 			.benutzungspflicht(Benutzungspflicht.VORHANDEN);
 	}
 

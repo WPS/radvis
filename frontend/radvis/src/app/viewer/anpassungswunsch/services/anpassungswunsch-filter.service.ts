@@ -12,13 +12,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { AnpassungswunschKategorie } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch-kategorie';
 import { AnpassungswunschListenView } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch-listen-view';
 import { AnpassungswunschStatus } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch-status';
 import { ANPASSUNGSWUNSCH } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch.infrastruktur';
+import { ErweiterterAnpassungswunschFilter } from 'src/app/viewer/anpassungswunsch/models/erweiterter-anpassungswunsch-filter';
 import { AnpassungswunschService } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch.service';
+import { FahrradrouteFilter } from 'src/app/viewer/viewer-shared/models/fahrradroute-filter';
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { FilterQueryParamsService } from 'src/app/viewer/viewer-shared/services/filter-query-params.service';
 import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/services/infrastrukturen-selektion.service';
@@ -27,7 +32,22 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
   providedIn: 'root',
 })
 export class AnpassungswunschFilterService extends AbstractInfrastrukturenFilterService<AnpassungswunschListenView> {
-  public abgeschlosseneSindAusgeblendet = true;
+  private readonly defaultErweiterterFilter = {
+    abgeschlosseneAusblenden: true,
+    fahrradrouteFilter: null,
+  };
+
+  private _erweiterterFilter: ErweiterterAnpassungswunschFilter = this.defaultErweiterterFilter;
+
+  public get erweiterterFilter(): ErweiterterAnpassungswunschFilter {
+    return { ...this._erweiterterFilter };
+  }
+
+  private erweiterterFilterActive$$: BehaviorSubject<boolean>;
+
+  get erweiterterFilterActive$(): Observable<boolean> {
+    return this.erweiterterFilterActive$$.asObservable().pipe(distinctUntilChanged());
+  }
 
   constructor(
     infrastrukturenSelektionService: InfrastrukturenSelektionService,
@@ -35,6 +55,9 @@ export class AnpassungswunschFilterService extends AbstractInfrastrukturenFilter
     private anpassungswunschService: AnpassungswunschService
   ) {
     super(infrastrukturenSelektionService, ANPASSUNGSWUNSCH, filterQueryParamsService);
+    this.erweiterterFilterActive$$ = new BehaviorSubject<boolean>(
+      !ErweiterterAnpassungswunschFilter.isEmpty(this.erweiterterFilter)
+    );
     this.init();
   }
 
@@ -50,27 +73,46 @@ export class AnpassungswunschFilterService extends AbstractInfrastrukturenFilter
         return item.kategorie ? AnpassungswunschKategorie.displayTextOf(item.kategorie) : '';
       case 'verantwortlicheOrganisation':
         return Verwaltungseinheit.getDisplayName(item.verantwortlicheOrganisation);
+      case 'erstelltAm':
+        return this.convertDateToString(item.erstelltAm) ?? EMPTY_FIELD_INDICATOR;
+      case 'zuletztGeaendertAm':
+        return this.convertDateToString(item.zuletztGeaendertAm) ?? EMPTY_FIELD_INDICATOR;
       default:
         throw Error(`Key ${key} nicht gefunden`);
     }
   }
 
-  public abgeschlosseneAusblenden(): void {
-    this.abgeschlosseneSindAusgeblendet = true;
-    this.refetchData();
-  }
-
-  public abgeschlosseneEinblenden(): void {
-    this.abgeschlosseneSindAusgeblendet = false;
-    this.refetchData();
+  private convertDateToString(date: string): string | null {
+    return date ? new DatePipe('en-US').transform(new Date(date), 'dd.MM.yy HH:mm')! : null;
   }
 
   protected getAll(): Promise<AnpassungswunschListenView[]> {
     return (
       this.anpassungswunschService
-        .getAlleAnpassungswuensche(this.abgeschlosseneSindAusgeblendet)
+        .getAlleAnpassungswuensche(
+          this.erweiterterFilter.abgeschlosseneAusblenden,
+          this.erweiterterFilter.fahrradrouteFilter?.fahrradroutenIds
+        )
         // Verhindere, dass eine weitere redundante Fehlermeldung kommt, was zu RAD-4681 fuehrte.
         .catch(() => [])
     );
+  }
+
+  public override reset(): void {
+    super.reset();
+    this.updateErweiterterFilter(this.defaultErweiterterFilter);
+  }
+
+  public updateErweiterterFilter(value: ErweiterterAnpassungswunschFilter): void {
+    const valueChanged =
+      this._erweiterterFilter.abgeschlosseneAusblenden !== value.abgeschlosseneAusblenden ||
+      !FahrradrouteFilter.equal(value.fahrradrouteFilter, this._erweiterterFilter.fahrradrouteFilter);
+
+    this._erweiterterFilter = value;
+    this.erweiterterFilterActive$$.next(!ErweiterterAnpassungswunschFilter.isEmpty(value));
+
+    if (valueChanged) {
+      this.refetchData();
+    }
   }
 }

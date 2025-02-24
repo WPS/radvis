@@ -39,29 +39,40 @@ import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenSeite;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
+import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.KnotenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.schnittstelle.view.KanteDetailView;
+import de.wps.radvis.backend.netz.schnittstelle.view.KnotenDetailView;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
 @SuppressWarnings("deprecation")
@@ -117,13 +128,15 @@ public class NetzToFeatureDetailsConverterTest {
 				KfzParkenForm.FAHRBAHNPARKEN_MARKIERT,
 				null,
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.GEHWEG_MIT_VZ_239,
+				Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER, Schadenart.ABSACKUNG_SETZUNG),
+				Absenkung.GRUNDSTUECKSZUFAHRTEN_ABGESENKT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			)));
+				TrennstreifenForm.UNBEKANNT)));
 		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(x1, y1, x2, y2, QuellSystem.LGL)
 			.id(1337L)
 			.kantenAttributGruppe(kantenAttributGruppe)
@@ -172,13 +185,22 @@ public class NetzToFeatureDetailsConverterTest {
 			.containsEntry("Kfz-Parken-Typ", "Parken in Längsaufstellung")
 			.containsEntry("Breite", null)
 			.containsEntry("Benutzungspflicht", "Vorhanden")
+			.containsKey("Vorhandene Schäden")
+			.containsEntry("Beschilderung", "StVO-Beschilderung: Gehweg mit VZ 239")
+			.containsEntry("Absenkung", "ja, Grundstückzufahrten sind (überwiegend) abgesenkt")
 
 			// Zustaendigkeit
 			.containsEntry("Baulastträger", null)
 			.containsEntry("Vereinbarungskennung", null)
 			.containsEntry("Unterhaltszuständiger", "Freiburg")
 			.containsEntry("Erhaltszuständiger", "Stuttgart")
-			.hasSize(15);
+			.hasSize(18);
+
+		assertThat(kanteDetailViewLinks.getAttributeAnPosition().get("Vorhandene Schäden"))
+			.satisfiesAnyOf(schaeden -> assertThat(schaeden).isEqualTo(
+				"Abplatzungen / Schlaglöcher, Absackung / Setzung"),
+				schaeden -> assertThat(schaeden).isEqualTo(
+					"Absackung / Setzung, Abplatzungen / Schlaglöcher"));
 
 		assertThat(kanteDetailViewLinks.getAttributeAufGanzerLaenge())
 			// gemappte Attribute haben Werte
@@ -254,13 +276,15 @@ public class NetzToFeatureDetailsConverterTest {
 				KfzParkenForm.FAHRBAHNPARKEN_MARKIERT,
 				null,
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.GEHWEG_MIT_VZ_239,
+				Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER),
+				Absenkung.GRUNDSTUECKSZUFAHRTEN_ABGESENKT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			)));
+				TrennstreifenForm.UNBEKANNT)));
 		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(x1, y1, x2, y2, QuellSystem.LGL)
 			.id(1337L)
 			.kantenAttributGruppe(kantenAttributGruppe)
@@ -311,13 +335,16 @@ public class NetzToFeatureDetailsConverterTest {
 				.containsEntry("Kfz-Parken-Typ", "Parken in Längsaufstellung")
 				.containsEntry("Breite", null)
 				.containsEntry("Benutzungspflicht", "Vorhanden")
+				.containsEntry("Vorhandene Schäden", "Abplatzungen / Schlaglöcher")
+				.containsEntry("Beschilderung", "StVO-Beschilderung: Gehweg mit VZ 239")
+				.containsEntry("Absenkung", "ja, Grundstückzufahrten sind (überwiegend) abgesenkt")
 
 				// Zustaendigkeit
 				.containsEntry("Baulastträger", null)
 				.containsEntry("Vereinbarungskennung", null)
 				.containsEntry("Unterhaltszuständiger", "Freiburg")
 				.containsEntry("Erhaltszuständiger", "Stuttgart")
-				.hasSize(15);
+				.hasSize(18);
 
 			assertThat(kanteDetailView.getAttributeAufGanzerLaenge())
 				// gemappte Attribute haben Werte
@@ -397,13 +424,15 @@ public class NetzToFeatureDetailsConverterTest {
 				KfzParkenForm.FAHRBAHNPARKEN_MARKIERT,
 				null,
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.GEHWEG_MIT_VZ_239,
+				Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER),
+				Absenkung.GRUNDSTUECKSZUFAHRTEN_ABGESENKT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			)));
+				TrennstreifenForm.UNBEKANNT)));
 		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(x1, y1, x2, y2, QuellSystem.LGL)
 			.id(1337L)
 			.kantenAttributGruppe(kantenAttributGruppe)
@@ -485,6 +514,9 @@ public class NetzToFeatureDetailsConverterTest {
 			.containsEntry("Kfz-Parken-Typ", "Parken in Längsaufstellung")
 			.containsEntry("Breite", null)
 			.containsEntry("Benutzungspflicht", "Vorhanden")
+			.containsEntry("Vorhandene Schäden", "Abplatzungen / Schlaglöcher")
+			.containsEntry("Beschilderung", "StVO-Beschilderung: Gehweg mit VZ 239")
+			.containsEntry("Absenkung", "ja, Grundstückzufahrten sind (überwiegend) abgesenkt")
 
 			// Zustaendigkeit
 			.containsEntry("Baulastträger", null)
@@ -495,7 +527,7 @@ public class NetzToFeatureDetailsConverterTest {
 			// Netzklassen
 			.containsEntry("Netzklassen", Netzklasse.RADNETZ_ALLTAG.toString())
 
-			.hasSize(37);
+			.hasSize(40);
 	}
 
 	private String extractRichtung(List<AttributeView> propertiesSeiteLinks) {
@@ -542,6 +574,34 @@ public class NetzToFeatureDetailsConverterTest {
 		// Dort, wo sich beide Segmente Treffen werden die daten des Vorderen Segmentes zurück gegeben
 		assertThat(propertiesMitte).containsExactlyInAnyOrderElementsOf(properties1);
 
+	}
+
+	@Test
+	public void convertKnotenToKnotenDetailView_bauwerksmangelArtKonkateniert() {
+		// arrange
+		Knoten knoten = KnotenTestDataProvider.withDefaultValues()
+			.knotenAttribute(
+				KnotenAttribute.builder().knotenForm(KnotenForm.UEBERFUEHRUNG).bauwerksmangel(Bauwerksmangel.VORHANDEN)
+					.bauwerksmangelArt(
+						Set.of(BauwerksmangelArt.GELAENDER_ZU_NIEDRIG, BauwerksmangelArt.RAMPE_MANGELHAFT))
+					.build())
+			.build();
+
+		// act
+		KnotenDetailView result = netzToFeatureDetailsConverter.convertKnotenToKnotenDetailView(knoten,
+			KnotenOrtslage.AUSSERORTS);
+
+		// assert
+		assertThat(result.getAttribute()).containsKey("Bauwerksmängel");
+		assertThat(result.getAttribute().get("Bauwerksmängel")).isEqualTo(Bauwerksmangel.VORHANDEN.toString());
+		assertThat(result.getAttribute()).containsKey("Art der Bauwerksmängel");
+		assertThat(result.getAttribute().get("Art der Bauwerksmängel"))
+			.satisfiesAnyOf(bmas -> assertThat(bmas).isEqualTo(
+				BauwerksmangelArt.GELAENDER_ZU_NIEDRIG.getDisplayText() + ", "
+					+ BauwerksmangelArt.RAMPE_MANGELHAFT.getDisplayText()),
+				bmas -> assertThat(bmas).isEqualTo(
+					BauwerksmangelArt.RAMPE_MANGELHAFT.getDisplayText() + ", "
+						+ BauwerksmangelArt.GELAENDER_ZU_NIEDRIG.getDisplayText()));
 	}
 
 }

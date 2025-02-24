@@ -48,6 +48,7 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
     FeatureHighlightService,
     { provide: NetzbezugAuswahlModusService, useExisting: forwardRef(() => ViewerComponent) },
   ],
+  standalone: false,
 })
 export class ViewerComponent implements NetzbezugAuswahlModusService {
   @ViewChild(SelectFeatureMenuComponent)

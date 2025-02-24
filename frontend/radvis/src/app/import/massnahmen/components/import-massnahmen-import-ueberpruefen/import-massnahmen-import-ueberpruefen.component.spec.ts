@@ -19,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { MockComponent } from 'ng-mocks';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 import { ValidationErrorAnzeigeComponent } from 'src/app/form-elements/components/validation-error-anzeige/validation-error-anzeige.component';
 import { ImportMassnahmenImportUeberpruefenLayerComponent } from 'src/app/import/massnahmen/components/import-massnahmen-import-ueberpruefen-layer/import-massnahmen-import-ueberpruefen-layer.component';
@@ -40,7 +41,6 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { anything, deepEqual, instance, mock, verify, when } from 'ts-mockito';
 import { ImportMassnahmenImportUeberpruefenComponent } from './import-massnahmen-import-ueberpruefen.component';
-import { MatomoTracker } from 'ngx-matomo-client';
 
 describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
   let component: ImportMassnahmenImportUeberpruefenComponent;
@@ -122,7 +122,7 @@ describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
   describe('with single Zuordnung', () => {
     let zuordnungen: MassnahmenImportZuordnungUeberpruefung[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       zuordnungen = [getDefaultZuordnung()] as MassnahmenImportZuordnungUeberpruefung[];
       when(massnahmenImportService.getZuordnungUeberpruefung()).thenReturn(of(zuordnungen));
 
@@ -160,7 +160,7 @@ describe(ImportMassnahmenImportUeberpruefenComponent.name, () => {
   describe('with different Zuordnungen', () => {
     let zuordnungen: MassnahmenImportZuordnungUeberpruefung[];
 
-    beforeEach(async () => {
+    beforeEach(() => {
       const baseZuordnung = getDefaultZuordnung();
       zuordnungen = [
         {

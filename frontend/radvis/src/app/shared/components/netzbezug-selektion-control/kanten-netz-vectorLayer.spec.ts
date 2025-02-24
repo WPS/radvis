@@ -12,8 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import Projection from 'ol/proj/Projection';
 import { Subject } from 'rxjs';

@@ -31,7 +31,7 @@ describe('SignaturStyleProvider', () => {
   let signaturBelegArt: Signatur;
   let signaturMitPraedikat: Signatur;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     signaturBelegArt = { name: 'BelegArt', typ: SignaturTyp.NETZ };
     signaturMitPraedikat = { name: 'MitPraedikat', typ: SignaturTyp.MASSNAHME };
 

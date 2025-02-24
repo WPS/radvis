@@ -17,6 +17,7 @@ import { fromEvent, Subscription } from 'rxjs';
 
 @Directive({
   selector: '[radHover]',
+  standalone: false,
 })
 export class HoverDirective implements OnDestroy {
   @Output()

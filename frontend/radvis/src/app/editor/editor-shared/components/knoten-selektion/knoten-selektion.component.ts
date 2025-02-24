@@ -40,6 +40,7 @@ import { filter } from 'rxjs/operators';
   templateUrl: './knoten-selektion.component.html',
   styleUrls: ['./knoten-selektion.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KnotenSelektionComponent implements OnDestroy {
   @Input()

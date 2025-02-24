@@ -12,9 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Feature } from 'ol';
@@ -24,11 +23,11 @@ import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { instance, mock, when } from 'ts-mockito';
 import { WeitereWfsKartenebenenComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-wfs-kartenebenen/weitere-wfs-kartenebenen.component';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
+import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
+import { instance, mock, when } from 'ts-mockito';
 
 describe(WeitereWfsKartenebenenComponent.name, () => {
   let component: WeitereWfsKartenebenenComponent;
@@ -46,7 +45,8 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
     when(featureHighlightService.unhighlightedFeature$).thenReturn(unhighlight$$.asObservable());
 
     return MockBuilder(WeitereWfsKartenebenenComponent, WeitereKartenebenenModule)
-      .replace(HttpClientModule, HttpClientTestingModule)
+      .provide(provideHttpClient())
+      .provide(provideHttpClientTesting())
       .provide({
         provide: OlMapService,
         useValue: instance(mock(OlMapComponent)),
@@ -80,16 +80,16 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
   });
 
   describe('convert to feature', () => {
-    let httpMock: HttpTestingController;
+    let httpTesting: HttpTestingController;
 
     beforeEach(() => {
-      httpMock = fixture.point.injector.get(HttpTestingController);
+      httpTesting = fixture.point.injector.get(HttpTestingController);
     });
 
     it('should set layer id and reset feature id', fakeAsync(() => {
       component['load']([0, 0, 0, 0]);
 
-      const req = httpMock.expectOne(
+      const req = httpTesting.expectOne(
         `${testUrl}/?request=GetFeature&version=1.1.0&srsname=EPSG%3A25832&outputFormat=application%2Fjson&bbox=0%2C0%2C0%2C0%2CEPSG%3A25832`
       );
       const geojson: GeoJSON.FeatureCollection = {
@@ -171,11 +171,10 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
     it('should highlight', () => {
       highlight$$.next(
         RadVisFeature.ofAttributesMap(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           +feature.getId()!,
           feature.getProperties(),
           WeitereKartenebene.LAYER_NAME,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
           feature.getGeometry()!
         )
       );
@@ -187,11 +186,10 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
 
     it('should unhighlight', () => {
       const highlightedFeature = RadVisFeature.ofAttributesMap(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         +feature.getId()!,
         feature.getProperties(),
         WeitereKartenebene.LAYER_NAME,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         feature.getGeometry()!
       );
       highlight$$.next(highlightedFeature);
@@ -204,11 +202,10 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
 
     it('should filter by layer name for highlighted', () => {
       const highlightedFeatureNichtExtern = RadVisFeature.ofAttributesMap(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         +feature.getId()!,
         feature.getProperties(),
         'TestLayerName',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         feature.getGeometry()!
       );
       highlight$$.next(highlightedFeatureNichtExtern);
@@ -222,11 +219,10 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
       const properties = { ...feature.getProperties() };
       properties[WeitereKartenebene.LAYER_ID_KEY] = 65345;
       const highlightedFeatureNichtExtern = RadVisFeature.ofAttributesMap(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         +feature.getId()!,
         properties,
         WeitereKartenebene.LAYER_NAME,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         feature.getGeometry()!
       );
       highlight$$.next(highlightedFeatureNichtExtern);
@@ -239,11 +235,10 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
     it('should filter by layer name for highlighted', () => {
       feature.set(WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, true);
       const highlightedFeatureNichtExtern = RadVisFeature.ofAttributesMap(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         +feature.getId()!,
         feature.getProperties(),
         'TestLayerName',
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         feature.getGeometry()!
       );
       unhighlight$$.next(highlightedFeatureNichtExtern);
@@ -258,11 +253,10 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
       const properties = { ...feature.getProperties() };
       properties[WeitereKartenebene.LAYER_ID_KEY] = 65345;
       const highlightedFeatureNichtExtern = RadVisFeature.ofAttributesMap(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         +feature.getId()!,
         properties,
         WeitereKartenebene.LAYER_NAME,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         feature.getGeometry()!
       );
       unhighlight$$.next(highlightedFeatureNichtExtern);

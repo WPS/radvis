@@ -16,5 +16,15 @@ package de.wps.radvis.backend.fahrradroute.domain.repository;
 
 public interface CustomFahrradrouteRepository {
 
-	void resetGeoserverFahrradrouteImportDiffMaterializedView(int anzahlTageImportprotokolleVorhalten);
+	/**
+	 * Erstellt den materialized View mit dem geometrischen Diff zwischen importierten Fahrradrouten
+	 * 
+	 * @param anzahlTageImportprotokolleVorhalten
+	 *     Wie viele Tage in die Vergangenheit hinein Diffs vorgehalten werden sollen
+	 * @param maxNumpoints
+	 *     maximale Anzahl Coordinaten im NetzbezugLinestring der Fahrradrouten. Nur für Fahrradrouten mit
+	 *     weniger Koordinaten wird ein Diff berechnet, um den Speicherplatzbedarf zu begrenzen
+	 */
+	void resetGeoserverFahrradrouteImportDiffMaterializedView(int anzahlTageImportprotokolleVorhalten,
+		int maxNumpoints);
 }

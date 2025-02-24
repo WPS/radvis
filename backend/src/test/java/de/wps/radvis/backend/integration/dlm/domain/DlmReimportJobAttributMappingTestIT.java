@@ -42,10 +42,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.wps.radvis.backend.auditing.AuditingConfiguration;
@@ -119,7 +119,6 @@ import jakarta.persistence.PersistenceContext;
 	NetzConfiguration.class, CommonConfiguration.class, AuditingConfiguration.class, WithAuditingAspect.class,
 	DlmReimportJobAttributMappingTestIT.DlmReimportJobAttributMappingTestITConfiguration.class })
 @EntityScan(basePackageClasses = { BenutzerConfiguration.class, OrganisationConfiguration.class })
-@MockBean(NetzConfigurationProperties.class)
 @Transactional
 class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 	@Configuration
@@ -141,7 +140,7 @@ class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 		@Autowired
 		private CustomGrundnetzMappingServiceFactory customGrundnetzMappingServiceFactory;
 
-		@MockBean
+		@MockitoBean
 		private KanteUpdateElevationService elevationUpdateService;
 
 		@Bean
@@ -171,34 +170,36 @@ class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	@MockBean
+	@MockitoBean
 	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
-	@MockBean
+	@MockitoBean
 	private DlmRepository dlmRepository;
-	@MockBean
+	@MockitoBean
 	VerwaltungseinheitResolver verwaltungseinheitResolver;
-	@MockBean
+	@MockitoBean
 	BenutzerResolver benutzerResolver;
-	@MockBean
+	@MockitoBean
 	FeatureToggleProperties featureToggleProperties;
-	@MockBean
+	@MockitoBean
 	PostgisConfigurationProperties postgisConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	OrganisationConfigurationProperties organisationConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	CommonConfigurationProperties commonConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
-	@MockBean
+	@MockitoBean
 	private DlmPbfErstellungService dlmPbfErstellungService;
-	@MockBean
+	@MockitoBean
 	private GraphhopperUpdateService graphhopperUpdaterService;
-	@MockBean
+	@MockitoBean
 	private SimpleMatchingService simpleMatchingService;
-	@MockBean
+	@MockitoBean
 	private CustomDlmMatchingRepositoryFactory customDlmMatchingRepositoryFactory;
-	@MockBean
+	@MockitoBean
 	private CustomGrundnetzMappingServiceFactory customGrundnetzMappingServiceFactory;
+	@MockitoBean
+	private NetzConfigurationProperties netzConfigurationProperties;
 
 	@Mock
 	private DlmMatchedGraphHopperFactory dlmMatchedGraphHopperFactory;
@@ -274,7 +275,7 @@ class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 		assertThat(((DlmReimportJobStatistik) jobStatistik
 			.get()).updateDlmNetzStatistik.getAnzahlImDlmGeloeschterKanten()).isEqualTo(1);
 		assertThat(((DlmReimportJobStatistik) jobStatistik
-			.get()).anzahlKantenOhneMatch).isEqualTo(1);
+			.get()).anzahlKantenOhneAttributuebertragung).isEqualTo(1);
 	}
 
 	@Nested
@@ -308,7 +309,7 @@ class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 			});
 
 			// act
-			dlmReimportJob.run(true);
+			Optional<JobStatistik> jobStatistik = dlmReimportJob.doRun();
 
 			// assert
 			List<Kante> resultingKanten = StreamSupport.stream(kantenRepository.findAll().spliterator(), false)
@@ -320,6 +321,9 @@ class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 				.containsExactlyElementsOf(kante1.getKantenAttributGruppe().getIstStandards());
 			assertThat(resultingKanten.get(0).getKantenAttributGruppe().getKantenAttribute())
 				.isEqualTo(kante1.getKantenAttributGruppe().getKantenAttribute());
+
+			assertThat(((DlmReimportJobStatistik) jobStatistik
+				.get()).anzahlKantenMitAttributuebertragung).isEqualTo(1);
 		}
 
 		@Test

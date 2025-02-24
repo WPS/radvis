@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-export type EnumOption = {
+export interface EnumOption {
   name: string;
   displayText: string;
-};
+  disabled?: boolean;
+}

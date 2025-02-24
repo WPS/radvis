@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { KanteGrundgeometrieLayerComponent } from 'src/app/editor/editor-shared/components/kante-grundgeometrie-layer/kante-grundgeometrie-layer.component';
 import { anything, instance, mock, when } from 'ts-mockito';
 import { Feature, MapBrowserEvent } from 'ol';

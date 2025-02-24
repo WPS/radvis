@@ -22,6 +22,7 @@ import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
   templateUrl: './kommentar-hinzufuegen.component.html',
   styleUrls: ['./kommentar-hinzufuegen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KommentarHinzufuegenComponent implements DiscardableComponent {
   public static readonly KOMMENTAR_MAX_LENGTH = 4000;

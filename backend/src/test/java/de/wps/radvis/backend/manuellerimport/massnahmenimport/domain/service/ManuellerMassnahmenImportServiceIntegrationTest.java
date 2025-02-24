@@ -68,7 +68,8 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.OsmWayId;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import jakarta.persistence.EntityManager;
 
 public class ManuellerMassnahmenImportServiceIntegrationTest {
@@ -87,7 +88,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 	private MassnahmeNetzbezugService massnahmeNetzbezugService;
 
 	@Mock
-	private VerwaltungseinheitRepository verwaltungseinheitRepository;
+	private VerwaltungseinheitService verwaltungseinheitService;
 
 	@Mock
 	private EntityManager entityManager;
@@ -117,12 +118,12 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 
 		massnahmenExporterService = new MassnahmenExporterService(massnahmeViewRepository);
 		massnahmenImportService = new ManuellerMassnahmenImportService(manuellerImportService,
-			massnahmeNetzbezugService, geoJsonImportRepository, verwaltungseinheitRepository, massnahmeRepository,
+			massnahmeNetzbezugService, geoJsonImportRepository, verwaltungseinheitService, massnahmeRepository,
 			entityManager, csvRepository, 10.0);
 	}
 
 	@Test
-	public void exportImport_simple() {
+	public void exportImport_simple() throws OrganisationsartUndNameNichtEindeutigException {
 		Kante kante = KanteTestDataProvider.withDefaultValues().id(12l).build();
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(new AbschnittsweiserKantenSeitenBezug(
@@ -140,7 +141,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 	}
 
 	@Test
-	public void exportImport_punktAufKante() {
+	public void exportImport_punktAufKante() throws OrganisationsartUndNameNichtEindeutigException {
 		Kante kante = KanteTestDataProvider.withDefaultValues().id(12l).build();
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(), Set.of(new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.5), Seitenbezug.BEIDSEITIG)),
@@ -155,7 +156,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 	}
 
 	@Test
-	public void exportImport_punktAufKnoten() {
+	public void exportImport_punktAufKnoten() throws OrganisationsartUndNameNichtEindeutigException {
 		Knoten knoten = KnotenTestDataProvider.withDefaultValues().id(12l).build();
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(), Set.of(),
@@ -169,7 +170,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 		assertThat(savedMassnahme.getNetzbezug()).isEqualTo(netzbezug);
 	}
 
-	private Massnahme exportAndReimport(Massnahme massnahme) {
+	private Massnahme exportAndReimport(Massnahme massnahme) throws OrganisationsartUndNameNichtEindeutigException {
 		long organisationsId = 1l;
 		Set<Kante> abschnittKanten = massnahme.getNetzbezug().getImmutableKantenAbschnittBezug().stream()
 			.map(ab -> ab.getKante()).collect(Collectors.toSet());
@@ -181,12 +182,14 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 
 		assertThat(allKanten).allMatch(k -> k.getId() != null, "Bitte Kanten mit IDs ausstatten");
 
-		when(verwaltungseinheitRepository.getVereintenBereich(any()))
+		when(verwaltungseinheitService.getVereintenBereich(any()))
 			.thenReturn(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100));
 		when(massnahmeViewRepository.findAllByIdIn(any())).thenReturn(List.of(MassnahmeListenDbViewTestDataProvider
 			.withMassnahme(massnahme).build()));
-		when(verwaltungseinheitRepository.findByNameAndOrganisationsArt(eq(massnahme.getZustaendiger().get().getName()),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
+			eq(massnahme.getZustaendiger().get().getName()),
 			eq(massnahme.getZustaendiger().get().getOrganisationsArt()))).thenReturn(massnahme.getZustaendiger());
+		when(verwaltungseinheitService.getAllNames(any())).thenReturn("bereiche");
 
 		when(simpleMatchingService.matche(any(), any())).thenAnswer(i -> {
 			OsmMatchResult matchResult = mock(OsmMatchResult.class);

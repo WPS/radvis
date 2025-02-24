@@ -12,17 +12,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Bauwerksmangel } from 'src/app/shared/models/bauwerksmangel';
+import { BauwerksmangelArt } from 'src/app/shared/models/bauwerksmangel-art';
 import { Netzbezug } from 'src/app/shared/models/netzbezug';
+import { QuerungshilfeDetails } from 'src/app/shared/models/querungshilfe-details';
+import { FurtKreuzungTyp } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung-typ';
 import { LichtsignalAnlageEigenschaften } from 'src/app/viewer/furten-kreuzungen/models/lichtsignal-anlage-eigenschaften';
 
 export interface SaveFurtKreuzungCommand {
   netzbezug: Netzbezug;
   verantwortlicheOrganisation: number;
-  typ: string;
+  typ: FurtKreuzungTyp;
   knotenForm: string;
   radnetzKonform: boolean;
-  kommentar: string;
+  kommentar: string | null;
   version?: number;
   furtKreuzungMusterloesung: string | null;
   lichtsignalAnlageEigenschaften: LichtsignalAnlageEigenschaften | null;
+  querungshilfeDetails: QuerungshilfeDetails | null;
+  bauwerksmangel: Bauwerksmangel | null;
+  bauwerksmangelArt: BauwerksmangelArt[] | null;
 }

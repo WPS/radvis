@@ -48,11 +48,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -62,17 +59,12 @@ import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
 
 @Tag("group7")
 @EnableConfigurationProperties(value = {
 	OrganisationConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @AutoConfigureTestEntityManager
-@Slf4j
 class MindestbreiteKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 
 	@Autowired
@@ -170,8 +162,7 @@ class MindestbreiteKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 				+ "fahrtrichtung_rechts:\"\","
 				+ "radverkehrsfuehrung:\"SONSTIGER_BETRIEBSWEG\","
 				+ "von:\"0,000000\","
-				+ "bis:\"1,000000\"}"
-		);
+				+ "bis:\"1,000000\"}");
 
 		KonsistenzregelVerletzungsDetails verletzungRechts = gepruefteKantenSeiten.get(1);
 		assertThat(verletzungRechts.getIdentity()).isEqualTo(
@@ -180,8 +171,7 @@ class MindestbreiteKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 				+ "fahrtrichtung_links:\"\","
 				+ "fahrtrichtung_rechts:\"BEIDE_RICHTUNGEN\","
 				+ "radverkehrsfuehrung:\"SONSTIGER_BETRIEBSWEG\","
-				+ "von:\"0,000000\",bis:\"1,000000\"}"
-		);
+				+ "von:\"0,000000\",bis:\"1,000000\"}");
 	}
 
 	@Test
@@ -200,13 +190,11 @@ class MindestbreiteKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 		// assert
 		KonsistenzregelVerletzungsDetails verletzungLinks = gepruefteKantenSeiten.get(0);
 		assertThat(verletzungLinks.getBeschreibung()).isEqualTo(
-			"Die Breite ist 4,99 m und somit wird die Mindestbreite von 5,00 m nicht eingehalten."
-		);
+			"Die Breite ist 4,99 m und somit wird die Mindestbreite von 5,00 m nicht eingehalten.");
 
 		KonsistenzregelVerletzungsDetails verletzungRechts = gepruefteKantenSeiten.get(1);
 		assertThat(verletzungRechts.getBeschreibung()).isEqualTo(
-			"Die Breite ist 4,99 m und somit wird die Mindestbreite von 5,00 m nicht eingehalten."
-		);
+			"Die Breite ist 4,99 m und somit wird die Mindestbreite von 5,00 m nicht eingehalten.");
 	}
 
 	@Test
@@ -235,21 +223,18 @@ class MindestbreiteKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 		assertThat(gepruefteKantenSeiten.stream()
 			.map(KonsistenzregelVerletzungsDetails::getIdentity)
 			.filter(s -> s.contains("id:\"" + kanteDlm.getId() + "\""))
-			.collect(Collectors.toList())
-		).hasSize(2); // Fuer jede Seite der Dlm-Kante einen Eintrag
+			.collect(Collectors.toList())).hasSize(2); // Fuer jede Seite der Dlm-Kante einen Eintrag
 
 		assertThat(gepruefteKantenSeiten.stream()
 			.map(KonsistenzregelVerletzungsDetails::getIdentity)
 			.filter(s -> s.contains("id:\"" + kanteRadVIS.getId() + "\""))
-			.collect(Collectors.toList())
-		).hasSize(2); // Fuer jede Seite der RadVIS-Kante einen Eintrag
+			.collect(Collectors.toList())).hasSize(2); // Fuer jede Seite der RadVIS-Kante einen Eintrag
 
 		assertThat(gepruefteKantenSeiten.stream()
 			.map(KonsistenzregelVerletzungsDetails::getIdentity)
 			.filter(s -> s.contains("id:\"" + kanteRadwegeDb.getId() + "\"") || s.contains(
 				"id:\"" + kanteRadNETZ.getId() + "\""))
-			.collect(Collectors.toList())
-		).isEmpty(); // Keinen Eintrag fuer RadNETZ oder RadwegeDB
+			.collect(Collectors.toList())).isEmpty(); // Keinen Eintrag fuer RadNETZ oder RadwegeDB
 	}
 
 	@NotNull

@@ -59,8 +59,10 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.ZustaendigkeitAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.event.KanteGeometrieChangedEvent;
 import de.wps.radvis.backend.netz.domain.event.RadNetzZugehoerigkeitChangedEvent;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
@@ -995,6 +997,9 @@ class KanteTest {
 				BelagArt.SONSTIGER_BELAG, Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE,
 				Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER, Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
 				KfzParkenTyp.LAENGS_PARKEN, KfzParkenForm.PARKBUCHTEN, Laenge.of(3), Benutzungspflicht.NICHT_VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,

@@ -18,6 +18,7 @@ export enum Beleuchtung {
   VORHANDEN = 'VORHANDEN',
   NICHT_VORHANDEN = 'NICHT_VORHANDEN',
   RETROREFLEKTIERENDE_RANDMARKIERUNG = 'RETROREFLEKTIERENDE_RANDMARKIERUNG',
+  STRASSENLATERNEN_UND_RANDMARKIERUNG = 'STRASSENLATERNEN_UND_RANDMARKIERUNG',
   UNBEKANNT = 'UNBEKANNT',
 }
 
@@ -33,6 +34,8 @@ export namespace Beleuchtung {
         return { name: k, displayText: 'Retroreflektierende Randmarkierung' };
       case Beleuchtung.UNBEKANNT:
         return { name: k, displayText: 'Unbekannt' };
+      case Beleuchtung.STRASSENLATERNEN_UND_RANDMARKIERUNG:
+        return { name: k, displayText: 'Straßenlaternen und Randmarkierung' };
     }
     throw new Error('Beschreibung für enum Beleuchtung fehlt: ' + k);
   });

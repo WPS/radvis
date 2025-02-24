@@ -28,6 +28,7 @@ import { NetzklassenImportSessionView } from 'src/app/import/netzklassen/models/
   templateUrl: './import-netzklasse-automatische-abbildung.component.html',
   styleUrls: ['./import-netzklasse-automatische-abbildung.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseAutomatischeAbbildungComponent implements OnDestroy {
   private static readonly STEP = 3;

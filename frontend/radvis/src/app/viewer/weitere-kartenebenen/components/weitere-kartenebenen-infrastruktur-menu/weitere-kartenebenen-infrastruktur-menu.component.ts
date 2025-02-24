@@ -16,14 +16,15 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { WeitereKartenebenenVerwaltungDialogComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-verwaltung-dialog/weitere-kartenebenen-verwaltung-dialog.component';
 import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/services/weitere-kartenebenen.service';
-import { WeitereKartenebenenDialogComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-dialog/weitere-kartenebenen-dialog.component';
 
 @Component({
   selector: 'rad-weitere-kartenebenen-infrastruktur-menu',
   templateUrl: './weitere-kartenebenen-infrastruktur-menu.component.html',
   styleUrls: ['./weitere-kartenebenen-infrastruktur-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WeitereKartenebenenInfrastrukturMenuComponent {
   @Input()
@@ -39,7 +40,7 @@ export class WeitereKartenebenenInfrastrukturMenuComponent {
   }
 
   onOpenEditDialog(): void {
-    this.dialog.open(WeitereKartenebenenDialogComponent, {
+    this.dialog.open(WeitereKartenebenenVerwaltungDialogComponent, {
       width: '800px',
       disableClose: true,
     });

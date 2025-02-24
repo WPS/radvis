@@ -65,7 +65,7 @@ export class FahrradrouteService extends FahrradroutenProviderService {
   routeFahrradroutenVerlauf(
     stuetzpunkte: Coordinate[],
     customProfileId: number = DEFAULT_PROFILE_ID,
-    fahrtrichtungBeruecksichtigen: boolean = true
+    fahrtrichtungBeruecksichtigen = true
   ): Promise<RoutingResult> {
     return this.http
       .post<RoutingResult>(

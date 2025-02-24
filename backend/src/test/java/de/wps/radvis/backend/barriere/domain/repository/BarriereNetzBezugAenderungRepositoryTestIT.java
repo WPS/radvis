@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.barriere.BarriereConfiguration;
@@ -42,7 +40,6 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
@@ -62,11 +59,9 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @ContextConfiguration(classes = { CommonConfiguration.class, GeoConverterConfiguration.class, NetzConfiguration.class,
 	BenutzerConfiguration.class, OrganisationConfiguration.class, BarriereConfiguration.class })
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
-	PostgisConfigurationProperties.class, OrganisationConfigurationProperties.class, NetzConfigurationProperties.class,
+	PostgisConfigurationProperties.class, OrganisationConfigurationProperties.class,
+	NetzConfigurationProperties.class,
 	TechnischerBenutzerConfigurationProperties.class })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
@@ -91,8 +86,7 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 		Barriere barriere = barriereRepository.save(
 			BarriereTestDataProvider.onKante(kante)
 				.verantwortlicheOrganisation(gebietskoerperschaft)
-				.build()
-		);
+				.build());
 
 		Benutzer technischerBenutzer = benutzerRepository.save(
 			BenutzerTestDataProvider.admin(gebietskoerperschaft).build());
@@ -106,9 +100,7 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 12, 9, 59),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				GeometryTestdataProvider.createLineString()
-			)
-		);
+				GeometryTestdataProvider.createLineString()));
 
 		// aktuelle Aenderung
 		BarriereNetzBezugAenderung expectedAenderung = barriereNetzBezugAenderungRepository.save(
@@ -119,9 +111,7 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 13, 10, 0),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				GeometryTestdataProvider.createLineString()
-			)
-		);
+				GeometryTestdataProvider.createLineString()));
 
 		// act
 		List<BarriereNetzBezugAenderung> result = barriereNetzBezugAenderungRepository
@@ -143,14 +133,12 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 		Kante kante = netzService.saveKante(
 			KanteTestDataProvider.withDefaultValues()
 				.geometry(GeometryTestdataProvider.createLineString(new Coordinate(0, 1), new Coordinate(1, 2)))
-				.build()
-		);
+				.build());
 
 		Barriere barriere = barriereRepository.save(
 			BarriereTestDataProvider.onKante(kante)
 				.verantwortlicheOrganisation(gebietskoerperschaft)
-				.build()
-		);
+				.build());
 
 		Benutzer technischerBenutzer = benutzerRepository.save(
 			BenutzerTestDataProvider.admin(gebietskoerperschaft).build());
@@ -164,9 +152,7 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 12, 9, 59),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				kante.getGeometry()
-			)
-		);
+				kante.getGeometry()));
 
 		// aktuelle Aenderung
 		BarriereNetzBezugAenderung expectedAenderung = barriereNetzBezugAenderungRepository.save(
@@ -177,16 +163,13 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 				technischerBenutzer,
 				LocalDateTime.of(2022, 10, 13, 10, 0),
 				NetzAenderungAusloeser.DLM_REIMPORT_JOB,
-				kante.getGeometry()
-			)
-		);
+				kante.getGeometry()));
 
 		// act & assert (Netzbezugänderung außerhalb des Bereiches)
 		List<BarriereNetzBezugAenderung> result = barriereNetzBezugAenderungRepository
 			.findBarriereNetzBezugAenderungByDatumAfterInBereich(
 				LocalDateTime.of(2022, 10, 12, 10, 0),
-				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(10, 10, 20, 20)
-			);
+				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(10, 10, 20, 20));
 
 		assertThat(barriereNetzBezugAenderungRepository.findAll()).hasSize(2);
 		assertThat(result).hasSize(0);
@@ -195,8 +178,7 @@ class BarriereNetzBezugAenderungRepositoryTestIT extends DBIntegrationTestIT {
 		result = barriereNetzBezugAenderungRepository
 			.findBarriereNetzBezugAenderungByDatumAfterInBereich(
 				LocalDateTime.of(2022, 10, 12, 10, 0),
-				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(0, 0, 20, 20)
-			);
+				GeometryTestdataProvider.createQuadratischerBereichAsPolygon(0, 0, 20, 20));
 
 		assertThat(barriereNetzBezugAenderungRepository.findAll()).hasSize(2);
 		assertThat(result).hasSize(1);

@@ -40,6 +40,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './servicestation-editor.component.html',
   styleUrls: ['./servicestation-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<ServicestationListView> {
   // Setzt je nachdem ob es Creator oder Editor ist die entsprechende CSS Klasse an :host,

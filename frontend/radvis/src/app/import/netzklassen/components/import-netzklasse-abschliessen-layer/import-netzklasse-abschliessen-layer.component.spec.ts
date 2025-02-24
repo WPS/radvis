@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { Feature } from 'ol';
 import { ImportNetzklasseAbschliessenLayerComponent } from 'src/app/import/netzklassen/components/import-netzklasse-abschliessen-layer/import-netzklasse-abschliessen-layer.component';
 

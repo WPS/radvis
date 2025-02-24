@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtKreuzungMusterloesung;
@@ -33,8 +35,13 @@ import de.wps.radvis.backend.furtKreuzung.domain.valueObject.LichtsignalAnlageEi
 import de.wps.radvis.backend.netz.domain.entity.AbstractEntityWithNetzbezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -77,22 +84,38 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 	@Enumerated(EnumType.STRING)
 	private KnotenForm knotenForm;
 
+	@Enumerated(EnumType.STRING)
+	private QuerungshilfeDetails querungshilfeDetails;
+
+	@Enumerated(EnumType.STRING)
+	private Bauwerksmangel bauwerksmangel;
+
+	@Type(value = ListArrayType.class, parameters = {
+		@Parameter(name = ListArrayType.SQL_ARRAY_TYPE, value = "text")
+	})
+	@Column(name = "bauwerksmangel_art", columnDefinition = "text[]")
+	private Set<BauwerksmangelArt> bauwerksmangelArt;
+
 	@Embedded
 	private LichtsignalAnlageEigenschaften lichtsignalAnlageEigenschaften;
 
 	public FurtKreuzung(FurtKreuzungNetzBezug netzbezug, Verwaltungseinheit verantwortlicheOrganisation,
 		FurtenKreuzungenTyp typ, Boolean radnetzKonform, FurtenKreuzungenKommentar kommentar, KnotenForm knotenForm,
 		Optional<FurtKreuzungMusterloesung> musterloesung,
-		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften) {
+		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften,
+		QuerungshilfeDetails querungshilfeDetails,
+		Bauwerksmangel bauwerksmangel, Set<BauwerksmangelArt> bauwerksmangelArt) {
 		this(null, null, netzbezug, verantwortlicheOrganisation, typ, radnetzKonform, kommentar, knotenForm,
-			musterloesung, lichtsignalAnlageEigenschaften);
+			musterloesung, lichtsignalAnlageEigenschaften, querungshilfeDetails, bauwerksmangel, bauwerksmangelArt);
 	}
 
 	@Builder
 	private FurtKreuzung(Long id, Long version, FurtKreuzungNetzBezug netzbezug,
 		Verwaltungseinheit verantwortlicheOrganisation, FurtenKreuzungenTyp typ, Boolean radnetzKonform,
 		FurtenKreuzungenKommentar kommentar, KnotenForm knotenForm, Optional<FurtKreuzungMusterloesung> musterloesung,
-		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften) {
+		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften,
+		QuerungshilfeDetails querungshilfeDetails,
+		Bauwerksmangel bauwerksmangel, Set<BauwerksmangelArt> bauwerksmangelArt) {
 		super(id, version);
 		require(netzbezug, notNullValue());
 		require(verantwortlicheOrganisation, notNullValue());
@@ -103,6 +126,8 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 		require(musterloesungErlaubt(musterloesung, radnetzKonform), "musterloesungErlaubt");
 		require(lichtsignalAnlageEigenschaftenFuerKnotenFormErlaubt(lichtsignalAnlageEigenschaften, knotenForm),
 			"lichtsignalAnlageEigenschaftenFuerKnotenFormErlaubt");
+		require(isBauwerksmangelValid(bauwerksmangel, bauwerksmangelArt, knotenForm));
+		require(isQuerungshilfeDetailsValid(querungshilfeDetails, knotenForm));
 
 		this.netzbezug = netzbezug;
 		this.verantwortlicheOrganisation = verantwortlicheOrganisation;
@@ -112,12 +137,17 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 		this.knotenForm = knotenForm;
 		this.musterloesung = musterloesung.orElse(null);
 		this.lichtsignalAnlageEigenschaften = lichtsignalAnlageEigenschaften.orElse(null);
+		this.querungshilfeDetails = querungshilfeDetails;
+		this.bauwerksmangel = bauwerksmangel;
+		this.bauwerksmangelArt = bauwerksmangelArt;
 	}
 
 	public void update(FurtKreuzungNetzBezug netzbezug, Verwaltungseinheit verantwortlicheOrganisation,
 		FurtenKreuzungenTyp typ, Boolean konform, FurtenKreuzungenKommentar kommentar, KnotenForm knotenForm,
 		Optional<FurtKreuzungMusterloesung> musterloesung,
-		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften) {
+		Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften,
+		QuerungshilfeDetails querungshilfeDetails,
+		Bauwerksmangel bauwerksmangel, Set<BauwerksmangelArt> bauwerksmangelArt) {
 		require(netzbezug, notNullValue());
 		require(verantwortlicheOrganisation, notNullValue());
 		require(typ, notNullValue());
@@ -127,6 +157,8 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 		require(musterloesungErlaubt(musterloesung, konform), "musterloesungErlaubt");
 		require(lichtsignalAnlageEigenschaftenFuerKnotenFormErlaubt(lichtsignalAnlageEigenschaften, knotenForm),
 			"lichtsignalAnlageEigenschaftenFuerKnotenFormErlaubt");
+		require(isBauwerksmangelValid(bauwerksmangel, bauwerksmangelArt, knotenForm));
+		require(isQuerungshilfeDetailsValid(querungshilfeDetails, knotenForm));
 
 		this.netzbezug = netzbezug;
 		this.verantwortlicheOrganisation = verantwortlicheOrganisation;
@@ -136,6 +168,9 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 		this.knotenForm = knotenForm;
 		this.musterloesung = musterloesung.orElse(null);
 		this.lichtsignalAnlageEigenschaften = lichtsignalAnlageEigenschaften.orElse(null);
+		this.querungshilfeDetails = querungshilfeDetails;
+		this.bauwerksmangel = bauwerksmangel;
+		this.bauwerksmangelArt = bauwerksmangelArt;
 	}
 
 	public Optional<FurtKreuzungMusterloesung> getMusterloesung() {
@@ -144,6 +179,21 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 
 	public Optional<LichtsignalAnlageEigenschaften> getLichtsignalAnlageEigenschaften() {
 		return Optional.ofNullable(lichtsignalAnlageEigenschaften);
+	}
+
+	public Optional<QuerungshilfeDetails> getQuerungshilfeDetails() {
+		return Optional.ofNullable(querungshilfeDetails);
+	}
+
+	public Optional<Bauwerksmangel> getBauwerksmangel() {
+		return Optional.ofNullable(bauwerksmangel);
+	}
+
+	public Optional<Set<BauwerksmangelArt>> getBauwerksmangelArt() {
+		if (bauwerksmangelArt == null || bauwerksmangelArt.isEmpty()) {
+			return Optional.empty();
+		}
+		return Optional.of(bauwerksmangelArt);
 	}
 
 	public static boolean musterloesungErlaubt(Optional<FurtKreuzungMusterloesung> furtKreuzungMusterloesung,
@@ -183,6 +233,39 @@ public class FurtKreuzung extends AbstractEntityWithNetzbezug {
 	 */
 	public void ersetzeKnotenInNetzbezug(Map<Long, Knoten> ersatzKnoten) {
 		netzbezug = netzbezug.withKnotenErsetzt(ersatzKnoten);
+	}
+
+	public static boolean isBauwerksmangelValid(Bauwerksmangel bauwerksmangel,
+		Set<BauwerksmangelArt> bauwerksmangelArt, KnotenForm knotenForm) {
+		require(knotenForm, notNullValue());
+		if (Bauwerksmangel.isRequiredForKnotenform(knotenForm)) {
+			if (bauwerksmangel == null) {
+				return false;
+			}
+		} else {
+			return bauwerksmangel == null && bauwerksmangelArt == null;
+		}
+
+		if (BauwerksmangelArt.isRequiredForBauwerksmangel(bauwerksmangel)) {
+			if (bauwerksmangelArt == null || bauwerksmangelArt.isEmpty()) {
+				return false;
+			}
+
+			return bauwerksmangelArt.stream().allMatch(ba -> ba.isValidForKnotenform(knotenForm));
+		} else {
+			return bauwerksmangelArt == null;
+		}
+	}
+
+	public static boolean isQuerungshilfeDetailsValid(QuerungshilfeDetails querungshilfe,
+		KnotenForm knotenform) {
+		require(knotenform, notNullValue());
+
+		if (QuerungshilfeDetails.isRequiredForKnotenform(knotenform)) {
+			return querungshilfe != null && querungshilfe.isValidForKnotenform(knotenform);
+		} else {
+			return querungshilfe == null;
+		}
 	}
 
 }

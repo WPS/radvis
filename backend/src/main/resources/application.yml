@@ -47,6 +47,8 @@ spring:
     grafanaUrl: localhost:3000
     # Matomo-Url
     matomoUrl: localhost:8081
+    # Pfad, um health check beim Geoserver durchzuführen, relativ zu root (ohne "/" am Anfang)
+    geoserverHealthCheckUrl: web/wicket/resource/org.geoserver.web.GeoServerBasePage/img/logo.png
   security:
     # Gibt an, ob sich der Server im lokalen Entwicklungsbetrieb befindet. Relevant für den Redirect nach erfolgreichem Login.
     localAuthSetup: false
@@ -152,8 +154,19 @@ radVis:
       - DLMReimportJob
       - OsmPbfDownloadJob
   netz:
-    # minimale Länge linear referenzierter Segmente in Metern
+    # Minimale Länge linear referenzierter Segmente in Metern.
     minimaleSegmentLaenge: 1.0
+    # Maximale Distanz in Metern innerhalb derer auf parallele nahegelegene Kanten gesucht wird.
+    nahegelegeneKantenDistanzInM: 20
+    # Anzahl an Segmenten, in die LineStrings bei der Prüfung auf Parallelität unterteilt werden. Eine höhere Anzahl an Segmenten führt zu genaueren Ergebnissen.
+    kantenParallelitaetSegmente: 10
+    # Toleranz in Grad für die Prüfung auf Parallelität. Niedrigere Werte führen zu strikeren Ergebnissen. Ein (sehr hoher) Wert von 90 würde orthogonale Linien als parallel ansehen.
+    kantenParallelitaetToleranz: 10
+    # Wert von 0 und 1, der angibt wie viel Prozent eine Kante insgesamt mindestens abgebildet sein muss, um in der Prüfung auf Parallelität betrachtet zu werden.
+    nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge: 0.33
+  fahrradroute:
+    # Beim Berechnen der geometrischen Differenz zwischen 2 Import-Versionen einer Fahrradroute werden Fahrradrouten nicht betrachtet, die mehr Koordinaten im LineString haben, damit die Berechnung performant bleibt
+    maximaleAnzahlKoordinatenFuerImportDiff: 50000
   osm:
     # Basisnetz OSM-PBF für den Import des Netzes. Diese unterscheidet sich von der regulären OSM-PBF für die Auszeichnung.
     osmBasisnetzDaten: /resourcecache/baden-wuerttemberg-latest_basisnetz.osm.pbf
@@ -398,6 +411,9 @@ radVis:
     # Ist eine bearbeitete importierte Maßnahme um höchstens diese Entfernung in Metern verschoben, wird sie noch auf die existierende Maßnahme gematcht. Größere Verschiebungen führen ggf. zu neuen Maßnahmen.
     minimaleDistanzFuerAbweichungsWarnung: 10
   massnahmen:
+    # Distanz in Metern für die erweiterte Filterung nach Fahrradrouten, die innerhalb dieser Entfernung liegen müssen.
+    distanzZuFahrradrouteInMetern: 20
+  anpassungswuensche:
     # Distanz in Metern für die erweiterte Filterung nach Fahrradrouten, die innerhalb dieser Entfernung liegen müssen.
     distanzZuFahrradrouteInMetern: 20
   netzkorrektur:

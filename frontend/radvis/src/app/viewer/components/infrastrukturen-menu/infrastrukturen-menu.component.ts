@@ -75,6 +75,7 @@ import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/
       transition('in <=> out', [animate('0.25s')]),
     ]),
   ],
+  standalone: false,
 })
 export class InfrastrukturenMenuComponent implements OnDestroy {
   @ViewChild('infrastrukturenCollapseButton', { read: ElementRef })

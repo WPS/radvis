@@ -26,9 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
@@ -36,22 +35,17 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
 import de.wps.radvis.backend.integration.radnetz.domain.entity.RadNetzNetzbildungStatistik;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataProvider;
@@ -64,25 +58,19 @@ import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 	GeoConverterConfiguration.class,
 	OrganisationConfiguration.class,
 	BenutzerConfiguration.class,
-	NetzfehlerConfiguration.class,
-	KommentarConfiguration.class,
 	CommonConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 class RadNetzNetzbildungServiceIntegrationTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 
 	@Autowired
 	private KantenRepository kantenRepository;

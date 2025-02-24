@@ -12,9 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Bauwerksmangel } from 'src/app/shared/models/bauwerksmangel';
+import { BauwerksmangelArt } from 'src/app/shared/models/bauwerksmangel-art';
 import { PointGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
+import { QuerungshilfeDetails } from 'src/app/shared/models/querungshilfe-details';
+import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 
 export interface Knoten {
   id: number;
@@ -28,4 +31,7 @@ export interface Knoten {
   knotenVersion: number;
   quelle: QuellSystem;
   liegtInZustaendigkeitsbereich: boolean;
+  querungshilfeDetails: QuerungshilfeDetails | null;
+  bauwerksmangel: Bauwerksmangel | null;
+  bauwerksmangelArt: BauwerksmangelArt[] | null;
 }

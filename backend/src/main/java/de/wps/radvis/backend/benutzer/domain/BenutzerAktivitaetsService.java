@@ -16,7 +16,6 @@ package de.wps.radvis.backend.benutzer.domain;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -47,23 +46,8 @@ public class BenutzerAktivitaetsService {
 	public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
 		Authentication authentication = event.getAuthentication();
 		if (authentication instanceof BenutzerHolder) {
-			if (((BenutzerHolder) authentication).getBenutzer() == null) {
-				return;
-			}
-
-			// Wir laden den Nutzer sicherheitshalber nochmal frisch von der DB,
-			// da der bei mehreren gleichzeitigen Anfragen zwischenzeitlich geändert worden sein kann
-			Optional<Benutzer> benutzerOpt = benutzerRepository
-				.findById(((BenutzerHolder) authentication).getBenutzer().getId());
-			if (benutzerOpt.isEmpty()) {
-				return;
-			}
-
-			Benutzer benutzer = benutzerOpt.get();
-
-			if (Objects.isNull(benutzer) ||
-				Objects.isNull(benutzer.getId()) ||
-				benutzer.getLetzteAktivitaet().equals(LocalDate.now())) {
+			Benutzer benutzer = ((BenutzerHolder) authentication).getBenutzer();
+			if (benutzer == null || benutzer.getId() == null) {
 				return;
 			}
 
@@ -71,6 +55,22 @@ public class BenutzerAktivitaetsService {
 
 			Lock lock = benutzerIdToLockMap.get(benutzer.getId());
 			if (lock.tryLock()) {
+				// Nutzer nochmal aus DB holen. Es kann nämlich bei schnell eingehenden Anfragen sein, dass zwischen
+				// initialem Holen vom Nutzer und dieser Stelle hier schon ein anderer Request den Nutzer veändert hst.
+				// In so einem Fall würde eine Optimistic-Locking-Exception fliegen.
+				Optional<Benutzer> benutzerOpt = benutzerRepository
+					.findById(((BenutzerHolder) authentication).getBenutzer().getId());
+				if (benutzerOpt.isEmpty()) {
+					return;
+				}
+
+				benutzer = benutzerOpt.get();
+				log.info("Letzt aktivität: {}", benutzer.getLetzteAktivitaet());
+
+				if (benutzer.getLetzteAktivitaet().equals(LocalDate.now())) {
+					return;
+				}
+
 				try {
 					log.info("Aktualisiere letzte Aktivität von Benutzer mit Id {}", benutzer.getId());
 					benutzer.aktualisiereLetzteAktivitaet();

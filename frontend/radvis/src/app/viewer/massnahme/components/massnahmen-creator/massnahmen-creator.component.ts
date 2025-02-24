@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, UntypedFormControl, UntypedFormGroup, ValidationErrors } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AutoCompleteOption } from 'src/app/form-elements/components/autocomplete-dropdown/autocomplete-dropdown.component';
@@ -29,7 +29,7 @@ import { CreateMassnahmeCommand } from 'src/app/viewer/massnahme/models/create-m
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
-import { MASSNAHMENKATEGORIEN, Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
+import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
@@ -41,11 +41,12 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   templateUrl: './massnahmen-creator.component.html',
   styleUrls: ['./massnahmen-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenCreatorComponent implements OnDestroy, DiscardableComponent {
   public formGroup: UntypedFormGroup;
   public umsetzungsstatusOptions = Umsetzungsstatus.options;
-  public massnahmenkategorieOptions = MASSNAHMENKATEGORIEN;
+  public massnahmenkategorieOptions = Massnahmenkategorien.ALL;
   public alleOrganisationenOptions: Observable<AutoCompleteOption[]>;
   public sollStandardOptions = SollStandard.options;
   public handlungsverantwortlicherOptions = Handlungsverantwortlicher.options;
@@ -75,7 +76,11 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
       umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE),
       massnahmenkategorien: new UntypedFormControl(
         [],
-        [Massnahmenkategorien.isValidMassnahmenKategorienCombination, RadvisValidators.isNotEmpty]
+        [
+          Massnahmenkategorien.isValidMassnahmenKategorienCombination,
+          RadvisValidators.isNotEmpty,
+          this.isMassnahmenkategorieValidForKonzeptionsquelle,
+        ]
       ),
       bezeichnung: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
       veroeffentlicht: new UntypedFormControl(false),
@@ -103,12 +108,8 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
       );
 
     this.subscriptions.push(
-      (this.formGroup.get('umsetzungsstatus') as AbstractControl).valueChanges.subscribe(
-        this.onUmsetzungsstatusChanged
-      ),
-      (this.formGroup.get('konzeptionsquelle') as AbstractControl).valueChanges.subscribe(
-        this.onKonzeptionsquelleChanged
-      )
+      this.formGroup.get('umsetzungsstatus')!.valueChanges.subscribe(this.onUmsetzungsstatusChanged),
+      this.formGroup.get('konzeptionsquelle')!.valueChanges.subscribe(this.onKonzeptionsquelleChanged)
     );
   }
 
@@ -198,9 +199,9 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
   }
 
   private onUmsetzungsstatusChanged = (newValue: Umsetzungsstatus): void => {
-    const durchfuehrungszeitraumControl = this.formGroup.get('durchfuehrungszeitraum') as AbstractControl;
-    const baulastZustaendigerControl = this.formGroup.get('baulastZustaendiger') as AbstractControl;
-    const handlungsverantwortlicherControl = this.formGroup.get('handlungsverantwortlicher') as AbstractControl;
+    const durchfuehrungszeitraumControl = this.formGroup.get('durchfuehrungszeitraum')!;
+    const baulastZustaendigerControl = this.formGroup.get('baulastZustaendiger')!;
+    const handlungsverantwortlicherControl = this.formGroup.get('handlungsverantwortlicher')!;
     if (newValue !== Umsetzungsstatus.IDEE) {
       durchfuehrungszeitraumControl.setValidators([
         RadvisValidators.isPositiveInteger,
@@ -222,13 +223,30 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
     handlungsverantwortlicherControl.updateValueAndValidity();
   };
 
+  private updateMassnahmenkategorieOptionsFromKonzeptionsquelle(konzeptionsquelle: Konzeptionsquelle): void {
+    this.massnahmenkategorieOptions =
+      konzeptionsquelle === Konzeptionsquelle.RADNETZ_MASSNAHME_2024
+        ? Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY
+        : Massnahmenkategorien.ALL;
+  }
+
   private onKonzeptionsquelleChanged = (newValue: Konzeptionsquelle): void => {
-    const sonstigeKonzeptionsquelleControl = this.formGroup.get('sonstigeKonzeptionsquelle') as AbstractControl;
+    const sonstigeKonzeptionsquelleControl = this.formGroup.get('sonstigeKonzeptionsquelle')!;
     if (newValue === Konzeptionsquelle.SONSTIGE) {
       sonstigeKonzeptionsquelleControl.setValidators(RadvisValidators.isNotNullOrEmpty);
     } else {
       sonstigeKonzeptionsquelleControl.setValidators(null);
     }
     sonstigeKonzeptionsquelleControl.updateValueAndValidity();
+
+    this.updateMassnahmenkategorieOptionsFromKonzeptionsquelle(newValue);
+    this.formGroup.controls.massnahmenkategorien.updateValueAndValidity();
+  };
+
+  private isMassnahmenkategorieValidForKonzeptionsquelle = (control: AbstractControl): null | ValidationErrors => {
+    const currentKonzeptionsquelle = this.formGroup?.controls.konzeptionsquelle.value;
+    const currentMassnahmenkategorien: string[] | null = control.value;
+
+    return Massnahmenkategorien.validateKonzeptionsquelle(currentMassnahmenkategorien, currentKonzeptionsquelle);
   };
 }

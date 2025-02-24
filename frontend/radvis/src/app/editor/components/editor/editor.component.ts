@@ -26,6 +26,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [NotifyGeometryChangedService],
+  standalone: false,
 })
 export class EditorComponent {
   ladend$: Observable<boolean>;

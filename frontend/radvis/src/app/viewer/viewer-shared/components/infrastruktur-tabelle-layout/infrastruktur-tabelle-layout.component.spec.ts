@@ -13,13 +13,20 @@
  */
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MockBuilder, MockRender } from 'ng-mocks';
+import { NEVER } from 'rxjs';
 import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
 import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
+import { anything, instance, mock, when } from 'ts-mockito';
 import { InfrastrukturTabelleLayoutComponent } from './infrastruktur-tabelle-layout.component';
 
 describe(InfrastrukturTabelleLayoutComponent.name, () => {
   beforeEach(() => {
-    return MockBuilder([InfrastrukturTabelleLayoutComponent, BreakpointObserver], ViewerSharedModule);
+    const breakpointObserver = mock(BreakpointObserver);
+    when(breakpointObserver.observe(anything())).thenReturn(NEVER);
+    return MockBuilder(InfrastrukturTabelleLayoutComponent, ViewerSharedModule).provide({
+      provide: BreakpointObserver,
+      useValue: instance(breakpointObserver),
+    });
   });
 
   describe('hasFilterOnAusgeblendeteSpalten', () => {

@@ -24,7 +24,7 @@ import org.springframework.util.StopWatch.TaskInfo;
 public class RadVisStopWatchPrinter {
 	public static String stringify(StopWatch stopWatch, Map<String, String> failedJobs) {
 		StringBuilder sb = new StringBuilder("\nTotal Time [hh:mm:ss]: ");
-		sb.append(printDuration(Duration.ofMillis(stopWatch.getTotalTimeMillis())));
+		sb.append(stringify(Duration.ofMillis(stopWatch.getTotalTimeMillis())));
 		sb.append('\n');
 		sb.append("-----------------------------------------------------------------------\n");
 		sb.append("[hh:mm:ss]     %     Status      Task name\n");
@@ -33,7 +33,7 @@ public class RadVisStopWatchPrinter {
 		percentFormat.setMinimumIntegerDigits(2);
 		for (TaskInfo task : stopWatch.getTaskInfo()) {
 			sb.append(" ");
-			sb.append(printDuration(Duration.ofMillis(task.getTimeMillis())));
+			sb.append(stringify(Duration.ofMillis(task.getTimeMillis())));
 			sb.append("   ");
 			sb.append(percentFormat.format((double) task.getTimeNanos() / stopWatch.getTotalTimeNanos()));
 			sb.append("     ");
@@ -48,7 +48,11 @@ public class RadVisStopWatchPrinter {
 		return sb.toString();
 	}
 
-	private static String printDuration(Duration duration) {
+	public static String stringify(StopWatch stopWatch) {
+		return stringify(Duration.ofMillis(stopWatch.getTotalTimeMillis()));
+	}
+
+	public static String stringify(Duration duration) {
 		return String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
 	}
 }

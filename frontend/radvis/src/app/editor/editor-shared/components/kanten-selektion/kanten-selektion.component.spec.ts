@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MockBuilder } from 'ng-mocks';
 import { Feature, MapBrowserEvent } from 'ol';
@@ -34,9 +33,9 @@ import { NotifyGeometryChangedService } from 'src/app/editor/kanten/services/not
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { NetzklassenAuswahlService } from 'src/app/karte/services/netzklassen-auswahl.service';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
+import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
-import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { StreckenNetzVectorlayer } from 'src/app/shared/models/strecken-netz-vectorlayer';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
@@ -663,7 +662,6 @@ describe(KantenSelektionComponent.name, () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createEmptyFeatureCollection(): GeoJSONFeatureCollection {
   return {
     type: 'FeatureCollection',
@@ -671,7 +669,6 @@ function createEmptyFeatureCollection(): GeoJSONFeatureCollection {
   };
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatureCollection(): GeoJSONFeatureCollection {
   return {
     type: 'FeatureCollection',
@@ -709,7 +706,6 @@ function createDummyFeatureCollection(): GeoJSONFeatureCollection {
   } as GeoJSONFeatureCollection;
 }
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatureCollectionWithSeitenAttribute(): GeoJSONFeatureCollection {
   const collection = createDummyFeatureCollection();
   collection.features = collection.features.map(feature => {

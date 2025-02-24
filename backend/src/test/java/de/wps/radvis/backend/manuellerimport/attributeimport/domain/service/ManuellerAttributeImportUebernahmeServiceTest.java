@@ -42,6 +42,7 @@ import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKa
 import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
@@ -63,6 +64,9 @@ class ManuellerAttributeImportUebernahmeServiceTest {
 
 	@Mock
 	private VerwaltungseinheitService verwaltungseinheitService;
+
+	@Mock
+	private NetzService netzService;
 
 	@Mock
 	private EntityManager entityManager;
@@ -122,7 +126,7 @@ class ManuellerAttributeImportUebernahmeServiceTest {
 		// act
 		List<KantenMapping> result = manuellerAttributeImportUebernahmeService.invertMappingAndCreateMappedFeatures(
 			featureMappings,
-			inMemoryKantenRepository, new LUBWMapper());
+			inMemoryKantenRepository, new LUBWMapper(netzService));
 
 		// assert
 		assertThat(result).hasSize(3);

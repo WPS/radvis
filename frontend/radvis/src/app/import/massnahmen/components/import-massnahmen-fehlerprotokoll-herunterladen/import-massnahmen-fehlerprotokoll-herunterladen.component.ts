@@ -23,6 +23,7 @@ import { FileHandlingService } from 'src/app/shared/services/file-handling.servi
   templateUrl: './import-massnahmen-fehlerprotokoll-herunterladen.component.html',
   styleUrl: './import-massnahmen-fehlerprotokoll-herunterladen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMassnahmenFehlerprotokollHerunterladenComponent {
   private static readonly STEP = 5;

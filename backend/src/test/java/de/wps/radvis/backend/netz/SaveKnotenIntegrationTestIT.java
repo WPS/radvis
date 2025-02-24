@@ -30,13 +30,12 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -54,7 +53,6 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
@@ -99,24 +97,25 @@ import jakarta.persistence.PersistenceContext;
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
-	public static class TestConfiguration {
+	@MockitoBean
+	private SaveKanteCommandConverter saveKanteCommandConverter;
+	@MockitoBean
+	private NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
 
+	public static class TestConfiguration {
 		@Autowired
 		private NetzService netzService;
-		@MockBean
-		private SaveKanteCommandConverter saveKanteCommandConverter;
-		@MockBean
-		private NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
 		@Autowired
 		private NetzGuard netzAutorisierungsService;
 		@Autowired
 		private ZustaendigkeitsService zustaendigkeitsService;
 		@Autowired
 		private NetzConfigurationProperties netzConfigurationProperties;
+		@Autowired
+		private SaveKanteCommandConverter saveKanteCommandConverter;
+		@Autowired
+		private NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
 
 		@Bean
 		public NetzController netzController() {
@@ -173,7 +172,7 @@ class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
 		// Arrange
 		KnotenAttribute testAttribute = KnotenAttribute.builder()
 			.kommentar(Kommentar.of("Alter Kommentar"))
-			.knotenForm(KnotenForm.ABKNICKENDE_VORFAHRT)
+			.knotenForm(KnotenForm.ABKNICKENDE_VORFAHRT_OHNE_LSA)
 			.build();
 
 		Point point = geometryFactory.createPoint(new Coordinate(1.0, 2.0));
@@ -191,21 +190,21 @@ class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
 
 		KnotenAttribute alteAttribute = alterKnoten.getKnotenAttribute();
 		assertThat(alteAttribute.getKommentar()).contains(Kommentar.of("Alter Kommentar"));
-		assertThat(alteAttribute.getKnotenForm()).contains(KnotenForm.ABKNICKENDE_VORFAHRT);
+		assertThat(alteAttribute.getKnotenForm()).contains(KnotenForm.ABKNICKENDE_VORFAHRT_OHNE_LSA);
 
 		SaveKnotenCommand command = mapper.readValue(
 			"{\"id\":" + alterKnoten.getId() + ","
 				+ "\"kommentar\":\"Neuer Kommentar!\","
 				+ "\"knotenVersion\":0,"
-				+ "\"knotenForm\":\"MINIKREISVERKEHR_24_M\""
+				+ "\"knotenForm\":\"" + KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR.name() + "\""
 				+ "}",
 			SaveKnotenCommand.class);
 
 		KnotenEditView updatedKnoten = netzController.saveKnoten(authentication, command);
 
 		assertThat(updatedKnoten.getId()).isEqualTo(alterKnoten.getId());
-		assertThat(updatedKnoten.getKnotenForm()).isEqualTo(KnotenForm.MINIKREISVERKEHR_24_M);
-		assertThat(updatedKnoten.getKommentar()).isEqualTo(Kommentar.of("Neuer Kommentar!"));
+		assertThat(updatedKnoten.getKnotenForm()).contains(KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR);
+		assertThat(updatedKnoten.getKommentar()).contains(Kommentar.of("Neuer Kommentar!"));
 	}
 
 	@Test
@@ -213,7 +212,7 @@ class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
 		// Arrange
 		KnotenAttribute testAttribute = KnotenAttribute.builder()
 			.kommentar(Kommentar.of("Alter Kommentar"))
-			.knotenForm(KnotenForm.ABKNICKENDE_VORFAHRT)
+			.knotenForm(KnotenForm.ABKNICKENDE_VORFAHRT_OHNE_LSA)
 			.build();
 
 		Knoten testKnoten = Knoten.builder()
@@ -230,13 +229,13 @@ class SaveKnotenIntegrationTestIT extends DBIntegrationTestIT {
 
 		KnotenAttribute alteAttribute = alterKnoten.getKnotenAttribute();
 		assertThat(alteAttribute.getKommentar()).contains(Kommentar.of("Alter Kommentar"));
-		assertThat(alteAttribute.getKnotenForm()).contains(KnotenForm.ABKNICKENDE_VORFAHRT);
+		assertThat(alteAttribute.getKnotenForm()).contains(KnotenForm.ABKNICKENDE_VORFAHRT_OHNE_LSA);
 
 		SaveKnotenCommand command = mapper.readValue(
 			"{\"id\":" + alterKnoten.getId() + ","
 				+ "\"kommentar\":\"Neuer Kommentar!\","
 				+ "\"knotenVersion\":0,"
-				+ "\"knotenForm\":\"MINIKREISVERKEHR_24_M\""
+				+ "\"knotenForm\":\"" + KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR.name() + "\""
 				+ "}",
 			SaveKnotenCommand.class);
 

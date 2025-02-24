@@ -733,7 +733,8 @@ class AttributeMapperTest {
 	}
 
 	@Test
-	void testeApplyRadverkehrsfuehrung_MitSeitenbezug_schreibtAttributeAnRelevantesSegment() {
+	void testeApplyRadverkehrsfuehrung_MitSeitenbezug_schreibtAttributeAnRelevantesSegment()
+		throws AttributUebernahmeException {
 		Kante kante = KanteTestDataProvider.withDefaultValues()
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
@@ -798,9 +799,8 @@ class AttributeMapperTest {
 		LinearReferenzierterAbschnitt abschnitt = LinearReferenzierterAbschnitt.of(0, 1);
 		Radverkehrsfuehrung newFuehrungsform = Radverkehrsfuehrung.UNBEKANNT;
 
-		AttributUebernahmeException exception = catchThrowableOfType(
-			() -> attributeMapper.applyRadverkehrsfuehrung(kante, newFuehrungsform, abschnitt),
-			AttributUebernahmeException.class);
+		AttributUebernahmeException exception = catchThrowableOfType(AttributUebernahmeException.class,
+			() -> attributeMapper.applyRadverkehrsfuehrung(kante, newFuehrungsform, abschnitt));
 
 		assertThat(exception.getFehler()).hasSize(2);
 

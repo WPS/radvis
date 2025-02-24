@@ -26,6 +26,7 @@ import { originalGeometrieLayerZIndex } from 'src/app/shared/models/shared-layer
   selector: 'rad-original-geometrie-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class OriginalGeometrieLayerComponent implements OnDestroy, OnChanges, OnInit {
   @Input()

@@ -39,6 +39,7 @@ export interface MassnahmenAttributFehlerUeberpruefenRow {
   templateUrl: './import-massnahmen-attributfehler-ueberpruefen.component.html',
   styleUrl: './import-massnahmen-attributfehler-ueberpruefen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMassnahmenAttributfehlerUeberpruefenComponent implements OnInit, OnDestroy {
   private static readonly STEP = 3;
@@ -50,9 +51,9 @@ export class ImportMassnahmenAttributfehlerUeberpruefenComponent implements OnIn
   displayedColumns = ['status', 'id', 'attribut', 'hinweis'];
 
   pollingSubscription: Subscription | undefined;
-  executing: boolean = false;
-  anzahlMassnahmen: number = 0;
-  anzahlFehlerhafterMassnahmen: number = 0;
+  executing = false;
+  anzahlMassnahmen = 0;
+  anzahlFehlerhafterMassnahmen = 0;
 
   get schrittAbgeschlossenOderHasFehler(): boolean {
     return this.schrittAbgeschlossen || this.hasFehler;
@@ -182,7 +183,7 @@ export class ImportMassnahmenAttributfehlerUeberpruefenComponent implements OnIn
       )
       .subscribe({
         next: session => {
-          this.session = session as MassnahmenImportSessionView;
+          this.session = session!;
           if (this.schrittAbgeschlossen) {
             this.navigateToNextStep();
           }

@@ -32,6 +32,7 @@ import { Wahlkreis } from 'src/app/shared/models/wahlkreis';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => WahlkreisDropdownControlComponent), multi: true },
   ],
+  standalone: false,
 })
 export class WahlkreisDropdownControlComponent extends AbstractUndeterminedFormControl<Wahlkreis> implements OnChanges {
   @Input()

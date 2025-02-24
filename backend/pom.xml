@@ -2,15 +2,15 @@
 <!--
   ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
   ~
-  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission- subsequent versions of the EUPL (the "Licence");
   ~
   ~ You may not use this work except in compliance with the Licence.
   ~ You may obtain a copy of the Licence at:
   ~
   ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
   ~
-  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licenceis distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express orimplied.
+  ~ See the Licence for the specific language governing permissions and limitations under theLicence.
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.5</version>
+    <version>3.4.2</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>de.wps.radvis</groupId>
@@ -35,7 +35,7 @@
     <archunit-junit5.version>1.0.1</archunit-junit5.version>
     <hibernate.version>6.2.7.Final</hibernate.version>
     <togglz.version>4.0.1</togglz.version>
-    <charon.version>5.1.0</charon.version>
+    <charon.version>5.4.0</charon.version>
     <skipSurefire>false</skipSurefire>
   </properties>
   <dependencies>
@@ -162,12 +162,12 @@
     <dependency>
       <groupId>de.topobyte</groupId>
       <artifactId>osm4j-core</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0</version>
     </dependency>
     <dependency>
       <groupId>de.topobyte</groupId>
       <artifactId>osm4j-pbf</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0</version>
     </dependency>
 
     <dependency>
@@ -219,14 +219,14 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.20.3</version>
+      <version>1.20.4</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>1.20.3</version>
+      <version>1.20.4</version>
       <scope>test</scope>
     </dependency>
 
@@ -240,7 +240,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.4</version>
+      <version>42.7.5</version>
     </dependency>
 
     <dependency>
@@ -307,12 +307,17 @@
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
-      <version>5.9</version>
+      <version>5.10</version>
     </dependency>
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.hypersistence</groupId>
+      <artifactId>hypersistence-utils-hibernate-62</artifactId>
+      <version>3.9.2</version>
     </dependency>
   </dependencies>
 

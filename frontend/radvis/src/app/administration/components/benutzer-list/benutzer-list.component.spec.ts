@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -154,9 +153,8 @@ describe(BenutzerListComponent.name, () => {
 
   describe('with pageSize and pageIndex', () => {
     beforeEach(() => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       component.paginator!.pageSize = 20;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       component.paginator!.pageIndex = 1;
     });
 

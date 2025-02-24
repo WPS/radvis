@@ -36,6 +36,7 @@ import { NetzbezugAuswahlModusService } from 'src/app/shared/services/netzbezug-
   templateUrl: './measure-distance-layer.component.html',
   styleUrls: ['./measure-distance-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MeasureDistanceLayerComponent implements OnDestroy {
   private featureSource: VectorSource = new VectorSource();

@@ -44,7 +44,8 @@ import invariant from 'tiny-invariant';
   templateUrl: './infrastruktur-tabelle-layout.component.html',
   styleUrls: ['./infrastruktur-tabelle-layout.component.scss'],
   providers: [{ provide: TabellenSpaltenAuswahlService, useExisting: InfrastrukturTabelleLayoutComponent }],
-  changeDetection: ChangeDetectionStrategy.Default, //wichtig, damit änderungen an der datasource gerendert werden
+  changeDetection: ChangeDetectionStrategy.Default,
+  standalone: false,
 })
 export class InfrastrukturTabelleLayoutComponent
   implements AfterContentInit, AfterViewInit, OnChanges, OnInit, TabellenSpaltenAuswahlService

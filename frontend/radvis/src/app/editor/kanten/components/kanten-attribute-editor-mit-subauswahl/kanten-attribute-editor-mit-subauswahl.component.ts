@@ -25,6 +25,7 @@ import { ActivatedRoute } from '@angular/router';
     '../abstract-attribut-gruppe-editor-mit-auswahl.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenAttributeEditorMitSubauswahlComponent extends AbstractEventTrackedEditor {
   @Input()

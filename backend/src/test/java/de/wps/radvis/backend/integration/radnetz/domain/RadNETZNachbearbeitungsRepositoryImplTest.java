@@ -27,9 +27,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
@@ -37,15 +36,11 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
@@ -55,30 +50,31 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 
 @Tag("group5")
-@ContextConfiguration(classes = { NetzConfiguration.class, IntegrationRadNetzConfiguration.class,
-	OrganisationConfiguration.class, BenutzerConfiguration.class, CommonConfiguration.class,
-	GeoConverterConfiguration.class, NetzfehlerConfiguration.class, KommentarConfiguration.class,
-	KommentarConfiguration.class, KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class })
+@ContextConfiguration(classes = {
+	NetzConfiguration.class,
+	IntegrationRadNetzConfiguration.class,
+	OrganisationConfiguration.class,
+	BenutzerConfiguration.class,
+	CommonConfiguration.class,
+	GeoConverterConfiguration.class,
+})
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
 	FeatureToggleProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @EntityScan(basePackageClasses = { KonsistenzregelPruefungsConfiguration.class })
 class RadNETZNachbearbeitungsRepositoryImplTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 	@Autowired
 	private KnotenRepository knotenRepository;
 

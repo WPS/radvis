@@ -33,6 +33,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
   templateUrl: './import-attribute-abschliessen.component.html',
   styleUrls: ['./import-attribute-abschliessen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeAbschliessenComponent implements OnDestroy {
   private static readonly STEP = 5;

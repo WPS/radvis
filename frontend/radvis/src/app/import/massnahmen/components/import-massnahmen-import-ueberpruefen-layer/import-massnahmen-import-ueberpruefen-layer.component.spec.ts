@@ -29,7 +29,6 @@ import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { toRadVisFeatureAttributesFromMap } from 'src/app/shared/models/rad-vis-feature-attributes';
 import { Coordinate } from 'ol/coordinate';
 
-/* eslint-disable @typescript-eslint/dot-notation */
 describe(ImportMassnahmenImportUeberpruefenLayerComponent.name, () => {
   let component: ImportMassnahmenImportUeberpruefenLayerComponent;
   let fixture: MockedComponentFixture<ImportMassnahmenImportUeberpruefenLayerComponent>;

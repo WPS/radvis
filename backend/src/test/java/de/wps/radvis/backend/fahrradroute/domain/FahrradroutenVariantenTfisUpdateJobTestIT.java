@@ -52,10 +52,10 @@ import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
@@ -95,7 +95,7 @@ import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
 import jakarta.persistence.EntityManager;
@@ -108,6 +108,23 @@ import jakarta.persistence.PersistenceContext;
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
 	PostgisConfigurationProperties.class })
 public class FahrradroutenVariantenTfisUpdateJobTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private ZustaendigkeitAttributGruppeRepository zustaendigkeitAttributGruppenRepository;
+	@MockitoBean
+	private FahrtrichtungAttributGruppeRepository fahrtrichtungAttributGruppeRepository;
+	@MockitoBean
+	private GeschwindigkeitAttributGruppeRepository geschwindigkeitAttributGruppeRepository;
+	@MockitoBean
+	private FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppenRepository;
+	@MockitoBean
+	private KantenAttributGruppeRepository kantenAttributGruppenRepository;
+	@MockitoBean
+	private VerwaltungseinheitService verwaltungseinheitService;
+	@MockitoBean
+	ShapeFileRepository shapeFileRepository;
+	@MockitoBean
+	DlmMatchingRepository dlmMatchingRepository;
+
 	@EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.netz",
 		"de.wps.radvis.backend.organisation" })
 	@EntityScan(basePackages = { "de.wps.radvis.backend.fahrradroute", "de.wps.radvis.backend.organisation",
@@ -117,23 +134,21 @@ public class FahrradroutenVariantenTfisUpdateJobTestIT extends DBIntegrationTest
 		private KantenRepository kantenRepository;
 		@Autowired
 		private KnotenRepository knotenRepository;
-		@MockBean
+		@Autowired
 		private ZustaendigkeitAttributGruppeRepository zustaendigkeitAttributGruppenRepository;
-		@MockBean
+		@Autowired
 		private FahrtrichtungAttributGruppeRepository fahrtrichtungAttributGruppeRepository;
-		@MockBean
+		@Autowired
 		private GeschwindigkeitAttributGruppeRepository geschwindigkeitAttributGruppeRepository;
-		@MockBean
+		@Autowired
 		private FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppenRepository;
-		@MockBean
+		@Autowired
 		private KantenAttributGruppeRepository kantenAttributGruppenRepository;
-		@MockBean
-		private VerwaltungseinheitResolver verwaltungseinheitResolver;
-		@MockBean
+		@Autowired
 		private VerwaltungseinheitService verwaltungseinheitService;
-		@MockBean
+		@Autowired
 		ShapeFileRepository shapeFileRepository;
-		@MockBean
+		@Autowired
 		DlmMatchingRepository dlmMatchingRepository;
 		@PersistenceContext
 		EntityManager entityManager;
@@ -142,8 +157,8 @@ public class FahrradroutenVariantenTfisUpdateJobTestIT extends DBIntegrationTest
 		NetzService netzService() {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
-				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
-				entityManager, 1.0);
+				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitService,
+				entityManager, 1.0, Laenge.of(10), 10, 15.0, 0.5);
 		}
 
 		@Bean
@@ -169,13 +184,6 @@ public class FahrradroutenVariantenTfisUpdateJobTestIT extends DBIntegrationTest
 	KantenRepository kantenRepository;
 	@Autowired
 	TfisImportService tfisImportService;
-	@Autowired
-	ShapeFileRepository shapeFileRepository;
-	@Autowired
-	DlmMatchingRepository dlmMatchingRepository;
-
-	@Autowired
-	VerwaltungseinheitService verwaltungseinheitService;
 
 	@TempDir
 	Path tfisRadwegePath = Path.of("testpfad");

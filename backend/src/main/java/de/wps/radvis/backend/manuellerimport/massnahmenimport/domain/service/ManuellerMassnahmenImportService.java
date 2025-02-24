@@ -87,7 +87,8 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
@@ -102,7 +103,7 @@ public class ManuellerMassnahmenImportService {
 	private final ManuellerImportService manuellerImportService;
 	private final MassnahmeNetzbezugService massnahmeNetzbezugService;
 	private final GeoJsonImportRepository geoJsonImportRepository;
-	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
+	private final VerwaltungseinheitService verwaltungseinheitService;
 	private final MassnahmeRepository massnahmenRepostory;
 	private final EntityManager entityManager;
 	private final CsvRepository csvRepository;
@@ -111,7 +112,7 @@ public class ManuellerMassnahmenImportService {
 	public ManuellerMassnahmenImportService(ManuellerImportService manuellerImportService,
 		MassnahmeNetzbezugService massnahmeNetzbezugService,
 		GeoJsonImportRepository geoJsonImportRepository,
-		VerwaltungseinheitRepository verwaltungseinheitRepository,
+		VerwaltungseinheitService verwaltungseinheitService,
 		MassnahmeRepository massnahmenRepostory,
 		EntityManager entityManager,
 		CsvRepository csvRepository,
@@ -119,7 +120,7 @@ public class ManuellerMassnahmenImportService {
 		this.manuellerImportService = manuellerImportService;
 		this.massnahmeNetzbezugService = massnahmeNetzbezugService;
 		this.geoJsonImportRepository = geoJsonImportRepository;
-		this.verwaltungseinheitRepository = verwaltungseinheitRepository;
+		this.verwaltungseinheitService = verwaltungseinheitService;
 		this.massnahmenRepostory = massnahmenRepostory;
 		this.entityManager = entityManager;
 		this.csvRepository = csvRepository;
@@ -128,10 +129,6 @@ public class ManuellerMassnahmenImportService {
 
 	public Optional<MassnahmenImportSession> getMassnahmenImportSession(Benutzer benutzer) {
 		return manuellerImportService.findImportSessionFromBenutzer(benutzer, MassnahmenImportSession.class);
-	}
-
-	private MultiPolygon getVereinigtenBereich(List<Long> gebietskoerperschaftIds) {
-		return verwaltungseinheitRepository.getVereintenBereich(gebietskoerperschaftIds);
 	}
 
 	@Async
@@ -473,22 +470,13 @@ public class ManuellerMassnahmenImportService {
 					session.getKonzeptionsquelle());
 	}
 
-	private String getNamen(List<Long> gebietskoerperschaftIds) {
-		return verwaltungseinheitRepository.findAllDbViewsById(gebietskoerperschaftIds)
-			.stream()
-			.map(gK -> String.format("%s (%s)", gK.getName(), gK.getOrganisationsArt()))
-			.collect(Collectors.joining(","));
-	}
-
 	public MassnahmenImportSession createSession(Benutzer benutzer, List<Long> gebietskoerperschaftenIds,
 		Konzeptionsquelle konzeptionsquelle, SollStandard sollStandard) {
+		MultiPolygon vereinigterBereich = verwaltungseinheitService.getVereintenBereich(gebietskoerperschaftenIds);
+		String bereichName = verwaltungseinheitService.getAllNames(gebietskoerperschaftenIds);
 
-		MultiPolygon vereinigterBereich = getVereinigtenBereich(gebietskoerperschaftenIds);
-		String bereichName = getNamen(gebietskoerperschaftenIds);
-
-		return new MassnahmenImportSession(
-			benutzer,
-			vereinigterBereich, bereichName, gebietskoerperschaftenIds, konzeptionsquelle, sollStandard);
+		return new MassnahmenImportSession(benutzer, vereinigterBereich, bereichName, gebietskoerperschaftenIds,
+			konzeptionsquelle, sollStandard);
 	}
 
 	@Async
@@ -510,7 +498,8 @@ public class ManuellerMassnahmenImportService {
 					zuordnung -> zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.NEU
 						|| zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.ZUGEORDNET
 							&& zuordnung.getMassnahme().isPresent())
-				.forEach(zuordnung -> validiereAttributeDerZuordnung(session.getAttribute(), zuordnung));
+				.forEach(zuordnung -> validiereAttributeDerZuordnung(session.getAttribute(), zuordnung,
+					session.getKonzeptionsquelle()));
 			logSummary(session);
 			session.setSchritt(MassnahmenImportSession.ATTRIBUTFEHLER_UEBERPRUEFEN);
 		} catch (Exception e) {
@@ -527,7 +516,7 @@ public class ManuellerMassnahmenImportService {
 	}
 
 	private void validiereAttributeDerZuordnung(List<MassnahmenImportAttribute> attribute,
-		MassnahmenImportZuordnung zuordnung) {
+		MassnahmenImportZuordnung zuordnung, Konzeptionsquelle konzeptionsquelle) {
 		require(
 			zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.NEU
 				|| zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.ZUGEORDNET
@@ -614,6 +603,8 @@ public class ManuellerMassnahmenImportService {
 						MappingFehler.of(
 							attributName,
 							MappingFehlermeldung.VERWALTUNGSEINHEIT_NICHT_GEFUNDEN.getText(attributString)));
+				} catch (OrganisationsartUndNameNichtEindeutigException e) {
+					zuordnung.addMappingFehler(MappingFehler.of(attributName, e.getMessage()));
 				}
 			}
 		}
@@ -647,7 +638,15 @@ public class ManuellerMassnahmenImportService {
 			zuordnung.addMappingFehler(
 				MappingFehler.of(
 					MassnahmenImportAttribute.KATEGORIEN.toString(),
-					MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE.getText()));
+					MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE_OBERKATEGORIE.getText()));
+		}
+
+		if (!Massnahme.areKategorienValidForKonzeptionsquelle(konzeptionsquelle, massnahmenkategorien)) {
+			zuordnung.addMappingFehler(
+				MappingFehler.of(
+					MassnahmenImportAttribute.KATEGORIEN.toString(),
+					MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE_KONZEPTIONSQUELLE.getText()));
+
 		}
 	}
 
@@ -724,7 +723,7 @@ public class ManuellerMassnahmenImportService {
 	}
 
 	private Verwaltungseinheit mapToVerwaltungseinheitEmptyAllowed(String attributString)
-		throws VerwaltungseinheitNichtGefundenException {
+		throws VerwaltungseinheitNichtGefundenException, OrganisationsartUndNameNichtEindeutigException {
 		if (attributString.isBlank()) {
 			return null;
 		}
@@ -732,16 +731,15 @@ public class ManuellerMassnahmenImportService {
 	}
 
 	private Verwaltungseinheit mapToVerwaltungseinheit(String attributString)
-		throws VerwaltungseinheitNichtGefundenException {
+		throws VerwaltungseinheitNichtGefundenException, OrganisationsartUndNameNichtEindeutigException {
 		Pair<String, OrganisationsArt> parsed;
 		try {
 			parsed = Verwaltungseinheit.parseBezeichnung(attributString);
 		} catch (Exception e) {
 			throw new VerwaltungseinheitNichtGefundenException();
 		}
-		return verwaltungseinheitRepository.findByNameAndOrganisationsArt(
-			parsed.getFirst(),
-			parsed.getSecond()).orElseThrow(VerwaltungseinheitNichtGefundenException::new);
+		return verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
+			parsed.getFirst(), parsed.getSecond()).orElseThrow(VerwaltungseinheitNichtGefundenException::new);
 	}
 
 	private Set<Netzklasse> mapToNetzklassen(String s) throws MassnahmenAttributWertValidierungsException {
@@ -1061,6 +1059,11 @@ public class ManuellerMassnahmenImportService {
 			} catch (VerwaltungseinheitNichtGefundenException e) {
 				log.error(
 					"Verwaltungseinheit {} beim Erstellen einer neuen Maßnahme (Konzept-ID '{}') für Attribut {} nicht gefunden",
+					attributWert, massnahmeKonzeptId != null ? massnahmeKonzeptId.getValue() : "", attributName);
+				throw new RuntimeException(e);
+			} catch (OrganisationsartUndNameNichtEindeutigException e) {
+				log.error(
+					"Verwaltungseinheit {} beim Erstellen einer neuen Maßnahme (Konzept-ID '{}') für Attribut {} nicht eindeutig",
 					attributWert, massnahmeKonzeptId != null ? massnahmeKonzeptId.getValue() : "", attributName);
 				throw new RuntimeException(e);
 			}

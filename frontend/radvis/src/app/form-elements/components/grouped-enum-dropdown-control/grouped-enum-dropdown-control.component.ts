@@ -40,6 +40,7 @@ import { GroupedEnumOptions } from 'src/app/form-elements/models/grouped-enum-op
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => GroupedEnumDropdownControlComponent), multi: true },
   ],
+  standalone: false,
 })
 export class GroupedEnumDropdownControlComponent
   extends AbstractUndeterminedFormControl<string>

@@ -17,6 +17,7 @@ import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 
 @Pipe({
   name: 'organisation',
+  standalone: false,
 })
 export class OrganisationPipe implements PipeTransform {
   transform(organisation: Verwaltungseinheit | null | undefined): string {

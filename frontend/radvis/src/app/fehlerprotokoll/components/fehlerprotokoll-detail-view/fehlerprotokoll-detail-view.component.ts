@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -32,6 +31,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
   templateUrl: './fehlerprotokoll-detail-view.component.html',
   styleUrls: ['./fehlerprotokoll-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FehlerprotokollDetailViewComponent {
   @Input()
@@ -41,10 +41,10 @@ export class FehlerprotokollDetailViewComponent {
   public closePopup = new EventEmitter<void>();
 
   public selectedLocation: Coordinate | null = null;
-  public titel: string = '';
-  public beschreibung: string = '';
-  public entityLink: string = '';
-  public datum: string = '';
+  public titel = '';
+  public beschreibung = '';
+  public entityLink = '';
+  public datum = '';
   public id: string | undefined;
 
   constructor(

@@ -17,8 +17,8 @@
   </parent>
 
   <properties>
-    <node.version>v18.18.2</node.version>
-    <npm.version>9.8.1</npm.version>
+    <node.version>v22.9.0</node.version>
+    <npm.version>10.8.3</npm.version>
     <ng-lint-phase>none</ng-lint-phase>
     <ng-build-phase>none</ng-build-phase>
     <ng-install-phase>none</ng-install-phase>
@@ -60,6 +60,15 @@
       </activation>
       <properties>
         <ng-install-phase>initialize</ng-install-phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>ng-update</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <ng-update-phase>initialize</ng-update-phase>
       </properties>
     </profile>
   </profiles>
@@ -125,6 +134,17 @@
               <arguments>version --allow-same-version ${project.version}</arguments>
             </configuration>
             <phase>${ng-install-phase}</phase>
+          </execution>
+          
+          <execution>
+            <id>npm update</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>update --save</arguments>
+            </configuration>
+            <phase>${ng-update-phase}</phase>
           </execution>
 
           <execution>

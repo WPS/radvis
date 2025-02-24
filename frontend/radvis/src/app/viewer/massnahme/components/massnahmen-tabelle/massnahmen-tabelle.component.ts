@@ -39,6 +39,7 @@ import { ExportService } from 'src/app/viewer/viewer-shared/services/export.serv
   styleUrls: ['./massnahmen-tabelle.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: AbstractInfrastrukturenFilterService, useExisting: forwardRef(() => MassnahmeFilterService) }],
+  standalone: false,
 })
 export class MassnahmenTabelleComponent {
   selectedMassnahmeID$: Observable<number | null>;
@@ -85,7 +86,7 @@ export class MassnahmenTabelleComponent {
   isSmallViewport = false;
   erweiterterFilterActive$: Observable<boolean>;
   filteredSpalten$: Observable<string[]>;
-  archiving: boolean = false;
+  archiving = false;
 
   constructor(
     public massnahmeFilterService: MassnahmeFilterService,

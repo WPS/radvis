@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
@@ -49,12 +50,14 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
-import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeListenDbViewTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezugAenderung;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
@@ -103,7 +106,7 @@ class MassnahmeServiceTest {
 	private BenutzerService benutzerService;
 
 	@Mock
-	private FahrradrouteRepository fahrradrouteRepository;
+	private FahrradrouteFilterRepository fahrradrouteRepository;
 
 	@Mock
 	private NetzService netzService;
@@ -112,13 +115,15 @@ class MassnahmeServiceTest {
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 	private AutoCloseable openMocks;
 
+	private int distanzMassnahmeZuFahrradrouteInMetern = 20;
+
 	@BeforeEach
 	void setUp() {
 		openMocks = openMocks(this);
 		massnahmeService = new MassnahmeService(massnahmeRepository, massnahmeViewRepository,
 			massnahmeUmsetzungsstandViewRepository, umsetzungsstandRepository, kantenRepository,
 			massnahmeNetzbezugAenderungProtokollierungsService, benutzerService, fahrradrouteRepository, netzService,
-			20, 1.0);
+			distanzMassnahmeZuFahrradrouteInMetern, 1.0);
 	}
 
 	@AfterEach
@@ -577,5 +582,125 @@ class MassnahmeServiceTest {
 		assertThat(massnahmeCannotErsetzen.getNetzbezug().getImmutableKantenAbschnittBezug())
 			.containsExactly(new AbschnittsweiserKantenSeitenBezug(zuErsetzendeKante,
 				LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.BEIDSEITIG));
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	void getAlleMassnahmenListenViews_filtersFahrradrouten() {
+		// arrange
+		when(fahrradrouteRepository.getAllGeometries(any()))
+			.thenReturn(
+				List.of(GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100))));
+		MassnahmeListenDbView massnahmeWithin = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(MassnahmeTestDataProvider
+				.withKnoten(KnotenTestDataProvider
+					.withPosition(distanzMassnahmeZuFahrradrouteInMetern, 0)
+					.build())
+				.build())
+			.build();
+		MassnahmeListenDbView massnahmeOutside = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(MassnahmeTestDataProvider
+				.withKnoten(KnotenTestDataProvider
+					.withPosition(distanzMassnahmeZuFahrradrouteInMetern + 1, 0)
+					.build())
+				.build())
+			.build();
+		when(massnahmeViewRepository.findAllWithFilters(any(), anyBoolean()))
+			.thenReturn(List.of(massnahmeWithin, massnahmeOutside));
+
+		// act
+		List<Long> nebenFahrradroutenIds = List.of(123l, 234l);
+		List<MassnahmeListenDbView> alleMassnahmenListenViews = massnahmeService.getAlleMassnahmenListenViews(false,
+			Optional.empty(), nebenFahrradroutenIds);
+
+		// assert
+		ArgumentCaptor<List> fahrradrouteListCaptor = ArgumentCaptor.forClass(List.class);
+		verify(fahrradrouteRepository).getAllGeometries(fahrradrouteListCaptor.capture());
+		assertThat(fahrradrouteListCaptor.getValue()).containsExactlyElementsOf(nebenFahrradroutenIds);
+		assertThat(alleMassnahmenListenViews).hasSize(1);
+		assertThat(alleMassnahmenListenViews).contains(massnahmeWithin);
+		assertThat(alleMassnahmenListenViews).doesNotContain(massnahmeOutside);
+	}
+
+	@Test
+	void getAlleMassnahmenListenViews_massnahmeWithoutGeometrie_notWithinFahrradrouteFilter() {
+		// arrange
+		when(fahrradrouteRepository.getAllGeometries(any()))
+			.thenReturn(
+				List.of(GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100))));
+		MassnahmeListenDbView massnahmeViewWithin = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(MassnahmeTestDataProvider
+				.withKnoten(KnotenTestDataProvider
+					.withPosition(distanzMassnahmeZuFahrradrouteInMetern, 0)
+					.build())
+				.build())
+			.build();
+		Knoten knotenToDelete = KnotenTestDataProvider
+			.withPosition(distanzMassnahmeZuFahrradrouteInMetern + 1, 0)
+			.id(2l)
+			.build();
+		Massnahme massnahmeWithoutGeometrie = MassnahmeTestDataProvider
+			.withKnoten(knotenToDelete)
+			.build();
+		massnahmeWithoutGeometrie.removeKnotenFromNetzbezug(List.of(knotenToDelete.getId()));
+		MassnahmeListenDbView massnahmeViewWithoutGeometrie = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(massnahmeWithoutGeometrie).build();
+		when(massnahmeViewRepository.findAllWithFilters(any(), anyBoolean()))
+			.thenReturn(List.of(massnahmeViewWithin, massnahmeViewWithoutGeometrie));
+
+		// act
+		List<Long> nebenFahrradroutenIds = List.of(123l, 234l);
+		List<MassnahmeListenDbView> alleMassnahmenListenViews = massnahmeService.getAlleMassnahmenListenViews(false,
+			Optional.empty(), nebenFahrradroutenIds);
+
+		// assert
+		assertThat(alleMassnahmenListenViews).hasSize(1);
+		assertThat(alleMassnahmenListenViews).contains(massnahmeViewWithin);
+		assertThat(alleMassnahmenListenViews).doesNotContain(massnahmeViewWithoutGeometrie);
+	}
+
+	@Test
+	void getAlleMassnahmenListenViews_noFahrradrouteGeometries_doesNotFilter() {
+		// arrange
+		when(fahrradrouteRepository.getAllGeometries(any())).thenReturn(Collections.emptyList());
+		MassnahmeListenDbView massnahme = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(MassnahmeTestDataProvider
+				.withKnoten(KnotenTestDataProvider
+					.withPosition(distanzMassnahmeZuFahrradrouteInMetern, 0)
+					.build())
+				.build())
+			.build();
+		when(massnahmeViewRepository.findAllWithFilters(any(), anyBoolean()))
+			.thenReturn(List.of(massnahme));
+
+		// act
+		List<Long> nebenFahrradroutenIds = List.of(123l, 234l);
+		List<MassnahmeListenDbView> alleMassnahmenListenViews = massnahmeService.getAlleMassnahmenListenViews(false,
+			Optional.empty(), nebenFahrradroutenIds);
+
+		// assert
+		assertThat(alleMassnahmenListenViews).containsExactly(massnahme);
+	}
+
+	@Test
+	void getAlleMassnahmenListenViews_noFahrradrouteFilter_doesNotFilter() {
+		// arrange
+		MassnahmeListenDbView massnahme = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(MassnahmeTestDataProvider
+				.withKnoten(KnotenTestDataProvider
+					.withPosition(distanzMassnahmeZuFahrradrouteInMetern, 0)
+					.build())
+				.build())
+			.build();
+		when(massnahmeViewRepository.findAllWithFilters(any(), anyBoolean()))
+			.thenReturn(List.of(massnahme));
+
+		// act
+		List<MassnahmeListenDbView> alleMassnahmenListenViews = massnahmeService.getAlleMassnahmenListenViews(false,
+			Optional.empty(), Collections.emptyList());
+
+		// assert
+		verify(fahrradrouteRepository, never()).getAllGeometries(any());
+		assertThat(alleMassnahmenListenViews).containsExactly(massnahme);
 	}
 }

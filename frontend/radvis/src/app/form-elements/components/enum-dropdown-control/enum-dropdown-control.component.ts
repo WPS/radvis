@@ -35,8 +35,12 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
   styleUrls: ['./enum-dropdown-control.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => EnumDropdownControlComponent), multi: true }],
+  standalone: false,
 })
-export class EnumDropdownControlComponent extends AbstractUndeterminedFormControl<string> implements OnChanges {
+export class EnumDropdownControlComponent
+  extends AbstractUndeterminedFormControl<string | string[]>
+  implements OnChanges
+{
   @Input()
   options: EnumOption[] = [];
   @Input()
@@ -53,13 +57,25 @@ export class EnumDropdownControlComponent extends AbstractUndeterminedFormContro
   errors?: ValidationErrors | null = null;
   errorMessages: string[] = [];
 
-  public formControl: FormControl<string | null>;
+  public formControl: FormControl<string | string[] | null>;
 
   public readonly UNDETERMINED = 'UNDETERMINED';
   public readonly UNDETERMINED_LABEL = UNDETERMINED_LABEL;
 
   isUndetermined = false;
   showUndeterminedOption = false;
+
+  get showUndeterminedHint(): boolean {
+    if (!this.isUndetermined) {
+      return false;
+    }
+
+    if (!this.formControl.value) {
+      return false;
+    }
+
+    return this.formControl.value === this.UNDETERMINED || this.formControl.value.includes(this.UNDETERMINED);
+  }
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
@@ -78,12 +94,12 @@ export class EnumDropdownControlComponent extends AbstractUndeterminedFormContro
     }
   }
 
-  public writeValue(value: string | UndeterminedValue | null): void {
-    let formValue: string | null;
+  public writeValue(value: string | UndeterminedValue | null | string[]): void {
+    let formValue: string | string[] | null;
     if (value instanceof UndeterminedValue) {
-      formValue = this.UNDETERMINED;
+      formValue = this.multiple ? [this.UNDETERMINED] : this.UNDETERMINED;
       this.isUndetermined = true;
-      this.showUndeterminedOption = true;
+      this.showUndeterminedOption = !this.multiple;
       this.changeDetector.detectChanges();
     } else {
       formValue = value;

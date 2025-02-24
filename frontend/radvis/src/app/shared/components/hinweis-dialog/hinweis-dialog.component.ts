@@ -20,6 +20,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
   templateUrl: './hinweis-dialog.component.html',
   styleUrls: ['./hinweis-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HinweisDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: string) {}

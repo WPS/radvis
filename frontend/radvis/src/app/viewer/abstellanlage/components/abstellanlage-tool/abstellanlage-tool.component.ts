@@ -50,6 +50,7 @@ import { AbstellanlageUpdatedService } from 'src/app/viewer/abstellanlage/servic
       useExisting: forwardRef(() => AbstellanlageToolComponent),
     },
   ],
+  standalone: false,
 })
 export class AbstellanlageToolComponent implements OnDestroy, DokumentService, AbstellanlageUpdatedService {
   eigenschaftenRoute = './' + AbstellanlageRoutingService.EIGENSCHAFTEN;

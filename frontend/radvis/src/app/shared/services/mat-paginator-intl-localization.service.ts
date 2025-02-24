@@ -19,7 +19,6 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
   providedIn: 'root',
 })
 export class MatPaginatorIntlLocalizationService extends MatPaginatorIntl {
-  // eslint-disable-next-line prettier/prettier
   override itemsPerPageLabel = 'Einträge pro Seite';
   override nextPageLabel = 'Nächste Seite';
   override previousPageLabel = 'Vorherige Seite';

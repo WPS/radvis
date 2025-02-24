@@ -54,6 +54,7 @@ import { lineareReferenzierungLayerZIndex } from 'src/app/shared/models/shared-l
   templateUrl: './netzbezug-selektion-layer.component.html',
   styleUrls: ['./netzbezug-selektion-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class NetzbezugSelektionLayerComponent implements OnDestroy, OnInit, OnChanges {
   @Input()

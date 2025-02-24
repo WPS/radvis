@@ -27,6 +27,7 @@ import { OrtsSucheResult } from 'src/app/shared/models/orts-suche-result';
   templateUrl: './orts-suche.component.html',
   styleUrls: ['./orts-suche.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class OrtsSucheComponent {
   @Output()

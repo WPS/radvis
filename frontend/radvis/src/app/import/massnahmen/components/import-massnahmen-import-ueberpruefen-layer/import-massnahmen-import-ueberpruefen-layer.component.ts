@@ -37,6 +37,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   selector: 'rad-import-massnahmen-import-ueberpruefen-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestroy {
   static readonly featureIdField = 'id';
@@ -136,7 +137,7 @@ export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestr
     }
 
     let color: Color | undefined = undefined;
-    let iconFile: string = 'icon-massnahmen.svg';
+    let iconFile = 'icon-massnahmen.svg';
     switch (feature.get(ImportMassnahmenImportUeberpruefenLayerComponent.featureStatusField)) {
       case MassnahmenImportZuordnungStatus.NEU:
         iconFile = 'icon-massnahme-zuordnung-karte-add.svg';
@@ -178,7 +179,7 @@ export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestr
     }
 
     const newIconStyles = MapStyles.getInfrastrukturIconStyle(iconFile, highlighted, color);
-    newIconStyles.forEach(style => style.setGeometry(iconPoint!));
+    newIconStyles.forEach(style => style.setGeometry(iconPoint));
     iconStyles.push(...newIconStyles);
 
     return [

@@ -30,6 +30,7 @@ import invariant from 'tiny-invariant';
   template: '',
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseAbschliessenLayerComponent implements OnInit, OnChanges, OnDestroy {
   @Input()

@@ -40,8 +40,7 @@ export class FurtenKreuzungenFilterService extends AbstractInfrastrukturenFilter
     const EMPTY_FIELD_INDICATOR = '';
     switch (key) {
       case 'id':
-        const id = item.id;
-        return id ? `${id}` : EMPTY_FIELD_INDICATOR;
+        return item.id ? `${item.id}` : EMPTY_FIELD_INDICATOR;
       case 'verantwortlich':
         return Verwaltungseinheit.getDisplayName(item.verantwortlich) ?? EMPTY_FIELD_INDICATOR;
       case 'typ':

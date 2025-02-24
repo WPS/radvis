@@ -54,6 +54,7 @@ export enum RadNetzMatchingState {
   styleUrls: ['./radnetz-matching.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [PrimarySelectionService],
+  standalone: false,
 })
 export class RadnetzMatchingComponent implements OnDestroy {
   public selectableLayers: RadVisLayer[] = [];
@@ -140,9 +141,7 @@ export class RadnetzMatchingComponent implements OnDestroy {
     return this.currentVisibleLayers.includes(DlmKantenLayer.LAYER_ID);
   }
 
-  public get anpassungswunschLayerVisible(): boolean {
-    return false;
-  }
+  anpassungswunschLayerVisible = false;
 
   public get landkreiseLayerVisible(): boolean {
     return this.currentVisibleLayers.includes(LandkreiseLayer.LAYER_ID);

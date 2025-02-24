@@ -20,6 +20,7 @@ import { UmsetzungsstandAbfrageVorschau } from 'src/app/viewer/massnahme/models/
   templateUrl: './umsetzungsstand-abfrage-vorschau-dialog.component.html',
   styleUrl: './umsetzungsstand-abfrage-vorschau-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class UmsetzungsstandAbfrageVorschauDialogComponent {
   private static readonly ANZAHL_VISIBLE_EMPFAENGER = 8;

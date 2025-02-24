@@ -42,6 +42,7 @@ import { NetzAusblendenService } from 'src/app/shared/services/netz-ausblenden.s
   templateUrl: './radvis-knoten-layer.component.html',
   styleUrls: ['./radvis-knoten-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RadvisKnotenLayerComponent implements OnInit, OnDestroy, OnChanges {
   public static LAYER_NAME = RADVIS_NETZ_LAYER_PREFIX + 'KnotenLayer';
@@ -91,12 +92,12 @@ export class RadvisKnotenLayerComponent implements OnInit, OnDestroy, OnChanges 
       this.featureHighlightService.highlightedFeature$
         .pipe(filter(hf => hf.layer === this.olLayer.get(OlMapService.LAYER_ID)))
         .subscribe(hf => {
-          this.setFeatureHighlighted(hf.id as number, true);
+          this.setFeatureHighlighted(hf.id!, true);
         }),
       this.featureHighlightService.unhighlightedFeature$
         .pipe(filter(hf => hf.layer === this.olLayer.get(OlMapService.LAYER_ID)))
         .subscribe(hf => {
-          this.setFeatureHighlighted(hf.id as number, false);
+          this.setFeatureHighlighted(hf.id!, false);
         })
     );
   }

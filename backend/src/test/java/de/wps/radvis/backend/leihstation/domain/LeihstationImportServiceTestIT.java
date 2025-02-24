@@ -38,10 +38,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -71,9 +70,6 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @Tag("group5")
 @ContextConfiguration(classes = LeihstationConfiguration.class)
 @EnableConfigurationProperties(value = CommonConfigurationProperties.class)
-@MockBeans({
-	@MockBean(BenutzerResolver.class),
-})
 public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 	private static final String BASE_URL = "https://radvis-dev.landbw.de/";
 
@@ -82,10 +78,12 @@ public class LeihstationImportServiceTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	LeihstationRepository leihstationRepository;
-	@MockBean
+	@MockitoBean
 	VerwaltungseinheitService verwaltungseinheitService;
-	@MockBean
+	@MockitoBean
 	ZustaendigkeitsService zustaendigkeitsService;
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
 
 	@BeforeEach
 	void setup() {

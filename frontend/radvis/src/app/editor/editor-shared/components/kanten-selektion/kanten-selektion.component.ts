@@ -53,6 +53,7 @@ import { createVectorSource } from 'src/app/shared/services/vector-source.factor
   templateUrl: './kanten-selektion.component.html',
   styleUrls: ['./kanten-selektion.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenSelektionComponent implements OnDestroy {
   private selektion$: Observable<KantenSelektion[]>;

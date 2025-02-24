@@ -22,6 +22,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './predefined-layer-menu.component.html',
   styleUrl: './predefined-layer-menu.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class PredefinedLayerMenuComponent implements OnInit {
   @Input()
@@ -40,7 +41,7 @@ export class PredefinedLayerMenuComponent implements OnInit {
   }
 
   public getLayerItems(): SaveWeitereKartenebeneCommand[] {
-    return this.menu.filter(m => !m.hasSubMenu()).map(m => <SaveWeitereKartenebeneCommand>m.item);
+    return this.menu.filter(m => !m.hasSubMenu()).map(m => m.item as SaveWeitereKartenebeneCommand);
   }
 
   public getSubMenuItems(): PredefinedKartenMenu[] {

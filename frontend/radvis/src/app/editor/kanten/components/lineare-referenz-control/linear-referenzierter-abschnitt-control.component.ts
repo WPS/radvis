@@ -53,6 +53,7 @@ import invariant from 'tiny-invariant';
     },
     { provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: { clickAction: 'noop' } as MatCheckboxDefaultOptions },
   ],
+  standalone: false,
 })
 export class LinearReferenzierterAbschnittControlComponent
   extends AbstractFormControl<LinearReferenzierterAbschnitt[]>
@@ -202,11 +203,11 @@ export class LinearReferenzierterAbschnittControlComponent
   }
 
   public getVonControl(index: number): FormControl<number> {
-    return this.lineareReferenzenForm.at(index) as FormControl<number>;
+    return this.lineareReferenzenForm.at(index);
   }
 
   public getBisControl(index: number): FormControl<number> {
-    return this.lineareReferenzenForm.at(index + 1) as FormControl<number>;
+    return this.lineareReferenzenForm.at(index + 1);
   }
 
   public setDisabledState(isDisabled: boolean): void {
@@ -240,7 +241,7 @@ export class LinearReferenzierterAbschnittControlComponent
   }
 
   private nachMinUndMaxWertDerMetermarkenKorrigieren(array: FormArray<FormControl<number>>): void {
-    const controls = (array as FormArray<FormControl<number>>).controls;
+    const controls = array.controls;
     const i = this.getIndexOfFirstChangedValue(this.previousControlValues, array.getRawValue());
     if (i == null) {
       // kein Aenderungen -> keine Korrektur notwendig

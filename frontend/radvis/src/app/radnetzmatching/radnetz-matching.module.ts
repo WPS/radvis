@@ -13,7 +13,6 @@
  */
 
 import { DatePipe } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -35,7 +34,6 @@ import { RadnetzMatchingComponent } from './components/radnetz-matching/radnetz-
 import { ZugeordneteDlmKantenLayerComponent } from './components/zugeordnete-dlm-kanten-layer/zugeordnete-dlm-kanten-layer.component';
 
 @NgModule({
-  providers: [DatePipe],
   declarations: [
     RadnetzMatchingComponent,
     MatchingFeatureTableComponent,
@@ -52,12 +50,12 @@ import { ZugeordneteDlmKantenLayerComponent } from './components/zugeordnete-dlm
   imports: [
     RadnetzMatchingRoutingModule,
     BrowserModule,
-    HttpClientModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
     SharedModule,
     KarteModule,
     FehlerprotokollModule,
   ],
+  providers: [DatePipe],
 })
 export class RadnetzMatchingModule {}

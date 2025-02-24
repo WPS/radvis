@@ -81,20 +81,18 @@ public class MassnahmenImportConfiguration {
 			manuellerImportService,
 			massnahmeNetzbezugService(),
 			geoJsonImportRepository,
-			verwaltungseinheitRepository,
+			verwaltungseinheitService,
 			massnahmenRepostory,
 			entityManager,
 			csvRepository,
-			massnahmenImportConfigurationProperties.getMinimaleDistanzFuerAbweichungsWarnung()
-		);
+			massnahmenImportConfigurationProperties.getMinimaleDistanzFuerAbweichungsWarnung());
 	}
 
 	@Bean
 	public MassnahmeNetzbezugService massnahmeNetzbezugService() {
 		return new MassnahmeNetzbezugService(
 			simpleMatchingService,
-			netzService
-		);
+			netzService);
 	}
 
 	@Bean

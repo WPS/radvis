@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { DatePipe } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -21,7 +20,7 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MockComponent } from 'ng-mocks';
 import { MatomoTracker } from 'ngx-matomo-client';
-import { Geometry, LineString } from 'ol/geom';
+import { LineString } from 'ol/geom';
 import * as olProj from 'ol/proj';
 import { of } from 'rxjs';
 import { FehlerprotokollAuswahlComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-auswahl/fehlerprotokoll-auswahl.component';
@@ -50,6 +49,7 @@ import { FehlerprotokollLayerComponent } from './fehlerprotokoll-layer.component
 @Component({
   template: '<rad-ol-map><rad-fehlerprotokoll-layer [zIndex]="1"></rad-fehlerprotokoll-layer></rad-ol-map>',
   selector: 'rad-test',
+  standalone: false,
 })
 class TestWrapperComponent {
   @ViewChild(FehlerprotokollLayerComponent)
@@ -148,31 +148,36 @@ describe(FehlerprotokollLayerComponent.name, () => {
         id ? +id : null,
         feature.getProperties(),
         FehlerprotokollLayerComponent.LAYER_ID,
-        feature.getGeometry() as Geometry
+        feature.getGeometry()!
       );
 
       component.onSelect(selectedFeature, defaultFehlerpotokoll.iconPosition.coordinates[0]);
       fixture.detectChanges();
 
       expect(
-        ((fixture.debugElement.nativeElement as HTMLElement).querySelector('.popup-titel') as HTMLElement).innerText
+        ((fixture.debugElement.nativeElement as HTMLElement).querySelector('.popup-titel') as unknown as HTMLDivElement)
+          .innerText
       ).toEqual(defaultFehlerpotokoll.titel);
-      const expectedDate = new DatePipe('en-EN').transform(defaultFehlerpotokoll.datum, 'dd.MM.yy HH:mm') as string;
+      const expectedDate = new DatePipe('en-EN').transform(defaultFehlerpotokoll.datum, 'dd.MM.yy HH:mm')!;
       expect(
-        ((fixture.debugElement.nativeElement as HTMLElement).querySelector('.date') as HTMLElement).innerText
+        ((fixture.debugElement.nativeElement as HTMLElement).querySelector('.date') as unknown as HTMLDivElement)
+          .innerText
       ).toEqual(expectedDate);
       expect(
-        ((fixture.debugElement.nativeElement as HTMLElement).querySelector('div.fehlerprotokoll-text') as HTMLElement)
-          .innerText
+        (
+          (fixture.debugElement.nativeElement as HTMLElement).querySelector(
+            'div.fehlerprotokoll-text'
+          ) as unknown as HTMLDivElement
+        ).innerText
       ).toEqual(defaultFehlerpotokoll.beschreibung);
       expect(
-        (
-          (fixture.debugElement.nativeElement as HTMLElement).querySelector('a.fehlerprotokoll-text') as HTMLElement
-        ).attributes.getNamedItem('href')?.value
+        (fixture.debugElement.nativeElement as HTMLElement)
+          .querySelector('a.fehlerprotokoll-text')!
+          .attributes.getNamedItem('href')?.value
       ).toEqual(defaultFehlerpotokoll.entityLink);
       expect(component['geometryVectorSource'].getFeatures().length).toBe(1);
       expect((component['geometryVectorSource'].getFeatures()[0].getGeometry() as LineString).getCoordinates()).toEqual(
-        (<LineStringGeojson>defaultFehlerpotokoll.originalGeometry).coordinates
+        (defaultFehlerpotokoll.originalGeometry as LineStringGeojson).coordinates
       );
       expect(
         component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent['HIGHLIGHTED_PROPERTY_NAME'])
@@ -191,7 +196,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
         id ? +id : null,
         feature.getProperties(),
         FehlerprotokollLayerComponent.LAYER_ID,
-        feature.getGeometry() as Geometry
+        feature.getGeometry()!
       );
 
       component.onSelect(selectedFeature, [0, 0]);
@@ -223,7 +228,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
       id ? +id : null,
       feature.getProperties(),
       FehlerprotokollLayerComponent.LAYER_ID,
-      feature.getGeometry() as Geometry
+      feature.getGeometry()!
     );
 
     component.onSelect(selectedFeature, [0, 0]);

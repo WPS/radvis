@@ -20,15 +20,16 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ConfirmationDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: QuestionYesNo) {}
 }
 
-export type QuestionYesNo = {
+export interface QuestionYesNo {
   question: string;
   labelYes: string;
   labelNo: string;
   inverseButtonColorCoding?: boolean;
   title?: string;
-};
+}

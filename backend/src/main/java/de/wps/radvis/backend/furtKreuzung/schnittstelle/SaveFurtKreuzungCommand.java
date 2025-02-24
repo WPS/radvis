@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.furtKreuzung.schnittstelle;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.validation.annotation.Validated;
 
@@ -25,7 +26,11 @@ import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtKreuzungMusterl
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenKommentar;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenTyp;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.LichtsignalAnlageEigenschaften;
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -61,6 +66,30 @@ public class SaveFurtKreuzungCommand {
 
 	@NotNull
 	Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften;
+
+	private QuerungshilfeDetails querungshilfeDetails;
+	private Bauwerksmangel bauwerksmangel;
+	private Set<BauwerksmangelArt> bauwerksmangelArt;
+
+	@AssertTrue(message = "Details zur Querungshilfe passen nicht zur Knotenform")
+	public boolean isQuerungshilfeDetailsValid() {
+		// Diese Validierung kann ggf. vor der @NotNull aufgerufen werden. Damit die Fehlermeldung aber korrekt ist,
+		// geben wir hier true zurück.
+		if (knotenForm == null) {
+			return true;
+		}
+		return Knoten.isQuerungshilfeDetailsValid(querungshilfeDetails, knotenForm);
+	}
+
+	@AssertTrue(message = "Keine gültige Kombination für die Werte Bauwerksmangel, Art des Bauwerksmangels und Knotenform")
+	public boolean isBauwerksmangelValid() {
+		// Diese Validierung kann ggf. vor der @NotNull aufgerufen werden. Damit die Fehlermeldung aber korrekt ist,
+		// geben wir hier true zurück.
+		if (knotenForm == null) {
+			return true;
+		}
+		return Knoten.isBauwerksmangelValid(bauwerksmangel, bauwerksmangelArt, knotenForm);
+	}
 
 	@AssertTrue(message = "Musterlösungen können nur für RadNETZ konforme Furten/Kreuzungen vergeben werden")
 	public boolean isMusterloesungNurFuerRadNetzKonformValid() {

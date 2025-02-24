@@ -37,7 +37,7 @@ public class CommonConfigurationProperties {
 
 	private final String externeResourcenBasisPfad;
 
-	private final Integer anzahlTageImportprotokolleVorhalten;
+	private final int anzahlTageImportprotokolleVorhalten;
 
 	private final ExtentProperty extentProperty;
 
@@ -86,6 +86,7 @@ public class CommonConfigurationProperties {
 		require(staticResourcesPath, notNullValue());
 		require(erlaubteAbweichungFuerKantenNetzbezugRematch, notNullValue());
 		require(erlaubteAbweichungFuerKnotenNetzbezugRematch, notNullValue());
+		require(anzahlTageImportprotokolleVorhalten, notNullValue());
 
 		this.externeResourcenBasisPfad = externeResourcenBasisPfad;
 		this.anzahlTageImportprotokolleVorhalten = anzahlTageImportprotokolleVorhalten;

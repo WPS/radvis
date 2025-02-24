@@ -33,6 +33,7 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   templateUrl: './fahrradrouten-creator.component.html',
   styleUrls: ['./fahrradrouten-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradroutenCreatorComponent implements OnDestroy, DiscardableComponent {
   public formGroup: UntypedFormGroup;
@@ -70,8 +71,8 @@ export class FahrradroutenCreatorComponent implements OnDestroy, DiscardableComp
     });
 
     this.subscriptions.push(
-      (this.formGroup.get('netzbezug') as AbstractControl).valueChanges.subscribe(netzbezug => {
-        if (netzbezug && netzbezug.geometrie) {
+      this.formGroup.get('netzbezug')!.valueChanges.subscribe(netzbezug => {
+        if (netzbezug?.geometrie) {
           const name = this.formGroup.get('name')?.value ?? '';
           this.fahrradrouteProfilService.updateCurrentRouteProfil({
             name,
@@ -84,7 +85,7 @@ export class FahrradroutenCreatorComponent implements OnDestroy, DiscardableComp
     );
 
     this.subscriptions.push(
-      (this.formGroup.get('name') as AbstractControl).valueChanges.subscribe(name => {
+      this.formGroup.get('name')!.valueChanges.subscribe(name => {
         const netzbezug = this.formGroup.get('netzbezug')?.value;
         this.fahrradrouteProfilService.updateCurrentRouteProfil({
           name: name ?? '',

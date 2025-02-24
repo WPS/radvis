@@ -12,8 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-
 import { SimpleChange } from '@angular/core';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { LineString } from 'ol/geom';

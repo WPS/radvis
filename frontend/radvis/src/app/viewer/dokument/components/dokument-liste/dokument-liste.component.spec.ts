@@ -22,14 +22,14 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
+import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
+import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
+import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
+import { DokumentView } from 'src/app/viewer/dokument/models/dokument-view';
+import { DokumentService } from 'src/app/viewer/dokument/services/dokument.service';
 import { MassnahmeNetzbezugDisplayService } from 'src/app/viewer/massnahme/services/massnahme-netzbezug-display.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
 import { anything, capture, instance, mock, verify, when } from 'ts-mockito';
-import { DokumentListeComponent } from 'src/app/viewer/dokument/components/dokument-liste/dokument-liste.component';
-import { DokumentView } from 'src/app/viewer/dokument/models/dokument-view';
-import { DokumentListeView } from 'src/app/viewer/dokument/models/dokument-liste-view';
-import { DokumentService } from 'src/app/viewer/dokument/services/dokument.service';
-import { AddDokumentCommand } from 'src/app/viewer/dokument/models/add-dokument-command';
 
 class TestDokumentService implements DokumentService {
   // eslint-disable-next-line no-unused-vars
@@ -47,7 +47,6 @@ class TestDokumentService implements DokumentService {
     throw new Error('not implemented');
   }
 
-  // eslint-disable-next-line no-unused-vars
   getDokumentListe(): Promise<DokumentListeView> {
     throw new Error('not implemented');
   }
@@ -169,7 +168,7 @@ describe(DokumentListeComponent.name, () => {
     }));
 
     it('should handle error response correctly', fakeAsync(() => {
-      when(dokumentService.addDokument(anything(), anything())).thenReturn(Promise.reject());
+      when(dokumentService.addDokument(anything(), anything())).thenReturn(Promise.reject(new Error()));
 
       component.formGroup.patchValue({ file: new File([], 'file.txt') });
       component.onUpload();

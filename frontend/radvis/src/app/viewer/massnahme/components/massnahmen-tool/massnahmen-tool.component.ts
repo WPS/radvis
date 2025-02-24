@@ -67,6 +67,7 @@ import invariant from 'tiny-invariant';
     },
     { provide: MassnahmeNetzbezugDisplayService, useExisting: forwardRef(() => MassnahmenToolComponent) },
   ],
+  standalone: false,
 })
 export class MassnahmenToolComponent
   implements MassnahmeUpdatedService, MassnahmeNetzbezugDisplayService, OnDestroy, KommentarService, DokumentService

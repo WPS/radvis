@@ -49,12 +49,9 @@
     </rad-enum-dropdown-control>
     <rad-validation-error-anzeige [errors]="formGroup.get('typ')?.errors || null"></rad-validation-error-anzeige>
 
-    <rad-grouped-enum-dropdown-control
-      class="mat-form-field-full-width"
-      formControlName="knotenForm"
-      [groupedOptions]="knotenFormOptions">
-      Knotenform
-    </rad-grouped-enum-dropdown-control>
+    <rad-shared-knoten-form-group-component
+      [sharedKnotenFormGroup]="sharedKnotenFormGroup"></rad-shared-knoten-form-group-component>
+
     <rad-validation-error-anzeige [errors]="formGroup.get('knotenForm')?.errors || null"></rad-validation-error-anzeige>
 
     <mat-checkbox formControlName="radnetzKonform" class="mb-2"> RadNETZ-konform</mat-checkbox>

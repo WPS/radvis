@@ -1346,9 +1346,11 @@ describe(KantenAttributeEditorComponent.name, () => {
       tick();
 
       verify(netzService.saveKanteAllgemein(anything())).once();
-      expect(
-        (capture(netzService.saveKanteAllgemein).last()[0][0] as SaveKantenAttributGruppeCommand).netzklassen.sort()
-      ).toEqual([Netzklasse.KREISNETZ_ALLTAG, Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADSCHNELLVERBINDUNG]);
+      expect(capture(netzService.saveKanteAllgemein).last()[0][0].netzklassen.sort()).toEqual([
+        Netzklasse.KREISNETZ_ALLTAG,
+        Netzklasse.RADNETZ_ALLTAG,
+        Netzklasse.RADSCHNELLVERBINDUNG,
+      ]);
     }));
 
     it('should unflat istStandards', fakeAsync(() => {
@@ -1376,9 +1378,11 @@ describe(KantenAttributeEditorComponent.name, () => {
       tick();
 
       verify(netzService.saveKanteAllgemein(anything())).once();
-      expect(
-        (capture(netzService.saveKanteAllgemein).last()[0][0] as SaveKantenAttributGruppeCommand).istStandards.sort()
-      ).toEqual([IstStandard.RADSCHNELLVERBINDUNG, IstStandard.RADVORRANGROUTEN, IstStandard.STARTSTANDARD_RADNETZ]);
+      expect(capture(netzService.saveKanteAllgemein).last()[0][0].istStandards.sort()).toEqual([
+        IstStandard.RADSCHNELLVERBINDUNG,
+        IstStandard.RADVORRANGROUTEN,
+        IstStandard.STARTSTANDARD_RADNETZ,
+      ]);
     }));
 
     it('should overwrite equal values if undetermined', fakeAsync(() => {
@@ -1616,12 +1620,10 @@ describe(KantenAttributeEditorComponent.name, () => {
         updateSelektierteKanten([kante]);
         tick();
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(component['getIstStandardsFromGroup']().getRawValue().radnetzStartstandard).toBeTrue();
         component.formGroup.get('netzklassen')?.get('radnetzZielnetz')?.setValue(false);
         tick();
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(component['getIstStandardsFromGroup']().getRawValue().radnetzStartstandard).toBeFalse();
         component.formGroup.markAsDirty();
         when(netzService.saveKanteAllgemein(anything())).thenReturn(Promise.resolve([kante]));
@@ -1655,11 +1657,10 @@ describe(KantenAttributeEditorComponent.name, () => {
         updateSelektierteKanten([kante1, kante2]);
         tick();
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         expect(component['getIstStandardsFromGroup']().getRawValue().radnetzStartstandard).toBeTrue();
         component.formGroup.get('netzklassen')?.get('radnetzFreizeit')?.setValue(false);
         tick();
-        // eslint-disable-next-line @typescript-eslint/dot-notation
+
         expect(component['getIstStandardsFromGroup']().getRawValue().radnetzStartstandard).toBeInstanceOf(
           UndeterminedValue
         );

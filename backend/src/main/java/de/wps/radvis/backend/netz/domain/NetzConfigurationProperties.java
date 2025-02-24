@@ -26,11 +26,29 @@ import lombok.Getter;
 @Getter
 public class NetzConfigurationProperties {
 	private final Laenge minimaleSegmentLaenge;
+	private final Laenge nahegelegeneKantenDistanzInM;
+	private final int kantenParallelitaetSegmente;
+	private final double kantenParallelitaetToleranz;
+	private final double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
 
 	@ConstructorBinding
-	public NetzConfigurationProperties(double minimaleSegmentLaenge) {
+	public NetzConfigurationProperties(double minimaleSegmentLaenge, double nahegelegeneKantenDistanzInM,
+		int kantenParallelitaetSegmente, double kantenParallelitaetToleranz,
+		double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge) {
 		require(minimaleSegmentLaenge > 0, "Minimale Segment Laenge muss größer 0 sein.");
+		require(nahegelegeneKantenDistanzInM >= 0, "Die Distanz für nahegelegene Kanten darf nicht negativ sein.");
+		require(kantenParallelitaetSegmente >= 1,
+			"Die Anzahl an Segmenten zur Prüfung von parallelen Kanten muss mindestens 1 sein.");
+		require(kantenParallelitaetToleranz >= 0 && kantenParallelitaetToleranz < 360,
+			"Die Toleranz zur Prüfung von Parallelität zweier LineStrings muss >=0 und <360 sein.");
+		require(nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge >= 0
+			&& nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge <= 1,
+			"Die relative Gesamtlänge der abgebildeten Kanten muss >= 0 und <=1 sein.");
 
 		this.minimaleSegmentLaenge = Laenge.of(minimaleSegmentLaenge);
+		this.nahegelegeneKantenDistanzInM = Laenge.of(nahegelegeneKantenDistanzInM);
+		this.kantenParallelitaetSegmente = kantenParallelitaetSegmente;
+		this.kantenParallelitaetToleranz = kantenParallelitaetToleranz;
+		this.nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge = nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
 	}
 }

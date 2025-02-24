@@ -25,13 +25,10 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.transaction.TestTransaction;
 
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.konsistenz.regeln.domain.valueObject.KonsistenzregelVerletzungsDetails;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppeTestDataProvider;
@@ -47,9 +44,6 @@ import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProper
 @Tag("group7")
 @EnableConfigurationProperties(value = {
 	OrganisationConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
 })
 class KreisnetzLueckeKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT {
 

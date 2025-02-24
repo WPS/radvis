@@ -21,6 +21,7 @@ import { FeatureTogglzService } from 'src/app/shared/services/feature-togglz.ser
   templateUrl: './knoten-tool.component.html',
   styleUrls: ['./knoten-tool.component.scss', '../../../editor-tool-styles.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KnotenToolComponent {
   @ViewChild('toolContainer', { read: ElementRef })

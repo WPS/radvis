@@ -26,6 +26,7 @@ import { fahrradroutenMatchingFehlerGeometriesLayerZIndex } from 'src/app/viewer
   selector: 'rad-hoehenprofil-position-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HoehenprofilPositionLayerComponent implements OnDestroy, OnChanges, OnInit {
   @Input()

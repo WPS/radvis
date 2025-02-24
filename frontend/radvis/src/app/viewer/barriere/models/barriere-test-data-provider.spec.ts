@@ -12,13 +12,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/verbleibende-durchfahrtsbreite';
-import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
-import { Markierung } from 'src/app/viewer/barriere/models/markierung';
-import { Barriere } from 'src/app/viewer/barriere/models/barriere';
 import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
 import { defaultOrganisation } from 'src/app/shared/models/organisation-test-data-provider.spec';
+import { Barriere } from 'src/app/viewer/barriere/models/barriere';
 import { BARRIEREN_FORM } from 'src/app/viewer/barriere/models/barrieren-form';
+import { Markierung } from 'src/app/viewer/barriere/models/markierung';
+import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
+import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/verbleibende-durchfahrtsbreite';
 
 export const defaultBarriere: Barriere = {
   netzbezug: defaultNetzbezug,
@@ -30,6 +30,7 @@ export const defaultBarriere: Barriere = {
   markierung: Markierung.ROTWEISS_RETROREFLEKTIERENDE_MARKIERUNG,
   begruendung: 'Begruendungstext',
   darfBenutzerBearbeiten: null,
+  barriereFormDetails: null,
 };
 
 export const otherBarriere: Barriere = {
@@ -42,4 +43,5 @@ export const otherBarriere: Barriere = {
   markierung: Markierung.UNMARKIERTE_ABSPERRANLAGE,
   begruendung: 'Ein anderer Begruendungstext',
   darfBenutzerBearbeiten: null,
+  barriereFormDetails: null,
 };

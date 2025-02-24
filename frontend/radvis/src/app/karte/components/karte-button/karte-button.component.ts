@@ -20,6 +20,7 @@ import { MatButton } from '@angular/material/button';
   templateUrl: './karte-button.component.html',
   styleUrls: ['./karte-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KarteButtonComponent {
   @Input()

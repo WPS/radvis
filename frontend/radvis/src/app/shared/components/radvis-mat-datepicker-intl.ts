@@ -29,6 +29,7 @@ export class RadvisMatDatepickerIntl implements MatDatepickerIntl {
   prevYearLabel = 'Vorheriges Jahr';
   switchToMonthViewLabel = 'Zu Monatsansicht wechseln';
   switchToMultiYearViewLabel = 'Zu mehrjähriger Ansicht wechseln';
+  comparisonDateLabel = '';
   readonly changes: Subject<void> = new Subject();
 
   formatYearRangeLabel(start: string, end: string): string {

@@ -81,6 +81,7 @@ import de.wps.radvis.backend.matching.domain.entity.MappedGrundnetzkante;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import de.wps.radvis.backend.shapetransformation.domain.exception.ShapeProjectionException;
@@ -104,6 +105,9 @@ class ManuellerAttributeImportServiceTest {
 
 	@Mock
 	private KantenRepository kantenRepository;
+
+	@Mock
+	private NetzService netzService;
 
 	@Mock
 	private ManuellerImportFehlerRepository manuellerImportFehlerRepository;
@@ -287,7 +291,8 @@ class ManuellerAttributeImportServiceTest {
 		// arrange
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
-		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
+		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper(
+			netzService));
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
@@ -305,7 +310,8 @@ class ManuellerAttributeImportServiceTest {
 		// arrange
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
-		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
+		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper(
+			netzService));
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
@@ -328,7 +334,8 @@ class ManuellerAttributeImportServiceTest {
 		// arrange
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
-		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
+		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper(
+			netzService));
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setExecuting(true);
@@ -350,7 +357,8 @@ class ManuellerAttributeImportServiceTest {
 		// arrange
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
-		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
+		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper(
+			netzService));
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());
@@ -374,7 +382,8 @@ class ManuellerAttributeImportServiceTest {
 		// arrange
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
-		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
+		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper(
+			netzService));
 		doThrow(new RuntimeException()).when(
 			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(),
 				any());
@@ -397,10 +406,10 @@ class ManuellerAttributeImportServiceTest {
 		// arrange
 		AttributeImportSession session = new AttributeImportSession(benutzer, organisation, List.of("a", "b", "c"),
 			AttributeImportFormat.LUBW);
-		when(mapperFactory.createMapper(session.getAttributeImportFormat())).thenReturn(new LUBWMapper());
-		doThrow(new RuntimeException()).when(
-			manuellerAttributeImportUebernahmeService).attributeUebernehmen(any(), any(), any(), any(),
-				any());
+		when(mapperFactory.createMapper(session.getAttributeImportFormat()))
+			.thenReturn(new LUBWMapper(netzService));
+		doThrow(new RuntimeException()).when(manuellerAttributeImportUebernahmeService)
+			.attributeUebernehmen(any(), any(), any(), any(), any());
 
 		session.setSchritt(AttributeImportSession.IMPORT_ABSCHLIESSEN);
 		session.setFeatureMappings(List.of());

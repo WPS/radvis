@@ -12,8 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equal-values-from-form';
 import {

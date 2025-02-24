@@ -23,6 +23,7 @@ import { Signatur } from 'src/app/shared/models/signatur';
   templateUrl: './netzklassen-auswahl.component.html',
   styleUrls: ['./netzklassen-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class NetzklassenAuswahlComponent implements OnInit, OnDestroy {
   @Input()

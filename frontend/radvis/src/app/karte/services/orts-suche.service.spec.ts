@@ -12,22 +12,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { OrtsSucheService } from 'src/app/karte/services/orts-suche.service';
 import { OrtsSucheResult } from 'src/app/shared/models/orts-suche-result';
 
 describe('OrtsSucheService', () => {
   let service: OrtsSucheService;
-  // eslint-disable-next-line no-unused-vars
-  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     await TestBed.compileComponents();
-    httpMock = TestBed.inject(HttpTestingController);
     service = TestBed.inject(OrtsSucheService);
   });
 

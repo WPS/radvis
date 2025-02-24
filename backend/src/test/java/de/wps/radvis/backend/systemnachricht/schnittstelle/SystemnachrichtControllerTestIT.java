@@ -29,10 +29,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
@@ -47,7 +47,7 @@ import de.wps.radvis.backend.systemnachricht.domain.entity.Systemnachricht;
 @ContextConfiguration(classes = SystemnachrichtConfiguration.class)
 class SystemnachrichtControllerTestIT extends DBIntegrationTestIT {
 	private SystemnachrichtController systemnachrichtController;
-	@MockBean
+	@MockitoBean
 	private BenutzerResolver benutzerResolverMock;
 	@Autowired
 	private SystemnachrichtRepository systemnachrichtRepository;

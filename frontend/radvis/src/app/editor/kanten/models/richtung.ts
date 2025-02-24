@@ -18,6 +18,7 @@ export enum Richtung {
   BEIDE_RICHTUNGEN = 'BEIDE_RICHTUNGEN',
   IN_RICHTUNG = 'IN_RICHTUNG',
   GEGEN_RICHTUNG = 'GEGEN_RICHTUNG',
+  KEINE = 'KEINE',
   UNBEKANNT = 'UNBEKANNT',
 }
 
@@ -33,6 +34,8 @@ export namespace Richtung {
         return { name: k, displayText: 'Beide Richtungen' };
       case Richtung.UNBEKANNT:
         return { name: k, displayText: 'Unbekannt' };
+      case Richtung.KEINE:
+        return { name: k, displayText: 'Nicht fahren' };
     }
     throw new Error('Beschreibung für enum Richtung fehlt: ' + k);
   });

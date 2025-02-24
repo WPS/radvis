@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -71,9 +70,9 @@ import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/w
     InfrastrukturenSubMenuComponent,
     InfrastrukturIconComponent,
   ],
+  exports: [ExportButtonComponent],
   imports: [
     BrowserModule,
-    HttpClientModule,
     BrowserAnimationsModule,
     ViewerRoutingModule,
     ReactiveFormsModule,
@@ -100,6 +99,5 @@ import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/w
     ImportprotokolleModule,
   ],
   providers: [{ provide: FahrradroutenProviderService, useClass: FahrradrouteService }],
-  exports: [ExportButtonComponent],
 })
 export class ViewerModule {}

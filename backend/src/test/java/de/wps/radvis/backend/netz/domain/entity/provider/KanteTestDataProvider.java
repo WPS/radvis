@@ -30,6 +30,7 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Kante.KanteBuilder;
@@ -40,8 +41,10 @@ import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
+import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 
 public class KanteTestDataProvider {
 
@@ -90,6 +93,48 @@ public class KanteTestDataProvider {
 			.geometry(lineString);
 
 		return kante;
+	}
+
+	public static KanteBuilder createWithValues(Gebietskoerperschaft gemeinde) {
+		return KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
+				.kantenAttribute(KantenAttributeTestDataProvider.createWithValues(gemeinde).build())
+				.netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KREISNETZ_ALLTAG))
+				.istStandards(Set.of(IstStandard.BASISSTANDARD, IstStandard.RADSCHNELLVERBINDUNG))
+				.build())
+			.geschwindigkeitAttributGruppe(
+				GeschwindigkeitAttributGruppeTestDataProvider
+					.withAttribute(GeschwindigkeitsAttributeTestDataProvider.createWithValues()).build())
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider
+					.withAttribute(FuehrungsformAttributeTestDataProvider.createWithValues()).build())
+			.zustaendigkeitAttributGruppe(
+				ZustaendigkeitAttributGruppeTestDataProvider.withAttribute(
+					ZustaendigkeitAttributGruppeTestDataProvider.createWithValues(gemeinde))
+					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createWithValues().build());
+	}
+
+	public static KanteBuilder createZweiseitigWithValues(Gebietskoerperschaft gemeinde) {
+		return KanteTestDataProvider.withDefaultValuesAndZweiseitig()
+			.kantenAttributGruppe(KantenAttributGruppeTestDataProvider.defaultValue()
+				.kantenAttribute(KantenAttributeTestDataProvider.createWithValues(gemeinde).build())
+				.netzklassen(Set.of(Netzklasse.KOMMUNALNETZ_ALLTAG, Netzklasse.KREISNETZ_ALLTAG))
+				.istStandards(Set.of(IstStandard.BASISSTANDARD, IstStandard.RADSCHNELLVERBINDUNG))
+				.build())
+			.geschwindigkeitAttributGruppe(
+				GeschwindigkeitAttributGruppeTestDataProvider
+					.withAttribute(GeschwindigkeitsAttributeTestDataProvider.createWithValues()).build())
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider
+					.withAttribute(FuehrungsformAttributeTestDataProvider.createWithValues()).isZweiseitig(true)
+					.build())
+			.zustaendigkeitAttributGruppe(
+				ZustaendigkeitAttributGruppeTestDataProvider.withAttribute(
+					ZustaendigkeitAttributGruppeTestDataProvider.createWithValues(gemeinde))
+					.build())
+			.fahrtrichtungAttributGruppe(
+				FahrtrichtungAttributGruppeTestDataProvider.createWithValues().isZweiseitig(true).build());
 	}
 
 	public static KanteBuilder withDefaultValues() {
@@ -208,6 +253,26 @@ public class KanteTestDataProvider {
 						FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
 							.radverkehrsfuehrung(radverkehrsfuehrung)
 							.breite(Laenge.of(breite))
-							.build())).build());
+							.build()))
+					.build());
+	}
+
+	public static Kante.KanteBuilder withCoordinatesAndRadverkehrsfuehrung(double x1, double y1, double x2, double y2,
+		Radverkehrsfuehrung radverkehrsfuehrung) {
+		return withCoordinatesAndRadverkehrsfuehrung(new Coordinate[] { new Coordinate(x1, y1),
+			new Coordinate(x2, y2) },
+			radverkehrsfuehrung);
+	}
+
+	public static Kante.KanteBuilder withCoordinatesAndRadverkehrsfuehrung(Coordinate[] coordinates,
+		Radverkehrsfuehrung radverkehrsfuehrung) {
+		Kante.KanteBuilder kanteBuilder = KanteTestDataProvider.withCoordinates(coordinates);
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformBuilder = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte().radverkehrsfuehrung(radverkehrsfuehrung);
+		return kanteBuilder.fuehrungsformAttributGruppe(
+			FuehrungsformAttributGruppe.builder()
+				.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
+				.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+				.build());
 	}
 }

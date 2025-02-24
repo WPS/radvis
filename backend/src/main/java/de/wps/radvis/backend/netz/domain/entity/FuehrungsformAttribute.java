@@ -18,24 +18,31 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.valid4j.Assertive.require;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -51,28 +58,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
-
-	private static final Collection<Radverkehrsfuehrung> trennstreifenRelevanteRadverkehrsfuehrungen = Set.of(
-		Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER,
-		Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
-		Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
-		Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
-		Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
-		Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
-		Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
-		Radverkehrsfuehrung.SCHUTZSTREIFEN,
-		Radverkehrsfuehrung.RADFAHRSTREIFEN,
-		Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
-		Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-		Radverkehrsfuehrung.MEHRZWECKSTREIFEN);
-
-	private static final Collection<Radverkehrsfuehrung> trennstreifenNurParkenRadverkehrsfuehrungen = Set.of(
-		Radverkehrsfuehrung.SCHUTZSTREIFEN,
-		Radverkehrsfuehrung.RADFAHRSTREIFEN,
-		Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
-		Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-		Radverkehrsfuehrung.MEHRZWECKSTREIFEN);
-
 	@Getter
 	@Enumerated(EnumType.STRING)
 	private BelagArt belagArt;
@@ -100,6 +85,21 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 	@Getter
 	@Enumerated(EnumType.STRING)
 	private KfzParkenForm parkenForm;
+
+	@Getter
+	@Enumerated(EnumType.STRING)
+	private Beschilderung beschilderung;
+
+	@Getter
+	@Type(value = ListArrayType.class, parameters = {
+		@Parameter(name = ListArrayType.SQL_ARRAY_TYPE, value = "text")
+	})
+	@Column(name = "schaeden", columnDefinition = "text[]")
+	private Set<Schadenart> schaeden;
+
+	@Getter
+	@Enumerated(EnumType.STRING)
+	private Absenkung absenkung;
 
 	private Laenge breite;
 
@@ -130,6 +130,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 		KfzParkenForm parkenForm,
 		Laenge breite,
 		Benutzungspflicht benutzungspflicht,
+		Beschilderung beschilderung,
+		Set<Schadenart> schaeden,
+		Absenkung absenkung,
 		Laenge trennstreifenBreiteRechts,
 		Laenge trennstreifenBreiteLinks,
 		TrennungZu trennstreifenTrennungZuRechts,
@@ -145,6 +148,11 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 		require(parkenTyp, notNullValue());
 		require(parkenForm, notNullValue());
 		require(benutzungspflicht, notNullValue());
+		require(beschilderung, notNullValue());
+		require(beschilderung.isValidForRadverkehrsfuehrung(radverkehrsfuehrung));
+		require(schaeden, notNullValue());
+		require(absenkung, notNullValue());
+
 		assertTrennstreifenCorrectness(
 			radverkehrsfuehrung,
 			trennstreifenFormRechts,
@@ -164,6 +172,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 		this.parkenForm = parkenForm;
 		this.breite = breite;
 		this.benutzungspflicht = benutzungspflicht;
+		this.beschilderung = beschilderung;
+		this.absenkung = absenkung;
+		this.schaeden = schaeden;
 		this.trennstreifenBreiteRechts = trennstreifenBreiteRechts;
 		this.trennstreifenBreiteLinks = trennstreifenBreiteLinks;
 		this.trennstreifenTrennungZuRechts = trennstreifenTrennungZuRechts;
@@ -181,8 +192,11 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			.radverkehrsfuehrung(Radverkehrsfuehrung.UNBEKANNT)
 			.parkenForm(KfzParkenForm.UNBEKANNT)
 			.parkenTyp(KfzParkenTyp.UNBEKANNT)
+			.schaeden(Collections.emptySet())
+			.absenkung(Absenkung.UNBEKANNT)
 			.breite(null)
 			.benutzungspflicht(Benutzungspflicht.UNBEKANNT)
+			.beschilderung(Beschilderung.UNBEKANNT)
 			.trennstreifenBreiteRechts(null)
 			.trennstreifenBreiteLinks(null)
 			.trennstreifenTrennungZuRechts(null)
@@ -208,6 +222,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			this.parkenForm,
 			this.breite,
 			this.benutzungspflicht,
+			this.beschilderung,
+			this.schaeden,
+			this.absenkung,
 			this.trennstreifenBreiteRechts,
 			this.trennstreifenBreiteLinks,
 			this.trennstreifenTrennungZuRechts,
@@ -233,6 +250,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			this.parkenForm,
 			this.breite,
 			this.benutzungspflicht,
+			this.beschilderung,
+			this.schaeden,
+			this.absenkung,
 			this.trennstreifenBreiteRechts,
 			this.trennstreifenBreiteLinks,
 			this.trennstreifenTrennungZuRechts,
@@ -267,6 +287,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			this.parkenForm,
 			this.breite,
 			this.benutzungspflicht,
+			this.beschilderung,
+			this.schaeden,
+			this.absenkung,
 			this.trennstreifenBreiteRechts,
 			this.trennstreifenBreiteLinks,
 			this.trennstreifenTrennungZuRechts,
@@ -303,6 +326,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			.parkenTyp(parkenTyp.nichtUnbekanntOrElse(other.parkenTyp))
 			.parkenForm(parkenForm.nichtUnbekanntOrElse(other.getParkenForm()))
 			.breite(this.getBreite().orElse(other.getBreite().orElse(null)))
+			.beschilderung(other.getBeschilderung())
+			.schaeden(other.schaeden)
+			.absenkung(other.absenkung)
 			.benutzungspflicht(benutzungspflicht
 				.nichtUnbekanntOrElse(other.benutzungspflicht))
 			.linearReferenzierterAbschnitt(linearReferenzierterAbschnitt)
@@ -327,6 +353,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			&& Objects.equals(parkenForm, other.parkenForm)
 			&& Objects.equals(benutzungspflicht, other.benutzungspflicht)
 			&& Objects.equals(breite, other.breite)
+			&& Objects.equals(beschilderung, other.beschilderung)
+			&& Objects.equals(absenkung, other.absenkung)
+			&& Objects.equals(schaeden, other.schaeden)
 			&& Objects.equals(trennstreifenBreiteRechts, other.trennstreifenBreiteRechts)
 			&& Objects.equals(trennstreifenBreiteLinks, other.trennstreifenBreiteLinks)
 			&& Objects.equals(trennstreifenTrennungZuRechts, other.trennstreifenTrennungZuRechts)
@@ -357,7 +386,13 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			return true;
 		} else if (parkenForm.widerspruchZu(other.parkenForm)) {
 			return true;
+		} else if (absenkung.widerspruchZu(other.absenkung)) {
+			return true;
 		} else if (benutzungspflicht.widerspruchZu(other.benutzungspflicht)) {
+			return true;
+		} else if (beschilderung.widerspruchZu(other.beschilderung)) {
+			return true;
+		} else if (!Objects.equals(schaeden, other.schaeden)) {
 			return true;
 		} else if (TrennstreifenForm.nullableWiderspruchZu(trennstreifenFormLinks, other.trennstreifenFormLinks)) {
 			return true;
@@ -409,6 +444,9 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 
 	public static boolean isTrennstreifenCorrect(Radverkehrsfuehrung radverkehrsfuehrung,
 		TrennstreifenForm trennstreifenForm, Laenge trennstreifenBreite, TrennungZu trennstreifenTrennungZu) {
+		if (radverkehrsfuehrung == null) {
+			return true;
+		}
 		try {
 			assertTrennstreifenCorrectness(radverkehrsfuehrung, trennstreifenForm, trennstreifenBreite,
 				trennstreifenTrennungZu);
@@ -420,6 +458,7 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 
 	private static void assertTrennstreifenCorrectness(Radverkehrsfuehrung radverkehrsfuehrung,
 		TrennstreifenForm trennstreifenForm, Laenge trennstreifenBreite, TrennungZu trennstreifenTrennungZu) {
+		require(radverkehrsfuehrung, notNullValue());
 		boolean allFieldsAreNull = trennstreifenForm == null &&
 			trennstreifenTrennungZu == null &&
 			trennstreifenBreite == null;
@@ -436,8 +475,7 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			return;
 		}
 
-		boolean hasTrennstreifen = trennstreifenRelevanteRadverkehrsfuehrungen.contains(radverkehrsfuehrung);
-		if (!hasTrennstreifen) {
+		if (!TrennstreifenForm.isRequiredForRadverkehrsfuehrung(radverkehrsfuehrung)) {
 			require(trennstreifenForm, nullValue());
 			require(trennstreifenBreite, nullValue());
 			require(trennstreifenTrennungZu, nullValue());
@@ -447,17 +485,12 @@ public class FuehrungsformAttribute extends LinearReferenzierteAttribute {
 			boolean hasTrennstreifenForm = trennstreifenForm != TrennstreifenForm.UNBEKANNT &&
 				trennstreifenForm != TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN;
 			if (hasTrennstreifenForm) {
-				require(!Objects.isNull(trennstreifenBreite) || TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART.equals(
-					trennstreifenForm),
-					"Fehlende Trennstreifenbreite nur bei TrennungsForm 'Unbekannt', 'Trennung durch andere Art' oder 'Kein Sicherheitsstreifen vorhanden' erlaubt");
-
-				boolean nurTrennungZumParkenAllowed = trennstreifenNurParkenRadverkehrsfuehrungen.contains(
-					radverkehrsfuehrung);
-				if (nurTrennungZumParkenAllowed) {
-					boolean trennungZuValueValid = trennstreifenTrennungZu == null ||
-						trennstreifenTrennungZu == TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN;
-					require(trennungZuValueValid,
-						"Radverkehrsführung %s erlaubt nur Trennstreifen mit Trennung zum Parken", radverkehrsfuehrung);
+				if (!trennstreifenForm.equals(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)) {
+					require(trennstreifenBreite, notNullValue());
+				}
+				if (trennstreifenTrennungZu != null) {
+					require(trennstreifenTrennungZu.isValidForRadverkehrsfuehrung(radverkehrsfuehrung),
+						"Gewählte Trennung Zu-Option ist nicht für Radverkehrsführung %s erlaubt", radverkehrsfuehrung);
 				}
 			} else {
 				require(trennstreifenTrennungZu, nullValue());

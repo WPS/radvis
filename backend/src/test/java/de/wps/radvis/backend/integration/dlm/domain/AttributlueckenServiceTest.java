@@ -904,7 +904,7 @@ class AttributlueckenServiceTest {
 		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformAttributeBuilder = FuehrungsformAttribute
 			.builder()
 			.belagArt(BelagArt.ASPHALT)
-			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR)
 			.trennstreifenBreiteLinks(Laenge.of(1.23))

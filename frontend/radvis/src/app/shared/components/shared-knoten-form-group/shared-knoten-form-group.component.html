@@ -1,0 +1,43 @@
+<div [formGroup]="sharedKnotenFormGroup">
+  <rad-grouped-enum-dropdown-control
+    formControlName="knotenForm"
+    [groupedOptions]="knotenFormOptions"
+    [errors]="sharedKnotenFormGroup.get('knotenForm')?.errors">
+    Knotenform
+  </rad-grouped-enum-dropdown-control>
+
+  <rad-enum-dropdown-control
+    formControlName="querungshilfeDetails"
+    [options]="querungshilfeDetailsOptions"
+    [nullable]="false"
+    [errors]="sharedKnotenFormGroup.get('querungshilfeDetails')?.errors">
+    Details zur Querungshilfe
+  </rad-enum-dropdown-control>
+
+  <div formGroupName="bauwerksmangel">
+    <label
+      for="bauwerksmaengel-vorhanden-input"
+      [class.disabled]="sharedKnotenFormGroup.get('bauwerksmangel.vorhanden')?.disabled">
+      Bauwerksmängel
+    </label>
+    <mat-radio-group
+      id="bauwerksmaengel-vorhanden-input"
+      formControlName="vorhanden"
+      class="display-flex flex-column align-items-start ml-10">
+      @for (option of bauwerksmangelOptions; track $index) {
+        <mat-radio-button [value]="option.name">{{ option.displayText }}</mat-radio-button>
+      }
+    </mat-radio-group>
+    <rad-validation-error-anzeige
+      [errors]="sharedKnotenFormGroup.get('bauwerksmangel.vorhanden')?.errors ?? []"></rad-validation-error-anzeige>
+
+    <rad-enum-dropdown-control
+      [options]="bauwerksmangelArtOptions"
+      [multiple]="true"
+      [nullable]="false"
+      formControlName="bauwerksmangelArt"
+      [errors]="sharedKnotenFormGroup.get('bauwerksmangel.bauwerksmangelArt')?.errors">
+      Art der Mängel
+    </rad-enum-dropdown-control>
+  </div>
+</div>

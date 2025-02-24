@@ -28,6 +28,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './import-attribute-automatische-abbildung.component.html',
   styleUrls: ['./import-attribute-automatische-abbildung.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeAutomatischeAbbildungComponent implements OnDestroy {
   private static readonly STEP = 3;

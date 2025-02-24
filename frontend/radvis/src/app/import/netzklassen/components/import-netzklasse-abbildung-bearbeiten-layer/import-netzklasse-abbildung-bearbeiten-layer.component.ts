@@ -43,6 +43,7 @@ import invariant from 'tiny-invariant';
   template: '',
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseAbbildungBearbeitenLayerComponent implements OnDestroy, OnChanges, AfterViewInit {
   private static readonly COLOR_NETZKLASSE_ALREADYPRESENT = MapStyles.FEATURE_COLOR_LIGHTER;
@@ -76,7 +77,7 @@ export class ImportNetzklasseAbbildungBearbeitenLayerComponent implements OnDest
           this.hasNetzklasseNachher(feature),
           feature,
           resolution,
-          this.olMapService.getZoomForResolution(resolution) as number
+          this.olMapService.getZoomForResolution(resolution)!
         ),
       declutter: true,
       minZoom: 0,

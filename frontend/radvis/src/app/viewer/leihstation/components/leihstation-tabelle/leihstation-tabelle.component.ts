@@ -42,6 +42,7 @@ import { ExportService } from 'src/app/viewer/viewer-shared/services/export.serv
     },
     { provide: CsvImportService, useExisting: forwardRef(() => LeihstationTabelleComponent) },
   ],
+  standalone: false,
 })
 export class LeihstationTabelleComponent implements CsvImportService {
   public csvImportFeatureToggl = false;

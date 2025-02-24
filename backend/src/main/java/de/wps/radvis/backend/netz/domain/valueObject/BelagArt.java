@@ -28,6 +28,9 @@ public enum BelagArt {
 	WASSERGEBUNDENE_DECKE("Wassergebundene Decke"),
 	UNGEBUNDENE_DECKE("Ungebundene Decke (Kies, Split, Sand, Erde, Gras, Spurbahn)"),
 	SONSTIGER_BELAG("Sonstiger Belag"),
+	WASSERGEBUNDENE_DECKE_MIT_GRUENSTREIFEN("Wassergebundene Decke mit Grünstreifen mittig"),
+	ASPHALT_MIT_GRUENSTREIFEN("Asphalt mit Rasengittersteinen / Grünstreifen mittig"),
+	BETON_MIT_GRUENSTREIFEN("Beton mit Rasengittersteinen / Grünstreifen mittig"),
 	UNBEKANNT("Unbekannt");
 	//@formatter:on
 

@@ -25,6 +25,7 @@ import { KommentarService } from 'src/app/viewer/kommentare/services/kommentar.s
   templateUrl: './kommentar-liste.component.html',
   styleUrls: ['./kommentar-liste.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KommentarListeComponent implements OnDestroy, DiscardableComponent {
   public static readonly KOMMENTARLISTE_DATA_KEY = 'kommentare';

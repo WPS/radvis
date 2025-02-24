@@ -26,6 +26,7 @@ export interface ExportEvent {
   templateUrl: './export-button.component.html',
   styleUrls: ['./export-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ExportButtonComponent {
   @Input()

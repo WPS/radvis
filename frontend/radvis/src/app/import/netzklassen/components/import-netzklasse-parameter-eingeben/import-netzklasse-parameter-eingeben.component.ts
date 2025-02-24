@@ -28,6 +28,7 @@ import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details
   templateUrl: './import-netzklasse-parameter-eingeben.component.html',
   styleUrls: ['./import-netzklasse-parameter-eingeben.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseParameterEingebenComponent {
   private static readonly STEP = 2;
@@ -63,7 +64,7 @@ export class ImportNetzklasseParameterEingebenComponent {
           this.createSessionStateService.parameterInfo !== null &&
           this.createSessionStateService.parameterInfo instanceof NetzklassenParameter
         ) {
-          this.formControl.setValue((this.createSessionStateService.parameterInfo as NetzklassenParameter).netzklasse);
+          this.formControl.setValue(this.createSessionStateService.parameterInfo.netzklasse);
         }
         this.formControl.valueChanges.subscribe(value => {
           if (value !== null) {

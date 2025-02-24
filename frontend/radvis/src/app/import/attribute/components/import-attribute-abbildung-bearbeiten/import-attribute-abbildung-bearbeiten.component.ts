@@ -25,6 +25,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './import-attribute-abbildung-bearbeiten.component.html',
   styleUrls: ['./import-attribute-abbildung-bearbeiten.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeAbbildungBearbeitenComponent {
   private static readonly STEP = 4;

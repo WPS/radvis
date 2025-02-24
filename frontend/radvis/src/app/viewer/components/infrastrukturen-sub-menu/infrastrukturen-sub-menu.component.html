@@ -5,7 +5,7 @@
   <rad-collapse-down-button
     [expanded]="expanded"
     *ngIf="showCollapseButton"
-    (toggle)="expanded = !expanded"></rad-collapse-down-button>
+    (toggleExpansion)="expanded = !expanded"></rad-collapse-down-button>
 </div>
 <div class="menu-body" [@easeInOut]="expanded ? 'out' : 'in'">
   <ng-content></ng-content>

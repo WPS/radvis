@@ -25,4 +25,5 @@ export interface SaveWeitereKartenebeneCommand {
   farbe?: string;
   quellangabe: string;
   dateiLayerId: number | null;
+  defaultLayer: boolean;
 }

@@ -31,6 +31,8 @@ import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
@@ -40,7 +42,9 @@ import de.wps.radvis.backend.netz.domain.valueObject.KnotenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenkategorieRIN;
@@ -141,6 +145,10 @@ public class NetzToFeatureDetailsConverter {
 		attributeAnPosition.put("Kfz-Parken-Typ", fuehrungsformAttributeAnPunkt.getParkenTyp().toString());
 		attributeAnPosition.put("Benutzungspflicht", fuehrungsformAttributeAnPunkt.getBenutzungspflicht().toString());
 		attributeAnPosition.put("Breite", fuehrungsformAttributeAnPunkt.getBreite().map(Laenge::toString).orElse(null));
+		attributeAnPosition.put("Beschilderung", fuehrungsformAttributeAnPunkt.getBeschilderung().toString());
+		attributeAnPosition.put("Vorhandene Schäden",
+			Schadenart.toDisplayText(fuehrungsformAttributeAnPunkt.getSchaeden()));
+		attributeAnPosition.put("Absenkung", fuehrungsformAttributeAnPunkt.getAbsenkung().toString());
 
 		// Trennstreifen Attribute fuer Tabelle
 		Map<String, String> trennstreifenAttribute = new LinkedHashMap<>();
@@ -211,6 +219,14 @@ public class NetzToFeatureDetailsConverter {
 		attribute.put("Zustandsbeschreibung",
 			knotenAttribute.getZustandsbeschreibung().map(Zustandsbeschreibung::toString).orElse(null));
 		attribute.put("Knoten-Form", knotenAttribute.getKnotenForm().map(KnotenForm::toString).orElse(null));
+		attribute.put("Details zur Querungshilfe",
+			knotenAttribute.getQuerungshilfeDetails().map(QuerungshilfeDetails::toString).orElse(null));
+		attribute.put("Bauwerksmängel",
+			knotenAttribute.getBauwerksmangel().map(Bauwerksmangel::toString).orElse(null));
+		attribute.put("Art der Bauwerksmängel",
+			knotenAttribute.getBauwerksmangelArt()
+				.map(bma -> String.join(", ", bma.stream().map(BauwerksmangelArt::getDisplayText).toList()))
+				.orElse(null));
 		return new KnotenDetailView(knoten.getId(), knoten.getPoint(), attribute);
 	}
 
@@ -321,6 +337,12 @@ public class NetzToFeatureDetailsConverter {
 			fuehrungsformAttributeAnPunkt.getParkenTyp().toString(), true));
 		attributes.add(new AttributeView("Benutzungspflicht",
 			fuehrungsformAttributeAnPunkt.getBenutzungspflicht().toString(), true));
+		attributes.add(new AttributeView("Beschilderung",
+			fuehrungsformAttributeAnPunkt.getBeschilderung().toString(), true));
+		attributes.add(new AttributeView("Absenkung",
+			fuehrungsformAttributeAnPunkt.getAbsenkung().toString(), true));
+		attributes.add(new AttributeView("Vorhandene Schäden",
+			Schadenart.toDisplayText(fuehrungsformAttributeAnPunkt.getSchaeden()), true));
 		attributes.add(new AttributeView("Breite",
 			fuehrungsformAttributeAnPunkt.getBreite()
 				.map(Laenge::toString)

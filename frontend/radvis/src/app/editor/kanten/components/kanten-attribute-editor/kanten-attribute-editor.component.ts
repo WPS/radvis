@@ -80,6 +80,7 @@ interface IstStandardFlat {
       useValue: { disableToggleValue: true } as MatSlideToggleDefaultOptions,
     },
   ],
+  standalone: false,
 })
 export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor implements OnInit, OnDestroy {
   private static readonly ZWISCHENABLAGE_KEY = 'kanteAttributeZwischenablage';

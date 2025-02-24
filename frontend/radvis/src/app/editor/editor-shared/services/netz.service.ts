@@ -28,9 +28,9 @@ import { SaveKnotenCommand } from 'src/app/editor/knoten/models/save-knoten-comm
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import invariant from 'tiny-invariant';
 
-export type FeatureForVerlaufDTO = {
+export interface FeatureForVerlaufDTO {
   geometry: LineStringGeojson;
-};
+}
 
 @Injectable({
   providedIn: 'root',

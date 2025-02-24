@@ -23,6 +23,7 @@ import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/
   templateUrl: './weitere-kartenebenen-display-layer.component.html',
   styleUrls: ['./weitere-kartenebenen-display-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WeitereKartenebenenDisplayLayerComponent {
   public selectedLayers$: Observable<WeitereKartenebene[]>;

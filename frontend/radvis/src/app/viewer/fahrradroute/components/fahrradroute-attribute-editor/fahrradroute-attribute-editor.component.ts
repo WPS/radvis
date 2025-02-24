@@ -69,6 +69,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './fahrradroute-attribute-editor.component.html',
   styleUrls: ['./fahrradroute-attribute-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradrouteAttributeEditorComponent implements OnDestroy, DiscardableComponent {
   public static readonly MAX_LENGTH_BESCHREIBUNG = 5000;
@@ -422,7 +423,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
       netzbezug,
     } = this.formGroup.value;
 
-    const fahrradrouteNetzbezug = netzbezug as FahrradrouteNetzbezug;
+    const fahrradrouteNetzbezug = netzbezug!;
     const command: SaveFahrradrouteCommand = {
       id: this.currentFahrradroute.id,
       version: this.currentFahrradroute.version,
@@ -493,7 +494,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
     // erwarten eher einen GPX-Track.
     const geometry = new MultiLineString([coords]).transform('EPSG:25832', 'EPSG:4326');
     const geometryAsGpxStr = this.gpxFormatter.writeFeatures([new Feature(geometry)]);
-    let selectedVarianteName: string = '';
+    let selectedVarianteName = '';
     if (this.isHauptstreckeSelected) {
       selectedVarianteName = this.HAUPTSTRECKE;
     } else {
@@ -667,10 +668,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
       anstieg: this.currentFahrradroute.anstieg ? KommazahlPipe.numberToString(this.currentFahrradroute.anstieg) : null,
       abstieg: this.currentFahrradroute.abstieg ? KommazahlPipe.numberToString(this.currentFahrradroute.abstieg) : null,
       zuletztBearbeitet: fahrradrouteDetailView.zuletztBearbeitet
-        ? (new DatePipe('en-US').transform(
-            new Date(fahrradrouteDetailView.zuletztBearbeitet),
-            'dd.MM.yy HH:mm'
-          ) as string)
+        ? new DatePipe('en-US').transform(new Date(fahrradrouteDetailView.zuletztBearbeitet), 'dd.MM.yy HH:mm')!
         : null,
       netzbezug,
     });
@@ -729,7 +727,7 @@ export class FahrradrouteAttributeEditorComponent implements OnDestroy, Discarda
   private updateNetzbezugSubscription(): void {
     this.netzbezugSubscription?.unsubscribe();
     this.netzbezugSubscription = this.selectedNetzbezugControl?.valueChanges.subscribe(netzbezug => {
-      if (this.currentFahrradroute && netzbezug && netzbezug.geometrie) {
+      if (this.currentFahrradroute && netzbezug?.geometrie) {
         this.fahrradrouteProfilService.updateCurrentRouteProfil({
           name: this.currentFahrradroute.name,
           geometrie: netzbezug.geometrie,

@@ -13,7 +13,7 @@
  */
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { BrowserModule } from '@angular/platform-browser';
@@ -46,6 +46,7 @@ import { OrganisationenDropdownControlComponent } from 'src/app/shared/component
 import { OriginalGeometrieLayerComponent } from 'src/app/shared/components/original-geometrie-layer/original-geometrie-layer.component';
 import { PrintViewComponent } from 'src/app/shared/components/print-view/print-view.component';
 import { RegenerateCredentialsConfirmComponent } from 'src/app/shared/components/regenerate-credentials-confirm/regenerate-credentials-confirm.component';
+import { SharedKnotenFormGroupComponent } from 'src/app/shared/components/shared-knoten-form-group/shared-knoten-form-group.component';
 import { SicherheitstrennstreifenAnzeigeKomplettComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige-komplett.component/sicherheitstrennstreifen-anzeige-komplett.component';
 import { SicherheitstrennstreifenAnzeigeComponent } from 'src/app/shared/components/sicherheitstrennstreifen-anzeige/sicherheitstrennstreifen-anzeige.component';
 import { SimpleLegendeAnzeigeComponent } from 'src/app/shared/components/simple-legende-anzeige/simple-legende-anzeige.component';
@@ -89,32 +90,32 @@ const allDeclarations = [
   WarnhinweisComponent,
   ExpandableContentComponent,
   CollapseDownButtonComponent,
+  SharedKnotenFormGroupComponent,
 ];
 
 @NgModule({
   declarations: [allDeclarations, ExpandLinkComponent],
-  imports: [
-    FormElementsModule,
-    BrowserModule,
-    HttpClientModule,
-    MaterialDesignModule,
-    BrowserAnimationsModule,
-    RouterModule,
-    ClipboardModule,
-  ],
   exports: [
     ...allDeclarations,
     BrowserModule,
-    HttpClientModule,
     MaterialDesignModule,
     BrowserAnimationsModule,
     RouterModule,
     FormElementsModule,
     MatomoModule,
   ],
+  imports: [
+    FormElementsModule,
+    BrowserModule,
+    MaterialDesignModule,
+    BrowserAnimationsModule,
+    RouterModule,
+    ClipboardModule,
+  ],
   providers: [
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlLocalizationService },
     provideMatomo(environment.matomoConfig, withRouter({ navigationEndComparator: 'ignoreQueryParams' })),
+    provideHttpClient(withInterceptorsFromDi()),
   ],
 })
 export class SharedModule {}

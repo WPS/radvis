@@ -29,6 +29,7 @@ import invariant from 'tiny-invariant';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => KanteGeometryControlComponent), multi: true },
   ],
+  standalone: false,
 })
 export class KanteGeometryControlComponent extends AbstractFormControl<LineStringGeojson> {
   @Input()

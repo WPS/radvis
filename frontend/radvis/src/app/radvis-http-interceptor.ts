@@ -35,6 +35,7 @@ export class RadvisHttpInterceptor implements HttpInterceptor {
             reader.onload = (e: Event): void => {
               try {
                 const errmsg = JSON.parse((e.target as any).result);
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
                 reject(
                   new HttpErrorResponse({
                     error: errmsg,
@@ -45,10 +46,12 @@ export class RadvisHttpInterceptor implements HttpInterceptor {
                   })
                 );
               } catch (e1: unknown) {
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
                 reject(err);
               }
             };
             reader.onerror = (): void => {
+              // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
               reject(err);
             };
             reader.readAsText(err.error);

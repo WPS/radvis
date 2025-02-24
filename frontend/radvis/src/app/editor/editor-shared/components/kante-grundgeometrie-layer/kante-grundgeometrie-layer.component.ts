@@ -44,6 +44,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './kante-grundgeometrie-layer.component.html',
   styleUrls: ['./kante-grundgeometrie-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KanteGrundgeometrieLayerComponent implements OnChanges, OnDestroy, OnInit {
   @Input()

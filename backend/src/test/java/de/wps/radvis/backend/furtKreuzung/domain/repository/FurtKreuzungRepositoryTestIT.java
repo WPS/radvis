@@ -65,6 +65,8 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -145,13 +147,45 @@ class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 				.organisationsArt(OrganisationsArt.KREIS)
 				.build()),
 			FurtenKreuzungenTyp.KREUZUNG, true, new FurtenKreuzungenKommentar("Dies ist ein Kommentar"),
-			KnotenForm.MINIKREISVERKEHR_24_M, Optional.empty(), Optional.empty());
+			KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR, Optional.empty(), Optional.empty(), null, null, null);
 
 		// arrange
 		FurtKreuzung gespeichert = furtKreuzungRepository.save(neu);
 
 		// assert
 		assertThat(gespeichert).usingRecursiveComparison().ignoringFields("id").isEqualTo(neu);
+	}
+
+	@Test
+	void saveFurtKreuzung_bauwerksmangelArtIsCorrect() {
+		// arrange
+		Kante kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+		final FurtKreuzungNetzBezug netzbezug = new FurtKreuzungNetzBezug(
+			Set.of(new AbschnittsweiserKantenSeitenBezug(
+				kante, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
+			Set.of(new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG)),
+			Collections.emptySet());
+
+		Gebietskoerperschaft gebietskoerperschaft = gebietskoerperschaftRepository.save(
+			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Eine verantwortliche Organisation")
+				.organisationsArt(OrganisationsArt.KREIS)
+				.build());
+		FurtKreuzung neu = new FurtKreuzung(netzbezug, gebietskoerperschaftRepository.save(
+			gebietskoerperschaft),
+			FurtenKreuzungenTyp.KREUZUNG, true, new FurtenKreuzungenKommentar("Dies ist ein Kommentar"),
+			KnotenForm.UEBERFUEHRUNG, Optional.empty(), Optional.empty(), null, Bauwerksmangel.VORHANDEN,
+			Set.of(BauwerksmangelArt.ANDERER_MANGEL, BauwerksmangelArt.GELAENDER_ZU_NIEDRIG));
+
+		// arrange
+		furtKreuzungRepository.save(neu);
+		entityManager.flush();
+		entityManager.clear();
+
+		// assert
+		FurtKreuzung gespeichert = furtKreuzungRepository.findAll().iterator().next();
+		assertThat(gespeichert.getBauwerksmangelArt()).isNotEmpty();
+		assertThat(gespeichert.getBauwerksmangelArt().get()).containsExactlyInAnyOrder(BauwerksmangelArt.ANDERER_MANGEL,
+			BauwerksmangelArt.GELAENDER_ZU_NIEDRIG);
 	}
 
 	@Test
@@ -172,14 +206,15 @@ class FurtKreuzungRepositoryTestIT extends DBIntegrationTestIT {
 
 		FurtKreuzung ohneLSA = new FurtKreuzung(netzbezug, verantwortlicheOrganisation,
 			FurtenKreuzungenTyp.KREUZUNG, true, new FurtenKreuzungenKommentar("Dies ist ein Kommentar"),
-			KnotenForm.MINIKREISVERKEHR_24_M, Optional.empty(), Optional.empty());
+			KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR, Optional.empty(), Optional.empty(), null, null, null);
 
 		FurtKreuzung mitLSA = new FurtKreuzung(netzbezug2, verantwortlicheOrganisation,
 			FurtenKreuzungenTyp.KREUZUNG, true, new FurtenKreuzungenKommentar("Dies ist ein Kommentar"),
 			KnotenForm.LSA_KNOTEN_MIT_RADVERKEHRSFUEHRUNG_UEBER_BAULICHE_NEBENANLAGE, Optional.empty(),
 			Optional.of(new LichtsignalAnlageEigenschaften(true, false, false, Rechtsabbieger.GRUENPFEIL_ALLE,
 				Linksabbieger.EIGENES_SIGNALISIEREN, false, false,
-				GruenAnforderung.AUTOMATISCH, null)));
+				GruenAnforderung.AUTOMATISCH, null)),
+			null, null, null);
 
 		// arrange
 		Long idOhneLSA = furtKreuzungRepository.save(ohneLSA).getId();

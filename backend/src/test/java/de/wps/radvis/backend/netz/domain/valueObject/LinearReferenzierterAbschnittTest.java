@@ -16,6 +16,7 @@ package de.wps.radvis.backend.netz.domain.valueObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.withPrecision;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -360,6 +361,84 @@ class LinearReferenzierterAbschnittTest {
 
 		assertThat(LinearReferenzierterAbschnitt.of(base, entferntAberRealistisch)).usingComparator(
 			LineareReferenzTestProvider.lenientComparator).isEqualTo(LinearReferenzierterAbschnitt.of(0.2, 0.7));
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_identischeAbschnitteWerdenNichtMehrfachGezaehlt() {
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(
+				LinearReferenzierterAbschnitt.of(0.0, 0.4),
+				LinearReferenzierterAbschnitt.of(0.6, 1.0),
+				LinearReferenzierterAbschnitt.of(0.0, 0.4),
+				LinearReferenzierterAbschnitt.of(0.6, 1.0))))
+					.isEqualTo(0.8, withPrecision(0.001));
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_umhuellendeAbschnitteWerdenNichtMehrfachGezaehlt() {
+		// Mehere Abschnitte enthalten komplett einen anderen Abschnitt.
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(
+				LinearReferenzierterAbschnitt.of(0.0, 0.4),
+				LinearReferenzierterAbschnitt.of(0.6, 1.0),
+				LinearReferenzierterAbschnitt.of(0.1, 0.3),
+				LinearReferenzierterAbschnitt.of(0.7, 0.9))))
+					.isEqualTo(0.8, withPrecision(0.001));
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_mehrfachUeberlappendeAbschnitteKorrektZusammengefasst() {
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(
+				LinearReferenzierterAbschnitt.of(0.0, 0.4),
+				LinearReferenzierterAbschnitt.of(0.1, 0.5),
+				LinearReferenzierterAbschnitt.of(0.2, 0.6),
+				LinearReferenzierterAbschnitt.of(0.3, 0.7),
+				LinearReferenzierterAbschnitt.of(0.4, 0.8))))
+					.isEqualTo(0.8, withPrecision(0.001));
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_ueberlappendeAbschnitteNichtDirektHintereinander() {
+		// Keine zwei aufeinander folgenden Abschnitte in der input-Liste überdecken sich.
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(
+				LinearReferenzierterAbschnitt.of(0.0, 0.2),
+				LinearReferenzierterAbschnitt.of(0.5, 0.7),
+				LinearReferenzierterAbschnitt.of(0.1, 0.3),
+				LinearReferenzierterAbschnitt.of(0.6, 0.8))))
+					.isEqualTo(0.6, withPrecision(0.001));
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_ueberlappendeAbschnitteMitLuecken() {
+		// Zwei "Gruppen" an überlappenden Abschnitten (0-0.5 und 0.6-0.9), die sich gegenseitig nicht überlappen.
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(
+				LinearReferenzierterAbschnitt.of(0.0, 0.3),
+				LinearReferenzierterAbschnitt.of(0.1, 0.4),
+				LinearReferenzierterAbschnitt.of(0.2, 0.5),
+				LinearReferenzierterAbschnitt.of(0.6, 0.8),
+				LinearReferenzierterAbschnitt.of(0.7, 0.9))))
+					.isEqualTo(0.8, withPrecision(0.001));
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_beruehrendeAbschnitteKorrektZusammengefasst() {
+		// Keine direkte überlappung, aber berührende Abschnitte.
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(
+				LinearReferenzierterAbschnitt.of(0.0, 0.4),
+				LinearReferenzierterAbschnitt.of(0.4, 0.8),
+				LinearReferenzierterAbschnitt.of(0.8, 1.0))))
+					.isEqualTo(1.0);
+	}
+
+	@Test
+	void testGetSummierteRelativeLaenge_einzelnerAbschnitt() {
+		assertThat(LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(
+			List.of(LinearReferenzierterAbschnitt.of(0.4, 0.8))))
+				.isEqualTo(0.4, withPrecision(0.001));
 	}
 
 	@Test

@@ -18,7 +18,6 @@ import { FurtKreuzungTyp } from 'src/app/viewer/furten-kreuzungen/models/furt-kr
 
 export interface FurtKreuzungListenView {
   id: number;
-  geometry: PointGeojson;
   typ: FurtKreuzungTyp;
   verantwortlich: Verwaltungseinheit | null;
   radnetzKonform: boolean;

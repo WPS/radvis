@@ -33,12 +33,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
@@ -132,32 +132,42 @@ import jakarta.persistence.EntityManager;
 })
 class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 
+	@MockitoBean
+	private ShapeFileRepository shapeFileRepository;
+
+	@MockitoBean
+	private SimpleMatchingService simpleMatchingService;
+
+	@MockitoBean
+	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
+
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
+
+	@MockitoBean
+	UmsetzungsstandabfrageService umsetzungsstandabfrageService;
+
+	@MockitoBean
+	VerwaltungseinheitService verwaltungseinheitService;
+
+	@MockitoBean
+	FahrradrouteRepository fahrradrouteRepository;
+
+	@MockitoBean
+	private CsvRepository csvRepository;
+
+	@MockitoBean
+	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+
 	public static class TestConfiguration {
-
-		@MockBean
-		private ShapeFileRepository shapeFileRepository;
-
-		@MockBean
-		private SimpleMatchingService simpleMatchingService;
-
-		@MockBean
-		private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
-
-		@MockBean
+		@Autowired
 		BenutzerResolver benutzerResolver;
-
-		@MockBean
+		@Autowired
 		UmsetzungsstandabfrageService umsetzungsstandabfrageService;
-
-		@MockBean
+		@Autowired
 		VerwaltungseinheitService verwaltungseinheitService;
-
-		@MockBean
+		@Autowired
 		FahrradrouteRepository fahrradrouteRepository;
-
-		@MockBean
-		private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
-
 		@Autowired
 		MassnahmeService massnahmeService;
 		@Autowired
@@ -169,7 +179,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 		@Autowired
 		MassnahmeGuard massnahmeGuard;
 
-		@MockBean
+		@Autowired
 		private CsvRepository csvRepository;
 
 		@Bean
@@ -203,8 +213,6 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 	private KantenRepository kantenRepository;
 	@Autowired
 	private MassnahmeController massnahmeController;
-	@Autowired
-	private BenutzerResolver benutzerResolver;
 	@Autowired
 	private MassnahmeRepository massnahmeRepository;
 	@Autowired

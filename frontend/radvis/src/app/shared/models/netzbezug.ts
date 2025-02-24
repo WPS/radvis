@@ -41,7 +41,6 @@ export interface Netzbezug {
   knotenBezug: KnotenNetzbezug[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Netzbezug {
   export const sindSegmenteIdentisch = (segmente1: Segment[], segmente2: Segment[]): boolean => {
     return (

@@ -19,6 +19,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   templateUrl: './statistik-anzeige.component.html',
   styleUrls: ['./statistik-anzeige.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class StatistikAnzeigeComponent {
   @Input()
@@ -29,7 +30,7 @@ export class StatistikAnzeigeComponent {
       return [];
     }
     return Object.entries(statistik)
-      .filter(([[], value]) => !isNaN(value))
+      .filter(([key, value]) => !isNaN(value))
       .map(([key, value]) => [this.camel2title(key), value]);
   }
 

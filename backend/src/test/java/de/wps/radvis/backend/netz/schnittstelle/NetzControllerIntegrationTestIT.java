@@ -29,11 +29,10 @@ import org.locationtech.jts.geom.Polygon;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,25 +51,10 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
-import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
-import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenAttributeMergeService;
-import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingService;
-import de.wps.radvis.backend.integration.attributAbbildung.schnittstelle.ZuordnungController;
-import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungJob;
-import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungProtokollService;
-import de.wps.radvis.backend.integration.dlm.domain.DLMNetzbildungService;
-import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
-import de.wps.radvis.backend.integration.radwegedb.IntegrationRadwegeDBConfiguration;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -85,8 +69,6 @@ import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
 import de.wps.radvis.backend.netz.schnittstelle.command.SaveKanteAttributeCommand;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
-import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -94,9 +76,6 @@ import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
-import de.wps.radvis.backend.quellimport.common.ImportsCommonConfiguration;
-import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
-import de.wps.radvis.backend.quellimport.grundnetz.ImportsGrundnetzConfiguration;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
 import jakarta.persistence.EntityManager;
 import lombok.NonNull;
@@ -111,16 +90,7 @@ import lombok.NonNull;
 	BenutzerConfiguration.class,
 	WithAuditingAspect.class,
 	JacksonConfiguration.class,
-	NetzfehlerConfiguration.class,
-	KommentarConfiguration.class,
-	ImportsCommonConfiguration.class,
 	CommonConfiguration.class,
-	ImportsGrundnetzConfiguration.class,
-	IntegrationAttributAbbildungConfiguration.class,
-	IntegrationRadNetzConfiguration.class,
-	IntegrationRadwegeDBConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
@@ -128,15 +98,22 @@ import lombok.NonNull;
 	DLMConfigurationProperties.class,
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-	@MockBean(FahrradrouteRepository.class)
-})
 public class NetzControllerIntegrationTestIT extends AuditingTestIT {
+
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
+
+	@MockitoBean
+	FahrradrouteRepository fahrradrouteRepository;
+
+	@MockitoBean
+	ZustaendigkeitsService zustaendigkeitsService;
+
+	@MockitoBean
+	NetzGuard netzGuard;
 
 	// Der NetzController wird dort, wo es um Berechtigungen geht mit Mocks bestückt,
 	// um die enstprechenden Prüfungen auszuhebeln
@@ -151,35 +128,17 @@ public class NetzControllerIntegrationTestIT extends AuditingTestIT {
 		@Autowired
 		NetzToFeatureDetailsConverter netzToFeatureDetailsConverter;
 
-		@MockBean
+		@Autowired
+		private NetzConfigurationProperties netzConfigurationProperties;
+
+		@Autowired
 		BenutzerResolver benutzerResolver;
 
 		@Autowired
-		KantenAttributeMergeService kantenAttributeMergeService;
-
-		@Autowired
-		KantenMappingService kantenMappingService;
-
-		@MockBean
 		ZustaendigkeitsService zustaendigkeitsService;
 
-		@MockBean
+		@Autowired
 		NetzGuard netzGuard;
-
-		@Autowired
-		private ImportedFeaturePersistentRepository importedFeatureRepository;
-
-		@Autowired
-		private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
-
-		@Autowired
-		private EntityManager entityManager;
-
-		@Autowired
-		private NetzfehlerRepository netzfehlerRepository;
-
-		@Autowired
-		private NetzConfigurationProperties netzConfigurationProperties;
 
 		@Bean
 		public NetzController netzController() {
@@ -192,27 +151,6 @@ public class NetzControllerIntegrationTestIT extends AuditingTestIT {
 			return new NetzController(netzService, netzGuard, benutzerResolver, zustaendigkeitsService,
 				saveKanteCommandConverter, netzToFeatureDetailsConverter, netzConfigurationProperties);
 		}
-
-		@Bean
-		public ZuordnungController zuordnungController() {
-			return new ZuordnungController(netzService, kantenAttributeMergeService, kantenMappingService);
-		}
-
-		@Bean
-		public DLMNetzbildungJob dlmNetzbildungJob() {
-			return new DLMNetzbildungJob(importedFeatureRepository, dlmNetzbildungService(),
-				jobExecutionDescriptionRepository);
-		}
-
-		public DLMNetzbildungService dlmNetzbildungService() {
-			return new DLMNetzbildungService(dlmNetzbildungProtokollService(), netzService, entityManager);
-		}
-
-		@Bean
-		public DLMNetzbildungProtokollService dlmNetzbildungProtokollService() {
-			return new DLMNetzbildungProtokollService(netzfehlerRepository);
-		}
-
 	}
 
 	static final GeometryFactory GEOMETRY_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
@@ -257,9 +195,6 @@ public class NetzControllerIntegrationTestIT extends AuditingTestIT {
 
 	@Autowired
 	NetzController netzController;
-
-	@Autowired
-	ZuordnungController zuordnungController;
 
 	@BeforeEach
 	void setUp() {

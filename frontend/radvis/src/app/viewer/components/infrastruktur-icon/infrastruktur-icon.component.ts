@@ -21,6 +21,7 @@ import { Infrastruktur } from 'src/app/viewer/viewer-shared/models/infrastruktur
   templateUrl: './infrastruktur-icon.component.html',
   styleUrl: './infrastruktur-icon.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class InfrastrukturIconComponent implements OnInit {
   @Input()

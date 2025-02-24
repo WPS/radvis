@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,7 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
@@ -71,6 +73,7 @@ import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.KnotenDeleteStatistik;
+import de.wps.radvis.backend.netz.domain.entity.NahegelegeneneKantenDbView;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
@@ -88,6 +91,8 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
@@ -100,8 +105,11 @@ import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
+import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
@@ -149,7 +157,8 @@ class NetzServiceTest {
 		netzService = new NetzService(kantenRepositoryMock, knotenRepositoryMock,
 			zustaendigkeitAttributGruppeRepository, fahrtrichtungAttributGruppeRepository,
 			geschwindigkeitAttributGruppeRepository, fuehrungsformAttributGruppeRepository,
-			kantenAttributGruppeRepository, verwaltungseinheitResolver, entityManager, 1.0);
+			kantenAttributGruppeRepository, verwaltungseinheitResolver, entityManager, 1.0,
+			Laenge.of(10), 10, 15.0, 0.1);
 	}
 
 	@Test
@@ -1203,14 +1212,15 @@ class NetzServiceTest {
 	}
 
 	@Test
-	public void testAktualisiereKnoten() {
+	public void testAktualisiereKnoten_mitQuerungshilfe() {
 		// arrange
 		Long knotenId = 1L;
 		Long knotenVersion = 2L;
 		Long gemeinde = 3L;
 		Kommentar kommentar = Kommentar.of("./kommen.tar");
 		Zustandsbeschreibung zustandsbeschreibung = Zustandsbeschreibung.of("schlecht");
-		KnotenForm knotenForm = KnotenForm.FAHRBAHNEINENGUNG;
+		KnotenForm knotenForm = KnotenForm.MITTELINSEL_EINFACH;
+		QuerungshilfeDetails querungshilfeDetails = QuerungshilfeDetails.ANDERE_ANMERKUNG_MITTELINSEL;
 
 		Knoten knoten = Knoten.builder()
 			.id(knotenId)
@@ -1226,14 +1236,54 @@ class NetzServiceTest {
 		when(verwaltungseinheitResolver.resolve(gemeinde)).thenReturn(organisation);
 
 		// act
-		netzService.aktualisiereKnoten(knotenId, knotenVersion, gemeinde, kommentar, zustandsbeschreibung, knotenForm);
+		netzService.aktualisiereKnoten(knotenId, knotenVersion, gemeinde, kommentar, zustandsbeschreibung, knotenForm,
+			querungshilfeDetails, null, null);
 
 		// assert
 		assertThat(knoten.getKnotenAttribute()).isNotNull();
 		assertThat(knoten.getKnotenAttribute().getKommentar()).contains(kommentar);
 		assertThat(knoten.getKnotenAttribute().getKnotenForm()).contains(knotenForm);
+		assertThat(knoten.getKnotenAttribute().getQuerungshilfeDetails()).contains(querungshilfeDetails);
 		assertThat(knoten.getKnotenAttribute().getZustandsbeschreibung()).contains(zustandsbeschreibung);
 		assertThat(knoten.getKnotenAttribute().getGemeinde()).contains(organisation);
+		assertThat(knoten.getKnotenAttribute().getBauwerksmangel()).isEmpty();
+		assertThat(knoten.getKnotenAttribute().getBauwerksmangelArt()).isEmpty();
+	}
+
+	@Test
+	public void testAktualisiereKnoten_mitBauwerksmangel() {
+		// arrange
+		Long knotenId = 1L;
+		Long knotenVersion = 2L;
+		Long gemeinde = 3L;
+		Kommentar kommentar = Kommentar.of("./kommen.tar");
+		Zustandsbeschreibung zustandsbeschreibung = Zustandsbeschreibung.of("schlecht");
+		KnotenForm knotenForm = KnotenForm.UEBERFUEHRUNG;
+		Bauwerksmangel bauwerksmangel = Bauwerksmangel.VORHANDEN;
+		Set<BauwerksmangelArt> bauwerksmangelArt = Set.of(BauwerksmangelArt.ANDERER_MANGEL);
+
+		Knoten knoten = Knoten.builder()
+			.id(knotenId)
+			.version(knotenVersion)
+			.quelle(QuellSystem.RadVis)
+			.build();
+		when(knotenRepositoryMock.findById(knotenId)).thenReturn(Optional.of(knoten));
+
+		Verwaltungseinheit organisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.organisationsArt(OrganisationsArt.KREIS)
+			.name("\"Ein Kreis ist eine ebene geometrische Figur.\" - Wikipedia")
+			.build();
+		when(verwaltungseinheitResolver.resolve(gemeinde)).thenReturn(organisation);
+
+		// act
+		netzService.aktualisiereKnoten(knotenId, knotenVersion, gemeinde, kommentar, zustandsbeschreibung, knotenForm,
+			null, bauwerksmangel, bauwerksmangelArt);
+
+		// assert
+		assertThat(knoten.getKnotenAttribute()).isNotNull();
+		assertThat(knoten.getKnotenAttribute().getQuerungshilfeDetails()).isEmpty();
+		assertThat(knoten.getKnotenAttribute().getBauwerksmangel()).contains(bauwerksmangel);
+		assertThat(knoten.getKnotenAttribute().getBauwerksmangelArt()).contains(bauwerksmangelArt);
 	}
 
 	@Test
@@ -1262,7 +1312,7 @@ class NetzServiceTest {
 		// act + assert
 		assertThatThrownBy(
 			() -> netzService.aktualisiereKnoten(knotenId, knotenVersion, gemeinde, kommentar, zustandsbeschreibung,
-				knotenForm))
+				knotenForm, null, null, null))
 					.isInstanceOf(AccessDeniedException.class)
 					.hasMessage("RadNETZ-Knoten dürfen nicht bearbeitet werden.");
 
@@ -1316,6 +1366,644 @@ class NetzServiceTest {
 
 		// assert
 		assertThat(findErsatzKnoten).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_keineKanten() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			any(), any())).thenReturn(
+				Collections.emptyList());
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_ohnePassendeRadverkehrsfuehrungen() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		Kante kanteRechtsKeineRadverkehrsfuehrung = KanteTestDataProvider.withCoordinates(new Coordinate[] {
+			new Coordinate(10, 0), new Coordinate(10, 50) })
+			.id(2L)
+			.build();
+		Kante kanteRechtsUnbekannteRadverkehrsfuehrung = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10,
+			50, 10, 100,
+			Radverkehrsfuehrung.UNBEKANNT)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteRechtsKeineRadverkehrsfuehrung, kanteRechtsKeineRadverkehrsfuehrung
+							.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+						.getGeometry()), kanteRechtsUnbekannteRadverkehrsfuehrung,
+						kanteRechtsUnbekannteRadverkehrsfuehrung.getGeometry())
+				));
+
+		Kante kanteLinksKeineRadverkehrsfuehrung = KanteTestDataProvider.withCoordinates(new Coordinate[] {
+			new Coordinate(-10, 0), new Coordinate(-10, 50) })
+			.id(2L)
+			.build();
+		Kante kanteLinksUnbekannteRadverkehrsfuehrung = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-10,
+			50, -10, 100,
+			Radverkehrsfuehrung.UNBEKANNT)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteLinksKeineRadverkehrsfuehrung, kanteLinksKeineRadverkehrsfuehrung
+							.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+						.getGeometry()), kanteLinksUnbekannteRadverkehrsfuehrung,
+						kanteLinksUnbekannteRadverkehrsfuehrung.getGeometry())
+				));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_ohnePassendeRadverkehrsfuehrungAberMitStrassennummer() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		Kante kanteRechtsKeineRadverkehrsfuehrung = KanteTestDataProvider.withCoordinates(new Coordinate[] {
+			new Coordinate(10, 0), new Coordinate(10, 50) })
+			.id(2L)
+			.build();
+		kanteRechtsKeineRadverkehrsfuehrung.getKantenAttributGruppe().getKantenAttribute().setStrassenNummer(
+			StrassenNummer.of("L123"));
+		Kante kanteRechtsUnbekannteRadverkehrsfuehrung = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10,
+			50, 10, 100,
+			Radverkehrsfuehrung.UNBEKANNT)
+			.id(3L)
+			.build();
+		kanteRechtsUnbekannteRadverkehrsfuehrung.getKantenAttributGruppe().getKantenAttribute().setStrassenNummer(
+			StrassenNummer.of("L123"));
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteRechtsKeineRadverkehrsfuehrung, kanteRechtsKeineRadverkehrsfuehrung
+							.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+						.getGeometry()), kanteRechtsUnbekannteRadverkehrsfuehrung,
+						kanteRechtsUnbekannteRadverkehrsfuehrung.getGeometry())
+				));
+
+		Kante kanteLinksKeineRadverkehrsfuehrung = KanteTestDataProvider.withCoordinates(new Coordinate[] {
+			new Coordinate(-10, 0), new Coordinate(-10, 50) })
+			.id(2L)
+			.build();
+		Kante kanteLinksUnbekannteRadverkehrsfuehrung = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-10,
+			50, -10, 100,
+			Radverkehrsfuehrung.UNBEKANNT)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteLinksKeineRadverkehrsfuehrung, kanteLinksKeineRadverkehrsfuehrung
+							.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+						.getGeometry()), kanteLinksUnbekannteRadverkehrsfuehrung,
+						kanteLinksUnbekannteRadverkehrsfuehrung.getGeometry())
+				));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.RECHTS);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_mehrereParalleleKantenRechts() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		Kante kanteRechtsParallel1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 0, 10, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteRechtsNichtParallel = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 100, 55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteRechtsParallel2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(11, 50, 11, 150,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteRechtsParallel1, kanteRechtsParallel1.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+						.getGeometry()), kanteRechtsNichtParallel, LinearReferenzierterAbschnitt.of(0.8, 1).toSegment(
+							kanteRechtsNichtParallel.getGeometry())),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+						.getGeometry()), kanteRechtsParallel2, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(
+							kanteRechtsParallel2.getGeometry()))
+				));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.RECHTS);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_mehrereParalleleKantenLinks() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		Kante kanteLinksParallel1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-10, 0, -10, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteLinksNichtParallel = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 100, -55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteLinksParallel2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-11, 50, -11, 150,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List
+					.of(
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+							.getGeometry()), kanteLinksParallel1, kanteLinksParallel1.getGeometry()),
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+							.getGeometry()), kanteLinksNichtParallel, LinearReferenzierterAbschnitt.of(0.8, 1)
+								.toSegment(kanteLinksNichtParallel.getGeometry())),
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+							.getGeometry()), kanteLinksParallel2, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(
+								kanteLinksParallel2.getGeometry()))
+					));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.LINKS);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_mehrereParalleleKantenBeidseitig() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		Kante kanteRechtsParallel1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 0, 10, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteRechtsNichtParallel = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 100, 55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteRechtsParallel2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(11, 50, 11, 150,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteRechtsParallel1, kanteRechtsParallel1.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+						.getGeometry()), kanteRechtsNichtParallel, LinearReferenzierterAbschnitt.of(0.8, 1).toSegment(
+							kanteRechtsNichtParallel.getGeometry())),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+						.getGeometry()), kanteRechtsParallel2, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(
+							kanteRechtsParallel2.getGeometry()))
+				));
+
+		Kante kanteLinksParallel1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-10, 0, -10, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteLinksNichtParallel = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 100, -55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteLinksParallel2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-11, 50, -11, 150,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List
+					.of(
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+							.getGeometry()), kanteLinksParallel1, kanteLinksParallel1.getGeometry()),
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+							.getGeometry()), kanteLinksNichtParallel, LinearReferenzierterAbschnitt.of(0.8, 1)
+								.toSegment(kanteLinksNichtParallel.getGeometry())),
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 1).toSegment(kante
+							.getGeometry()), kanteLinksParallel2, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(
+								kanteLinksParallel2.getGeometry()))
+					));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.BEIDSEITIG);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_mehrereZuKurzeParalleleKanten_ueberdeckenZuWenig() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		// Alle überdecken zusammen nur 9% der kante -> zu wenig
+		Kante kanteRechtsParallel1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 10, 10, 19,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteRechtsParallel2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(11, 10, 11, 16,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteRechtsParallel3 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(12, 13, 12, 19,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.1, 0.19).toSegment(kante
+						.getGeometry()), kanteRechtsParallel1, kanteRechtsParallel1.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.1, 0.19).toSegment(kante
+						.getGeometry()), kanteRechtsParallel2, kanteRechtsParallel2.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.1, 0.19).toSegment(kante
+						.getGeometry()), kanteRechtsParallel3, kanteRechtsParallel3.getGeometry())
+				));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_mehrereZuKurzeParalleleKanten_ueberdeckenGenug() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		// Für sich überdecken sie jeweils nur 5% und damit zu wenig, insgesamt aber genug
+		Kante kanteRechtsParallel1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 0, 10, 5,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteRechtsParallel2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 4, 10, 9,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteRechtsParallel3 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 8, 10, 13,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.05).toSegment(kante
+						.getGeometry()), kanteRechtsParallel1, kanteRechtsParallel1.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.04, 0.09).toSegment(kante
+						.getGeometry()), kanteRechtsParallel2, kanteRechtsParallel2.getGeometry()),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.08, 0.13).toSegment(kante
+						.getGeometry()), kanteRechtsParallel3, kanteRechtsParallel3.getGeometry())
+				));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.RECHTS);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_gefundeneKantenNichtParallel() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		// Diagonale Kanten im 45° und -45° Winkel
+		Kante kanteRechts1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(5, 0, 55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteRechts2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 100, 55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.1).toSegment(kante
+						.getGeometry()), kanteRechts1, LinearReferenzierterAbschnitt.of(0, 0.2).toSegment(kanteRechts1
+							.getGeometry())),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+						.getGeometry()), kanteRechts2, LinearReferenzierterAbschnitt.of(0.8, 1).toSegment(kanteRechts2
+							.getGeometry()))
+				));
+		Kante kanteLinks1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-5, 0, -55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteLinks2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 100, -55, 50,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List
+					.of(
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.1).toSegment(kante
+							.getGeometry()), kanteLinks1, LinearReferenzierterAbschnitt.of(0, 0.2).toSegment(kanteLinks1
+								.getGeometry())),
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+							.getGeometry()), kanteLinks2, LinearReferenzierterAbschnitt.of(0.8, 1).toSegment(kanteLinks2
+								.getGeometry()))
+					));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_teilparalleleKantenRechts() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		// Paralleles Teilstück ist in der Nähe
+		Kante kanteRechts1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(new Coordinate[] {
+			new Coordinate(20, 200),
+			new Coordinate(5, 100),
+			new Coordinate(5, 80),
+		}, Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		// Paralleles Teilstück ist NICHT in der Nähe
+		Kante kanteRechts2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(new Coordinate[] {
+			new Coordinate(5, 80),
+			new Coordinate(20, 100),
+			new Coordinate(20, 200),
+		}, Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.1).toSegment(kante
+						.getGeometry()), kanteRechts1, LinearReferenzierterAbschnitt.of(0, 0.2).toSegment(kanteRechts1
+							.getGeometry())),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+						.getGeometry()), kanteRechts2, LinearReferenzierterAbschnitt.of(0.8, 1).toSegment(kanteRechts2
+							.getGeometry()))
+				));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.RECHTS);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_teilparalleleKantenLinks() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		// Paralleles Teilstück ist in der Nähe
+		Kante kanteLinks1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(new Coordinate[] {
+			new Coordinate(-20, 200),
+			new Coordinate(-5, 100),
+			new Coordinate(-5, 80),
+		}, Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		// Paralleles Teilstück ist NICHT in der Nähe
+		Kante kanteLinks2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(new Coordinate[] {
+			new Coordinate(-5, 80),
+			new Coordinate(-20, 100),
+			new Coordinate(-20, 200),
+		}, Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List
+					.of(
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.1).toSegment(kante
+							.getGeometry()), kanteLinks1, LinearReferenzierterAbschnitt.of(0, 0.2).toSegment(kanteLinks1
+								.getGeometry())),
+						new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.9, 1).toSegment(kante
+							.getGeometry()), kanteLinks2, LinearReferenzierterAbschnitt.of(0.8, 1).toSegment(kanteLinks2
+								.getGeometry()))
+					));
+
+		// Act
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+
+		// Assert
+		assertThat(seitenbezug).contains(Seitenbezug.LINKS);
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_thresholdRelativeGesamtlaengeRechtsWirdKorrektGeprueft() {
+		// Arrange
+		Kante kante1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+		Kante kante2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(1, 0, 1, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+
+		// Deckt ~10% (etwas mehr, um float-Ungenauigkeiten zu umgehen) der Gesamtlänge ab -> ok
+		Kante kanteRechtsParallelOk = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(10, 80.5, 10, 91,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		// Deckt 9% der Gesamtlänge ab -> nicht mehr ok
+		Kante kanteRechtsParallelZuKurz = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(11, 91, 11, 101,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante1), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante1, LinearReferenzierterAbschnitt.of(0.805, 0.91).toSegment(
+						kante1.getGeometry()), kanteRechtsParallelOk, kanteRechtsParallelOk.getGeometry())
+				));
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante2), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante2, LinearReferenzierterAbschnitt.of(0.91, 1).toSegment(kante2
+						.getGeometry()), kanteRechtsParallelZuKurz, LinearReferenzierterAbschnitt.of(0, 0.9).toSegment(
+							kanteRechtsParallelZuKurz.getGeometry()))
+				));
+
+		// Act & Assert
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante1,
+			LinearReferenzierterAbschnitt.of(0, 1));
+		assertThat(seitenbezug).contains(Seitenbezug.RECHTS);
+
+		seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante2, LinearReferenzierterAbschnitt.of(0, 1));
+		assertThat(seitenbezug).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_thresholdRelativeGesamtlaengeLinksWirdKorrektGeprueft() {
+		// Arrange
+		Kante kante1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+		Kante kante2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-1, 0, -1, 100,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+
+		// Deckt ~10% (etwas mehr, um float-Ungenauigkeiten zu umgehen) der Gesamtlänge ab -> ok
+		Kante kanteRechtsParallelOk = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-10, 80.5, -10, 91,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		// Deckt 9% der Gesamtlänge ab -> nicht mehr ok
+		Kante kanteRechtsParallelZuKurz = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(-11, 91, -11, 101,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante1), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante1, LinearReferenzierterAbschnitt.of(0.805, 0.91).toSegment(
+						kante1.getGeometry()), kanteRechtsParallelOk, kanteRechtsParallelOk.getGeometry())
+				));
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante2), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.LINKS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante2, LinearReferenzierterAbschnitt.of(0.91, 1).toSegment(kante2
+						.getGeometry()), kanteRechtsParallelZuKurz, LinearReferenzierterAbschnitt.of(0, 0.9).toSegment(
+							kanteRechtsParallelZuKurz.getGeometry()))
+				));
+
+		// Act & Assert
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante1,
+			LinearReferenzierterAbschnitt.of(0, 1));
+		assertThat(seitenbezug).contains(Seitenbezug.LINKS);
+
+		seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante2, LinearReferenzierterAbschnitt.of(0, 1));
+		assertThat(seitenbezug).isEmpty();
+	}
+
+	@Test
+	public void getSeiteMitParallelenStrassenKanten_miniAbschnitteSindErlaubt() {
+		// Arrange
+		Kante kante = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 1,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(1L)
+			.build();
+
+		Kante kanteRechts1 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0, 0, 0.5,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(2L)
+			.build();
+		Kante kanteRechts2 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0.5, 0, 0.501,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(3L)
+			.build();
+		Kante kanteRechts3 = KanteTestDataProvider.withCoordinatesAndRadverkehrsfuehrung(0, 0.501, 0, 1,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN)
+			.id(4L)
+			.build();
+		when(kantenRepositoryMock.getNahegelegeneKantenAufSeite(eq(kante), eq(LinearReferenzierterAbschnitt.of(0, 1)),
+			eq(Seitenbezug.RECHTS), any())).thenReturn(
+				List.of(
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kante
+						.getGeometry()), kanteRechts1, LinearReferenzierterAbschnitt.of(0, 0.5).toSegment(kanteRechts1
+							.getGeometry())),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.5, 0.501).toSegment(kante
+						.getGeometry()), kanteRechts2, LinearReferenzierterAbschnitt.of(0.5, 0.501).toSegment(
+							kanteRechts2.getGeometry())),
+					new NahegelegeneneKantenDbView(kante, LinearReferenzierterAbschnitt.of(0.501, 1).toSegment(kante
+						.getGeometry()), kanteRechts3, LinearReferenzierterAbschnitt.of(0.501, 1).toSegment(kanteRechts3
+							.getGeometry()))
+				));
+
+		// Act & Assert
+		Optional<Seitenbezug> seitenbezug = netzService.getSeiteMitParallelenStrassenKanten(kante,
+			LinearReferenzierterAbschnitt.of(0, 1));
+		assertThat(seitenbezug).contains(Seitenbezug.RECHTS);
 	}
 
 	private static GeometryFactory createGeometryFactory(Integer srid) {

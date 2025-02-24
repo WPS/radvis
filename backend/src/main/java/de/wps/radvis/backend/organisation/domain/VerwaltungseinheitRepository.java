@@ -51,7 +51,7 @@ public interface VerwaltungseinheitRepository
 
 	Verwaltungseinheit findByName(String name);
 
-	Optional<Verwaltungseinheit> findByNameAndOrganisationsArt(String name, OrganisationsArt organisationsArt);
+	List<Verwaltungseinheit> findByNameAndOrganisationsArt(String name, OrganisationsArt organisationsArt);
 
 	List<Verwaltungseinheit> findAllByNameContainingAndOrganisationsArt(String name, OrganisationsArt organisationsArt);
 

@@ -55,6 +55,7 @@ import de.wps.radvis.backend.common.schnittstelle.CSVExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.CsvRepositoryImpl;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
@@ -102,10 +103,11 @@ class ServicestationImportServiceTest {
 	}
 
 	@Test
-	void mapAttributes_fromRadVISExport() throws CsvReadException, ServicestationAttributMappingException {
+	void mapAttributes_fromRadVISExport() throws CsvReadException, ServicestationAttributMappingException,
+		OrganisationsartUndNameNichtEindeutigException {
 		// arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultOrganisation().build();
-		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(verwaltungseinheit.getName(),
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 			verwaltungseinheit.getOrganisationsArt()))
 				.thenReturn(Optional.of(verwaltungseinheit));
 
@@ -212,8 +214,9 @@ class ServicestationImportServiceTest {
 					return Optional.of(servicestation1);
 				}
 
-				return position.distance(servicestation2.getGeometrie()) < 1 ? Optional.of(servicestation2) : Optional
-					.empty();
+				return position.distance(servicestation2.getGeometrie()) < 1 ? Optional.of(servicestation2)
+					: Optional
+						.empty();
 			});
 
 		// act
@@ -294,10 +297,10 @@ class ServicestationImportServiceTest {
 		private CsvData csvData;
 
 		@BeforeEach
-		void setup() throws CsvReadException {
+		void setup() throws CsvReadException, OrganisationsartUndNameNichtEindeutigException {
 
 			Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultOrganisation().build();
-			when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(verwaltungseinheit.getName(),
+			when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(verwaltungseinheit.getName(),
 				verwaltungseinheit.getOrganisationsArt()))
 					.thenReturn(Optional.of(verwaltungseinheit));
 
@@ -387,8 +390,8 @@ class ServicestationImportServiceTest {
 		}
 
 		@Test
-		void organisation_nichtvorhanden() {
-			when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Quatschburg", OrganisationsArt.KREIS))
+		void organisation_nichtvorhanden() throws OrganisationsartUndNameNichtEindeutigException {
+			when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt("Quatschburg", OrganisationsArt.KREIS))
 				.thenReturn(Optional.empty());
 
 			List<Map<String, String>> rows = csvData.getRows();
@@ -406,8 +409,8 @@ class ServicestationImportServiceTest {
 		}
 
 		@Test
-		void organisation_parsingFehlerhaft() {
-			when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Quatschburg", OrganisationsArt.KREIS))
+		void organisation_parsingFehlerhaft() throws OrganisationsartUndNameNichtEindeutigException {
+			when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt("Quatschburg", OrganisationsArt.KREIS))
 				.thenReturn(Optional.empty());
 
 			List<Map<String, String>> rows = csvData.getRows();

@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenOrtslage;
-import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
-import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.netz.schnittstelle.view.KnotenEditView;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
@@ -40,20 +38,16 @@ public class KnotenEditViewTest {
 				.knotenAttribute(
 					KnotenAttribute
 						.builder()
-						.kommentar(Kommentar.of("ein Kommentar"))
-						.zustandsbeschreibung(Zustandsbeschreibung.of("eine Zustandsbeschreibung"))
 						.gemeinde(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(2L)
 							.uebergeordneteOrganisation(landkreis)
 							.build())
 						.build())
 				.build(),
 			KnotenOrtslage.AUSSERORTS,
-			false
-		);
+			false);
 
 		// assert
-		assertThat(knotenEditView.getLandkreis().getId()).isEqualTo(1L);
-		assertThat(knotenEditView.getKommentar()).hasToString("ein Kommentar");
-		assertThat(knotenEditView.getZustandsbeschreibung()).hasToString("eine Zustandsbeschreibung");
+		assertThat(knotenEditView.getLandkreis()).isPresent();
+		assertThat(knotenEditView.getLandkreis().get().getId()).isEqualTo(1L);
 	}
 }

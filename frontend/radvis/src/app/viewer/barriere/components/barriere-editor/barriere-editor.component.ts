@@ -13,15 +13,18 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener } from '@angular/core';
-import { FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { Barriere } from 'src/app/viewer/barriere/models/barriere';
+import { BarriereFormDetails } from 'src/app/viewer/barriere/models/barriere-form-details';
 import { BARRIEREN } from 'src/app/viewer/barriere/models/barriere.infrastruktur';
 import { BARRIEREN_FORM } from 'src/app/viewer/barriere/models/barrieren-form';
 import { Markierung } from 'src/app/viewer/barriere/models/markierung';
@@ -40,17 +43,19 @@ import invariant from 'tiny-invariant';
   templateUrl: './barriere-editor.component.html',
   styleUrls: ['./barriere-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class BarriereEditorComponent implements DiscardableComponent {
   isFetching = false;
-  formGroup: UntypedFormGroup = new UntypedFormGroup({
-    netzbezug: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+  formGroup = new FormGroup({
+    netzbezug: new FormControl<Netzbezug | null>(null, RadvisValidators.isNotNullOrEmpty),
     verantwortlicheOrganisation: new FormControl<Verwaltungseinheit | null>(null, RadvisValidators.isNotNullOrEmpty),
     barrierenForm: new FormControl<string>('', RadvisValidators.isNotNullOrEmpty),
     verbleibendeDurchfahrtsbreite: new FormControl<VerbleibendeDurchfahrtsbreite | null>(null),
     sicherung: new FormControl<Sicherung | null>(null),
     markierung: new FormControl<Markierung | null>(null),
     begruendung: new FormControl<string | null>(null, RadvisValidators.maxLength(2000)),
+    barriereFormDetails: new FormControl<BarriereFormDetails | null>(null),
   });
   isCreator = false;
   BARRIEREN = BARRIEREN;
@@ -61,6 +66,7 @@ export class BarriereEditorComponent implements DiscardableComponent {
   markierungOptions = Markierung.options;
 
   currentBarriere: Barriere | undefined;
+  barriereFormDetailsOptions: EnumOption[] = [];
 
   get isDirty(): boolean {
     return this.formGroup.dirty;
@@ -86,6 +92,21 @@ export class BarriereEditorComponent implements DiscardableComponent {
     private notifyUserService: NotifyUserService,
     organisationService: OrganisationenService
   ) {
+    this.formGroup.controls.barrierenForm.valueChanges.subscribe(value => {
+      this.formGroup.controls.barriereFormDetails.reset();
+      if (value) {
+        this.barriereFormDetailsOptions = BarriereFormDetails.getOptionsForBarriereForm(value);
+        if (BarriereFormDetails.isEnabledForBarriereForm(value)) {
+          this.formGroup.controls.barriereFormDetails.enable();
+        } else {
+          this.formGroup.controls.barriereFormDetails.disable();
+        }
+      } else {
+        this.barriereFormDetailsOptions = [];
+        this.formGroup.controls.barriereFormDetails.disable();
+      }
+    });
+
     activatedRoute.data.subscribe(d => {
       this.isCreator = d.isCreator;
       this.resetForm(d.barriere);
@@ -118,13 +139,14 @@ export class BarriereEditorComponent implements DiscardableComponent {
     this.isFetching = true;
     let promise: Promise<void>;
     const command: SaveBarriereCommand = {
-      netzbezug: formValue.netzbezug,
-      verantwortlicheOrganisation: formValue.verantwortlicheOrganisation.id,
-      barrierenForm: formValue.barrierenForm,
-      verbleibendeDurchfahrtsbreite: formValue.verbleibendeDurchfahrtsbreite,
-      sicherung: formValue.sicherung,
-      markierung: formValue.markierung,
-      begruendung: formValue.begruendung,
+      netzbezug: formValue.netzbezug!,
+      verantwortlicheOrganisation: formValue.verantwortlicheOrganisation!.id,
+      barrierenForm: formValue.barrierenForm!,
+      verbleibendeDurchfahrtsbreite: formValue.verbleibendeDurchfahrtsbreite ?? null,
+      sicherung: formValue.sicherung ?? null,
+      markierung: formValue.markierung ?? null,
+      begruendung: formValue.begruendung ?? null,
+      barriereFormDetails: formValue.barriereFormDetails ?? null,
     };
     if (this.isCreator) {
       promise = this.barriereService.createBarriere(command).then(newId => {

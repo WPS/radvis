@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
 import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -121,6 +120,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeLinks: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -132,6 +132,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeRechts: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -156,6 +157,12 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
     });
 
     describe('onTrennstreifenSeiteSelectionChanged', () => {
+      it('should not reset trennungZu Options (RAD-7383)', () => {
+        component.trennstreifenTrennungZuOptions = [];
+        component.onTrennstreifenSeiteSelectionChanged(TrennstreifenSeite.A);
+        expect(component.trennstreifenTrennungZuOptions).toEqual([]);
+      });
+
       it('Should give TrennstreifenSeite Options links zur Auswahl', () => {
         expect(component.trennstreifenSeiteOptions).toEqual(TrennstreifenSeite.optionsLinks);
       });
@@ -210,7 +217,8 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           );
         });
 
-        it('should not update anything', () => {
+        it('should use previous values, not form values', () => {
+          spyOnProperty(component.trennstreifenFormGroupLinks, 'valid').and.returnValue(true);
           component.lineareReferenzenLinksFormArray.markAsDirty();
           component.lineareReferenzenRechtsFormArray.markAsDirty();
           component.onSave();
@@ -231,6 +239,10 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
 
       describe('applies simple changes from form to attribute', () => {
         beforeEach(() => {
+          component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+            Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+          );
+
           component.onTrennstreifenSeiteSelectionChanged(TrennstreifenSeite.A);
 
           component.trennstreifenFormGroupLinks.markAsDirty();
@@ -270,6 +282,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
                   ...kante.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks[0],
                   trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
                   trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
+                  radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
                   trennstreifenBreiteLinks: 123,
                 },
               ],
@@ -278,6 +291,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
                   ...kante.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks[0],
                   trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
                   trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
+                  radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
                   trennstreifenBreiteLinks: 123,
                 },
               ],
@@ -392,6 +406,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeLinks: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -403,6 +418,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeRechts: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
@@ -504,6 +520,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeLinks: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -517,6 +534,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
             },
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
@@ -532,6 +550,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeRechts: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
@@ -545,6 +564,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
             },
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
@@ -659,7 +679,8 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           );
         });
 
-        it('should not update anything', () => {
+        it('should use previous values, not form values', () => {
+          spyOnProperty(component.trennstreifenFormGroupLinks, 'valid').and.returnValue(true);
           component.lineareReferenzenLinksFormArray.markAsDirty();
           component.lineareReferenzenRechtsFormArray.markAsDirty();
           component.onSave();
@@ -681,6 +702,9 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       describe('applies simple changes from form to attribute', () => {
         beforeEach(() => {
           component.onTrennstreifenSeiteSelectionChanged(TrennstreifenSeite.A);
+          component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+            Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+          );
 
           component.trennstreifenFormGroupLinks.markAsDirty();
           component.trennstreifenFormGroupLinks.controls.trennstreifenFormLinks.setValue(
@@ -717,6 +741,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
               fuehrungsformAttributeLinks: [
                 {
                   ...kante.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks[0],
+                  radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
                   trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
                   trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
                   trennstreifenBreiteLinks: 123,
@@ -830,6 +855,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeLinks: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -843,6 +869,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
             },
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
@@ -858,6 +885,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeRechts: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
@@ -871,6 +899,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
             },
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_FAHRZEUGRUEKHALTESYSTEM,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
@@ -901,6 +930,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeLinks: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -912,6 +942,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           fuehrungsformAttributeRechts: [
             {
               ...defaultFuehrungsformAttribute,
+              radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
               trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN,
               trennstreifenFormRechts: TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART,
               trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN,
@@ -1060,7 +1091,8 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
           );
         });
 
-        it('should not update anything', () => {
+        it('should use previous values, not form values', () => {
+          spyOnProperty(component.trennstreifenFormGroupLinks, 'valid').and.returnValue(true);
           component.lineareReferenzenLinksFormArray.markAsDirty();
           component.lineareReferenzenRechtsFormArray.markAsDirty();
           component.onSave();
@@ -1090,6 +1122,9 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
 
       describe('applies simple changes from form to attribute', () => {
         beforeEach(() => {
+          component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+            Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+          );
           component.onTrennstreifenSeiteSelectionChanged(TrennstreifenSeite.A);
 
           component.trennstreifenFormGroupLinks.markAsDirty();
@@ -1127,6 +1162,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
               fuehrungsformAttributeLinks: [
                 {
                   ...kanteEinseitig.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks[0],
+                  radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
                   trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
                   trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
                   trennstreifenBreiteLinks: 123,
@@ -1136,6 +1172,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
                 {
                   ...kanteEinseitig.fuehrungsformAttributGruppe.fuehrungsformAttributeRechts[0],
                   trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
+                  radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
                   trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
                   trennstreifenBreiteLinks: 123,
                 },
@@ -1150,6 +1187,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
                 {
                   ...kanteLineareReferenzen.fuehrungsformAttributGruppe.fuehrungsformAttributeLinks[1],
                   trennstreifenFormLinks: TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN,
+                  radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
                   trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
                   trennstreifenBreiteLinks: 123,
                 },
@@ -1395,13 +1433,9 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
     }));
 
     [
-      Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER,
       Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
       Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
-      Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
-      Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
-      Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
-      Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER,
     ].forEach(radverkehrsfuehrung => {
       describe('radverkehrsfuehrung=' + radverkehrsfuehrung + ' should show all trennungZu-values', () => {
         beforeEach(() => {
@@ -1425,7 +1459,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
 
         it('should show all form- and trennungZu-options', () => {
           expect(component.trennstreifenFormOptions).toEqual(TrennstreifenForm.options);
-          expect(component.trennstreifenTrennungZuOptions).toEqual(TrennstreifenTrennungZu.options);
+          expect(component.trennstreifenTrennungZuOptions.every(opt => !opt.disabled)).toBeTrue();
         });
 
         it('should not alter trennungZu form control', () => {
@@ -1436,85 +1470,24 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       });
     });
 
-    [
-      Radverkehrsfuehrung.SCHUTZSTREIFEN,
-      Radverkehrsfuehrung.RADFAHRSTREIFEN,
-      Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
-      Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-      Radverkehrsfuehrung.MEHRZWECKSTREIFEN,
-    ].forEach(radverkehrsfuehrung => {
-      describe(
-        'radverkehrsfuehrung=' + radverkehrsfuehrung + " should show only 'zum parken' trennungZu-values",
-        () => {
-          beforeEach(() => {
-            component.displayedAttributeformGroup.markAsDirty();
-          });
+    describe('isTrennstreifenFormVisible', () => {
+      beforeEach(() => {
+        component.displayedAttributeformGroup.markAsDirty();
+      });
 
-          it('should enable trennstreifen form group', () => {
-            component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(radverkehrsfuehrung);
+      it('should be true if enabled for Radverkehrsfuehrung', () => {
+        component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+          Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+        );
 
-            expect(component.isTrennstreifenFormVisible()).toBeTrue();
+        expect(component.isTrennstreifenFormVisible()).toBeTrue();
+      });
 
-            expect(component.trennstreifenFormGroupLinks.enabled).toBeTrue();
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenFormLinks.enabled).toBeTrue();
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.enabled).toBeTrue();
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenBreiteLinks.enabled).toBeTrue();
+      it('should be false if disabled for Radverkehrsfuehrung', () => {
+        component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(Radverkehrsfuehrung.BEGEGNUNBSZONE);
 
-            expect(component.trennstreifenFormGroupRechts.enabled).toBeTrue();
-            expect(component.trennstreifenFormGroupRechts.controls.trennstreifenFormRechts.enabled).toBeTrue();
-            expect(component.trennstreifenFormGroupRechts.controls.trennstreifenTrennungZuRechts.enabled).toBeTrue();
-            expect(component.trennstreifenFormGroupRechts.controls.trennstreifenBreiteRechts.enabled).toBeTrue();
-          });
-
-          it('should be invalid if incompatible value was selected before', () => {
-            component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(
-              TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR
-            );
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
-
-            component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(radverkehrsfuehrung);
-
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(false);
-            expect(component.trennstreifenFormGroupLinks.valid).toBe(false);
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.value).toBe(
-              TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR
-            );
-          });
-
-          it('should update trennungZuValues and validity if new Trennstreifen selected', () => {
-            component.trennstreifenSeiteSelected = undefined;
-            component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(
-              TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR
-            );
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
-
-            component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(radverkehrsfuehrung);
-
-            expect(component.trennstreifenTrennungZuOptions)
-              .withContext('no trennstreifen selected')
-              .toEqual(TrennstreifenTrennungZu.optionsParken);
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid)
-              .withContext('no trennstreifen selected')
-              .toBe(false);
-
-            component.onTrennstreifenSeiteSelectionChanged(TrennstreifenSeite.A);
-
-            expect(component.trennstreifenTrennungZuOptions)
-              .withContext('with trennstreifen selected')
-              .toEqual(TrennstreifenTrennungZu.optionsParken);
-            expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid)
-              .withContext('with trennstreifen selected')
-              .toBe(false);
-          });
-
-          it('should show all form-options but only parken-options for trennungZu', () => {
-            component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(radverkehrsfuehrung);
-
-            expect(component.trennstreifenFormOptions).toEqual(TrennstreifenForm.options);
-            expect(component.trennstreifenTrennungZuOptions).toEqual(TrennstreifenTrennungZu.optionsParken);
-          });
-        }
-      );
+        expect(component.isTrennstreifenFormVisible()).toBeFalse();
+      });
     });
 
     [
@@ -1527,7 +1500,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       Radverkehrsfuehrung.BETRIEBSWEG_FORST,
       Radverkehrsfuehrung.BETRIEBSWEG_WASSERWIRTSCHAFT,
       Radverkehrsfuehrung.SONSTIGER_BETRIEBSWEG,
-      Radverkehrsfuehrung.PIKTOGRAMMKETTE,
+      Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG,
       Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN,
       Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN,
       Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE,
@@ -1537,8 +1510,6 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_ZEITW_FREI,
       Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_NICHT_FREI,
       Radverkehrsfuehrung.BEGEGNUNBSZONE,
-      Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE,
-      Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADZONE,
       Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_ALS_30,
       Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
       Radverkehrsfuehrung.EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
@@ -1731,7 +1702,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       Radverkehrsfuehrung.RADFAHRSTREIFEN,
       Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
       Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-      Radverkehrsfuehrung.MEHRZWECKSTREIFEN,
+      Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG,
     ].forEach(radverkehrsfuehrung => {
       describe(
         'radverkehrsfuehrung=' + radverkehrsfuehrung + ' should enable trennstreifen form-controls and save them',
@@ -1802,7 +1773,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       Radverkehrsfuehrung.BETRIEBSWEG_FORST,
       Radverkehrsfuehrung.BETRIEBSWEG_WASSERWIRTSCHAFT,
       Radverkehrsfuehrung.SONSTIGER_BETRIEBSWEG,
-      Radverkehrsfuehrung.PIKTOGRAMMKETTE,
+      Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG,
       Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN,
       Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN,
       Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE,
@@ -1812,8 +1783,6 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_ZEITW_FREI,
       Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_NICHT_FREI,
       Radverkehrsfuehrung.BEGEGNUNBSZONE,
-      Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE,
-      Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADZONE,
       Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_ALS_30,
       Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
       Radverkehrsfuehrung.EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
@@ -1906,15 +1875,19 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
 
   describe('validate trennungZu', () => {
     it('should be valid if null', () => {
-      component.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+      );
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(null);
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.updateValueAndValidity();
 
       expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
     });
 
-    it('should be valid if value in options', () => {
-      component.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
+    it('should be valid if radverkehrsfuehrung allowed', () => {
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+      );
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(
         TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN
       );
@@ -1923,22 +1896,102 @@ describe(KantenFuehrungsformEditorComponent.name + ' - Trennstreifen', () => {
       expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
     });
 
-    it('should be true if UndeterminedValue', () => {
-      component.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
+    it('should be valid if UndeterminedValue', () => {
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+      );
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(new UndeterminedValue());
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.updateValueAndValidity();
 
       expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
     });
 
-    it('should be invalid if value not in options', () => {
-      component.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
+    it('should be valid if radverkehrsfuehrung is UndeterminedValue', () => {
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(new UndeterminedValue());
+      component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(
+        TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN
+      );
+      component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.updateValueAndValidity();
+
+      expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
+    });
+
+    it('should be invalid if radverkehrsfuehrung not allowed', () => {
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG
+      );
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(
         TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR
       );
       component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.updateValueAndValidity();
 
       expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(false);
+    });
+
+    it('should be validated if Radverkehrsfuehrung change', () => {
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND
+      );
+      component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.setValue(
+        TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR
+      );
+      expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(true);
+
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG
+      );
+
+      expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.valid).toBe(false);
+      expect(component.trennstreifenFormGroupLinks.valid).toBe(false);
+      expect(component.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.value).toBe(
+        TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR
+      );
+    });
+  });
+
+  describe('onSave', () => {
+    beforeEach(() => {
+      when(netzService.saveKanteFuehrungsform(anything())).thenResolve([defaultKante]);
+    });
+
+    it('should save if all Values are null and pristine for backwards compatibility', () => {
+      component.trennstreifenFormGroupLinks.reset();
+      component.trennstreifenFormGroupRechts.reset();
+      component.displayedAttributeformGroup.updateValueAndValidity();
+
+      component.onSave();
+
+      verify(netzService.saveKanteFuehrungsform(anything())).once();
+      expect().nothing();
+    });
+
+    it('should not save if trennungZu Value invalid and pristine (RAD-7382)', () => {
+      component.trennstreifenFormGroupLinks.reset({
+        trennstreifenTrennungZuLinks: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
+      });
+      component.trennstreifenFormGroupRechts.reset({
+        trennstreifenTrennungZuRechts: TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR,
+      });
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+      });
+
+      component.onSave();
+
+      verify(netzService.saveKanteFuehrungsform(anything())).never();
+      expect().nothing();
+    });
+
+    it('should save if all Values are null and dirty', () => {
+      component.trennstreifenFormGroupLinks.reset();
+      component.trennstreifenFormGroupRechts.reset();
+      component.trennstreifenFormGroupRechts.updateValueAndValidity();
+      component.displayedAttributeformGroup.updateValueAndValidity();
+
+      component.onSave();
+
+      verify(netzService.saveKanteFuehrungsform(anything())).once();
+      expect().nothing();
     });
   });
 

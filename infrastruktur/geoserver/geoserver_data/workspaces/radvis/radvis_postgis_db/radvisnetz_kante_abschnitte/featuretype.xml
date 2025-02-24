@@ -389,6 +389,24 @@
       <nillable>true</nillable>
       <binding>java.lang.String</binding>
     </attribute>
+    <attribute>
+      <name>beschilderung</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>absenkung</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>schaeden</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>
   <skipNumberMatched>false</skipNumberMatched>

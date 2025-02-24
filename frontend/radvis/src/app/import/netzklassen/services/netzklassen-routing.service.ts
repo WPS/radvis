@@ -19,6 +19,8 @@ import { ImportRoutes } from 'src/app/import/models/import-routes';
 
 @Injectable()
 export class NetzklassenRoutingService {
+  private static readonly CLOSED = 0;
+
   public static readonly DATEI_UPLOAD_ROUTE = 'upload';
   public static readonly PARAMETER_EINGEBEN_ROUTE = 'parameter';
   public static readonly AUTOMATISCHE_ABBILDUNG_ROUTE = 'abbildung';
@@ -58,6 +60,14 @@ export class NetzklassenRoutingService {
       {
         bezeichnung: 'Import abschließen',
         path: NetzklassenRoutingService.ABSCHLUSS_ROUTE,
+      },
+    ],
+    [
+      NetzklassenRoutingService.CLOSED,
+      {
+        bezeichnung: 'Import abschließen',
+        path: NetzklassenRoutingService.ABSCHLUSS_ROUTE,
+        hiddenStep: true,
       },
     ],
   ]);

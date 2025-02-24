@@ -82,7 +82,7 @@ export class FilterQueryParams extends AbstractQueryParams {
   }
 
   private static filterKeyToPathElement(key: string | undefined): string | null {
-    if (key && key.includes('_')) {
+    if (key?.includes('_')) {
       return key.split('_')[1] ?? null;
     }
     return null;
@@ -104,7 +104,6 @@ export class FilterQueryParams extends AbstractQueryParams {
     this.filters.delete(infastrukturArt);
   }
 
-  // eslint-disable-next-line prettier/prettier
   public override replaceIn(params: Params): Params {
     const cleanParams: Params = {};
     Object.keys(params).forEach(param => {

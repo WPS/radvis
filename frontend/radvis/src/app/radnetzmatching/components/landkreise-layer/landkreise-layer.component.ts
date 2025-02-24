@@ -31,6 +31,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './landkreise-layer.component.html',
   styleUrls: ['./landkreise-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LandkreiseLayerComponent implements OnInit, OnDestroy {
   layer: RadVisLayer = new LandkreiseLayer();

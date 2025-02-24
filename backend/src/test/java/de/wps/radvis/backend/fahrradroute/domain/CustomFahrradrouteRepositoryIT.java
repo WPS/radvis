@@ -21,11 +21,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -64,6 +67,7 @@ import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 @EnableConfigurationProperties(value = { CommonConfigurationProperties.class, FeatureToggleProperties.class,
 	PostgisConfigurationProperties.class, CommonConfigurationProperties.class, NetzConfigurationProperties.class })
 @ContextConfiguration(classes = { CommonConfiguration.class, GeoConverterConfiguration.class })
+@ExtendWith(OutputCaptureExtension.class)
 public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 	@Autowired
 	CommonConfigurationProperties commonConfigurationProperties;
@@ -80,7 +84,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 	public void diffViewCanBeCreatedAndIsEmptyAfterFirstReset() {
 		new TransactionTemplate(transactionManager).executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		assertThat(
 			jdbcTemplate.queryForList("SELECT * FROM geoserver_fahrradroute_import_diff_materialized_view"))
@@ -115,7 +119,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_fahrradroute_import_diff_materialized_view");
@@ -156,7 +160,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_fahrradroute_import_diff_materialized_view");
@@ -193,7 +197,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList("SELECT * FROM geoserver_fahrradroute_import_diff_materialized_view");
@@ -228,7 +232,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList(
@@ -273,7 +277,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList(
@@ -289,6 +293,85 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 		assertThat((String) allViewEntries.get(0).get("geometrie_diff"))
 			.isEqualTo(asWkt(GeometryTestdataProvider.createLineString(new Coordinate(0, 20),
 				new Coordinate(20, 20), new Coordinate(20, 40), new Coordinate(0, 40))));
+	}
+
+	@Test
+	public void fahrradrouteWithTooManyNumpointsBefore_doesNotSelect(CapturedOutput output) {
+		AdditionalRevInfoHolder.setAuditingContext(AuditingContext.CREATE_FAHRRADROUTE_COMMAND);
+		Kante kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+		Fahrradroute fahrradrouteVorher = transactionTemplate.execute((status) -> fahrradrouteRepository
+			.save(FahrradrouteTestDataProvider.onKante(kante).name(FahrradrouteName.of("MeineRoute"))
+				.verantwortlich(null).beschreibung("Alte Version").netzbezugLineString(
+					GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100),
+						new Coordinate(100, 0), new Coordinate(100, 100)))
+				.originalGeometrie(GeometryTestdataProvider.createLineString()).build()));
+
+		JobExecutionDescription jobExecutionDescription = transactionTemplate
+			.execute((status) -> jobExecutionDescriptionRepository
+				.save(JobExecutionDescriptionTestDataProvider.withDefaultValues().build()));
+		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
+		AdditionalRevInfoHolder.setAuditingContext(AuditingContext.FAHRRADROUTE_TOUBIZ_IMPORT_JOB);
+
+		Fahrradroute fahrradrouteNachher = fahrradrouteVorher.toBuilder().beschreibung("Neue Version")
+			.netzbezugLineString(
+				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100)))
+			.build();
+
+		transactionTemplate.execute((status) -> fahrradrouteRepository.save(fahrradrouteNachher));
+
+		transactionTemplate.executeWithoutResult(
+			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 3));
+
+		List<Map<String, Object>> allViewEntries = jdbcTemplate
+			.queryForList(
+				"SELECT job_id, fahrradroute_id, ST_AsText(geometrie_vorher) as geometrie_vorher, ST_AsText(geometrie_diff) as geometrie_diff FROM geoserver_fahrradroute_import_diff_materialized_view");
+
+		assertThat(allViewEntries).isEmpty();
+		assertThat(output).contains(
+			"Fahrradroute MeineRoute hat zu viele Koordinaten, es wird kein Import-Diff berechnet für 1 Versionen.");
+	}
+
+	@Test
+	public void fahrradrouteWithTooManyNumpointsAfter_doesNotSelect(CapturedOutput output) {
+		AdditionalRevInfoHolder.setAuditingContext(AuditingContext.CREATE_FAHRRADROUTE_COMMAND);
+		Kante kante = kantenRepository.save(KanteTestDataProvider.withDefaultValues().build());
+
+		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+		Fahrradroute fahrradrouteVorher = transactionTemplate.execute((status) -> fahrradrouteRepository
+			.save(FahrradrouteTestDataProvider.onKante(kante).name(FahrradrouteName.of("MeineRoute"))
+				.verantwortlich(null).beschreibung("Alte Version")
+				.netzbezugLineString(
+					GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100)))
+				.originalGeometrie(GeometryTestdataProvider.createLineString()).build()));
+
+		JobExecutionDescription jobExecutionDescription = transactionTemplate
+			.execute((status) -> jobExecutionDescriptionRepository
+				.save(JobExecutionDescriptionTestDataProvider.withDefaultValues().build()));
+		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
+		AdditionalRevInfoHolder.setAuditingContext(AuditingContext.FAHRRADROUTE_TOUBIZ_IMPORT_JOB);
+
+		Fahrradroute fahrradrouteNachher = fahrradrouteVorher.toBuilder().beschreibung("Neue Version")
+			.netzbezugLineString(
+				GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100),
+					new Coordinate(100, 0), new Coordinate(100, 100)))
+			.build();
+
+		transactionTemplate.execute((status) -> fahrradrouteRepository.save(fahrradrouteNachher));
+
+		transactionTemplate.executeWithoutResult(
+			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 3));
+
+		List<Map<String, Object>> allViewEntries = jdbcTemplate
+			.queryForList(
+				"SELECT job_id, fahrradroute_id, ST_AsText(geometrie_vorher) as geometrie_vorher, ST_AsText(geometrie_diff) as geometrie_diff FROM geoserver_fahrradroute_import_diff_materialized_view");
+
+		assertThat(allViewEntries).isEmpty();
+		assertThat(output).contains(
+			"Fahrradroute MeineRoute hat zu viele Koordinaten, es wird kein Import-Diff berechnet für 1 Versionen.");
 	}
 
 	@Test
@@ -328,7 +411,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList(
@@ -380,7 +463,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList(
@@ -419,7 +502,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList(
@@ -452,7 +535,7 @@ public class CustomFahrradrouteRepositoryIT extends AuditingTestIT {
 
 		transactionTemplate.executeWithoutResult(
 			(status) -> fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(
-				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten()));
+				commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(), 200));
 
 		List<Map<String, Object>> allViewEntries = jdbcTemplate
 			.queryForList(

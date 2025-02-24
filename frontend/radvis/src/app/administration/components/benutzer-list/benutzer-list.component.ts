@@ -22,14 +22,15 @@ import { Observable, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { BenutzerListView } from 'src/app/administration/models/benutzer-list-view';
 import { BenutzerStatus } from 'src/app/administration/models/benutzer-status';
-import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 import { Rolle } from 'src/app/administration/models/rolle';
+import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 
 @Component({
   selector: 'rad-benutzer-list',
   templateUrl: './benutzer-list.component.html',
   styleUrls: ['./benutzer-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class BenutzerListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
@@ -106,7 +107,7 @@ export class BenutzerListComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.benutzerDataSource.paginator = this.paginator;
     this.benutzerDataSource.sort = this.sort;
-    this.applyFilter;
+    this.applyFilter();
   }
 
   ngOnDestroy(): void {

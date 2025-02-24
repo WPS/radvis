@@ -29,12 +29,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -68,7 +68,6 @@ import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.OrganisationRepository;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
@@ -93,6 +92,11 @@ import jakarta.persistence.PersistenceContext;
 	OrganisationConfigurationProperties.class
 })
 class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private SessionRegistry sessionRegistry;
+	@MockitoBean
+	private BenutzerResolver benutzerResolver;
+
 	public static class TestConfiguration {
 		@Autowired
 		private BenutzerService benutzerService;
@@ -102,11 +106,11 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 		private SaveBenutzerCommandConverter saveBenutzerCommandConverter;
 		@Autowired
 		private BenutzerGuard benutzerGuard;
-		@MockBean
+		@Autowired
 		private MailService mailservice;
-		@MockBean
+		@Autowired
 		private SessionRegistry sessionRegistry;
-		@MockBean
+		@Autowired
 		private BenutzerResolver benutzerResolver;
 
 		private final ExtentProperty extent = new ExtentProperty(492846.960, 500021.252, 5400410.543, 5418644.476);
@@ -135,14 +139,8 @@ class BenutzerVerwaltungControllerIntegrationTestIT extends DBIntegrationTestIT 
 
 	@Autowired
 	private BenutzerVerwaltungController benutzerController;
-
-	@Autowired
-	private BenutzerResolver benutzerResolver;
-
 	@Autowired
 	private BenutzerRepository benutzerRepository;
-	@Autowired
-	private VerwaltungseinheitRepository verwaltungseinheitRepository;
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
 	@Autowired

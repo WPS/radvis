@@ -21,25 +21,6 @@
   height: 100%;
 }
 
-.filter-active mat-icon {
-  overflow: visible;
-
-  &:after {
-    display: block;
-    content: '';
-    border-radius: 50%;
-    position: absolute;
-    left: 10px;
-    top: -2px;
-    border: 4px solid map-get($radvis-accent-palette, 500);
-  }
-}
-
-.filter-active.mat-mdc-menu-item mat-icon:after {
-  left: 32px;
-  top: 12px;
-}
-
 .icon-button-spinner {
   margin-left: -4px;
   margin-right: 8px;

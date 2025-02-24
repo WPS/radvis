@@ -49,6 +49,13 @@
     </rad-grouped-enum-dropdown-control>
 
     <rad-enum-dropdown-control
+      [options]="barriereFormDetailsOptions"
+      formControlName="barriereFormDetails"
+      [errors]="formGroup.get('barriereFormDetails')?.errors">
+      Details zur Barrierenform
+    </rad-enum-dropdown-control>
+
+    <rad-enum-dropdown-control
       formControlName="verbleibendeDurchfahrtsbreite"
       [options]="verbleibendeDurchfahrtsbreiteOptions"
       [errors]="formGroup.get('verbleibendeDurchfahrtsbreite')?.errors">

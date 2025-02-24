@@ -37,6 +37,7 @@ export interface MassnahmenDateianhaengeFehlerUeberpruefenRow {
   templateUrl: './massnahmen-dateianhaenge-fehler-ueberpruefen.component.html',
   styleUrl: './massnahmen-dateianhaenge-fehler-ueberpruefen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenDateianhaengeFehlerUeberpruefenComponent {
   private static readonly STEP = 2;

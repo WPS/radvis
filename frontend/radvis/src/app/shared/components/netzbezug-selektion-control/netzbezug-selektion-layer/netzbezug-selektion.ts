@@ -45,16 +45,16 @@ export class NetzbezugSelektion {
     netzbezug?.punktuellerKantenBezug.forEach(pKB => this.addPunktuellerKantenBezug(pKB));
   }
 
-  get kantenSeitenAbschnitte(): ReadonlyArray<AbschnittSelektion> {
-    return this._kantenSeitenAbschnitte as ReadonlyArray<AbschnittSelektion>;
+  get kantenSeitenAbschnitte(): readonly AbschnittSelektion[] {
+    return this._kantenSeitenAbschnitte as readonly AbschnittSelektion[];
   }
 
-  get punktuelleKantenSeitenBezuege(): ReadonlyArray<PunktuellerKantenNetzBezug> {
-    return this._punktuelleKantenSeitenBezuege as ReadonlyArray<PunktuellerKantenNetzBezug>;
+  get punktuelleKantenSeitenBezuege(): readonly PunktuellerKantenNetzBezug[] {
+    return this._punktuelleKantenSeitenBezuege as readonly PunktuellerKantenNetzBezug[];
   }
 
-  get knoten(): ReadonlyArray<KnotenNetzbezug> {
-    return this._knoten as ReadonlyArray<KnotenNetzbezug>;
+  get knoten(): readonly KnotenNetzbezug[] {
+    return this._knoten as readonly KnotenNetzbezug[];
   }
 
   toNetzbezug(): Netzbezug {

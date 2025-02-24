@@ -19,19 +19,20 @@ import { environment } from 'src/environments/environment';
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'button',
+  standalone: false,
 })
 export class ButtonAccessibilityDirective implements AfterViewInit {
   constructor(private host: ElementRef) {}
 
   ngAfterViewInit(): void {
-    const button = <HTMLButtonElement>this.host.nativeElement;
+    const button = this.host.nativeElement as HTMLButtonElement;
     if (!button.ariaLabel && !button.getAttribute('aria-labelledby')) {
       this.addAriaLabel();
     }
   }
 
   private addAriaLabel(): void {
-    const button = <HTMLButtonElement>this.host.nativeElement;
+    const button = this.host.nativeElement as HTMLButtonElement;
     let textContent = button.textContent ?? '';
     const containedMatIcon = button.querySelector('mat-icon');
     if (containedMatIcon) {

@@ -68,6 +68,7 @@ import invariant from 'tiny-invariant';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FahrradrouteNetzbezugControlComponent
   extends AbstractFormControl<FahrradrouteNetzbezug>
@@ -237,7 +238,7 @@ export class FahrradrouteNetzbezugControlComponent
     const errors: ValidationErrors = {};
     if (this.stuetzpunkte.length < 2) {
       errors.startUndEnd = 'Start- und Endpunkt muss gesetzt sein';
-    } else if (this.kanteIDs.length === 0 || this.coordinates.length < 2) {
+    } else if (this.kanteIDs.length === 0) {
       errors.noKanteIds = 'Keine Kanten zugeordnet';
     } else if (this.coordinates.length < 2) {
       errors.noLineString = 'Keine Routen gefunden';

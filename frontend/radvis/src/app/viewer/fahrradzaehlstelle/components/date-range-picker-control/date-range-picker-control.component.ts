@@ -59,6 +59,7 @@ import { debounceTime } from 'rxjs/operators';
     { provide: MAT_DATE_LOCALE, useValue: 'de-DE' },
     { provide: MatDatepickerIntl, useClass: RadvisMatDatepickerIntl },
   ],
+  standalone: false,
 })
 export class DateRangePickerControlComponent extends AbstractFormControl<DateRange<Date>> implements OnChanges {
   @ViewChild('dateRangeInput', { static: true })

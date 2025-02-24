@@ -26,7 +26,7 @@ export abstract class AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEd
     const deepCopy = JSON.parse(JSON.stringify(arrayToChange[segmentIndex - 1])) as A;
     arrayToChange.splice(segmentIndex, 0, deepCopy);
     this.kantenSelektionService.adjustSelectionForSegmentInsertion(
-      (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
+      this.currentSelektion![kantenIndex].kante.id,
       segmentIndex
     );
   }
@@ -35,7 +35,7 @@ export abstract class AbstractLinearReferenzierteAttributGruppeOhneSeitenbezugEd
     const arrayToChange = this.getAttributeFromAttributGruppe(this.currentAttributgruppen[kantenIndex]);
     arrayToChange.splice(segmentIndex, 1);
     this.kantenSelektionService.adjustSelectionForSegmentDeletion(
-      (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
+      this.currentSelektion![kantenIndex].kante.id,
       segmentIndex
     );
   }

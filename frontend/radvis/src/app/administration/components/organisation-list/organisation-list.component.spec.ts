@@ -196,9 +196,8 @@ describe(OrganisationListComponent.name, () => {
 
   describe('with pageSize and pageIndex', () => {
     beforeEach(() => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       component.paginator!.pageSize = 20;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       component.paginator!.pageIndex = 1;
     });
 

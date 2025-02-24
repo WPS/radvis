@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
@@ -46,7 +46,6 @@ import jakarta.persistence.EntityManager;
 	OrganisationConfiguration.class })
 @EnableJpaRepositories(basePackageClasses = { NetzConfiguration.class, BenutzerConfiguration.class,
 	OrganisationConfiguration.class }, repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
-@MockBean({ FeatureToggleProperties.class, NetzConfigurationProperties.class })
 @EnableEnversRepositories(basePackages = { "de.wps.radvis.backend.netz", })
 class ZustaendigkeitAttributGruppeRepositoryIntegrationTestIT extends DBIntegrationTestIT {
 	@Autowired
@@ -55,6 +54,11 @@ class ZustaendigkeitAttributGruppeRepositoryIntegrationTestIT extends DBIntegrat
 	ZustaendigkeitAttributGruppeRepository zustaendigkeitAttributGruppeRepository;
 	@Autowired
 	EntityManager entityManager;
+
+	@MockitoBean
+	FeatureToggleProperties featureToggleProperties;
+	@MockitoBean
+	NetzConfigurationProperties netzConfigurationProperties;
 
 	@Test
 	void findById_returnsExisting() {

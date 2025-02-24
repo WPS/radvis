@@ -19,6 +19,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   templateUrl: './bearbeitungs-modus-toggle-button.component.html',
   styleUrls: ['./bearbeitungs-modus-toggle-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class BearbeitungsModusToggleButtonComponent {
   @Input()
@@ -29,5 +30,5 @@ export class BearbeitungsModusToggleButtonComponent {
   ariaLabelId: string | undefined;
 
   @Output()
-  toggle = new EventEmitter<void>();
+  toggleBearbeitung = new EventEmitter<void>();
 }

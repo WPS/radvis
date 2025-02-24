@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.netz.domain.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
@@ -825,7 +826,7 @@ class FuehrungsformAttributeTest {
 			.build();
 
 		FuehrungsformAttribute FA4 = FuehrungsformAttributeTestDataProvider.createWithValuesButWithoutTrennstreifen()
-			.radverkehrsfuehrung(Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR)
 			.trennstreifenBreiteRechts(Laenge.of(3))
@@ -1004,7 +1005,7 @@ class FuehrungsformAttributeTest {
 
 		FuehrungsformAttribute.FuehrungsformAttributeBuilder builderInvalid = FuehrungsformAttributeTestDataProvider
 			.withGrundnetzDefaultwerte()
-			.radverkehrsfuehrung(Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_ANDERE_ART)
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN)
@@ -1061,7 +1062,7 @@ class FuehrungsformAttributeTest {
 			.trennstreifenBreiteRechts(null);
 
 		// Act & Assert - Null-Trennstreifen = aber valide, da vorher schon null.
-		builderValid.build();
+		assertDoesNotThrow(() -> builderValid.build());
 	}
 
 	@Test

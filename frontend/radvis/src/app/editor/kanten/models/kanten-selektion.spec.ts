@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { FuehrungsformAttributGruppe } from 'src/app/editor/kanten/models/fuehrungsform-attribut-gruppe';
 import { FuehrungsformAttribute } from 'src/app/editor/kanten/models/fuehrungsform-attribute';
 import { Kante } from 'src/app/editor/kanten/models/kante';
@@ -440,7 +439,6 @@ describe('KantenSelektion', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createSelektionOfSegment(kante: Kante, segmentIndex: number, kantenSeite?: KantenSeite): KantenSelektion {
   const basicSelektion = KantenSelektion.ofGesamteKante(kante);
   return basicSelektion.selectSegment(segmentIndex, kantenSeite);

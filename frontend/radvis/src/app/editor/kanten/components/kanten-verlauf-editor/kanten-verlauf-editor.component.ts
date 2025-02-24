@@ -40,6 +40,7 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
     '../../../../form-elements/components/attribute-editor/attribut-editor.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor implements OnInit {
   public colorBaseGeometry: Color = MapStyles.FEATURE_SELECT_COLOR;
@@ -47,7 +48,6 @@ export class KantenVerlaufEditorComponent extends AbstractAttributGruppeEditor i
   public colorVerlaufRechts: Color = MapStyles.VERLAUF_RECHTS;
   public colorUrsprungsGeometrie: Color = MapStyles.FEATURE_SELECT_COLOR_TRANSPARENT;
 
-  // eslint-disable-next-line prettier/prettier
   public override isFetching = false;
   formGroup: UntypedFormGroup;
   public showRadNetzHinweis = false;

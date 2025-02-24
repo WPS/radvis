@@ -12,24 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
-import { Feature, MapBrowserEvent, Overlay } from 'ol';
-import { FeatureLike } from 'ol/Feature';
-import { Coordinate } from 'ol/coordinate';
-import Geometry from 'ol/geom/Geometry';
-import Interaction from 'ol/interaction/Interaction';
-import BaseLayer from 'ol/layer/Base';
-import Layer from 'ol/layer/Layer';
-import { Pixel } from 'ol/pixel';
-import Source from 'ol/source/Source';
-import { Observable, of, Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { EditorModule } from 'src/app/editor/editor.module';
 import { KantenFuehrungsformEditorComponent } from 'src/app/editor/kanten/components/kanten-fuehrungsform-editor/kanten-fuehrungsform-editor.component';
 import { AttributGruppe } from 'src/app/editor/kanten/models/attribut-gruppe';
+import { Beschilderung } from 'src/app/editor/kanten/models/beschilderung';
 import { Bordstein } from 'src/app/editor/kanten/models/bordstein';
 import { FuehrungsformAttribute } from 'src/app/editor/kanten/models/fuehrungsform-attribute';
 import { Kante } from 'src/app/editor/kanten/models/kante';
@@ -39,17 +30,16 @@ import {
 } from 'src/app/editor/kanten/models/kante-test-data-provider.spec';
 import { KantenSelektion } from 'src/app/editor/kanten/models/kanten-selektion';
 import { SaveFuehrungsformAttributGruppeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
+import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
 import { UndeterminedValue } from 'src/app/form-elements/components/abstract-undetermined-form-control';
+import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { BelagArt } from 'src/app/shared/models/belag-art';
 import { KantenSeite } from 'src/app/shared/models/kantenSeite';
-import { LayerQuelle } from 'src/app/shared/models/layer-quelle';
 import { LinearReferenzierterAbschnitt } from 'src/app/shared/models/linear-referenzierter-abschnitt';
-import { LocationSelectEvent } from 'src/app/shared/models/location-select-event';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
-import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
-import { WMSLegende } from 'src/app/shared/models/wms-legende';
+import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
@@ -58,89 +48,6 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
 
-/* eslint-disable no-unused-vars */
-class TestOlMapService extends OlMapService {
-  addInteraction(interaction: Interaction): void {}
-
-  addLayer(olLayer: BaseLayer, quelle?: LayerQuelle, legende?: SignaturLegende | WMSLegende): void {}
-
-  addWMSFeatureLayer(
-    olLayer: BaseLayer,
-    getFeaturesCallback: (coordinate: number[], resolution: number) => Promise<Feature<Geometry>[]>,
-    quelle?: LayerQuelle,
-    legende?: SignaturLegende | WMSLegende
-  ): void {}
-
-  addOverlay(olPopup: Overlay): void {}
-
-  click$(): Observable<MapBrowserEvent<UIEvent>> {
-    return of();
-  }
-
-  getCurrentResolution(): number | undefined {
-    return undefined;
-  }
-
-  getFeaturesAtCoordinate(
-    coordinate: Coordinate,
-    layerFilter?: (l: Layer<Source>) => boolean,
-    hitTolerance?: number
-  ): FeatureLike[] | undefined {
-    return undefined;
-  }
-
-  getFeaturesAtPixel(
-    pixel: Pixel,
-    layerFilter?: (l: Layer<Source>) => boolean,
-    hitTolerance?: number
-  ): FeatureLike[] | undefined {
-    return undefined;
-  }
-
-  getResolution$(): Observable<number> {
-    return of();
-  }
-
-  getZoomForResolution(resolution: number): number | undefined {
-    return undefined;
-  }
-
-  locationSelected$(): Observable<LocationSelectEvent> {
-    return of();
-  }
-
-  onceOnPostRender(listener: () => void): void {}
-
-  outsideMapClick$(): Observable<void> {
-    return of();
-  }
-
-  pointerLeave$(): Observable<void> {
-    return of();
-  }
-
-  pointerMove$(): Observable<MapBrowserEvent<UIEvent>> {
-    return of();
-  }
-
-  removeInteraction(interaction: Interaction): void {}
-
-  removeLayer(olLayer: BaseLayer): void {}
-
-  removeOverlay(olPopup: Overlay): void {}
-
-  resetCursor(): void {}
-
-  scrollIntoViewByCoordinate(coordinate: Coordinate): void {}
-
-  scrollIntoViewByGeometry(geometry: Geometry): void {}
-
-  setCursor(cssClass: string): void {}
-
-  updateLegende(layer: BaseLayer, legende: SignaturLegende | WMSLegende | null): void {}
-}
-
-/* eslint-enable no-unused-vars */
 describe(KantenFuehrungsformEditorComponent.name, () => {
   let component: KantenFuehrungsformEditorComponent;
   let fixture: MockedComponentFixture<KantenFuehrungsformEditorComponent>;
@@ -155,7 +62,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
   beforeEach(() => {
     netzService = mock(NetzService);
     benutzerDetails = mock(BenutzerDetailsService);
-    olMapService = mock(TestOlMapService);
+    olMapService = mock(OlMapComponent);
 
     discardGuardService = mock(DiscardGuardService);
     when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));
@@ -222,6 +129,9 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
         breite: defaultFuehrungsformAttribute.breite,
         parkenTyp: defaultFuehrungsformAttribute.parkenTyp,
         parkenForm: defaultFuehrungsformAttribute.parkenForm,
+        beschilderung: defaultFuehrungsformAttribute.beschilderung,
+        schaeden: defaultFuehrungsformAttribute.schaeden,
+        absenkung: defaultFuehrungsformAttribute.absenkung,
       });
     }));
 
@@ -259,6 +169,9 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
         breite: defaultFuehrungsformAttribute.breite,
         parkenTyp: defaultFuehrungsformAttribute.parkenTyp,
         parkenForm: defaultFuehrungsformAttribute.parkenForm,
+        beschilderung: defaultFuehrungsformAttribute.beschilderung,
+        schaeden: defaultFuehrungsformAttribute.schaeden,
+        absenkung: defaultFuehrungsformAttribute.absenkung,
       });
     }));
 
@@ -308,6 +221,9 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
         breite: defaultFuehrungsformAttribute.breite,
         parkenTyp: defaultFuehrungsformAttribute.parkenTyp,
         parkenForm: defaultFuehrungsformAttribute.parkenForm,
+        beschilderung: defaultFuehrungsformAttribute.beschilderung,
+        schaeden: defaultFuehrungsformAttribute.schaeden,
+        absenkung: defaultFuehrungsformAttribute.absenkung,
       });
     }));
 
@@ -422,7 +338,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
       when(netzService.saveKanteFuehrungsform(anything())).thenResolve();
     });
 
-    it('should read undefined values correct, multiple kanten', fakeAsync(() => {
+    it('should read undefined values correct, multiple kanten', () => {
       const selektion = [
         KantenSelektion.ofSeite(
           {
@@ -469,7 +385,6 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
       ];
       setupSelektion(selektion);
 
-      tick();
       component.displayedAttributeformGroup.patchValue({
         bordstein: Bordstein.KOMPLETT_ABGESENKT,
       });
@@ -504,9 +419,9 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
           fuehrungsformAttributeRechts: [{ ...defaultFuehrungsformAttribute, belagArt: BelagArt.NATURSTEINPFLASTER }],
         } as SaveFuehrungsformAttributGruppeCommand,
       ]);
-    }));
+    });
 
-    it('should read undefined values correct, seite', fakeAsync(() => {
+    it('should read undefined values correct, seite', () => {
       const selektion = [
         KantenSelektion.ofGesamteKante({
           ...defaultKante,
@@ -533,7 +448,6 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
       ];
       setupSelektion(selektion);
 
-      tick();
       component.displayedAttributeformGroup.patchValue({
         bordstein: Bordstein.KOMPLETT_ABGESENKT,
       });
@@ -561,9 +475,9 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
           ],
         } as SaveFuehrungsformAttributGruppeCommand,
       ]);
-    }));
+    });
 
-    it('should read undefined values correct, segment', fakeAsync(() => {
+    it('should read undefined values correct, segment', () => {
       const selektion = [
         KantenSelektion.ofSeite(
           {
@@ -598,7 +512,6 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
       ];
       setupSelektion(selektion);
 
-      tick();
       component.displayedAttributeformGroup.patchValue({
         bordstein: Bordstein.KOMPLETT_ABGESENKT,
       });
@@ -642,7 +555,7 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
           ],
         } as SaveFuehrungsformAttributGruppeCommand,
       ]);
-    }));
+    });
 
     it('should read lineare referenzen, einseitig', fakeAsync(() => {
       setupSelektion([
@@ -679,7 +592,6 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
           },
         }),
       ]);
-      tick();
 
       component.lineareReferenzenLinksFormArray.controls[0].setValue([
         { von: 0, bis: 0.76 },
@@ -762,19 +674,16 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
           },
         }),
       ]);
-      tick();
 
       component.lineareReferenzenFormArray.controls[0].setValue([
         { von: 0, bis: 0.76 },
         { von: 0.76, bis: 1 },
       ]);
-      tick();
 
       component.lineareReferenzenRechtsFormArray.controls[1].setValue([
         { von: 0, bis: 0.8 },
         { von: 0.8, bis: 1 },
       ]);
-      tick();
 
       component.lineareReferenzenFormArray.markAsDirty();
       component.lineareReferenzenRechtsFormArray.markAsDirty();
@@ -812,22 +721,20 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
   });
 
   describe('edit RadNETZ', () => {
-    it('should disable control if RadNETZ-Kante is selected', fakeAsync(() => {
+    it('should disable control if RadNETZ-Kante is selected', () => {
       const kante: Kante = {
         ...defaultKante,
         quelle: QuellSystem.RadNETZ,
       };
       setupSelektion([KantenSelektion.ofGesamteKante(kante)]);
 
-      tick();
-
       expect(component.displayedAttributeformGroup.disabled).toBeTrue();
       expect(component.lineareReferenzenFormArray.disabled).toBeTrue();
       expect(component.lineareReferenzenLinksFormArray.disabled).toBeTrue();
       expect(component.lineareReferenzenRechtsFormArray.disabled).toBeTrue();
-    }));
+    });
 
-    it('should reanable controls when last RadNETZ-Kante is deselected', fakeAsync(() => {
+    it('should reanable controls when last RadNETZ-Kante is deselected', () => {
       const kanteRadNETZ: Kante = {
         ...defaultKante,
         quelle: QuellSystem.RadNETZ,
@@ -838,8 +745,6 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
       };
       setupSelektion([kanteRadNETZ, kanteDLM].map(k => KantenSelektion.ofGesamteKante(k)));
 
-      tick();
-
       expect(component.displayedAttributeformGroup.disabled).toBeTrue();
       expect(component.lineareReferenzenFormArray.disabled).toBeTrue();
       expect(component.lineareReferenzenLinksFormArray.disabled).toBeTrue();
@@ -847,13 +752,165 @@ describe(KantenFuehrungsformEditorComponent.name, () => {
 
       setupSelektion([KantenSelektion.ofGesamteKante(kanteDLM)]);
 
-      tick();
-
       expect(component.displayedAttributeformGroup.disabled).toBeFalse();
       expect(component.lineareReferenzenFormArray.disabled).toBeFalse();
       expect(component.lineareReferenzenLinksFormArray.disabled).toBeFalse();
       expect(component.lineareReferenzenRechtsFormArray.disabled).toBeFalse();
-    }));
+    });
+  });
+
+  describe('onRadverkehsfuehrungChanged', () => {
+    describe('should filter enums initially', () => {
+      it('should filter beschilderung', () => {
+        const kante: Kante = {
+          ...defaultKante,
+          fuehrungsformAttributGruppe: {
+            ...defaultKante.fuehrungsformAttributGruppe,
+            fuehrungsformAttributeLinks: [
+              { ...defaultFuehrungsformAttribute, radverkehrsfuehrung: Radverkehrsfuehrung.BEGEGNUNBSZONE },
+            ],
+          },
+        };
+        setupSelektion([KantenSelektion.ofSeite(kante, KantenSeite.LINKS)]);
+
+        expect(component.beschilderungOptions.filter(opt => opt.disabled).length).toBe(4);
+      });
+
+      it('should filter trennung zu', () => {
+        const kante: Kante = {
+          ...defaultKante,
+          fuehrungsformAttributGruppe: {
+            ...defaultKante.fuehrungsformAttributGruppe,
+            fuehrungsformAttributeLinks: [
+              {
+                ...defaultFuehrungsformAttribute,
+                radverkehrsfuehrung: Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG,
+              },
+            ],
+          },
+        };
+        setupSelektion([KantenSelektion.ofSeite(kante, KantenSeite.LINKS)]);
+
+        expect(component.trennstreifenTrennungZuOptions.filter(opt => !opt.disabled).length).toBe(1);
+      });
+    });
+
+    it('should reset trennungZuOptions to all if null', () => {
+      component.trennstreifenTrennungZuOptions = [];
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(null);
+      expect(component.trennstreifenTrennungZuOptions).toEqual(TrennstreifenTrennungZu.options);
+    });
+
+    it('should reset trennungZuOptions to all if undetermined', () => {
+      component.trennstreifenTrennungZuOptions = [];
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(new UndeterminedValue());
+      expect(component.trennstreifenTrennungZuOptions).toEqual(TrennstreifenTrennungZu.options);
+    });
+
+    it('should reset trennungZuOptions to allowedOptions if value', () => {
+      component.trennstreifenTrennungZuOptions = [];
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG
+      );
+      expect(component.trennstreifenTrennungZuOptions.filter(opt => !opt.disabled).map(opt => opt.name)).toEqual([
+        TrennstreifenTrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN,
+      ]);
+    });
+
+    it('should reset beschilderungOptions to all if null', () => {
+      component.beschilderungOptions = [];
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(null);
+      expect(component.beschilderungOptions).toEqual(Beschilderung.options);
+    });
+
+    it('should reset beschilderungOptions to all if undetermined', () => {
+      component.beschilderungOptions = [];
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(new UndeterminedValue());
+      expect(component.beschilderungOptions).toEqual(Beschilderung.options);
+    });
+
+    it('should reset beschilderungOptions to allowedOptions if value', () => {
+      component.beschilderungOptions = [];
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(Radverkehrsfuehrung.BEGEGNUNBSZONE);
+      expect(component.beschilderungOptions.filter(opt => opt.disabled).length).toBe(4);
+    });
+  });
+
+  describe('beschilderung validierung', () => {
+    it('should be valid if radverkehrsfuehrung null', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: null,
+        beschilderung: Beschilderung.UNBEKANNT,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+    });
+
+    it('should be valid if beschilderung null', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.BEGEGNUNBSZONE,
+        beschilderung: null,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+    });
+
+    it('should be valid if beschilderung undetermined', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: new UndeterminedValue(),
+        beschilderung: Beschilderung.UNBEKANNT,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+    });
+
+    it('should be valid if beschilderung undetermined', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.BEGEGNUNBSZONE,
+        beschilderung: new UndeterminedValue(),
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+    });
+
+    it('should be valid if beschilderung passt zu radverkehrsfuehrung', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.BEGEGNUNBSZONE,
+        beschilderung: Beschilderung.GEHWEG_MIT_VZ_239,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.BETRIEBSWEG_FORST,
+        beschilderung: Beschilderung.ZUSATZZEICHEN_NICHT_VORHANDEN,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+    });
+
+    it('should be invalid if beschilderung passt nicht zu radverkehrsfuehrung', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.BEGEGNUNBSZONE,
+        beschilderung: Beschilderung.ZUSATZZEICHEN_NICHT_VORHANDEN,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeFalse();
+    });
+
+    it('should update validity on radverkehrsfuehrung changed', () => {
+      component.displayedAttributeformGroup.patchValue({
+        radverkehrsfuehrung: Radverkehrsfuehrung.BEGEGNUNBSZONE,
+        beschilderung: Beschilderung.ZUSATZZEICHEN_NICHT_VORHANDEN,
+      });
+
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeFalse();
+
+      component.displayedAttributeformGroup.controls.radverkehrsfuehrung.setValue(
+        Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_SELBSTSTAENDIG
+      );
+      expect(component.displayedAttributeformGroup.controls.beschilderung.valid).toBeTrue();
+    });
   });
 
   const setupSelektion = (selektion: KantenSelektion[]): void => {
@@ -882,7 +939,7 @@ describe(KantenFuehrungsformEditorComponent.name + ' - embedded', () => {
     netzService = mock(NetzService);
     when(netzService.saveKanteFuehrungsform(anything())).thenResolve([]);
 
-    olMapService = mock(TestOlMapService);
+    olMapService = mock(OlMapComponent);
 
     discardGuardService = mock(DiscardGuardService);
     when(discardGuardService.canDeactivate(anything())).thenReturn(of(true));

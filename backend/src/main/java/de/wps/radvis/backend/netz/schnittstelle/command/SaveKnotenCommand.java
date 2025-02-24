@@ -14,11 +14,18 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -40,4 +47,17 @@ public class SaveKnotenCommand {
 	@NotNull
 	private Long knotenVersion;
 	private KnotenForm knotenForm;
+	private QuerungshilfeDetails querungshilfeDetails;
+	private Bauwerksmangel bauwerksmangel;
+	private Set<BauwerksmangelArt> bauwerksmangelArt;
+
+	@AssertTrue(message = "Details zur Querungshilfe passen nicht zur Knotenform")
+	public boolean isQuerungshilfeDetailsValid() {
+		return Knoten.isQuerungshilfeDetailsValid(querungshilfeDetails, knotenForm);
+	}
+
+	@AssertTrue(message = "Keine gültige Kombination für die Werte Bauwerksmangel, Art des Bauwerksmangels und Knotenform")
+	public boolean isBauwerksmangelValid() {
+		return Knoten.isBauwerksmangelValid(bauwerksmangel, bauwerksmangelArt, knotenForm);
+	}
 }

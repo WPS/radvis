@@ -14,10 +14,20 @@
 
 package de.wps.radvis.backend.netz.domain.entity.provider;
 
+import java.util.List;
+
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttributGruppe;
+import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 
 public class GeschwindigkeitAttributGruppeTestDataProvider {
 	public static GeschwindigkeitAttributGruppe.GeschwindigkeitAttributGruppeBuilder withGrundnetzDefaultwerte() {
 		return GeschwindigkeitAttributGruppe.builder();
+	}
+
+	public static GeschwindigkeitAttributGruppe.GeschwindigkeitAttributGruppeBuilder withAttribute(
+		GeschwindigkeitAttribute.GeschwindigkeitAttributeBuilder attribute) {
+		return GeschwindigkeitAttributGruppe.builder().geschwindigkeitAttribute(
+			List.of(attribute.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1)).build()));
 	}
 }

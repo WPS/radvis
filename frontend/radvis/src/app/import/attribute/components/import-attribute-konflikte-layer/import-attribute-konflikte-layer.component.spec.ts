@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
 import { MapBrowserEvent } from 'ol';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';

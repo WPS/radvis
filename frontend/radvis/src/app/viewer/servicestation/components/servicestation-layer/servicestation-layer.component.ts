@@ -30,6 +30,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   selector: 'rad-servicestation-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ServicestationLayerComponent
   extends AbstractInfrastrukturLayerComponent<ServicestationListView>
@@ -64,7 +65,6 @@ export class ServicestationLayerComponent
   }
 
   protected extractIdFromFeature(hf: RadVisFeature): number {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return hf.id!;
   }
 }

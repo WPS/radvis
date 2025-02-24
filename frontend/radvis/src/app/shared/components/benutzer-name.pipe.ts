@@ -17,6 +17,7 @@ import { BenutzerName } from 'src/app/shared/models/benutzer-name';
 
 @Pipe({
   name: 'benutzerName',
+  standalone: false,
 })
 export class BenutzerNamePipe implements PipeTransform {
   transform(value: BenutzerName): string {

@@ -47,6 +47,7 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class AutocorrectingNumberInputControlComponent
   extends AbstractUndeterminedFormControl<number>

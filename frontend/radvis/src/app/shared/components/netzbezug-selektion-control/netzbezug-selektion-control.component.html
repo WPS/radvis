@@ -30,14 +30,14 @@
   </mat-slide-toggle>
   <rad-bearbeitungs-modus-toggle-button
     [toggled]="pointSelectionMode"
-    (toggle)="onTogglePunktModus()"
+    (toggleBearbeitung)="onTogglePunktModus()"
     ariaLabelId="punkt-auswahl-label"
     iconName="location_searching">
     <div id="punkt-auswahl-label">Punkt auf Kante auswählen</div>
   </rad-bearbeitungs-modus-toggle-button>
   <rad-bearbeitungs-modus-toggle-button
     [toggled]="schereSelectionMode"
-    (toggle)="onToggleSchereModus()"
+    (toggleBearbeitung)="onToggleSchereModus()"
     ariaLabelId="auswahl-teilen-label"
     iconName="content_cut">
     <div id="auswahl-teilen-label">Auswahl teilen</div>

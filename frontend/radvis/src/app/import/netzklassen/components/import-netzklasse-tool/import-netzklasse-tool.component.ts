@@ -20,6 +20,7 @@ import { NetzklassenRoutingService } from 'src/app/import/netzklassen/services/n
   templateUrl: './import-netzklasse-tool.component.html',
   styleUrl: './import-netzklasse-tool.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseToolComponent {
   constructor(

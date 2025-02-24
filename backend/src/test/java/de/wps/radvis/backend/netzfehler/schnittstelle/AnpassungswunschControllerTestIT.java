@@ -36,12 +36,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -54,6 +54,7 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
@@ -62,6 +63,7 @@ import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfigu
 import de.wps.radvis.backend.konsistenz.pruefung.domain.KonsistenzregelVerletzungsRepository;
 import de.wps.radvis.backend.konsistenz.pruefung.domain.entity.KonsistenzregelVerletzung;
 import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.AnpassungswuenscheConfigurationProperties;
 import de.wps.radvis.backend.netzfehler.domain.AnpassungswunschRepository;
 import de.wps.radvis.backend.netzfehler.domain.AnpassungswunschService;
 import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschKategorie;
@@ -88,9 +90,15 @@ import jakarta.persistence.EntityNotFoundException;
 })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
-	OrganisationConfigurationProperties.class
+	OrganisationConfigurationProperties.class,
+	AnpassungswuenscheConfigurationProperties.class
 })
 class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
+	@MockitoBean
+	FahrradrouteFilterRepository fahrradrouteFilterRepository;
+
 	@EnableJpaRepositories(basePackageClasses = { BenutzerConfiguration.class,
 		KonsistenzregelPruefungsConfiguration.class })
 	@EntityScan(basePackageClasses = { KonsistenzregelPruefungsConfiguration.class })
@@ -107,7 +115,7 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 		@Autowired
 		private VerwaltungseinheitService verwaltungseinheitService;
 
-		@MockBean
+		@Autowired
 		BenutzerResolver benutzerResolver;
 
 		@Bean
@@ -130,9 +138,6 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	AnpassungswunschController anpassungswunschController;
-
-	@Autowired
-	private BenutzerResolver benutzerResolver;
 
 	@Mock
 	private Authentication authentication;
@@ -297,7 +302,7 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 
 		// Act
 		List<AnpassungswunschListenView> alleAnpassungswuensche = anpassungswunschController.getAlleAnpassungswuensche(
-			Optional.of(false));
+			Optional.of(false), Optional.empty());
 
 		// Assert
 		assertThat(alleAnpassungswuensche.size()).isEqualTo(3);
@@ -348,7 +353,7 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 
 		// Act
 		List<AnpassungswunschListenView> alleAnpassungswuensche = anpassungswunschController.getAlleAnpassungswuensche(
-			Optional.of(true));
+			Optional.of(true), Optional.empty());
 
 		// Assert
 		assertThat(alleAnpassungswuensche.size()).isEqualTo(2);

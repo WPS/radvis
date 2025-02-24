@@ -26,6 +26,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -45,6 +47,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGr
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.ZustaendigkeitAttributGruppeTestDataProvider;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
@@ -60,10 +63,17 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 class MappingServiceTest {
 
 	private MappingService mappingService;
+	private LUBWMapper lubwMapper;
+
+	@Mock
+	private NetzService netzService;
 
 	@BeforeEach
 	void setup() {
+		MockitoAnnotations.openMocks(this);
+
 		this.mappingService = new MappingService();
+		this.lubwMapper = new LUBWMapper(netzService);
 	}
 
 	@Test
@@ -104,7 +114,8 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "beleuchtun", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "beleuchtun", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 
@@ -155,7 +166,8 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "BELEUCHTUN", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "BELEUCHTUN", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 
@@ -196,7 +208,8 @@ class MappingServiceTest {
 		// act
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "BELEUCHTUN", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "BELEUCHTUN", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante.getKantenAttributGruppe().getKantenAttribute().getBeleuchtung()).isEqualTo(
@@ -240,7 +253,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFahrtrichtungAttributGruppe().getFahrtrichtungLinks()).isEqualTo(Richtung.UNBEKANNT);
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "richtung", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "richtung", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFahrtrichtungAttributGruppe().isZweiseitig()).isFalse();
@@ -281,7 +294,7 @@ class MappingServiceTest {
 		// act
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "richtung", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "richtung", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante.getFahrtrichtungAttributGruppe().isZweiseitig()).isFalse();
@@ -336,7 +349,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFahrtrichtungAttributGruppe().getFahrtrichtungLinks()).isEqualTo(Richtung.UNBEKANNT);
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "richtung", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "richtung", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFahrtrichtungAttributGruppe().isZweiseitig()).isFalse();
@@ -386,7 +399,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFahrtrichtungAttributGruppe().getFahrtrichtungLinks()).isEqualTo(Richtung.UNBEKANNT);
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "richtung", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "richtung", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFahrtrichtungAttributGruppe().isZweiseitig()).isTrue();
@@ -434,7 +447,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFahrtrichtungAttributGruppe().getFahrtrichtungLinks()).isEqualTo(Richtung.UNBEKANNT);
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "richtung", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "richtung", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFahrtrichtungAttributGruppe().isZweiseitig()).isTrue();
@@ -530,7 +543,7 @@ class MappingServiceTest {
 		assertThat(kante1.getFahrtrichtungAttributGruppe().getFahrtrichtungLinks()).isEqualTo(Richtung.UNBEKANNT);
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "richtung", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "richtung", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFahrtrichtungAttributGruppe().isZweiseitig()).isTrue();
@@ -575,7 +588,8 @@ class MappingServiceTest {
 		// act
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "vereinbaru", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "vereinbaru", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute())
@@ -627,7 +641,8 @@ class MappingServiceTest {
 				.build());
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "vereinbaru", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "vereinbaru", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 
@@ -686,7 +701,8 @@ class MappingServiceTest {
 				.build());
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "vereinbaru", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "vereinbaru", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute())
@@ -756,7 +772,8 @@ class MappingServiceTest {
 		// act
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "vereinbaru", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "vereinbaru", kantenMapping,
+			kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getZustaendigkeitAttributGruppe().getImmutableZustaendigkeitAttribute())
@@ -818,7 +835,7 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "belag", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "belag", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
@@ -884,7 +901,7 @@ class MappingServiceTest {
 		// act
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "belag", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "belag", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
@@ -941,7 +958,7 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "breite", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "breite", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isTrue();
@@ -1012,7 +1029,7 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "wegart", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "wegart", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isTrue();
@@ -1103,7 +1120,7 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "belag", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "belag", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isTrue();
@@ -1202,7 +1219,7 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "belag", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "belag", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isTrue();
@@ -1348,7 +1365,7 @@ class MappingServiceTest {
 
 		KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(kantenMapping.getKante().getId(),
 			kantenMapping.getKante().getGeometry());
-		mappingService.map(new LUBWMapper(), "belag", kantenMapping, kantenKonfliktProtokoll);
+		mappingService.map(lubwMapper, "belag", kantenMapping, kantenKonfliktProtokoll);
 
 		// assert
 		assertThat(kante1.getFuehrungsformAttributGruppe().isZweiseitig()).isTrue();

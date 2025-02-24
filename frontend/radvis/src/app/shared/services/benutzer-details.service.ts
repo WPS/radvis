@@ -62,9 +62,8 @@ export class BenutzerDetailsService {
     return this.benutzer.rechte?.some(r => verwalterrechte.includes(r)) || false;
   }
 
-  istAktuellerBenutzerAdmin(): boolean {
-    const adminrechte = [Recht.ALLE_BENUTZER_UND_ORGANISATIONEN_BEARBEITEN];
-    return this.benutzer.rechte?.some(r => adminrechte.includes(r)) || false;
+  canRoutingprofileBearbeiten(): boolean {
+    return this.benutzer.rechte?.includes(Recht.ROUTINGPROFILE_VERWALTEN) ?? false;
   }
 
   istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin(): boolean {
@@ -177,8 +176,12 @@ export class BenutzerDetailsService {
     return this.benutzer.rechte?.some(r => importRechte.includes(r)) || false;
   }
 
-  showLayerAusDateiVerwaltung(): boolean {
-    return this.istAktuellerBenutzerAdmin();
+  canDateiLayerVerwalten(): boolean {
+    return this.benutzer.rechte?.includes(Recht.DATEI_LAYER_VERWALTEN) ?? false;
+  }
+
+  canLayerAlsDefaultFestlegen(): boolean {
+    return this.benutzer.rechte?.includes(Recht.DATEI_LAYER_VERWALTEN) ?? false;
   }
 
   aktuellerBenutzerVorname(): string | undefined {

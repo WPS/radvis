@@ -47,6 +47,7 @@ import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class FloatInputControlComponent
   extends AbstractUndeterminedFormControl<number>

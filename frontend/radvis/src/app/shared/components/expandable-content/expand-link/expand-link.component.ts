@@ -19,6 +19,7 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from 
   templateUrl: './expand-link.component.html',
   styleUrls: ['./expand-link.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ExpandLinkComponent {
   @Input()

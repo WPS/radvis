@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { BehaviorSubject, of } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
@@ -30,7 +29,6 @@ import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-se
 import { NetzBearbeitungModusService } from 'src/app/editor/kanten/services/netz-bearbeitung-modus.service';
 import { KantenSeite } from 'src/app/shared/models/kantenSeite';
 import { DiscardGuardService } from 'src/app/shared/services/discard-guard.service';
-import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { LadeZustandService } from 'src/app/shared/services/lade-zustand.service';
 import { anything, capture, instance, mock, resetCalls, verify, when } from 'ts-mockito';
 
@@ -62,9 +60,7 @@ describe(KantenSelektionService.name, () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.select(1, false);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -166,9 +162,7 @@ describe(KantenSelektionService.name, () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.select(1, false, KantenSeite.LINKS);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should check discard if Kante is implicitly deselected', () => {
@@ -179,9 +173,7 @@ describe(KantenSelektionService.name, () => {
       ]);
       service.select(anotherKante.id, false, KantenSeite.RECHTS);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -368,9 +360,7 @@ describe(KantenSelektionService.name, () => {
       tick();
 
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
       expect(service.selektion[0].istSeiteSelektiert(KantenSeite.LINKS)).toBeFalse();
     }));
 
@@ -421,9 +411,7 @@ describe(KantenSelektionService.name, () => {
       ]);
       service.deselect(anotherKante.id, KantenSeite.LINKS);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -473,9 +461,7 @@ describe(KantenSelektionService.name, () => {
       ]);
       service.deselect(anotherKante.id);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -514,9 +500,7 @@ describe(KantenSelektionService.name, () => {
       ]);
       service.deselect(anotherKante.id, KantenSeite.LINKS, 0);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should not change selection when cannot discard', fakeAsync(() => {
@@ -663,9 +647,7 @@ describe(KantenSelektionService.name, () => {
       when(discardGuardService.canDeactivate(anything())).thenReturn(of(false));
       service.cleanUp(false);
       verify(discardGuardService.canDeactivate(anything())).once();
-      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(
-        service['discardableComponent'] as DiscardableComponent
-      );
+      expect(capture(discardGuardService.canDeactivate).last()[0]).toBe(service['discardableComponent']!);
     });
 
     it('should return false when cannot discard', (done: DoneFn) => {
@@ -716,7 +698,6 @@ describe(KantenSelektionService.name, () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createSelektionOfSegment(kante: Kante, segmentIndex: number, kantenSeite?: KantenSeite): KantenSelektion {
   const basicSelektion = KantenSelektion.ofGesamteKante(kante);
   return basicSelektion.selectSegment(segmentIndex, kantenSeite);

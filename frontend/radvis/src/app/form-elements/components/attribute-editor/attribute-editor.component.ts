@@ -22,6 +22,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './attribute-editor.component.html',
   styleUrls: ['./attribute-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AttributeEditorComponent extends AbstractEventTrackedEditor {
   @Input()

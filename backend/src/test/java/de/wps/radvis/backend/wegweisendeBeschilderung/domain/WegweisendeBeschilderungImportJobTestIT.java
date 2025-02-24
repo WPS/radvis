@@ -34,11 +34,10 @@ import org.locationtech.jts.geom.Point;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.data.util.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
@@ -51,7 +50,6 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -79,17 +77,13 @@ import de.wps.radvis.backend.wegweisendeBeschilderung.domain.repository.Wegweise
 	TechnischerBenutzerConfigurationProperties.class,
 	OrganisationConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 public class WegweisendeBeschilderungImportJobTestIT extends AuditingTestIT {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
-	@MockBean
+	@MockitoBean
 	private GeoJsonImportRepository geoJsonImportRepository;
-
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
 	@Autowired
@@ -99,8 +93,7 @@ public class WegweisendeBeschilderungImportJobTestIT extends AuditingTestIT {
 
 	private final SimpleFeatureType simpleFeatureType = SimpleFeatureTypeFactory.createSimpleFeatureType(
 		Set.of("PfostenNr", "WWTyp_Tx", "PfTyp_Tx", "GesZus", "GesMangel", "PfZus", "PfMangel", "GE_Gem", "GE_Kreis",
-			"GE_Land"
-		),
+			"GE_Land"),
 		Point.class,
 		SimpleFeatureTypeFactory.GEOMETRY_ATTRIBUTE_KEY_GEOMETRY);
 
@@ -133,15 +126,13 @@ public class WegweisendeBeschilderungImportJobTestIT extends AuditingTestIT {
 		// arrange und act 2 - der erste Pfosten wurde neu verortet und es gibt einen zweiten Pfosten
 		JobExecutionDescription jobExecutionDescriptionUpdateAndNew = run(
 			createFeature("Pfosten 1", new Coordinate(42, 1)),
-			createFeature("Pfosten 2", new Coordinate(2, 2))
-		);
+			createFeature("Pfosten 2", new Coordinate(2, 2)));
 
 		// arrange und act 3 - der erste Pfosten wurde entfernt, der zweite Pfosten wurde nicht veraendert
 		JobExecutionDescription jobExecutionDescriptionDelete = run(
 			// Pfosten 1 ist weg
 			// Pfosten 2 ist unveraendert
-			createFeature("Pfosten 2", new Coordinate(2, 2))
-		);
+			createFeature("Pfosten 2", new Coordinate(2, 2)));
 
 		// assert 1
 		List<Map<String, Object>> import1 = jdbcTemplate.queryForList(

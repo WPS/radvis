@@ -140,7 +140,7 @@ export class MapStyles {
 
   public static getDefaultHighlightStyle(
     color: Color | ColorLike = MapStyles.FEATURE_HOVER_COLOR,
-    withArrow: boolean = false,
+    withArrow = false,
     coordinates?: Coordinate[]
   ): Style[] {
     const styles: Style[] = [];

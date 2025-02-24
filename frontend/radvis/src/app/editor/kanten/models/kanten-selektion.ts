@@ -32,7 +32,7 @@ export class KantenSelektion {
     this._selektionRechtsAlsArray = Array.from(this._selektionRechts);
   }
 
-  public static ofSeite(kante: Kante, kantenSeite: KantenSeite, segmentAnzahl: number = 1): KantenSelektion {
+  public static ofSeite(kante: Kante, kantenSeite: KantenSeite, segmentAnzahl = 1): KantenSelektion {
     const selektion = KantenSelektion.buildArrayOfAscendingNumbers(segmentAnzahl);
     if (kantenSeite === KantenSeite.LINKS) {
       return new KantenSelektion(kante, selektion, new Set());
@@ -43,11 +43,7 @@ export class KantenSelektion {
     }
   }
 
-  public static ofGesamteKante(
-    kante: Kante,
-    segmentAnzahlLinks: number = 1,
-    segmentAnzahlRechts: number = 1
-  ): KantenSelektion {
+  public static ofGesamteKante(kante: Kante, segmentAnzahlLinks = 1, segmentAnzahlRechts = 1): KantenSelektion {
     const selektionLinks = KantenSelektion.buildArrayOfAscendingNumbers(segmentAnzahlLinks);
     const selektionRechts = KantenSelektion.buildArrayOfAscendingNumbers(segmentAnzahlRechts);
     return new KantenSelektion(kante, selektionLinks, selektionRechts);

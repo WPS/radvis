@@ -40,7 +40,7 @@ export namespace Verwaltungseinheit {
   };
 
   export const getDisplayName = (organisation: Verwaltungseinheit | null | undefined): string => {
-    if (!organisation || !organisation.name || !organisation.organisationsArt) {
+    if (!organisation?.name || !organisation.organisationsArt) {
       return '';
     }
 

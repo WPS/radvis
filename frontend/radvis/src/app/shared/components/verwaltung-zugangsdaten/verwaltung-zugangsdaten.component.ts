@@ -25,6 +25,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
   templateUrl: './verwaltung-zugangsdaten.component.html',
   styleUrls: ['./verwaltung-zugangsdaten.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class VerwaltungZugangsdatenComponent {
   public benutzername: string | undefined;

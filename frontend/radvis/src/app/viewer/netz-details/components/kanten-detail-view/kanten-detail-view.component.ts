@@ -30,6 +30,7 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   templateUrl: './kanten-detail-view.component.html',
   styleUrls: ['./kanten-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenDetailViewComponent {
   public attributeGruppiert: Map<string, { [p: string]: string | NetzDetailFeatureTableLink }> = new Map();

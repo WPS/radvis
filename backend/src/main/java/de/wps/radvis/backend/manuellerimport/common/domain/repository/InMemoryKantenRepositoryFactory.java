@@ -38,7 +38,7 @@ public class InMemoryKantenRepositoryFactory {
 	}
 
 	public InMemoryKantenRepository create(Envelope envelope, MultiPolygon bereich) {
-		Set<Kante> kanten = kantenRepository.getKantenimBereich(envelope);
+		Set<Kante> kanten = kantenRepository.getKantenInBereich(envelope);
 		return new InMemoryKantenRepository(kanten.stream()
 			.filter(kante -> bereich.intersects(kante.getGeometry()))
 			.collect(Collectors.toSet()));

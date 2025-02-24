@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.GeoJsonConverter;
@@ -164,7 +163,8 @@ public class NetzGuard {
 		} else {
 			bisKnoten = Knoten.builder().quelle(QuellSystem.RadVis)
 				.point(GeoJsonConverter.create3DJtsPointFromGeoJson(command.getBisKnotenCoor(),
-					KoordinatenReferenzSystem.ETRS89_UTM32_N)).build();
+					KoordinatenReferenzSystem.ETRS89_UTM32_N))
+				.build();
 		}
 
 		if (!aktiverBenutzer.hatRecht(Recht.BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN)) {
@@ -217,8 +217,7 @@ public class NetzGuard {
 		}
 
 		Set<Netzklasse> alteNetzklassen = netzService.getKante(kanteId).getKantenAttributGruppe().getNetzklassen();
-		if (netzklasseHinzugefuegtOderEntfernt(alteNetzklassen, neueNetzklassen, Netzklasse.RADNETZ_NETZKLASSEN)
-		) {
+		if (netzklasseHinzugefuegtOderEntfernt(alteNetzklassen, neueNetzklassen, Netzklasse.RADNETZ_NETZKLASSEN)) {
 			throw new AccessDeniedException("Sie sind nicht berechtigt, die Netzklasse RadNETZ zu verändern.");
 		}
 	}
@@ -229,8 +228,7 @@ public class NetzGuard {
 		}
 
 		Set<Netzklasse> alteNetzklassen = netzService.getKante(kanteId).getKantenAttributGruppe().getNetzklassen();
-		if (netzklasseHinzugefuegtOderEntfernt(alteNetzklassen, neueNetzklassen, Netzklasse.KREISNETZ_NETZKLASSEN)
-		) {
+		if (netzklasseHinzugefuegtOderEntfernt(alteNetzklassen, neueNetzklassen, Netzklasse.KREISNETZ_NETZKLASSEN)) {
 			throw new AccessDeniedException("Sie sind nicht berechtigt, die Netzklasse Kreisnetz zu verändern.");
 		}
 	}
@@ -261,7 +259,7 @@ public class NetzGuard {
 	}
 
 	private boolean kannLoeschen(Kante kante, Benutzer benutzer) {
-		return benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR) || netzService.wurdeAngelegtVon(kante,
+		return benutzer.hatRecht(Recht.ALLE_RADVIS_KANTEN_LOESCHEN) || netzService.wurdeAngelegtVon(kante,
 			benutzer);
 	}
 }

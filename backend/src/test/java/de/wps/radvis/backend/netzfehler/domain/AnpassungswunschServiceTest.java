@@ -14,11 +14,13 @@
 
 package de.wps.radvis.backend.netzfehler.domain;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -34,6 +36,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
+import de.wps.radvis.backend.common.GeometryTestdataProvider;
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
 import de.wps.radvis.backend.konsistenz.KonsistenzregelVerletzungTestdataProvider;
@@ -55,14 +59,17 @@ class AnpassungswunschServiceTest {
 	private AnpassungswunschRepository anpassungswunschRepositoryMock;
 	@Mock
 	private KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository;
+	@Mock
+	private FahrradrouteFilterRepository fahrradrouteRepository;
 
 	AnpassungswunschService anpassungswunschService;
+	double distanzZuFahrradrouteInMetern = 20;
 
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
 		anpassungswunschService = new AnpassungswunschService(anpassungswunschRepositoryMock,
-			konsistenzregelVerletzungsRepository);
+			konsistenzregelVerletzungsRepository, fahrradrouteRepository, distanzZuFahrradrouteInMetern);
 	}
 
 	@Test
@@ -121,7 +128,8 @@ class AnpassungswunschServiceTest {
 		when(konsistenzregelVerletzungsRepository.findById(65703643L)).thenReturn(Optional.of(
 			KonsistenzregelVerletzungTestdataProvider.defaultVerletzung().typ("Toller Typ")
 				.details(new KonsistenzregelVerletzungsDetails(point,
-					"Details Beschreibung", "123")).build()));
+					"Details Beschreibung", "123"))
+				.build()));
 
 		// Act
 		anpassungswunschService.create(geometryFactory.createPoint(new Coordinate(1.5, 10.5)),
@@ -169,5 +177,68 @@ class AnpassungswunschServiceTest {
 		// Assert
 		assertThat(wunsch1.getStatus()).isEqualTo(AnpassungswunschStatus.ERLEDIGT);
 		assertThat(wunsch2.getStatus()).isEqualTo(AnpassungswunschStatus.UMGESETZT);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	void getAlleAnpassungswuensche_filtersFahrradrouten() {
+		// arrange
+		when(fahrradrouteRepository.getAllGeometries(any()))
+			.thenReturn(
+				List.of(GeometryTestdataProvider.createLineString(new Coordinate(0, 0), new Coordinate(0, 100))));
+		Anpassungswunsch anpassungswunschWithin = AnpassungswunschTestDataProvider
+			.withPosition(distanzZuFahrradrouteInMetern, 0).id(1l).build();
+		Anpassungswunsch anpassungswunschOutside = AnpassungswunschTestDataProvider
+			.withPosition(distanzZuFahrradrouteInMetern + 1, 0).id(2l).build();
+		when(anpassungswunschRepositoryMock.findAll())
+			.thenReturn(List.of(anpassungswunschWithin, anpassungswunschOutside));
+
+		// act
+		List<Long> nebenFahrradroutenIds = List.of(123l, 234l);
+		List<Anpassungswunsch> anpassungswuensche = anpassungswunschService.getAlleAnpassungswuensche(false,
+			nebenFahrradroutenIds).toList();
+
+		// assert
+		ArgumentCaptor<List> fahrradrouteListCaptor = ArgumentCaptor.forClass(List.class);
+		verify(fahrradrouteRepository).getAllGeometries(fahrradrouteListCaptor.capture());
+		assertThat(fahrradrouteListCaptor.getValue()).containsExactlyElementsOf(nebenFahrradroutenIds);
+		assertThat(anpassungswuensche).hasSize(1);
+		assertThat(anpassungswuensche).contains(anpassungswunschWithin);
+		assertThat(anpassungswuensche).doesNotContain(anpassungswunschOutside);
+	}
+
+	@Test
+	void getAlleAnpassungswuensche_noFahrradrouteGeometries_doesNotFilter() {
+		// arrange
+		when(fahrradrouteRepository.getAllGeometries(any())).thenReturn(Collections.emptyList());
+		Anpassungswunsch anpassungswunschWithin = AnpassungswunschTestDataProvider
+			.withPosition(distanzZuFahrradrouteInMetern, 0).id(1l).build();
+		when(anpassungswunschRepositoryMock.findAll())
+			.thenReturn(List.of(anpassungswunschWithin));
+
+		// act
+		List<Long> nebenFahrradroutenIds = List.of(123l, 234l);
+		List<Anpassungswunsch> anpassungswuensche = anpassungswunschService.getAlleAnpassungswuensche(false,
+			nebenFahrradroutenIds).toList();
+
+		// assert
+		assertThat(anpassungswuensche).containsExactly(anpassungswunschWithin);
+	}
+
+	@Test
+	void getAlleAnpassungswuensche_noFahrradrouteFilter_doesNotFilter() {
+		// arrange
+		Anpassungswunsch anpassungswunschWithin = AnpassungswunschTestDataProvider
+			.withPosition(distanzZuFahrradrouteInMetern, 0).id(1l).build();
+		when(anpassungswunschRepositoryMock.findAll())
+			.thenReturn(List.of(anpassungswunschWithin));
+
+		// act
+		List<Anpassungswunsch> anpassungswuensche = anpassungswunschService.getAlleAnpassungswuensche(false,
+			Collections.emptyList()).toList();
+
+		// assert
+		verify(fahrradrouteRepository, never()).getAllGeometries(any());
+		assertThat(anpassungswuensche).containsExactly(anpassungswunschWithin);
 	}
 }

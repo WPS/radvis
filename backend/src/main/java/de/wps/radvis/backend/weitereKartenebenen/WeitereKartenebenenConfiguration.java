@@ -24,10 +24,12 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.weitereKartenebenen.domain.DateiLayerService;
 import de.wps.radvis.backend.weitereKartenebenen.domain.WeitereKartenebenenConfigurationProperties;
+import de.wps.radvis.backend.weitereKartenebenen.domain.WeitereKartenebenenService;
 import de.wps.radvis.backend.weitereKartenebenen.domain.repository.DateiLayerRepository;
 import de.wps.radvis.backend.weitereKartenebenen.domain.repository.GeoserverRepository;
 import de.wps.radvis.backend.weitereKartenebenen.domain.repository.WeitereKartenebenenRepository;
 import de.wps.radvis.backend.weitereKartenebenen.schnittstelle.DateiLayerGuard;
+import de.wps.radvis.backend.weitereKartenebenen.schnittstelle.WeitereKartenebenenGuard;
 import de.wps.radvis.backend.weitereKartenebenen.schnittstelle.repositoryImpl.GeoserverRepositoryImpl;
 
 @Configuration
@@ -62,5 +64,15 @@ public class WeitereKartenebenenConfiguration {
 	@Bean
 	public DateiLayerService dateiLayerService() {
 		return new DateiLayerService(dateiLayerRepository, weitereKartenebenenRepository, geoserverRepository());
+	}
+
+	@Bean
+	public WeitereKartenebenenService weitereKartenebenenService() {
+		return new WeitereKartenebenenService(weitereKartenebenenRepository);
+	}
+
+	@Bean
+	public WeitereKartenebenenGuard weitereKartenebenenGuard() {
+		return new WeitereKartenebenenGuard(benutzerResolver);
 	}
 }

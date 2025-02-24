@@ -14,20 +14,54 @@
 
 package de.wps.radvis.backend.netz.domain.valueObject;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
+import java.util.Set;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum TrennungZu {
-	//@formatter:off
-	SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN("Sicherheitstrennstreifen zur Fahrbahn"),
-	SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN("Sicherheitstrennstreifen zum Parken"),
-	SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR("Sicherheitstrennstreifen zum Fußverkehr");
-	//@formatter:on
+	SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN("Sicherheitstrennstreifen zur Fahrbahn",
+		Set.of(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.RADFAHRSTREIFEN,
+			Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
+			Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
+			Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER)),
+	SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN("Sicherheitstrennstreifen zum Parken",
+		Set.of(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN,
+			Radverkehrsfuehrung.RADFAHRSTREIFEN,
+			Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
+			Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
+			Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE,
+			Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADZONE,
+			Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG,
+			Radverkehrsfuehrung.MEHRZWECKSTREIFEN_EINSEITIG,
+			Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER)),
+	SICHERHEITSTRENNSTREIFEN_ZUM_FUSSVERKEHR("Sicherheitstrennstreifen zum Fußverkehr",
+		Set.of(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER)),
+			;
 
 	@NonNull
 	private final String displayText;
+
+	private final Set<Radverkehrsfuehrung> validRadverkehrsfuehrungen;
 
 	public static boolean nullableWiderspruchZu(TrennungZu a, TrennungZu b) {
 		// null-Faelle abfangen
@@ -44,5 +78,10 @@ public enum TrennungZu {
 	@Override
 	public String toString() {
 		return this.displayText;
+	}
+
+	public boolean isValidForRadverkehrsfuehrung(Radverkehrsfuehrung radverkehrsfuehrung) {
+		require(radverkehrsfuehrung, notNullValue());
+		return validRadverkehrsfuehrungen.contains(radverkehrsfuehrung);
 	}
 }

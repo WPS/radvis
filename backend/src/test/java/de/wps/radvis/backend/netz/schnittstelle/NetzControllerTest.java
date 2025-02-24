@@ -84,9 +84,11 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
@@ -101,6 +103,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
@@ -548,7 +551,7 @@ class NetzControllerTest {
 		netzController.saveKnoten(authentication, saveKnotenCommand);
 
 		// assert
-		verify(netzService).aktualisiereKnoten(knotenID, knotenVersion, 123L, kommentar, null, null);
+		verify(netzService).aktualisiereKnoten(knotenID, knotenVersion, 123L, kommentar, null, null, null, null, null);
 	}
 
 	@Test
@@ -650,10 +653,13 @@ class NetzControllerTest {
 			.belagArt(BelagArt.ASPHALT)
 			.oberflaechenbeschaffenheit(Oberflaechenbeschaffenheit.ANLASS_ZUR_INTENSIVEN_BEOBACHTUNG_UND_ANALYSE)
 			.bordstein(Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER)
+			.beschilderung(Beschilderung.UNBEKANNT)
 			.radverkehrsfuehrung(Radverkehrsfuehrung.BEGEGNUNBSZONE)
 			.parkenTyp(KfzParkenTyp.LAENGS_PARKEN)
 			.parkenForm(KfzParkenForm.FAHRBAHNPARKEN_MARKIERT)
 			.benutzungspflicht(Benutzungspflicht.NICHT_VORHANDEN)
+			.schaeden(Set.of(Schadenart.ABPLATZUNGEN_SCHLAGLOECHER))
+			.absenkung(Absenkung.GRUNDSTUECKSZUFAHRTEN_ABGESENKT)
 			.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1));
 		List<SaveFuehrungsformAttributeCommand> fuehrungsformenLinks = List.of(
 			defaultCommand.breite(Laenge.of(123)).build());

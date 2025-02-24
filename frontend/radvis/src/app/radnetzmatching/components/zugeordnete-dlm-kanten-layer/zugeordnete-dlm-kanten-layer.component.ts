@@ -27,6 +27,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './zugeordnete-dlm-kanten-layer.component.html',
   styleUrls: ['./zugeordnete-dlm-kanten-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ZugeordneteDlmKantenLayerComponent implements OnDestroy {
   private readonly vectorSource!: VectorSource;

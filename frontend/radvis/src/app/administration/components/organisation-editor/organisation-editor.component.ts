@@ -33,6 +33,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './organisation-editor.component.html',
   styleUrls: ['./organisation-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class OrganisationEditorComponent implements DiscardableComponent {
   form: UntypedFormGroup = new UntypedFormGroup({

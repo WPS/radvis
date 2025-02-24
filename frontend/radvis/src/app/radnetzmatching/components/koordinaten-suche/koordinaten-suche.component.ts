@@ -23,6 +23,7 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
   templateUrl: './koordinaten-suche.component.html',
   styleUrls: ['./koordinaten-suche.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KoordinatenSucheComponent {
   @Output()

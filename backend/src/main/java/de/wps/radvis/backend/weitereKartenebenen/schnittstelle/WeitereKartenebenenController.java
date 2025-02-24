@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.weitereKartenebenen.schnittstelle;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,28 +29,33 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.weitereKartenebenen.domain.WeitereKartenebenenConfigurationProperties;
+import de.wps.radvis.backend.weitereKartenebenen.domain.WeitereKartenebenenService;
 import de.wps.radvis.backend.weitereKartenebenen.domain.entity.WeitereKartenebene;
 import de.wps.radvis.backend.weitereKartenebenen.domain.repository.WeitereKartenebenenRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/weitere-kartenebenen")
 @Validated
-@Slf4j
 public class WeitereKartenebenenController {
 	private final WeitereKartenebenenRepository weitereKartenebenenRepository;
+	private final WeitereKartenebenenService weitereKartenebenenService;
 	private final BenutzerResolver benutzerResolver;
-	private WeitereKartenebenenConfigurationProperties configurationProperties;
+	private final WeitereKartenebenenConfigurationProperties configurationProperties;
+	private final WeitereKartenebenenGuard weitereKartenebenenGuard;
 
 	public WeitereKartenebenenController(WeitereKartenebenenRepository weitereKartenebenenRepository,
-		BenutzerResolver benutzerResolver, WeitereKartenebenenConfigurationProperties configurationProperties) {
+		BenutzerResolver benutzerResolver, WeitereKartenebenenConfigurationProperties configurationProperties,
+		WeitereKartenebenenService weitereKartenebenenService, WeitereKartenebenenGuard weitereKartenebenenGuard) {
 		this.weitereKartenebenenRepository = weitereKartenebenenRepository;
+		this.weitereKartenebenenService = weitereKartenebenenService;
 		this.benutzerResolver = benutzerResolver;
 		this.configurationProperties = configurationProperties;
+		this.weitereKartenebenenGuard = weitereKartenebenenGuard;
 	}
 
 	@GetMapping("/list")
@@ -59,8 +65,7 @@ public class WeitereKartenebenenController {
 			return Stream.empty();
 		}
 
-		return weitereKartenebenenRepository.findAllByBenutzerOrderById(
-			benutzer).stream()
+		return weitereKartenebenenService.getAllForNutzer(benutzer).stream()
 			.map(WeitereKartenebenenView::new);
 	}
 
@@ -73,16 +78,23 @@ public class WeitereKartenebenenController {
 	@PostMapping(path = "/save")
 	@Transactional
 	public Stream<WeitereKartenebenenView> save(Authentication authentication,
-		@RequestBody List<@Valid SaveWeitereKartenebeneCommand> commands) {
+		@RequestBody List<@Valid SaveWeitereKartenebeneCommand> commands) throws AccessDeniedException {
+		weitereKartenebenenGuard.save(authentication, commands);
+
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
 
 		// Entferne weitere Kartenebenen, die nicht in den Commands vorhanden sind
-		weitereKartenebenenRepository.findAllByBenutzerOrderById(benutzer)
+		weitereKartenebenenService.getAllForNutzer(benutzer)
 			.stream().filter(
 				bestehenderLayer -> commands.stream()
 					.filter(command -> command.getId() != null)
 					.noneMatch(command -> command.getId().equals(bestehenderLayer.getId())))
-			.forEach(weitereKartenebenenRepository::delete);
+			.forEach(kartenEbeneToDelete -> {
+				if (!kartenEbeneToDelete.isDefaultLayer()
+					|| benutzer.hatRecht(Recht.WEITERE_KARTENEBENEN_ALS_DEFAULT_FESTLEGEN)) {
+					weitereKartenebenenRepository.delete(kartenEbeneToDelete);
+				}
+			});
 
 		// Erstelle neue Layer oder aktualisiere bestehende Layer
 		commands.forEach(command -> {
@@ -98,23 +110,29 @@ public class WeitereKartenebenenController {
 						command.getFarbe(),
 						benutzer,
 						command.getQuellangabe(),
-						command.getDateiLayerId()));
+						command.getDateiLayerId(),
+						command.isDefaultLayer()));
 			} else {
-				weitereKartenebenenRepository.findById(command.getId())
-					.orElseThrow(EntityNotFoundException::new)
-					.update(
-						command.getName(),
-						command.getUrl(),
-						command.getWeitereKartenebeneTyp(),
-						command.getDeckkraft(),
-						command.getZoomstufe(),
-						command.getZindex(),
-						command.getFarbe(),
-						command.getQuellangabe());
+				WeitereKartenebene weitereKartenebeneToUpdate = weitereKartenebenenRepository.findById(command.getId())
+					.orElseThrow(EntityNotFoundException::new);
+				if (!weitereKartenebeneToUpdate.isDefaultLayer()
+					|| benutzer.hatRecht(Recht.WEITERE_KARTENEBENEN_ALS_DEFAULT_FESTLEGEN)) {
+					weitereKartenebeneToUpdate
+						.update(
+							command.getName(),
+							command.getUrl(),
+							command.getWeitereKartenebeneTyp(),
+							command.getDeckkraft(),
+							command.getZoomstufe(),
+							command.getZindex(),
+							command.getFarbe(),
+							command.getQuellangabe(),
+							command.isDefaultLayer());
+				}
 			}
 		});
 
-		return weitereKartenebenenRepository.findAllByBenutzerOrderById(benutzer).stream()
+		return weitereKartenebenenService.getAllForNutzer(benutzer).stream()
 			.map(WeitereKartenebenenView::new);
 	}
 }

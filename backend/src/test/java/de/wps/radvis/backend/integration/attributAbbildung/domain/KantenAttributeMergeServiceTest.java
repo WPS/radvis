@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,9 +37,11 @@ import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KantenAttributeTestDataProvider;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
@@ -214,13 +217,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			FuehrungsformAttribute radNetzAttribute2 = new FuehrungsformAttribute(
 				LinearReferenzierterAbschnitt.of(.1, .9),
 				BelagArt.ASPHALT,
@@ -231,13 +236,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			// act
 			FuehrungsformAttribute mergedAttribute = kantenAttributeMergeService
 				.mergeFuehrungsformAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),
@@ -275,13 +282,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			FuehrungsformAttribute radNetzAttribute2 = new FuehrungsformAttribute(
 				LinearReferenzierterAbschnitt.of(.1, .9),
 				BelagArt.UNBEKANNT,
@@ -292,13 +301,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.GEHWEGPARKEN_MARKIERT,
 				null,
 				Benutzungspflicht.UNBEKANNT,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				null,
-				null
-			);
+				null);
 
 			// act
 			FuehrungsformAttribute mergedAttribute = kantenAttributeMergeService
@@ -336,13 +347,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.UNBEKANNT,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			FuehrungsformAttribute radNetzAttribute2 = new FuehrungsformAttribute(
 				LinearReferenzierterAbschnitt.of(0., .7),
 				BelagArt.BETON,
@@ -353,13 +366,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.GEHWEGPARKEN_MARKIERT,
 				Laenge.of(4.6),
 				Benutzungspflicht.UNBEKANNT,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 
 			// act + assert
 			assertThrows(MehrdeutigeLinearReferenzierteAttributeException.class, () -> kantenAttributeMergeService
@@ -632,13 +647,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			FuehrungsformAttribute quellnetzAttribute2 = new FuehrungsformAttribute(
 				LinearReferenzierterAbschnitt.of(.1, .9),
 				BelagArt.ASPHALT,
@@ -649,13 +666,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			// act
 			FuehrungsformAttribute mergedAttribute = kantenAttributeMergeService
 				.mergeFuehrungsformAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),
@@ -696,13 +715,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.UNBEKANNT,
 				Laenge.of(4.6),
 				Benutzungspflicht.VORHANDEN,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				TrennstreifenForm.UNBEKANNT,
-				TrennstreifenForm.UNBEKANNT
-			);
+				TrennstreifenForm.UNBEKANNT);
 			FuehrungsformAttribute quellnetzAttribute2 = new FuehrungsformAttribute(
 				LinearReferenzierterAbschnitt.of(.1, .9),
 				BelagArt.UNBEKANNT,
@@ -713,13 +734,15 @@ class KantenAttributeMergeServiceTest {
 				KfzParkenForm.HALBES_GEHWEGPARKEN_MARKIERT,
 				Laenge.of(4.6),
 				Benutzungspflicht.UNBEKANNT,
+				Beschilderung.UNBEKANNT,
+				Collections.emptySet(),
+				Absenkung.UNBEKANNT,
 				null,
 				null,
 				null,
 				null,
 				null,
-				null
-			);
+				null);
 			// act
 			FuehrungsformAttribute mergedAttribute = kantenAttributeMergeService
 				.mergeFuehrungsformAttribute(grundnetzAttribute, LinearReferenzierterAbschnitt.of(0.1, .5),

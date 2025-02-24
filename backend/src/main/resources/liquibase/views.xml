@@ -509,8 +509,11 @@
      				far_max.parken_form,
      				far_max.bordstein,
      				far_max.belag_art,
+     				far_max.beschilderung,
      				far_max.oberflaechenbeschaffenheit,
      				far_max.benutzungspflicht,
+     				far_max.absenkung,
+     				array_to_string(far_max.schaeden, ';') as schaeden,
 
 -- geschwindigkeitsattribute
      				gar_max.ortslage,
@@ -719,8 +722,7 @@
           sql TEXT;
       BEGIN
 
-      sql = REPLACE(
-      'CREATE MATERIALIZED VIEW ' || view_name || ' AS ' ||
+     sql= 'CREATE MATERIALIZED VIEW ' || view_name || ' AS ' ||
       'SELECT CASE
                WHEN k.is_zweiseitig THEN
                  CASE
@@ -835,6 +837,21 @@
                  THEN fal.trennstreifen_breite_rechts
                ELSE far.trennstreifen_breite_rechts
                END AS sts_b_r,
+            CASE
+               WHEN kanten_seg.seite = ''LINKS''
+                 THEN fal.beschilderung
+               ELSE far.beschilderung
+               END AS beschilderung,
+            CASE
+               WHEN kanten_seg.seite = ''LINKS''
+                 THEN fal.absenkung
+               ELSE far.absenkung
+               END AS absenkung,
+            CASE
+               WHEN kanten_seg.seite = ''LINKS''
+                 THEN array_to_string(fal.schaeden, '';'')
+               ELSE array_to_string(far.schaeden, '';'')
+               END AS schaeden,
 
             -- geschwindigkeitsattribute
             ga.ortslage,
@@ -879,7 +896,7 @@
               )
             ) as letzte_aenderung
 
-      FROM kanten_seg
+      FROM ' || lr_source || ' as kanten_seg
                JOIN kante k ON k.id = kanten_seg.id
                LEFT JOIN LATERAL
                     (SELECT * FROM fuehrungsform_attribut_gruppe_attribute_rechts far
@@ -924,7 +941,7 @@
                          ON k.kanten_attributgruppe_id = standards.kanten_attribut_gruppe_id
       WHERE kanten_seg.bis > 0 AND (k.quelle = ''DLM'' OR k.quelle = ''RadVis'');
       DROP INDEX IF EXISTS ' || view_name || '_geom_idx;
-      CREATE INDEX ' || view_name || '_geom_idx ON ' || view_name || ' USING GIST (geometry);', 'kanten_seg', lr_source);
+      CREATE INDEX ' || view_name || '_geom_idx ON ' || view_name || ' USING GIST (geometry);';
 
       EXECUTE sql;
       END;
@@ -1000,10 +1017,12 @@
                           WHEN radverkehrsfuehrung IN ('FUEHRUNG_IN_FAHRRADSTRASSE',
                                                        'FUEHRUNG_IN_FAHRRADZONE')
                               THEN '101' -- Fahrradstraße
-                          WHEN radverkehrsfuehrung IN ('MEHRZWECKSTREIFEN'
+                          WHEN radverkehrsfuehrung IN ('MEHRZWECKSTREIFEN_BEIDSEITIG',
+                          							   'MEHRZWECKSTREIFEN_EINSEITIG',
                                                        'BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR',
                                                        'OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER',
-                                                       'PIKTOGRAMMKETTE',
+                                                       'PIKTOGRAMMKETTE_BEIDSEITIG',
+                                                       'PIKTOGRAMMKETTE_EINSEITIG',
                                                        'FUEHRUNG_IN_T30_ZONE',
                                                        'FUEHRUNG_IN_T20_ZONE',
                                                        'EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_ALS_30',
@@ -1447,7 +1466,8 @@
         MIN(b.begruendung) as begruendung,
         st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))) AS geometry,
         COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
-        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ
+        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ,
+        MIN(b.barriere_form_details) as barriere_form_details
       FROM barriere b
         LEFT JOIN organisation verantwortlich ON b.verantwortlich_id = verantwortlich.id
         LEFT JOIN barriere_kantenseitenabschnitte seitenabschnitt ON b.id = seitenabschnitt.barriere_id
@@ -1476,7 +1496,8 @@
               THEN st_union(knot.point)
             ELSE st_union(st_union(st_lineinterpolatepoint(bkptk.geometry, bkpt.lineare_referenz)), st_union(knot.point))
           END
-        ) as geometry
+        ) as geometry,
+        MIN(b.barriere_form_details) as barriere_form_details
       FROM barriere b
         LEFT JOIN organisation verantwortlich ON b.verantwortlich_id = verantwortlich.id
         LEFT JOIN barriere_knoten bkno ON b.id = bkno.barriere_id
@@ -1511,7 +1532,10 @@
         MIN(f.umlaufzeit) as umlaufzeit,
         st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))) AS geometry,
         COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
-        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ
+        COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ,
+        MIN(f.bauwerksmangel) as bauwerksmangel,
+        MIN(f.querungshilfe_details) as querungshilfe_details,
+        MIN(array_to_string(f.bauwerksmangel_art, ',')) as bauwerksmangel_art
       FROM furt_kreuzung f
         LEFT JOIN organisation verantwortlich ON f.verantwortliche_organisation_id = verantwortlich.id
         LEFT JOIN furt_kreuzung_kantenseitenabschnitte seitenabschnitt ON f.id = seitenabschnitt.furt_kreuzung_id
@@ -1542,6 +1566,9 @@
         MIN(f.umlaufzeit) as umlaufzeit,
         COALESCE(MIN(verantwortlich.name), '') AS verantwortliche_organisation,
         COALESCE(MIN(verantwortlich.organisations_art), '') AS verantwortliche_organisation_orga_typ,
+        MIN(f.bauwerksmangel) as bauwerksmangel,
+        MIN(f.querungshilfe_details) as querungshilfe_details,
+        MIN(array_to_string(f.bauwerksmangel_art, ',')) as bauwerksmangel_art,
         st_multi(
           CASE
             WHEN st_union(knot.point) IS NULL
@@ -1822,5 +1849,59 @@
       JOIN standards_netzklassen sn ON sn.kante_id = k.id AND sn.is_standards_initial AND sn.is_netzklassen_initial
 			WHERE k.quelle = 'DLM' OR k.quelle = 'RadVis';
     </createView>
+  </changeSet>
+  
+  <changeSet id="RAD-7300" author="mr" runOnChange="true">
+	<sql>
+		DROP VIEW IF EXISTS geoserver_attributluecken_schliessen_job_protokoll;
+	</sql>
+	<createView viewName="geoserver_attributluecken_schliessen_job_protokoll"
+		replaceIfExists="true">
+			WITH ist_standards AS (
+	         SELECT k_1.id,
+	            string_agg(k_st.standard::text, ','::text) AS ist_standards,
+				k_1.rev
+	           FROM kanten_attribut_gruppe_aud k_1
+	             LEFT JOIN kanten_attribut_gruppe_ist_standards_aud k_st ON k_st.kanten_attribut_gruppe_id = k_1.id AND k_st.rev = k_1.rev
+	          GROUP BY k_1.id, k_1.rev
+	        ), netzklassen AS (
+	         SELECT k_1.id,
+	            string_agg(k_st.netzklasse::text, ','::text) AS netzklassen,
+				k_1.rev
+	           FROM kanten_attribut_gruppe_aud k_1
+	             LEFT JOIN kanten_attribut_gruppe_netzklassen_aud k_st ON k_st.kanten_attribut_gruppe_id = k_1.id AND k_st.rev = k_1.rev
+	          GROUP BY k_1.id, k_1.rev
+	        )
+		 	SELECT k.geometry,
+			    attribute.id,
+			    attribute.version,
+			    attribute.dtv_fussverkehr,
+			    attribute.dtv_pkw,
+			    attribute.dtv_radverkehr,
+			    attribute.kommentar,
+			    attribute.laenge_manuell_erfasst,
+			    attribute.strassen_name,
+			    attribute.strassen_nummer,
+			    attribute.sv,
+			    attribute.vereinbarungs_kennung,
+			    attribute.wege_niveau,
+			    attribute.gemeinde_id,
+			    attribute.beleuchtung,
+			    attribute.strassenquerschnittrast06,
+			    attribute.umfeld,
+			    attribute.status,
+			    attribute.rev,
+			    attribute.revtype,
+			    attribute.strassenkategorierin,
+			    st.ist_standards,
+			    n.netzklassen,
+			    to_char(to_timestamp((r."timestamp" / 1000)::double precision), 'DD.MM.YYYY'::text) AS aenderungsdatum
+		    FROM kanten_attribut_gruppe_aud attribute
+			     JOIN rev_info r ON attribute.rev = r.id
+			     JOIN kante k ON k.kanten_attributgruppe_id = attribute.id
+			     JOIN netzklassen n ON n.id = attribute.id AND n.rev=attribute.rev
+			     JOIN ist_standards st ON st.id = attribute.id AND st.rev=attribute.rev
+			WHERE r.auditing_context='ATTRIBUTLUECKEN_SCHLIESSEN_JOB';
+	</createView>
   </changeSet>
 </databaseChangeLog>

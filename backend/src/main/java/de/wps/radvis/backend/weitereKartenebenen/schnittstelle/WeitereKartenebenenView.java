@@ -32,9 +32,11 @@ public class WeitereKartenebenenView {
 	private final WeitereKartenebeneTyp weitereKartenebeneTyp;
 	private final Deckkraft deckkraft;
 	private final Zoomstufe zoomstufe;
-	private final Zindex zindex; // muss durchgehend kleingeschrieben werden. zIndex wird nicht korrekt vom BE ans FE uebergeben.
+	private final Zindex zindex; // muss durchgehend kleingeschrieben werden. zIndex wird nicht korrekt vom BE ans FE
+								// uebergeben.
 	private final HexColor farbe;
 	private final Quellangabe quellangabe;
+	private final boolean defaultLayer;
 
 	public WeitereKartenebenenView(WeitereKartenebene weitereKartenebene) {
 		this.id = weitereKartenebene.getId();
@@ -46,5 +48,6 @@ public class WeitereKartenebenenView {
 		this.zindex = weitereKartenebene.getZindex();
 		this.weitereKartenebeneTyp = weitereKartenebene.getWeitereKartenebeneTyp();
 		this.quellangabe = weitereKartenebene.getQuellangabe();
+		this.defaultLayer = weitereKartenebene.isDefaultLayer();
 	}
 }

@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.netz.domain.service;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.ensure;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
@@ -47,7 +48,9 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.entity.VersionedId;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.netz.domain.KanteResolver;
 import de.wps.radvis.backend.netz.domain.KnotenResolver;
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
@@ -66,6 +69,8 @@ import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.KnotenDeleteStatistik;
 import de.wps.radvis.backend.netz.domain.entity.KnotenIndex;
+import de.wps.radvis.backend.netz.domain.entity.LineStrings;
+import de.wps.radvis.backend.netz.domain.entity.NahegelegeneneKantenDbView;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.event.KantenDeletedEvent;
@@ -78,13 +83,18 @@ import de.wps.radvis.backend.netz.domain.repository.KantenAttributGruppeReposito
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.KantenSeite;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
+import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
@@ -118,6 +128,10 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	private final EntityManager entityManager;
 
 	private final double erlaubteAbweichungKnotenRematch;
+	private final Laenge nahegelegeneKantenDistanzInM;
+	private final int kantenParallelitaetSegmente;
+	private final double kantenParallelitaetToleranz;
+	private final double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
 
 	public NetzService(KantenRepository kantenRepository,
 		KnotenRepository knotenRepository,
@@ -127,7 +141,9 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppenRepository,
 		KantenAttributGruppeRepository kantenAttributGruppenRepository,
 		VerwaltungseinheitResolver verwaltungseinheitResolver, EntityManager entityManager,
-		double erlaubteAbweichungKnotenRematch) {
+		double erlaubteAbweichungKnotenRematch, Laenge nahegelegeneKantenDistanzInM,
+		int kantenParallelitaetSegmente, double kantenParallelitaetToleranz,
+		double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge) {
 
 		this.kantenRepository = kantenRepository;
 		this.knotenRepository = knotenRepository;
@@ -139,6 +155,10 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 		this.entityManager = entityManager;
 		this.erlaubteAbweichungKnotenRematch = erlaubteAbweichungKnotenRematch;
+		this.nahegelegeneKantenDistanzInM = nahegelegeneKantenDistanzInM;
+		this.kantenParallelitaetSegmente = kantenParallelitaetSegmente;
+		this.kantenParallelitaetToleranz = kantenParallelitaetToleranz;
+		this.nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge = nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
 
 		curvebuilderLinks = new OffsetCurveBuilder(10, 1);
 		curvebuilderRechts = new OffsetCurveBuilder(-10, 1);
@@ -184,15 +204,11 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	}
 
 	public Stream<Kante> getKantenInBereichNachQuelle(Envelope bereich, QuellSystem quelle) {
-		return kantenRepository.getKantenInBereichNachQuelle(bereich, quelle);
+		return kantenRepository.getKantenInBereichNachQuellen(bereich, Set.of(quelle));
 	}
 
 	public List<Knoten> getKnotenInBereichNachQuelle(Envelope bereich, QuellSystem quellSystem) {
 		return knotenRepository.getKnotenInBereichFuerQuelle(bereich, quellSystem);
-	}
-
-	public List<Kante> getKantenInBereichNachQuelleList(Envelope bereich, QuellSystem quelle) {
-		return kantenRepository.getKantenInBereichNachQuelleList(bereich, quelle);
 	}
 
 	public Set<Kante> getKantenInBereichMitNetzklassen(Envelope bereich,
@@ -398,6 +414,158 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		return kantenRepository.getKantenInOrganisationsbereichEagerFetchKnoten(organisation);
 	}
 
+	/**
+	 * Gibt true zurück, wenn die Kante wahrscheinlich eine Straße bildet. Wir wissen das nicht genau, schauen daher
+	 * auf Dinge wie Radverkehrsführung und Straßennummer.
+	 */
+	private boolean isWahrscheinlichStrasse(Kante kante) {
+		// Wege mit Radverkehrsführung sind zumindest nicht irgendwelche Waldwege, die üblicherweise null oder Unbekannt
+		// als Radverkehrsführung haben, sondern Landstraße oder andere wichtigere Straßen.
+		FuehrungsformAttributGruppe attributGruppe = kante.getFuehrungsformAttributGruppe();
+
+		ArrayList<FuehrungsformAttribute> attribute = new ArrayList<>();
+		attribute.addAll(attributGruppe.getImmutableFuehrungsformAttributeLinks());
+		attribute.addAll(attributGruppe.getImmutableFuehrungsformAttributeRechts());
+
+		boolean hatRadverkehrsfuehrung = attribute.stream().anyMatch(attribut -> {
+			return attribut.getRadverkehrsfuehrung() != null
+				&& attribut.getRadverkehrsfuehrung() != Radverkehrsfuehrung.UNBEKANNT;
+		});
+
+		// Wege mit einer Straßennummer sind sehr wahrscheinlich tatsächliche Straßen.
+		boolean hatStrassennummer = kante.getKantenAttributGruppe().getKantenAttribute().getStrassenNummer()
+			.isPresent();
+
+		return hatRadverkehrsfuehrung || hatStrassennummer;
+	}
+
+	/**
+	 * Ermittelt geometrisch nahegelegene Kanten, die Straßen darstellen und parallel zur angegebenen Basiskante
+	 * verlaufen. Pro Kanten-View sind die Geometrie der Basiskante und die Geometrie der dazugehörigen parallelen Kante
+	 * aufeinander zugeschnitten, es werden also nur die Teile zurückgegeben, die aufeinander matchen und tatsächlich
+	 * parallel zueinander verlaufen.
+	 *
+	 * Nahegelegene Kanten, die gemäß der Parameter zu klein sind, keine passende Radverkehrsführung oder nicht
+	 * parallel genug sind, werden nicht betrachtet. Wird insgesamt zu wenig der Basiskante überdeckt, ist das Ergebnis
+	 * leer.
+	 *
+	 * @param kante Basiskante in deren Nähe gesucht werden soll.
+	 * @param seite Seite (RECHTS oder LINKS) auf der gesucht werden soll. Der Wert BEIDSEITIG wird nicht unterstützt.
+	 * @param nahegelegeneKantenDistanzInM Entfernung von der Kante in Metern in der gesucht werden soll.
+	 * @param kantenParallelitaetSegmente Genauigkeit (Anzahl an Unterteilungen der Kanten) für die Prüfung
+	 *     auf Parallelität. Höhere Werte führen zu höherer Genauigkeit aber ggf. längerer Laufzeit.
+	 * @param kantenParallelitaetToleranz Wer in Grad für die Toleranz der Genauigkeit. Kleinere Werte
+	 *     liefern striktere Ergebnisse. Zu kleine Werte führen ggf. zu false-negatives (also als "nicht parallel"
+	 *     erkannte Kanten, die aber sehrwohl parallel verlaufen).
+	 */
+	private boolean hatNahegelegeneParalleleStrassen(Kante kante,
+		LinearReferenzierterAbschnitt abschnitt, Seitenbezug seite, Laenge nahegelegeneKantenDistanzInM,
+		int kantenParallelitaetSegmente, double kantenParallelitaetToleranz) {
+		require(seite == Seitenbezug.LINKS || seite == Seitenbezug.RECHTS);
+
+		LineString basiskanteAbschnittGeometry = abschnitt.toSegment(kante.getGeometry());
+		List<LinearReferenzierterAbschnitt> strassenAbschnitte = kantenRepository.getNahegelegeneKantenAufSeite(kante,
+			abschnitt, seite, nahegelegeneKantenDistanzInM)
+			.stream()
+			.filter(nahegelegeneneKantenDbView -> {
+				return isWahrscheinlichStrasse(nahegelegeneneKantenDbView.getNahegelegeneKante());
+			})
+			.filter(nahegelegeneneKantenDbView -> {
+				boolean sindParallel = LineStrings.sindParallel(
+					nahegelegeneneKantenDbView.getBasisKanteSegment(),
+					nahegelegeneneKantenDbView.getNahegelegeneKanteSegment(),
+					kantenParallelitaetSegmente,
+					kantenParallelitaetToleranz
+				);
+				return sindParallel;
+			})
+			.map(k -> LinearReferenzierterAbschnitt.of(basiskanteAbschnittGeometry, k.getBasisKanteSegment()))
+			.toList();
+
+		if (strassenAbschnitte.isEmpty() || LinearReferenzierterAbschnitt.getSummierteRelativeLaenge(strassenAbschnitte)
+			< nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Ermittelt wie viel der übergebenen Kante durch die kantenViews abgedeckt wird. Hierbei wird angenommen, dass
+	 * jedes Basiskante-Segment der views einen Teil der übergebenen Kante entspricht. Gibt es in den kantenViews
+	 * mehrere Kanten, die den gleichen linear referenzierten Abschnitt überdecken, werden diese NICHT doppelt gezählt.
+	 * Beispiel: Bei drei Kanten-Views, die alle drei den Abschnitt [0.3, 0.5] der übergebenen Kante abdecken, ist das
+	 * Ergebnis 0.2, da nur 20% der Kante abgedeckt sind.
+	 *
+	 * @return Ein Wert >=0 und <=1, der angibt, um wie viel die angegebene Kante durch die kantenViews abgedeckt wird.
+	 *     Ein Wert von 1.0 sagt aus, dass 100% der kante von den views abgedeckt wird. Ein Wert von 0.5 entsprechend 50% usw.
+	 */
+	private static double getAnteilAbgedeckterBasiskante(LineString basiskanteGeometrie,
+		List<NahegelegeneneKantenDbView> kantenViews) {
+		List<LinearReferenzierterAbschnitt> abschnitte = new ArrayList<>(
+			kantenViews.stream().map(k -> LinearReferenzierterAbschnitt.of(basiskanteGeometrie, k
+				.getBasisKanteSegment())).toList());
+
+		for (int i = 0; i < abschnitte.size() - 1; i++) {
+			LinearReferenzierterAbschnitt abschnittA = abschnitte.get(i);
+
+			for (int j = i + 1; j < abschnitte.size(); j++) {
+				LinearReferenzierterAbschnitt abschnittB = abschnitte.get(j);
+
+				if (abschnittA.intersects(abschnittB)) {
+					LinearReferenzierterAbschnitt union = abschnittA.union(abschnittB).get();
+					abschnitte.remove(abschnittA);
+					abschnitte.remove(abschnittB);
+					abschnitte.add(union);
+
+					// Das aktuell i-the Element nochmal betrachten, da dieses mit einem anderen gemerged wird. Dafür
+					// das i-- an dieser Stelle, um das i++ der äußeren Schleiße zu kompensieren.
+					i--;
+					break;
+				}
+			}
+		}
+
+		double addierteRelativeLaenge = abschnitte.stream().mapToDouble(a -> a.relativeLaenge()).sum();
+
+		ensure(addierteRelativeLaenge >= 0, "Relative Länge muss >=0 und <=1 sein, aber war " + addierteRelativeLaenge);
+		ensure(addierteRelativeLaenge <= 1, "Relative Länge muss >=0 und <=1 sein, aber war " + addierteRelativeLaenge);
+		return addierteRelativeLaenge;
+	}
+
+	/**
+	 * Ermittelt die Seite (sofern vorhanden) auf der sich andere Kanten befinden, die (sehr wahrscheinlich) parallele
+	 * Straßen darstellen. Die Seite bezieht sich auf die Stationierungsrichtung der Kante. Es wird einerseits nur der
+	 * angegebene Abschnitt untersucht, also nicht die gesamte Kante, und es gibt Metriken nach denen entschieden wird
+	 * welche umliegenden Kanten betrachtet werden und wann das Resultat stark genug ist, sodass hier ein konkreter
+	 * Seitenbezug zurückgegeben wird. Wird also z.B. RECHTS zurückgegeben, kann es trotzdem auf der linken Seite Kanten
+	 * geben, die aber als nicht betrachtungswürdig eingestuft wurden (z.B. weil zu kurz).
+	 *
+	 * @param kante Die Kante zu der geschaut werden soll auf welcher Seite sich parallele Straßen befinden.
+	 * @param abschnitt Der Abschnitt der Kante zu dem geschaut werden soll.
+	 * @return RECHTS oder LINKS, wenn auf der jeweiligen Seite parallel Straßen existieren, BEIDSEITIG wenn auf beiden
+	 *     Seiten parallele Straßen existieren oder ein leerer Optional, wenn keine parallelen Straßen existieren.
+	 */
+	public Optional<Seitenbezug> getSeiteMitParallelenStrassenKanten(Kante kante,
+		LinearReferenzierterAbschnitt abschnitt) {
+		boolean hatStrassenRechts = hatNahegelegeneParalleleStrassen(kante,
+			abschnitt, Seitenbezug.RECHTS, nahegelegeneKantenDistanzInM, kantenParallelitaetSegmente,
+			kantenParallelitaetToleranz);
+		boolean hatStrassenLinks = hatNahegelegeneParalleleStrassen(kante,
+			abschnitt, Seitenbezug.LINKS, nahegelegeneKantenDistanzInM, kantenParallelitaetSegmente,
+			kantenParallelitaetToleranz);
+
+		if (hatStrassenRechts && hatStrassenLinks) {
+			return Optional.of(Seitenbezug.BEIDSEITIG);
+		} else if (hatStrassenLinks) {
+			return Optional.of(Seitenbezug.LINKS);
+		} else if (hatStrassenRechts) {
+			return Optional.of(Seitenbezug.RECHTS);
+		}
+
+		return Optional.empty();
+	}
+
 	@Override
 	public List<Knoten> getKnoten(Set<Long> knoten) {
 		return StreamSupport.stream(knotenRepository.findAllById(knoten).spliterator(), false)
@@ -580,27 +748,28 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	}
 
 	public void aktualisiereKnoten(long knotenId, long knotenVersion, Long gemeinde, Kommentar kommentar,
-		Zustandsbeschreibung zustandsbeschreibung, KnotenForm knotenForm) {
+		Zustandsbeschreibung zustandsbeschreibung, KnotenForm knotenForm, QuerungshilfeDetails querungshilfeDetails,
+		Bauwerksmangel bauwerksmangel, Set<BauwerksmangelArt> bauwerksmangelArt) {
 
 		Knoten knoten = loadKnotenForModification(knotenId, knotenVersion);
 		if (knoten.getQuelle().equals(QuellSystem.RadNETZ)) {
 			throw new AccessDeniedException("RadNETZ-Knoten dürfen nicht bearbeitet werden.");
 		}
 
-		aktualisiereKnoten(knoten, gemeinde, kommentar, zustandsbeschreibung, knotenForm);
+		aktualisiereKnoten(knoten, gemeinde, kommentar, zustandsbeschreibung, knotenForm, querungshilfeDetails,
+			bauwerksmangel, bauwerksmangelArt);
 	}
 
 	private void aktualisiereKnoten(Knoten knoten, Long gemeinde, Kommentar kommentar,
-		Zustandsbeschreibung zustandsbeschreibung,
-		KnotenForm knotenForm) {
+		Zustandsbeschreibung zustandsbeschreibung, KnotenForm knotenForm, QuerungshilfeDetails querungshilfeDetails,
+		Bauwerksmangel bauwerksmangel, Set<BauwerksmangelArt> bauwerksmangelArt) {
 		Verwaltungseinheit gemeindeLoaded = null;
 		if (gemeinde != null) {
 			gemeindeLoaded = verwaltungseinheitResolver.resolve(gemeinde);
 		}
 
 		KnotenAttribute neueKnotenattribute = new KnotenAttribute(kommentar,
-			zustandsbeschreibung,
-			knotenForm, gemeindeLoaded);
+			zustandsbeschreibung, knotenForm, gemeindeLoaded, querungshilfeDetails, bauwerksmangel, bauwerksmangelArt);
 
 		knoten.setKnotenAttribute(neueKnotenattribute);
 	}

@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { LineString, MultiLineString } from 'ol/geom';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';

@@ -394,7 +394,7 @@ class ManuellerAttributeImportAbbildungsServiceTest {
 
 			Envelope searchEnvelope = featureMapping.getImportedLineString().getEnvelopeInternal();
 			searchEnvelope.expandBy(MatchingKorrekturService.MAX_DISTANCE_TO_MATCHED_GEOMETRY);
-			when(kantenRepository.getKantenimBereich(searchEnvelope)).thenReturn(Set.of(kante0, kante1, kante2));
+			when(kantenRepository.getKantenInBereich(searchEnvelope)).thenReturn(Set.of(kante0, kante1, kante2));
 
 			// Env[5.0 : 25.0, 6.0 : 26.0]
 

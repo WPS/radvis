@@ -26,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -34,6 +35,7 @@ import de.wps.radvis.backend.auditing.AuditingConfiguration;
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.common.CommonConfiguration;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import liquibase.servicelocator.LiquibaseService;
@@ -52,6 +54,9 @@ import liquibase.servicelocator.LiquibaseService;
 @DirtiesContext
 @Testcontainers
 public abstract class DBIntegrationTestIT {
+
+	@MockitoBean
+	private MailService mailService;
 
 	@Container
 	public static PostgreSQLContainer<RadVisTestContainer> postgreSQLContainer = RadVisTestContainer.getInstance();

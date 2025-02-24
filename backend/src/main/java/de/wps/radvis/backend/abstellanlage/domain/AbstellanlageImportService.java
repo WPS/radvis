@@ -61,6 +61,7 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.persistence.EntityNotFoundException;
@@ -179,11 +180,15 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 						"Verwaltungseinheit '%s' konnte nicht verarbeitet werden. Verwaltugnseinheiten müssen in der Form 'Name (Organisationsart)' vorliegen",
 						zustaendigBezeichnung));
 			}
-			verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(nameUndOrganisationsart.getFirst(),
-				nameUndOrganisationsart.getSecond())
-				.map(abstellanlageBuilder::zustaendig)
-				.orElseThrow(() -> new AbstellanlageAttributMappingException(
-					String.format("Verwaltungseinheit '%s' konnte nicht gefunden werden", zustaendigBezeichnung)));
+			try {
+				verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(nameUndOrganisationsart.getFirst(),
+					nameUndOrganisationsart.getSecond())
+					.map(abstellanlageBuilder::zustaendig)
+					.orElseThrow(() -> new AbstellanlageAttributMappingException(
+						String.format("Verwaltungseinheit '%s' konnte nicht gefunden werden", zustaendigBezeichnung)));
+			} catch (OrganisationsartUndNameNichtEindeutigException e) {
+				throw new AbstellanlageAttributMappingException(e.getMessage());
+			}
 		}
 
 		// ANZAHL_STELLPLAETZE
@@ -219,8 +224,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			try {
 				abstellanlageBuilder.anzahlLademoeglichkeiten(
 					AnzahlLademoeglichkeiten.of(row.get(Abstellanlage.CsvHeader.ANZAHL_LADEMOEGLICHKEITEN)));
-			} catch (
-				NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				throw new AbstellanlageAttributMappingException(
 					"Anzahl Lademöglichkeiten (" + row.get(Abstellanlage.CsvHeader.ANZAHL_LADEMOEGLICHKEITEN)
 						+ ") kann nicht in eine Zahl umgewandelt werden");
@@ -230,8 +234,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 		// UEBERWACHT
 		try {
 			abstellanlageBuilder.ueberwacht(Ueberwacht.fromString(row.get(Abstellanlage.CsvHeader.UEBERWACHT)));
-		} catch (
-			Exception exception) {
+		} catch (Exception exception) {
 			throw new AbstellanlageAttributMappingException(
 				"Überwacht (" + row.get(Abstellanlage.CsvHeader.UEBERWACHT)
 					+ ") kann nicht gelesen werden. Erlaubt: "
@@ -244,8 +247,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 		try {
 			abstellanlagenOrt = AbstellanlagenOrt.fromString(row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_ORT));
 			abstellanlageBuilder.abstellanlagenOrt(abstellanlagenOrt);
-		} catch (
-			Exception exception) {
+		} catch (Exception exception) {
 			throw new AbstellanlageAttributMappingException(
 				"AbstellanlagenOrt (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_ORT)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenOrt.values())
@@ -264,8 +266,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 			} else {
 				abstellanlageBuilder.groessenklasse(Groessenklasse.fromString(input));
 			}
-		} catch (
-			Exception exception) {
+		} catch (Exception exception) {
 			throw new AbstellanlageAttributMappingException(
 				"Größenklasse (" + input
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(Groessenklasse.values())
@@ -276,8 +277,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 		try {
 			abstellanlageBuilder.stellplatzart(
 				Stellplatzart.fromString(row.get(Abstellanlage.CsvHeader.STELLPLATZART)));
-		} catch (
-			Exception exception) {
+		} catch (Exception exception) {
 			throw new AbstellanlageAttributMappingException(
 				"Stellplatzart (" + row.get(Abstellanlage.CsvHeader.STELLPLATZART)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(Stellplatzart.values())
@@ -299,8 +299,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 				abstellanlageBuilder.gebuehrenProTag(
 					GebuehrenProTag.of(gebuehrenTagString));
 			}
-		} catch (
-			NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new AbstellanlageAttributMappingException(
 				"Gebühren pro Tag (" + gebuehrenTagString
 					+ ") kann nicht in eine Zahl umgewandelt werden");
@@ -315,8 +314,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 				abstellanlageBuilder.gebuehrenProMonat(
 					GebuehrenProMonat.of(gebuehrenMonatString));
 			}
-		} catch (
-			NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new AbstellanlageAttributMappingException(
 				"Gebühren pro Monat (" + gebuehrenMonatString + ") kann nicht in eine Zahl umgewandelt werden");
 		}
@@ -330,8 +328,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 				abstellanlageBuilder.gebuehrenProJahr(
 					GebuehrenProJahr.of(gebuehrenJahrString));
 			}
-		} catch (
-			NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			throw new AbstellanlageAttributMappingException(
 				"Gebühren pro Jahr (" + gebuehrenJahrString + ") kann nicht in eine Zahl umgewandelt werden");
 		}
@@ -365,8 +362,7 @@ public class AbstellanlageImportService extends AbstractCsvImportService<Abstell
 		try {
 			abstellanlageBuilder.status(
 				AbstellanlagenStatus.fromString(row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_STATUS)));
-		} catch (
-			Exception exception) {
+		} catch (Exception exception) {
 			throw new AbstellanlageAttributMappingException(
 				"Status (" + row.get(Abstellanlage.CsvHeader.ABSTELLANLAGEN_STATUS)
 					+ ") kann nicht gelesen werden. Erlaubt: " + Arrays.stream(AbstellanlagenStatus.values())

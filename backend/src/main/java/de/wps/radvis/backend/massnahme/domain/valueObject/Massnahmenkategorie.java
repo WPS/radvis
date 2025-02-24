@@ -14,6 +14,11 @@
 
 package de.wps.radvis.backend.massnahme.domain.valueObject;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -25,6 +30,9 @@ public enum Massnahmenkategorie {
 //	Streckenmaßnahmenkategorien:
 
 //	StVO Beschilderung / Änderung der verkehrsrechtlichen Anordnung
+	EINRICHTUNG_MODALFILTER_PRUEFEN(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.STVO_BESCHILDERUNG,"Einrichtung von Modalfiltern prüfen"),
 
 	STRECKE_FUER_KFZVERKEHR_SPERREN(
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
@@ -90,6 +98,16 @@ public enum Massnahmenkategorie {
 //		Markierung
 
 
+	MARKIERUNG_PIKTOGRAMMKETTE(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.MARKIERUNG,
+		"Piktogrammkette markieren"),
+	
+	NEUMARKIERUNG_PIKTOGRAMMKETTE(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.MARKIERUNG,
+		"Piktogrammkette anpassen"),
+	
 	NEUMARKIERUNG_SCHUTZSTREIFEN(
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.MARKIERUNG,
@@ -145,6 +163,11 @@ public enum Massnahmenkategorie {
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.AUSBAU_STRECKE,
 		"Ausbau des bestehenden Weges mit geringerem Qualitätsstandard"),
+	
+	STRASSENRAUM_BAULICH_NEU_ORDNEN(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUSBAU_STRECKE,
+		"Straßenraum baulich neu ordnen"),
 
 //		Neubau
 
@@ -156,7 +179,7 @@ public enum Massnahmenkategorie {
 	NEUBAU_BAULICHE_RADVERKEHRSANLAGE_AB_200CM(
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.NEUBAU_STRECKE,
-		"Neubau einer baulichen Radverkehrsanlage ≥ 2,00m"),
+		"Radweg neu bauen"),
 
 	NEUBAU_BAULICHE_RADVERKEHRSANLAGE_AB_250CM(
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
@@ -176,7 +199,7 @@ public enum Massnahmenkategorie {
 	NEUBAU_BAULICHE_ANLAGE(
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.NEUBAU_STRECKE,
-		"Neubau bauliche Anlage (3,50 m Breite) [z.B. landw. Weg]"),
+		"Selbstständigen (Rad-)Weg neu bauen"),
 //
 //	Belag
 
@@ -204,6 +227,11 @@ public enum Massnahmenkategorie {
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.BELAG,
 		"Sonstige Sanierungsmaßnahme"),
+	
+	WASSERGEBUNDENE_DECKE_ANLEGEN(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.BELAG,
+		"Wassergebundene Decke herstellen"),
 //
 //	Sicherung Radweganfang/Ende
 
@@ -259,10 +287,16 @@ public enum Massnahmenkategorie {
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.HERSTELLUNG_ABSENKUNG,
 		"Radwegabsenkungen an Grundstückszufahrten aufheben (innerorts)"),
+	
 	RADWEGABSENKUNGEN_AN_ZUFAHRTEN_AUFHEBEN_AUSSERORTS(
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.HERSTELLUNG_ABSENKUNG,
 		"Radwegabsenkungen an Grundstückszufahrten aufheben (außerorts)"),
+
+	RADWEG_AN_ZUFAHRTEN_NIVEAUGLEICH_AUSBAUEN(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.HERSTELLUNG_ABSENKUNG,
+		"(Rad-)Weg an Zufahrten niveaugleich ausbauen"),
 
 //
 //	Absenken von Borden
@@ -283,6 +317,27 @@ public enum Massnahmenkategorie {
 		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.SONSTIGE_BAUMASSNAHME,
 		"Sonstige Baumaßnahme"),
+	
+	// Sonstige Streckenmaßnahme
+
+	SONSTIGE_STRECKENMASSNAHME(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.SONSTIGE_STRECKENMASSNAHME,
+		"Sonstige Streckenmaßnahme(n)"),
+
+	// Planungen RSV/RVR
+	
+	MASSNAHME_RADSCHNELLVERBINDUNG(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.PLANUNGEN_RSV_PVR,
+		"Maßnahmen im Zuge Radschnellverbindung"),
+
+	MASSNAHME_RADVORRANGROUTE(
+		MassnahmenkategorieArt.STRECKENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.PLANUNGEN_RSV_PVR,
+		"Maßnahmen im Zuge Radvorrangroute"),
+	
+	
 //	Knotenmaßnahmenkategorien:
 //
 //	Aus-/Umbau
@@ -316,7 +371,37 @@ public enum Massnahmenkategorie {
 		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
 		"Anpassung an Bauwerk"),
-//
+
+	BELEUCHTUNG_HERSTELLEN_PUNKTUELL(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
+		"Kleinräumig Beleuchtung herstellen"),
+	
+	ANPASSUNG_RADWEGENDE_ANFANG_GESCHUETZT(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
+		"Radweganfang bzw. -ende anpassen"),
+	
+	ANPASSUNG_EINMUENDUNG_ZUFAHRT(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
+		"Einmündungs-/Zufahrtsbereich anpassen"),
+
+	ERSATZBAUWERK_ERRICHTEN(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
+		"Ersatzbauwerk errichten"),
+
+	ANPASSUNG_AN_BAUWERK_GERINGFUEGIG(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
+		"Bauwerk geringfügig anpassen"),
+
+	AENDERUNG_DER_VORFAHRT_AM_KNOTENPUNKT(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.AUS_UMBAU_KNOTEN,
+		"Vorfahrtsregelung ändern"),
+	
 //		Neubau
 
 	BAU_EINER_FAHRBAHNEINENGUNG(
@@ -324,15 +409,25 @@ public enum Massnahmenkategorie {
 		MassnahmenOberkategorie.NEUBAU_KNOTEN,
 		"Bau einer Fahrbahneinengung"),
 
+	BAU_EINER_FAHRBAHNEINENGUNG_UEBERGANG_ZWEIRICHTUNGSRADWEG(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.NEUBAU_KNOTEN,
+		"Übergang Fahrbahn-Radweg sichern: Einengung"),
+
 	BAU_EINER_NEUEN_LSA(
 		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.NEUBAU_KNOTEN,
-		"Bau einer neuen LSA"),
+		"Überquerungsstelle sichern: LSA"),
 
 	BAU_EINER_QUERUNGSHILFE(
 		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.NEUBAU_KNOTEN,
-		"Bau einer Querungshilfe"),
+		"Überquerungsstelle sichern: Querungshilfe"),
+
+	BAU_EINER_QUERUNGSHILFE_UEBERGANG_ZWEIRICHTUNGSRADWEG(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.NEUBAU_KNOTEN,
+		"Übergang Fahrbahn-Radweg sichern: Querungshilfe"),
 
 	BAU_EINER_UEBERFUEHRUNG(
 		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
@@ -354,6 +449,21 @@ public enum Massnahmenkategorie {
 		MassnahmenOberkategorie.NEUBAU_KNOTEN,
 		"Bau eines Minikreisverkehrs"),
 
+	FURT_PUNKTUELL_HERSTELLEN(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.NEUBAU_KNOTEN,
+		"Furt punktuell herstellen"),
+
+	BAU_RADWEGENDE_GESCHUETZT(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.NEUBAU_KNOTEN,
+		"Übergang Fahrbahn-Radwegende baulich sichern"),
+
+	BAU_RADWEGANFANG_GESCHUETZT(
+		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
+		MassnahmenOberkategorie.NEUBAU_KNOTEN,
+		"Übergang Fahrbahn-Radweganfang baulich sichern"),
+
 	MARKIERUNGSTECHNISCHE_MASSNAHME(
 		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME,
@@ -363,7 +473,6 @@ public enum Massnahmenkategorie {
 		MassnahmenkategorieArt.KNOTENMASSNAHMENKATEGORIEN,
 		MassnahmenOberkategorie.SONSTIGE_MASSNAHME_KNOTENPUNKT,
 		"Sonstige Maßnahme am Knotenpunkt"),
-
 
 
 //	Barrierenmaßnahmenkategorien:
@@ -403,4 +512,29 @@ public enum Massnahmenkategorie {
 	public String toString() {
 		return displayText;
 	}
+
+	public boolean isValidForKonzeptionsquelle(Konzeptionsquelle konzeptionsquelle) {
+		require(konzeptionsquelle, notNullValue());
+
+		if (konzeptionsquelle == Konzeptionsquelle.RADNETZ_MASSNAHME_2024) {
+			return !kategorienNotAllowedForRadnetz2024.contains(this);
+		}
+
+		return true;
+	}
+
+	private static Set<Massnahmenkategorie> kategorienNotAllowedForRadnetz2024 = Set.of(
+		Massnahmenkategorie.NEUBAU_WEG_NACH_RADNETZ_QUALITAETSSTANDARD,
+		Massnahmenkategorie.NEUBAU_BAULICHE_RADVERKEHRSANLAGE_AB_250CM,
+		Massnahmenkategorie.NEUBAU_BAULICHE_RADVERKEHRSANLAGE_AB_160CM,
+		Massnahmenkategorie.FURT_STVO_KONFORM,
+		Massnahmenkategorie.BENUTZUNGSPFLICHT_RADVERKEHR_AUFHEBEN_RADFAHRER_FREI_REDUZIERUNG_HOECHSTGESCHWINDIGKEIT_RADFAHRER_FREI,
+		Massnahmenkategorie.ANFANG_UND_ENDE_RADWEG_SICHERN,
+		Massnahmenkategorie.EIN_ENDE_DES_RADWEGES_SICHERN,
+		Massnahmenkategorie.QUERUNGSMOEGLICHKEIT_HERSTELLEN,
+		Massnahmenkategorie.SONSTIGE_MASSNAHME_AN_RADWEGANFANG_ENDE,
+		Massnahmenkategorie.RADWEGABSENKUNGEN_AN_ZUFAHRTEN_AUFHEBEN_INNERORTS,
+		Massnahmenkategorie.RADWEGABSENKUNGEN_AN_ZUFAHRTEN_AUFHEBEN_AUSSERORTS,
+		Massnahmenkategorie.ABBAU_BZW_ERSATZ_BARRIERE,
+		Massnahmenkategorie.AENDERUNG_DER_VERKEHRSRECHTLICHEN_ANORDNUNG);
 }

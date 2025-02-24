@@ -14,7 +14,7 @@
 
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -33,6 +33,7 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Massnahme } from 'src/app/viewer/massnahme/models/massnahme';
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
+import { MassnahmenkategorieOptionGroup } from 'src/app/viewer/massnahme/models/massnahmenkategorie-option-group';
 import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SaveMassnahmeCommand } from 'src/app/viewer/massnahme/models/save-massnahme-command';
@@ -53,6 +54,7 @@ import invariant from 'tiny-invariant';
     '../../../../form-elements/components/attribute-editor/attribut-editor.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenAttributeEditorComponent implements OnDestroy, DiscardableComponent {
   public currentMassnahme: Massnahme | null = null;
@@ -68,6 +70,8 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   public realisierungshilfeOptions: AutoCompleteOption[];
 
   public MASSNAHMEN = MASSNAHMEN;
+
+  massnahmeKategorienOptions: MassnahmenkategorieOptionGroup[] = [];
 
   public isFetching = false;
   private subscriptions: Subscription[] = [];
@@ -90,7 +94,11 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       bezeichnung: new UntypedFormControl(null, [RadvisValidators.isNotNullOrEmpty, RadvisValidators.maxLength(255)]),
       massnahmenkategorien: new UntypedFormControl(
         [],
-        [Massnahmenkategorien.isValidMassnahmenKategorienCombination, RadvisValidators.isNotEmpty]
+        [
+          Massnahmenkategorien.isValidMassnahmenKategorienCombination,
+          RadvisValidators.isNotEmpty,
+          this.isMassnahmenkategorieValidForKonzeptionsquelle,
+        ]
       ),
       netzbezug: new UntypedFormControl(null),
       umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE),
@@ -141,12 +149,8 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       );
 
     this.subscriptions.push(
-      (this.formGroup.get('umsetzungsstatus') as AbstractControl).valueChanges.subscribe(
-        this.onUmsetzungsstatusChanged
-      ),
-      (this.formGroup.get('konzeptionsquelle') as AbstractControl).valueChanges.subscribe(
-        this.onKonzeptionsquelleChanged
-      ),
+      this.formGroup.get('umsetzungsstatus')!.valueChanges.subscribe(this.onUmsetzungsstatusChanged),
+      this.formGroup.get('konzeptionsquelle')!.valueChanges.subscribe(this.onKonzeptionsquelleChanged),
       this.activatedRoute.data.subscribe(data => {
         this.currentMassnahme = data.massnahme;
         invariant(this.currentMassnahme);
@@ -278,6 +282,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   }
 
   private resetForm(massnahme: Massnahme): void {
+    this.updateMassnahmenkategorieOptionsFromKonzeptionsquelle(massnahme.konzeptionsquelle);
     const benutzer = massnahme.benutzerLetzteAenderung;
     const realisierungshilfe: AutoCompleteOption | null = massnahme.realisierungshilfe
       ? {
@@ -298,7 +303,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       realisierungshilfe: realisierungshilfe,
       massnahmenkategorien: [...massnahme.massnahmenkategorien],
       benutzerLetzteAenderung: benutzer.vorname + ' ' + benutzer.nachname,
-      letzteAenderung: new DatePipe('en-US').transform(new Date(massnahme.letzteAenderung), 'dd.MM.yy HH:mm') as string,
+      letzteAenderung: new DatePipe('en-US').transform(new Date(massnahme.letzteAenderung), 'dd.MM.yy HH:mm')!,
       durchfuehrungszeitraum: massnahme.durchfuehrungszeitraum?.geplanterUmsetzungsstartJahr,
     });
 
@@ -324,10 +329,17 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     }
   }
 
+  private updateMassnahmenkategorieOptionsFromKonzeptionsquelle(konzeptionsquelle: Konzeptionsquelle): void {
+    this.massnahmeKategorienOptions =
+      konzeptionsquelle === Konzeptionsquelle.RADNETZ_MASSNAHME_2024
+        ? Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY
+        : Massnahmenkategorien.ALL;
+  }
+
   private onUmsetzungsstatusChanged = (newValue: Umsetzungsstatus): void => {
-    const durchfuehrungszeitraumControl = this.formGroup.get('durchfuehrungszeitraum') as AbstractControl;
-    const baulastZustaendigerControl = this.formGroup.get('baulastZustaendiger') as AbstractControl;
-    const handlungsverantwortlicherControl = this.formGroup.get('handlungsverantwortlicher') as AbstractControl;
+    const durchfuehrungszeitraumControl = this.formGroup.get('durchfuehrungszeitraum')!;
+    const baulastZustaendigerControl = this.formGroup.get('baulastZustaendiger')!;
+    const handlungsverantwortlicherControl = this.formGroup.get('handlungsverantwortlicher')!;
     if ([Umsetzungsstatus.UMSETZUNG, Umsetzungsstatus.UMGESETZT, Umsetzungsstatus.PLANUNG].includes(newValue)) {
       durchfuehrungszeitraumControl.setValidators([
         RadvisValidators.isPositiveInteger,
@@ -350,12 +362,21 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   };
 
   private onKonzeptionsquelleChanged = (newValue: Konzeptionsquelle): void => {
-    const sonstigeKonzeptionsquelleControl = this.formGroup.get('sonstigeKonzeptionsquelle') as AbstractControl;
+    const sonstigeKonzeptionsquelleControl = this.formGroup.get('sonstigeKonzeptionsquelle')!;
     if (newValue === Konzeptionsquelle.SONSTIGE) {
       sonstigeKonzeptionsquelleControl.addValidators(RadvisValidators.isNotNullOrEmpty);
     } else {
       sonstigeKonzeptionsquelleControl.removeValidators(RadvisValidators.isNotNullOrEmpty);
     }
     sonstigeKonzeptionsquelleControl.updateValueAndValidity();
+    this.updateMassnahmenkategorieOptionsFromKonzeptionsquelle(newValue);
+    this.formGroup.controls.massnahmenkategorien.updateValueAndValidity();
+  };
+
+  private isMassnahmenkategorieValidForKonzeptionsquelle = (control: AbstractControl): null | ValidationErrors => {
+    const currentKonzeptionsquelle = this.formGroup?.controls.konzeptionsquelle.value;
+    const currentMassnahmenkategorien: string[] | null = control.value;
+
+    return Massnahmenkategorien.validateKonzeptionsquelle(currentMassnahmenkategorien, currentKonzeptionsquelle);
   };
 }

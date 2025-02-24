@@ -32,6 +32,7 @@ import { WegweisendeBeschilderungRoutingService } from 'src/app/viewer/wegweisen
       useExisting: forwardRef(() => WegweisendeBeschilderungFilterService),
     },
   ],
+  standalone: false,
 })
 export class WegweisendeBeschilderungTabelleComponent {
   selectedBeschilderungsId$: Observable<number | null>;

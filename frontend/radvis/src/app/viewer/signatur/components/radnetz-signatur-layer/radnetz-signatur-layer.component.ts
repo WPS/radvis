@@ -40,6 +40,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './radnetz-signatur-layer.component.html',
   styleUrls: ['./radnetz-signatur-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RadnetzSignaturLayerComponent implements OnInit, OnDestroy, OnChanges {
   @Input()

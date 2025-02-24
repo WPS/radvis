@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
@@ -53,11 +54,13 @@ public class WriteFormFieldsToBodyFilter implements Filter {
 	 */
 	private @NotNull HttpServletRequestWrapper restoreBodyFromFormParameters(ServletRequest request,
 		HttpServletRequest servletRequest) {
+		String currentQueryString = Optional.ofNullable(servletRequest.getQueryString()).orElse("");
+
 		String newBody = request.getParameterMap()
 			.entrySet()
 			.stream()
 			.filter(entry -> {
-				return !servletRequest.getQueryString().contains(entry.getKey() + "=");
+				return !currentQueryString.contains(entry.getKey() + "=");
 			})
 			.map(entry -> {
 				return entry.getKey() + "=" + Arrays.stream(entry.getValue())

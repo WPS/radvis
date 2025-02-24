@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
@@ -51,6 +51,7 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
 import de.wps.radvis.backend.netz.domain.repository.ZustaendigkeitAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzAenderungAusloeser;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzBezugAenderungsArt;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -77,17 +78,17 @@ public class FahrradrouteNetzBezugAenderungRepositoryTestIT extends DBIntegratio
 		private KantenRepository kantenRepository;
 		@Autowired
 		private KnotenRepository knotenRepository;
-		@MockBean
+		@MockitoBean
 		private ZustaendigkeitAttributGruppeRepository zustaendigkeitAttributGruppenRepository;
-		@MockBean
+		@MockitoBean
 		private FahrtrichtungAttributGruppeRepository fahrtrichtungAttributGruppeRepository;
-		@MockBean
+		@MockitoBean
 		private GeschwindigkeitAttributGruppeRepository geschwindigkeitAttributGruppeRepository;
-		@MockBean
+		@MockitoBean
 		private FuehrungsformAttributGruppeRepository fuehrungsformAttributGruppenRepository;
-		@MockBean
+		@MockitoBean
 		private KantenAttributGruppeRepository kantenAttributGruppenRepository;
-		@MockBean
+		@MockitoBean
 		private VerwaltungseinheitResolver verwaltungseinheitResolver;
 		@PersistenceContext
 		EntityManager entityManager;
@@ -97,7 +98,7 @@ public class FahrradrouteNetzBezugAenderungRepositoryTestIT extends DBIntegratio
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
 				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
-				entityManager, 1.0);
+				entityManager, 1.0, Laenge.of(10), 10, 15.0, 0.5);
 		}
 	}
 

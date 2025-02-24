@@ -40,14 +40,16 @@ public class SaveFurtKreuzungCommandConverter extends NetzbezugCommandConverter<
 		return new FurtKreuzung(createNetzbezug(command.getNetzbezug()),
 			verwaltungseinheitResolver.resolve(command.getVerantwortlicheOrganisation()), command.getTyp(),
 			command.isRadnetzKonform(), command.getKommentar(), command.getKnotenForm(),
-			command.getFurtKreuzungMusterloesung(), command.getLichtsignalAnlageEigenschaften());
+			command.getFurtKreuzungMusterloesung(), command.getLichtsignalAnlageEigenschaften(),
+			command.getQuerungshilfeDetails(), command.getBauwerksmangel(), command.getBauwerksmangelArt());
 	}
 
 	public void apply(FurtKreuzung furtKreuzung, SaveFurtKreuzungCommand command) {
 		furtKreuzung.update(createNetzbezug(command.getNetzbezug()),
 			verwaltungseinheitResolver.resolve(command.getVerantwortlicheOrganisation()), command.getTyp(),
 			command.isRadnetzKonform(), command.getKommentar(), command.getKnotenForm(),
-			command.getFurtKreuzungMusterloesung(), command.getLichtsignalAnlageEigenschaften());
+			command.getFurtKreuzungMusterloesung(), command.getLichtsignalAnlageEigenschaften(),
+			command.getQuerungshilfeDetails(), command.getBauwerksmangel(), command.getBauwerksmangelArt());
 	}
 
 	@Override

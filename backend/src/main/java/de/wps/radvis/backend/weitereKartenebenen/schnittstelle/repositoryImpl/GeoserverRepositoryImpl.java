@@ -124,13 +124,29 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 		return getLayerNameFromDatastore(datastoreName);
 	}
 
-	private byte[] geoJsonToGeoPackage(MultipartFile file) {
+	byte[] geoJsonToGeoPackage(MultipartFile file) {
 		try {
 			List<SimpleFeature> features = geoJsonImportRepository
 				.readFeaturesFromGeojsonFile(file)
 				.toList();
 
+			// Den Feature-Typen (also das Schema nach dem Features aufgebaut sind mit Geometrie, Attributen und CRS)
+			// für die GeoPackage Datei ermitteln. Per default nehmen wir den Feature-Typen des ersten Features, aber
+			// das macht Probleme, sobald wir sowohl normale, als auch Multi-Geometrien in einer GeoJSON datei haben.
+			// Sind z.B. die Geometrien LineString und MultiLineString vorhanden und ist die erste Geometrie ein
+			// LineString, würden alle Einzelgeometrien der MultiLineString Features einfach aneinandergehängt werden,
+			// sodass sie einen LineString ergeben. Das passiert aber nicht in irgendeiner sinnvollen Reihenfolge,
+			// sodass das Ergebnis topologisch und visuell komplett unsortiert und kaputt erscheint. Um das zu vermeiden
+			// nehmen wir lieber den MultiLineString als Typ. Damit wird jeder normale LineString in einen
+			// MultiLineString mit genau einem Element umgewandelt, was total ok ist.
 			SimpleFeatureType featureType = features.get(0).getFeatureType();
+			Optional<SimpleFeature> optionalMultiFeature = features.stream()
+				.filter(feature -> feature.getDefaultGeometry().getClass().getSimpleName().contains("Multi"))
+				.findFirst();
+			if (optionalMultiFeature.isPresent()) {
+				featureType = optionalMultiFeature.get().getFeatureType();
+			}
+
 			ListFeatureCollection collection = new ListFeatureCollection(featureType);
 			collection.addAll(features);
 

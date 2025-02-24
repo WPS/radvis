@@ -80,7 +80,7 @@ export class MassnahmenRoutingService extends AbstractInfrastrukturenRoutingServ
   }
 
   // prettier kann nicht mit overrides um
-  // eslint-disable-next-line prettier/prettier
+
   public override getInfrastrukturenEditorRoute(id: number): string[] {
     const result = super.getInfrastrukturenEditorRoute(id);
     const activeSubroute = this.getActiveSubroute();

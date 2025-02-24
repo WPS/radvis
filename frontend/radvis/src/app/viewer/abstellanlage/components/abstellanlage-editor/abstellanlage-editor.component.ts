@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, OnDestroy, Optional } from '@angular/core';
-import { AbstractControl, FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { FormControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
@@ -23,9 +23,9 @@ import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
 import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage';
 import { ABSTELLANLAGEN } from 'src/app/viewer/abstellanlage/models/abstellanlage.infrastruktur';
+import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
 import { AbstellanlagenStatus } from 'src/app/viewer/abstellanlage/models/abstellanlagen-status';
-import { AbstellanlagenOrt } from 'src/app/viewer/abstellanlage/models/abstellanlagen-ort';
 import { Groessenklasse } from 'src/app/viewer/abstellanlage/models/groessenklasse';
 import { SaveAbstellanlageCommand } from 'src/app/viewer/abstellanlage/models/save-abstellanlage-command';
 import { Stellplatzart } from 'src/app/viewer/abstellanlage/models/stellplatzart';
@@ -43,6 +43,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './abstellanlage-editor.component.html',
   styleUrls: ['./abstellanlage-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<Abstellanlage> implements OnDestroy {
   public MOBIDATA_DATENSATZ_URL =
@@ -130,7 +131,7 @@ export class AbstellanlageEditorComponent extends SimpleEditorCreatorComponent<A
       filterService
     );
     this.subscriptions.push(
-      (this.formGroup.get('abstellanlagenOrt') as AbstractControl)?.valueChanges.subscribe(abstellanlagenOrt => {
+      this.formGroup.get('abstellanlagenOrt')!.valueChanges.subscribe(abstellanlagenOrt => {
         this.setEnabledStateOfGroessenklasse(abstellanlagenOrt === AbstellanlagenOrt.BIKE_AND_RIDE);
       })
     );

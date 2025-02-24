@@ -70,6 +70,9 @@ public class OsmAuszeichnungsService {
 			put(BelagArt.WASSERGEBUNDENE_DECKE.name(), "compacted");
 			put(BelagArt.UNGEBUNDENE_DECKE.name(), "unpaved");
 			put(BelagArt.SONSTIGER_BELAG.name(), "other");
+			put(BelagArt.WASSERGEBUNDENE_DECKE_MIT_GRUENSTREIFEN.name(), "compacted");
+			put(BelagArt.ASPHALT_MIT_GRUENSTREIFEN.name(), "asphalt");
+			put(BelagArt.BETON_MIT_GRUENSTREIFEN.name(), "concrete:lanes");
 		}
 	};
 

@@ -12,8 +12,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Subject, Subscription } from 'rxjs';
 import { delay, first } from 'rxjs/operators';
@@ -22,7 +31,7 @@ import {
   MassnahmenkategorieGruppe,
   MassnahmenkategorieOptionGroup,
 } from 'src/app/viewer/massnahme/models/massnahmenkategorie-option-group';
-import { MASSNAHMENKATEGORIEN, Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
+import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 
 @Component({
   selector: 'rad-massnahmenkategorien-dropdown-control',
@@ -36,20 +45,22 @@ import { MASSNAHMENKATEGORIEN, Massnahmenkategorien } from 'src/app/viewer/massn
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class MassnahmenkategorienDropdownControlComponent
   extends AbstractFormControl<string[]>
-  implements OnInit, OnDestroy
+  implements OnInit, OnDestroy, OnChanges
 {
+  @Input()
+  massnahmeKategorienOptions: MassnahmenkategorieOptionGroup[] = [];
+
   private static CLICKED_KATEGORIE_CLASS = 'clicked-kategorie';
 
   placeholder = 'Kategorie wählen';
 
-  groupedOptions = MASSNAHMENKATEGORIEN;
-
   selectedOptions: string[] = [];
 
-  formControl: UntypedFormControl;
+  formControl = new FormControl<string | null>(null);
   filteredGroupedOptions: MassnahmenkategorieOptionGroup[] = [];
 
   public displayFn = Massnahmenkategorien.getDisplayTextForMassnahmenKategorie;
@@ -62,7 +73,6 @@ export class MassnahmenkategorienDropdownControlComponent
 
   constructor(private changeDetector: ChangeDetectorRef) {
     super();
-    this.formControl = new UntypedFormControl(null);
     this.formControl.valueChanges.subscribe(searchTerm => {
       this.updateFilteredOptions(searchTerm);
       this.changeDetector.markForCheck();
@@ -70,7 +80,11 @@ export class MassnahmenkategorienDropdownControlComponent
   }
 
   ngOnInit(): void {
-    this.filteredGroupedOptions = this.groupedOptions;
+    this.filteredGroupedOptions = this.massnahmeKategorienOptions;
+  }
+
+  ngOnChanges(): void {
+    this.updateFilteredOptions(this.formControl.value);
   }
 
   ngOnDestroy(): void {
@@ -78,7 +92,6 @@ export class MassnahmenkategorienDropdownControlComponent
   }
 
   public writeValue(value: string[]): void {
-    this.formControl.reset(value, { emitEvent: false });
     this.selectedOptions = value;
     this.changeDetector.markForCheck();
   }
@@ -179,12 +192,12 @@ export class MassnahmenkategorienDropdownControlComponent
     }
   };
 
-  private updateFilteredOptions(term?: string): void {
+  private updateFilteredOptions(term?: string | null): void {
     this.filteredGroupedOptions = term
-      ? (this.groupedOptions
+      ? this.massnahmeKategorienOptions
           .map(gruppe => this.filterOberGruppe(gruppe, term))
-          .filter(value => value !== null && value !== undefined) as MassnahmenkategorieOptionGroup[])
-      : this.groupedOptions;
+          .filter(value => value !== null && value !== undefined)
+      : this.massnahmeKategorienOptions;
   }
 
   private filterOberGruppe(list: MassnahmenkategorieOptionGroup, term: string): MassnahmenkategorieOptionGroup | null {
@@ -194,7 +207,7 @@ export class MassnahmenkategorienDropdownControlComponent
 
     const options = list.options
       .map(gruppe => this.filterGruppe(gruppe, term))
-      .filter(value => value !== null && value !== undefined) as MassnahmenkategorieGruppe[];
+      .filter(value => value !== null && value !== undefined);
 
     return options.length > 0 ? { ...list, options } : null;
   }

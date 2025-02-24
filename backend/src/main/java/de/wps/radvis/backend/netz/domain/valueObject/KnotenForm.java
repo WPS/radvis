@@ -27,8 +27,10 @@ public enum KnotenForm {
 	// @formatter:off
 	UEBERFUEHRUNG("Überführung", KnotenformKategorie.BAUWERK),
 	UNTERFUEHRUNG_TUNNEL("Unterführung/Tunnel", KnotenformKategorie.BAUWERK),
+	KFZ_BAUWERK("Kfz-Bauwerk (Über-/Unterführung)", KnotenformKategorie.BAUWERK),
 
-	MINIKREISVERKEHR_24_M("Minikreisverkehr (< 24 m)", KnotenformKategorie.KNOTEN_MIT_KREISVERKEHR),
+	MINIKREISVERKEHR_NICHT_UEBERFAHRBAR("Minikreisverkehr: Kreisverkehrsinsel für Kfz nicht überfahrbar", KnotenformKategorie.KNOTEN_MIT_KREISVERKEHR),
+	MINIKREISVERKEHR_UEBERFAHRBAR("Minikreisverkehr: Kreisverkehrsinsel für Kfz überfahrbar", KnotenformKategorie.KNOTEN_MIT_KREISVERKEHR),
 	KOMPAKTKREISVERKEHR_FUEHRUNG_NUR_UEBER_KREISFAHRBAHN("Kompaktkreisverkehr (Führung nur über Kreisfahrbahn)", KnotenformKategorie.KNOTEN_MIT_KREISVERKEHR),
 	KOMPAKTKREISVERKEHR_FUEHRUNG_NUR_UEBER_NEBENANLAGE("Kompaktkreisverkehr (Führung nur über Nebenanlage)", KnotenformKategorie.KNOTEN_MIT_KREISVERKEHR),
 	KOMPAKTKREISVERKEHR_FUEHRUNG_UEBER_KREISFAHRBAHN_UND_NEBENANLAGE("Kompaktkreisverkehr (Führung über Kreisfahrbahn und Nebenanlage)", KnotenformKategorie.KNOTEN_MIT_KREISVERKEHR),
@@ -43,15 +45,25 @@ public enum KnotenForm {
 	ERWEITERTE_FUSS_RADFAHRER_LSA("erweiterte Fuß-/Radfahrer-LSA", KnotenformKategorie.SIGNALISIERTE_QUERUNGSSTELLE),
 	FUSS_RADFAHRER_LSA("Fuß-/Radfahrer-LSA", KnotenformKategorie.SIGNALISIERTE_QUERUNGSSTELLE),
 
-	MITTELINSEL("Mittelinsel", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
+	MITTELINSEL_EINFACH("Mittelinsel (einfache Querungshilfe)", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
+	MITTELINSEL_GETEILT("Mittelinsel (geteilte Querungshilfe)", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
 	FAHRBAHNEINENGUNG("Fahrbahneinengung", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
 	QUERUNGSSTELLE_OHNE_SICHERUNG("Querungsstelle ohne Sicherung", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
 	FUSSGAENGERUEBERWEG("Fußgängerüberweg", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
+	FUSSGAENGERUEBERWEG_RADNETZ_OHNE_FURT("Fußgängerüberweg (im Zuge des Radnetzes) ohne Furt", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
+	FUSSGAENGERUEBERWEG_RADNETZ_FURT("Fußgängerüberweg (im Zuge des Radnetzes) mit Furt", KnotenformKategorie.QUERUNG_EINER_UEBERGEORDNETEN_STRASSE),
 
 	RECHTS_VOR_LINKS_REGELUNG("rechts-vor-links Regelung", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
-	ABKNICKENDE_VORFAHRT("Abknickende Vorfahrt", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
-	NICHT_ABKNICKENDE_VORFAHRT("Nicht-abknickende Vorfahrt", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
-	SONSTIGER_KNOTEN("Sonstiger Knoten", KnotenformKategorie.SONSTIGER_KNOTEN)
+	ABKNICKENDE_VORFAHRT_OHNE_LSA("Abknickende Vorfahrt ohne LSA", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
+	NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA("Nicht-abknickende Vorfahrt ohne LSA", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
+	ABKNICKENDE_VORFAHRT_LSA("Abknickende Vorfahrt mit LSA", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
+	NICHT_ABKNICKENDE_VORFAHRT_LSA("Nicht-abknickende Vorfahrt mit LSA", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
+	ABKNICKENDE_VORFAHRT_ZUFAHRT("Abknickende Vorfahrt mit Fußg.-/Radfahrer-LSA in einer Zufahrt", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
+	NICHT_ABKNICKENDE_VORFAHRT_ZUFAHRT("Nicht-abknickende Vorfahrt mit Fußg.-/Radfahrer-LSA in einer Zufahrt", KnotenformKategorie.KNOTEN_MIT_VORFAHRTSREGELNDEN_VERKEHRSZEICHEN),
+
+	SONSTIGER_KNOTEN("Sonstiger Knoten", KnotenformKategorie.SONSTIGER_KNOTEN),
+	GLEISQUERUNG("Gleisquerung", KnotenformKategorie.SONSTIGER_KNOTEN),
+	FEHLENDE_FURT("Fehlende / verblasste Furt", KnotenformKategorie.SONSTIGER_KNOTEN)
 	;
 
 	// @formatter:on

@@ -1,0 +1,48 @@
+@if (showMenu) {
+  <button matTooltip="Administration öffnen" [matMenuTriggerFor]="menu" mat-icon-button>
+    <mat-icon>settings</mat-icon>
+  </button>
+} @else {
+  <button
+    *ngIf="showOrganisation"
+    matTooltip="Organisationen verwalten"
+    [routerLink]="administrationOrganisationRoute"
+    queryParamsHandling="merge"
+    mat-icon-button>
+    <mat-icon>account_balance</mat-icon>
+  </button>
+  <button
+    *ngIf="showBenutzer"
+    matTooltip="Benutzer verwalten"
+    [routerLink]="administrationBenutzerRoute"
+    queryParamsHandling="merge"
+    mat-icon-button>
+    <mat-icon>manage_accounts</mat-icon>
+  </button>
+  <button
+    *ngIf="showDateiLayer"
+    matTooltip="Verfügbare Layer verwalten"
+    [routerLink]="administrationDateiLayerRoute"
+    queryParamsHandling="merge"
+    mat-icon-button>
+    <mat-icon>layers</mat-icon>
+  </button>
+}
+
+<mat-menu #menu="matMenu">
+  <button *ngIf="showBenutzer" [routerLink]="administrationBenutzerRoute" queryParamsHandling="merge" mat-menu-item>
+    <mat-icon>manage_accounts</mat-icon>Benutzer
+  </button>
+  <button
+    *ngIf="showOrganisation"
+    [routerLink]="administrationOrganisationRoute"
+    queryParamsHandling="merge"
+    mat-menu-item>
+    <mat-icon>account_balance</mat-icon>
+    Organisationen
+  </button>
+  <button *ngIf="showDateiLayer" [routerLink]="administrationDateiLayerRoute" queryParamsHandling="merge" mat-menu-item>
+    <mat-icon>layers</mat-icon>
+    Verfügbare Layer
+  </button>
+</mat-menu>

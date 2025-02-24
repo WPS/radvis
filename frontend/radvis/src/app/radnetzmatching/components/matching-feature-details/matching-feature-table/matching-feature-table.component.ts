@@ -44,6 +44,7 @@ interface MatchingFeatureTableData {
   templateUrl: './matching-feature-table.component.html',
   styleUrls: ['./matching-feature-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MatchingFeatureTableComponent implements OnChanges, AfterViewInit, OnDestroy, OnInit {
   @ViewChild(MatSort) sort: MatSort | null = null;

@@ -39,6 +39,8 @@ public class ReverseproxyConfiguarationProperties {
 	private final String beschilderungsKatasterDomain;
 	private final String beschilderungsKatasterPath;
 
+	private final String geoserverHealthCheckUrl;
+
 	@ConstructorBinding
 	public ReverseproxyConfiguarationProperties(
 		String geoserverUrl,
@@ -48,9 +50,10 @@ public class ReverseproxyConfiguarationProperties {
 		String grafanaUrl,
 		String matomoUrl,
 		String beschilderungsKatasterDomain,
-		String beschilderungsKatasterPath) {
+		String beschilderungsKatasterPath, String geoserverHealthCheckUrl) {
 		require(geoserverUrl, notNullValue());
 		require(beschilderungsKatasterDomain, notNullValue());
+		require(geoserverHealthCheckUrl, notNullValue());
 
 		this.beschilderungsKatasterDomain = beschilderungsKatasterDomain;
 		this.beschilderungsKatasterPath = beschilderungsKatasterPath;
@@ -60,6 +63,7 @@ public class ReverseproxyConfiguarationProperties {
 		this.geoserverApiUserPassword = geoserverApiUserPassword;
 		this.geoserverDateiLayerUrl = geoserverDateiLayerUrl;
 		this.grafanaUrl = grafanaUrl;
+		this.geoserverHealthCheckUrl = geoserverHealthCheckUrl;
 	}
 
 }

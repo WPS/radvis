@@ -42,5 +42,6 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  },
+  "eslint.useFlatConfig": true
 }

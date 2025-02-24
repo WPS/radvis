@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -28,7 +27,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
   declarations: [EditorComponent, EditorMenuComponent],
   imports: [
     BrowserModule,
-    HttpClientModule,
     EditorRoutingModule,
     ReactiveFormsModule,
     SharedModule,

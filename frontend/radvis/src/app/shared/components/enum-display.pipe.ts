@@ -17,6 +17,7 @@ import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
 @Pipe({
   name: 'enumDisplay',
+  standalone: false,
 })
 export class EnumDisplayPipe implements PipeTransform {
   transform(value: string, options: EnumOption[]): string {

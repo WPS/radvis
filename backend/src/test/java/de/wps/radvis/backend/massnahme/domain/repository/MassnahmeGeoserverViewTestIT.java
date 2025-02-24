@@ -26,9 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
@@ -106,22 +106,22 @@ class MassnahmeGeoserverViewTestIT extends DBIntegrationTestIT {
 
 	private Gebietskoerperschaft gebietskoerperschaft;
 
-	@MockBean
+	@MockitoBean
 	private ShapeFileRepository shapeFileRepository;
 
-	@MockBean
+	@MockitoBean
 	private SimpleMatchingService simpleMatchingService;
 
-	@MockBean
+	@MockitoBean
 	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
-	@MockBean
+	@MockitoBean
 	private BenutzerResolver benutzerResolver;
 
-	@MockBean
+	@MockitoBean
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 
-	@MockBean
+	@MockitoBean
 	private FahrradrouteRepository fahrradrouteRepository;
 
 	@Autowired

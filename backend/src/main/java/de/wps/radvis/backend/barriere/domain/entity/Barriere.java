@@ -27,6 +27,7 @@ import java.util.Set;
 import org.hibernate.envers.Audited;
 
 import de.wps.radvis.backend.barriere.domain.valueObject.BarriereBegruendung;
+import de.wps.radvis.backend.barriere.domain.valueObject.BarriereFormDetails;
 import de.wps.radvis.backend.barriere.domain.valueObject.BarrierenForm;
 import de.wps.radvis.backend.barriere.domain.valueObject.Markierung;
 import de.wps.radvis.backend.barriere.domain.valueObject.Sicherung;
@@ -66,6 +67,9 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 	private BarrierenForm barrierenForm;
 
 	@Enumerated(EnumType.STRING)
+	private BarriereFormDetails barriereFormDetails;
+
+	@Enumerated(EnumType.STRING)
 	private VerbleibendeDurchfahrtsbreite verbleibendeDurchfahrtsbreite;
 
 	@Enumerated(EnumType.STRING)
@@ -83,6 +87,7 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 		BarriereNetzBezug netzbezug,
 		Verwaltungseinheit verantwortlicheOrganisation,
 		BarrierenForm barrierenForm,
+		BarriereFormDetails barriereFormDetails,
 		VerbleibendeDurchfahrtsbreite verbleibendeDurchfahrtsbreite,
 		Sicherung sicherung,
 		Markierung markierung,
@@ -91,11 +96,15 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 		require(netzbezug, notNullValue());
 		require(verantwortlicheOrganisation, notNullValue());
 		require(barrierenForm, notNullValue());
+		if (barriereFormDetails != null) {
+			require(barriereFormDetails.isValidForBarrierenForm(barrierenForm));
+		}
 
 		this.version = version;
 		this.netzbezug = netzbezug;
 		this.verantwortlich = verantwortlicheOrganisation;
 		this.barrierenForm = barrierenForm;
+		this.barriereFormDetails = barriereFormDetails;
 		this.verbleibendeDurchfahrtsbreite = verbleibendeDurchfahrtsbreite;
 		this.sicherung = sicherung;
 		this.markierung = markierung;
@@ -106,11 +115,13 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 		BarriereNetzBezug netzbezug,
 		Verwaltungseinheit verantwortlicheOrganisation,
 		BarrierenForm barrierenForm,
+		BarriereFormDetails barriereFormDetails,
 		VerbleibendeDurchfahrtsbreite verbleibendeDurchfahrtsbreite,
 		Sicherung sicherung,
 		Markierung markierung,
 		BarriereBegruendung begruendung) {
-		this(null, null, netzbezug, verantwortlicheOrganisation, barrierenForm, verbleibendeDurchfahrtsbreite,
+		this(null, null, netzbezug, verantwortlicheOrganisation, barrierenForm, barriereFormDetails,
+			verbleibendeDurchfahrtsbreite,
 			sicherung, markierung, begruendung);
 	}
 
@@ -122,6 +133,7 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 		BarriereNetzBezug netzbezug,
 		Verwaltungseinheit organisation,
 		BarrierenForm barrierenForm,
+		BarriereFormDetails barriereFormDetails,
 		VerbleibendeDurchfahrtsbreite verbleibendeDurchfahrtsbreite,
 		Sicherung sicherung,
 		Markierung markierung,
@@ -129,10 +141,14 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 		require(netzbezug, notNullValue());
 		require(organisation, notNullValue());
 		require(barrierenForm, notNullValue());
+		if (barriereFormDetails != null) {
+			require(barriereFormDetails.isValidForBarrierenForm(barrierenForm));
+		}
 
 		this.netzbezug = netzbezug;
 		this.verantwortlich = organisation;
 		this.barrierenForm = barrierenForm;
+		this.barriereFormDetails = barriereFormDetails;
 		this.verbleibendeDurchfahrtsbreite = verbleibendeDurchfahrtsbreite;
 		this.sicherung = sicherung;
 		this.markierung = markierung;
@@ -153,6 +169,10 @@ public class Barriere extends AbstractEntityWithNetzbezug {
 
 	public Optional<BarriereBegruendung> getBegruendung() {
 		return Optional.ofNullable(begruendung);
+	}
+
+	public Optional<BarriereFormDetails> getBarriereFormDetails() {
+		return Optional.ofNullable(barriereFormDetails);
 	}
 
 	public void removeKanteFromNetzbezug(Collection<Long> kantenIds) {

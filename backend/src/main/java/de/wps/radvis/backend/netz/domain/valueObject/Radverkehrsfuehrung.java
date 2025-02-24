@@ -56,19 +56,25 @@ public enum Radverkehrsfuehrung {
 	BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND("Betriebsweg Landwirtschaft (straßenbegleitend)",
 		RadverkehrsfuehrungKategorie.STRASSENBEGLEITEND),
 
-	PIKTOGRAMMKETTE("Piktogrammkette", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	PIKTOGRAMMKETTE_BEIDSEITIG("Piktogrammkette (beidseitig)", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	PIKTOGRAMMKETTE_EINSEITIG("Piktogrammkette (einseitig)", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	SCHUTZSTREIFEN("Schutzstreifen", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	SCHUTZSTREIFEN_IN_TEMPOZONE("Schutzstreifen in Tempozone", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	SCHUTZSTREIFEN_MIT_GEHWEG("Schutzstreifen mit Gehweg (Rad frei)", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	SCHUTZSTREIFEN_MIT_GEHWEG_IN_TEMPOZONE("Schutzstreifen mit Gehweg (Rad frei) in Tempozone", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	RADFAHRSTREIFEN("Radfahrstreifen", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR("Radfahrstreifen (mit Freigabe Busverkehr)",
 		RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR("Busfahrstreifen (mit Freigabe Radverkehr)",
 		RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
-	MEHRZWECKSTREIFEN("Mehrzweckstreifen", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	MEHRZWECKSTREIFEN_BEIDSEITIG("Mehrzweckstreifen (beidseitig)", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	MEHRZWECKSTREIFEN_EINSEITIG("Mehrzweckstreifen (einseitig)", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN("Führung auf Fahrbahn (30 - 100 km/h) zweistreifige Fahrbahn",
 		RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	FUEHRUNG_AUF_FAHRBAHN_VIER_MEHRSTREIFIGE_FAHRBAHN(
 		"Führung auf Fahrbahn (30 - 100 km/h) vier- / mehrstreifige Fahrbahn", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	FUEHRUNG_IN_T30_ZONE("Führung in T30-Zone", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	FUEHRUNG_IN_T30_ZONE_VORFAHRTSGEREGELT("Führung in T30-Zone (vorfahrtsgeregelt)", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	FUEHRUNG_IN_T20_ZONE("Führung in T20-Zone", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	FUEHRUNG_IN_VERKEHRSBERUHIGTER_BEREICH("Führung in Verkehrsberuhigter Bereich",
 		RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
@@ -86,6 +92,7 @@ public enum Radverkehrsfuehrung {
 		RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30("Einbahnstraße (mit Freigabe Radverkehr bei ≤ 30 km/h)",
 		RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
+	GEMEINDEVERBINDUNGSSTRASSE("Gemeindeverbindungsstraße", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 	SONSTIGE_STRASSE_WEG("Sonstige Straße / Weg", RadverkehrsfuehrungKategorie.FAHRBAHNFUEHRUNG),
 
 	UNBEKANNT("Unbekannt", RadverkehrsfuehrungKategorie.UNBEKANNT);
@@ -116,33 +123,33 @@ public enum Radverkehrsfuehrung {
 
 	public static Set<Radverkehrsfuehrung> mischverkehr() {
 		return Set.of(
-			//			Führung auf Fahrbahn (30 - 100 km/h) zweistreifige Fahrbahn
+			// Führung auf Fahrbahn (30 - 100 km/h) zweistreifige Fahrbahn
 			Radverkehrsfuehrung.FUEHRUNG_AUF_FAHRBAHN_ZWEISTREIFIGE_FAHRBAHN,
-			//		Führung in T30-Zone
+			// Führung in T30-Zone
 			Radverkehrsfuehrung.FUEHRUNG_IN_T30_ZONE,
-			//		Führung in T20-Zone
+			// Führung in T20-Zone
 			Radverkehrsfuehrung.FUEHRUNG_IN_T20_ZONE,
-			//		Führung in Verkehrsberuhigter Bereich
+			// Führung in Verkehrsberuhigter Bereich
 			Radverkehrsfuehrung.FUEHRUNG_IN_VERKEHRSBERUHIGTER_BEREICH,
-			//		Führung in Fußg.-Zone (Rad frei)
+			// Führung in Fußg.-Zone (Rad frei)
 			Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_FREI,
-			//		Führung in Fußg.-Zone (Rad zeitw. frei)
+			// Führung in Fußg.-Zone (Rad zeitw. frei)
 			Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_ZEITW_FREI,
-			//		Führung in Fußg.-Zone (Rad nicht frei)
+			// Führung in Fußg.-Zone (Rad nicht frei)
 			Radverkehrsfuehrung.FUEHRUNG_IN_FUSSG_ZONE_RAD_NICHT_FREI,
-			//			Begegnungszone
+			// Begegnungszone
 			Radverkehrsfuehrung.BEGEGNUNBSZONE,
-			//		Führung in Fahrradstraße
+			// Führung in Fahrradstraße
 			Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE,
-			//		Führung in Fahrradzone
+			// Führung in Fahrradzone
 			Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADZONE,
-			//		Einbahnstraße (ohne Freigabe Radverkehr > 30 km/h)
+			// Einbahnstraße (ohne Freigabe Radverkehr > 30 km/h)
 			Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_ALS_30,
-			//		Einbahnstraße (ohne Freigabe Radverkehr bei ≤ 30 km/h)
+			// Einbahnstraße (ohne Freigabe Radverkehr bei ≤ 30 km/h)
 			Radverkehrsfuehrung.EINBAHNSTRASSE_OHNE_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
-			//		Einbahnstraße (mit Freigabe Radverkehr bei ≤ 30 km/h)
+			// Einbahnstraße (mit Freigabe Radverkehr bei ≤ 30 km/h)
 			Radverkehrsfuehrung.EINBAHNSTRASSE_MIT_FREIGABE_RADVERKEHR_MEHR_WENIGER_30,
-			//		Sonstige Straße / Weg
+			// Sonstige Straße / Weg
 			Radverkehrsfuehrung.SONSTIGE_STRASSE_WEG);
 	}
 }

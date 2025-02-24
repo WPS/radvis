@@ -36,6 +36,7 @@ import { ExportService } from 'src/app/viewer/viewer-shared/services/export.serv
   providers: [
     { provide: AbstractInfrastrukturenFilterService, useExisting: forwardRef(() => FahrradrouteFilterService) },
   ],
+  standalone: false,
 })
 export class FahrradrouteTabelleComponent {
   selectedFahrradrouteID$: Observable<number | null>;
@@ -78,7 +79,7 @@ export class FahrradrouteTabelleComponent {
     this.selectedFahrradrouteID$ = this.fahrradrouteRoutingService.selectedInfrastrukturId$;
 
     this.isBenutzerBerechtigtFahrradroutenZuErstellen = benutzerDetailsService.canCreateFahrradrouten();
-    this.isBenutzerAdmin = benutzerDetailsService.istAktuellerBenutzerAdmin();
+    this.isBenutzerAdmin = benutzerDetailsService.canRoutingprofileBearbeiten();
 
     this.fahrradroutenCreatorRoute = this.fahrradrouteRoutingService.getCreatorRoute();
 

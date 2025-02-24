@@ -32,6 +32,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './feature-layer.component.html',
   styleUrls: ['./feature-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
   @Input()

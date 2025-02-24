@@ -13,9 +13,10 @@
  */
 
 import { Netzbezug } from 'src/app/shared/models/netzbezug';
-import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/verbleibende-durchfahrtsbreite';
-import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
+import { BarriereFormDetails } from 'src/app/viewer/barriere/models/barriere-form-details';
 import { Markierung } from 'src/app/viewer/barriere/models/markierung';
+import { Sicherung } from 'src/app/viewer/barriere/models/sicherung';
+import { VerbleibendeDurchfahrtsbreite } from 'src/app/viewer/barriere/models/verbleibende-durchfahrtsbreite';
 
 export interface SaveBarriereCommand {
   netzbezug: Netzbezug;
@@ -26,4 +27,5 @@ export interface SaveBarriereCommand {
   sicherung: Sicherung | null;
   markierung: Markierung | null;
   begruendung: string | null;
+  barriereFormDetails: BarriereFormDetails | null;
 }

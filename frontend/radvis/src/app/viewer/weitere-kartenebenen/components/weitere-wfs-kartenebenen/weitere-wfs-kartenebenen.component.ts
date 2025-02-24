@@ -41,6 +41,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './weitere-wfs-kartenebenen.component.html',
   styleUrls: ['./weitere-wfs-kartenebenen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnChanges {
   public static HIGHLIGHTED_PROPERTY_NAME = 'highlighted';
@@ -183,7 +184,6 @@ export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnCha
         .get(this.buildURL(extent))
         .toPromise()
         .then(data => {
-          // eslint-disable-next-line
           try {
             const features = this.source?.getFormat()?.readFeatures(data) as Feature<Geometry>[];
             if (features) {

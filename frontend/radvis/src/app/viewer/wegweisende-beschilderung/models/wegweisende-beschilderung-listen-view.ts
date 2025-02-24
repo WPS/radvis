@@ -39,7 +39,7 @@ export namespace WegweisendeBeschilderungListenView {
   export const getDisplayValueForKey = (item: WegweisendeBeschilderungListenView, key: string): string => {
     switch (key) {
       case 'id':
-        return `${item.id}` ?? EMPTY_FIELD_INDICATOR;
+        return `${item.id}`;
       case 'pfostenNr':
         return item.pfostenNr ?? EMPTY_FIELD_INDICATOR;
       case 'wegweiserTyp':

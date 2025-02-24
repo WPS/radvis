@@ -29,18 +29,15 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisherSensitiveTest;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
-import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenTfisImportJob;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenTfisUpdateJob;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenToubizImportJob;
@@ -71,23 +68,7 @@ import lombok.Setter;
 
 @Tag("group7")
 @ContextConfiguration(classes = {
-	FahrradrouteConfiguration.class,
 	WegweisendeBeschilderungConfiguration.class
-})
-@MockBeans({
-	@MockBean(KonsistenzregelnConfigurationProperties.class),
-	@MockBean(ToubizConfigurationProperties.class),
-	@MockBean(ShapeFileRepository.class),
-	@MockBean(FahrradroutenTfisImportJob.class),
-	@MockBean(FahrradroutenTfisUpdateJob.class),
-	@MockBean(LandesradfernwegeTfisImportJob.class),
-	@MockBean(FahrradroutenVariantenTfisImportJob.class),
-	@MockBean(FahrradroutenVariantenTfisUpdateJob.class),
-	@MockBean(LandesradfernwegeVariantenTfisImportJob.class),
-	@MockBean(FahrradroutenToubizImportJob.class),
-	@MockBean(WegweisendeBeschilderungConfigurationProperties.class),
-	@MockBean(OrganisationConfigurationProperties.class),
-	@MockBean(MailService.class)
 })
 class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelTestIT implements
 	RadVisDomainEventPublisherSensitiveTest {
@@ -107,6 +88,31 @@ class BeschilderungRadNETZKonsistenzregelTestIT extends AbstractKonsistenzregelT
 	private BeschilderungRadNETZKonsistenzregel beschilderungRadNETZKonsistenzregel;
 	private final int beschilderungMaxEntfernungVonRoute = 15;
 	private Gebietskoerperschaft badenWuerttemberg;
+
+	@MockitoBean
+	private KonsistenzregelnConfigurationProperties konsistenzregelnConfigurationProperties;
+	@MockitoBean
+	private ToubizConfigurationProperties toubizConfigurationProperties;
+	@MockitoBean
+	private ShapeFileRepository shapeFileRepository;
+	@MockitoBean
+	private FahrradroutenTfisImportJob fahrradroutenTfisImportJob;
+	@MockitoBean
+	private FahrradroutenTfisUpdateJob fahrradroutenTfisUpdateJob;
+	@MockitoBean
+	private LandesradfernwegeTfisImportJob landesradfernwegeTfisImportJob;
+	@MockitoBean
+	private FahrradroutenVariantenTfisImportJob fahrradroutenVariantenTfisImportJob;
+	@MockitoBean
+	private FahrradroutenVariantenTfisUpdateJob fahrradroutenVariantenTfisUpdateJob;
+	@MockitoBean
+	private LandesradfernwegeVariantenTfisImportJob landesradfernwegeVariantenTfisImportJob;
+	@MockitoBean
+	private FahrradroutenToubizImportJob fahrradroutenToubizImportJob;
+	@MockitoBean
+	private WegweisendeBeschilderungConfigurationProperties wegweisendeBeschilderungConfigurationProperties;
+	@MockitoBean
+	private OrganisationConfigurationProperties organisationConfigurationProperties;
 
 	@BeforeEach
 	void setUp() {

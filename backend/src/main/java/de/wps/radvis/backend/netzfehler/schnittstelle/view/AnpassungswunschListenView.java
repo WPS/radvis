@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.netzfehler.schnittstelle.view;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Point;
@@ -37,6 +38,8 @@ public class AnpassungswunschListenView {
 	private final Point geometrie;
 	private final AnpassungswunschKategorie kategorie;
 	private final Optional<VerwaltungseinheitView> verantwortlicheOrganisation;
+	private final LocalDateTime erstelltAm;
+	private final LocalDateTime zuletztGeaendertAm;
 
 	public AnpassungswunschListenView(Anpassungswunsch anpassungswunsch) {
 		this.id = anpassungswunsch.getId();
@@ -46,5 +49,7 @@ public class AnpassungswunschListenView {
 		this.kategorie = anpassungswunsch.getKategorie();
 		this.verantwortlicheOrganisation = anpassungswunsch.getVerantwortlicheOrganisation().map(
 			VerwaltungseinheitView::new);
+		erstelltAm = anpassungswunsch.getErstellung();
+		zuletztGeaendertAm = anpassungswunsch.getAenderung();
 	}
 }

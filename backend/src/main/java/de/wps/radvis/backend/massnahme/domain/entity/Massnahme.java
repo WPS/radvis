@@ -228,6 +228,8 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		require(bezeichnung, notNullValue());
 		require(massnahmenkategorien, notNullValue());
 		require(massnahmenkategorien, is(not(empty())));
+		require(areKategorienValidForKonzeptionsquelle(konzeptionsquelle, massnahmenkategorien),
+			"Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt.");
 		require(zustaendiger, notNullValue());
 		require(hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien),
 			"Nur eine Maßnahmenkategorie pro Oberkategorie erlaubt");
@@ -330,6 +332,8 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		require(bezeichnung, notNullValue());
 		require(massnahmenkategorien, notNullValue());
 		require(massnahmenkategorien, is(not(empty())));
+		require(areKategorienValidForKonzeptionsquelle(konzeptionsquelle, massnahmenkategorien),
+			"Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt.");
 		require(hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien),
 			"Nur eine Massnahmenkategorie pro Oberkategorie erlaubt");
 		require(netzbezug, notNullValue());
@@ -526,6 +530,18 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		Konzeptionsquelle konzeptionsquelle, String sonstigeKonzeptionsquelle) {
 		return konzeptionsquelle != Konzeptionsquelle.SONSTIGE
 			|| (sonstigeKonzeptionsquelle != null && !sonstigeKonzeptionsquelle.isEmpty());
+	}
+
+	public static boolean areKategorienValidForKonzeptionsquelle(
+		Konzeptionsquelle konzeptionsquelle, Set<Massnahmenkategorie> massnahmenkategorien) {
+		require(massnahmenkategorien, notNullValue());
+
+		if (konzeptionsquelle == null) {
+			return true;
+		}
+
+		return massnahmenkategorien.stream()
+			.allMatch(kategorie -> kategorie.isValidForKonzeptionsquelle(konzeptionsquelle));
 	}
 
 	public static boolean hatNurEineMassnahmenkategorieProOberkategorie(Set<Massnahmenkategorie> massnahmenkategorien) {

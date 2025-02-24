@@ -184,6 +184,24 @@
       <nillable>true</nillable>
       <binding>org.locationtech.jts.geom.Geometry</binding>
     </attribute>
+     <attribute>
+      <name>bauwerksmangel</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>bauwerksmangel_art</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>querungshilfe_details</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>
   <skipNumberMatched>false</skipNumberMatched>

@@ -21,10 +21,10 @@ import { StyleFunction } from 'ol/style/Style';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
 import { getRadvisNetzStyleFunction } from 'src/app/shared/models/radvis-netz-style';
+import { knotenNetzVectorlayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { createVectorSource } from 'src/app/shared/services/vector-source.factory';
-import { knotenNetzVectorlayerZIndex } from 'src/app/shared/models/shared-layer-zindex-config';
 
 export class KnotenNetzVectorLayer extends VectorLayer {
   private static readonly HIGHLIGHT_PROPERTY = 'highlighted';
@@ -62,7 +62,7 @@ export class KnotenNetzVectorLayer extends VectorLayer {
     if (feature) {
       feature.set(
         KnotenNetzVectorLayer.HIGHLIGHT_PROPERTY,
-        !feature.get(KnotenNetzVectorLayer.HIGHLIGHT_PROPERTY) ?? true
+        !Boolean(feature.get(KnotenNetzVectorLayer.HIGHLIGHT_PROPERTY))
       );
       feature.changed();
     }

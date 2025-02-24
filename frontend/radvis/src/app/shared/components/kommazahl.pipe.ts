@@ -16,9 +16,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'kommazahl',
+  standalone: false,
 })
 export class KommazahlPipe implements PipeTransform {
-  public static numberToString(value: number, einheit: string = ''): string {
+  public static numberToString(value: number, einheit = ''): string {
     return value.toFixed(2).replace('.', ',') + einheit;
   }
 

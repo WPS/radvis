@@ -37,8 +37,8 @@ import org.locationtech.jts.geom.MultiLineString;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
@@ -92,7 +92,6 @@ import jakarta.persistence.PersistenceContext;
 @ContextConfiguration(classes = {
 	NetzConfiguration.class, CommonConfiguration.class
 })
-@MockBean({ NetzConfigurationProperties.class, CommonConfigurationProperties.class })
 class DlmReimportJobNetzUpdateTestIT extends DBIntegrationTestIT {
 	DlmReimportJob dlmReimportJob;
 	@Mock
@@ -115,28 +114,32 @@ class DlmReimportJobNetzUpdateTestIT extends DBIntegrationTestIT {
 	@Autowired
 	protected PlatformTransactionManager transactionManager;
 
-	@MockBean
+	@MockitoBean
 	VerwaltungseinheitResolver verwaltungseinheitResolver;
-	@MockBean
+	@MockitoBean
 	BenutzerResolver benutzerResolver;
-	@MockBean
+	@MockitoBean
 	FeatureToggleProperties featureToggleProperties;
-	@MockBean
+	@MockitoBean
 	PostgisConfigurationProperties postgisConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	OrganisationConfigurationProperties organisationConfigurationProperties;
-	@MockBean
+	@MockitoBean
 	CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
-	@MockBean
+	@MockitoBean
 	private DlmPbfErstellungService dlmPbfErstellungService;
-	@MockBean
+	@MockitoBean
 	private CustomDlmMatchingRepositoryFactory customDlmMatchingRepositoryFactory;
-	@MockBean
+	@MockitoBean
 	private CustomGrundnetzMappingServiceFactory customGrundnetzMappingServiceFactory;
-	@MockBean
+	@MockitoBean
 	private SimpleMatchingService simpleMatchingService;
-	@MockBean
+	@MockitoBean
 	private KanteUpdateElevationService elevationUpdateService;
+	@MockitoBean
+	private NetzConfigurationProperties netzConfigurationProperties;
+	@MockitoBean
+	private CommonConfigurationProperties commonConfigurationProperties;
 
 	@BeforeEach
 	void setup() throws IOException {

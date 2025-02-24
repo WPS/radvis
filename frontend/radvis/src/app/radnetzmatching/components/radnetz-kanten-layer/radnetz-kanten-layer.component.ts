@@ -29,6 +29,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './radnetz-kanten-layer.component.html',
   styleUrls: ['./radnetz-kanten-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RadnetzKantenLayerComponent implements OnDestroy, OnChanges {
   @Input()

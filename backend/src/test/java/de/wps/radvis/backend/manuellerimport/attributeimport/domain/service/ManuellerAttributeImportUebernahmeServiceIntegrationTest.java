@@ -66,6 +66,7 @@ import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
@@ -93,6 +94,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
 import de.wps.radvis.backend.netz.domain.valueObject.provider.LineareReferenzTestProvider;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
@@ -106,14 +108,17 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 	private InMemoryKantenRepositoryFactory inMemoryKantenRepositoryFactory;
 
 	@Mock
+	private VerwaltungseinheitService verwaltungseinheitService;
+
+	@Mock
+	private NetzService netzService;
+
+	@Mock
 	private EntityManager entityManager;
 
 	private ManuellerAttributeImportUebernahmeService manuellerAttributeImportUebernahmeService;
 
 	private MappingService mappingService;
-
-	@Mock
-	private VerwaltungseinheitService verwaltungseinheitService;
 
 	@BeforeEach
 	void setup() {
@@ -175,7 +180,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(),
-			new AttributMapperFactory(verwaltungseinheitService)
+			new AttributMapperFactory(verwaltungseinheitService, netzService)
 				.createMapper(session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -249,7 +254,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -384,7 +389,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -484,7 +489,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -586,7 +591,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -694,7 +699,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		AttributeImportKonfliktProtokoll protokoll = new AttributeImportKonfliktProtokoll();
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			protokoll);
 
@@ -742,7 +747,8 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 	}
 
 	@Test
-	void testAttributeUebernehmen_RadVIS_einseitigeKante_einFeature() {
+	void testAttributeUebernehmen_RadVIS_einseitigeKante_einFeature()
+		throws OrganisationsartUndNameNichtEindeutigException {
 		// Arrange
 		LineString linestring1 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(120.1, 230.2), new Coordinate(200.3, 330.2) });
@@ -865,19 +871,21 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 			.organisationsArt(OrganisationsArt.SONSTIGES)
 			.id(47L)
 			.build();
-		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Ötigheim", OrganisationsArt.GEMEINDE))
+		when(verwaltungseinheitService.hasVerwaltungseinheitNachNameUndArt(any(), any()))
+			.thenReturn(true);
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt("Ötigheim", OrganisationsArt.GEMEINDE))
 			.thenReturn(Optional.of(oetigheim));
-		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Stuttgart",
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt("Stuttgart",
 			OrganisationsArt.REGIERUNGSBEZIRK))
 				.thenReturn(Optional.of(stuttgart));
-		when(verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt("Toubiz",
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt("Toubiz",
 			OrganisationsArt.SONSTIGES))
 				.thenReturn(Optional.of(toubiz));
 
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -988,7 +996,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -1070,7 +1078,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -1165,7 +1173,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -1198,7 +1206,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		LineString linestring1 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(120.1, 230.2), new Coordinate(200.3, 330.2) });
 		Map<String, Object> attribute = new HashMap<>();
-		attribute.put("radverkehr", "GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND");
+		attribute.put("radverkehr", "SONDERWEG_RADWEG_STRASSENBEGLEITEND");
 		attribute.put("sts_f_l", "TRENNUNG_DURCH_SPERRPFOSTEN");
 		attribute.put("sts_b_l", "1,23");
 		attribute.put("sts_t_l", "SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN");
@@ -1213,7 +1221,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 
 		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider
 			.withGrundnetzDefaultwerte()
-			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEHWEG_RAD_FREI_SELBSTSTAENDIG)
 			// Keine Trennstreifen -> Sollen via Import ergänzt werden
 			.build();
 
@@ -1254,7 +1262,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -1265,7 +1273,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		final List<FuehrungsformAttribute> faLinks = fag.getImmutableFuehrungsformAttributeLinks();
 		assertThat(faLinks).hasSize(1);
 		FuehrungsformAttribute fa = faLinks.get(0);
-		assertThat(fa.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND);
+		assertThat(fa.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND);
 		assertThat(fa.getTrennstreifenFormLinks()).contains(TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN);
 		assertThat(fa.getTrennstreifenBreiteLinks()).contains(Laenge.of(1.23));
 		assertThat(fa.getTrennstreifenTrennungZuLinks()).contains(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN);
@@ -1280,7 +1288,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		LineString linestring1 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(120.1, 230.2), new Coordinate(200.3, 330.2) });
 		Map<String, Object> attribute = new HashMap<>();
-		attribute.put("radverkehr", "GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND");
+		attribute.put("radverkehr", "SONDERWEG_RADWEG_STRASSENBEGLEITEND");
 		attribute.put("sts_f_l", "TRENNUNG_DURCH_SPERRPFOSTEN");
 		attribute.put("sts_b_l", "1,23");
 		attribute.put("sts_t_l", "SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN");
@@ -1295,7 +1303,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 
 		FuehrungsformAttribute fuehrungsformAttribute = FuehrungsformAttributeTestDataProvider
 			.withGrundnetzDefaultwerte()
-			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND)
+			.radverkehrsfuehrung(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND)
 			.trennstreifenFormLinks(TrennstreifenForm.TRENNUNG_DURCH_GRUENSTREIFEN)
 			.trennstreifenBreiteLinks(Laenge.of(1.23))
 			.trennstreifenTrennungZuLinks(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
@@ -1341,7 +1349,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -1352,7 +1360,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		final List<FuehrungsformAttribute> faLinks = fag.getImmutableFuehrungsformAttributeLinks();
 		assertThat(faLinks).hasSize(1);
 		FuehrungsformAttribute fa = faLinks.get(0);
-		assertThat(fa.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND);
+		assertThat(fa.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND);
 		assertThat(fa.getTrennstreifenFormLinks()).contains(TrennstreifenForm.TRENNUNG_DURCH_SPERRPFOSTEN);
 		assertThat(fa.getTrennstreifenBreiteLinks()).contains(Laenge.of(1.23));
 		assertThat(fa.getTrennstreifenTrennungZuLinks()).contains(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN);
@@ -1367,7 +1375,8 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		LineString linestring1 = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory()
 			.createLineString(new Coordinate[] { new Coordinate(120.1, 230.2), new Coordinate(200.3, 330.2) });
 		Map<String, Object> attribute = new HashMap<>();
-		attribute.put("radverkehr", "PIKTOGRAMMKETTE"); // Führungsform wird durch Import geändert
+		// Führungsform wird durch Import geändert
+		attribute.put("radverkehr", Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG.name());
 
 		FeatureMapping featureMapping1 = new FeatureMapping(0L, attribute, linestring1);
 
@@ -1416,7 +1425,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		// Act
 		manuellerAttributeImportUebernahmeService.attributeUebernehmen(session.getAttribute(),
 			session.getOrganisation(), session.getFeatureMappings(), new AttributMapperFactory(
-				verwaltungseinheitService).createMapper(
+				verwaltungseinheitService, netzService).createMapper(
 					session.getAttributeImportFormat()),
 			new AttributeImportKonfliktProtokoll());
 
@@ -1427,7 +1436,7 @@ public class ManuellerAttributeImportUebernahmeServiceIntegrationTest {
 		final List<FuehrungsformAttribute> faLinks = fag.getImmutableFuehrungsformAttributeLinks();
 		assertThat(faLinks).hasSize(1);
 		FuehrungsformAttribute fa = faLinks.get(0);
-		assertThat(fa.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.PIKTOGRAMMKETTE);
+		assertThat(fa.getRadverkehrsfuehrung()).isEqualTo(Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG);
 		assertThat(fa.getTrennstreifenFormLinks()).isEmpty();
 		assertThat(fa.getTrennstreifenBreiteLinks()).isEmpty();
 		assertThat(fa.getTrennstreifenTrennungZuLinks()).isEmpty();

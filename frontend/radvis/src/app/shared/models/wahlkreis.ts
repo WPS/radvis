@@ -21,7 +21,7 @@ export interface Wahlkreis {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Wahlkreis {
   export const getDisplayName = (wahlkreis: Wahlkreis | null | undefined): string => {
-    if (!wahlkreis || !wahlkreis.name || !wahlkreis.nummer) {
+    if (!wahlkreis?.name || !wahlkreis.nummer) {
       return '';
     }
     return `${wahlkreis.name} (${wahlkreis.nummer})`;

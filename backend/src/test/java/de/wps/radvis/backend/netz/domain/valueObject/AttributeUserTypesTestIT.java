@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
@@ -32,7 +30,6 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.netz.NetzConfiguration;
@@ -66,9 +63,6 @@ import jakarta.persistence.PersistenceContext;
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
 })
 class AttributeUserTypesTestIT extends DBIntegrationTestIT {
 
@@ -146,7 +140,7 @@ class AttributeUserTypesTestIT extends DBIntegrationTestIT {
 	void testSaveAndLoad_KnotenAttribute() {
 		// arrange
 		KnotenAttribute.KnotenAttributeBuilder knotenAttributeBuilder = KnotenAttribute.builder();
-		knotenAttributeBuilder.knotenForm(KnotenForm.ABKNICKENDE_VORFAHRT);
+		knotenAttributeBuilder.knotenForm(KnotenForm.ABKNICKENDE_VORFAHRT_OHNE_LSA);
 		knotenAttributeBuilder.kommentar(Kommentar.of("Mein Kommentar"));
 
 		KnotenAttribute knotenAttribute = knotenAttributeBuilder.build();

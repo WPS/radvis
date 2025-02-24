@@ -17,7 +17,6 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class DeLocaleDateAdapter extends NativeDateAdapter {
-  // eslint-disable-next-line prettier/prettier
   override parse(value: string): Date | null {
     const it = value.split('.');
     if (it.length === 3) return new Date(Date.UTC(+it[2], +it[1] - 1, +it[0], 12));

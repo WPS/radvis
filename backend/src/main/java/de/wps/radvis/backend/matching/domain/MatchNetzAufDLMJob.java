@@ -140,7 +140,8 @@ public class MatchNetzAufDLMJob extends AbstractJob {
 			Envelope biggerEnvelopeForTopology = partition.copy();
 			biggerEnvelopeForTopology.expandBy(2000);
 
-			List<Kante> kanten = netzService.getKantenInBereichNachQuelleList(biggerEnvelopeForTopology, quellSystem);
+			List<Kante> kanten = netzService.getKantenInBereichNachQuelle(biggerEnvelopeForTopology, quellSystem)
+				.toList();
 
 			final StreckenEinerPartition<StreckeVonKanten> streckenDieserPartition = streckenViewService
 				.createStreckenEinerPartition(kanten, partition, bereitsAbgearbeitet);

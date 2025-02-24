@@ -18,6 +18,10 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 import static org.valid4j.Assertive.require;
 
+import java.util.Set;
+
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
@@ -25,10 +29,15 @@ import org.locationtech.jts.geom.Point;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -58,6 +67,18 @@ public class Knoten extends VersionierteEntity {
 
 	@Enumerated(EnumType.STRING)
 	private KnotenForm knotenForm;
+
+	@Enumerated(EnumType.STRING)
+	private QuerungshilfeDetails querungshilfeDetails;
+
+	@Enumerated(EnumType.STRING)
+	private Bauwerksmangel bauwerksmangel;
+
+	@Type(value = ListArrayType.class, parameters = {
+		@Parameter(name = ListArrayType.SQL_ARRAY_TYPE, value = "text")
+	})
+	@Column(name = "bauwerksmangel_art", columnDefinition = "text[]")
+	private Set<BauwerksmangelArt> bauwerksmangelArt;
 
 	@ManyToOne
 	@Audited(targetAuditMode = NOT_AUDITED)
@@ -100,7 +121,8 @@ public class Knoten extends VersionierteEntity {
 	}
 
 	public KnotenAttribute getKnotenAttribute() {
-		return new KnotenAttribute(this.kommentar, this.zustandsbeschreibung, this.knotenForm, this.gemeinde);
+		return new KnotenAttribute(this.kommentar, this.zustandsbeschreibung, this.knotenForm, this.gemeinde,
+			this.querungshilfeDetails, this.bauwerksmangel, this.bauwerksmangelArt);
 	}
 
 	public void setKnotenAttribute(KnotenAttribute knotenAttribute) {
@@ -109,12 +131,60 @@ public class Knoten extends VersionierteEntity {
 			this.kommentar = null;
 			this.zustandsbeschreibung = null;
 			this.gemeinde = null;
+			this.querungshilfeDetails = null;
 			return;
 		}
 		this.knotenForm = knotenAttribute.getKnotenForm().orElse(null);
+		this.querungshilfeDetails = knotenAttribute.getQuerungshilfeDetails().orElse(null);
+
+		require(isQuerungshilfeDetailsValid(querungshilfeDetails, knotenForm));
+
+		this.bauwerksmangel = knotenAttribute.getBauwerksmangel().orElse(null);
+		this.bauwerksmangelArt = knotenAttribute.getBauwerksmangelArt().orElse(null);
+
+		require(isBauwerksmangelValid(bauwerksmangel, bauwerksmangelArt, knotenForm));
+
 		this.kommentar = knotenAttribute.getKommentar().orElse(null);
 		this.zustandsbeschreibung = knotenAttribute.getZustandsbeschreibung().orElse(null);
 		this.gemeinde = knotenAttribute.getGemeinde().orElse(null);
+	}
+
+	public static boolean isBauwerksmangelValid(Bauwerksmangel bauwerksmangel,
+		Set<BauwerksmangelArt> bauwerksmangelArt, KnotenForm knotenForm) {
+		if (knotenForm == null) {
+			return bauwerksmangel == null && bauwerksmangelArt == null;
+		}
+
+		if (Bauwerksmangel.isRequiredForKnotenform(knotenForm)) {
+			if (bauwerksmangel == null) {
+				return false;
+			}
+		} else {
+			return bauwerksmangel == null && bauwerksmangelArt == null;
+		}
+
+		if (BauwerksmangelArt.isRequiredForBauwerksmangel(bauwerksmangel)) {
+			if (bauwerksmangelArt == null || bauwerksmangelArt.isEmpty()) {
+				return false;
+			}
+
+			return bauwerksmangelArt.stream().allMatch(ba -> ba.isValidForKnotenform(knotenForm));
+		} else {
+			return bauwerksmangelArt == null;
+		}
+	}
+
+	public static boolean isQuerungshilfeDetailsValid(QuerungshilfeDetails querungshilfe,
+		KnotenForm knotenform) {
+		if (knotenform == null) {
+			return querungshilfe == null;
+		}
+
+		if (QuerungshilfeDetails.isRequiredForKnotenform(knotenform)) {
+			return querungshilfe != null && querungshilfe.isValidForKnotenform(knotenform);
+		} else {
+			return querungshilfe == null;
+		}
 	}
 
 	public void updatePoint(Point point) {

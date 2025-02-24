@@ -29,6 +29,7 @@ import { FAHRRADZAEHLSTELLE } from 'src/app/viewer/fahrradzaehlstelle/models/fah
   selector: 'rad-fahrradzaehlstelle-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradzaehlstelleLayerComponent
   extends AbstractInfrastrukturLayerComponent<FahrradzaehlstelleListenView>
@@ -67,7 +68,6 @@ export class FahrradzaehlstelleLayerComponent
   }
 
   protected extractIdFromFeature(hf: RadVisFeature): number {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return hf.id!;
   }
 }

@@ -51,6 +51,7 @@ import { ServicestationUpdatedService } from 'src/app/viewer/servicestation/serv
       useExisting: forwardRef(() => ServicestationToolComponent),
     },
   ],
+  standalone: false,
 })
 export class ServicestationToolComponent implements OnDestroy, DokumentService, ServicestationUpdatedService {
   eigenschaftenRoute = './' + ServicestationRoutingService.EIGENSCHAFTEN;

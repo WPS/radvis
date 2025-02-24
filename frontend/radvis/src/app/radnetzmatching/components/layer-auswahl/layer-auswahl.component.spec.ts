@@ -27,6 +27,7 @@ import { ViewerModule } from 'src/app/viewer/viewer.module';
 
 @Component({
   template: '<rad-layer-auswahl  [layers]="layers"  [visibleLayers]="visibleLayers"></rad-layer-auswahl>',
+  standalone: false,
 })
 class TestWrapperComponent {
   @ViewChild(LayerAuswahlComponent)

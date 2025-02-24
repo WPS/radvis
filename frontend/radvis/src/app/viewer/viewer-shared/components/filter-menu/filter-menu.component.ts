@@ -33,6 +33,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
   templateUrl: './filter-menu.component.html',
   styleUrls: ['./filter-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FilterMenuComponent implements OnInit {
   @Input()

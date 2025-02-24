@@ -84,9 +84,8 @@ public class ManuellerAttributeImportUebernahmeService {
 			KantenKonfliktProtokoll kantenKonfliktProtokoll = new KantenKonfliktProtokoll(
 				kantenMapping.getKante().getId(),
 				kantenMapping.getKante().getGeometry());
-			for (String attribut : attribute) {
-				mappingService.map(attributeMapper, attribut, kantenMapping, kantenKonfliktProtokoll);
-			}
+			attribute.stream().sorted(attributeMapper::sortAttribute).forEach(
+				attribut -> mappingService.map(attributeMapper, attribut, kantenMapping, kantenKonfliktProtokoll));
 
 			if (!kantenKonfliktProtokoll.getKonflikte().isEmpty()) {
 				kantenKonfliktProtokolle.addKonflikt(kantenKonfliktProtokoll);

@@ -19,7 +19,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { DokumentModule } from 'src/app/viewer/dokument/dokument.module';
 import { KommentareModule } from 'src/app/viewer/kommentare/kommentare.module';
 import { ErweiterterMassnahmenFilterDialogComponent } from 'src/app/viewer/massnahme/components/erweiterter-massnahmen-filter-dialog/erweiterter-massnahmen-filter-dialog.component';
-import { FahrradroutenDropdownControlComponent } from 'src/app/viewer/massnahme/components/fahrradrouten-dropdown-control/fahrradrouten-dropdown-control.component';
 import { MassnahmeNetzbezugSnapshotLayerComponent } from 'src/app/viewer/massnahme/components/massnahme-netzbezug-snapshot-layer/massnahme-netzbezug-snapshot-layer.component';
 import { MassnahmenUmsetzungsstandComponent } from 'src/app/viewer/massnahme/components/massnahme-umsetzungsstand/massnahmen-umsetzungsstand.component';
 import { MassnahmenAttributeEditorComponent } from 'src/app/viewer/massnahme/components/massnahmen-attribute-editor/massnahmen-attribute-editor.component';
@@ -47,7 +46,6 @@ import { MassnahmeUmsetzungsstandDialogComponent } from './components/massnahme-
     MassnahmeUmsetzungsstandButtonMenuComponent,
     MassnahmeUmsetzungsstandDialogComponent,
     ErweiterterMassnahmenFilterDialogComponent,
-    FahrradroutenDropdownControlComponent,
     UmsetzungsstandAbfrageVorschauDialogComponent,
     MassnahmeNetzbezugSnapshotLayerComponent,
   ],

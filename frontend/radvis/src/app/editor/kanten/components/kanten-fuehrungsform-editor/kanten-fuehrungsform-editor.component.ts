@@ -20,6 +20,7 @@ import {
   UntypedFormArray,
   UntypedFormControl,
   UntypedFormGroup,
+  ValidationErrors,
   ValidatorFn,
 } from '@angular/forms';
 import { Feature } from 'ol';
@@ -30,7 +31,9 @@ import { StyleFunction } from 'ol/style/Style';
 import { Observable, of } from 'rxjs';
 import { NetzService } from 'src/app/editor/editor-shared/services/netz.service';
 import { AbstractLinearReferenzierteAttributGruppeEditor } from 'src/app/editor/kanten/components/abstract-linear-referenzierte-attribut-gruppe-editor';
+import { Absenkung } from 'src/app/editor/kanten/models/absenkung';
 import { Benutzungspflicht } from 'src/app/editor/kanten/models/benutzungspflicht';
+import { Beschilderung } from 'src/app/editor/kanten/models/beschilderung';
 import { Bordstein } from 'src/app/editor/kanten/models/bordstein';
 import { FuehrungsformAttributGruppe } from 'src/app/editor/kanten/models/fuehrungsform-attribut-gruppe';
 import { FuehrungsformAttribute } from 'src/app/editor/kanten/models/fuehrungsform-attribute';
@@ -42,6 +45,7 @@ import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberfla
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { SaveFuehrungsformAttributGruppeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribut-gruppe-command';
 import { SaveFuehrungsformAttributeCommand } from 'src/app/editor/kanten/models/save-fuehrungsform-attribute-command';
+import { Schadenart } from 'src/app/editor/kanten/models/schadenart';
 import { TrennstreifenForm } from 'src/app/editor/kanten/models/trennstreifen-form';
 import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
 import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
@@ -72,6 +76,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
     '../lineare-referenz-tabelle.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenFuehrungsformEditorComponent
   extends AbstractLinearReferenzierteAttributGruppeEditor<FuehrungsformAttribute, FuehrungsformAttributGruppe>
@@ -89,33 +94,41 @@ export class KantenFuehrungsformEditorComponent
   public benutzungspflicht = Benutzungspflicht.options;
   public parkenTypOptions = KfzParkenTyp.options;
   public parkenFormOptions = KfzParkenForm.options;
+  public beschilderungOptions = Beschilderung.options;
+  public schadenartOptions = Schadenart.options;
+  public absenkungOptions = Absenkung.options;
 
   // Hält die linearen Referenzen. Verbunden mit den LineareReferenzControls
   public lineareReferenzenLinksFormArray: UntypedFormArray = new UntypedFormArray([]);
   public lineareReferenzenRechtsFormArray: UntypedFormArray = new UntypedFormArray([]);
 
-  private validateTrennungZu: ValidatorFn = ctrl => {
-    if (
-      ctrl.value &&
-      !(ctrl.value instanceof UndeterminedValue) &&
-      !this.trennstreifenTrennungZuOptions.some(opt => opt.name === ctrl.value)
-    ) {
-      return {
-        trennungZuInvalid: `Aktueller Wert "${TrennstreifenTrennungZu.displayText(ctrl.value)}" ist für die gewählte Radverkehrsführung nicht erlaubt, bitte Auswahl ändern.`,
-      };
+  // Sicherheitstrennstreifen
+
+  private isTrennstreifenTrennungZuValid: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const trennungZu = control.value;
+    if (!trennungZu || trennungZu instanceof UndeterminedValue) {
+      return null;
     }
 
-    return null;
+    const radverkehrsfuehrung = this.displayedAttributeformGroup.get('radverkehrsfuehrung')?.value;
+    if (!radverkehrsfuehrung || radverkehrsfuehrung instanceof UndeterminedValue) {
+      return null;
+    }
+
+    if (TrennstreifenTrennungZu.isValidForRadverkehrsfuehrung(trennungZu, radverkehrsfuehrung)) {
+      return null;
+    }
+
+    return { beschilderungInvalid: 'Wert passt nicht zur ausgewählten Radverkehrsführung' };
   };
 
-  // Sicherheitstrennstreifen
   public trennstreifenFormGroupLinks = new FormGroup({
     trennstreifenFormLinks: new FormControl<TrennstreifenForm | null | UndeterminedValue>(null, [
       RadvisValidators.isNotNullOrEmpty,
     ]),
     trennstreifenTrennungZuLinks: new FormControl<TrennstreifenTrennungZu | null | UndeterminedValue>(
       null,
-      this.validateTrennungZu
+      this.isTrennstreifenTrennungZuValid
     ),
     trennstreifenBreiteLinks: new FormControl<number | null | UndeterminedValue>(null, [
       RadvisValidators.isNotNullOrEmpty,
@@ -129,7 +142,7 @@ export class KantenFuehrungsformEditorComponent
     ]),
     trennstreifenTrennungZuRechts: new FormControl<TrennstreifenTrennungZu | null | UndeterminedValue>(
       null,
-      this.validateTrennungZu
+      this.isTrennstreifenTrennungZuValid
     ),
     trennstreifenBreiteRechts: new FormControl<number | null | UndeterminedValue>(null, [
       RadvisValidators.isNotNullOrEmpty,
@@ -150,31 +163,6 @@ export class KantenFuehrungsformEditorComponent
 
   private stationierungsrichtungSource: VectorSource;
   private stationierungsrichtungLayer: VectorLayer;
-
-  // Nur für diese Radverkehrsführungen gibt es überhaupt Trennstreifen:
-  private relevanteRadverkehrsfuehrungen: Radverkehrsfuehrung[] = [
-    Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER,
-    Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
-    Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
-    Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
-    Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
-    Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
-    Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
-    Radverkehrsfuehrung.SCHUTZSTREIFEN,
-    Radverkehrsfuehrung.RADFAHRSTREIFEN,
-    Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
-    Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-    Radverkehrsfuehrung.MEHRZWECKSTREIFEN,
-  ];
-
-  // Für diese Radverkehrsführungen gibt es nur "zum Parken" als "Trennung Zu"-Wert:
-  private trennstreifenNurParkenRadverkehrsfuehrungen: Radverkehrsfuehrung[] = [
-    Radverkehrsfuehrung.SCHUTZSTREIFEN,
-    Radverkehrsfuehrung.RADFAHRSTREIFEN,
-    Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
-    Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
-    Radverkehrsfuehrung.MEHRZWECKSTREIFEN,
-  ];
 
   constructor(
     private netzService: NetzService,
@@ -214,6 +202,8 @@ export class KantenFuehrungsformEditorComponent
           this.onRadverkehrsfuehrungChanged(value);
         })
     );
+
+    this.displayedAttributeformGroup.controls.beschilderung.addValidators(this.isBeschilderungValid);
   }
 
   ngOnInit(): void {
@@ -234,7 +224,6 @@ export class KantenFuehrungsformEditorComponent
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  // eslint-disable-next-line prettier/prettier
   public override onClose(): void {
     super.onClose();
     this.unsetTrennstreifenForm();
@@ -242,13 +231,25 @@ export class KantenFuehrungsformEditorComponent
     this.trennstreifenEinseitig = undefined;
   }
 
-  // eslint-disable-next-line prettier/prettier
+  private isTrennstreifenFormValid(): boolean {
+    const areAllValuesNull = (obj: any): boolean => {
+      return Object.keys(obj).every(k => !Boolean(obj[k]));
+    };
+    let trennstreifenLinksValid = this.trennstreifenFormGroupLinks.valid;
+    if (this.trennstreifenFormGroupLinks.pristine && areAllValuesNull(this.trennstreifenFormGroupLinks.value)) {
+      trennstreifenLinksValid = true;
+    }
+
+    let trennstreifenRechtsValid = this.trennstreifenFormGroupRechts.valid;
+    if (this.trennstreifenFormGroupRechts.pristine && areAllValuesNull(this.trennstreifenFormGroupRechts.value)) {
+      trennstreifenRechtsValid = true;
+    }
+
+    return trennstreifenLinksValid && trennstreifenRechtsValid;
+  }
+
   public override onSave(): void {
-    if (
-      !this.displayedAttributeformGroup.valid ||
-      (this.trennstreifenFormGroupLinks.dirty && !this.trennstreifenFormGroupLinks.valid) ||
-      (this.trennstreifenFormGroupRechts.dirty && !this.trennstreifenFormGroupRechts.valid)
-    ) {
+    if (!this.displayedAttributeformGroup.valid || !this.isTrennstreifenFormValid()) {
       this.notifyUserService.warn('Das Formular kann nicht gespeichert werden, weil es ungültige Einträge enthält.');
       return;
     }
@@ -256,7 +257,6 @@ export class KantenFuehrungsformEditorComponent
     super.onSave();
   }
 
-  // eslint-disable-next-line prettier/prettier
   public override get pristine(): boolean {
     return (
       super.pristine &&
@@ -272,7 +272,7 @@ export class KantenFuehrungsformEditorComponent
 
   public isTrennstreifenFormVisible(): boolean {
     return this.getAttributeForSelektion(this.currentSelektion).every(attribute =>
-      this.relevanteRadverkehrsfuehrungen.includes(attribute.radverkehrsfuehrung)
+      TrennstreifenForm.isEnabledForRadverkehrsfuehrung(attribute.radverkehrsfuehrung)
     );
   }
 
@@ -313,7 +313,7 @@ export class KantenFuehrungsformEditorComponent
       arrayToChange.splice(segmentIndex, 0, deepCopy);
     }
     this.kantenSelektionService.adjustSelectionForSegmentInsertion(
-      (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
+      this.currentSelektion![kantenIndex].kante.id,
       segmentIndex,
       kantenSeite
     );
@@ -327,7 +327,7 @@ export class KantenFuehrungsformEditorComponent
       this.currentAttributgruppen[kantenIndex].fuehrungsformAttributeRechts.splice(segmentIndex, 1);
     }
     this.kantenSelektionService.adjustSelectionForSegmentDeletion(
-      (this.currentSelektion as KantenSelektion[])[kantenIndex].kante.id,
+      this.currentSelektion![kantenIndex].kante.id,
       segmentIndex,
       kantenSeite
     );
@@ -352,7 +352,7 @@ export class KantenFuehrungsformEditorComponent
     // angefassten Forms immer den Discard-Guard um sicher zu gehen, dass keine Änderungen verloren gehen.
     let canDiscardObservable: Observable<boolean>;
     if (this.currentSelektion && seitenbezugChanged && seite != null && this.trennstreifenSeiteSelected != null) {
-      canDiscardObservable = this.discardGuardService.canDeactivate(this) as Observable<boolean>;
+      canDiscardObservable = this.discardGuardService.canDeactivate(this);
     } else {
       canDiscardObservable = of(true);
     }
@@ -364,12 +364,6 @@ export class KantenFuehrungsformEditorComponent
         }
 
         this.trennstreifenSeiteSelected = seite;
-
-        // Zunächst alle Werte im Drop-Down zulassen, damit eine vorherige Einschränkung (z.B. auf "nur Parken") nicht dazu
-        // führt, dass das Drop-Down leer bleibt, sollte sich die Menge der Auswahlmöglichkeiten durch die neue Selektion
-        // geändert haben (z.B. auf "alle", wodurch Werte abseits "nur Parken" möglich sind, die aber ggf. nicht im Drop-
-        // Down angezeigt würden).
-        this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
 
         if (this.currentSelektion) {
           if (seitenbezugChanged) {
@@ -421,12 +415,6 @@ export class KantenFuehrungsformEditorComponent
           });
         }
 
-        this.updateTrennungZuOptions(
-          this.getFuehrungsformAttributeForTrennstreifenSeite(
-            this.currentSelektion,
-            this.trennstreifenSeiteSelected
-          ).map(attr => attr.radverkehrsfuehrung)
-        );
         this.updateTrennstreifenControlActivation(this.trennstreifenSeiteSelected);
       })
     );
@@ -446,6 +434,9 @@ export class KantenFuehrungsformEditorComponent
       benutzungspflicht: new UntypedFormControl(null),
       parkenTyp: new UntypedFormControl(null),
       parkenForm: new UntypedFormControl(null),
+      beschilderung: new UntypedFormControl(null),
+      schaeden: new UntypedFormControl([]),
+      absenkung: new UntypedFormControl(null),
       breite: new UntypedFormControl(null, [
         RadvisValidators.isPositiveFloatNumber,
         RadvisValidators.maxDecimalPlaces(2),
@@ -492,13 +483,12 @@ export class KantenFuehrungsformEditorComponent
       this.trennstreifenSeiteSelected = undefined;
     }
 
-    this.updateTrennungZuOptions(
-      this.getFuehrungsformAttributeForTrennstreifenSeite(selektion, this.trennstreifenSeiteSelected).map(
-        attr => attr.radverkehrsfuehrung
-      )
-    );
     this.resetTrennstreifenFormToOriginalKantenValues(selektion);
     this.trennstreifenBearbeiteteSeiten = new Set();
+
+    this.updateRadverkehrsfuehrungAbhaengigeEnumWertebereiche(
+      this.displayedAttributeformGroup.value.radverkehrsfuehrung
+    );
   }
 
   protected getAttributeForSelektion(selektion: KantenSelektion[] | null): FuehrungsformAttribute[] {
@@ -534,9 +524,9 @@ export class KantenFuehrungsformEditorComponent
       fuehrungsformAttributGruppe.fuehrungsformAttributeLinks as SaveFuehrungsformAttributeCommand[];
     const attributeCommandRechts: SaveFuehrungsformAttributeCommand[] =
       fuehrungsformAttributGruppe.fuehrungsformAttributeRechts as SaveFuehrungsformAttributeCommand[];
-    const associatedKantenSelektion = this.currentSelektion?.find(
+    const associatedKantenSelektion = this.currentSelektion!.find(
       kantenSelektion => kantenSelektion.kante.fuehrungsformAttributGruppe.id === fuehrungsformAttributGruppe.id
-    ) as KantenSelektion;
+    )!;
 
     return {
       gruppenID: fuehrungsformAttributGruppe.id,
@@ -585,7 +575,7 @@ export class KantenFuehrungsformEditorComponent
     this.currentSelektion?.forEach(kantenSelektion => {
       const attributgruppeToChange = this.currentAttributgruppen.find(
         gruppe => gruppe.id === kantenSelektion.kante.fuehrungsformAttributGruppe.id
-      ) as FuehrungsformAttributGruppe;
+      )!;
       kantenSelektion.getSelectedSegmentIndices(KantenSeite.LINKS).forEach(selectedSegmentIndex => {
         attributgruppeToChange.fuehrungsformAttributeLinks[selectedSegmentIndex] = {
           ...attributgruppeToChange.fuehrungsformAttributeLinks[selectedSegmentIndex],
@@ -612,7 +602,7 @@ export class KantenFuehrungsformEditorComponent
       this.currentAttributgruppen.forEach(attributgruppe => {
         [...attributgruppe.fuehrungsformAttributeLinks, ...attributgruppe.fuehrungsformAttributeRechts].forEach(
           attribute => {
-            if (!this.relevanteRadverkehrsfuehrungen.includes(attribute.radverkehrsfuehrung)) {
+            if (!TrennstreifenForm.isEnabledForRadverkehrsfuehrung(attribute.radverkehrsfuehrung)) {
               attribute.trennstreifenFormLinks = null;
               attribute.trennstreifenTrennungZuLinks = null;
               attribute.trennstreifenBreiteLinks = null;
@@ -671,15 +661,6 @@ export class KantenFuehrungsformEditorComponent
     }
   }
 
-  // Aktualisiert "Trennung Zu"-Feld, da Werte abhängig von Radverkehrsführung sind.
-  private updateTrennungZuOptions(radverkehrsfuehrungValues: Radverkehrsfuehrung[]): void {
-    if (radverkehrsfuehrungValues.some(rvf => this.trennstreifenNurParkenRadverkehrsfuehrungen.includes(rvf))) {
-      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.optionsParken;
-    } else {
-      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
-    }
-  }
-
   private unsetTrennstreifenForm(): void {
     this.trennstreifenFormGroupLinks.reset(undefined, { emitEvent: false });
     this.trennstreifenFormGroupRechts.reset(undefined, { emitEvent: false });
@@ -713,7 +694,6 @@ export class KantenFuehrungsformEditorComponent
   ): void {
     // Erst Form-Felder aktualisieren, bevor deren Werte in die FührungsformAttribute übertragen werden.
     this.updateTrennstreifenControlActivation(seite);
-    this.updateTrennungZuOptions([attribute.radverkehrsfuehrung]);
 
     Object.keys(form.getRawValue()).forEach(formKey => {
       const field = form.get(formKey);
@@ -848,12 +828,14 @@ export class KantenFuehrungsformEditorComponent
     return relevanteAttributGruppen;
   }
 
-  private onRadverkehrsfuehrungChanged(radverkehrsfuehrung: Radverkehrsfuehrung): void {
-    this.updateTrennungZuOptions([radverkehrsfuehrung]);
+  private onRadverkehrsfuehrungChanged(radverkehrsfuehrung: Radverkehrsfuehrung | null | UndeterminedValue): void {
+    this.updateRadverkehrsfuehrungAbhaengigeEnumWertebereiche(radverkehrsfuehrung);
+
     this.trennstreifenFormGroupLinks.controls.trennstreifenTrennungZuLinks.updateValueAndValidity({ emitEvent: false });
     this.trennstreifenFormGroupRechts.controls.trennstreifenTrennungZuRechts.updateValueAndValidity({
       emitEvent: false,
     });
+    this.displayedAttributeformGroup.controls.beschilderung.updateValueAndValidity({ emitEvent: false });
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -861,4 +843,40 @@ export class KantenFuehrungsformEditorComponent
     const coordinates = (f.getGeometry() as LineString).getCoordinates();
     return MapStyles.createArrowBegleitend(coordinates, MapStyles.FEATURE_COLOR);
   };
+
+  private isBeschilderungValid: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const beschilderung = control.value;
+    if (!beschilderung || beschilderung instanceof UndeterminedValue) {
+      return null;
+    }
+
+    const radverkehrsfuehrung = this.displayedAttributeformGroup.get('radverkehrsfuehrung')?.value;
+    if (!radverkehrsfuehrung || radverkehrsfuehrung instanceof UndeterminedValue) {
+      return null;
+    }
+
+    if (Beschilderung.isValidFuerRadverkehrsfuehrung(beschilderung, radverkehrsfuehrung)) {
+      return null;
+    }
+
+    return { beschilderungInvalid: 'Wert passt nicht zur ausgewählten Radverkehrsführung' };
+  };
+
+  private updateRadverkehrsfuehrungAbhaengigeEnumWertebereiche(
+    radverkehrsfuehrung: UndeterminedValue | Radverkehrsfuehrung | null
+  ): void {
+    if (radverkehrsfuehrung && !(radverkehrsfuehrung instanceof UndeterminedValue)) {
+      this.beschilderungOptions = Beschilderung.options.map(opt => ({
+        ...opt,
+        disabled: !Beschilderung.isValidFuerRadverkehrsfuehrung(opt.name, radverkehrsfuehrung),
+      }));
+      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options.map(opt => ({
+        ...opt,
+        disabled: !TrennstreifenTrennungZu.isValidForRadverkehrsfuehrung(opt.name, radverkehrsfuehrung),
+      }));
+    } else {
+      this.beschilderungOptions = Beschilderung.options;
+      this.trennstreifenTrennungZuOptions = TrennstreifenTrennungZu.options;
+    }
+  }
 }

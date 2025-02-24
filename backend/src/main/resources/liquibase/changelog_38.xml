@@ -68,6 +68,16 @@
       constraintName="fk_attributluecken_schliessen_problem_knoten_id" />
   </changeSet>
   
+  <changeSet id="RAD-7209" author="mr">
+  	<addColumn tableName="weitere_kartenebene">
+  	  <column name="default_layer" type="boolean"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7209-2" author="mr">
+  	<sql>update weitere_kartenebene SET default_layer=false</sql>
+  </changeSet>
+
   <changeSet id="RAD-7279" author="mr">
     <sql>update weitere_kartenebene SET url=(replace(url, '/ows/', '/wfs/')) 
       where url like 'https://owsproxy.lgl-bw.de/owsproxy/ows/WFS_LGL-BW_ATKIS_BasisDLM_VerwGr%' AND weitere_kartenebene_typ='WFS';
@@ -79,5 +89,277 @@
       update weitere_kartenebene SET url=(replace(url, 'LAYERS=bevoelkerungszahl', 'LAYERS=bevoelkerung')) 
       where url like 'https://www.wms.nrw.de/wms/zensusatlas?LAYERS=bevoelkerungszahl%';
     </sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7297" author="mr">
+    <addColumn tableName="barriere">
+      <column name="barriere_form_details" type="varchar(255)"></column>
+    </addColumn>
+    
+    <addColumn tableName="barriere_aud">
+      <column name="barriere_form_details" type="varchar(255)"></column>
+    </addColumn>
+  </changeSet>
+  <changeSet id="RAD-7291" author="mr">
+    <addColumn tableName="knoten">
+      <column name="querungshilfe_details" type="varchar(255)"></column>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7291-2" author="mr">
+    <addColumn tableName="knoten_aud">
+      <column name="querungshilfe_details" type="varchar(255)"></column>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7291-3" author="mr">
+    <addColumn tableName="knoten">
+      <column name="bauwerksmangel" type="varchar(255)"></column>
+      <column name="bauwerksmangel_art" type="varchar(255)"></column>
+    </addColumn>
+    <addColumn tableName="knoten_aud">
+      <column name="bauwerksmangel" type="varchar(255)"></column>
+      <column name="bauwerksmangel_art" type="varchar(255)"></column>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7291-4" author="mr">
+    <createTable tableName="knoten_bauwerksmangel_art_aud">
+      <column name="bauwerksmangel_art" type="varchar(255)"></column>
+      <column name="rev" type="bigint"></column>
+      <column name="revtype" type="smallint"></column>
+      <column name="knoten_id" type="bigint"></column>
+    </createTable>
+    
+    <createTable tableName="knoten_bauwerksmangel_art">
+      <column name="bauwerksmangel_art" type="varchar(255)"></column>
+      <column name="knoten_id" type="bigint"></column>
+    </createTable>
+    
+    <dropColumn tableName="knoten">
+      <column name="bauwerksmangel_art" type="varchar(255)"></column>    
+    </dropColumn>
+    
+    <dropColumn tableName="knoten_aud">
+      <column name="bauwerksmangel_art" type="varchar(255)"></column>    
+    </dropColumn>
+    
+    <addForeignKeyConstraint 
+      baseTableName="knoten_bauwerksmangel_art" 
+      baseColumnNames="knoten_id" 
+      constraintName="fk_knoten_bauwerksmangel_art_knoten_id" 
+      referencedTableName="knoten" 
+      referencedColumnNames="id" />
+      
+    <createIndex tableName="knoten_bauwerksmangel_art" indexName="knoten_bauwerksmangel_art_knoten_id_idx">
+      <column name="knoten_id"></column>
+    </createIndex>
+  </changeSet>
+  
+  <changeSet author="mr" id="RAD-7291-5">
+    <sql>update knoten set querungshilfe_details='UNBEKANNT' where knoten_form='MITTELINSEL_GETEILT' 
+      OR knoten_form='MITTELINSEL' 
+      OR knoten_form='KOMPAKTKREISVERKEHR_FUEHRUNG_NUR_UEBER_NEBENANLAGE' 
+      OR knoten_form='KOMPAKTKREISVERKEHR_FUEHRUNG_UEBER_KREISFAHRBAHN_UND_NEBENANLAGE' 
+      OR knoten_form='GROSSKREISEL_SONDERFORM_MEHRSTREIFIG_TURBOKREISEL_FUEHRUNG_NUR_UEBER_NEBENANLAGE' 
+      OR knoten_form='GROSSKREISEL_SONDERFORM_MEHRSTREIFIG_TURBOKREISEL_FUEHRUNG_UEBER_KREISFAHRBAHN_UND_NEBENANLAGE'
+    </sql>
+    <sql>
+      update knoten set bauwerksmangel='UNBEKANNT' where knoten_form='UNTERFUEHRUNG_TUNNEL' 
+      OR knoten_form='UEBERFUEHRUNG' 
+    </sql>
+  </changeSet>
+  
+  
+  <changeSet id="RAD-7291-6" author="mr">
+    <addColumn tableName="furt_kreuzung">
+      <column name="bauwerksmangel" type="varchar(255)"></column>
+      <column name="bauwerksmangel_art" type="text[]"></column>
+      <column name="querungshilfe_details" type="varchar(255)"></column>
+    </addColumn>
+    <addColumn tableName="furt_kreuzung_aud">
+      <column name="bauwerksmangel" type="varchar(255)"></column>
+      <column name="bauwerksmangel_art" type="text[]"></column>
+      <column name="querungshilfe_details" type="varchar(255)"></column>
+    </addColumn>
+    <sql>update furt_kreuzung set querungshilfe_details='UNBEKANNT' where knoten_form='MITTELINSEL_GETEILT' 
+      OR knoten_form='MITTELINSEL' 
+      OR knoten_form='KOMPAKTKREISVERKEHR_FUEHRUNG_NUR_UEBER_NEBENANLAGE' 
+      OR knoten_form='KOMPAKTKREISVERKEHR_FUEHRUNG_UEBER_KREISFAHRBAHN_UND_NEBENANLAGE' 
+      OR knoten_form='GROSSKREISEL_SONDERFORM_MEHRSTREIFIG_TURBOKREISEL_FUEHRUNG_NUR_UEBER_NEBENANLAGE' 
+      OR knoten_form='GROSSKREISEL_SONDERFORM_MEHRSTREIFIG_TURBOKREISEL_FUEHRUNG_UEBER_KREISFAHRBAHN_UND_NEBENANLAGE'
+    </sql>
+    <sql>
+      update furt_kreuzung set bauwerksmangel='UNBEKANNT' where knoten_form='UNTERFUEHRUNG_TUNNEL' 
+      OR knoten_form='UEBERFUEHRUNG' 
+    </sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7291-7" author="mr">
+  	<dropTable tableName="knoten_bauwerksmangel_art_aud" />
+  	<dropTable tableName="knoten_bauwerksmangel_art" />
+  	
+    <addColumn tableName="knoten">
+      <column name="bauwerksmangel_art" type="text[]"></column>
+    </addColumn>
+    
+    <addColumn tableName="knoten_aud">
+      <column name="bauwerksmangel_art" type="text[]"></column>
+    </addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7291-8" author="mr">
+  	<sql>
+  		UPDATE knoten set knoten_form='MITTELINSEL_EINFACH' where knoten_form='MITTELINSEL'
+  	</sql>
+  	<sql>
+  		UPDATE knoten_aud set knoten_form='MITTELINSEL_EINFACH' where knoten_form='MITTELINSEL'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung set knoten_form='MITTELINSEL_EINFACH' where knoten_form='MITTELINSEL'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung_aud set knoten_form='MITTELINSEL_EINFACH' where knoten_form='MITTELINSEL'
+  	</sql>
+  	
+  	<sql>
+  		UPDATE knoten set knoten_form='ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	<sql>
+  		UPDATE knoten_aud set knoten_form='ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung set knoten_form='ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung_aud set knoten_form='ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	
+  	<sql>
+  		UPDATE knoten set knoten_form='NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='NICHT_ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	<sql>
+  		UPDATE knoten_aud set knoten_form='NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='NICHT_ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung set knoten_form='NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='NICHT_ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung_aud set knoten_form='NICHT_ABKNICKENDE_VORFAHRT_OHNE_LSA' where knoten_form='NICHT_ABKNICKENDE_VORFAHRT'
+  	</sql>
+  	
+  	<sql>
+  		UPDATE knoten set knoten_form='FUSSGAENGERUEBERWEG_RADNETZ_OHNE_FURT' where knoten_form='FUSSGAENGERUEBERWEG_RADNETZ'
+  	</sql>
+  	<sql>
+  		UPDATE knoten_aud set knoten_form='FUSSGAENGERUEBERWEG_RADNETZ_OHNE_FURT' where knoten_form='FUSSGAENGERUEBERWEG_RADNETZ'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung set knoten_form='FUSSGAENGERUEBERWEG_RADNETZ_OHNE_FURT' where knoten_form='FUSSGAENGERUEBERWEG_RADNETZ'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung_aud set knoten_form='FUSSGAENGERUEBERWEG_RADNETZ_OHNE_FURT' where knoten_form='FUSSGAENGERUEBERWEG_RADNETZ'
+  	</sql>
+  	
+  	<sql>
+  		UPDATE knoten set knoten_form='MINIKREISVERKEHR_NICHT_UEBERFAHRBAR' where knoten_form='MINIKREISVERKEHR_24_M'
+  	</sql>
+  	<sql>
+  		UPDATE knoten_aud set knoten_form='MINIKREISVERKEHR_NICHT_UEBERFAHRBAR' where knoten_form='MINIKREISVERKEHR_24_M'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung set knoten_form='MINIKREISVERKEHR_NICHT_UEBERFAHRBAR' where knoten_form='MINIKREISVERKEHR_24_M'
+  	</sql>
+  	<sql>
+  		UPDATE furt_kreuzung_aud set knoten_form='MINIKREISVERKEHR_NICHT_UEBERFAHRBAR' where knoten_form='MINIKREISVERKEHR_24_M'
+  	</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7282" author="mr">
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links">
+  	  <column name="beschilderung" type="character varying(255)"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+  	  <column name="beschilderung" type="character varying(255)"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
+  	  <column name="beschilderung" type="character varying(255)"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+  	  <column name="beschilderung" type="character varying(255)"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7282-2" author="mr">
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links SET beschilderung='UNBEKANNT'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts SET beschilderung='UNBEKANNT'</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7282-3" author="mr">  
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links">
+  	  <column name="schaeden" type="text[]"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+  	  <column name="schaeden" type="text[]"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
+  	  <column name="schaeden" type="text[]"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+  	  <column name="schaeden" type="text[]"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7282-4" author="mr">
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links SET schaeden='{}'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts SET schaeden='{}'</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7282-5" author="mr">
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links">
+  	  <column name="absenkung" type="character varying(255)"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts">
+  	  <column name="absenkung" type="character varying(255)"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_links_aud">
+  	  <column name="absenkung" type="character varying(255)"></column>
+  	</addColumn>
+  	<addColumn tableName="fuehrungsform_attribut_gruppe_attribute_rechts_aud">
+  	  <column name="absenkung" type="character varying(255)"></column>
+  	</addColumn>
+  	
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links SET absenkung='UNBEKANNT'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts SET absenkung='UNBEKANNT'</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7282-6" author="mr">
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE  radverkehrsfuehrung='PIKTOGRAMMKETTE'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links_aud SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE  radverkehrsfuehrung='PIKTOGRAMMKETTE'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE  radverkehrsfuehrung='PIKTOGRAMMKETTE'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts_aud SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE  radverkehrsfuehrung='PIKTOGRAMMKETTE'</sql>
+    
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links SET radverkehrsfuehrung='MEHRZWECKSTREIFEN_BEIDSEITIG' WHERE  radverkehrsfuehrung='MEHRZWECKSTREIFEN'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_links_aud SET radverkehrsfuehrung='MEHRZWECKSTREIFEN_BEIDSEITIG' WHERE  radverkehrsfuehrung='MEHRZWECKSTREIFEN'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts SET radverkehrsfuehrung='MEHRZWECKSTREIFEN_BEIDSEITIG' WHERE  radverkehrsfuehrung='MEHRZWECKSTREIFEN'</sql>
+    <sql>UPDATE fuehrungsform_attribut_gruppe_attribute_rechts_aud SET radverkehrsfuehrung='MEHRZWECKSTREIFEN_BEIDSEITIG' WHERE  radverkehrsfuehrung='MEHRZWECKSTREIFEN'</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7300" author="mr">
+    <insert tableName="gt_pk_metadata">
+      <column name="table_schema" value="public"/>
+      <column name="table_name" value="geoserver_attributluecken_schliessen_job_protokoll"/>
+      <column name="pk_column" value="id"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="RAD-7432" author="hst">
+		<sql>
+			UPDATE fahrradroute_profil_eigenschaften SET radverkehrsfuehrung='MEHRZWECKSTREIFEN_BEIDSEITIG' WHERE radverkehrsfuehrung='MEHRZWECKSTREIFEN';
+			UPDATE fahrradroute_profil_eigenschaften SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE radverkehrsfuehrung='PIKTOGRAMMKETTE';
+
+			UPDATE fahrradroute_variante_profil_eigenschaften SET radverkehrsfuehrung='MEHRZWECKSTREIFEN_BEIDSEITIG' WHERE radverkehrsfuehrung='MEHRZWECKSTREIFEN';
+			UPDATE fahrradroute_variante_profil_eigenschaften SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE radverkehrsfuehrung='PIKTOGRAMMKETTE';
+		</sql>
   </changeSet>
 </databaseChangeLog>

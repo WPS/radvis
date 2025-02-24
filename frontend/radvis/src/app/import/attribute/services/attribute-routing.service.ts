@@ -19,6 +19,8 @@ import invariant from 'tiny-invariant';
 
 @Injectable()
 export class AttributeRoutingService {
+  private static readonly CLOSED = 0;
+
   public static readonly DATEI_UPLOAD_ROUTE = 'upload';
   public static readonly PARAMETER_EINGEBEN_ROUTE = 'parameter';
   public static readonly AUTOMATISCHE_ABBILDUNG_ROUTE = 'abbildung';
@@ -58,6 +60,14 @@ export class AttributeRoutingService {
       {
         bezeichnung: 'Import abschließen',
         path: AttributeRoutingService.ABSCHLUSS_ROUTE,
+      },
+    ],
+    [
+      AttributeRoutingService.CLOSED,
+      {
+        bezeichnung: 'Import abschließen',
+        path: AttributeRoutingService.ABSCHLUSS_ROUTE,
+        hiddenStep: true,
       },
     ],
   ]);

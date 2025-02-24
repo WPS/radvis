@@ -105,4 +105,15 @@ public class SaveMassnahmeCommand {
 	public boolean isNurEineMassnahmenkategorieProOberkategorie() {
 		return Massnahme.hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien);
 	}
+
+	@AssertTrue(message = "Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt.")
+	public boolean isKategorieValidForKonzeptionsquelle() {
+		// diese Validierung kann ggf. vor der @NotNull aufgerufen werden. Damit die Fehlermeldung aber korrekt ist,
+		// geben wir hier true zurück.
+		if (massnahmenkategorien == null) {
+			return true;
+		}
+
+		return Massnahme.areKategorienValidForKonzeptionsquelle(konzeptionsquelle, massnahmenkategorien);
+	}
 }

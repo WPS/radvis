@@ -33,6 +33,7 @@ import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/w
   templateUrl: './weitere-kartenebenen-detail-view.component.html',
   styleUrls: ['./weitere-kartenebenen-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WeitereKartenebenenDetailViewComponent implements OnDestroy {
   attributes$: Observable<Map<string, { [key: string]: string }>>;

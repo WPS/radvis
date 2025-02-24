@@ -28,6 +28,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-knoten-highlight-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KnotenHighlightLayerComponent implements OnChanges, OnDestroy {
   public static LAYER_ID = `${RADVIS_NETZ_LAYER_PREFIX}_KnotenDetailHighlightLayer`;

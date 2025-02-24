@@ -30,6 +30,7 @@ interface TableGroup {
   templateUrl: './detail-feature-table.component.html',
   styleUrls: ['./detail-feature-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class DetailFeatureTableComponent implements OnChanges {
   @Input()

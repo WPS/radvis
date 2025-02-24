@@ -15,13 +15,17 @@
 package de.wps.radvis.backend.furtKreuzung.schnittstelle.view;
 
 import java.util.Optional;
+import java.util.Set;
 
 import de.wps.radvis.backend.furtKreuzung.domain.entity.FurtKreuzung;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtKreuzungMusterloesung;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenKommentar;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.FurtenKreuzungenTyp;
 import de.wps.radvis.backend.furtKreuzung.domain.valueObject.LichtsignalAnlageEigenschaften;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.schnittstelle.view.NetzbezugView;
 import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitView;
 import lombok.Getter;
@@ -38,6 +42,9 @@ public class FurtKreuzungEditView {
 	private final Optional<FurtKreuzungMusterloesung> furtKreuzungMusterloesung;
 	private final Optional<LichtsignalAnlageEigenschaften> lichtsignalAnlageEigenschaften;
 	private final boolean benutzerDarfBearbeiten;
+	private final Optional<Bauwerksmangel> bauwerksmangel;
+	private final Optional<Set<BauwerksmangelArt>> bauwerksmangelArt;
+	private final Optional<QuerungshilfeDetails> querungshilfeDetails;
 
 	public FurtKreuzungEditView(FurtKreuzung furtKreuzung, boolean benutzerDarfBearbeiten) {
 		this.verantwortlicheOrganisation = new VerwaltungseinheitView(furtKreuzung.getVerantwortlicheOrganisation());
@@ -50,5 +57,8 @@ public class FurtKreuzungEditView {
 		this.furtKreuzungMusterloesung = furtKreuzung.getMusterloesung();
 		this.lichtsignalAnlageEigenschaften = furtKreuzung.getLichtsignalAnlageEigenschaften();
 		this.benutzerDarfBearbeiten = benutzerDarfBearbeiten;
+		bauwerksmangel = furtKreuzung.getBauwerksmangel();
+		bauwerksmangelArt = furtKreuzung.getBauwerksmangelArt();
+		querungshilfeDetails = furtKreuzung.getQuerungshilfeDetails();
 	}
 }

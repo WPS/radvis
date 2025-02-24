@@ -18,14 +18,12 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ViewerSharedModule } from 'src/app/viewer/viewer-shared/viewer-shared.module';
-import { DateiLayerVerwaltungComponent } from 'src/app/viewer/weitere-kartenebenen/components/datei-layer-verwaltung/datei-layer-verwaltung.component';
 import { DeckkraftSliderControlComponent } from 'src/app/viewer/weitere-kartenebenen/components/deckkraft-slider-control/deckkraft-slider-control.component';
 import { PredefinedLayerMenuComponent } from 'src/app/viewer/weitere-kartenebenen/components/predefined-layer-menu/predefined-layer-menu.component';
 import { WeitereKartenebenenDetailViewComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-detail-view/weitere-kartenebenen-detail-view.component';
-import { WeitereKartenebenenDialogComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-dialog/weitere-kartenebenen-dialog.component';
 import { WeitereKartenebenenDisplayLayerComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-display-layer/weitere-kartenebenen-display-layer.component';
 import { WeitereKartenebenenInfrastrukturMenuComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-infrastruktur-menu/weitere-kartenebenen-infrastruktur-menu.component';
-import { WeitereKartenebenenVerwaltungComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-verwaltung/weitere-kartenebenen-verwaltung.component';
+import { WeitereKartenebenenVerwaltungDialogComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-kartenebenen-verwaltung-dialog/weitere-kartenebenen-verwaltung-dialog.component';
 import { WeitereWfsKartenebenenComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-wfs-kartenebenen/weitere-wfs-kartenebenen.component';
 import { WeitereWmsKartenebenenComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-wms-kartenebenen/weitere-wms-kartenebenen.component';
 import { ZoomstufeSliderControlComponent } from 'src/app/viewer/weitere-kartenebenen/components/zoomstufe-slider-control/zoomstufe-slider-control.component';
@@ -35,15 +33,13 @@ registerLocaleData(localeDe, 'de');
 @NgModule({
   declarations: [
     WeitereKartenebenenInfrastrukturMenuComponent,
-    WeitereKartenebenenVerwaltungComponent,
+    WeitereKartenebenenVerwaltungDialogComponent,
     WeitereKartenebenenDisplayLayerComponent,
     WeitereWfsKartenebenenComponent,
     WeitereWmsKartenebenenComponent,
     DeckkraftSliderControlComponent,
     WeitereKartenebenenDetailViewComponent,
     ZoomstufeSliderControlComponent,
-    WeitereKartenebenenDialogComponent,
-    DateiLayerVerwaltungComponent,
     PredefinedLayerMenuComponent,
   ],
   imports: [CommonModule, ReactiveFormsModule, SharedModule, ViewerSharedModule],

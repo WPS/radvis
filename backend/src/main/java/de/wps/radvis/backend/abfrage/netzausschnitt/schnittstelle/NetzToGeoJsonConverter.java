@@ -249,10 +249,12 @@ public class NetzToGeoJsonConverter {
 				hoechsteNetzklasseOptional.map(Netzklasse::getHoechsteNetzklasseBezeichnung).orElse(null), attribute);
 			setPropertyIfAttributeExists(feature, "netzklassen",
 				kante.getKantenAttributGruppe().getNetzklassen().stream().map(Enum::name).collect(
-					Collectors.joining(";")), attribute);
+					Collectors.joining(";")),
+				attribute);
 			setPropertyIfAttributeExists(feature, "standards",
 				kante.getKantenAttributGruppe().getIstStandards().stream().map(Enum::name).collect(
-					Collectors.joining(";")), attribute);
+					Collectors.joining(";")),
+				attribute);
 
 			feature.setProperty(KANTE_ID_KEY, kante.getId().toString());
 
@@ -346,6 +348,12 @@ public class NetzToGeoJsonConverter {
 			setPropertyIfAttributeExists(feature, "parken_form", fuehrungsformAttribut.getParkenForm(),
 				attribute);
 			setPropertyIfAttributeExists(feature, "breite", fuehrungsformAttribut.getBreite(), attribute);
+			setPropertyIfAttributeExists(feature, "beschilderung", fuehrungsformAttribut.getBeschilderung(), attribute);
+			setPropertyIfAttributeExists(feature, "schadenart",
+				fuehrungsformAttribut.getSchaeden().stream().map(s -> s.toString())
+					.collect(Collectors.joining(", ")),
+				attribute);
+			setPropertyIfAttributeExists(feature, "absenkung", fuehrungsformAttribut.getAbsenkung(), attribute);
 
 			featureCollection.add(feature);
 		});

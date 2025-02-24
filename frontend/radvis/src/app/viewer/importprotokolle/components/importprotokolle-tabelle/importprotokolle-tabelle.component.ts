@@ -34,6 +34,7 @@ import { InfrastrukturenSelektionService } from 'src/app/viewer/viewer-shared/se
   providers: [
     { provide: AbstractInfrastrukturenFilterService, useExisting: forwardRef(() => ImportprotokolleTabelleComponent) },
   ],
+  standalone: false,
 })
 export class ImportprotokolleTabelleComponent
   extends AbstractInfrastrukturenFilterService<ImportprotokollListView>

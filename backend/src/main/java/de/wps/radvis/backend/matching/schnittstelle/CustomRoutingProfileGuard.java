@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 
 public class CustomRoutingProfileGuard {
 
@@ -34,9 +34,9 @@ public class CustomRoutingProfileGuard {
 
 	public void save(Authentication authentication, @RequestBody List<SaveCustomRoutingProfileCommand> commands) {
 		Benutzer benutzer = this.benutzerResolver.fromAuthentication(authentication);
-		if (!benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzer.hatRecht(Recht.ROUTINGPROFILE_VERWALTEN)) {
 			throw new AccessDeniedException(
-				"Nur Nutzer mit der Rolle 'RadVIS AdministratorIn' dürfen Routing-Profile verwalten");
+				"Sie haben nicht das Recht, Routingprofile zu verwalten.");
 		}
 	}
 }

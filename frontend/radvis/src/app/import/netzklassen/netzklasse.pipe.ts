@@ -17,6 +17,7 @@ import { Netzklasse } from 'src/app/shared/models/netzklasse';
 
 @Pipe({
   name: 'netzklasse',
+  standalone: false,
 })
 export class NetzklassePipe implements PipeTransform {
   transform(value: Netzklasse | null): string {

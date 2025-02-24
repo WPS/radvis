@@ -30,6 +30,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-abweichende-segmente-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AbweichendeSegmenteLayerComponent implements OnDestroy, OnChanges, OnInit {
   @Input()

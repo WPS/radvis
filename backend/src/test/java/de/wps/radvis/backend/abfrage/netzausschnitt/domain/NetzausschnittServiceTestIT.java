@@ -26,10 +26,9 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.abfrage.netzausschnitt.AbfrageNetzausschnittConfiguration;
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.KanteMapView;
@@ -42,7 +41,6 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -63,7 +61,7 @@ import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
@@ -71,7 +69,7 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 @Tag("group2")
 @ContextConfiguration(classes = { NetzConfiguration.class, AbfrageNetzausschnittConfiguration.class,
 	OrganisationConfiguration.class, GeoConverterConfiguration.class, CommonConfiguration.class,
-	NetzfehlerConfiguration.class, BenutzerConfiguration.class,
+	BenutzerConfiguration.class,
 	KommentarConfiguration.class, KonsistenzregelPruefungsConfiguration.class, KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
@@ -84,15 +82,14 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @ActiveProfiles(profiles = "test")
 class NetzausschnittServiceTestIT extends DBIntegrationTestIT {
 	@Autowired
 	private NetzService netzService;
 	@Autowired
 	private NetzausschnittService netzausschnittService;
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 
 	private static GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 

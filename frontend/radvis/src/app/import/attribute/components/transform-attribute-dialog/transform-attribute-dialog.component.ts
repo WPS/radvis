@@ -24,6 +24,7 @@ import { ManualRoutingService } from 'src/app/shared/services/manual-routing.ser
   templateUrl: './transform-attribute-dialog.component.html',
   styleUrls: ['./transform-attribute-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class TransformAttributeDialogComponent {
   formGroup: UntypedFormGroup;

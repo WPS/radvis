@@ -25,9 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
@@ -49,17 +48,17 @@ import jakarta.persistence.PersistenceContext;
 @Tag("group6")
 @ContextConfiguration(classes = { LeihstationConfiguration.class, })
 @EnableConfigurationProperties(value = CommonConfigurationProperties.class)
-@MockBeans({
-	@MockBean(ZustaendigkeitsService.class),
-	@MockBean(BenutzerResolver.class),
-})
 class LeihstationRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	private LeihstationRepository leihstationRepository;
 
-	@MockBean
+	@MockitoBean
 	VerwaltungseinheitService verwaltungseinheitService;
+	@MockitoBean
+	ZustaendigkeitsService zustaendigkeitsService;
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -188,7 +187,7 @@ class LeihstationRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(leihstationRepository.findAll()).containsExactlyInAnyOrderElementsOf(Set.of(
 			alteRADVIS, alteMobiBleibt, alteMobiFliegtraus1, alteMobiFliegtraus2));
 
-		//Act
+		// Act
 		Set<ExterneLeihstationenId> aktuelleStationen = Set.of(
 			ExterneLeihstationenId.of("bleibt1"),
 			ExterneLeihstationenId.of("neu3"));
@@ -199,13 +198,12 @@ class LeihstationRepositoryTestIT extends DBIntegrationTestIT {
 		entityManager.flush();
 		entityManager.clear();
 
-		//Assert
+		// Assert
 		assertThat(deleted).isEqualTo(2);
 		final Iterable<Leihstation> result = leihstationRepository.findAll();
 		assertThat(result).containsExactlyInAnyOrderElementsOf(Set.of(
 			alteRADVIS,
-			alteMobiBleibt
-		));
+			alteMobiBleibt));
 		assertThat(result).doesNotContainAnyElementsOf(Set.of(alteMobiFliegtraus1, alteMobiFliegtraus2));
 
 	}

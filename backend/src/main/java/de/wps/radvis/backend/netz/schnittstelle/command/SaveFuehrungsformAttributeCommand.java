@@ -14,18 +14,23 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.command;
 
+import java.util.Set;
+
 import org.springframework.validation.annotation.Validated;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
 import jakarta.validation.constraints.AssertTrue;
@@ -60,6 +65,15 @@ public class SaveFuehrungsformAttributeCommand {
 	@NotNull
 	private KfzParkenForm parkenForm;
 
+	@NotNull
+	private Beschilderung beschilderung;
+
+	@NotNull
+	private Absenkung absenkung;
+
+	@NotNull
+	private Set<Schadenart> schaeden;
+
 	private Laenge breite;
 
 	private Laenge trennstreifenBreiteRechts;
@@ -86,5 +100,15 @@ public class SaveFuehrungsformAttributeCommand {
 			trennstreifenBreiteLinks, trennstreifenTrennungZuLinks)
 			&& FuehrungsformAttribute.isTrennstreifenCorrect(radverkehrsfuehrung, trennstreifenFormRechts,
 				trennstreifenBreiteRechts, trennstreifenTrennungZuRechts);
+	}
+
+	@AssertTrue(message = "Gewählte Beschilderung passt nicht zu Radverkehrsführung: nur für Betriebswege erlaubt")
+	public boolean isBeschilderungValid() {
+		// diese Validierung kann ggf. vor der @NotNull aufgerufen werden. Damit die Fehlermeldung aber korrekt ist,
+		// geben wir hier true zurück.
+		if (radverkehrsfuehrung == null || beschilderung == null) {
+			return true;
+		}
+		return beschilderung.isValidForRadverkehrsfuehrung(radverkehrsfuehrung);
 	}
 }

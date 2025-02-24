@@ -34,9 +34,11 @@ import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.MappedAttributesProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
@@ -49,6 +51,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
@@ -60,10 +63,115 @@ import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 
 public class RadVISMapper extends AttributeMapper implements AttributivSeitenbezogenerMapper {
+	private static final Set<String> LINEAR_REFERENZIERTE_ATTRIBUTE = Set.of(
+		// FuehrungsformAttributGruppe
+		"radverkehr",
+		"breite",
+		"parken_typ",
+		"parken_for",
+		"bordstein",
+		"belag_art",
+		"oberflaech",
+		"benutzungs",
+		"sts_b_l",
+		"sts_b_r",
+		"sts_f_l",
+		"sts_f_r",
+		"sts_t_l",
+		"sts_t_r",
+		"beschilder",
+		"absenkung",
+		"schaeden",
+
+		// GeschwindigkeitsAttributGruppe
+		"ortslage",
+		"hoechstges",
+		"abweichend",
+
+		// ZustaendigkeitsAttributGruppe
+		"baulast_tr",
+		"unterhalts",
+		"erhalts_zu",
+		"vereinbaru");
+	private static final Set<String> SEITENBEZOGENE_ATTRIBUTE = Set.of(
+		// FuehrungsformAttributGruppe
+		"radverkehr",
+		"breite",
+		"parken_typ",
+		"parken_for",
+		"bordstein",
+		"belag_art",
+		"oberflaech",
+		"benutzungs",
+		"sts_b_l",
+		"sts_b_r",
+		"sts_f_l",
+		"sts_f_r",
+		"sts_t_l",
+		"sts_t_r",
+		"beschilder",
+		"absenkung",
+		"schaeden",
+
+		// FahrtrichtungsAttributGruppe
+		"fahrtricht");
+	static final List<String> UNTERSTUETZTE_ATTRIBUTE = List.of(
+		// KantenAttributGruppe
+		"dtv_fussve",
+		"dtv_pkw",
+		"dtv_radver",
+		"kommentar",
+		"laenge_man",
+		"strassen_n",
+		"strassen_0",
+		"sv",
+		"wege_nivea",
+		"gemeinde_n", // Hier ist klar, dass es von der OrganisationsArt eine Gemeinde ist
+		// "landkreis_", Kann nicht importiert werden, wird automatisch aus gemeinde_n errechnet
+		"beleuchtun",
+		"umfeld",
+		"strassenka",
+		"strassenqu",
+		"status",
+		"standards",
+
+		// FuehrungsformAttributGruppe
+		"radverkehr",
+		"breite",
+		"parken_typ",
+		"parken_for",
+		"bordstein",
+		"belag_art",
+		"oberflaech",
+		"benutzungs",
+		"sts_b_l",
+		"sts_b_r",
+		"sts_f_l",
+		"sts_f_r",
+		"sts_t_l",
+		"sts_t_r",
+		"beschilder",
+		"absenkung",
+		"schaeden",
+
+		// GeschwindigkeitsAttributGruppe
+		"ortslage",
+		"hoechstges",
+		"abweichend",
+
+		// ZustaendigkeitsAttributGruppe
+		"baulast_tr",
+		"unterhalts",
+		"erhalts_zu",
+		"vereinbaru",
+
+		// FahrtrichtungsAttributGruppe
+		"fahrtricht");
 	private final VerwaltungseinheitService verwaltungseinheitService;
 
 	public RadVISMapper(VerwaltungseinheitService verwaltungseinheitService) {
@@ -73,6 +181,9 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 
 	@Override
 	public void applyEinfach(String attributname, String attributwert, Kante kante) throws AttributUebernahmeException {
+		require(isAttributNameValid(attributname));
+		require(isAttributWertValid(attributname, attributwert));
+
 		switch (attributname.toLowerCase()) {
 		// KantenAttributGruppe
 		case "dtv_fussve":
@@ -103,8 +214,14 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			super.applyWegeniveau(kante, mapStringToEnum(attributwert, WegeNiveau.class));
 			break;
 		case "gemeinde_n":
-			Optional<Verwaltungseinheit> gemeindeOpt = verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(
-				attributwert, OrganisationsArt.GEMEINDE);
+			Optional<Verwaltungseinheit> gemeindeOpt;
+			try {
+				gemeindeOpt = verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
+					attributwert, OrganisationsArt.GEMEINDE);
+			} catch (OrganisationsartUndNameNichtEindeutigException e) {
+				throw new AttributUebernahmeException(List.of(new AttributUebernahmeFehler(e.getMessage(),
+					Set.of(attributwert))));
+			}
 			gemeindeOpt.ifPresent(gemeinde -> super.applyGemeinde(kante, gemeinde));
 			break;
 		case "beleuchtun":
@@ -123,7 +240,7 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			super.applyStatus(kante, mapStringToEnum(attributwert, Status.class));
 			break;
 		case "standards":
-			Set<IstStandard> istStandards = getIstStandardStringStream(attributwert)
+			Set<IstStandard> istStandards = splitValues(attributwert)
 				.map(value -> mapStringToEnum(value, IstStandard.class))
 				.collect(Collectors.toSet());
 			checkIstStandardNetzklassenConsistency(istStandards, kante.getKantenAttributGruppe().getNetzklassen());
@@ -145,20 +262,24 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			throw new AttributUebernahmeException(List.of(new AttributUebernahmeFehler(
 				"RadNETZ-IstStandards konnten nicht gesetzt werden: Kante gehört nicht zum RadNETZ",
 				istStandards.stream().map(IstStandard::toString).collect(
-					Collectors.toSet()), LinearReferenzierterAbschnitt.of(0, 1))));
+					Collectors.toSet()),
+				LinearReferenzierterAbschnitt.of(0, 1))));
 		}
 	}
 
 	@Override
 	public void applyLinearReferenzierterAbschnitt(String attributname, MappedAttributesProperties attributesProperties,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante) {
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante) throws AttributUebernahmeException {
+		require(isAttributNameValid(attributname));
 		String attributwert = attributesProperties.getProperty(attributname);
+		require(isAttributWertValid(attributname, attributwert));
 
 		switch (attributname.toLowerCase()) {
 		// FuehrungsformAttributGruppe
 		case "radverkehr":
 			// Da die Trennstreifen-Attribute von der Radverkehrsführung abhängen, wird das hier zusammen behandelt.
-			applyRadverkehrsfuehrungUndTrennstreifen(attributesProperties, null, linearReferenzierterAbschnitt, kante);
+			applyRadverkehrsfuehrungUndAbhaengigeAttribute(attributesProperties, null, linearReferenzierterAbschnitt,
+				kante);
 			break;
 		case "breite":
 			Laenge laenge = Laenge.of(attributwert);
@@ -189,6 +310,28 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			Benutzungspflicht benutzungspflicht = mapStringToEnum(attributwert, Benutzungspflicht.class);
 			super.applyBenutzungspflicht(kante, benutzungspflicht, linearReferenzierterAbschnitt);
 			break;
+		case "sts_f_l":
+		case "sts_f_r":
+		case "sts_b_l":
+		case "sts_b_r":
+		case "sts_t_l":
+		case "sts_t_r":
+			// Für alle Trennstreifen-Attribute:
+			// Nothing to do here, wird bei "radverkehr" bereits abgehandelt.
+			break;
+		case "beschilder":
+			super.applyBeschilderung(linearReferenzierterAbschnitt, kante,
+				mapStringToEnum(attributwert, Beschilderung.class));
+			break;
+		case "absenkung":
+			super.applyAbsenkung(linearReferenzierterAbschnitt, kante, mapStringToEnum(attributwert, Absenkung.class));
+			break;
+		case "schaeden":
+			Set<Schadenart> schaeden = splitValues(attributwert)
+				.map(value -> mapStringToEnum(value, Schadenart.class))
+				.collect(Collectors.toSet());
+			super.applySchaeden(linearReferenzierterAbschnitt, kante, schaeden);
+			break;
 
 		// GeschwindigkeitsAttributGruppe
 		case "ortslage":
@@ -208,36 +351,42 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 
 		// ZustaendigkeitsAttributGruppe
 		case "baulast_tr":
-			Optional<Verwaltungseinheit> baulastTrOpt = getVerwaltungseinheit(attributwert);
+			Optional<Verwaltungseinheit> baulastTrOpt;
+			try {
+				baulastTrOpt = getVerwaltungseinheit(attributwert);
+			} catch (OrganisationsartUndNameNichtEindeutigException e) {
+				throw new AttributUebernahmeException(List.of(new AttributUebernahmeFehler(e.getMessage(),
+					Set.of(attributwert), linearReferenzierterAbschnitt)));
+			}
 			baulastTrOpt.ifPresent(
-				baulastTr -> super.applyBaulastTraeger(kante, baulastTr, linearReferenzierterAbschnitt)
-			);
+				baulastTr -> super.applyBaulastTraeger(kante, baulastTr, linearReferenzierterAbschnitt));
 			break;
 		case "unterhalts":
-			Optional<Verwaltungseinheit> unterhaltsZustOpt = getVerwaltungseinheit(attributwert);
+			Optional<Verwaltungseinheit> unterhaltsZustOpt;
+			try {
+				unterhaltsZustOpt = getVerwaltungseinheit(attributwert);
+			} catch (OrganisationsartUndNameNichtEindeutigException e) {
+				throw new AttributUebernahmeException(List.of(new AttributUebernahmeFehler(e.getMessage(),
+					Set.of(attributwert), linearReferenzierterAbschnitt)));
+			}
 			unterhaltsZustOpt.ifPresent(
 				unterhaltsZust -> super.applyUnterhaltsZustaendiger(kante, unterhaltsZust,
-					linearReferenzierterAbschnitt)
-			);
+					linearReferenzierterAbschnitt));
 			break;
 		case "erhalts_zu":
-			Optional<Verwaltungseinheit> erhaltsZustOpt = getVerwaltungseinheit(attributwert);
+			Optional<Verwaltungseinheit> erhaltsZustOpt;
+			try {
+				erhaltsZustOpt = getVerwaltungseinheit(attributwert);
+			} catch (OrganisationsartUndNameNichtEindeutigException e) {
+				throw new AttributUebernahmeException(List.of(new AttributUebernahmeFehler(e.getMessage(),
+					Set.of(attributwert), linearReferenzierterAbschnitt)));
+			}
 			erhaltsZustOpt.ifPresent(
-				erhaltsZust -> super.applyErhaltsZustaendiger(kante, erhaltsZust, linearReferenzierterAbschnitt)
-			);
+				erhaltsZust -> super.applyErhaltsZustaendiger(kante, erhaltsZust, linearReferenzierterAbschnitt));
 			break;
 		case "vereinbaru":
 			VereinbarungsKennung vereinbarungsKennung = VereinbarungsKennung.of(attributwert);
 			super.applyVereinbarungskennung(kante, vereinbarungsKennung, linearReferenzierterAbschnitt);
-			break;
-		case "sts_f_l":
-		case "sts_f_r":
-		case "sts_b_l":
-		case "sts_b_r":
-		case "sts_t_l":
-		case "sts_t_r":
-			// Für alle Trennstreifen-Attribute:
-			// Nothing to do here, wird bei "radverkehr" bereits abgehandelt.
 			break;
 		default:
 			throw new RuntimeException("LinearReferenziertes RadVIS-Attribut '" + attributname + "' unbekannt");
@@ -246,17 +395,18 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 
 	@Override
 	public void applyLinearReferenzierterAbschnittSeitenbezogen(String attributname,
-		MappedAttributesProperties attributesProperties,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt,
-		Seitenbezug seitenbezug,
-		Kante kante) {
+		MappedAttributesProperties attributesProperties, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt,
+		Seitenbezug seitenbezug, Kante kante) throws AttributUebernahmeException {
+		require(isAttributNameValid(attributname));
 		String attributwert = attributesProperties.getProperty(attributname);
+		require(isAttributWertValid(attributname, attributwert));
+
 		switch (attributname.toLowerCase()) {
 		// FuehrungsformAttributGruppe
 		case "radverkehr":
 			// Da die Trennstreifen-Attribute von der Radverkehrsführung abhängen, wird das hier zusammen behandelt.
-			applyRadverkehrsfuehrungUndTrennstreifen(attributesProperties, seitenbezug, linearReferenzierterAbschnitt,
-				kante);
+			applyRadverkehrsfuehrungUndAbhaengigeAttribute(attributesProperties, seitenbezug,
+				linearReferenzierterAbschnitt, kante);
 			break;
 		case "breite":
 			Laenge laenge = Laenge.of(attributwert);
@@ -297,6 +447,20 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			// Für alle Trennstreifen-Attribute:
 			// Nothing to do here, wird bei "radverkehr" bereits abgehandelt.
 			break;
+		case "beschilder":
+			super.applyBeschilderung(kante,
+				mapStringToEnum(attributwert, Beschilderung.class), seitenbezug, linearReferenzierterAbschnitt);
+			break;
+		case "absenkung":
+			super.applyAbsenkung(kante, mapStringToEnum(attributwert, Absenkung.class), seitenbezug,
+				linearReferenzierterAbschnitt);
+			break;
+		case "schaeden":
+			Set<Schadenart> schaeden = splitValues(attributwert)
+				.map(value -> mapStringToEnum(value, Schadenart.class))
+				.collect(Collectors.toSet());
+			super.applySchaeden(kante, schaeden, seitenbezug, linearReferenzierterAbschnitt);
+			break;
 		default:
 			throw new RuntimeException(
 				"LinearReferenziertes UND Seitenbezogenes RadVIS-Attribut '" + attributname + "' unbekannt");
@@ -319,61 +483,13 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 
 	@Override
 	public boolean isAttributSeitenbezogen(String attributname) {
-		List<String> seitenbezogeneAttribute = List.of(
-			// FuehrungsformAttributGruppe
-			"radverkehr",
-			"breite",
-			"parken_typ",
-			"parken_for",
-			"bordstein",
-			"belag_art",
-			"oberflaech",
-			"benutzungs",
-			"sts_b_l",
-			"sts_b_r",
-			"sts_f_l",
-			"sts_f_r",
-			"sts_t_l",
-			"sts_t_r",
-
-			// FahrtrichtungsAttributGruppe
-			"fahrtricht"
-		);
-		return seitenbezogeneAttribute.contains(attributname.toLowerCase());
+		return SEITENBEZOGENE_ATTRIBUTE.contains(attributname.toLowerCase());
 
 	}
 
 	@Override
 	public boolean isLinearReferenziert(String attributname) {
-		List<String> linearReferenzierteAttribute = List.of(
-			// FuehrungsformAttributGruppe
-			"radverkehr",
-			"breite",
-			"parken_typ",
-			"parken_for",
-			"bordstein",
-			"belag_art",
-			"oberflaech",
-			"benutzungs",
-			"sts_b_l",
-			"sts_b_r",
-			"sts_f_l",
-			"sts_f_r",
-			"sts_t_l",
-			"sts_t_r",
-
-			// GeschwindigkeitsAttributGruppe
-			"ortslage",
-			"hoechstges",
-			"abweichend",
-
-			// ZustaendigkeitsAttributGruppe
-			"baulast_tr",
-			"unterhalts",
-			"erhalts_zu",
-			"vereinbaru"
-		);
-		return linearReferenzierteAttribute.contains(attributname.toLowerCase());
+		return LINEAR_REFERENZIERTE_ATTRIBUTE.contains(attributname.toLowerCase());
 	}
 
 	@Override
@@ -401,9 +517,9 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 		return Optional.of(mapStringToEnum(seiteAttribut, Seitenbezug.class));
 	}
 
-	private void applyRadverkehrsfuehrungUndTrennstreifen(MappedAttributesProperties attributesProperties,
-		Seitenbezug seitenbezug,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante) {
+	private void applyRadverkehrsfuehrungUndAbhaengigeAttribute(MappedAttributesProperties attributesProperties,
+		Seitenbezug seitenbezug, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante)
+		throws AttributUebernahmeException {
 
 		Radverkehrsfuehrung radverkehrsfuehrung = mapStringToEnum(
 			attributesProperties.getPropertyOrElse("radverkehr", "UNBEKANNT"), Radverkehrsfuehrung.class);
@@ -426,73 +542,18 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			super.applyRadverkehrsfuehrungUndTrennstreifen(kante, radverkehrsfuehrung,
 				trennstreifenFormLinks, trennstreifenBreiteLinks, trennungZuLinks,
 				trennstreifenFormRechts, trennstreifenBreiteRechts, trennungZuRechts,
-				seitenbezug, linearReferenzierterAbschnitt
-			);
+				seitenbezug, linearReferenzierterAbschnitt);
 		} else {
 			super.applyRadverkehrsfuehrungUndTrennstreifen(kante, radverkehrsfuehrung,
 				trennstreifenFormLinks, trennstreifenBreiteLinks, trennungZuLinks,
 				trennstreifenFormRechts, trennstreifenBreiteRechts, trennungZuRechts,
-				linearReferenzierterAbschnitt
-			);
+				linearReferenzierterAbschnitt);
 		}
-	}
-
-	private List<String> getUnterstuetzteAttribute() {
-		return List.of(
-			// KantenAttributGruppe
-			"dtv_fussve",
-			"dtv_pkw",
-			"dtv_radver",
-			"kommentar",
-			"laenge_man",
-			"strassen_n",
-			"strassen_0",
-			"sv",
-			"wege_nivea",
-			"gemeinde_n", // Hier ist klar, dass es von der OrganisationsArt eine Gemeinde ist
-			// "landkreis_", Kann nicht importiert werden, wird automatisch aus gemeinde_n errechnet
-			"beleuchtun",
-			"umfeld",
-			"strassenka",
-			"strassenqu",
-			"status",
-			"standards",
-
-			// FuehrungsformAttributGruppe
-			"radverkehr",
-			"breite",
-			"parken_typ",
-			"parken_for",
-			"bordstein",
-			"belag_art",
-			"oberflaech",
-			"benutzungs",
-			"sts_b_l",
-			"sts_b_r",
-			"sts_f_l",
-			"sts_f_r",
-			"sts_t_l",
-			"sts_t_r",
-
-			// GeschwindigkeitsAttributGruppe
-			"ortslage",
-			"hoechstges",
-			"abweichend",
-
-			// ZustaendigkeitsAttributGruppe
-			"baulast_tr",
-			"unterhalts",
-			"erhalts_zu",
-			"vereinbaru",
-
-			// FahrtrichtungsAttributGruppe
-			"fahrtricht"
-		);
 	}
 
 	@Override
 	public boolean isAttributNameValid(String attributName) {
-		return getUnterstuetzteAttribute().contains(attributName.toLowerCase());
+		return UNTERSTUETZTE_ATTRIBUTE.contains(attributName.toLowerCase());
 	}
 
 	@Override
@@ -521,8 +582,8 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 		case "wege_nivea":
 			return isValidValueForEnum(attributWert, WegeNiveau.class);
 		case "gemeinde_n":
-			return verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(
-				attributWert, OrganisationsArt.GEMEINDE).isPresent();
+			return verwaltungseinheitService.hasVerwaltungseinheitNachNameUndArt(
+				attributWert, OrganisationsArt.GEMEINDE);
 		case "beleuchtun":
 			return isValidValueForEnum(attributWert, Beleuchtung.class);
 		case "umfeld":
@@ -534,7 +595,7 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 		case "status":
 			return isValidValueForEnum(attributWert, Status.class);
 		case "standards":
-			return getIstStandardStringStream(attributWert)
+			return splitValues(attributWert)
 				.allMatch(standard -> isValidValueForEnum(standard, IstStandard.class));
 		case "radverkehr":
 			return isValidValueForEnum(attributWert, Radverkehrsfuehrung.class);
@@ -559,11 +620,11 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 		case "abweichend":
 			return isValidValueForEnum(attributWert, Hoechstgeschwindigkeit.class);
 		case "baulast_tr":
-			return getVerwaltungseinheit(attributWert).isPresent();
+			return isVerwaltungseinheitValid(attributWert);
 		case "unterhalts":
-			return getVerwaltungseinheit(attributWert).isPresent();
+			return isVerwaltungseinheitValid(attributWert);
 		case "erhalts_zu":
-			return getVerwaltungseinheit(attributWert).isPresent();
+			return isVerwaltungseinheitValid(attributWert);
 		case "vereinbaru":
 			return VereinbarungsKennung.isValid(attributWert);
 		case "fahrtricht":
@@ -580,8 +641,15 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			return isValidValueForEnum(attributWert, TrennungZu.class);
 		case "sts_t_r":
 			return isValidValueForEnum(attributWert, TrennungZu.class);
+		case "beschilder":
+			return isValidValueForEnum(attributWert, Beschilderung.class);
+		case "absenkung":
+			return isValidValueForEnum(attributWert, Absenkung.class);
+		case "schaeden":
+			return splitValues(attributWert)
+				.allMatch(schaden -> isValidValueForEnum(schaden, Schadenart.class));
 		default:
-			return false;
+			throw new UnsupportedOperationException("isAttributWertValid not implemented for " + attributName);
 		}
 	}
 
@@ -665,20 +733,64 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			return "Sicherheitstrennstreifen Trennung Links";
 		case "sts_t_r":
 			return "Sicherheitstrennstreifen Trennung Rechts";
+		case "beschilder":
+			return "Beschilderung";
+		case "absenkung":
+			return "Absenkung";
+		case "schaeden":
+			return "Vorhandene Schäden";
 		default:
-			return "";
+			throw new UnsupportedOperationException(
+				"getRadVisAttributName not implemented for " + importedAttributName);
 		}
 	}
 
-	private Optional<Verwaltungseinheit> getVerwaltungseinheit(String orgaNameUndArt) {
+	@Override
+	public int sortAttribute(String attribut1, String attribut2) {
+		require(isAttributNameValid(attribut1));
+		require(isAttributNameValid(attribut2));
+
+		// Wir importieren die Radverkehrsfuehrung zuerst, damit Validierungs-Konflikte mit abhängigen Feldern wie
+		// Beschilderung korrekt aufgelöst werden.
+		if (attribut1.equals("radverkehr")) {
+			return -1;
+		}
+
+		if (attribut2.equals("radverkehr")) {
+			return 1;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * false, wenn parsing nicht klappt
+	 * 
+	 * @param orgaNameUndArt
+	 * @return
+	 * @throws OrganisationsartUndNameNichtEindeutigException
+	 */
+	private boolean isVerwaltungseinheitValid(String orgaNameUndArt) {
 		Optional<Pair<String, OrganisationsArt>> organisationsArtPairOpt = Verwaltungseinheit
-			.parseBezeichnungWithOrgaArtAllCaps(
-				orgaNameUndArt);
-		return organisationsArtPairOpt.flatMap(
-			organisationsArtPair -> verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(
-				organisationsArtPair.getFirst(), organisationsArtPair.getSecond()
-			)
-		);
+			.parseBezeichnungWithOrgaArtAllCaps(orgaNameUndArt);
+		if (organisationsArtPairOpt.isEmpty()) {
+			return false;
+		}
+
+		return verwaltungseinheitService.hasVerwaltungseinheitNachNameUndArt(
+			organisationsArtPairOpt.get().getFirst(), organisationsArtPairOpt.get().getSecond());
+	}
+
+	private Optional<Verwaltungseinheit> getVerwaltungseinheit(String orgaNameUndArt)
+		throws OrganisationsartUndNameNichtEindeutigException {
+		Optional<Pair<String, OrganisationsArt>> organisationsArtPairOpt = Verwaltungseinheit
+			.parseBezeichnungWithOrgaArtAllCaps(orgaNameUndArt);
+		if (organisationsArtPairOpt.isEmpty()) {
+			return Optional.empty();
+		}
+
+		return verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
+			organisationsArtPairOpt.get().getFirst(), organisationsArtPairOpt.get().getSecond());
 	}
 
 	private static <T extends Enum<T>> T mapStringToEnum(String value, Class<T> enumClass) {
@@ -700,7 +812,7 @@ public class RadVISMapper extends AttributeMapper implements AttributivSeitenbez
 			.collect(Collectors.toSet()).contains(attributWert);
 	}
 
-	private static Stream<String> getIstStandardStringStream(String attributwert) {
+	private static Stream<String> splitValues(String attributwert) {
 		return Arrays.stream(attributwert.split(";"))
 			.map(String::strip);
 	}

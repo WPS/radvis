@@ -20,5 +20,6 @@ import { Directive } from '@angular/core';
     'input[radAccessabilityTabCircleElement], ' +
     'mat-checkbox[radAccessabilityTabCircleElement], ' +
     'rad-organisationen-dropdown-control[radAccessabilityTabCircleElement]',
+  standalone: false,
 })
 export class AccessabilityTabCircleElementDirective {}

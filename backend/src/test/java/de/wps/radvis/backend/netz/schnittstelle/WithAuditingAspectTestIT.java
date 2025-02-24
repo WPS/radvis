@@ -56,7 +56,6 @@ class WithAuditingAspectTestIT {
 	NetzService netzService;
 
 	static class TestConfig {
-
 		class TestBean {
 			@WithAuditing(context = AuditingContext.SAVE_KANTE_ATTRIBUTE_COMMAND)
 			public AuditingContext testAuditingContext() {

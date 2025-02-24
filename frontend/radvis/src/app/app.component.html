@@ -96,42 +96,7 @@
 
     <rad-systembenachrichtigung *ngIf="isBenutzerAktiv"></rad-systembenachrichtigung>
 
-    <button
-      *ngIf="
-        isBenutzerAktiv &&
-        !isBenutzerOrgaUndNutzerVerwalter &&
-        canBenutzerEditBereicheOfOrganisation &&
-        isOrganisationenBearbeitenToggleOn
-      "
-      class="icon-toolbar"
-      matTooltip="Organisationen öffnen"
-      [routerLink]="administrationOrganisationRoute"
-      queryParamsHandling="merge"
-      mat-icon-button>
-      <mat-icon>account_balance</mat-icon>
-    </button>
-
-    <button
-      *ngIf="isBenutzerAktiv && isBenutzerOrgaUndNutzerVerwalter"
-      class="icon-toolbar"
-      matTooltip="Administration öffnen"
-      [matMenuTriggerFor]="menu"
-      mat-icon-button>
-      <mat-icon>settings</mat-icon>
-    </button>
-
-    <mat-menu #menu="matMenu">
-      <button [routerLink]="administrationBenutzerRoute" queryParamsHandling="merge" mat-menu-item>
-        <span>Benutzer</span>
-      </button>
-      <button
-        *ngIf="isOrganisationenBearbeitenToggleOn"
-        [routerLink]="administrationOrganisationRoute"
-        queryParamsHandling="merge"
-        mat-menu-item>
-        <span>Organisation</span>
-      </button>
-    </mat-menu>
+    <rad-administration-menu *ngIf="isBenutzerAktiv"></rad-administration-menu>
 
     <button
       *ngIf="isBenutzerAktiv"

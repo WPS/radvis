@@ -41,6 +41,7 @@ import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => OrganisationenDropdownControlComponent), multi: true },
   ],
+  standalone: false,
 })
 export class OrganisationenDropdownControlComponent
   extends AbstractUndeterminedFormControl<Verwaltungseinheit>

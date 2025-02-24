@@ -16,6 +16,7 @@ package de.wps.radvis.backend.weitereKartenebenen.domain.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
@@ -25,5 +26,8 @@ public interface WeitereKartenebenenRepository extends CrudRepository<WeitereKar
 	List<WeitereKartenebene> findAllByBenutzerOrderById(Benutzer benutzer);
 
 	void deleteAllByDateiLayerId(Long dateiLayerId);
+
+	@Query("FROM WeitereKartenebene WHERE defaultLayer=true")
+	List<WeitereKartenebene> findAllDefault();
 
 }

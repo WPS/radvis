@@ -51,6 +51,6 @@ describe(ButtonAccessibilityDirective.name, () => {
       expect(getAriaLabel()).toBeNull();
     });
 
-    const getAriaLabel = (): string | null => (<HTMLButtonElement>ngMocks.find('button').nativeElement).ariaLabel;
+    const getAriaLabel = (): string | null => (ngMocks.find('button').nativeElement as HTMLButtonElement).ariaLabel;
   });
 });

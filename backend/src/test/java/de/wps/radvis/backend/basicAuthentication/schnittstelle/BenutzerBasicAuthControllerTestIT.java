@@ -30,14 +30,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.authentication.schnittstelle.RadVisUserDetailsService;
@@ -65,9 +64,6 @@ import jakarta.persistence.PersistenceContext;
 @Tag("group4")
 @ContextConfiguration(classes = {
 	BenutzerBasicAuthControllerTestIT.TestConfiguration.class,
-})
-@MockBeans({
-	@MockBean(CommonConfigurationProperties.class),
 })
 public class BenutzerBasicAuthControllerTestIT extends DBIntegrationTestIT {
 
@@ -119,6 +115,9 @@ public class BenutzerBasicAuthControllerTestIT extends DBIntegrationTestIT {
 	BasicAuthPasswortService basicAuthPasswortService;
 
 	BenutzerBasicAuthController benutzerBasicAuthController;
+
+	@MockitoBean
+	CommonConfigurationProperties commonConfigurationProperties;
 
 	@PersistenceContext
 	private EntityManager entityManager;

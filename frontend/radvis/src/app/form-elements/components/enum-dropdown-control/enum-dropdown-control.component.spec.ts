@@ -84,4 +84,19 @@ describe(EnumDropdownControlComponent.name + ' - embedded', () => {
     expect(component.showUndeterminedOption).toBeTrue();
     expect(fixture.debugElement.query(By.css('mat-hint')).nativeElement.innerText).toEqual('Mehrere Werte ausgewählt');
   });
+
+  it('should process UndeterminedValue for multiple selection', () => {
+    fixture = TestBed.createComponent(EnumDropdownControlComponent);
+    component = fixture.componentInstance;
+    component.options = Hoechstgeschwindigkeit.options;
+    component.multiple = true;
+    fixture.detectChanges();
+
+    component.writeValue(new UndeterminedValue());
+    fixture.detectChanges();
+
+    expect(component.formControl.value).toEqual([component.UNDETERMINED]);
+    expect(component.showUndeterminedOption).toBeFalse();
+    expect(fixture.debugElement.query(By.css('mat-hint')).nativeElement.innerText).toEqual('Mehrere Werte ausgewählt');
+  });
 });

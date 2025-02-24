@@ -32,6 +32,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   template: '',
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeKonflikteLayerComponent implements OnDestroy {
   private static readonly Z_INDEX_KONFLIKT_LAYER = 903;

@@ -13,9 +13,9 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
+import { NG_VALUE_ACCESSOR, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { DateRange } from '@angular/material/datepicker';
+import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 
 @Component({
   selector: 'rad-jahreszeitraum-control',
@@ -25,6 +25,7 @@ import { DateRange } from '@angular/material/datepicker';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JahreszeitraumControlComponent), multi: true },
   ],
+  standalone: false,
 })
 export class JahreszeitraumControlComponent extends AbstractFormControl<DateRange<Date>> {
   @Input()

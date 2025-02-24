@@ -40,6 +40,7 @@ import { MapStyles } from 'src/app/shared/models/layers/map-styles';
   templateUrl: './signatur-netzklasse-layer.component.html',
   styleUrls: ['./signatur-netzklasse-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
   public static MIN_RESOLUTION_FOR_STRECKEN = 20;

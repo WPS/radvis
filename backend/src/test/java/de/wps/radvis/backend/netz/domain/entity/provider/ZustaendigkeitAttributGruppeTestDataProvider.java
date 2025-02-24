@@ -14,9 +14,12 @@
 
 package de.wps.radvis.backend.netz.domain.entity.provider;
 
+import java.util.List;
+
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
+import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute.ZustaendigkeitAttributeBuilder;
 import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 
@@ -31,6 +34,11 @@ public class ZustaendigkeitAttributGruppeTestDataProvider {
 	}
 
 	public static ZustaendigkeitAttribute.ZustaendigkeitAttributeBuilder createWithValues(
+		Gebietskoerperschaft defaultOrganisation) {
+		return createWithValues(defaultOrganisation, defaultOrganisation, defaultOrganisation);
+	}
+
+	public static ZustaendigkeitAttribute.ZustaendigkeitAttributeBuilder createWithValues(
 		Gebietskoerperschaft baulastTraeger, Gebietskoerperschaft erhaltsZustaendiger,
 		Gebietskoerperschaft unterhaltsZustaendiger) {
 		return ZustaendigkeitAttribute.builder()
@@ -39,5 +47,12 @@ public class ZustaendigkeitAttributGruppeTestDataProvider {
 			.baulastTraeger(baulastTraeger)
 			.erhaltsZustaendiger(erhaltsZustaendiger)
 			.unterhaltsZustaendiger(unterhaltsZustaendiger);
+	}
+
+	public static ZustaendigkeitAttributGruppe.ZustaendigkeitAttributGruppeBuilder withAttribute(
+		ZustaendigkeitAttributeBuilder attribute) {
+		return ZustaendigkeitAttributGruppe.builder()
+			.zustaendigkeitAttribute(
+				List.of(attribute.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1)).build()));
 	}
 }

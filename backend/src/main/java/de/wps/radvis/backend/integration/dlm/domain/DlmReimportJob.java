@@ -158,11 +158,12 @@ public class DlmReimportJob extends AbstractJob {
 						});
 
 					if (mappedGrundnetzKanten.isEmpty()) {
-						dlmReimportJobStatistik.anzahlKantenOhneMatch += 1;
+						dlmReimportJobStatistik.anzahlKantenOhneAttributuebertragung += 1;
 						log.debug("Kante {} konnte nicht abgebildet werden: kein Match gefunden", zuLoeschendeKante
 							.getId());
 						log.trace("Matching Statistik für Kante {}:\n{}", zuLoeschendeKante.getId(), matchingStatistik);
 					} else {
+						dlmReimportJobStatistik.anzahlKantenMitAttributuebertragung += 1;
 						Set<Kante> matchingKanten = mappedGrundnetzKanten.stream()
 							.map(mappedKante -> inMemoryKantenRepository.get(mappedKante.getKanteId()))
 							.collect(Collectors.toSet());

@@ -12,6 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Color } from 'ol/color';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { Geometry } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
@@ -27,7 +28,6 @@ import { infrastrukturLayerZIndex } from 'src/app/viewer/viewer-shared/models/vi
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import { Color } from 'ol/color';
 
 export abstract class AbstractInfrastrukturLayerComponent<T> {
   public static BEZEICHNUNG_PROPERTY_NAME = 'bezeichnung';
@@ -97,7 +97,7 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
     );
   }
 
-  protected createLayer(minZoom: number = 0): VectorLayer {
+  protected createLayer(minZoom = 0): VectorLayer {
     const olLayer = new VectorLayer({
       source: this.vectorSource,
       // @ts-expect-error Migration von ts-ignore
@@ -127,7 +127,6 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
     );
   };
 
-  // eslint-disable-next-line no-unused-vars
   protected styleWithHighlightCircleFn = (feature: FeatureLike, resolution: number): Style | Style[] => {
     const styles = [];
 

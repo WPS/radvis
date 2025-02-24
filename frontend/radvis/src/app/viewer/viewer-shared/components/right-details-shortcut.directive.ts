@@ -16,6 +16,7 @@ import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
   selector: 'mat-toolbar[radRightDetailsShortcut]',
+  standalone: false,
 })
 export class RightDetailsShortcutDirective {
   constructor(private elementRef: ElementRef) {}

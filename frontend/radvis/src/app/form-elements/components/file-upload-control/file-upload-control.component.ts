@@ -36,6 +36,7 @@ import invariant from 'tiny-invariant';
     { provide: NG_VALUE_ACCESSOR, useExisting: FileUploadControlComponent, multi: true },
     { provide: NG_VALIDATORS, useExisting: FileUploadControlComponent, multi: true },
   ],
+  standalone: false,
 })
 export class FileUploadControlComponent extends AbstractFormControl<File> implements OnChanges, Validator {
   @ViewChild('fileUpload')

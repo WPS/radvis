@@ -35,6 +35,7 @@ import de.wps.radvis.backend.common.domain.ExtentProperty;
 import de.wps.radvis.backend.common.domain.Job;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.JobExecutionInputSummarySupplier;
+import de.wps.radvis.backend.common.domain.RadVisStopWatchPrinter;
 import de.wps.radvis.backend.common.domain.RamUsageUtility;
 import jakarta.transaction.Transactional;
 
@@ -105,8 +106,8 @@ public abstract class AbstractJob implements Job {
 
 		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
 
-		log.info("Completed job execution for {}. Duration: {} ms", name,
-			jobExecutionDescription.getDuration().toMillis());
+		log.info("Completed job execution for {}. Duration: {}", name, RadVisStopWatchPrinter.stringify(
+			jobExecutionDescription.getDuration()));
 
 		RamUsageUtility.logCurrentRamUsage(String.format("Am Ende des Jobs %s", name));
 

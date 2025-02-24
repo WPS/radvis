@@ -41,6 +41,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './anpassungen-editor.component.html',
   styleUrls: ['./anpassungen-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AnpassungenEditorComponent implements OnDestroy, DiscardableComponent {
   isFetching = false;

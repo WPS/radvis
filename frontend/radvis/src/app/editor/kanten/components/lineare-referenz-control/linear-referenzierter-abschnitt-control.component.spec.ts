@@ -302,7 +302,7 @@ describe(LinearReferenzierterAbschnittControlComponent.name + ' - integration', 
       fixture.detectChanges();
 
       const allInputs = fixture.debugElement.queryAll(By.css('input:not([type="checkbox"])'));
-      (allInputs[1].nativeElement as any).value = '1.23';
+      allInputs[1].nativeElement.value = '1.23';
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('input'));
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('blur'));
 
@@ -332,7 +332,7 @@ describe(LinearReferenzierterAbschnittControlComponent.name + ' - integration', 
       fixture.detectChanges();
 
       const allInputs = fixture.debugElement.queryAll(By.css('input:not([type="checkbox"])'));
-      (allInputs[1].nativeElement as any).value = '9.3';
+      allInputs[1].nativeElement.value = '9.3';
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('input'));
       (allInputs[1].nativeElement as HTMLElement).dispatchEvent(new Event('blur'));
 
@@ -356,6 +356,7 @@ describe(LinearReferenzierterAbschnittControlComponent.name + ' - integration', 
 @Component({
   template:
     '<rad-linear-referenzierter-abschnitt-control [geometrie]="geometrie"></rad-linear-referenzierter-abschnitt-control>',
+  standalone: false,
 })
 export class LineareReferenzControlTestWrapperComponent {
   @ViewChild(LinearReferenzierterAbschnittControlComponent)

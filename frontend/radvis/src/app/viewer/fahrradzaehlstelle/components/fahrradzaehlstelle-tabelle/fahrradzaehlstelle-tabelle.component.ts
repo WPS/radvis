@@ -33,6 +33,7 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
       useExisting: FahrradzaehlstelleFilterService,
     },
   ],
+  standalone: false,
 })
 export class FahrradzaehlstelleTabelleComponent {
   data$: Observable<FahrradzaehlstelleListenView[]>;

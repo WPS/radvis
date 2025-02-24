@@ -100,7 +100,7 @@ public class ToubizRepositoryImpl implements ToubizRepository {
 
 	private void logApiCall(String url) {
 		log.info("REST GET Toubiz: {}",
-			UriComponentsBuilder.fromHttpUrl(url).replaceQueryParam("api_token", "***").build());
+			UriComponentsBuilder.fromUriString(url).replaceQueryParam("api_token", "***").build());
 	}
 
 	private boolean isLandesradfernweg(ToubizFahrradroutePayloadDto toubizFahrradroutePayloadDto) {

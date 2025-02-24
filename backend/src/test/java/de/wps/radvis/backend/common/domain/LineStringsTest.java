@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.util.AffineTransformation;
 
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.netz.domain.entity.LineStrings;
@@ -331,4 +332,261 @@ class LineStringsTest {
 			.isFalse();
 	}
 
+	@Test
+	void sindExaktParallel_betrachtetLineStringRichtungKorrekt() {
+		// Arrange
+		// Beide LineStrings bilden einen Bogen, der A-Bogen ist etwas genauer (mehr Koordinaten) als der B-Bogen. Sie
+		// verlaufen aber trotzdem einigermaßen parallel.
+		LineString lineStringA = GeometryTestdataProvider.createLineString(
+			new Coordinate(10, 0),
+			new Coordinate(15, 10),
+			new Coordinate(20, 15),
+			new Coordinate(25, 17),
+			new Coordinate(30, 20),
+			new Coordinate(40, 22),
+			new Coordinate(50, 20),
+			new Coordinate(55, 17),
+			new Coordinate(60, 15),
+			new Coordinate(65, 10),
+			new Coordinate(70, 0)
+		);
+
+		LineString lineStringB = GeometryTestdataProvider.createLineString(
+			new Coordinate(0, 0),
+			new Coordinate(10, 20),
+			new Coordinate(40, 30),
+			new Coordinate(60, 20),
+			new Coordinate(70, 0)
+		);
+
+		// Act & Assert
+		double tolerance = 6d;
+		assertThat(LineStrings.sindExaktParallel(lineStringA, lineStringB, 10, tolerance)).isTrue();
+		assertThat(LineStrings.sindExaktParallel(lineStringA.reverse(), lineStringB, 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindExaktParallel(lineStringA, lineStringB.reverse(), 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindExaktParallel(lineStringA.reverse(), lineStringB.reverse(), 10, tolerance)).isTrue();
+
+		assertThat(LineStrings.sindExaktParallel(lineStringB, lineStringA, 10, tolerance)).isTrue();
+		assertThat(LineStrings.sindExaktParallel(lineStringB.reverse(), lineStringA, 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindExaktParallel(lineStringB, lineStringA.reverse(), 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindExaktParallel(lineStringB.reverse(), lineStringA.reverse(), 10, tolerance)).isTrue();
+	}
+
+	@Test
+	void sindParallel_lineStringRichtungIstIrrelevant() {
+		// Arrange
+		// Beide LineStrings bilden einen Bogen, der A-Bogen ist etwas genauer (mehr Koordinaten) als der B-Bogen. Sie
+		// verlaufen aber trotzdem einigermaßen parallel.
+		LineString lineStringA = GeometryTestdataProvider.createLineString(
+			new Coordinate(10, 0),
+			new Coordinate(15, 10),
+			new Coordinate(20, 15),
+			new Coordinate(25, 17),
+			new Coordinate(30, 20),
+			new Coordinate(40, 22),
+			new Coordinate(50, 20),
+			new Coordinate(55, 17),
+			new Coordinate(60, 15),
+			new Coordinate(65, 10),
+			new Coordinate(70, 0)
+		);
+
+		LineString lineStringB = GeometryTestdataProvider.createLineString(
+			new Coordinate(0, 0),
+			new Coordinate(10, 20),
+			new Coordinate(40, 30),
+			new Coordinate(60, 20),
+			new Coordinate(70, 0)
+		);
+
+		LineString lineStringC = GeometryTestdataProvider.createLineString(
+			new Coordinate(0, 0),
+			new Coordinate(10, 100)
+		);
+
+		// Act & Assert
+		double tolerance = 6d;
+
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, tolerance)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB.reverse(), 10, tolerance)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA.reverse(), lineStringB, 10, tolerance)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA.reverse(), lineStringB.reverse(), 10, tolerance)).isTrue();
+
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC.reverse(), 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA.reverse(), lineStringC, 10, tolerance)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA.reverse(), lineStringC.reverse(), 10, tolerance)).isFalse();
+	}
+
+	@Test
+	void sindExaktParallel_toleranzWirdEingehalten() {
+		// Arrange
+		LineString lineStringA = GeometryTestdataProvider.createLineString(
+			new Coordinate(0, 0),
+			new Coordinate(0, 100)
+		);
+
+		LineString lineStringB = GeometryTestdataProvider.createLineString(
+			new Coordinate(10, 0),
+			new Coordinate(10, 100)
+		);
+
+		// Act & Assert
+		double tolerance = 45.1; // .1 um float-Ungenauigkeiten zu ignorieren
+
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, tolerance)).isTrue();
+
+		// Schrittweise rotieren, bis Grenzwert überschritten wurde
+		AffineTransformation transformation = AffineTransformation.rotationInstance(Math.toRadians(1), lineStringB
+			.getCentroid().getX(), lineStringB.getCentroid().getY());
+
+		LineString rotatedLineStringB = lineStringB;
+
+		// 0° - 45°
+		for (int i = 0; i < 46; i++) {
+			assertThat(LineStrings.sindExaktParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isTrue();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+		// 46° - 314° (314° = -46°)
+		for (int i = 46; i < 315; i++) {
+			assertThat(LineStrings.sindExaktParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isFalse();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+		// 315° - 360°
+		for (int i = 315; i < 361; i++) {
+			assertThat(LineStrings.sindExaktParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isTrue();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+	}
+
+	@Test
+	void sindParallel_toleranzWirdEingehaltenUndRichtungIstIrrelevant() {
+		// Arrange
+		LineString lineStringA = GeometryTestdataProvider.createLineString(
+			new Coordinate(0, 0),
+			new Coordinate(0, 100)
+		);
+
+		LineString lineStringB = GeometryTestdataProvider.createLineString(
+			new Coordinate(10, 0),
+			new Coordinate(10, 100)
+		);
+
+		// Act & Assert
+		double tolerance = 45.1; // .1 um float-Ungenauigkeiten zu ignorieren
+
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, tolerance)).isTrue();
+
+		// Schrittweise rotieren, bis Grenzwert überschritten wurde
+		AffineTransformation transformation = AffineTransformation.rotationInstance(Math.toRadians(1), lineStringB
+			.getCentroid().getX(), lineStringB.getCentroid().getY());
+
+		LineString rotatedLineStringB = lineStringB;
+
+		// 0° - 45°
+		for (int i = 0; i < 46; i++) {
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB.reverse(), 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB, 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB.reverse(), 10, tolerance))
+				.isTrue();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+		// 46° - 134°
+		for (int i = 46; i < 135; i++) {
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isFalse();
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB.reverse(), 10, tolerance)).isFalse();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB, 10, tolerance)).isFalse();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB.reverse(), 10, tolerance))
+				.isFalse();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+		// 135° - 225° (rotierter LineStrings ist jetzt anti-parallel)
+		for (int i = 135; i < 226; i++) {
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB.reverse(), 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB, 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB.reverse(), 10, tolerance))
+				.isTrue();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+		// 226° - 314°
+		for (int i = 226; i < 315; i++) {
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isFalse();
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB.reverse(), 10, tolerance)).isFalse();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB, 10, tolerance)).isFalse();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB.reverse(), 10, tolerance))
+				.isFalse();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+		// 315° - 360°
+		for (int i = 315; i < 361; i++) {
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB, 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA, rotatedLineStringB.reverse(), 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB, 10, tolerance)).isTrue();
+			assertThat(LineStrings.sindParallel(lineStringA.reverse(), rotatedLineStringB.reverse(), 10, tolerance))
+				.isTrue();
+			rotatedLineStringB = (LineString) transformation.transform(rotatedLineStringB);
+		}
+	}
+
+	@Test
+	void sindParallel_kurvigeLineStringsSindNichtParallel() {
+		// Arrange
+
+		// "S"-förmiger LineString
+		LineString lineStringA = GeometryTestdataProvider.createLineString(
+			new Coordinate(10, 0),
+			new Coordinate(20, 10),
+			new Coordinate(10, 20),
+			new Coordinate(0, 30),
+			new Coordinate(10, 40)
+		);
+
+		// Quasi "lineStringA" aber an der y-Achse gespiegelt
+		LineString lineStringB = GeometryTestdataProvider.createLineString(
+			new Coordinate(110, 0),
+			new Coordinate(100, 10),
+			new Coordinate(110, 20),
+			new Coordinate(120, 30),
+			new Coordinate(110, 40)
+		);
+
+		// "C"-förmiger LineString
+		LineString lineStringC = GeometryTestdataProvider.createLineString(
+			new Coordinate(200, 0),
+			new Coordinate(210, 10),
+			new Coordinate(210, 10),
+			new Coordinate(200, 20)
+		);
+
+		// Act & Assert (nur Start- und Endpunkt vergleichen indem nur mit einem Segment gesampled wird)
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 1, 0)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 1, 0)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringC, lineStringB, 1, 0)).isTrue();
+
+		// Act & Assert (lineStringA vs. lineStringB)
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 0)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 10)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 20)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 30)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 40)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 50)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 60)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 70)).isFalse();
+
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 80)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 90)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringB, 10, 100)).isTrue();
+
+		// Act & Assert (lineStringA vs. lineStringC)
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 0)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 10)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 20)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 30)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 40)).isFalse();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 50)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 60)).isTrue();
+		assertThat(LineStrings.sindParallel(lineStringA, lineStringC, 10, 70)).isTrue();
+	}
 }

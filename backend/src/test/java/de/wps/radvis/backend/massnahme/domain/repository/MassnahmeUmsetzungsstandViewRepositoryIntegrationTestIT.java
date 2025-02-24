@@ -28,9 +28,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
@@ -115,10 +115,6 @@ import jakarta.persistence.PersistenceContext;
 })
 @EnableJpaRepositories(basePackageClasses = FahrradrouteConfiguration.class)
 @EntityScan(basePackageClasses = FahrradrouteConfiguration.class)
-@MockBean(classes = {
-	ShapeFileRepository.class, SimpleMatchingService.class, JobExecutionDescriptionRepository.class,
-	BenutzerResolver.class, MassnahmeNetzbezugAenderungProtokollierungsService.class, FahrradrouteRepository.class
-})
 class MassnahmeUmsetzungsstandViewRepositoryIntegrationTestIT extends DBIntegrationTestIT {
 
 	private Gebietskoerperschaft gebietskoerperschaft;
@@ -140,6 +136,19 @@ class MassnahmeUmsetzungsstandViewRepositoryIntegrationTestIT extends DBIntegrat
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	@MockitoBean
+	private ShapeFileRepository shapeFileRepository;
+	@MockitoBean
+	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
+	@MockitoBean
+	private BenutzerResolver benutzerResolver;
+	@MockitoBean
+	private SimpleMatchingService simpleMatchingService;
+	@MockitoBean
+	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
+	@MockitoBean
+	private FahrradrouteRepository fahrradrouteRepository;
 
 	@BeforeEach
 	void setUp() {

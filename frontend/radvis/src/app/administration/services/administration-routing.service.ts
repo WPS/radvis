@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
 export class AdministrationRoutingService {
   public static readonly ADMINISTRATION_BENUTZER_ROUTE: string = 'administration/benutzer';
   public static readonly ADMINISTRATION_ORGANISATION_ROUTE: string = 'administration/organisation';
+  public static readonly ADMINISTRATION_DATEI_LAYER_ROUTE: string = 'administration/datei-layer';
 
   public static readonly BENUTZER_SUCHE_PAGE_INDEX_QUERY_PARAM: string = 'benutzer-suche-page-index';
   public static readonly BENUTZER_SUCHE_PAGE_SIZE_QUERY_PARAM: string = 'benutzer-suche-page-size';
@@ -48,6 +49,12 @@ export class AdministrationRoutingService {
 
   public toOrganisationListe(): void {
     this.router.navigate([AdministrationRoutingService.ADMINISTRATION_ORGANISATION_ROUTE], {
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  public toDateiLayerVerwaltung(): void {
+    this.router.navigate([AdministrationRoutingService.ADMINISTRATION_DATEI_LAYER_ROUTE], {
       queryParamsHandling: 'merge',
     });
   }

@@ -36,10 +36,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.abstellanlage.AbstellanlageConfiguration;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
@@ -70,19 +69,18 @@ import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTest
 @Tag("group6")
 @ContextConfiguration(classes = { AbstellanlageConfiguration.class, DokumentConfiguration.class })
 @EnableConfigurationProperties(value = CommonConfigurationProperties.class)
-@MockBeans({
-	@MockBean(BenutzerResolver.class),
-})
 class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 	private static final String BASE_URL = "https://radvis-dev.landbw.de/";
 
 	AbstellanlageImportService abstellanlageImportService;
 	@Autowired
 	AbstellanlageRepository abstellanlageRepository;
-	@MockBean
+	@MockitoBean
 	VerwaltungseinheitService verwaltungseinheitService;
-	@MockBean
+	@MockitoBean
 	ZustaendigkeitsService zustaendigkeitsService;
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
 
 	Benutzer adminBenutzer;
 	PreparedGeometry boundingArea;

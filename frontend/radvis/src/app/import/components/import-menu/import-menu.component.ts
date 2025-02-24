@@ -24,6 +24,7 @@ import { IsActiveMatchOptions } from '@angular/router';
   templateUrl: './import-menu.component.html',
   styleUrl: './import-menu.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMenuComponent {
   @Input()

@@ -73,14 +73,14 @@ public class RadVisJobScheduler {
 					}
 
 					String failureType = e.getClass().getName();
-					log.info("Job " + jobName + " fehlgeschlagen durch " + failureType);
+					log.error("Job " + jobName + " fehlgeschlagen durch " + failureType, e);
 					failedJobs.put(jobName, failureType);
 				}
 
 				stopWatch.stop();
 				log.info("RadVisJobScheduler: Stoppe run-Methode von Job " + jobName);
-				log.info("RadVisJobScheduler: Laufzeit der run-Methode: " +
-					stopWatch.lastTaskInfo().getTimeMillis() / 1000 + " seconds");
+				log.info("RadVisJobScheduler: Laufzeit der run-Methode: " + RadVisStopWatchPrinter.stringify(
+					stopWatch));
 			}
 		}
 		log.info(RadVisStopWatchPrinter.stringify(stopWatch, failedJobs));

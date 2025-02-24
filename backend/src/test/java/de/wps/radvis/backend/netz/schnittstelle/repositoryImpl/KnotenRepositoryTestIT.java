@@ -33,8 +33,6 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,7 +45,6 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.PostGisHelper;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -68,11 +65,15 @@ import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.KnotenAttribute;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.repository.KnotenRepository;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
+import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
@@ -101,9 +102,6 @@ import jakarta.validation.constraints.NotNull;
 	PostgisConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
 })
 public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 
@@ -147,6 +145,35 @@ public class KnotenRepositoryTestIT extends DBIntegrationTestIT {
 
 		assertThat(resultKnoten.getQuelle()).isEqualTo(QuellSystem.RadNETZ);
 		assertThat(resultKnoten.getKoordinate()).isEqualTo(new Coordinate(10, 10));
+	}
+
+	@Test
+	public void testSaveAndGet_bauwerksmangelArtIsCorrect() {
+		// Arrange
+		assertThat(knotenRepository).isNotNull();
+
+		Knoten knoten = KnotenTestDataProvider.withCoordinateAndQuelle(new Coordinate(10, 10), QuellSystem.RadNETZ)
+			.knotenAttribute(KnotenAttribute.builder().knotenForm(KnotenForm.UEBERFUEHRUNG)
+				.bauwerksmangel(Bauwerksmangel.VORHANDEN)
+				.bauwerksmangelArt(Set.of(BauwerksmangelArt.ANDERER_MANGEL, BauwerksmangelArt.GELAENDER_ZU_NIEDRIG))
+				.build())
+			.build();
+
+		// Act
+		Long savedKnotenId = knotenRepository.save(knoten).getId();
+
+		entityManager.flush();
+		entityManager.clear();
+
+		Optional<Knoten> result = knotenRepository.findById(savedKnotenId);
+
+		// Assert
+		assertThat(result).isPresent();
+		Knoten resultKnoten = result.get();
+
+		assertThat(resultKnoten.getKnotenAttribute().getBauwerksmangelArt()).isNotEmpty();
+		assertThat(resultKnoten.getKnotenAttribute().getBauwerksmangelArt().get())
+			.containsExactlyInAnyOrder(BauwerksmangelArt.ANDERER_MANGEL, BauwerksmangelArt.GELAENDER_ZU_NIEDRIG);
 	}
 
 	@Test

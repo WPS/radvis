@@ -40,7 +40,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@Builder
 public class WeitereKartenebene extends AbstractEntity {
 
 	private Name name;
@@ -68,6 +67,8 @@ public class WeitereKartenebene extends AbstractEntity {
 
 	private Long dateiLayerId;
 
+	private boolean defaultLayer;
+
 	public WeitereKartenebene(
 		Name name,
 		String url,
@@ -78,7 +79,26 @@ public class WeitereKartenebene extends AbstractEntity {
 		HexColor farbe,
 		Benutzer benutzer,
 		Quellangabe quellangabe,
-		Long dateiLayerId) {
+		Long dateiLayerId,
+		boolean defaultLayer) {
+		this(null, name, url, weitereKartenebeneTyp, deckkraft, zoomstufe, zindex, farbe, benutzer, quellangabe,
+			dateiLayerId, defaultLayer);
+	}
+
+	@Builder
+	private WeitereKartenebene(
+		Long id,
+		Name name,
+		String url,
+		WeitereKartenebeneTyp weitereKartenebeneTyp,
+		Deckkraft deckkraft,
+		Zoomstufe zoomstufe,
+		Zindex zindex,
+		HexColor farbe,
+		Benutzer benutzer,
+		Quellangabe quellangabe,
+		Long dateiLayerId,
+		boolean defaultLayer) {
 		require(name, notNullValue());
 		require(url, notNullValue());
 		require(!url.isEmpty(), "Url darf nicht leer sein.");
@@ -91,6 +111,7 @@ public class WeitereKartenebene extends AbstractEntity {
 		require(quellangabe, notNullValue());
 		require(quellangabe.getValue().length() <= 1000);
 
+		this.id = id;
 		this.name = name;
 		this.url = url;
 		this.weitereKartenebeneTyp = weitereKartenebeneTyp;
@@ -101,6 +122,7 @@ public class WeitereKartenebene extends AbstractEntity {
 		this.quellangabe = quellangabe;
 		this.benutzer = benutzer;
 		this.dateiLayerId = dateiLayerId;
+		this.defaultLayer = defaultLayer;
 	}
 
 	public void update(
@@ -111,7 +133,8 @@ public class WeitereKartenebene extends AbstractEntity {
 		Zoomstufe zoomstufe,
 		Zindex zindex,
 		HexColor farbe,
-		Quellangabe quellangabe) {
+		Quellangabe quellangabe,
+		boolean defaultLayer) {
 		require(name, notNullValue());
 		require(url, notNullValue());
 		require(!url.isEmpty(), "Url darf nicht leer sein.");
@@ -131,6 +154,7 @@ public class WeitereKartenebene extends AbstractEntity {
 		this.zindex = zindex;
 		this.farbe = farbe;
 		this.quellangabe = quellangabe;
+		this.defaultLayer = defaultLayer;
 	}
 
 	public static boolean isFarbeValid(WeitereKartenebeneTyp weitereKartenebeneTyp, HexColor farbe) {

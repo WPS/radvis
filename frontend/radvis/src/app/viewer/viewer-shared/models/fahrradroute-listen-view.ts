@@ -52,7 +52,7 @@ export namespace FahrradrouteListenView {
     }
   };
   export const getDisplayName = (fahrradrouteListenView: FahrradrouteListenView | null | undefined): string => {
-    if (!fahrradrouteListenView || !fahrradrouteListenView.name) {
+    if (!fahrradrouteListenView?.name) {
       return '';
     }
 

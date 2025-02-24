@@ -36,6 +36,7 @@ interface InfrastrukturenTabellenDialogData {
   templateUrl: './infrastrukturen-tabellen-container.component.html',
   styleUrl: './infrastrukturen-tabellen-container.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class InfrastrukturenTabellenContainerComponent implements OnDestroy {
   infrastrukturenTabellenRef: ComponentRef<InfrastrukturenTabellenComponent>;

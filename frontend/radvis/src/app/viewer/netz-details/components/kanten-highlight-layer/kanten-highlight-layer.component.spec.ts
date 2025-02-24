@@ -85,7 +85,7 @@ describe('KantenHighlightLayerComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     layer = capture(olMapService.addLayer).last()[0] as VectorLayer;
-    // eslint-disable-next-line @typescript-eslint/dot-notation
+
     highlightedProperty = fixture.point.componentInstance['HIGHLIGHTED'];
   });
 

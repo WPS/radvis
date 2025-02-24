@@ -52,7 +52,7 @@ public class FurtKreuzungTestDataProvider {
 			.typ(
 				FurtenKreuzungenTyp.KREUZUNG)
 			.radnetzKonform(true).kommentar(new FurtenKreuzungenKommentar("Dies ist ein Kommentar"))
-			.knotenForm(KnotenForm.MINIKREISVERKEHR_24_M).musterloesung(Optional.empty())
+			.knotenForm(KnotenForm.MINIKREISVERKEHR_NICHT_UEBERFAHRBAR).musterloesung(Optional.empty())
 			.lichtsignalAnlageEigenschaften(Optional.empty());
 	}
 

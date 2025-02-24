@@ -38,8 +38,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.history.Revision;
@@ -49,6 +47,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -69,7 +68,6 @@ import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -170,12 +168,21 @@ import jakarta.persistence.PersistenceContext;
 	NetzkorrekturConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @ActiveProfiles("dev")
 @RecordApplicationEvents
 class DlmReimportJobAuditingTestIT extends AuditingTestIT {
+	@MockitoBean
+	public RadNetzNetzbildungService radNetzNetzbildungService;
+	@MockitoBean
+	public RadwegeDBNetzbildungService radwegeDBNetzbildungService;
+	@MockitoBean
+	private MassnahmeViewRepository massnahmeViewRepository;
+	@MockitoBean
+	private MassnahmeUmsetzungsstandViewRepository massnahmeUmsetzungsstandViewRepository;
+	@MockitoBean
+	private UmsetzungsstandRepository umsetzungsstandRepository;
+	@MockitoBean
+	private FahrradrouteRepository fahrradrouteRepository;
 
 	@EnableJpaRepositories(basePackages = "de.wps.radvis.backend.massnahme")
 	@EntityScan(basePackages = { "de.wps.radvis.backend.massnahme", "de.wps.radvis.backend.kommentar",
@@ -191,9 +198,9 @@ class DlmReimportJobAuditingTestIT extends AuditingTestIT {
 			return Mockito.mock(ImportedFeaturePersistentRepository.class);
 		}
 
-		@MockBean
+		@Autowired
 		public RadNetzNetzbildungService radNetzNetzbildungService;
-		@MockBean
+		@Autowired
 		public RadwegeDBNetzbildungService radwegeDBNetzbildungService;
 
 		@Autowired
@@ -208,16 +215,16 @@ class DlmReimportJobAuditingTestIT extends AuditingTestIT {
 		@Autowired
 		private BenutzerService benutzerService;
 
-		@MockBean
+		@Autowired
 		private MassnahmeViewRepository massnahmeViewRepository;
 
-		@MockBean
+		@Autowired
 		private MassnahmeUmsetzungsstandViewRepository massnahmeUmsetzungsstandViewRepository;
 
-		@MockBean
+		@Autowired
 		private UmsetzungsstandRepository umsetzungsstandRepository;
 
-		@MockBean
+		@Autowired
 		private FahrradrouteRepository fahrradrouteRepository;
 
 		@Bean
@@ -257,11 +264,11 @@ class DlmReimportJobAuditingTestIT extends AuditingTestIT {
 	@Autowired
 	private KnotenRepository knotenRepository;
 
-	@MockBean
+	@MockitoBean
 	private DlmPbfErstellungService dlmPbfErstellungService;
-	@MockBean
+	@MockitoBean
 	private CustomDlmMatchingRepositoryFactory customDlmMatchingRepositoryFactory;
-	@MockBean
+	@MockitoBean
 	private CustomGrundnetzMappingServiceFactory customGrundnetzMappingServiceFactory;
 
 	@Autowired

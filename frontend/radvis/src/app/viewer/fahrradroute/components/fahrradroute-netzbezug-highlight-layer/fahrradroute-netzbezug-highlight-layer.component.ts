@@ -31,6 +31,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-fahrradroute-netzbezug-highlight-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradrouteNetzbezugHighlightLayerComponent implements OnInit, OnChanges, OnDestroy {
   @Input()

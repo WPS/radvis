@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 
 public class DateiLayerGuard {
 	private final BenutzerResolver benutzerResolver;
@@ -31,28 +31,28 @@ public class DateiLayerGuard {
 
 	public void create(Authentication authentication, CreateDateiLayerCommand command, MultipartFile file) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		if (!benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzer.hatRecht(Recht.DATEI_LAYER_VERWALTEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung DateiLayer zu erstellen.");
 		}
 	}
 
 	public void delete(Authentication authentication, Long id) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		if (!benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzer.hatRecht(Recht.DATEI_LAYER_VERWALTEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung DateiLayer zu löschen.");
 		}
 	}
 
 	public void deleteStyle(Authentication authentication, Long id) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		if (!benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzer.hatRecht(Recht.DATEI_LAYER_VERWALTEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung den Style eines DateiLayers zu löschen.");
 		}
 	}
 
 	public void addOrChangeStyle(Authentication authentication, Long id) {
 		Benutzer benutzer = benutzerResolver.fromAuthentication(authentication);
-		if (!benutzer.getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzer.hatRecht(Recht.DATEI_LAYER_VERWALTEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung den Style eines DateiLayers zu ändern.");
 		}
 	}

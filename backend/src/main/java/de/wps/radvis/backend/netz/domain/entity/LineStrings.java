@@ -14,6 +14,8 @@
 
 package de.wps.radvis.backend.netz.domain.entity;
 
+import static org.valid4j.Assertive.require;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -35,6 +37,7 @@ import org.locationtech.jts.linearref.LocationIndexedLine;
 
 import de.wps.radvis.backend.common.domain.exception.KeineUeberschneidungException;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -272,5 +275,114 @@ public class LineStrings {
 	public static Coordinate getMidPoint(LineString lineString) {
 		return new LengthIndexedLine(lineString)
 			.extractPoint(lineString.getLength() / 2.0);
+	}
+
+	/**
+	 * Ermittelt, ob die beiden LineStrings mit einer gewissen Toleranz parallel oder anti-parallel sind.
+	 * 
+	 * @param anzahlSegmente Anzahl Segmente für eine Unterteilung während der Prüfung auf Parallelität. Höhere Werte führen zu einer höheren Genauigkeit.
+	 * @param toleranceInDeg Toleranz in Grad, innerhalb derer LineStrings als parallel gelten.
+	 */
+	public static boolean sindParallel(LineString lineStringA, LineString lineStringB, int anzahlSegmente,
+		double toleranceInDeg) {
+		return sindExaktParallel(lineStringA, lineStringB, anzahlSegmente, toleranceInDeg) || sindExaktParallel(
+			lineStringA, lineStringB.reverse(), anzahlSegmente, toleranceInDeg);
+	}
+
+	/**
+	 * Ermittelt, ob die beiden LineStrings parallel verlaufen. Entgegengesetzt verlaufende LineStrings, also anti-
+	 * parallele LineStrings, zählen nicht als parallel (es wird also false zurückgegeben).
+	 *
+	 * Die angegebene Toleranz sollte nicht zu klein sein, da LineStrings während der Prüfung neu zusammengebaut werden
+	 * und sich daher deren Geometrie verändert. Selbst perfekt parallel verlaufende LineStrings können also mit einer
+	 * zu kleinen Toleranz als "nicht parallel" erkannt werden. Alternativ kann die Anzahl der Segmente erhöht werden,
+	 * wodurch sich diese Ungenauigkeiten pro Segment rausmitteln.
+	 *
+	 * Für die Prüfung werden nur die Winkel der einzelnen Segmente der LineStrings betrachtet. Selbst stark verschobene
+	 * LineStrings können daher als parallel gelten.
+	 */
+	public static boolean sindExaktParallel(LineString lineStringA, LineString lineStringB, int anzahlSegmente,
+		double toleranceInDeg) {
+		require(!lineStringA.isEmpty());
+		require(!lineStringB.isEmpty());
+		require(anzahlSegmente > 0);
+		require(toleranceInDeg >= 0);
+
+		// Generelles Vorgehen:
+		// LineStrings neu "samplen", sodass beide gleich viele Punkte und damit Segmente enthalten. Dann wird pro
+		// Segment aus beiden LineStrings geschaut, wie stark sich deren Winkel unterscheiden. Es wird also pro
+		// Segment-Paar eine Differenz deren Richtung berechnet und darüber gemittelt. Ist diese gemittelte Differenz
+		// der Segment-Richtungen innerhalb der angegebenen Toleranz, sind die beiden LineStrings parallel.
+
+		// Segmente in n Teilstücke unterteilen. Wir brauchen keine echten Geometrien, Koordinaten reichen aus. Zwei
+		// aufeinander folgende Koordinaten bilden also ein Segment.
+		Coordinate[] lineStringAResamplesCoordinates = getCoordinatesOnLineString(lineStringA, anzahlSegmente + 1);
+		Coordinate[] lineStringBResamplesCoordinates = getCoordinatesOnLineString(lineStringB, anzahlSegmente + 1);
+
+		return getAverageAzimuthDifference(lineStringAResamplesCoordinates, lineStringBResamplesCoordinates)
+			<= toleranceInDeg;
+	}
+
+	/**
+	 * Ermittelt den durchschnittlichen Winkel der gegebenen Liniensegmente, die durch die Liste an Koordinaten
+	 * ausgedrückt werden. Koordinate i und i+1 bilden ein Segment. Es werden hier also immer zwei aufeinander folgende
+	 * Koordinaten betrachtet. Entsprechend müssen beide Arrays gleich viele Koordinaten enthalten.
+	 *
+	 * Ein Ergebnis von z.B. 10 heißt, dass die Winkel (Azimuthe) der korrespondierenden Segmente aus Array A und B
+	 * Durchschnitt um 10° voneinander abweichen. Ein Ergebnis von 0 bedeutet, dass für alle korrespondierenden
+	 * Liniensegmente in die EXAKT gleiche Richtung zeigen.
+	 *
+	 * @param coordinatesA Liste von Koordinaten, es werden die Teilstücke dazwischen betrachtet.
+	 * @param coordinatesB Liste von Koordinaten. Anzahl der Koordinaten muss gleich sein wie coordinatesA.
+	 * @return Durchschnittlichen Winkel zwischen übergebenen Segmente in Grad.
+	 */
+	private static @NotNull double getAverageAzimuthDifference(Coordinate[] coordinatesA, Coordinate[] coordinatesB) {
+		require(coordinatesA.length == coordinatesB.length);
+
+		int anzahlSegmente = coordinatesA.length - 1;
+		double azimuthDifferenceSum = 0d;
+
+		for (int i = 0; i < anzahlSegmente; i++) {
+			// Das Ergebnis von Angle.angle() zeigt nach Osten, also ein LineString [(0,0), (10,0)] hat 0°. Das ist für
+			// die Bestimmung der Differenten und späteren Nutzung bei der Prüfung auf Parallelität aber irrelevant.
+			double azimuthA = Angle.toDegrees(Angle.angle(coordinatesA[i], coordinatesA[i + 1]));
+			double azimuthB = Angle.toDegrees(Angle.angle(coordinatesB[i], coordinatesB[i + 1]));
+
+			// Wir betrachten nur die minimal Differenz der Winkel, da Differenzen von Winkeln nicht eindeutig sind.
+			// Eine Differenz von 90° ist z.B. äquivalent mit einer Differenz von 270°. Der erste Wert ist der innere
+			// und der zweite der äußere Winkel zwischen zwei Geraden. Wir nutzen nur den inneren, um Prüfungen der
+			// Art "ist der Durchschnittswert kleiner als ..." zu ermöglichen.
+			azimuthDifferenceSum += Math.min(
+				toAbsoluteAngle(azimuthA - azimuthB),
+				toAbsoluteAngle(azimuthB - azimuthA)
+			);
+		}
+
+		return azimuthDifferenceSum / anzahlSegmente;
+	}
+
+	/**
+	 * Erstellt ein Array mit anzahlKoordinaten vielen Koordinaten, die alle auf dem gegebenen LineString liegen
+	 * und alle gleich weit voneinander entfernt sind.
+	 */
+	private static Coordinate[] getCoordinatesOnLineString(LineString basisLineString, int anzahlKoordinaten) {
+		LengthIndexedLine locationIndexedLine = new LengthIndexedLine(basisLineString);
+		Coordinate[] coordinates = new Coordinate[anzahlKoordinaten];
+		coordinates[0] = locationIndexedLine.extractPoint(0);
+		for (int i = 1; i < coordinates.length; i++) {
+			// anzahlKoordinaten - 1, da wir die erste Koordinate schon haben und sonst die letzte hier ermittelte
+			// Koordinate nicht mit der letzten Koordinate des basisLineStrings übereinstimmt.
+			coordinates[i] = locationIndexedLine.extractPoint(basisLineString.getLength() / (anzahlKoordinaten - 1)
+				* i);
+		}
+		return coordinates;
+	}
+
+	/**
+	 * Wandelt den angegebenen Winkel in einen positiven Winkel zwischen 0° (inkl.) und 360° (exkl.) um.
+	 * Beispiele: 10° -> 10°; -10° -> 350°; 370° -> 10°; -1000° -> 80°
+	 */
+	private static double toAbsoluteAngle(double angle) {
+		return ((angle % 360) + 360) % 360;
 	}
 }

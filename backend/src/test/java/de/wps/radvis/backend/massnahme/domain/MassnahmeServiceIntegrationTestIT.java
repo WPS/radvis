@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
@@ -149,10 +149,10 @@ class MassnahmeServiceIntegrationTestIT extends DBIntegrationTestIT {
 	@Autowired
 	private FahrradrouteRepository fahrradrouteRepository;
 
-	@MockBean
+	@MockitoBean
 	private SimpleMatchingService simpleMatchingService;
 
-	@MockBean
+	@MockitoBean
 	private MassnahmeNetzbezugAenderungProtokollierungsService massnahmeNetzbezugAenderungProtokollierungsService;
 
 	@Autowired

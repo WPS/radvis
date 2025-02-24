@@ -32,6 +32,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -40,6 +41,7 @@ import lombok.ToString;
 @ToString
 @Validated
 @AllArgsConstructor
+@Builder
 public class SaveWeitereKartenebeneCommand {
 	// Neue Layer haben noch keine ID
 	@Nullable
@@ -61,7 +63,8 @@ public class SaveWeitereKartenebeneCommand {
 	private Zoomstufe zoomstufe;
 
 	@NotNull
-	private Zindex zindex; // muss durchgehend kleingeschrieben werden. zIndex wird nicht korrekt vom BE ans FE uebergeben.
+	private Zindex zindex; // muss durchgehend kleingeschrieben werden. zIndex wird nicht korrekt vom BE ans FE
+						  // uebergeben.
 
 	@Nullable
 	private HexColor farbe;
@@ -71,6 +74,8 @@ public class SaveWeitereKartenebeneCommand {
 
 	@Nullable
 	private Long dateiLayerId;
+
+	private boolean defaultLayer;
 
 	@AssertTrue(message = "Es muss eine gültige URL sein.")
 	public boolean isUrlValid() {

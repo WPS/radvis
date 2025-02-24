@@ -13,11 +13,13 @@
  */
 
 @import 'src/style/colors';
+@import 'src/style/spacing';
 
 :host {
   display: block;
   height: 100%;
   min-width: 20rem;
+  width: $viewer-side-bar-width;
 }
 
 .editing-not-allowed-hinweis {

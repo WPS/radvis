@@ -30,10 +30,9 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.abfrage.netzausschnitt.AbfrageNetzausschnittConfiguration;
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.KantenAbfrageRepository;
@@ -51,7 +50,6 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.entity.AbstractEntity;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -84,7 +82,7 @@ import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
@@ -95,8 +93,7 @@ import jakarta.persistence.PersistenceContext;
 @Tag("group3")
 @ContextConfiguration(classes = { AbfrageNetzausschnittConfiguration.class, NetzConfiguration.class,
 	OrganisationConfiguration.class, GeoConverterConfiguration.class, CommonConfiguration.class,
-	KommentarConfiguration.class,
-	NetzfehlerConfiguration.class, BenutzerConfiguration.class, IntegrationAttributAbbildungConfiguration.class,
+	KommentarConfiguration.class, BenutzerConfiguration.class, IntegrationAttributAbbildungConfiguration.class,
 	KonsistenzregelPruefungsConfiguration.class, KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
@@ -109,19 +106,18 @@ import jakarta.persistence.PersistenceContext;
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @ActiveProfiles(profiles = "test")
 class KantenAbfrageRepositoryTestIT extends DBIntegrationTestIT {
 	private static final GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 
-	@MockBean
+	@MockitoBean
 	private ImportedFeaturePersistentRepository importedFeaturePersistentRepository;
-	@MockBean
+	@MockitoBean
 	private RadNetzNetzbildungService radNetzNetzbildungService;
-	@MockBean
+	@MockitoBean
 	private RadwegeDBNetzbildungService radwegeDBNetzbildungService;
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 
 	@Autowired
 	private KantenAbfrageRepository abfrageRepository;

@@ -32,6 +32,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './fahrradroute-import-detail-view.component.html',
   styleUrls: ['./fahrradroute-import-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradrouteImportDetailViewComponent implements OnDestroy {
   importprotokoll$: Observable<FahrradrouteImportprotokoll>;

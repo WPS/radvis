@@ -23,10 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -53,7 +52,6 @@ import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 	OrganisationConfiguration.class,
 	GeoConverterConfiguration.class,
 	BenutzerConfiguration.class,
-	AbstractKonsistenzregelTestIT.TestConfiguration.class,
 })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
@@ -71,12 +69,8 @@ abstract class AbstractKonsistenzregelTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	protected PlatformTransactionManager transactionManager;
-
-	@Configuration
-	public static class TestConfiguration {
-		@MockBean
-		public JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
-	}
+	@MockitoBean
+	public JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
 	@AfterEach
 	public void cleanup() {

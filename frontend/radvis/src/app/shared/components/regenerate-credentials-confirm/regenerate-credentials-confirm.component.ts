@@ -19,6 +19,7 @@ import { MatDialogRef } from '@angular/material/dialog';
   templateUrl: './regenerate-credentials-confirm.component.html',
   styleUrls: ['./regenerate-credentials-confirm.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RegenerateCredentialsConfirmComponent {
   constructor(private dialogRef: MatDialogRef<RegenerateCredentialsConfirmComponent>) {}

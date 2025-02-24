@@ -18,5 +18,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './warnhinweis.component.html',
   styleUrl: './warnhinweis.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WarnhinweisComponent {}

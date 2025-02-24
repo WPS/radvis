@@ -31,12 +31,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.valid4j.Assertive;
 
-import de.wps.radvis.backend.barriere.BarriereConfiguration;
+import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -44,7 +43,6 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -56,9 +54,6 @@ import de.wps.radvis.backend.integration.dlm.IntegrationDlmConfiguration;
 import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration;
 import de.wps.radvis.backend.integration.radwegedb.IntegrationRadwegeDBConfiguration;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
@@ -94,7 +89,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -113,10 +108,6 @@ import jakarta.persistence.EntityManager;
 	GeoConverterConfiguration.class,
 	BenutzerConfiguration.class,
 	MatchingConfiguration.class,
-	NetzfehlerConfiguration.class,
-	BarriereConfiguration.class,
-	KonsistenzregelnConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
 	ImportsCommonConfiguration.class,
 	ImportsGrundnetzConfiguration.class,
 	IntegrationDlmConfiguration.class,
@@ -136,13 +127,13 @@ import jakarta.persistence.EntityManager;
 	GraphhopperOsmConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
 	DLMConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 class AttributlueckenSchliessenJobTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
+	@MockitoBean
+	private BarriereRepository barriereRepository;
 
 	private RecursiveComparisonConfiguration kanteComparisonConfiguration;
 
@@ -212,11 +203,11 @@ class AttributlueckenSchliessenJobTestIT extends DBIntegrationTestIT {
 	public void testEinfacheLuecke_einseitigeKanten() {
 		//@formatter:off
 		/*
-		Kanten:
-		
-		1 ---> 2 ---> 3 ---> 4 ---> 5
-		       |_____________|
-		            Lücke
+		 * Kanten:
+		 * 
+		 *	1 ---> 2 ---> 3 ---> 4 ---> 5
+		 *         |_____________|
+		 *             Lücke
 		 */
 		//@formatter:on
 
@@ -314,13 +305,13 @@ class AttributlueckenSchliessenJobTestIT extends DBIntegrationTestIT {
 	public void testEinfacheLuecke_einseitigeKanten_lineareReferenzenAmStartUndEnde() {
 		//@formatter:off
 		/*
-		Kanten:
-		
-		1 ---> 2 ---> 3 ---> 4
-		       |______|
-		        Lücke
-		
-		Kanten 1-2 und 3-4 haben linear referenzierte Attribute, die bei der Übernahme entsprechend beachtet werden sollen.
+		 * Kanten:
+		 *
+		 *  1 ---> 2 ---> 3 ---> 4
+		 *         |______|
+		 *           Lücke
+		 *
+		 * Kanten 1-2 und 3-4 haben linear referenzierte Attribute, die bei der Übernahme entsprechend beachtet werden sollen.
 		 */
 		//@formatter:on
 
@@ -511,14 +502,14 @@ class AttributlueckenSchliessenJobTestIT extends DBIntegrationTestIT {
 	public void testEinfacheLuecke_zweiseitigeKanten_trennstreifenNurAufEinerSeiteMoeglich() {
 		//@formatter:off
 		/*
-		Aufbau der Kanten (Pfeil = Stationierungsrichtung):
-		
-		1 ---> 2 ---> 3 ---> 4
-		       |______|
-		        Lücke
-		
-		Dieser Test testet, dass die richtige Seite der Führungsform für die vier möglichen Trennstreifen genommen
-		werden, also Kanten- und Trennstreifen-Seiten korrekt behandelt werden.
+		 * Aufbau der Kanten (Pfeil = Stationierungsrichtung):
+		 *
+		 * 1 ---> 2 ---> 3 ---> 4
+		 *        |______|
+		 *         Lücke
+		 *
+		 * Dieser Test testet, dass die richtige Seite der Führungsform für die vier möglichen Trennstreifen genommen
+		 * werden, also Kanten- und Trennstreifen-Seiten korrekt behandelt werden.
 		*/
 		//@formatter:on
 
@@ -680,11 +671,11 @@ class AttributlueckenSchliessenJobTestIT extends DBIntegrationTestIT {
 	public void testEinfacheLuecke_zweiseitigeKantenMitGegenrichtung() {
 		//@formatter:off
 		/*
-		Aufbau der Kanten (Pfeil = Stationierungsrichtung):
-		
-		1 ---> 2 ---> 3 <--- 4 ---> 5
-		       |_____________|
-		            Lücke
+		 * 		Aufbau der Kanten (Pfeil = Stationierungsrichtung):
+		 *
+		 * 1 ---> 2 ---> 3 <--- 4 ---> 5
+		 *        |_____________|
+		 *           Lücke
 		 */
 		//@formatter:on
 
@@ -860,10 +851,10 @@ class AttributlueckenSchliessenJobTestIT extends DBIntegrationTestIT {
 	public void testMehrfacheStartEndKanten_intersectionAusNetzklassenUndStandardsUebernommen() {
 		//@formatter:off
 		/*
-		4 <--- 5 ---> 6
-		       ↑
-		       |
-		1 ---> 2 <--- 3
+		 * 4 <--- 5 ---> 6
+		 *        ↑
+		 *        |
+		 * 1 ---> 2 <--- 3
 		 */
 		//@formatter:on
 

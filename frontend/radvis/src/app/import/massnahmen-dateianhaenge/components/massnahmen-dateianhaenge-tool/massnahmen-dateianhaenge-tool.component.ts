@@ -21,6 +21,7 @@ import { MassnahmenDateianhaengeService } from 'src/app/import/massnahmen-dateia
   templateUrl: './massnahmen-dateianhaenge-tool.component.html',
   styleUrl: './massnahmen-dateianhaenge-tool.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenDateianhaengeToolComponent {
   constructor(

@@ -30,12 +30,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import de.wps.radvis.backend.barriere.BarriereConfiguration;
+import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -46,7 +45,6 @@ import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -62,9 +60,6 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteTyp;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.Kategorie;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.fahrradroute.schnittstelle.ToubizConfigurationProperties;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
@@ -76,7 +71,7 @@ import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -97,11 +92,6 @@ import jakarta.persistence.EntityManager;
 	FahrradrouteConfiguration.class,
 	CommonConfiguration.class,
 	MatchingConfiguration.class,
-	NetzfehlerConfiguration.class,
-	KommentarConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class,
-	BarriereConfiguration.class
 })
 @EnableConfigurationProperties(value = {
 	FeatureToggleProperties.class,
@@ -118,11 +108,14 @@ import jakarta.persistence.EntityManager;
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @ActiveProfiles(profiles = "test")
 class FahrradroutenToubizImportJobIntegrationTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
+	@MockitoBean
+	private BarriereRepository barriereRepository;
+	@MockitoBean
+	private FahrradrouteConfigurationProperties fahrradrouteConfigurationProperties;
 
 	private static final GeometryFactory GEO_FACTORY = KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory();
 

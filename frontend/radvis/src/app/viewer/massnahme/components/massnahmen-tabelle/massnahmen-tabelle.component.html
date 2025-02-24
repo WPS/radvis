@@ -75,14 +75,11 @@
     Alle Filter zurücksetzen
   </button>
 
-  <button
-    mat-stroked-button
+  <rad-erweiterter-filter-button
     class="action-search"
-    [class.filter-active]="erweiterterFilterActive$ | async"
-    (click)="onErweiterteFilterVerwalten()">
-    <mat-icon>filter_alt</mat-icon>
-    Erweiterter Filter
-  </button>
+    [active]="erweiterterFilterActive$ | async"
+    (openFilter)="onErweiterteFilterVerwalten()">
+  </rad-erweiterter-filter-button>
 
   <rad-infrastruktur-tabelle-spalte
     *ngFor="let def of spaltenDefinition"

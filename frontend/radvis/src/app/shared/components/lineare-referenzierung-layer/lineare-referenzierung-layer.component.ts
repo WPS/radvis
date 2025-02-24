@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/member-ordering */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -60,6 +59,7 @@ export interface SelectElementEvent {
   templateUrl: './lineare-referenzierung-layer.component.html',
   styleUrls: ['./lineare-referenzierung-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges, OnInit {
   @Input()
@@ -162,7 +162,7 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
       return LineStringShifter.shiftLineStringByPixel(
         this.originalGeometry,
         shiftDistanceInPixel,
-        this.olMapService.getCurrentResolution() as number
+        this.olMapService.getCurrentResolution()!
       );
     } else {
       return this.originalGeometry;

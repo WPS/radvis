@@ -21,6 +21,7 @@ import { Richtung } from 'src/app/editor/kanten/models/richtung';
   templateUrl: './sicherheitstrennstreifen-anzeige-komplett.component.html',
   styleUrls: ['./sicherheitstrennstreifen-anzeige-komplett.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SicherheitstrennstreifenAnzeigeKomplettComponent {
   @Output()

@@ -25,6 +25,7 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   templateUrl: './knoten-detail-view.component.html',
   styleUrls: ['./knoten-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KnotenDetailViewComponent {
   public attribute = new Map<string, { [key: string]: string }>();

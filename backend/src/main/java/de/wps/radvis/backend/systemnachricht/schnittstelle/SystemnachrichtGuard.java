@@ -19,7 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 
 public class SystemnachrichtGuard {
 	private final BenutzerResolver benutzerResolver;
@@ -29,13 +29,13 @@ public class SystemnachrichtGuard {
 	}
 
 	public void delete(Authentication authentication) {
-		if (!benutzerResolver.fromAuthentication(authentication).getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzerResolver.fromAuthentication(authentication).hatRecht(Recht.SYSTEMNACHRICHT_ERSTELLEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung, Systemnachrichten zu löschen");
 		}
 	}
 
 	public void create(Authentication authentication, @RequestBody CreateSystemnachrichtCommand command) {
-		if (!benutzerResolver.fromAuthentication(authentication).getRollen().contains(Rolle.RADVIS_ADMINISTRATOR)) {
+		if (!benutzerResolver.fromAuthentication(authentication).hatRecht(Recht.SYSTEMNACHRICHT_ERSTELLEN)) {
 			throw new AccessDeniedException("Sie haben nicht die Berechtigung, Systemnachrichten zu erstellen");
 		}
 	}

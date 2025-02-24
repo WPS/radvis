@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable no-unused-vars */
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';

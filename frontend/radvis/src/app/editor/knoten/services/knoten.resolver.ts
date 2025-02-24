@@ -23,5 +23,5 @@ export const knotenResolver: ResolveFn<Knoten> = (route, state) => {
   if (id) {
     return netzService.getKnotenForEdit(+id);
   }
-  return Promise.reject('ID in der Route nicht gesetzt');
+  return Promise.reject(new Error('ID in der Route nicht gesetzt'));
 };

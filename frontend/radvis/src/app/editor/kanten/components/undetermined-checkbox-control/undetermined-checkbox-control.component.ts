@@ -27,6 +27,7 @@ import {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => UndeterminedCheckboxControlComponent), multi: true },
   ],
+  standalone: false,
 })
 export class UndeterminedCheckboxControlComponent extends AbstractUndeterminedFormControl<boolean> {
   isUndetermined = false;

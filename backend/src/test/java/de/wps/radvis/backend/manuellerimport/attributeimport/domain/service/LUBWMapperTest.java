@@ -17,15 +17,22 @@ package de.wps.radvis.backend.manuellerimport.attributeimport.domain.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.exception.AttributUebernahmeException;
 import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.MappedAttributesProperties;
@@ -33,9 +40,11 @@ import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
+import de.wps.radvis.backend.netz.domain.entity.provider.FahrtrichtungAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributGruppeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.FuehrungsformAttributeTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
@@ -47,11 +56,17 @@ import de.wps.radvis.backend.netz.domain.valueObject.VereinbarungsKennung;
 
 // mr: Das ist bewusst nur ein Smoke-Test, wir wollen dieses String-Mapping nicht auch noch im Test pflegen müssen.
 public class LUBWMapperTest {
+
 	LUBWMapper mapper;
+
+	@Mock
+	private NetzService netzService;
 
 	@BeforeEach
 	public void setup() {
-		mapper = new LUBWMapper();
+		MockitoAnnotations.openMocks(this);
+
+		mapper = new LUBWMapper(netzService);
 	}
 
 	@Test
@@ -186,20 +201,22 @@ public class LUBWMapperTest {
 	}
 
 	@Test
-	void testApply_linearReferenziert_Sicherheitstrennstreifen_einseitig_withInitialNullValues_Strassenbegleitend_trennstreifenSeiteNichtErmittelbar_defaultLinks() {
+	void testApply_linearReferenziert_Sicherheitstrennstreifen_einseitig_trennstreifenSeiteNichtErmittelbar()
+		throws AttributUebernahmeException {
 		// arrange
-		List<FuehrungsformAttribute> fuehrungsformAttributeList = List.of(
-			FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
-				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
-				.build());
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformBuilder = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND);
 		Kante kante = KanteTestDataProvider.withDefaultValues()
+			.id(123L)
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 					.isZweiseitig(false)
-					// Bei einseitigen Kanten muessen Attributgruppen links und rechts gleich sein
-					.fuehrungsformAttributeLinks(fuehrungsformAttributeList)
-					.fuehrungsformAttributeRechts(fuehrungsformAttributeList)
+					.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+					.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
 					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createEinseitig(
+				Richtung.BEIDE_RICHTUNGEN).build())
 			.build();
 
 		kante.changeSeitenbezug(false);
@@ -209,13 +226,78 @@ public class LUBWMapperTest {
 		try {
 			mapper.applyLinearReferenzierterAbschnitt("ST",
 				MappedAttributesProperties.of(
-					Map.of("ST", "Sicherheitstrennstreifen innerorts ohne Parken", "BREITST", "", "BREITST2", "45",
-						"ORTSLAGE", "Innerorts")),
+					Map.of(
+						"ST", "Sicherheitstrennstreifen innerorts ohne Parken",
+						"BREITST", "",
+						"BREITST2", "45",
+						"ORTSLAGE", "Innerorts"
+					)),
 				LinearReferenzierterAbschnitt.of(0, 1),
 				kante);
 		} catch (AttributUebernahmeException e) {
 			attributUebernahmeException = e;
 		}
+
+		// assert
+		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
+			FuehrungsformAttribute.builder()
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
+				.trennstreifenBreiteLinks(null)
+				.trennstreifenBreiteRechts(null)
+				.trennstreifenTrennungZuLinks(null)
+				.trennstreifenTrennungZuRechts(null)
+				.trennstreifenFormLinks(null)
+				.trennstreifenFormRechts(null)
+				.build());
+
+		assertThat(kante.isZweiseitig()).isFalse();
+		assertThat(kante.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
+		assertThat(FuehrungsformAttributGruppe.isSeitenBezugValid(
+			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks(),
+			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts(),
+			false)
+		).isTrue();
+
+		assertThat(attributUebernahmeException).isNotNull();
+		assertThat(attributUebernahmeException.getFehler()).hasSize(1);
+		assertThat(attributUebernahmeException.getFehler().get(0).getSeitenbezug()).isEqualTo(Seitenbezug.BEIDSEITIG);
+	}
+
+	@Test
+	void testApply_linearReferenziert_Sicherheitstrennstreifen_einseitig_trennstreifenSeiteLinksErmittelbar()
+		throws AttributUebernahmeException {
+		// arrange
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformBuilder = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND);
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(10, 0, 10, 100, QuellSystem.DLM)
+			.id(123L)
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.isZweiseitig(false)
+					.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+					.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
+					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createEinseitig(
+				Richtung.BEIDE_RICHTUNGEN).build())
+			.build();
+		kante.changeSeitenbezug(false);
+
+		when(netzService.getSeiteMitParallelenStrassenKanten(eq(kante), any())).thenReturn(Optional.of(
+			Seitenbezug.LINKS));
+
+		// act
+		mapper.applyLinearReferenzierterAbschnitt("ST",
+			MappedAttributesProperties.of(
+				Map.of(
+					"ST", "Sicherheitstrennstreifen innerorts ohne Parken",
+					"BREITST", "",
+					"BREITST2", "45",
+					"ORTSLAGE", "Innerorts"
+				)),
+			LinearReferenzierterAbschnitt.of(0, 1),
+			kante);
 
 		// assert
 		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
@@ -237,6 +319,68 @@ public class LUBWMapperTest {
 			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts(),
 			false)
 		).isTrue();
+	}
+
+	@Test
+	void testApply_linearReferenziert_Sicherheitstrennstreifen_einseitig_paralleleStrassenAufBeidenSeiten()
+		throws AttributUebernahmeException {
+		// arrange
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformBuilder = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND);
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(10, 0, 10, 100, QuellSystem.DLM)
+			.id(123L)
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.isZweiseitig(false)
+					.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+					.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
+					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createEinseitig(
+				Richtung.BEIDE_RICHTUNGEN).build())
+			.build();
+		kante.changeSeitenbezug(false);
+
+		when(netzService.getSeiteMitParallelenStrassenKanten(eq(kante), any())).thenReturn(Optional.of(
+			Seitenbezug.BEIDSEITIG));
+
+		// act
+		AttributUebernahmeException attributUebernahmeException = null;
+		try {
+			mapper.applyLinearReferenzierterAbschnitt("ST",
+				MappedAttributesProperties.of(
+					Map.of(
+						"ST", "Sicherheitstrennstreifen innerorts ohne Parken",
+						"BREITST", "",
+						"BREITST2", "45",
+						"ORTSLAGE", "Innerorts"
+					)),
+				LinearReferenzierterAbschnitt.of(0, 1),
+				kante);
+		} catch (AttributUebernahmeException e) {
+			attributUebernahmeException = e;
+		}
+
+		// assert
+		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
+			FuehrungsformAttribute.builder()
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
+				.trennstreifenBreiteLinks(null)
+				.trennstreifenBreiteRechts(null)
+				.trennstreifenTrennungZuLinks(null)
+				.trennstreifenTrennungZuRechts(null)
+				.trennstreifenFormLinks(null)
+				.trennstreifenFormRechts(null)
+				.build());
+
+		assertThat(kante.isZweiseitig()).isFalse();
+		assertThat(kante.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
+		assertThat(FuehrungsformAttributGruppe.isSeitenBezugValid(
+			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks(),
+			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts(),
+			false)
+		).isTrue();
 
 		assertThat(attributUebernahmeException).isNotNull();
 		assertThat(attributUebernahmeException.getFehler()).hasSize(1);
@@ -244,30 +388,37 @@ public class LUBWMapperTest {
 	}
 
 	@Test
-	void testApply_linearReferenziert_einseitig_Sicherheitstrennstreifen_happyPathWithInitialNullValues_KeinSTSVorhandenAufBeideSeitenSchreiben()
+	void testApply_linearReferenziert_Sicherheitstrennstreifen_einseitig_trennstreifenSeiteRechtsErmittelbar()
 		throws AttributUebernahmeException {
 		// arrange
-		List<FuehrungsformAttribute> fuehrungsformAttributeList = List.of(
-			FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
-				.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-				.build());
-		Kante kante = KanteTestDataProvider.withDefaultValues()
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformBuilder = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND);
+		Kante kante = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100, QuellSystem.DLM)
+			.id(123L)
 			.fuehrungsformAttributGruppe(
 				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 					.isZweiseitig(false)
-					// Bei einseitigen Kanten muessen Attributgruppen links und rechts gleich sein
-					.fuehrungsformAttributeLinks(fuehrungsformAttributeList)
-					.fuehrungsformAttributeRechts(fuehrungsformAttributeList)
+					.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+					.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
 					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createEinseitig(
+				Richtung.BEIDE_RICHTUNGEN).build())
 			.build();
-
 		kante.changeSeitenbezug(false);
+
+		when(netzService.getSeiteMitParallelenStrassenKanten(eq(kante), any())).thenReturn(Optional.of(
+			Seitenbezug.RECHTS));
 
 		// act
 		mapper.applyLinearReferenzierterAbschnitt("ST",
 			MappedAttributesProperties.of(
-				Map.of("ST", "Kein Sicherheitstrennstreifen vorhanden", "BREITST", "", "BREITST2", "",
-					"ORTSLAGE", "Innerorts")),
+				Map.of(
+					"ST", "Sicherheitstrennstreifen innerorts ohne Parken",
+					"BREITST", "",
+					"BREITST2", "45",
+					"ORTSLAGE", "Innerorts"
+				)),
 			LinearReferenzierterAbschnitt.of(0, 1),
 			kante);
 
@@ -275,95 +426,113 @@ public class LUBWMapperTest {
 		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
 			FuehrungsformAttribute.builder()
 				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
-				.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-				.trennstreifenBreiteLinks(null)
-				.trennstreifenBreiteRechts(null)
-				.trennstreifenTrennungZuLinks(null)
-				.trennstreifenTrennungZuRechts(null)
-				.trennstreifenFormLinks(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
-				.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
-				.build());
-	}
-
-	@Test
-	void testApply_linearReferenziert_zweiseitig_Sicherheitstrennstreifen_happyPathWithInitialNullValues_KeinSTSVorhandenAufBeideSeitenSchreiben()
-		throws AttributUebernahmeException {
-		// arrange
-		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig()
-			.fuehrungsformAttributGruppe(
-				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
-					.isZweiseitig(true)
-					.fuehrungsformAttributeLinks(List.of(
-						FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
-							.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-							.build()))
-					.build())
-			.build();
-
-		kante.changeSeitenbezug(true);
-
-		// act
-		mapper.applyLinearReferenzierterAbschnittSeitenbezogen("ST",
-			MappedAttributesProperties.of(
-				Map.of("ST", "Kein Sicherheitstrennstreifen vorhanden", "BREITST", "", "BREITST2", "",
-					"ORTSLAGE", "Innerorts")),
-			LinearReferenzierterAbschnitt.of(0, 1),
-			Seitenbezug.LINKS, kante);
-
-		// assert
-		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
-			FuehrungsformAttribute.builder()
-				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
-				.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-				.trennstreifenBreiteLinks(null)
-				.trennstreifenBreiteRechts(null)
-				.trennstreifenTrennungZuLinks(null)
-				.trennstreifenTrennungZuRechts(null)
-				.trennstreifenFormLinks(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
-				.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
-				.build());
-	}
-
-	@Test
-	void testApply_linearReferenziertUndSeitenbezogen_Sicherheitstrennstreifen_happyPathWithInitialNullValuesSchutzstreifenAndBreiteParsed()
-		throws AttributUebernahmeException {
-		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig().fuehrungsformAttributGruppe(
-			FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
-				.isZweiseitig(true)
-				.fuehrungsformAttributeRechts(
-					List.of(
-						FuehrungsformAttributeTestDataProvider.withGrundnetzDefaultwerte()
-							.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
-							.build()))
-				.build())
-			.build();
-		kante.changeSeitenbezug(true);
-		mapper.applyLinearReferenzierterAbschnittSeitenbezogen("ST",
-			MappedAttributesProperties.of(
-				Map.of("ST", "Sicherheitstrennstreifen innerorts mit Längsparken", "BREITST", "> 0,45 m", "BREITST2",
-					"",
-					"ORTSLAGE", "Innerorts")),
-			LinearReferenzierterAbschnitt.of(0, 1),
-			Seitenbezug.RECHTS, kante);
-
-		assertThat(kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts()).containsExactly(
-			FuehrungsformAttribute.builder()
-				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
-				.radverkehrsfuehrung(Radverkehrsfuehrung.SCHUTZSTREIFEN)
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
 				.trennstreifenBreiteRechts(Laenge.of(0.45))
 				.trennstreifenBreiteLinks(null)
-				.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUM_PARKEN)
+				.trennstreifenTrennungZuRechts(TrennungZu.SICHERHEITSTRENNSTREIFEN_ZUR_FAHRBAHN)
 				.trennstreifenTrennungZuLinks(null)
 				.trennstreifenFormRechts(TrennstreifenForm.TRENNUNG_DURCH_MARKIERUNG_ODER_BAULICHE_TRENNUNG)
 				.trennstreifenFormLinks(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
 				.build());
+
+		assertThat(kante.isZweiseitig()).isFalse();
+		assertThat(kante.getFuehrungsformAttributGruppe().isZweiseitig()).isFalse();
+		assertThat(FuehrungsformAttributGruppe.isSeitenBezugValid(
+			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks(),
+			kante.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeRechts(),
+			false)
+		).isTrue();
 	}
 
 	@Test
-	void testApply_linearReferenziertUndSeitenbezogen_Sicherheitstrennstreifen_Konflikt()
+	void testApply_linearReferenziert_Sicherheitstrennstreifen_einseitig_seitenerkennungUebersprungenBeiEntsprechenderStsForm()
+		throws AttributUebernahmeException {
+		// arrange
+		FuehrungsformAttribute.FuehrungsformAttributeBuilder fuehrungsformBuilder = FuehrungsformAttributeTestDataProvider
+			.withGrundnetzDefaultwerte()
+			.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND);
+		Kante kanteA = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100, QuellSystem.DLM)
+			.id(123L)
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.isZweiseitig(false)
+					.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+					.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
+					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createEinseitig(
+				Richtung.BEIDE_RICHTUNGEN).build())
+			.build();
+		kanteA.changeSeitenbezug(false);
+
+		Kante kanteB = KanteTestDataProvider.withCoordinatesAndQuelle(0, 0, 0, 100, QuellSystem.DLM)
+			.id(123L)
+			.fuehrungsformAttributGruppe(
+				FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
+					.isZweiseitig(false)
+					.fuehrungsformAttributeLinks(List.of(fuehrungsformBuilder.build()))
+					.fuehrungsformAttributeRechts(List.of(fuehrungsformBuilder.build()))
+					.build())
+			.fahrtrichtungAttributGruppe(FahrtrichtungAttributGruppeTestDataProvider.createEinseitig(
+				Richtung.BEIDE_RICHTUNGEN).build())
+			.build();
+		kanteB.changeSeitenbezug(false);
+
+		when(netzService.getSeiteMitParallelenStrassenKanten(any(), any())).thenReturn(Optional.empty());
+
+		// act & assert (STS-Form = "Kein Sicherheitstrennstreifen vorhanden")
+		mapper.applyLinearReferenzierterAbschnitt("ST",
+			MappedAttributesProperties.of(
+				Map.of(
+					"ST", "Kein Sicherheitstrennstreifen vorhanden",
+					"BREITST", "",
+					"BREITST2", "",
+					"ORTSLAGE", "Innerorts"
+				)),
+			LinearReferenzierterAbschnitt.of(0, 1),
+			kanteA);
+
+		assertThat(kanteA.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
+			FuehrungsformAttribute.builder()
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
+				.trennstreifenBreiteRechts(null)
+				.trennstreifenBreiteLinks(null)
+				.trennstreifenTrennungZuRechts(null)
+				.trennstreifenTrennungZuLinks(null)
+				.trennstreifenFormRechts(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
+				.trennstreifenFormLinks(TrennstreifenForm.KEIN_SICHERHEITSTRENNSTREIFEN_VORHANDEN)
+				.build());
+
+		// act & assert (STS-Form = NULL)
+		mapper.applyLinearReferenzierterAbschnitt("ST",
+			MappedAttributesProperties.of(
+				Map.of(
+					"ST", "",
+					"BREITST", "",
+					"BREITST2", "",
+					"ORTSLAGE", "Innerorts"
+				)),
+			LinearReferenzierterAbschnitt.of(0, 1),
+			kanteB);
+
+		assertThat(kanteB.getFuehrungsformAttributGruppe().getImmutableFuehrungsformAttributeLinks()).containsExactly(
+			FuehrungsformAttribute.builder()
+				.linearReferenzierterAbschnitt(LinearReferenzierterAbschnitt.of(0, 1))
+				.radverkehrsfuehrung(Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND)
+				.trennstreifenBreiteRechts(null)
+				.trennstreifenBreiteLinks(null)
+				.trennstreifenTrennungZuRechts(null)
+				.trennstreifenTrennungZuLinks(null)
+				.trennstreifenFormRechts(null)
+				.trennstreifenFormLinks(null)
+				.build());
+	}
+
+	@Test
+	void testApply_linearReferenziertUndSeitenbezogen_Sicherheitstrennstreifen_inkompatibleRadverkehrsfuehrung()
 		throws AttributUebernahmeException {
 		// Arrange
-		Radverkehrsfuehrung fuehrungsformAmAbschnitt = Radverkehrsfuehrung.PIKTOGRAMMKETTE;
+		Radverkehrsfuehrung fuehrungsformAmAbschnitt = Radverkehrsfuehrung.PIKTOGRAMMKETTE_BEIDSEITIG;
 		Kante kante = KanteTestDataProvider.withDefaultValuesAndZweiseitig().fuehrungsformAttributGruppe(
 			FuehrungsformAttributGruppeTestDataProvider.withGrundnetzDefaultwerte()
 				.isZweiseitig(true)
@@ -387,10 +556,9 @@ public class LUBWMapperTest {
 		Seitenbezug seitenbezug = Seitenbezug.RECHTS;
 
 		// Act
-		AttributUebernahmeException thrownException = catchThrowableOfType(
+		AttributUebernahmeException thrownException = catchThrowableOfType(AttributUebernahmeException.class,
 			() -> mapper.applyLinearReferenzierterAbschnittSeitenbezogen("ST", lubwAttribute,
-				linearReferenzierterAbschnitt, seitenbezug, kante),
-			AttributUebernahmeException.class);
+				linearReferenzierterAbschnitt, seitenbezug, kante));
 
 		// Assert
 		assertThat(thrownException.getFehler()).hasSize(1);

@@ -13,9 +13,7 @@
   -->
 
 <mat-form-field class="w-100">
-  <mat-label>
-    <ng-content></ng-content>
-  </mat-label>
+  <mat-label>Kategorien</mat-label>
   <mat-chip-grid #chipList class="massnahmen-chip-grid">
     <mat-chip-row
       *ngFor="let kategorie of selectedOptions"

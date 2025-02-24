@@ -22,6 +22,7 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
   templateUrl: './freischaltung.component.html',
   styleUrls: ['./freischaltung.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FreischaltungComponent {
   status: BenutzerStatus;

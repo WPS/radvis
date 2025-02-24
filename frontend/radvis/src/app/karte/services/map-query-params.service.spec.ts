@@ -23,14 +23,13 @@ describe('MapQueryParamsService', () => {
   let mapQueryParamsService: MapQueryParamsService;
   let activatedRoute: ActivatedRoute;
   let params$: Subject<Params>;
-  let params: Params;
 
   beforeEach(() => {
     params$ = new Subject();
     activatedRoute = MockService(ActivatedRoute, {
       queryParams: params$,
       snapshot: {
-        queryParams: params,
+        queryParams: {},
       } as ActivatedRouteSnapshot,
     });
     mapQueryParamsService = new MapQueryParamsService(activatedRoute, instance(mock(Router)));

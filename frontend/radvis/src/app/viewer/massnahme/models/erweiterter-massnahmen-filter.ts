@@ -13,14 +13,11 @@
  */
 
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
-import { FahrradrouteFilterKategorie } from 'src/app/viewer/massnahme/models/fahrradroute-filter-kategorie';
-import { FahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view';
+import { FahrradrouteFilter } from 'src/app/viewer/viewer-shared/models/fahrradroute-filter';
 
 export interface ErweiterterMassnahmenFilter {
   historischeMassnahmenAnzeigen: boolean;
-  fahrradrouteFilterKategorie: FahrradrouteFilterKategorie | null;
-  fahrradroute: FahrradrouteListenView | null;
-  fahrradroutenIds: number[];
+  fahrradrouteFilter: FahrradrouteFilter | null;
   organisation: Verwaltungseinheit | null;
 }
 
@@ -30,7 +27,7 @@ export namespace ErweiterterMassnahmenFilter {
     return (
       filter.historischeMassnahmenAnzeigen &&
       filter.organisation === null &&
-      filter.fahrradrouteFilterKategorie === null
+      (!filter.fahrradrouteFilter || filter.fahrradrouteFilter.fahrradrouteFilterKategorie === null)
     );
   };
 }

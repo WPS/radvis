@@ -28,6 +28,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-wurmfortsatz-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WurmfortsatzLayerComponent implements OnDestroy, OnChanges, OnInit {
   @Input()

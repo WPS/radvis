@@ -27,6 +27,7 @@ import { SignaturStyleProviderService } from 'src/app/viewer/signatur/services/s
   templateUrl: './radvis-signatur-layer.component.html',
   styleUrls: ['./radvis-signatur-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RadvisSignaturLayerComponent implements OnChanges {
   public static readonly ID_PREFIX = 'RadVis_SIGNATUR_';

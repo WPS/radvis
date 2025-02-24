@@ -24,6 +24,7 @@ import { FahrradzaehlstelleDetailView } from 'src/app/viewer/fahrradzaehlstelle/
   templateUrl: './fahrradzaehlstelle-detail-view.component.html',
   styleUrls: ['./fahrradzaehlstelle-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradzaehlstelleDetailViewComponent {
   public MOBIDATA_DATENSATZ_URL = 'https://www.mobidata-bw.de/dataset/eco-counter-fahrradzahler';
@@ -54,7 +55,7 @@ export class FahrradzaehlstelleDetailViewComponent {
             Bezeichnung: channelDetailView.channelBezeichnung,
           });
         });
-        /* eslint-enable */
+
         olMapService.scrollIntoViewByCoordinate(fahrradzaehlstelleDetail.geometrie.coordinates);
         changeDetector.markForCheck();
       });

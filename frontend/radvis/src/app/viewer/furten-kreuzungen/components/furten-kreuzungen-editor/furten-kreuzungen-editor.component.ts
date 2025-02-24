@@ -13,11 +13,13 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { KNOTENFORMEN, Knotenformen } from 'src/app/shared/models/knotenformen';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
+import { SharedKnotenFormGroup } from 'src/app/shared/models/shared-knoten-form-group';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
@@ -27,6 +29,7 @@ import { FurtKreuzung } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuz
 import { FurtKreuzungTyp } from 'src/app/viewer/furten-kreuzungen/models/furt-kreuzung-typ';
 import { FURTEN_KREUZUNGEN } from 'src/app/viewer/furten-kreuzungen/models/furten-kreuzungen.infrastruktur';
 import { GruenAnforderung } from 'src/app/viewer/furten-kreuzungen/models/gruen-anforderung';
+import { LichtsignalAnlageEigenschaften } from 'src/app/viewer/furten-kreuzungen/models/lichtsignal-anlage-eigenschaften';
 import { Linksabbieger } from 'src/app/viewer/furten-kreuzungen/models/linksabbieger';
 import { Rechtsabbieger } from 'src/app/viewer/furten-kreuzungen/models/rechtsabbieger';
 import { SaveFurtKreuzungCommand } from 'src/app/viewer/furten-kreuzungen/models/save-furt-kreuzung-command';
@@ -42,27 +45,31 @@ import invariant from 'tiny-invariant';
   templateUrl: './furten-kreuzungen-editor.component.html',
   styleUrls: ['./furten-kreuzungen-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FurtenKreuzungenEditorComponent implements DiscardableComponent {
   isFetching = false;
-  formGroup: UntypedFormGroup = new UntypedFormGroup({
-    netzbezug: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-    verantwortlicheOrganisation: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-    kommentar: new UntypedFormControl(null, RadvisValidators.maxLength(2000)),
-    typ: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-    knotenForm: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-    radnetzKonform: new UntypedFormControl(null),
-    furtKreuzungMusterloesung: new UntypedFormControl({ value: null, disabled: true }),
-    lichtsignalAnlageEigenschaften: new UntypedFormGroup({
-      fahrradSignal: new UntypedFormControl(null),
-      gruenVorlauf: new UntypedFormControl(null),
-      getrenntePhasen: new UntypedFormControl(null),
-      rechtsabbieger: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-      linksabbieger: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-      vorgezogeneHalteLinie: new UntypedFormControl(null),
-      radAufstellflaeche: new UntypedFormControl(null),
-      gruenAnforderung: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
-      umlaufzeit: new UntypedFormControl(null, [RadvisValidators.isPositiveInteger, RadvisValidators.max(9999)]),
+  formGroup = new FormGroup({
+    netzbezug: new FormControl<Netzbezug | null>(null, RadvisValidators.isNotNullOrEmpty),
+    verantwortlicheOrganisation: new FormControl<Verwaltungseinheit | null>(null, RadvisValidators.isNotNullOrEmpty),
+    kommentar: new FormControl<string | null>(null, RadvisValidators.maxLength(2000)),
+    typ: new FormControl<FurtKreuzungTyp | null>(null, RadvisValidators.isNotNullOrEmpty),
+    radnetzKonform: new FormControl<boolean>(false),
+    furtKreuzungMusterloesung: new FormControl<string | null>({ value: null, disabled: true }),
+    shared: new SharedKnotenFormGroup(true),
+    lichtsignalAnlageEigenschaften: new FormGroup({
+      fahrradSignal: new FormControl<boolean>(false, { nonNullable: true }),
+      gruenVorlauf: new FormControl<boolean>(false, { nonNullable: true }),
+      getrenntePhasen: new FormControl<boolean>(false, { nonNullable: true }),
+      rechtsabbieger: new FormControl<Rechtsabbieger | null>(null, RadvisValidators.isNotNullOrEmpty),
+      linksabbieger: new FormControl<Linksabbieger | null>(null, RadvisValidators.isNotNullOrEmpty),
+      vorgezogeneHalteLinie: new FormControl<boolean>(false, { nonNullable: true }),
+      radAufstellflaeche: new FormControl<boolean>(false, { nonNullable: true }),
+      gruenAnforderung: new FormControl<GruenAnforderung | null>(null, RadvisValidators.isNotNullOrEmpty),
+      umlaufzeit: new FormControl<number | null>(null, [
+        RadvisValidators.isPositiveInteger,
+        RadvisValidators.max(9999),
+      ]),
     }),
   });
 
@@ -90,6 +97,10 @@ export class FurtenKreuzungenEditorComponent implements DiscardableComponent {
     return undefined;
   }
 
+  protected get sharedKnotenFormGroup(): SharedKnotenFormGroup {
+    return this.formGroup.controls.shared;
+  }
+
   constructor(
     private olMapService: OlMapService,
     private viewerRoutingService: ViewerRoutingService,
@@ -106,24 +117,24 @@ export class FurtenKreuzungenEditorComponent implements DiscardableComponent {
     infrastrukturenSelektionService.selectInfrastrukturen(FURTEN_KREUZUNGEN);
     this.musterloesungOptions$ = furtenKreuzungenService.getAllMusterloesungen();
 
-    this.formGroup.get('radnetzKonform')?.valueChanges.subscribe(v => {
+    this.formGroup.controls.radnetzKonform.valueChanges.subscribe(v => {
       if (v) {
-        this.formGroup.get('furtKreuzungMusterloesung')?.enable();
+        this.formGroup.controls.furtKreuzungMusterloesung.enable();
       } else {
-        this.formGroup.get('furtKreuzungMusterloesung')?.disable();
-        this.formGroup.get('furtKreuzungMusterloesung')?.reset();
+        this.formGroup.controls.furtKreuzungMusterloesung.disable();
+        this.formGroup.controls.furtKreuzungMusterloesung.reset();
       }
     });
 
-    this.formGroup.get('lichtsignalAnlageEigenschaften')?.disable();
+    this.formGroup.controls.lichtsignalAnlageEigenschaften.disable();
 
-    this.formGroup.get('knotenForm')?.valueChanges.subscribe(v => {
-      if (Knotenformen.isLSAKnotenForm(v)) {
-        this.formGroup.get('lichtsignalAnlageEigenschaften')?.enable();
+    this.formGroup.controls.shared.controls.knotenForm.valueChanges.subscribe(v => {
+      if (v && Knotenformen.isLSAKnotenForm(v)) {
+        this.formGroup.controls.lichtsignalAnlageEigenschaften.enable();
         this.isLSAKnotenForm = true;
       } else {
-        this.formGroup.get('lichtsignalAnlageEigenschaften')?.disable();
-        this.formGroup.get('lichtsignalAnlageEigenschaften')?.reset();
+        this.formGroup.controls.lichtsignalAnlageEigenschaften.disable();
+        this.formGroup.controls.lichtsignalAnlageEigenschaften.reset();
         this.isLSAKnotenForm = false;
       }
     });
@@ -156,15 +167,32 @@ export class FurtenKreuzungenEditorComponent implements DiscardableComponent {
     const formValue = this.formGroup.value;
     this.isFetching = true;
     let promise: Promise<void>;
+    let lsa: LichtsignalAnlageEigenschaften | null = null;
+    if (formValue.lichtsignalAnlageEigenschaften) {
+      lsa = {
+        fahrradSignal: formValue.lichtsignalAnlageEigenschaften.fahrradSignal ?? false,
+        gruenVorlauf: formValue.lichtsignalAnlageEigenschaften.gruenVorlauf ?? false,
+        getrenntePhasen: formValue.lichtsignalAnlageEigenschaften.getrenntePhasen ?? false,
+        rechtsabbieger: formValue.lichtsignalAnlageEigenschaften.rechtsabbieger!,
+        linksabbieger: formValue.lichtsignalAnlageEigenschaften.linksabbieger!,
+        vorgezogeneHalteLinie: formValue.lichtsignalAnlageEigenschaften.vorgezogeneHalteLinie ?? false,
+        radAufstellflaeche: formValue.lichtsignalAnlageEigenschaften.radAufstellflaeche ?? false,
+        gruenAnforderung: formValue.lichtsignalAnlageEigenschaften.gruenAnforderung!,
+        umlaufzeit: formValue.lichtsignalAnlageEigenschaften.umlaufzeit ?? null,
+      };
+    }
     const command: SaveFurtKreuzungCommand = {
-      netzbezug: formValue.netzbezug,
-      verantwortlicheOrganisation: formValue.verantwortlicheOrganisation.id,
-      typ: formValue.typ,
-      knotenForm: formValue.knotenForm,
+      netzbezug: formValue.netzbezug!,
+      verantwortlicheOrganisation: formValue.verantwortlicheOrganisation!.id,
+      typ: formValue.typ!,
+      knotenForm: formValue.shared!.knotenForm!,
       radnetzKonform: formValue.radnetzKonform ?? false,
-      kommentar: formValue.kommentar,
+      kommentar: formValue.kommentar ?? null,
       furtKreuzungMusterloesung: formValue.furtKreuzungMusterloesung ?? null,
-      lichtsignalAnlageEigenschaften: formValue.lichtsignalAnlageEigenschaften ?? null,
+      lichtsignalAnlageEigenschaften: lsa,
+      bauwerksmangel: formValue.shared?.bauwerksmangel?.vorhanden ?? null,
+      bauwerksmangelArt: formValue.shared?.bauwerksmangel?.bauwerksmangelArt ?? null,
+      querungshilfeDetails: formValue.shared?.querungshilfeDetails ?? null,
     };
     if (this.isCreator) {
       promise = this.furtenKreuzungenService.createFurtKreuzung(command).then(newId => {
@@ -205,6 +233,13 @@ export class FurtenKreuzungenEditorComponent implements DiscardableComponent {
       lichtsignalAnlageEigenschaften: furtKreuzung?.lichtsignalAnlageEigenschaften ?? {
         linksabbieger: Linksabbieger.UNBEKANNT,
         rechtsabbieger: Rechtsabbieger.UNBEKANNT,
+      },
+      shared: {
+        ...furtKreuzung,
+        bauwerksmangel: {
+          vorhanden: furtKreuzung?.bauwerksmangel,
+          bauwerksmangelArt: furtKreuzung?.bauwerksmangelArt,
+        },
       },
     };
     this.formGroup.reset(resetValue);

@@ -17,6 +17,11 @@ package de.wps.radvis.backend.fahrradroute.domain.repository;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -27,16 +32,46 @@ public class CustomFahrradrouteRepositoryImpl implements CustomFahrradrouteRepos
 
 	@PersistenceContext
 	private EntityManager entityManager;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public void resetGeoserverFahrradrouteImportDiffMaterializedView(int anzahlTageImportprotokolleVorhalten) {
+	public void resetGeoserverFahrradrouteImportDiffMaterializedView(int anzahlTageImportprotokolleVorhalten,
+		int maxNumpoints) {
 
 		entityManager.createNativeQuery(
 			"DROP MATERIALIZED VIEW IF EXISTS geoserver_fahrradroute_import_diff_materialized_view;")
 			.executeUpdate();
 
+		log.info("Suche nach Fahrradrouten mit zu vielen Koordinaten...");
 		Instant queryStartZeit = Instant.now();
+
+		List<Map<String, Object>> fahrradroutenWithToManyNumPoints = jdbcTemplate
+			.queryForList("SELECT f_nachher.name, count(*) "
+				+ "FROM fahrradroute_aud as f_nachher, "
+				+ "     fahrradroute_aud as f_vorher, "
+				+ "     rev_info as r "
+				+ "  WHERE r.timestamp >= "
+				+ Instant.now().minus(anzahlTageImportprotokolleVorhalten, ChronoUnit.DAYS).toEpochMilli()
+				+ "  AND f_nachher.revtype = 1 "
+				+ "  AND r.id = f_nachher.rev "
+				+ "  AND f_nachher.netzbezug_line_string IS NOT NULL "
+				+ "  AND r.job_execution_description_id IS NOT NULL "
+				+ "  AND (st_numpoints(f_nachher.netzbezug_line_string)>=" + maxNumpoints
+				+ "         OR st_numpoints(f_vorher.netzbezug_line_string)>=" + maxNumpoints + ")"
+				+ "  AND f_vorher.id = f_nachher.id "
+				+ "  AND f_vorher.rev = (SELECT max(f.rev) FROM fahrradroute_aud as f WHERE f.id = f_nachher.id AND f.rev < f_nachher.rev) "
+				+ "  GROUP BY f_nachher.name");
+		fahrradroutenWithToManyNumPoints.forEach(result -> {
+			log.warn("Fahrradroute {} hat zu viele Koordinaten, es wird kein Import-Diff berechnet für {} Versionen.",
+				result.get("name"), result.get("count"));
+		});
+
+		log.info("Suche nach Fahrradrouten mit zu vielen Koordinaten finished in {} Sekunden",
+			Duration.between(queryStartZeit, Instant.now()).toSeconds());
+
 		log.info("Lege geoserver_fahrradroute_import_diff_materialized_view an...");
+		queryStartZeit = Instant.now();
 
 		entityManager.createNativeQuery(
 			"CREATE MATERIALIZED VIEW geoserver_fahrradroute_import_diff_materialized_view AS "
@@ -53,6 +88,9 @@ public class CustomFahrradrouteRepositoryImpl implements CustomFahrradrouteRepos
 				Instant.now().minus(anzahlTageImportprotokolleVorhalten, ChronoUnit.DAYS).toEpochMilli()
 				+ "  AND r.id = f_nachher.rev "
 				+ "  AND f_nachher.netzbezug_line_string IS NOT NULL "
+				+ "  AND st_numpoints(f_nachher.netzbezug_line_string)<" + maxNumpoints
+				+ "  AND (f_vorher.netzbezug_line_string IS NULL "
+				+ "       OR st_numpoints(f_vorher.netzbezug_line_string)<" + maxNumpoints + ") "
 				+ "  AND r.job_execution_description_id IS NOT NULL "
 				+ "  AND f_vorher.id = f_nachher.id "
 				+ "  AND f_vorher.rev = (SELECT max(f.rev) FROM fahrradroute_aud as f WHERE f.id = f_nachher.id AND f.rev < f_nachher.rev); ")

@@ -93,7 +93,7 @@ export namespace MassnahmeListenView {
         return item.planungErforderlich ? 'ja' : 'nein';
       case 'letzteAenderung':
         return item.letzteAenderung
-          ? (new DatePipe('en-US').transform(new Date(item.letzteAenderung), 'dd.MM.yy HH:mm') as string)
+          ? new DatePipe('en-US').transform(new Date(item.letzteAenderung), 'dd.MM.yy HH:mm')!
           : EMPTY_FIELD_INDICATOR;
       case 'benutzerLetzteAenderung':
         return item.benutzerLetzteAenderung

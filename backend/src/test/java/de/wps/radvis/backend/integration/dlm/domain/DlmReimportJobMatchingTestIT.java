@@ -38,16 +38,14 @@ import org.locationtech.jts.geom.LineString;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import de.wps.radvis.backend.abstellanlage.AbstellanlageConfiguration;
-import de.wps.radvis.backend.barriere.BarriereConfiguration;
 import de.wps.radvis.backend.barriere.domain.repository.BarriereNetzBezugAenderungRepository;
+import de.wps.radvis.backend.barriere.domain.repository.BarriereRepository;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -60,16 +58,13 @@ import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
-import de.wps.radvis.backend.dokument.DokumentConfiguration;
 import de.wps.radvis.backend.furtKreuzung.domain.repository.FurtKreuzungNetzBezugAenderungRepository;
 import de.wps.radvis.backend.integration.attributAbbildung.IntegrationAttributAbbildungConfiguration;
 import de.wps.radvis.backend.integration.attributAbbildung.domain.KantenMappingRepository;
 import de.wps.radvis.backend.integration.dlm.IntegrationDlmConfiguration;
 import de.wps.radvis.backend.integration.radnetz.domain.RadNetzNetzbildungService;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungService;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
 import de.wps.radvis.backend.konsistenz.pruefung.domain.KonsistenzregelVerletzungsRepository;
-import de.wps.radvis.backend.leihstation.LeihstationConfiguration;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
 import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
 import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
@@ -87,7 +82,7 @@ import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.DlmId;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.quellimport.common.domain.ImportedFeaturePersistentRepository;
@@ -95,8 +90,6 @@ import de.wps.radvis.backend.quellimport.common.domain.ImportedFeatureTestDataPr
 import de.wps.radvis.backend.quellimport.common.domain.entity.ImportedFeature;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
 import de.wps.radvis.backend.quellimport.grundnetz.domain.DlmRepository;
-import de.wps.radvis.backend.servicestation.ServicestationConfiguration;
-import de.wps.radvis.backend.wegweisendeBeschilderung.WegweisendeBeschilderungConfiguration;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -107,15 +100,7 @@ import jakarta.persistence.PersistenceContext;
 	IntegrationDlmConfiguration.class,
 	GeoConverterConfiguration.class,
 	OrganisationConfiguration.class,
-	KommentarConfiguration.class,
-	DokumentConfiguration.class,
-	NetzfehlerConfiguration.class,
 	MatchingConfiguration.class,
-	BarriereConfiguration.class,
-	WegweisendeBeschilderungConfiguration.class,
-	AbstellanlageConfiguration.class,
-	ServicestationConfiguration.class,
-	LeihstationConfiguration.class,
 	IntegrationAttributAbbildungConfiguration.class,
 })
 @EnableConfigurationProperties(value = {
@@ -130,24 +115,35 @@ import jakarta.persistence.PersistenceContext;
 	NetzkorrekturConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(DlmRepository.class),
-	@MockBean(KantenMappingRepository.class),
-	@MockBean(KonsistenzregelVerletzungsRepository.class),
-	@MockBean(VernetzungKorrekturJob.class),
-	@MockBean(RadNetzNetzbildungService.class),
-	@MockBean(RadwegeDBNetzbildungService.class),
-	@MockBean(ImportedFeaturePersistentRepository.class),
-	@MockBean(BenutzerResolver.class),
-	@MockBean(BenutzerService.class),
-	@MockBean(BarriereNetzBezugAenderungRepository.class),
-	@MockBean(FurtKreuzungNetzBezugAenderungRepository.class),
-})
 class DlmReimportJobMatchingTestIT extends DBIntegrationTestIT {
 
 	// Überschreibt Mocks aus der entsprechenden Configuration
-	@MockBean
+	@MockitoBean
 	private DlmRepository dlmRepository;
+	@MockitoBean
+	KantenMappingRepository kantenMappingRepository;
+	@MockitoBean
+	KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository;
+	@MockitoBean
+	VernetzungKorrekturJob vernetzungKorrekturJob;
+	@MockitoBean
+	RadNetzNetzbildungService radNetzNetzbildungService;
+	@MockitoBean
+	RadwegeDBNetzbildungService radwegeDBNetzbildungService;
+	@MockitoBean
+	ImportedFeaturePersistentRepository importedFeaturePersistentRepository;
+	@MockitoBean
+	BenutzerResolver benutzerResolver;
+	@MockitoBean
+	BenutzerService benutzerService;
+	@MockitoBean
+	BarriereNetzBezugAenderungRepository barriereNetzBezugAenderungRepository;
+	@MockitoBean
+	FurtKreuzungNetzBezugAenderungRepository furtKreuzungNetzBezugAenderungRepository;
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
+	@MockitoBean
+	private BarriereRepository barriereRepository;
 
 	@Autowired
 	private NetzService netzService;

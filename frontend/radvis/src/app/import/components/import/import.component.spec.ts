@@ -77,6 +77,14 @@ describe(ImportComponent.name, () => {
         path: 'abschluss-test',
       },
     ],
+    [
+      0,
+      {
+        bezeichnung: 'Test Import abschließen',
+        path: 'abschluss-test',
+        hiddenStep: true,
+      },
+    ],
   ]);
 
   beforeEach(() => {
@@ -120,17 +128,14 @@ describe(ImportComponent.name, () => {
       { url: steps.get(3)!.path, stepIndex: 3 },
       { url: steps.get(4)!.path, stepIndex: 4 },
       { url: steps.get(5)!.path, stepIndex: 5 },
+      { url: steps.get(0)!.path, stepIndex: 5 },
     ].forEach(({ url, stepIndex }) => {
-      describe(`with NavigationEnd event and url ${url}`, () => {
-        beforeEach(() => {
-          when(router.url).thenReturn(url);
-          routerEvents.next(new ChildActivationEnd(instance(activatedRouteSnapshot)));
-          routerEvents.next(new NavigationEnd(1, 'egal', ''));
-        });
+      it(`should set activeStepIndex to ${stepIndex} on NavigationEnd event with url ${url}`, () => {
+        when(router.url).thenReturn(url);
+        routerEvents.next(new ChildActivationEnd(instance(activatedRouteSnapshot)));
+        routerEvents.next(new NavigationEnd(1, 'egal', ''));
 
-        it(`should set activeStepIndex: ${stepIndex}`, () => {
-          expect(component.activeStepIndex).toEqual(stepIndex);
-        });
+        expect(component.activeStepIndex).toEqual(stepIndex);
       });
     });
 

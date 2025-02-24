@@ -15,4 +15,5 @@
 export interface ImportStep {
   bezeichnung: string;
   path: string;
+  hiddenStep?: boolean;
 }

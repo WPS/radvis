@@ -41,6 +41,7 @@ Chart.register(...registerables);
   templateUrl: './fahrradroute-profil.component.html',
   styleUrls: ['./fahrradroute-profil.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradrouteProfilComponent implements OnInit, OnDestroy {
   @Output()

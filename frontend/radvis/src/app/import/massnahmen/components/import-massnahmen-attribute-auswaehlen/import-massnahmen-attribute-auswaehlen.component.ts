@@ -31,6 +31,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './import-massnahmen-attribute-auswaehlen.component.html',
   styleUrl: './import-massnahmen-attribute-auswaehlen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
   private static readonly STEP = 2;
@@ -44,7 +45,7 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
   formGroup: UntypedFormGroup;
   formControlMap: Map<MassnahmenImportAttribute, FormControl>;
   pollingSubscription: Subscription | undefined;
-  executing: boolean = false;
+  executing = false;
 
   constructor(
     private massnahmenImportService: MassnahmenImportService,
@@ -94,7 +95,7 @@ export class ImportMassnahmenAttributeAuswaehlenComponent implements OnDestroy {
       )
       .subscribe({
         next: session => {
-          this.session = session as MassnahmenImportSessionView;
+          this.session = session!;
           if (this.schrittAbgeschlossen) {
             this.navigateToNextStep();
           }

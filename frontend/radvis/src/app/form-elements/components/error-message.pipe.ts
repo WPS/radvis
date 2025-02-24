@@ -17,6 +17,7 @@ import { ValidationErrors } from '@angular/forms';
 
 @Pipe({
   name: 'errorMessage',
+  standalone: false,
 })
 export class ErrorMessagePipe implements PipeTransform {
   transform(value: ValidationErrors | null): string[] {

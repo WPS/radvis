@@ -13,6 +13,7 @@
  */
 
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
+import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 
 export enum TrennstreifenForm {
   UNBEKANNT = 'UNBEKANNT',
@@ -45,4 +46,24 @@ export namespace TrennstreifenForm {
     }
     throw new Error('Beschreibung für enum TrennstreifenForm fehlt: ' + k);
   });
+
+  export const isEnabledForRadverkehrsfuehrung = (radverkehrsfuehrung: Radverkehrsfuehrung): boolean => {
+    return [
+      Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
+      Radverkehrsfuehrung.SCHUTZSTREIFEN,
+      Radverkehrsfuehrung.RADFAHRSTREIFEN,
+      Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
+      Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
+      Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE,
+      Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADZONE,
+      Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG,
+      Radverkehrsfuehrung.MEHRZWECKSTREIFEN_EINSEITIG,
+      Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER,
+    ].includes(radverkehrsfuehrung);
+  };
 }

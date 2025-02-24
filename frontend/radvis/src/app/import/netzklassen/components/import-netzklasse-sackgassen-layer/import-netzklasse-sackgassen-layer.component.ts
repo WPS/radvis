@@ -28,6 +28,7 @@ import invariant from 'tiny-invariant';
   template: '',
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseSackgassenLayerComponent implements OnInit, OnChanges, OnDestroy {
   @Input()

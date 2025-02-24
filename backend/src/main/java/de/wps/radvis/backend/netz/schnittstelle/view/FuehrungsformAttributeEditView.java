@@ -14,41 +14,47 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.view;
 
+import java.util.Set;
+
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KfzParkenTyp;
 import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennstreifenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.TrennungZu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class FuehrungsformAttributeEditView {
 
-	private BelagArt belagArt;
-	private Oberflaechenbeschaffenheit oberflaechenbeschaffenheit;
-	private Bordstein bordstein;
-	private Radverkehrsfuehrung radverkehrsfuehrung;
-	private KfzParkenForm parkenForm;
-	private KfzParkenTyp parkenTyp;
-	private Laenge breite;
-	private Benutzungspflicht benutzungspflicht;
-	private Laenge trennstreifenBreiteRechts;
-	private Laenge trennstreifenBreiteLinks;
-	private TrennungZu trennstreifenTrennungZuRechts;
-	private TrennungZu trennstreifenTrennungZuLinks;
-	private TrennstreifenForm trennstreifenFormRechts;
-	private TrennstreifenForm trennstreifenFormLinks;
+	private final BelagArt belagArt;
+	private final Oberflaechenbeschaffenheit oberflaechenbeschaffenheit;
+	private final Bordstein bordstein;
+	private final Radverkehrsfuehrung radverkehrsfuehrung;
+	private final KfzParkenForm parkenForm;
+	private final KfzParkenTyp parkenTyp;
+	private final Laenge breite;
+	private final Benutzungspflicht benutzungspflicht;
+	private final Beschilderung beschilderung;
+	private final Laenge trennstreifenBreiteRechts;
+	private final Laenge trennstreifenBreiteLinks;
+	private final TrennungZu trennstreifenTrennungZuRechts;
+	private final TrennungZu trennstreifenTrennungZuLinks;
+	private final TrennstreifenForm trennstreifenFormRechts;
+	private final TrennstreifenForm trennstreifenFormLinks;
+	private final Set<Schadenart> schaeden;
+	private final Absenkung absenkung;
 
 	protected LinearReferenzierterAbschnitt linearReferenzierterAbschnitt;
 
@@ -62,6 +68,9 @@ public class FuehrungsformAttributeEditView {
 		this.breite = fuehrungsformAttribute.getBreite().orElse(null);
 		this.benutzungspflicht = fuehrungsformAttribute.getBenutzungspflicht();
 		this.linearReferenzierterAbschnitt = fuehrungsformAttribute.getLinearReferenzierterAbschnitt();
+		this.beschilderung = fuehrungsformAttribute.getBeschilderung();
+		this.schaeden = fuehrungsformAttribute.getSchaeden();
+		this.absenkung = fuehrungsformAttribute.getAbsenkung();
 
 		this.trennstreifenBreiteRechts = fuehrungsformAttribute.getTrennstreifenBreiteRechts().orElse(null);
 		this.trennstreifenTrennungZuRechts = fuehrungsformAttribute.getTrennstreifenTrennungZuRechts().orElse(null);

@@ -12,8 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Absenkung } from 'src/app/editor/kanten/models/absenkung';
 import { Beleuchtung } from 'src/app/editor/kanten/models/beleuchtung';
 import { Benutzungspflicht } from 'src/app/editor/kanten/models/benutzungspflicht';
+import { Beschilderung } from 'src/app/editor/kanten/models/beschilderung';
 import { Bordstein } from 'src/app/editor/kanten/models/bordstein';
 import { FuehrungsformAttribute } from 'src/app/editor/kanten/models/fuehrungsform-attribute';
 import { GeschwindigkeitAttribute } from 'src/app/editor/kanten/models/geschwindigkeit-attribute';
@@ -25,10 +27,10 @@ import { KfzParkenTyp } from 'src/app/editor/kanten/models/kfz-parken-typ';
 import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberflaechenbeschaffenheit';
 import { Richtung } from 'src/app/editor/kanten/models/richtung';
 import { Status } from 'src/app/editor/kanten/models/status';
+import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { StrassenquerschnittRASt06 } from 'src/app/editor/kanten/models/strassenquerschnittrast06';
 import { Umfeld } from 'src/app/editor/kanten/models/umfeld';
 import { WegeNiveau } from 'src/app/editor/kanten/models/wege-niveau';
-import { StrassenkategorieRIN } from 'src/app/editor/kanten/models/strassenkategorie-rin';
 import { ZustaendigkeitAttribute } from 'src/app/editor/kanten/models/zustaendigkeit-attribute';
 import { BelagArt } from 'src/app/shared/models/belag-art';
 import { IstStandard } from 'src/app/shared/models/ist-standard';
@@ -40,13 +42,16 @@ import {
 import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 
-export const defaultFuehrungsformAttribute = {
+export const defaultFuehrungsformAttribute: FuehrungsformAttribute = {
   belagArt: BelagArt.ASPHALT,
   oberflaechenbeschaffenheit: Oberflaechenbeschaffenheit.GUTER_BIS_MITTLERER_ZUSTAND,
   bordstein: Bordstein.ABSENKUNG_KLEINER_3_ZENTIMETER,
   radverkehrsfuehrung: Radverkehrsfuehrung.SONDERWEG_RADWEG_SELBSTSTAENDIG,
   benutzungspflicht: Benutzungspflicht.UNBEKANNT,
+  beschilderung: Beschilderung.UNBEKANNT,
+  schaeden: [],
   breite: null,
+  absenkung: Absenkung.UNBEKANNT,
   parkenTyp: KfzParkenTyp.SCHRAEG_PARKEN,
   parkenForm: KfzParkenForm.GEHWEGPARKEN_UNMARKIERT,
   trennstreifenFormLinks: null,
@@ -60,7 +65,7 @@ export const defaultFuehrungsformAttribute = {
     von: 0,
     bis: 1,
   },
-} as FuehrungsformAttribute;
+};
 
 export const defaultZustaendigkeitAttribute = {
   vereinbarungsKennung: 'vereinbarungsKennung',

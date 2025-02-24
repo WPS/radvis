@@ -18,6 +18,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   templateUrl: './import-step-layout.component.html',
   styleUrl: './import-step-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportStepLayoutComponent {
   @Input()

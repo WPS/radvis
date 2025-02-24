@@ -26,6 +26,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
   templateUrl: './vordefinierte-exporte.component.html',
   styleUrls: ['./vordefinierte-exporte.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class VordefinierteExporteComponent {
   private static readonly FILETYPE_SHAPE_ZIP = '(Shape-ZIP)';

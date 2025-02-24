@@ -18,6 +18,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   selector: 'rad-feature-table-header',
   templateUrl: './feature-table-header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FeatureTableHeaderComponent {
   @Input()

@@ -34,9 +34,11 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.fahrradroute.domain.DRouteImportJob;
 import de.wps.radvis.backend.fahrradroute.domain.DRouteMatchingJob;
+import de.wps.radvis.backend.fahrradroute.domain.FahrradrouteConfigurationProperties;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradrouteService;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenExporterService;
 import de.wps.radvis.backend.fahrradroute.domain.FahrradroutenMatchingService;
@@ -84,6 +86,8 @@ public class FahrradrouteConfiguration {
 
 	@Autowired
 	private JobConfigurationProperties jobConfigurationProperties;
+	@Autowired
+	private FahrradrouteConfigurationProperties fahrradrouteConfigurationProperties;
 
 	@Autowired
 	private FahrradrouteNetzBezugAenderungRepository fahrradrouteNetzBezugAenderungRepository;
@@ -300,9 +304,13 @@ public class FahrradrouteConfiguration {
 
 	@Bean
 	public RecreateFahrradrouteImportDiffViewJob recreateFahrradrouteImportDiffViewJob() {
-		return new RecreateFahrradrouteImportDiffViewJob(
-			jobExecutionDescriptionRepository,
-			fahrradrouteRepository,
-			commonConfigurationProperties);
+		return new RecreateFahrradrouteImportDiffViewJob(jobExecutionDescriptionRepository, fahrradrouteRepository,
+			commonConfigurationProperties.getAnzahlTageImportprotokolleVorhalten(),
+			fahrradrouteConfigurationProperties.getMaximaleAnzahlKoordinatenFuerImportDiff());
+	}
+
+	@Bean
+	public FahrradrouteFilterRepository fahrradrouteFilterRepository() {
+		return fahrradrouteRepository;
 	}
 }

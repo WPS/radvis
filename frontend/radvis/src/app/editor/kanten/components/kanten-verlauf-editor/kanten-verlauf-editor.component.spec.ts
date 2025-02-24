@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MockBuilder } from 'ng-mocks';
 import { of, Subject } from 'rxjs';
@@ -121,8 +120,8 @@ describe('KantenVerlaufEditorComponent', () => {
         coordinates: [[4, 5]],
         type: 'LineString',
       } as LineStringGeojson);
-      expect((commands[0].verlaufLinks as LineStringGeojson).coordinates).toEqual([[0, 1]]);
-      expect((commands[0].verlaufRechts as LineStringGeojson).coordinates).toEqual([[2, 3]]);
+      expect(commands[0].verlaufLinks.coordinates).toEqual([[0, 1]]);
+      expect(commands[0].verlaufRechts.coordinates).toEqual([[2, 3]]);
       expect(commands[0].kantenVersion).toEqual(1);
 
       expect(commands[1].id).toEqual(2);

@@ -31,6 +31,7 @@ import { LayerId, RadVisLayer } from 'src/app/shared/models/layers/rad-vis-layer
   templateUrl: './matching-feature-details.component.html',
   styleUrls: ['./matching-feature-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MatchingFeatureDetailsComponent implements OnChanges {
   @Input()

@@ -420,7 +420,8 @@ public class NetzController {
 		netzGuard.saveKnoten(authentication, command);
 
 		netzService.aktualisiereKnoten(command.getId(), command.getKnotenVersion(), command.getGemeinde(),
-			command.getKommentar(), command.getZustandsbeschreibung(), command.getKnotenForm());
+			command.getKommentar(), command.getZustandsbeschreibung(), command.getKnotenForm(),
+			command.getQuerungshilfeDetails(), command.getBauwerksmangel(), command.getBauwerksmangelArt());
 
 		Knoten knoten = netzService.getKnoten(command.getId());
 		return new KnotenEditView(knoten, netzService.berechneOrtslage(knoten),

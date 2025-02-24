@@ -2,25 +2,29 @@ package de.wps.radvis.backend.benutzer.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -34,7 +38,6 @@ import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
@@ -45,7 +48,9 @@ import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Tag("group4")
 @ContextConfiguration(classes = {
 	BenutzerConfiguration.class,
@@ -57,10 +62,6 @@ import jakarta.transaction.Transactional;
 	OrganisationConfigurationProperties.class,
 	CommonConfigurationProperties.class,
 })
-@MockBeans({
-	@MockBean(VerwaltungseinheitImportRepository.class),
-	@MockBean(MailService.class),
-})
 class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 
 	@Autowired
@@ -68,6 +69,9 @@ class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	BenutzerRepository benutzerRepository;
+
+	@Mock
+	BenutzerRepository benutzerRepositoryMock;
 
 	@Autowired
 	GebietskoerperschaftRepository gebietskoerperschaftRepository;
@@ -84,9 +88,8 @@ class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 	@Autowired
 	PlatformTransactionManager platformTransactionManager;
 
-	@AfterEach
-	void cleanupDataBase() {
-	}
+	@MockitoBean
+	VerwaltungseinheitImportRepository verwaltungseinheitImportRepository;
 
 	@Test
 	@Transactional(value = Transactional.TxType.NEVER)
@@ -134,9 +137,13 @@ class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 	}
 
 	@Test
-	void testOnAuthenticationSuccess_RadVisAuthConcurrentEvents_aktualisiertLetzteAktivitaetNurEinmal()
+	void testOnAuthenticationSuccess_gleichzeitigeAufrufe()
 		throws InterruptedException, ExecutionException {
 		// arrange
+		openMocks(this);
+
+		benutzerAktivitaetsService = new BenutzerAktivitaetsService(benutzerRepositoryMock);
+
 		Verwaltungseinheit verwaltungseinheit = gebietskoerperschaftRepository.save(
 			VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build());
 
@@ -154,28 +161,42 @@ class BenutzerAktivitaetsServiceTestIT extends DBIntegrationTestIT {
 		Authentication authentication = new RadVisAuthentication(
 			new RadVisUserDetails(benutzer, new ArrayList<>()));
 
-		// act
-		ExecutorService executorService = Executors.newFixedThreadPool(2);
-		executorService.execute(() -> {
-			assertThatNoException().isThrownBy(
-				() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication)));
-		});
+		int numberOfThreads = 2;
+		ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+		CountDownLatch latch = new CountDownLatch(numberOfThreads);
 
-		executorService.execute(() -> {
-			assertThatNoException().isThrownBy(
-				() -> publisher.publishEvent(new AuthenticationSuccessEvent(authentication)));
-		});
-
-		executorService.shutdown();
-		try {
-			if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
-				executorService.shutdownNow();
+		// Künstlich alle bis auf den ersten Aufruf verlangsamen. Damit konnte eine wegen Nebenläufigkeit auftretende
+		// Optimistic-Locking-Exception provoziert werden.
+		AtomicInteger atomInt = new AtomicInteger(0);
+		when(benutzerRepositoryMock.findById(any())).thenAnswer(invocation -> {
+			Optional<Benutzer> result = benutzerRepository.findById(invocation.getArgument(0));
+			if (atomInt.getAndIncrement() > 0) {
+				Thread.sleep(1000);
 			}
-		} catch (InterruptedException e) {
-			executorService.shutdownNow();
+			return result;
+		});
+		when(benutzerRepositoryMock.save(any())).thenAnswer(invocation -> {
+			return benutzerRepository.save(invocation.getArgument(0));
+		});
+
+		ArrayList<Exception> thrownExceptions = new ArrayList<>();
+
+		// act
+		for (int i = 0; i < numberOfThreads; i++) {
+			executorService.submit(() -> {
+				try {
+					benutzerAktivitaetsService.onAuthenticationSuccess(new AuthenticationSuccessEvent(authentication));
+				} catch (Exception t) {
+					thrownExceptions.add(t);
+				} finally {
+					latch.countDown();
+				}
+			});
 		}
+		latch.await();
 
 		// assert
+		assertThat(thrownExceptions).isEmpty();
 		assertThat(benutzerRepository.findByServiceBwId(benutzer.getServiceBwId()).get().getLetzteAktivitaet())
 			.isEqualTo(LocalDate.now());
 

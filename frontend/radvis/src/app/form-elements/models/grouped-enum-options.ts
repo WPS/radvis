@@ -14,9 +14,9 @@
 
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
-export type GroupedEnumOptions = {
+export interface GroupedEnumOptions {
   [key: string]: {
     displayText: string;
     options: EnumOption[];
   };
-};
+}

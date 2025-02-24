@@ -29,12 +29,11 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -47,7 +46,6 @@ import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -68,8 +66,6 @@ import de.wps.radvis.backend.integration.radnetz.IntegrationRadNetzConfiguration
 import de.wps.radvis.backend.integration.radnetz.domain.RadNetzNetzbildungProtokollService;
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungService;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
 import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
@@ -107,7 +103,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.StrassenquerschnittRASt06;
 import de.wps.radvis.backend.netz.domain.valueObject.Umfeld;
 import de.wps.radvis.backend.netz.domain.valueObject.VerkehrStaerke;
 import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -129,9 +125,6 @@ import jakarta.persistence.PersistenceContext;
 	IntegrationRadNetzConfiguration.class,
 	ZuordnungControllerIntegrationTestIT.TestConfiguration.class,
 	KommentarConfiguration.class,
-	NetzfehlerConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class
 })
 @EnableConfigurationProperties(value = {
 	CommonConfigurationProperties.class,
@@ -142,25 +135,23 @@ import jakarta.persistence.PersistenceContext;
 	OrganisationConfigurationProperties.class,
 	NetzConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
 @ActiveProfiles(profiles = "test")
 class ZuordnungControllerIntegrationTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private AttributeProjektionsProtokollService attributeProjektionsProtokollService;
+	@MockitoBean
+	private RadNetzNetzbildungProtokollService radNetzNetzbildungProtokollService;
+	@MockitoBean
+	private RadwegeDBNetzbildungService radwegeDBNetzbildungService;
+	@MockitoBean
+	private AttributProjektionsService attributProjektionsService;
+	@MockitoBean
+	private AttributeAnreicherungsService attributeAnreicherungsService;
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 
 	@Configuration
 	public static class TestConfiguration {
-		@MockBean
-		private AttributeProjektionsProtokollService attributeProjektionsProtokollService;
-		@MockBean
-		private RadNetzNetzbildungProtokollService radNetzNetzbildungProtokollService;
-		@MockBean
-		private RadwegeDBNetzbildungService radwegeDBNetzbildungService;
-		@MockBean
-		private AttributProjektionsService attributProjektionsService;
-		@MockBean
-		private AttributeAnreicherungsService attributeAnreicherungsService;
-
 		@Autowired
 		private NetzService netzService;
 		@Autowired

@@ -52,6 +52,7 @@ export enum FeatureTyp {
   template: '',
   styleUrls: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
   private static readonly GRUNDNETZ_COLOR = MapStyles.FEATURE_COLOR_LIGHTER;
@@ -205,13 +206,13 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
     const toggle = pointerEvent.ctrlKey || pointerEvent.metaKey;
     let clickedFeature: Feature<Geometry>;
     if (toggle) {
-      clickedFeature = linestringFeaturesAtPixel.filter(
+      clickedFeature = linestringFeaturesAtPixel.find(
         feature => feature.get(ImportAttributeLayerComponent.FEATURE_TYP_KEY) === FeatureTyp.MAPPED_GRUNDNETZKANTE
-      )[0] as Feature<Geometry>;
+      ) as Feature<Geometry>;
     } else {
-      clickedFeature = linestringFeaturesAtPixel.filter(
+      clickedFeature = linestringFeaturesAtPixel.find(
         feature => feature.get(ImportAttributeLayerComponent.FEATURE_TYP_KEY) !== FeatureTyp.MAPPED_GRUNDNETZKANTE
-      )[0] as Feature<Geometry>;
+      ) as Feature<Geometry>;
     }
     if (!clickedFeature || clickedFeature.get(ImportAttributeLayerComponent.DISABLED_KEY) === true) {
       this.removeHiglightAndDisableModify();
@@ -240,7 +241,7 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
       (layer: Layer<Source>) => layer === this.mappingsLayer,
       0
     );
-    return (featuresAtPoint as FeatureLike[])
+    return featuresAtPoint!
       .filter(feat => feat.get(ImportAttributeLayerComponent.FEATURE_TYP_KEY) === FeatureTyp.MAPPED_GRUNDNETZKANTE)
       .map(feat => feat as Feature<Geometry>);
   }
@@ -395,7 +396,7 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
       endpointStyles.forEach(style => style.setZIndex(zIndex));
       styles.push(...endpointStyles);
     }
-    const defaultStyle = MapStyles.getDefaultNetzStyleFunction(lineStringcolor)(feature, resolution) as Style;
+    const defaultStyle = MapStyles.getDefaultNetzStyleFunction(lineStringcolor)(feature, resolution);
     defaultStyle.setZIndex(zIndex);
     styles.push(defaultStyle);
     return styles;
@@ -403,7 +404,7 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
 
   private getStyleFunctionForRadvisAndModifyLayer(color: Color): StyleLike {
     return (feature: FeatureLike, resolution: number): Style | Style[] => {
-      const styles = [MapStyles.getDefaultNetzStyleFunction(color)(feature, resolution) as Style];
+      const styles = [MapStyles.getDefaultNetzStyleFunction(color)(feature, resolution)];
       return resolution < ImportAttributeLayerComponent.HIDE_KNOTEN_RESOLUTION_THRESHOLD
         ? [
             ...styles,

@@ -14,21 +14,31 @@
 
 package de.wps.radvis.backend.manuellerimport.attributeimport.domain.service;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
 import de.wps.radvis.backend.manuellerimport.common.domain.valueobject.AttributeImportFormat;
+import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 
 public class AttributMapperFactory {
 
 	private final VerwaltungseinheitService verwaltungseinheitService;
+	private final NetzService netzService;
 
-	public AttributMapperFactory(VerwaltungseinheitService verwaltungseinheitService) {
+	public AttributMapperFactory(VerwaltungseinheitService verwaltungseinheitService,
+		NetzService netzService) {
+		require(verwaltungseinheitService, notNullValue());
+		require(netzService, notNullValue());
+
 		this.verwaltungseinheitService = verwaltungseinheitService;
+		this.netzService = netzService;
 	}
 
 	public AttributeMapper createMapper(AttributeImportFormat attributeImportFormat) {
 		switch (attributeImportFormat) {
 		case LUBW:
-			return new LUBWMapper();
+			return new LUBWMapper(netzService);
 		case RADVIS:
 			return new RadVISMapper(verwaltungseinheitService);
 		default:

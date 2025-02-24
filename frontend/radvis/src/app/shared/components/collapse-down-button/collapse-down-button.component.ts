@@ -36,11 +36,12 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
       transition('collapsed <=> expanded', [animate('0.3s')]),
     ]),
   ],
+  standalone: false,
 })
 export class CollapseDownButtonComponent {
   @Input()
   expanded = false;
 
   @Output()
-  toggle = new EventEmitter<void>();
+  toggleExpansion = new EventEmitter<void>();
 }

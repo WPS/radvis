@@ -19,8 +19,6 @@ import lombok.NonNull;
 
 @AllArgsConstructor
 public enum MassnahmenOberkategorie {
-
-	// @formatter:off
 	STVO_BESCHILDERUNG("StVO Beschilderung / Änderung der verkehrsrechtlichen Anordnung"),
 	MARKIERUNG("Markierung"),
 	AUSBAU_STRECKE("Ausbau Strecke"),
@@ -37,8 +35,10 @@ public enum MassnahmenOberkategorie {
 	MARKIERUNGSTECHNISCHE_MASSNAHME("Markierungstechnische Maßnahme"),
 	SONSTIGE_MASSNAHME_KNOTENPUNKT("Sonstige Maßnahme am Knotenpunkt"),
 	BARRIERENMASSNAHMENKATEGORIEN("Barrierenmaßnahmenkategorien"),
-	SONSTIGE_BAUMASSNAHME("Sonstige Baumaßnahme");
-	// @formatter:on
+	SONSTIGE_BAUMASSNAHME("Sonstige Baumaßnahme"),
+	SONSTIGE_STRECKENMASSNAHME("Sonstige Streckenmaßnahme"),
+	PLANUNGEN_RSV_PVR("Planungen RSV/RVR"),
+	;
 
 	@NonNull
 	private final String displayText;

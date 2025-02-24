@@ -36,6 +36,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './dokument-liste.component.html',
   styleUrls: ['./dokument-liste.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class DokumentListeComponent implements OnInit, OnDestroy {
   public static readonly DOKUMENTLISTE_DATA_KEY = 'dokumente';
@@ -142,9 +143,9 @@ export class DokumentListeComponent implements OnInit, OnDestroy {
   }
 
   tooltipForDokument(dokument: DokumentView): string {
-    return `Hochgeladen von ${dokument.benutzerVorname} ${dokument.benutzerNachname} am ${
-      new DatePipe('en-US').transform(new Date(dokument.datum), 'dd.MM.yyyy HH:mm') as string
-    }.`;
+    return `Hochgeladen von ${dokument.benutzerVorname} ${dokument.benutzerNachname} am ${new DatePipe(
+      'en-US'
+    ).transform(new Date(dokument.datum), 'dd.MM.yyyy HH:mm')!}.`;
   }
 
   private aktualisiereDokumentenListe(): Promise<void> {

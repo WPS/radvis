@@ -12,15 +12,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { Absenkung } from 'src/app/editor/kanten/models/absenkung';
 import { Benutzungspflicht } from 'src/app/editor/kanten/models/benutzungspflicht';
+import { Beschilderung } from 'src/app/editor/kanten/models/beschilderung';
 import { Bordstein } from 'src/app/editor/kanten/models/bordstein';
 import { KfzParkenForm } from 'src/app/editor/kanten/models/kfz-parken-form';
 import { KfzParkenTyp } from 'src/app/editor/kanten/models/kfz-parken-typ';
 import { LinearReferenzierteAttribute } from 'src/app/editor/kanten/models/linear-referenzierte-attribute';
 import { Oberflaechenbeschaffenheit } from 'src/app/editor/kanten/models/oberflaechenbeschaffenheit';
-import { BelagArt } from 'src/app/shared/models/belag-art';
-import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
+import { Schadenart } from 'src/app/editor/kanten/models/schadenart';
 import { TrennstreifenForm } from 'src/app/editor/kanten/models/trennstreifen-form';
+import { TrennstreifenTrennungZu } from 'src/app/editor/kanten/models/trennstreifen-trennung-zu';
+import { BelagArt } from 'src/app/shared/models/belag-art';
 import { Radverkehrsfuehrung } from 'src/app/shared/models/radverkehrsfuehrung';
 
 export interface FuehrungsformAttribute extends LinearReferenzierteAttribute {
@@ -32,6 +35,9 @@ export interface FuehrungsformAttribute extends LinearReferenzierteAttribute {
   parkenForm: KfzParkenForm;
   parkenTyp: KfzParkenTyp;
   breite: number | null;
+  beschilderung: Beschilderung;
+  schaeden: Schadenart[];
+  absenkung: Absenkung;
   trennstreifenBreiteRechts: number | null;
   trennstreifenBreiteLinks: number | null;
   trennstreifenTrennungZuRechts: TrennstreifenTrennungZu | null;

@@ -32,6 +32,7 @@ import { FAHRRADZAEHLSTELLE } from 'src/app/viewer/fahrradzaehlstelle/models/fah
   templateUrl: './infrastruktur-layer.component.html',
   styleUrls: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class InfrastrukturLayerComponent {
   selektierteInfrastrukturen$: Observable<Infrastruktur[]>;

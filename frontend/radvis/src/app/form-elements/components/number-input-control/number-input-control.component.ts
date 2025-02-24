@@ -40,6 +40,7 @@ import {
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class NumberInputControlComponent extends AbstractFormControl<number> implements OnChanges {
   @Input()

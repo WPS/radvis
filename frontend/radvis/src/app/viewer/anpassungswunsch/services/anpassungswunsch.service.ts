@@ -44,10 +44,14 @@ export class AnpassungswunschService {
   }
 
   getAlleAnpassungswuensche(
-    abgeschlosseneAnpassungswuenscheAusblenden: boolean
+    abgeschlosseneAnpassungswuenscheAusblenden: boolean,
+    nebenFahrradroutenIds?: number[]
   ): Promise<AnpassungswunschListenView[]> {
     let params = new HttpParams();
     params = params.set('abgeschlosseneAusblenden', abgeschlosseneAnpassungswuenscheAusblenden);
+    if (nebenFahrradroutenIds) {
+      params = params.set('nebenFahrradrouten', nebenFahrradroutenIds.join(','));
+    }
     return this.http.get<AnpassungswunschListenView[]>(`${this.api}/list`, { params }).toPromise();
   }
 

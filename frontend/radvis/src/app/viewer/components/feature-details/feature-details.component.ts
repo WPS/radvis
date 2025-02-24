@@ -20,6 +20,7 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
   templateUrl: './feature-details.component.html',
   styleUrls: ['./feature-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FeatureDetailsComponent {
   constructor(private viewerRoutingService: ViewerRoutingService) {}

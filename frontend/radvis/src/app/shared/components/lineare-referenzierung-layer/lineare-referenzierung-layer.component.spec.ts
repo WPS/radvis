@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { Component, SimpleChange, SimpleChanges, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -554,6 +553,7 @@ describe('LineareReferenzierungLayerComponent', () => {
 @Component({
   template:
     '<rad-lineare-referenzierung-layer [zIndex]="1" [hoveredSegmentIndex]="hoveredSegmentIndex"  [segmentierung]="segmentierung" [originalGeometry]="geometry"></rad-lineare-referenzierung-layer>',
+  standalone: false,
 })
 export class LineareReferenzierungLayerTestWrapperComponent {
   @ViewChild(LineareReferenzierungLayerComponent)
@@ -622,7 +622,6 @@ describe('LineareReferenzierungLayerComponent - embedded', () => {
   });
 });
 
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
 function createDummyFeatures(): Feature<Geometry>[] {
   const firstFeature = new Feature(
     new LineString([

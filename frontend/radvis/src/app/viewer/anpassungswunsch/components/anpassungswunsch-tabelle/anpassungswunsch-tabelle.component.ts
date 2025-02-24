@@ -13,11 +13,13 @@
  */
 
 import { ChangeDetectionStrategy, Component, forwardRef } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
+import { ErweiterterAnpassungswunschFilterDialogComponent } from 'src/app/viewer/anpassungswunsch/components/erweiterter-anpassungswunsch-filter-dialog/erweiterter-anpassungswunsch-filter-dialog.component';
 import { AnpassungswunschListenView } from 'src/app/viewer/anpassungswunsch/models/anpassungswunsch-listen-view';
+import { ErweiterterAnpassungswunschFilter } from 'src/app/viewer/anpassungswunsch/models/erweiterter-anpassungswunsch-filter';
 import { AnpassungenRoutingService } from 'src/app/viewer/anpassungswunsch/services/anpassungen-routing.service';
 import { AnpassungswunschFilterService } from 'src/app/viewer/anpassungswunsch/services/anpassungswunsch-filter.service';
 import { SpaltenDefinition } from 'src/app/viewer/viewer-shared/models/spalten-definition';
@@ -31,6 +33,7 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
   providers: [
     { provide: AbstractInfrastrukturenFilterService, useExisting: forwardRef(() => AnpassungswunschFilterService) },
   ],
+  standalone: false,
 })
 export class AnpassungswunschTabelleComponent {
   selectedAnpassungswunschID$: Observable<number | null>;
@@ -40,22 +43,25 @@ export class AnpassungswunschTabelleComponent {
     { name: 'status', displayName: 'Status' },
     { name: 'kategorie', displayName: 'Zu ändern in' },
     { name: 'verantwortlicheOrganisation', displayName: 'Verantwortliche Organisation' },
+    { name: 'erstelltAm', displayName: 'Erstellt am' },
+    { name: 'zuletztGeaendertAm', displayName: 'Letzte Änderung' },
   ];
 
   data$: Observable<AnpassungswunschListenView[]>;
 
   public anpassungswunschCreatorRoute: string;
-  fertigeAnpassungswuenscheAusblendenControl: UntypedFormControl;
 
   public isBenutzerBerechtigtAnpassungswunschZuErstellen: boolean;
 
   isSmallViewport = false;
   filteredSpalten$: Observable<string[]>;
+  erweiterterFilterActive$: Observable<boolean>;
 
   constructor(
     public anpassungswunschFilterService: AnpassungswunschFilterService,
     private anpassungenRoutingService: AnpassungenRoutingService,
-    benutzerDetailsService: BenutzerDetailsService
+    benutzerDetailsService: BenutzerDetailsService,
+    private matDialog: MatDialog
   ) {
     this.data$ = this.anpassungswunschFilterService.filteredList$;
 
@@ -65,21 +71,11 @@ export class AnpassungswunschTabelleComponent {
 
     this.anpassungswunschCreatorRoute = anpassungenRoutingService.getCreatorRoute();
 
-    this.fertigeAnpassungswuenscheAusblendenControl = new UntypedFormControl(
-      anpassungswunschFilterService.abgeschlosseneSindAusgeblendet
-    );
-
     this.filteredSpalten$ = this.anpassungswunschFilterService.filter$.pipe(
       map(filteredFields => filteredFields.map(f => f.field))
     );
 
-    this.fertigeAnpassungswuenscheAusblendenControl.valueChanges.subscribe(active => {
-      if (active) {
-        anpassungswunschFilterService.abgeschlosseneAusblenden();
-      } else {
-        anpassungswunschFilterService.abgeschlosseneEinblenden();
-      }
-    });
+    this.erweiterterFilterActive$ = anpassungswunschFilterService.erweiterterFilterActive$;
   }
 
   onChangeBreakpointState(isSmall: boolean): void {
@@ -92,6 +88,28 @@ export class AnpassungswunschTabelleComponent {
 
   onFilterReset(): void {
     this.anpassungswunschFilterService.reset();
+  }
+
+  onOpenErweiterterFilter(): void {
+    const dialogRef = this.matDialog.open<
+      ErweiterterAnpassungswunschFilterDialogComponent,
+      ErweiterterAnpassungswunschFilter,
+      ErweiterterAnpassungswunschFilter
+    >(ErweiterterAnpassungswunschFilterDialogComponent, {
+      data: this.anpassungswunschFilterService.erweiterterFilter,
+      width: '800px',
+      disableClose: true,
+      autoFocus: 'dialog',
+    });
+
+    dialogRef
+      .afterClosed()
+      .toPromise()
+      .then(filter => {
+        if (filter) {
+          this.anpassungswunschFilterService.updateErweiterterFilter(filter);
+        }
+      });
   }
 
   getElementValue: (item: AnpassungswunschListenView, key: string) => string | string[] = (

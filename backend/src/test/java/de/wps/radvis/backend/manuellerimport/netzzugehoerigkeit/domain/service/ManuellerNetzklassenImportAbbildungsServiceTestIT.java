@@ -44,11 +44,11 @@ import org.locationtech.jts.io.WKTWriter;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.wps.radvis.backend.barriere.BarriereConfiguration;
@@ -61,7 +61,6 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.ExtentProperty;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
@@ -69,9 +68,6 @@ import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
 import de.wps.radvis.backend.manuellerimport.common.ManuellerImportCommonConfiguration;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepositoryFactory;
 import de.wps.radvis.backend.matching.MatchingConfiguration;
@@ -85,7 +81,8 @@ import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.AnpassungswuenscheConfigurationProperties;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
@@ -109,11 +106,7 @@ import lombok.extern.slf4j.Slf4j;
 	OrganisationConfiguration.class,
 	BenutzerConfiguration.class,
 	MatchingConfiguration.class,
-	NetzfehlerConfiguration.class,
-	KommentarConfiguration.class,
 	ManuellerImportCommonConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class,
 	BarriereConfiguration.class
 })
 @EnableConfigurationProperties(value = {
@@ -125,16 +118,16 @@ import lombok.extern.slf4j.Slf4j;
 	TechnischerBenutzerConfigurationProperties.class,
 	PostgisConfigurationProperties.class,
 	OsmPbfConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
-	NetzConfigurationProperties.class
+	NetzConfigurationProperties.class,
+	AnpassungswuenscheConfigurationProperties.class
 })
-@MockBeans({
-	@MockBean(MailService.class),
-})
+@EntityScan(basePackageClasses = KommentarConfiguration.class)
 @ActiveProfiles("test")
 @SuppressWarnings({ "rawtypes", "unchecked" })
 class ManuellerNetzklassenImportAbbildungsServiceTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 
 	static ExtentProperty commonExtentSchwaebischHall = new ExtentProperty(548298, 559792, 5436959, 5443026);
 	static ExtentProperty commonExtentBodensee = new ExtentProperty(502229.0, 594092.2, 5253338, 5319781);

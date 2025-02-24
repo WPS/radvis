@@ -32,6 +32,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
   templateUrl: './anpassungswuensche-layer.component.html',
   styleUrls: ['./anpassungswuensche-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AnpassungswuenscheLayerComponent
   extends AbstractInfrastrukturLayerComponent<AnpassungswunschListenView>

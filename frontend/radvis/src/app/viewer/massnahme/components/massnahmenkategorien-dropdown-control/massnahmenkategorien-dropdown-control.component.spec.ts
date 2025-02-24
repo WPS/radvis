@@ -25,7 +25,7 @@ import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-moc
 import { MassnahmenkategorienDropdownControlComponent } from 'src/app/viewer/massnahme/components/massnahmenkategorien-dropdown-control/massnahmenkategorien-dropdown-control.component';
 import { MassnahmeModule } from 'src/app/viewer/massnahme/massnahme.module';
 import { MassnahmenkategorieOptionGroup } from 'src/app/viewer/massnahme/models/massnahmenkategorie-option-group';
-import { MASSNAHMENKATEGORIEN } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
+import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 
 describe(MassnahmenkategorienDropdownControlComponent.name, () => {
   let component: MassnahmenkategorienDropdownControlComponent;
@@ -38,14 +38,93 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
   });
 
   beforeEach(() => {
-    fixture = MockRender(MassnahmenkategorienDropdownControlComponent);
+    fixture = MockRender(MassnahmenkategorienDropdownControlComponent, {
+      massnahmeKategorienOptions: Massnahmenkategorien.ALL,
+    } as MassnahmenkategorienDropdownControlComponent);
     component = fixture.point.componentInstance;
     fixture.detectChanges();
   });
 
+  it('should set massnahmeKategorienOptions Input as filteredOptions', () => {
+    expect(component.massnahmeKategorienOptions).toEqual(Massnahmenkategorien.ALL);
+    fixture.componentInstance.massnahmeKategorienOptions = allOptions;
+    fixture.detectChanges();
+    expect(component.massnahmeKategorienOptions).toEqual(allOptions);
+  });
+
   describe('updateFilteredOptions', () => {
+    it('should update if massnahmeKategorienOptions Input changed', () => {
+      component.massnahmeKategorienOptions = [
+        {
+          name: 'GRUPPE',
+          displayText: 'Gruppe',
+          options: [
+            {
+              name: 'SUB_GRUPPE',
+              displayText: 'SubGruppe',
+              gewichtung: 1,
+              options: [
+                {
+                  name: 'OPTION_A1',
+                  displayText: 'A1',
+                },
+                {
+                  name: 'OPTION_A2',
+                  displayText: 'A2',
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      component.formControl.patchValue('A2');
+      expect(component.filteredGroupedOptions).toEqual([
+        {
+          name: 'GRUPPE',
+          displayText: 'Gruppe',
+          options: [
+            {
+              name: 'SUB_GRUPPE',
+              displayText: 'SubGruppe',
+              gewichtung: 1,
+              options: [
+                {
+                  name: 'OPTION_A2',
+                  displayText: 'A2',
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+
+      fixture.componentInstance.massnahmeKategorienOptions = [
+        {
+          name: 'GRUPPE',
+          displayText: 'Gruppe',
+          options: [
+            {
+              name: 'SUB_GRUPPE',
+              displayText: 'SubGruppe',
+              gewichtung: 1,
+              options: [
+                {
+                  name: 'OPTION_A1',
+                  displayText: 'A1',
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      fixture.detectChanges();
+
+      expect(component.filteredGroupedOptions).toEqual([]);
+      expect(component.formControl.value).toEqual('A2');
+    });
+
     it('should filter correctly', fakeAsync(() => {
-      component.groupedOptions = allOptions;
+      component.massnahmeKategorienOptions = allOptions;
 
       component.formControl.patchValue('Text');
 
@@ -102,7 +181,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
     }));
 
     it('should filter on secondlevel option-groups correctly', fakeAsync(() => {
-      component.groupedOptions = allOptions;
+      component.massnahmeKategorienOptions = allOptions;
 
       component.formControl.patchValue('SubGruppe B');
 
@@ -131,7 +210,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
     }));
 
     it('should filter on firstlevel option-groups correctly', fakeAsync(() => {
-      component.groupedOptions = allOptions;
+      component.massnahmeKategorienOptions = allOptions;
 
       component.formControl.patchValue('Gruppe A');
 
@@ -179,7 +258,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
     }));
 
     it('should filter complete group if no option of this group matches', fakeAsync(() => {
-      component.groupedOptions = allOptions;
+      component.massnahmeKategorienOptions = allOptions;
 
       component.formControl.patchValue('Test');
 
@@ -227,7 +306,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
     }));
 
     it('should offer all options when no input was made', fakeAsync(() => {
-      component.groupedOptions = allOptions;
+      component.massnahmeKategorienOptions = allOptions;
 
       component.formControl.patchValue(null);
 
@@ -242,7 +321,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name, () => {
     it('it should not add duplicates', fakeAsync(() => {
       const spyOnChange = spyOn(component, 'onChange');
 
-      component.groupedOptions = allOptions;
+      component.massnahmeKategorienOptions = allOptions;
 
       expect(component.selectedOptions).toEqual([]);
       expect(spyOnChange).not.toHaveBeenCalled();
@@ -286,16 +365,30 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
   });
 
   beforeEach(() => {
-    fixture = MockRender(MassnahmenkategorienDropdownControlComponent);
+    fixture = MockRender(MassnahmenkategorienDropdownControlComponent, {
+      massnahmeKategorienOptions: Massnahmenkategorien.ALL,
+    } as MassnahmenkategorienDropdownControlComponent);
     component = fixture.point.componentInstance;
-    component.groupedOptions = MASSNAHMENKATEGORIEN;
     fixture.detectChanges();
     fixture.autoDetectChanges(true);
   });
 
+  it('should display value not within allowed options', async () => {
+    fixture.componentInstance.massnahmeKategorienOptions = Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY;
+    component.writeValue(['NEUBAU_WEG_NACH_RADNETZ_QUALITAETSSTANDARD']);
+    fixture.detectChanges();
+    await fixture.whenRenderingDone();
+
+    expect(
+      (
+        fixture.debugElement.query(By.css('.mat-mdc-chip .mat-mdc-chip-action-label'))?.nativeElement as HTMLElement
+      )?.textContent?.trim()
+    ).toEqual('Neubau eines Weges nach RadNET ...');
+  });
+
   describe('disabled', () => {
     it('should not open panel if disabled', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
       component.setDisabledState(false);
       fixture.detectChanges();
@@ -325,7 +418,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
     });
 
     it('should not show remove for kategories', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
 
       component.setDisabledState(false);
@@ -340,7 +433,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
     });
 
     it('should hide input', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
 
       component.setDisabledState(false);
@@ -357,7 +450,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
 
   describe('onChipClick', () => {
     it('should open panel, scroll to Option and highlight', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
       fixture.detectChanges();
 
@@ -378,7 +471,7 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
     });
 
     it('should scroll to Option and highlight with opened panel', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
       fixture.detectChanges();
       const panelOpenSpy = spyOn(component, 'onPanelOpened');
@@ -405,8 +498,8 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
     });
 
     it('should scroll to second option und highlight', async () => {
-      const clickedKategorie1 = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
-      const clickedKategorie2 = MASSNAHMENKATEGORIEN[0].options[0].options[0].name;
+      const clickedKategorie1 = Massnahmenkategorien.ALL[1].options[0].options[0].name;
+      const clickedKategorie2 = Massnahmenkategorien.ALL[0].options[0].options[0].name;
       component.writeValue([clickedKategorie1, clickedKategorie2]);
       fixture.detectChanges();
 
@@ -440,9 +533,9 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
     });
 
     it('should scroll to Option after option filtered out', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
-      component.filteredGroupedOptions = [component.groupedOptions[0]];
+      component.filteredGroupedOptions = [component.massnahmeKategorienOptions[0]];
       fixture.detectChanges();
       await fixture.whenRenderingDone();
 
@@ -458,11 +551,11 @@ describe(MassnahmenkategorienDropdownControlComponent.name + ' - embedded', () =
       );
       expect(highlightedKategorie).toBeTruthy();
       expect(highlightedKategorie.nativeElement.id).toBe(component.getElementIdByKategorie(clickedKategorie));
-      expect(component.filteredGroupedOptions).toEqual(component.groupedOptions);
+      expect(component.filteredGroupedOptions).toEqual(component.massnahmeKategorienOptions);
     });
 
     it('should be unhighlighted after close', async () => {
-      const clickedKategorie = MASSNAHMENKATEGORIEN[1].options[0].options[0].name;
+      const clickedKategorie = Massnahmenkategorien.ALL[1].options[0].options[0].name;
       component.writeValue([clickedKategorie]);
       fixture.detectChanges();
 

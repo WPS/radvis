@@ -35,4 +35,7 @@ export const defaultKnoten: Knoten = {
   knotenVersion: 1,
   quelle: QuellSystem.DLM,
   liegtInZustaendigkeitsbereich: true,
+  querungshilfeDetails: null,
+  bauwerksmangel: null,
+  bauwerksmangelArt: null,
 };

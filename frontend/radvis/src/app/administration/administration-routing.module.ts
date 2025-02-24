@@ -16,6 +16,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BenutzerEditorComponent } from 'src/app/administration/components/benutzer-editor/benutzer-editor.component';
 import { BenutzerListComponent } from 'src/app/administration/components/benutzer-list/benutzer-list.component';
+import { DateiLayerVerwaltungComponent } from 'src/app/administration/components/datei-layer-verwaltung/datei-layer-verwaltung.component';
 import { OrganisationEditorComponent } from 'src/app/administration/components/organisation-editor/organisation-editor.component';
 import { OrganisationListComponent } from 'src/app/administration/components/organisation-list/organisation-list.component';
 import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
@@ -28,6 +29,11 @@ import { benutzerRegistriertGuard } from 'src/app/shared/services/benutzer-regis
 import { discardGuard } from 'src/app/shared/services/discard.guard';
 
 const routes: Routes = [
+  {
+    path: AdministrationRoutingService.ADMINISTRATION_DATEI_LAYER_ROUTE,
+    canActivate: [benutzerRegistriertGuard, benutzerAktivGuard],
+    component: DateiLayerVerwaltungComponent,
+  },
   {
     path: AdministrationRoutingService.ADMINISTRATION_BENUTZER_ROUTE,
     canActivate: [benutzerRegistriertGuard, benutzerAktivGuard],

@@ -20,6 +20,7 @@ import { MassnahmenImportRoutingService } from 'src/app/import/massnahmen/servic
   templateUrl: './import-massnahmen-tool.component.html',
   styleUrl: './import-massnahmen-tool.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportMassnahmenToolComponent {
   constructor(

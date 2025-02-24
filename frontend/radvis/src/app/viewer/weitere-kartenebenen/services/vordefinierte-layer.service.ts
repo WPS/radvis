@@ -43,6 +43,7 @@ export class VordefinierteLayerService {
               zindex: predefinedWeitereKartenebenenBaseZIndex + index,
               zoomstufe: view.zoomstufe,
               farbe: view.farbe,
+              defaultLayer: false,
             },
           };
         });

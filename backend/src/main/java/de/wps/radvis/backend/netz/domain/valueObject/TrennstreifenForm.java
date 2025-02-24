@@ -14,6 +14,11 @@
 
 package de.wps.radvis.backend.netz.domain.valueObject;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
+import java.util.Set;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -49,5 +54,25 @@ public enum TrennstreifenForm {
 		}
 
 		return !(a == TrennstreifenForm.UNBEKANNT || b == TrennstreifenForm.UNBEKANNT || a.equals(b));
+	}
+
+	public static boolean isRequiredForRadverkehrsfuehrung(Radverkehrsfuehrung radverkehrsfuehrung) {
+		require(radverkehrsfuehrung, notNullValue());
+		return Set.of(Radverkehrsfuehrung.SONDERWEG_RADWEG_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GETRENNT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEH_RADWEG_GEMEINSAM_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEHWEG_RAD_FREI_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.GEM_RAD_GEHWEG_MIT_GEHWEG_GEGENRICHTUNG_FREI_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.BETRIEBSWEG_LANDWIRDSCHAFT_STRASSENBEGLEITEND,
+			Radverkehrsfuehrung.SCHUTZSTREIFEN,
+			Radverkehrsfuehrung.RADFAHRSTREIFEN,
+			Radverkehrsfuehrung.RADFAHRSTREIFEN_MIT_FREIGABE_BUSVERKEHR,
+			Radverkehrsfuehrung.BUSFAHRSTREIFEN_MIT_FREIGABE_RADVERKEHR,
+			Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADSTRASSE,
+			Radverkehrsfuehrung.FUEHRUNG_IN_FAHRRADZONE,
+			Radverkehrsfuehrung.MEHRZWECKSTREIFEN_BEIDSEITIG,
+			Radverkehrsfuehrung.MEHRZWECKSTREIFEN_EINSEITIG,
+			Radverkehrsfuehrung.OEFFENTLICHE_STRASSE_MIT_FREIGABE_ANLIEGER)
+			.contains(radverkehrsfuehrung);
 	}
 }

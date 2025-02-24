@@ -23,9 +23,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.abstellanlage.AbstellanlageConfiguration;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
@@ -37,7 +36,6 @@ import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.dokument.DokumentConfiguration;
@@ -67,11 +65,6 @@ import jakarta.persistence.PersistenceContext;
 	TechnischerBenutzerConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
 })
-@MockBeans({
-	@MockBean(VerwaltungseinheitImportRepository.class),
-	@MockBean(ZustaendigkeitsService.class),
-	@MockBean(MailService.class),
-})
 class AbstellanlageRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
@@ -85,6 +78,11 @@ class AbstellanlageRepositoryTestIT extends DBIntegrationTestIT {
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	@MockitoBean
+	private VerwaltungseinheitImportRepository verwaltungseinheitImportRepository;
+	@MockitoBean
+	private ZustaendigkeitsService zustaendigkeitsService;
 
 	@Test
 	void testSaveAndGet() {
@@ -130,7 +128,7 @@ class AbstellanlageRepositoryTestIT extends DBIntegrationTestIT {
 		DokumentListe dokumentListe = new DokumentListe();
 		dokumentListe.addDokument(bestehendesDokument);
 		Abstellanlage neueAbstellanlage = AbstellanlageTestDataProvider.withDefaultValues()
-			//			.zustaendig(gebietskoerperschaft)
+			// .zustaendig(gebietskoerperschaft)
 			.dokumentListe(dokumentListe).build();
 		Abstellanlage abstellanlageSaved = abstellanlageRepository.save(neueAbstellanlage);
 

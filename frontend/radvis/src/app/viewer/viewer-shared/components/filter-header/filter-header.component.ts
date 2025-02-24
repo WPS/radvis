@@ -17,11 +17,13 @@ import { ChangeDetectionStrategy, Component, HostListener, Inject, OnInit } from
 import invariant from 'tiny-invariant';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: '[rad-filter-header]',
   exportAs: 'filterHeader',
   templateUrl: './filter-header.component.html',
   styleUrls: ['./filter-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FilterHeaderComponent implements OnInit {
   public isHovered = false;

@@ -62,9 +62,10 @@ public class OsmMapMatching extends MapMatching {
 	}
 
 	/**
-	 * Analog zur originalen Implementation, bricht jedoch nicht ab, sobald ein snap gefunden wurde, sondern versucht
-	 * weitere zu finden. Zudem wird hier die eigene Implementierung von {@code findCandidateSnapsInBBox} genutzt.
+	 * Analog zur originalen Implementation, aber anderes Envelope.expand-Verhalten und Aufruf der eigenen
+	 * Implementierung von {@code findCandidateSnapsInBBox}.
 	 */
+	@Override
 	public List<Snap> findCandidateSnaps(final double queryLat, final double queryLon) {
 		double rLon = (measurementErrorSigma * 360.0 / DistanceCalcEarth.DIST_EARTH.calcCircumference(queryLat));
 		double rLat = measurementErrorSigma / DistanceCalcEarth.METERS_PER_DEGREE;

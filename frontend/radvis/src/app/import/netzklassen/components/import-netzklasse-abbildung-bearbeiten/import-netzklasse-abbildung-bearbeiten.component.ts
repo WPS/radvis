@@ -27,6 +27,7 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
   templateUrl: './import-netzklasse-abbildung-bearbeiten.component.html',
   styleUrls: ['./import-netzklasse-abbildung-bearbeiten.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseAbbildungBearbeitenComponent implements OnDestroy {
   private static readonly STEP = 4;
@@ -50,11 +51,11 @@ export class ImportNetzklasseAbbildungBearbeitenComponent implements OnDestroy {
     const session$ = this.netzklassenImportService
       .getImportSession()
       .toPromise()
-      .then(session => session as NetzklassenImportSessionView);
+      .then(session => session!);
 
     session$.then(session => (this.session = session));
 
-    this.netz$ = session$.then(session => session.netzklasse as Netzklasse);
+    this.netz$ = session$.then(session => session.netzklasse);
 
     this.kantenFuerZustaendigkeitsbereich$ = session$.then(session =>
       this.radVisNetzFeatureService.getKantenFuerZustaendigkeitsbereich(session.organisationsID, session.netzklasse)

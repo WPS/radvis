@@ -25,16 +25,16 @@ import { SaveFahrtrichtungAttributGruppeCommand } from 'src/app/editor/kanten/mo
 import { fillFormWithMultipleValues } from 'src/app/editor/kanten/services/fill-form-with-multiple-values';
 import { KantenSelektionService } from 'src/app/editor/kanten/services/kanten-selektion.service';
 import { readEqualValuesFromForm } from 'src/app/editor/kanten/services/read-equal-values-from-form';
-import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { KantenSeite } from 'src/app/shared/models/kantenSeite';
+import { QuellSystem } from 'src/app/shared/models/quell-system';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 
-type GenericRichtung = {
+interface GenericRichtung {
   richtung: Richtung;
-};
+}
 
 @Component({
   selector: 'rad-kanten-fahrtrichtung-editor',
@@ -45,6 +45,7 @@ type GenericRichtung = {
     '../abstract-attribut-gruppe-editor-mit-auswahl.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KantenFahrtrichtungEditorComponent implements DiscardableComponent, OnInit, OnDestroy {
   public NICHT_BEARBEITBAR_HINWEIS = AbstractAttributGruppeEditor.NICHT_BEARBEITBAR_HINWEIS;
@@ -137,9 +138,9 @@ export class KantenFahrtrichtungEditorComponent implements DiscardableComponent,
     this.isFetching = true;
 
     const commands: SaveFahrtrichtungAttributGruppeCommand[] = this.currentFahrtrichtungAttributGruppen.map(gruppe => {
-      const associatedKantenSelektion = this.currentSelektion?.find(
+      const associatedKantenSelektion = this.currentSelektion!.find(
         kantenSelektion => kantenSelektion.kante.fahrtrichtungAttributGruppe.id === gruppe.id
-      ) as KantenSelektion;
+      )!;
 
       return {
         gruppenId: gruppe.id,
@@ -223,7 +224,7 @@ export class KantenFahrtrichtungEditorComponent implements DiscardableComponent,
     this.currentSelektion?.forEach(kantenSelektion => {
       const attributGruppeToChange = this.currentFahrtrichtungAttributGruppen.find(
         gruppe => gruppe.id === kantenSelektion.kante.fahrtrichtungAttributGruppe.id
-      ) as FahrtrichtungAttributGruppe;
+      )!;
 
       if (kantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)) {
         const { richtung } = readEqualValuesFromForm(this.displayedAttributeformGroup);

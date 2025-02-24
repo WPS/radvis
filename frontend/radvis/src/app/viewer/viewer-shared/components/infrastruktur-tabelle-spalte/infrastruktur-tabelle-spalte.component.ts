@@ -21,6 +21,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './infrastruktur-tabelle-spalte.component.html',
   styleUrl: './infrastruktur-tabelle-spalte.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class InfrastrukturTabelleSpalteComponent implements OnInit {
   @Input()

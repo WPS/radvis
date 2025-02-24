@@ -23,8 +23,8 @@ export class RadVisFeature {
     public attributes: RadVisFeatureAttributes,
     public layer: LayerId,
     public geometry: Geometry,
-    public istStrecke: boolean = false,
-    public kanteZweiseitig: boolean = false
+    public istStrecke = false,
+    public kanteZweiseitig = false
   ) {}
 
   public static ofAttributesMap(

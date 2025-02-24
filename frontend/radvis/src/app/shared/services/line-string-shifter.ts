@@ -22,7 +22,6 @@ import { FastMath } from 'src/app/shared/services/fast-math';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace LineStringShifter {
-  // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
   export function shiftLineStringByPixel(
     lineString: LineString,
     shiftDistanceInPixel: number,
@@ -39,7 +38,6 @@ export namespace LineStringShifter {
    * Diese Funktion ist stark für den IE 11 optimiert und daher schlechter lesbar. Die IE 11 JavaScript Engine macht
    * leider viele Optimierungen nicht, wie z.B. Inlining, nicht selbst, sodass wir sie manuell machen müssen.
    */
-  // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
   export function shiftLineStringByMeter(lineString: LineString, shiftDistanceInMeter: number): LineString {
     const coords = lineString.getCoordinates();
     const coordsLength = coords.length;

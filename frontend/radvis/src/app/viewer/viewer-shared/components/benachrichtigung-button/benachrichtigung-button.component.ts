@@ -19,6 +19,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   templateUrl: './benachrichtigung-button.component.html',
   styleUrls: ['./benachrichtigung-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class BenachrichtigungButtonComponent {
   @Input()

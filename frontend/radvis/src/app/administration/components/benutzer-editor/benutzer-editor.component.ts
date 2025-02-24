@@ -45,6 +45,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
     { provide: MAT_DATE_LOCALE, useValue: 'de-DE' },
     { provide: MatDatepickerIntl, useClass: RadvisMatDatepickerIntl },
   ],
+  standalone: false,
 })
 export class BenutzerEditorComponent implements DiscardableComponent {
   formGroup: UntypedFormGroup;

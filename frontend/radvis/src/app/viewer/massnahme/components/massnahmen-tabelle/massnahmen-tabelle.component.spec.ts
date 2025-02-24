@@ -19,9 +19,9 @@ import { of, Subject } from 'rxjs';
 import { ErweiterterMassnahmenFilterDialogComponent } from 'src/app/viewer/massnahme/components/erweiterter-massnahmen-filter-dialog/erweiterter-massnahmen-filter-dialog.component';
 import { MassnahmenTabelleComponent } from 'src/app/viewer/massnahme/components/massnahmen-tabelle/massnahmen-tabelle.component';
 import { ErweiterterMassnahmenFilter } from 'src/app/viewer/massnahme/models/erweiterter-massnahmen-filter';
-import { FahrradrouteFilterKategorie } from 'src/app/viewer/massnahme/models/fahrradroute-filter-kategorie';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { ExportFormat } from 'src/app/viewer/viewer-shared/models/export-format';
+import { FahrradrouteFilterKategorie } from 'src/app/viewer/viewer-shared/models/fahrradroute-filter-kategorie';
 import { testFahrradrouteListenView } from 'src/app/viewer/viewer-shared/models/fahrradroute-listen-view-test-data-provider.spec';
 import { FieldFilter } from 'src/app/viewer/viewer-shared/models/field-filter';
 import { ExportService } from 'src/app/viewer/viewer-shared/services/export.service';
@@ -102,9 +102,11 @@ describe(MassnahmenTabelleComponent.name, () => {
       // Arrange
       const erweiterterFilter: ErweiterterMassnahmenFilter = {
         historischeMassnahmenAnzeigen: false,
-        fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.EINZELNE_FAHRRADROUTE,
-        fahrradroute: testFahrradrouteListenView[0],
-        fahrradroutenIds: [],
+        fahrradrouteFilter: {
+          fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.EINZELNE_FAHRRADROUTE,
+          fahrradroute: testFahrradrouteListenView[0],
+          fahrradroutenIds: [],
+        },
         organisation: null,
       };
       when(massnahmeFilterService.erweiterterFilter).thenReturn(erweiterterFilter);
@@ -126,9 +128,11 @@ describe(MassnahmenTabelleComponent.name, () => {
       // Arrange
       const neuerErweiterterFilter: ErweiterterMassnahmenFilter = {
         historischeMassnahmenAnzeigen: false,
-        fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: {
+          fahrradrouteFilterKategorie: FahrradrouteFilterKategorie.ALLE_LRFW,
+          fahrradroute: null,
+          fahrradroutenIds: [],
+        },
         organisation: null,
       };
       const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(neuerErweiterterFilter) });
@@ -146,9 +150,7 @@ describe(MassnahmenTabelleComponent.name, () => {
       // Arrange
       const erweiterterFilter: ErweiterterMassnahmenFilter = {
         historischeMassnahmenAnzeigen: false,
-        fahrradrouteFilterKategorie: null,
-        fahrradroute: null,
-        fahrradroutenIds: [],
+        fahrradrouteFilter: null,
         organisation: null,
       };
       when(massnahmeFilterService.erweiterterFilter).thenReturn(erweiterterFilter);

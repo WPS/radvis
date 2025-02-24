@@ -13,7 +13,7 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
@@ -21,8 +21,8 @@ import { NetzService } from 'src/app/editor/editor-shared/services/netz.service'
 import { Knoten } from 'src/app/editor/knoten/models/knoten';
 import { SaveKnotenCommand } from 'src/app/editor/knoten/models/save-knoten-command';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
-import { KNOTENFORMEN } from 'src/app/shared/models/knotenformen';
 import { QuellSystem } from 'src/app/shared/models/quell-system';
+import { SharedKnotenFormGroup } from 'src/app/shared/models/shared-knoten-form-group';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details.service';
 import { DiscardableComponent } from 'src/app/shared/services/discard.guard';
@@ -36,16 +36,14 @@ import { environment } from 'src/environments/environment';
   templateUrl: './knoten-attribute-editor.component.html',
   styleUrls: ['./knoten-attribute-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class KnotenAttributeEditorComponent implements DiscardableComponent, OnInit, OnDestroy {
-  public knotenFormOptions = KNOTENFORMEN;
   public gemeindeOptions: Promise<Verwaltungseinheit[]> = Promise.resolve([]);
 
   public isFetching = false;
 
   public editingAllowed = true;
-
-  public knotenFormGroup: UntypedFormGroup;
 
   public kommentarMaxLength = 2000;
   public zustandMaxLength = 2000;
@@ -53,6 +51,19 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
   private subscriptions: Subscription[] = [];
 
   private currentKnoten: Knoten;
+
+  protected get sharedKnotenFormGroup(): SharedKnotenFormGroup {
+    return this.knotenFormGroup.controls.shared;
+  }
+
+  knotenFormGroup = new FormGroup({
+    ortslage: new FormControl({ value: '', disabled: true }),
+    gemeinde: new FormControl<Verwaltungseinheit | null>(null),
+    landkreis: new FormControl({ value: '', disabled: true }),
+    kommentar: new FormControl('', RadvisValidators.maxLength(this.kommentarMaxLength)),
+    zustandsbeschreibung: new FormControl('', RadvisValidators.maxLength(this.zustandMaxLength)),
+    shared: new SharedKnotenFormGroup(),
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -65,13 +76,21 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
     private benutzerDetailsService: BenutzerDetailsService
   ) {
     this.currentKnoten = this.route.snapshot.data.knoten;
-    this.knotenFormGroup = new UntypedFormGroup({
-      ortslage: new UntypedFormControl({ value: '', disabled: true }),
-      gemeinde: new UntypedFormControl(null),
-      landkreis: new UntypedFormControl({ value: 0, disabled: true }),
-      kommentar: new UntypedFormControl('', RadvisValidators.maxLength(this.kommentarMaxLength)),
-      zustandsbeschreibung: new UntypedFormControl('', RadvisValidators.maxLength(this.zustandMaxLength)),
-      knotenForm: new UntypedFormControl({ value: null }),
+
+    this.knotenFormGroup.controls.gemeinde.valueChanges.subscribe(value => {
+      const gemeinde = value!;
+      if (gemeinde && gemeinde.idUebergeordneteOrganisation) {
+        this.organisationenService
+          .getOrganisation(gemeinde.idUebergeordneteOrganisation)
+          .then(uebergoerdneteOrganisation => {
+            this.knotenFormGroup.controls.landkreis.setValue(uebergoerdneteOrganisation.name);
+            this.changeDetectorRef.markForCheck();
+          })
+          .catch(error => this.errorHandlingService.handleError(error, 'Landkreis konnte nicht geladen werden.'));
+      } else {
+        this.knotenFormGroup.controls.landkreis.setValue(null);
+        this.changeDetectorRef.markForCheck();
+      }
     });
   }
 
@@ -93,16 +112,26 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
       if (this.editingAllowed) {
         this.enableForm();
       }
-      this.knotenFormGroup.reset({
-        ...this.currentKnoten,
-        landkreis: this.currentKnoten?.landkreis?.name || null,
-      });
+      this.resetForm(this.currentKnoten);
       if (!this.editingAllowed) {
         this.knotenFormGroup.disable({ emitEvent: false });
       }
     });
     this.gemeindeOptions = this.organisationenService.getGemeinden();
-    this.addGemeindeValueChangeSubscriptionForLandkreis();
+  }
+
+  private resetForm(knoten: Knoten): void {
+    this.knotenFormGroup.reset({
+      ...knoten,
+      landkreis: knoten?.landkreis?.name || null,
+    });
+    this.sharedKnotenFormGroup.reset({
+      ...knoten,
+      bauwerksmangel: {
+        vorhanden: knoten.bauwerksmangel,
+        bauwerksmangelArt: knoten.bauwerksmangelArt,
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -110,11 +139,7 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
   }
 
   onReset(): void {
-    const knoten = this.currentKnoten;
-    this.knotenFormGroup.reset({
-      ...knoten,
-      landkreis: this.currentKnoten?.landkreis?.name || null,
-    });
+    this.resetForm(this.currentKnoten);
   }
 
   onClose(): void {
@@ -133,11 +158,14 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
 
     const command: SaveKnotenCommand = {
       id: this.currentKnoten.id,
-      gemeinde: (this.knotenFormGroup.value as Knoten).gemeinde?.id || null,
-      kommentar: this.knotenFormGroup.get('kommentar')?.value || null,
-      zustandsbeschreibung: this.knotenFormGroup.get('zustandsbeschreibung')?.value || null,
-      knotenForm: this.knotenFormGroup.get('knotenForm')?.value || null,
+      gemeinde: this.knotenFormGroup.value.gemeinde?.id || null,
+      kommentar: this.knotenFormGroup.controls.kommentar.value || null,
+      zustandsbeschreibung: this.knotenFormGroup.controls.zustandsbeschreibung.value || null,
+      knotenForm: this.knotenFormGroup.controls.shared.controls.knotenForm.value || null,
       knotenVersion: this.currentKnoten.knotenVersion,
+      querungshilfeDetails: this.knotenFormGroup.value.shared?.querungshilfeDetails ?? null,
+      bauwerksmangel: this.knotenFormGroup.value.shared?.bauwerksmangel?.vorhanden ?? null,
+      bauwerksmangelArt: this.knotenFormGroup.value.shared?.bauwerksmangel?.bauwerksmangelArt ?? null,
     };
 
     this.isFetching = true;
@@ -146,10 +174,7 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
       .saveKnoten(command)
       .then(savedKnoten => {
         this.currentKnoten = savedKnoten;
-        this.knotenFormGroup.reset({
-          ...savedKnoten,
-          landkreis: savedKnoten?.landkreis?.name || null,
-        });
+        this.resetForm(savedKnoten);
         this.notifyUserService.inform('Knoten wurde erfolgreich gespeichert.');
       })
       .finally(() => {
@@ -160,27 +185,7 @@ export class KnotenAttributeEditorComponent implements DiscardableComponent, OnI
 
   private enableForm(): void {
     this.knotenFormGroup.enable({ emitEvent: false });
-    this.knotenFormGroup.get('landkreis')?.disable({ emitEvent: false });
-    this.knotenFormGroup.get('ortslage')?.disable({ emitEvent: false });
-  }
-
-  private addGemeindeValueChangeSubscriptionForLandkreis(): void {
-    this.subscriptions.push(
-      (this.knotenFormGroup.get('gemeinde') as UntypedFormControl).valueChanges.subscribe(value => {
-        const gemeinde = value as Verwaltungseinheit;
-        if (gemeinde && gemeinde.idUebergeordneteOrganisation) {
-          this.organisationenService
-            .getOrganisation(gemeinde.idUebergeordneteOrganisation)
-            .then(uebergoerdneteOrganisation => {
-              this.knotenFormGroup.get('landkreis')?.setValue(uebergoerdneteOrganisation.name);
-              this.changeDetectorRef.markForCheck();
-            })
-            .catch(error => this.errorHandlingService.handleError(error, 'Landkreis konnte nicht geladen werden.'));
-        } else {
-          this.knotenFormGroup.get('landkreis')?.setValue(null);
-          this.changeDetectorRef.markForCheck();
-        }
-      })
-    );
+    this.knotenFormGroup.controls.landkreis.disable({ emitEvent: false });
+    this.knotenFormGroup.controls.ortslage.disable({ emitEvent: false });
   }
 }

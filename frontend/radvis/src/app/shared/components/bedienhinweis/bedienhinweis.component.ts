@@ -22,6 +22,7 @@ import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.serv
   templateUrl: './bedienhinweis.component.html',
   styleUrls: ['./bedienhinweis.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class BedienhinweisComponent implements OnDestroy {
   bedienhinweis$: Observable<string | null>;

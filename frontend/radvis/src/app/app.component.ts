@@ -12,13 +12,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, IsActiveMatchOptions, NavigationError, Params, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { AdministrationRoutingService } from 'src/app/administration/services/administration-routing.service';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
 import { ImportRoutes } from 'src/app/import/models/import-routes';
 import { MapQueryParamsService } from 'src/app/karte/services/map-query-params.service';
@@ -39,6 +37,7 @@ import { InfoComponent } from './info/info.component';
   selector: 'rad-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  standalone: false,
 })
 export class AppComponent {
   @ViewChild('viewerLink')
@@ -49,15 +48,11 @@ export class AppComponent {
   public editorRoute = EditorRoutingService.EDITOR_ROUTE;
   public importRoute = ImportRoutes.IMPORT_ROUTE;
 
-  public administrationBenutzerRoute = AdministrationRoutingService.ADMINISTRATION_BENUTZER_ROUTE;
-  public administrationOrganisationRoute = AdministrationRoutingService.ADMINISTRATION_ORGANISATION_ROUTE;
   public auswertungRoute = 'auswertung';
   public viewerQueryParams$: Observable<Params>;
 
   public isBenutzerRegistriert?: boolean;
   public isBenutzerAktiv?: boolean;
-  public isBenutzerOrgaUndNutzerVerwalter: boolean;
-  public canBenutzerEditBereicheOfOrganisation: boolean;
   public isBenutzerRadNETZQualitaetsSicherIn: boolean;
   public benutzerName?: string;
   public benutzerVorname?: string;
@@ -78,7 +73,6 @@ export class AppComponent {
     mapQueryParamsService: MapQueryParamsService,
     ladeZustandService: LadeZustandService,
     private benutzerDetailsService: BenutzerDetailsService,
-    private http: HttpClient,
     private dialog: MatDialog,
     private manualRoutingService: ManualRoutingService,
     private featureTogglzService: FeatureTogglzService,
@@ -98,9 +92,6 @@ export class AppComponent {
     this.ladend$ = ladeZustandService.isLoading$;
     this.isBenutzerRegistriert = this.benutzerDetailsService.istAktuellerBenutzerRegistriert();
     this.isBenutzerAktiv = this.benutzerDetailsService.istAktuellerBenutzerAktiv();
-    this.isBenutzerOrgaUndNutzerVerwalter = this.benutzerDetailsService.istAktuellerBenutzerOrgaUndNutzerVerwalter();
-    this.canBenutzerEditBereicheOfOrganisation =
-      this.benutzerDetailsService.canEditZustaendigkeitsBereichOfOrganisation();
     this.isBenutzerRadNETZQualitaetsSicherIn =
       this.benutzerDetailsService.istAktuellerBenutzerRadNETZQualitaetsSicherInOrAdmin();
     this.benutzerName = benutzerDetailsService.aktuellerBenutzerNachname();
@@ -110,8 +101,8 @@ export class AppComponent {
     this.hasBenutzerImportRecht = benutzerDetailsService.canBenutzerImport();
     router.events.pipe(filter(e => e instanceof NavigationError)).subscribe(e => {
       errorHandlingService.handleError(
-        (e as NavigationError).error,
-        'Aufgerufene Route konnte nicht geöffnet werden: ' + (e as NavigationError).url.split('?')[0]
+        e.error,
+        'Aufgerufene Route konnte nicht geöffnet werden: ' + e.url.split('?')[0]
       );
       this.router.navigateByUrl('/').then();
     });
@@ -120,10 +111,6 @@ export class AppComponent {
   @HostListener('document:keydown.control.alt.shift.n')
   onShortcut(): void {
     this.viewerLink?.nativeElement.focus();
-  }
-
-  get isOrganisationenBearbeitenToggleOn(): boolean {
-    return this.featureTogglzService.isToggledOn(FeatureTogglzService.TOGGLZ_ORGANISATIONEN_ERSTELLEN_UND_BEARBEITEN);
   }
 
   get isVordefinierteExporteToggleOn(): boolean {

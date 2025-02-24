@@ -28,6 +28,7 @@ import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.se
   templateUrl: './massnahme-umsetzungsstand-button-menu.component.html',
   styleUrls: ['./massnahme-umsetzungsstand-button-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmeUmsetzungsstandButtonMenuComponent {
   @Input()

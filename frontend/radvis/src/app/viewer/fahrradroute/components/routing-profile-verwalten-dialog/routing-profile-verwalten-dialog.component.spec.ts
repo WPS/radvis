@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { ChangeDetectorRef } from '@angular/core';
 import { fakeAsync, flush, tick } from '@angular/core/testing';
 import { UntypedFormBuilder } from '@angular/forms';

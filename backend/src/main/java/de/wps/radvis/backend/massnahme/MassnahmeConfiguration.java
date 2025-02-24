@@ -33,8 +33,8 @@ import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
-import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeNetzbezugAenderungProtokollierungsService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeRueckstufungStornierungService;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
@@ -132,7 +132,7 @@ public class MassnahmeConfiguration {
 	private NetzService netzService;
 
 	@Autowired
-	private FahrradrouteRepository fahrradrouteRepository;
+	private FahrradrouteFilterRepository fahrradrouteFilterRepository;
 
 	@Autowired
 	private MassnahmenConfigurationProperties massnahmenConfigurationProperties;
@@ -173,7 +173,8 @@ public class MassnahmeConfiguration {
 	public MassnahmeService massnahmeService() {
 		return new MassnahmeService(massnahmeRepository, massnahmeListRepository,
 			massnahmeUmsetzungsstandViewRepository, umsetzungsstandRepository, kantenRepository,
-			massnahmeNetzbezugAenderungProtokollierungsService(), benutzerService, fahrradrouteRepository, netzService,
+			massnahmeNetzbezugAenderungProtokollierungsService(), benutzerService, fahrradrouteFilterRepository,
+			netzService,
 			massnahmenConfigurationProperties.getDistanzZuFahrradrouteInMetern(),
 			commonConfigurationProperties.getErlaubteAbweichungFuerKantenNetzbezugRematch());
 	}

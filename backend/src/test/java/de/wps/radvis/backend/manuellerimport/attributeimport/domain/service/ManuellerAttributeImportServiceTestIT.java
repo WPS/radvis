@@ -29,10 +29,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.wps.radvis.backend.barriere.BarriereConfiguration;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
@@ -45,7 +44,6 @@ import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
@@ -71,7 +69,7 @@ import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
+import de.wps.radvis.backend.netzfehler.domain.NetzfehlerRepository;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
@@ -89,7 +87,8 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	OrganisationConfiguration.class,
 	BenutzerConfiguration.class,
 	MatchingConfiguration.class,
-	NetzfehlerConfiguration.class, KommentarConfiguration.class,
+
+	KommentarConfiguration.class,
 	ManuellerImportCommonConfiguration.class,
 	AttributeImportConfiguration.class,
 	KonsistenzregelPruefungsConfiguration.class,
@@ -107,13 +106,12 @@ import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProper
 	OsmPbfConfigurationProperties.class,
 	KonsistenzregelnConfigurationProperties.class,
 	OrganisationConfigurationProperties.class,
-	NetzConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
+	NetzConfigurationProperties.class,
 })
 @ActiveProfiles("test")
 class ManuellerAttributeImportServiceTestIT extends DBIntegrationTestIT {
+	@MockitoBean
+	private NetzfehlerRepository netzfehlerRepository;
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
 	@Autowired

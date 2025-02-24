@@ -14,19 +14,16 @@
 
 package de.wps.radvis.backend.netz.domain.entity;
 
-import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
-
 import java.util.Optional;
+import java.util.Set;
 
-import org.hibernate.envers.Audited;
-
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 
@@ -34,24 +31,31 @@ import lombok.EqualsAndHashCode;
 @Builder
 public class KnotenAttribute {
 
-	private Kommentar kommentar;
+	private final Kommentar kommentar;
 
-	private Zustandsbeschreibung zustandsbeschreibung;
+	private final Zustandsbeschreibung zustandsbeschreibung;
 
-	@Enumerated(EnumType.STRING)
-	private KnotenForm knotenForm;
+	private final KnotenForm knotenForm;
 
-	@ManyToOne
-	@Audited(targetAuditMode = NOT_AUDITED)
-	private Verwaltungseinheit gemeinde;
+	private final Verwaltungseinheit gemeinde;
+
+	private final QuerungshilfeDetails querungshilfeDetails;
+
+	private final Bauwerksmangel bauwerksmangel;
+
+	private final Set<BauwerksmangelArt> bauwerksmangelArt;
 
 	public KnotenAttribute(Kommentar kommentar,
 		Zustandsbeschreibung zustandsbeschreibung, KnotenForm knotenForm,
-		Verwaltungseinheit gemeinde) {
+		Verwaltungseinheit gemeinde, QuerungshilfeDetails querungshilfeDetails,
+		Bauwerksmangel bauwerksmangel, Set<BauwerksmangelArt> bauwerksmangelArt) {
 		this.kommentar = kommentar;
 		this.zustandsbeschreibung = zustandsbeschreibung;
 		this.knotenForm = knotenForm;
 		this.gemeinde = gemeinde;
+		this.querungshilfeDetails = querungshilfeDetails;
+		this.bauwerksmangel = bauwerksmangel;
+		this.bauwerksmangelArt = bauwerksmangelArt;
 	}
 
 	public Optional<Kommentar> getKommentar() {
@@ -68,6 +72,21 @@ public class KnotenAttribute {
 
 	public Optional<Verwaltungseinheit> getGemeinde() {
 		return Optional.ofNullable(gemeinde);
+	}
+
+	public Optional<QuerungshilfeDetails> getQuerungshilfeDetails() {
+		return Optional.ofNullable(querungshilfeDetails);
+	}
+
+	public Optional<Bauwerksmangel> getBauwerksmangel() {
+		return Optional.ofNullable(bauwerksmangel);
+	}
+
+	public Optional<Set<BauwerksmangelArt>> getBauwerksmangelArt() {
+		if (bauwerksmangelArt == null || bauwerksmangelArt.isEmpty()) {
+			return Optional.empty();
+		}
+		return Optional.of(bauwerksmangelArt);
 	}
 
 	public boolean istLeer() {

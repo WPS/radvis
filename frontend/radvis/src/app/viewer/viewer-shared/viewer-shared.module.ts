@@ -18,7 +18,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { BenachrichtigungButtonComponent } from 'src/app/viewer/viewer-shared/components/benachrichtigung-button/benachrichtigung-button.component';
 import { DetailFeatureTableComponent } from 'src/app/viewer/viewer-shared/components/detail-feauture-table/detail-feature-table.component';
+import { ErweiterterFilterButtonComponent } from 'src/app/viewer/viewer-shared/components/erweiterter-filter-button/erweiterter-filter-button.component';
+import { ErweiterterFilterDialogLayoutComponent } from 'src/app/viewer/viewer-shared/components/erweiterter-filter-dialog-layout/erweiterter-filter-dialog-layout.component';
 import { ExportButtonComponent } from 'src/app/viewer/viewer-shared/components/export-button/export-button.component';
+import { FahrradrouteFilterAuswahlControlComponent } from 'src/app/viewer/viewer-shared/components/fahrradroute-filter-auswahl-control/fahrradroute-filter-auswahl-control.component';
+import { FahrradroutenDropdownControlComponent } from 'src/app/viewer/viewer-shared/components/fahrradrouten-dropdown-control/fahrradrouten-dropdown-control.component';
 import { InfrastrukturTabelleLayoutComponent } from 'src/app/viewer/viewer-shared/components/infrastruktur-tabelle-layout/infrastruktur-tabelle-layout.component';
 import { InfrastrukturTabelleSpalteComponent } from 'src/app/viewer/viewer-shared/components/infrastruktur-tabelle-spalte/infrastruktur-tabelle-spalte.component';
 import { OriginalGeometrieAnzeigenButtonComponent } from 'src/app/viewer/viewer-shared/components/original-geometrie-anzeigen-button/original-geometrie-anzeigen-button.component';
@@ -39,10 +43,13 @@ const exports = [
   DetailFeatureTableComponent,
   RightDetailsShortcutDirective,
   InfrastrukturTabelleSpalteComponent,
+  FahrradrouteFilterAuswahlControlComponent,
+  ErweiterterFilterButtonComponent,
+  ErweiterterFilterDialogLayoutComponent,
 ];
 
 @NgModule({
-  declarations: [...exports, CsvImportDialogComponent],
+  declarations: [...exports, CsvImportDialogComponent, FahrradroutenDropdownControlComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule],
   exports: [exports],
 })

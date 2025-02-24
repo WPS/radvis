@@ -25,96 +25,46 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import de.wps.radvis.backend.barriere.BarriereConfiguration;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
-import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
-import de.wps.radvis.backend.common.GeoConverterConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
-import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
-import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
-import de.wps.radvis.backend.common.domain.MailService;
-import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
-import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
 import de.wps.radvis.backend.fahrradroute.domain.dbView.FahrradrouteListenDbView;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.provider.FahrradrouteTestDataProvider;
 import de.wps.radvis.backend.fahrradroute.domain.valueObject.FahrradrouteName;
-import de.wps.radvis.backend.fahrradroute.schnittstelle.ToubizConfigurationProperties;
-import de.wps.radvis.backend.kommentar.KommentarConfiguration;
-import de.wps.radvis.backend.konsistenz.pruefung.KonsistenzregelPruefungsConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.KonsistenzregelnConfiguration;
-import de.wps.radvis.backend.konsistenz.regeln.domain.KonsistenzregelnConfigurationProperties;
-import de.wps.radvis.backend.matching.MatchingConfiguration;
-import de.wps.radvis.backend.matching.domain.GraphhopperDlmConfigurationProperties;
-import de.wps.radvis.backend.matching.domain.GraphhopperOsmConfigurationProperties;
 import de.wps.radvis.backend.netz.NetzConfiguration;
-import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.repository.KantenRepository;
-import de.wps.radvis.backend.netzfehler.NetzfehlerConfiguration;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
-import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
-import de.wps.radvis.backend.quellimport.grundnetz.domain.DLMConfigurationProperties;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Tag("group2")
-@ContextConfiguration(classes = {
-	FahrradrouteViewRepositoryTestIT.TestConfiguration.class,
-	FahrradrouteConfiguration.class,
-	OrganisationConfiguration.class,
-	NetzConfiguration.class,
-	BenutzerConfiguration.class,
-	CommonConfiguration.class,
-	GeoConverterConfiguration.class,
-	MatchingConfiguration.class,
-	NetzfehlerConfiguration.class, KommentarConfiguration.class,
-	KonsistenzregelPruefungsConfiguration.class,
-	KonsistenzregelnConfiguration.class,
-	BarriereConfiguration.class
-})
-@EnableConfigurationProperties(value = {
-	CommonConfigurationProperties.class,
-	FeatureToggleProperties.class,
-	TechnischerBenutzerConfigurationProperties.class,
-	PostgisConfigurationProperties.class,
-	JobConfigurationProperties.class,
-	GraphhopperOsmConfigurationProperties.class,
-	GraphhopperDlmConfigurationProperties.class,
-	DLMConfigurationProperties.class,
-	OsmPbfConfigurationProperties.class,
-	KonsistenzregelnConfigurationProperties.class,
-	OrganisationConfigurationProperties.class,
-	NetzConfigurationProperties.class
-})
-@MockBeans({
-	@MockBean(MailService.class),
-})
-@ActiveProfiles(profiles = "test")
+@EntityScan(basePackageClasses = { NetzConfiguration.class, FahrradrouteConfiguration.class,
+	OrganisationConfiguration.class, BenutzerConfiguration.class })
+@EnableEnversRepositories(basePackageClasses = { FahrradrouteConfiguration.class,
+	OrganisationConfiguration.class, BenutzerConfiguration.class, NetzConfiguration.class })
+@EnableConfigurationProperties({ FeatureToggleProperties.class })
+@ContextConfiguration(classes = { CommonConfiguration.class })
 class FahrradrouteViewRepositoryTestIT extends DBIntegrationTestIT {
-	@Configuration
-	public static class TestConfiguration {
-		@MockBean
-		ToubizConfigurationProperties toubizConfigurationProperties;
-	}
-
+	@MockitoBean
+	private CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
 	@Autowired
 	private FahrradrouteViewRepository fahrradrouteViewRepository;
 	@Autowired

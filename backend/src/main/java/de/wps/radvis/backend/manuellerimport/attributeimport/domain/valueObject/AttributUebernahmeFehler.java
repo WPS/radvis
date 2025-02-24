@@ -33,6 +33,10 @@ public class AttributUebernahmeFehler {
 
 	private final Seitenbezug seitenbezug;
 
+	public AttributUebernahmeFehler(String message, Set<String> nichtUerbenommeneWerte) {
+		this(message, nichtUerbenommeneWerte, LinearReferenzierterAbschnitt.of(0, 1));
+	}
+
 	public AttributUebernahmeFehler(String message, Set<String> nichtUerbenommeneWerte,
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
 		this(message, nichtUerbenommeneWerte, linearReferenzierterAbschnitt, Seitenbezug.BEIDSEITIG);

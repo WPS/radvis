@@ -41,11 +41,11 @@ public class SaveBarriereCommandConverter extends NetzbezugCommandConverter<Barr
 			createNetzbezug(command.getNetzbezug()),
 			verwaltungseinheitResolver.resolve(command.getVerantwortlicheOrganisation()),
 			command.getBarrierenForm(),
+			command.getBarriereFormDetails(),
 			command.getVerbleibendeDurchfahrtsbreite(),
 			command.getSicherung(),
 			command.getMarkierung(),
-			command.getBegruendung()
-		);
+			command.getBegruendung());
 	}
 
 	public void apply(Barriere barriere, SaveBarriereCommand command) {
@@ -53,11 +53,11 @@ public class SaveBarriereCommandConverter extends NetzbezugCommandConverter<Barr
 			createNetzbezug(command.getNetzbezug()),
 			verwaltungseinheitResolver.resolve(command.getVerantwortlicheOrganisation()),
 			command.getBarrierenForm(),
+			command.getBarriereFormDetails(),
 			command.getVerbleibendeDurchfahrtsbreite(),
 			command.getSicherung(),
 			command.getMarkierung(),
-			command.getBegruendung()
-		);
+			command.getBegruendung());
 	}
 
 	@Override

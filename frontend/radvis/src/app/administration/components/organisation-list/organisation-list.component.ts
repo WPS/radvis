@@ -38,6 +38,7 @@ import { BenutzerDetailsService } from 'src/app/shared/services/benutzer-details
   templateUrl: './organisation-list.component.html',
   styleUrls: ['./organisation-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class OrganisationListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;

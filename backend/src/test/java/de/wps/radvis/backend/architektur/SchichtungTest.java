@@ -109,7 +109,8 @@ public class SchichtungTest {
 			.or(JavaClass.Predicates.simpleNameContaining("RepositoryImpl"))
 			.or(JavaClass.Predicates.simpleNameContaining("RepositoryFactory"))
 			.or(JavaClass.Predicates.resideInAPackage("..repository.."))
-			.or(JavaClass.Predicates.resideInAPackage("..repositoryImpl..")))
+			.or(JavaClass.Predicates.resideInAPackage("..repositoryImpl.."))
+			.or(JavaClass.Predicates.simpleName("OsmWayReader")))
 		.layer("entity")
 		.definedBy(JavaClass.Predicates.resideInAPackage("..entity..")
 			.or(simpleNameIncludingGeneratedInnerClasses("BenutzerBasicAuthenticationToken"))
@@ -190,7 +191,8 @@ public class SchichtungTest {
 	@ArchTest
 	public static final ArchRule TECHNISCHE_SCHICHTUNG = Architectures.layeredArchitecture()
 		.consideringAllDependencies()
-		.layer("schnittstelle").definedBy("..schnittstelle..")
+		.layer("schnittstelle").definedBy(JavaClass.Predicates.resideInAPackage("..schnittstelle..")
+			.or(JavaClass.Predicates.simpleName("OsmWayReader")))
 		.layer("domain").definedBy("..domain..")
 		.layer("configuration").definedBy(simpleNameEndingWithIncludingGeneratedInnerClasses("Configuration"))
 		.whereLayer("domain").mayOnlyBeAccessedByLayers("schnittstelle", "configuration")
@@ -198,7 +200,8 @@ public class SchichtungTest {
 		// TODO: Der Job liegt in domain und darf somit nicht auf den Converter in Schnittstelle zugreifen
 		.ignoreDependency(AbstellanlageBRImportJob.class, CoordinateReferenceSystemConverter.class)
 		.ignoreDependency(FahrradzaehlstellenMobiDataImportJob.class, CoordinateReferenceSystemConverter.class)
-		// Zu Debug-Zwecken gibt es diese Abhängigkeit, weswegen das eine Ausnahme ist und nicht über eine allgemeine Regel erlaubt wird.
+		// Zu Debug-Zwecken gibt es diese Abhängigkeit, weswegen das eine Ausnahme ist und nicht über eine allgemeine
+		// Regel erlaubt wird.
 		.ignoreDependency(AttributlueckenSchliessenJob.class, GeoPackageExportConverter.class);
 
 	@ArchTest
@@ -231,7 +234,7 @@ public class SchichtungTest {
 		.layer("FurtKreuzung").definedBy("..furtKreuzung..")
 		.layer("Fahrradroute").definedBy("..fahrradroute..")
 		.layer("WegweisendeBeschilderung").definedBy("..wegweisendeBeschilderung..")
-		.layer("Matching").definedBy("..matching..")
+		.layer("Matching").definedBy("..matching..", "OsmWayReader")
 		.layer("Netz").definedBy("..netz..")
 		.layer("Netzfehler").definedBy("..netzfehler..")
 		.layer("ImportGrundnetz").definedBy("..quellimport.grundnetz..")
@@ -347,7 +350,7 @@ public class SchichtungTest {
 		.whereLayer("IntegrationOsm")
 		.mayOnlyBeAccessedByLayers("Application", "AbfrageNetzausschnitt", "ManuellerImportCommon")
 		.whereLayer("Fahrradroute")
-		.mayOnlyBeAccessedByLayers("Application", "AbfrageExport", "AbfrageFehlerprotokoll", "Massnahme")
+		.mayOnlyBeAccessedByLayers("Application", "AbfrageExport", "AbfrageFehlerprotokoll")
 		.whereLayer("Common").mayNotAccessAnyLayer() // right?
 		.whereLayer("BasicAuthentication").mayOnlyBeAccessedByLayers("Application")
 		.whereLayer("Authentication").mayOnlyBeAccessedByLayers("Application", "Auditing", "Benutzer")

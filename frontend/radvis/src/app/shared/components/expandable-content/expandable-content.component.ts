@@ -19,6 +19,7 @@ import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
   templateUrl: './expandable-content.component.html',
   styleUrls: ['./expandable-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ExpandableContentComponent {
   private static readonly MAX_ARRAY_ELEMENTS = 3;

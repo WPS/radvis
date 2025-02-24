@@ -14,8 +14,11 @@
 
 package de.wps.radvis.backend.barriere.schnittstelle.view;
 
+import java.util.Optional;
+
 import de.wps.radvis.backend.barriere.domain.entity.Barriere;
 import de.wps.radvis.backend.barriere.domain.valueObject.BarriereBegruendung;
+import de.wps.radvis.backend.barriere.domain.valueObject.BarriereFormDetails;
 import de.wps.radvis.backend.barriere.domain.valueObject.BarrierenForm;
 import de.wps.radvis.backend.barriere.domain.valueObject.Markierung;
 import de.wps.radvis.backend.barriere.domain.valueObject.Sicherung;
@@ -31,10 +34,11 @@ public class BarriereEditView {
 	private final NetzbezugView netzbezug;
 
 	private final BarrierenForm barrierenForm;
-	private final VerbleibendeDurchfahrtsbreite verbleibendeDurchfahrtsbreite;
-	private final Sicherung sicherung;
-	private final Markierung markierung;
-	private final BarriereBegruendung begruendung;
+	private final Optional<BarriereFormDetails> barriereFormDetails;
+	private final Optional<VerbleibendeDurchfahrtsbreite> verbleibendeDurchfahrtsbreite;
+	private final Optional<Sicherung> sicherung;
+	private final Optional<Markierung> markierung;
+	private final Optional<BarriereBegruendung> begruendung;
 	private final boolean darfBenutzerBearbeiten;
 
 	public BarriereEditView(Barriere barriere, boolean darfBenutzerBearbeiten) {
@@ -42,10 +46,11 @@ public class BarriereEditView {
 		this.netzbezug = new NetzbezugView(barriere.getNetzbezug());
 		this.version = barriere.getVersion();
 		this.barrierenForm = barriere.getBarrierenForm();
-		this.verbleibendeDurchfahrtsbreite = barriere.getVerbleibendeDurchfahrtsbreite().orElse(null);
-		this.sicherung = barriere.getSicherung().orElse(null);
-		this.markierung = barriere.getMarkierung().orElse(null);
-		this.begruendung = barriere.getBegruendung().orElse(null);
+		this.verbleibendeDurchfahrtsbreite = barriere.getVerbleibendeDurchfahrtsbreite();
+		this.sicherung = barriere.getSicherung();
+		this.markierung = barriere.getMarkierung();
+		this.begruendung = barriere.getBegruendung();
 		this.darfBenutzerBearbeiten = darfBenutzerBearbeiten;
+		this.barriereFormDetails = barriere.getBarriereFormDetails();
 	}
 }

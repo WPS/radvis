@@ -43,11 +43,10 @@
     Alle Filter zurücksetzen
   </button>
 
-  <div class="action-search">
-    <mat-checkbox class="mr-3" [formControl]="fertigeAnpassungswuenscheAusblendenControl"
-      >Abgeschlossene ausblenden
-    </mat-checkbox>
-  </div>
+  <rad-erweiterter-filter-button
+    class="action-search"
+    (openFilter)="onOpenErweiterterFilter()"
+    [active]="erweiterterFilterActive$ | async"></rad-erweiterter-filter-button>
 
   <rad-infrastruktur-tabelle-spalte
     *ngFor="let def of spaltenDefinition"

@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { fakeAsync, tick } from '@angular/core/testing';
 import { ValidationErrors } from '@angular/forms';
 import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
@@ -546,7 +545,7 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
       component['kanteIDs'] = [];
       component['coordinates'] = [];
       const errors = component.validate();
-      expect(Object.keys(errors as ValidationErrors).length).toBe(1);
+      expect(Object.keys(errors!).length).toBe(1);
     });
   });
 

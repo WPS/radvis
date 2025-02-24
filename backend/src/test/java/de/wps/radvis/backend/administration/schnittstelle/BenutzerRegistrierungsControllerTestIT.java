@@ -30,7 +30,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -86,13 +85,13 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		private CommonConfigurationProperties commonConfigurationProperties;
 		@Autowired
 		private BenutzerService benutzerService;
-		@MockBean
-		private MailService mailservice;
+		@Autowired
+		private MailService mailService;
 
 		@Bean
 		public BenutzerRegistrierungsController benutzerRegistrierungsController() {
 			MockitoAnnotations.openMocks(this);
-			return new BenutzerRegistrierungsController(commonConfigurationProperties, benutzerService, mailservice);
+			return new BenutzerRegistrierungsController(commonConfigurationProperties, benutzerService, mailService);
 		}
 	}
 
@@ -242,7 +241,8 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		String mailText = String.format(
 			"Der Benutzer 'Testus Testperson' wurde angelegt und wartet auf Freischaltung.\n" +
 				"Die Bearbeitung des Benutzers kann erfolgen unter " +
-				"http://localhost:8080/administration/benutzer/%s .", result.getId());
+				"http://localhost:8080/administration/benutzer/%s .",
+			result.getId());
 
 		verify(mailService).sendMail(List.of("kreiskoordinator@testRadvis.de"), "Neuer Benutzer wurde angelegt",
 			mailText);
@@ -316,7 +316,8 @@ class BenutzerRegistrierungsControllerTestIT extends DBIntegrationTestIT {
 		String mailText = String.format(
 			"Der Benutzer 'Testus Testperson' wurde angelegt und wartet auf Freischaltung.\n" +
 				"Die Bearbeitung des Benutzers kann erfolgen unter " +
-				"http://localhost:8080/administration/benutzer/%s .", result.getId());
+				"http://localhost:8080/administration/benutzer/%s .",
+			result.getId());
 
 		verify(mailService).sendMail(List.of("admin@testRadvis.de"), "Neuer Benutzer wurde angelegt",
 			mailText);

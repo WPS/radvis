@@ -28,6 +28,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './fahrradzaehlstelle-tool.component.html',
   styleUrls: ['./fahrradzaehlstelle-tool.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradzaehlstelleToolComponent implements OnDestroy {
   eigenschaftenRoute = './' + FahrradzaehlstelleRoutingService.EIGENSCHAFTEN;

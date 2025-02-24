@@ -27,6 +27,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './location-selection-layer.component.html',
   styleUrls: ['./location-selection-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LocationSelectionLayerComponent implements OnChanges, OnDestroy {
   @Input()

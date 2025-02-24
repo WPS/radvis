@@ -33,6 +33,7 @@ import { infrastrukturHighlightLayerZIndex } from 'src/app/shared/models/shared-
   templateUrl: './wegweisende-beschilderung-detail-view.component.html',
   styleUrls: ['./wegweisende-beschilderung-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WegweisendeBeschilderungDetailViewComponent implements OnDestroy {
   attributes$: Observable<Map<string, { [key: string]: string | NetzDetailFeatureTableLink }>>;

@@ -21,6 +21,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './simple-legende-anzeige.component.html',
   styleUrls: ['./simple-legende-anzeige.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SimpleLegendeAnzeigeComponent implements OnInit {
   @Input()

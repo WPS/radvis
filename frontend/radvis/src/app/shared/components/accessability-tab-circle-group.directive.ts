@@ -16,6 +16,7 @@ import { AfterViewInit, Directive, ElementRef } from '@angular/core';
 
 @Directive({
   selector: '[radAccessabilityTabCircleGroup]',
+  standalone: false,
 })
 export class AccessabilityTabCircleGroupDirective implements AfterViewInit {
   private elementToHandlerMap: Map<any, (event: KeyboardEvent) => void> = new Map();
@@ -31,7 +32,7 @@ export class AccessabilityTabCircleGroupDirective implements AfterViewInit {
     const elements: any[] = Array.from(hostElement.querySelectorAll('[radAccessabilityTabCircleElement]'));
     elements.forEach((element, index) => {
       const handleKeydown = (event: KeyboardEvent): void => {
-        if ((event as KeyboardEvent).key !== 'Tab') {
+        if (event.key !== 'Tab') {
           return;
         }
         let nextElement: any;

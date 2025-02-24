@@ -13,7 +13,7 @@
  */
 
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { ErrorHandler, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AdministrationModule } from 'src/app/administration/administration.module';
 import { AuswertungModule } from 'src/app/auswertung/auswertung.module';
@@ -38,29 +38,6 @@ import { WeitereKartenebenenService } from 'src/app/viewer/weitere-kartenebenen/
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { InfoModule } from './info/info.module';
-
-const initBenutzerDetails = (benutzerDetailsService: BenutzerDetailsService) => (): Promise<any> =>
-  benutzerDetailsService.fetchBenutzerDetails();
-
-const initFeatureTogglz = (featureTogglzService: FeatureTogglzService) => (): Promise<any> =>
-  featureTogglzService.fetchTogglz();
-
-const initWeitereKartenebenen = (weitereKartenebenenService: WeitereKartenebenenService) => (): Promise<any> =>
-  weitereKartenebenenService.initWeitereKartenebenen();
-
-const initCustomRoutingProfiles = (routingProfileService: RoutingProfileService) => (): Promise<any> =>
-  routingProfileService.initCustomRoutingProfiles();
-
-const initVordefinierteLayer = (vordefinierteLayerService: VordefinierteLayerService) => (): Promise<any> =>
-  vordefinierteLayerService.initPredefinedLayer();
-
-const initHintergrundLayers = (hintergrundLayerService: HintergrundLayerService) => (): Promise<any> =>
-  hintergrundLayerService.initLayers();
-
-const initSignaturen = (signaturService: SignaturService) => (): Promise<any> => signaturService.initSignaturen();
-
-const initFehlerprotokollTypen = (fehlerprotokollService: FehlerprotokollService) => (): Promise<any> =>
-  fehlerprotokollService.initFehlerprotokollTypen();
 
 // Bitte dran denken: Alle APP_INITIALIZER-Endpunkte müssen im Backend in SecurityConfiguration.internalApiFilterChain()
 // als "authenticated" hinzugefügt werden, sonst funktioniert die Anmeldung mit nicht registrierten Benutzern nicht!
@@ -93,54 +70,14 @@ const initFehlerprotokollTypen = (fehlerprotokollService: FehlerprotokollService
       provide: ErrorHandler,
       useClass: GlobalErrorHandler,
     },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initBenutzerDetails,
-      deps: [BenutzerDetailsService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initVordefinierteLayer,
-      deps: [VordefinierteLayerService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initHintergrundLayers,
-      deps: [HintergrundLayerService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initFehlerprotokollTypen,
-      deps: [FehlerprotokollService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initFeatureTogglz,
-      deps: [FeatureTogglzService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initWeitereKartenebenen,
-      deps: [WeitereKartenebenenService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initCustomRoutingProfiles,
-      deps: [RoutingProfileService],
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: initSignaturen,
-      deps: [SignaturService],
-    },
+    provideAppInitializer(() => inject(BenutzerDetailsService).fetchBenutzerDetails()),
+    provideAppInitializer(() => inject(VordefinierteLayerService).initPredefinedLayer()),
+    provideAppInitializer(() => inject(HintergrundLayerService).initLayers()),
+    provideAppInitializer(() => inject(FehlerprotokollService).initFehlerprotokollTypen()),
+    provideAppInitializer(() => inject(FeatureTogglzService).fetchTogglz()),
+    provideAppInitializer(() => inject(WeitereKartenebenenService).initWeitereKartenebenen()),
+    provideAppInitializer(() => inject(RoutingProfileService).initCustomRoutingProfiles()),
+    provideAppInitializer(() => inject(SignaturService).initSignaturen()),
   ],
 })
 export class AppModule {}

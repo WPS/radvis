@@ -25,6 +25,7 @@ import invariant from 'tiny-invariant';
   selector: 'rad-massnahme-netzbezug-snapshot-layer',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmeNetzbezugSnapshotLayerComponent implements OnDestroy, OnChanges {
   @Input()

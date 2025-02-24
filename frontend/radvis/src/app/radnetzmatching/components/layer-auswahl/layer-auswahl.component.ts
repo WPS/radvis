@@ -31,6 +31,7 @@ import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
   templateUrl: './layer-auswahl.component.html',
   styleUrls: ['./layer-auswahl.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class LayerAuswahlComponent implements OnChanges, OnInit {
   @Input()

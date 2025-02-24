@@ -34,6 +34,7 @@ import { MenuEventService } from 'src/app/shared/services/menu-event.service';
   styleUrls: ['./karte-menu-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: MenuEventService, useExisting: forwardRef(() => KarteMenuItemComponent) }],
+  standalone: false,
 })
 export class KarteMenuItemComponent implements MenuEventService {
   @Input() icon = '';

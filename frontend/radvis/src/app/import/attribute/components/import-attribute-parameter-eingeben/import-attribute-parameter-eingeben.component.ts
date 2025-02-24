@@ -27,6 +27,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './import-attribute-parameter-eingeben.component.html',
   styleUrls: ['./import-attribute-parameter-eingeben.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportAttributeParameterEingebenComponent {
   private static readonly STEP = 2;

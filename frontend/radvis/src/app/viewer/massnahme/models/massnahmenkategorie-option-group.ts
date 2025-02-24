@@ -14,16 +14,16 @@
 
 import { EnumOption } from 'src/app/form-elements/models/enum-option';
 
-export type MassnahmenkategorieOptionGroup = {
+export interface MassnahmenkategorieOptionGroup {
   name: string;
   displayText: string;
   options: MassnahmenkategorieGruppe[];
-};
+}
 
-export type MassnahmenkategorieGruppe = {
+export interface MassnahmenkategorieGruppe {
   name: string;
   displayText: string;
   hidden?: boolean;
   options: EnumOption[];
   gewichtung: number;
-};
+}

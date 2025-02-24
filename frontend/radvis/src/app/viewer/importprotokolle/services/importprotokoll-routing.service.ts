@@ -34,11 +34,11 @@ export class ImportprotokollRoutingService extends AbstractInfrastrukturenRoutin
   }
 
   // prettier kann nicht mit overrides um
-  // eslint-disable-next-line prettier/prettier
+
   public override getIdFromRoute(): number | null {
     const match = new RegExp(`${this.infrastrukturArt.pathElement}/[A-Z_]+/(\\d+)($|/|\\?)`).exec(this.router.url);
 
-    if (!match || !match[1] || isNaN(Number(match[1]))) {
+    if (!match?.[1] || isNaN(Number(match[1]))) {
       return null;
     }
     return Number(match[1]);

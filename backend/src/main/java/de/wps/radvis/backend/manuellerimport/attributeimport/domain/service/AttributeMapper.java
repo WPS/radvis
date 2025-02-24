@@ -33,14 +33,17 @@ import de.wps.radvis.backend.manuellerimport.attributeimport.domain.valueObject.
 import de.wps.radvis.backend.netz.domain.entity.FahrtrichtungAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute;
+import de.wps.radvis.backend.netz.domain.entity.FuehrungsformAttribute.FuehrungsformAttributeBuilder;
 import de.wps.radvis.backend.netz.domain.entity.GeschwindigkeitAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KantenAttributGruppe;
 import de.wps.radvis.backend.netz.domain.entity.LinearReferenzierteAttribute;
 import de.wps.radvis.backend.netz.domain.entity.ZustaendigkeitAttribute;
+import de.wps.radvis.backend.netz.domain.valueObject.Absenkung;
 import de.wps.radvis.backend.netz.domain.valueObject.BelagArt;
 import de.wps.radvis.backend.netz.domain.valueObject.Beleuchtung;
 import de.wps.radvis.backend.netz.domain.valueObject.Benutzungspflicht;
+import de.wps.radvis.backend.netz.domain.valueObject.Beschilderung;
 import de.wps.radvis.backend.netz.domain.valueObject.Bordstein;
 import de.wps.radvis.backend.netz.domain.valueObject.Hoechstgeschwindigkeit;
 import de.wps.radvis.backend.netz.domain.valueObject.IstStandard;
@@ -52,6 +55,7 @@ import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.Oberflaechenbeschaffenheit;
 import de.wps.radvis.backend.netz.domain.valueObject.Radverkehrsfuehrung;
 import de.wps.radvis.backend.netz.domain.valueObject.Richtung;
+import de.wps.radvis.backend.netz.domain.valueObject.Schadenart;
 import de.wps.radvis.backend.netz.domain.valueObject.Status;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenName;
 import de.wps.radvis.backend.netz.domain.valueObject.StrassenNummer;
@@ -66,6 +70,11 @@ import de.wps.radvis.backend.netz.domain.valueObject.WegeNiveau;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 
 abstract public class AttributeMapper {
+
+	private static final String RADVERKEHRSFUEHRUNG_BESCHILDERUNG_KONFLIKT_BESCHREIBUNG = "Beschilderung und Radverkehrsführung passen nicht zusammen. "
+		+ "Beschilderung wurde auf " + Beschilderung.UNBEKANNT.name()
+		+ " gesetzt, Radverkehrsführung wurde übernommen. "
+		+ "Wenn Sie beide Attribute zugleich importieren, wurde die Beschilderung im weiteren Verlaub auf den neuen, validen Wert gesetzt.";
 
 	public abstract void applyEinfach(String attribut, String attributwert, Kante kante)
 		throws AttributUebernahmeException;
@@ -94,6 +103,17 @@ abstract public class AttributeMapper {
 	public abstract boolean isAttributNameValid(String attributName);
 
 	public abstract boolean isAttributWertValid(String attributName, String attributWert);
+
+	/**
+	 * Importreihenfolge festlegen, falls reihenfolge-abhängige Attribute existieren
+	 * 
+	 * @param attribut1
+	 * @param attribut2
+	 * @return
+	 */
+	public int sortAttribute(String attribut1, String attribut2) {
+		return 0;
+	}
 
 	public String getImportGruppe(String attrName) {
 		return attrName;
@@ -240,6 +260,38 @@ abstract public class AttributeMapper {
 			attribute -> attribute.toBuilder().breite(breite).build());
 	}
 
+	protected void applySchaeden(LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante,
+		Set<Schadenart> schaeden) {
+		applyFuehrungsformAttributgruppeLinearReferenziert(kante, linearReferenzierterAbschnitt,
+			attribute -> attribute.toBuilder().schaeden(schaeden).build());
+	}
+
+	protected void applyAbsenkung(LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante,
+		Absenkung absenkung) {
+		applyFuehrungsformAttributgruppeLinearReferenziert(kante, linearReferenzierterAbschnitt,
+			attribute -> attribute.toBuilder().absenkung(absenkung).build());
+	}
+
+	protected void applyBeschilderung(LinearReferenzierterAbschnitt linearReferenzierterAbschnitt, Kante kante,
+		Beschilderung beschilderung) throws AttributUebernahmeException {
+		List<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
+		applyFuehrungsformAttributgruppeLinearReferenziert(kante, linearReferenzierterAbschnitt,
+			attribute -> {
+				if (beschilderung.isValidForRadverkehrsfuehrung(attribute.getRadverkehrsfuehrung())) {
+					return attribute.toBuilder().beschilderung(beschilderung).build();
+				} else {
+					attributUebernahmeFehler.add(new AttributUebernahmeFehler(
+						"Gewählte Beschilderung passt nicht zu Radverkehrsführung: nur für Betriebswege erlaubt",
+						Set.of(beschilderung.name()), linearReferenzierterAbschnitt));
+					return attribute;
+				}
+			});
+
+		if (!attributUebernahmeFehler.isEmpty()) {
+			throw new AttributUebernahmeException(attributUebernahmeFehler);
+		}
+	}
+
 	protected void applyRadverkehrsfuehrung(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
 		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) throws AttributUebernahmeException {
 		ArrayList<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
@@ -249,11 +301,18 @@ abstract public class AttributeMapper {
 				boolean trennstreifenAreCorrect = verifyTrennstreifenCorrectness(kante, radverkehrsfuehrung,
 					linearReferenzierterAbschnitt, attribute, attributUebernahmeFehler);
 
-				if (trennstreifenAreCorrect) {
-					attribute = attribute.toBuilder().radverkehrsfuehrung(radverkehrsfuehrung).build();
+				if (!trennstreifenAreCorrect) {
+					return attribute;
 				}
 
-				return attribute;
+				FuehrungsformAttributeBuilder builder = attribute.toBuilder();
+				if (!attribute.getBeschilderung().isValidForRadverkehrsfuehrung(radverkehrsfuehrung)) {
+					builder.beschilderung(Beschilderung.UNBEKANNT);
+					attributUebernahmeFehler
+						.add(new AttributUebernahmeFehler(RADVERKEHRSFUEHRUNG_BESCHILDERUNG_KONFLIKT_BESCHREIBUNG,
+							Set.of(attribute.getBeschilderung().name()), linearReferenzierterAbschnitt));
+				}
+				return builder.radverkehrsfuehrung(radverkehrsfuehrung).build();
 			});
 
 		if (!attributUebernahmeFehler.isEmpty()) {
@@ -309,18 +368,34 @@ abstract public class AttributeMapper {
 	protected void applyRadverkehrsfuehrungUndTrennstreifen(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
 		TrennstreifenForm trennstreifenFormLinks, Laenge trennstreifenBreiteLinks, TrennungZu trennungZuLinks,
 		TrennstreifenForm trennstreifenFormRechts, Laenge trennstreifenBreiteRechts, TrennungZu trennungZuRechts,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) throws AttributUebernahmeException {
+		ArrayList<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
+
 		applyFuehrungsformAttributgruppeLinearReferenziert(kante, linearReferenzierterAbschnitt,
-			attribute -> attribute.toBuilder()
-				.radverkehrsfuehrung(radverkehrsfuehrung)
-				.trennstreifenFormLinks(trennstreifenFormLinks)
-				.trennstreifenBreiteLinks(trennstreifenBreiteLinks)
-				.trennstreifenTrennungZuLinks(trennungZuLinks)
-				.trennstreifenFormRechts(trennstreifenFormRechts)
-				.trennstreifenBreiteRechts(trennstreifenBreiteRechts)
-				.trennstreifenTrennungZuRechts(trennungZuRechts)
-				.build()
-		);
+			attribute -> {
+
+				FuehrungsformAttributeBuilder builder = attribute.toBuilder();
+				if (!attribute.getBeschilderung().isValidForRadverkehrsfuehrung(radverkehrsfuehrung)) {
+					builder.beschilderung(Beschilderung.UNBEKANNT);
+					attributUebernahmeFehler
+						.add(new AttributUebernahmeFehler(RADVERKEHRSFUEHRUNG_BESCHILDERUNG_KONFLIKT_BESCHREIBUNG,
+							Set.of(attribute.getBeschilderung().name()), linearReferenzierterAbschnitt));
+				}
+
+				return builder
+					.radverkehrsfuehrung(radverkehrsfuehrung)
+					.trennstreifenFormLinks(trennstreifenFormLinks)
+					.trennstreifenBreiteLinks(trennstreifenBreiteLinks)
+					.trennstreifenTrennungZuLinks(trennungZuLinks)
+					.trennstreifenFormRechts(trennstreifenFormRechts)
+					.trennstreifenBreiteRechts(trennstreifenBreiteRechts)
+					.trennstreifenTrennungZuRechts(trennungZuRechts)
+					.build();
+			});
+
+		if (!attributUebernahmeFehler.isEmpty()) {
+			throw new AttributUebernahmeException(attributUebernahmeFehler);
+		}
 	}
 
 	protected void applyKfzParkenTyp(Kante kante, KfzParkenTyp kfzParkenTyp,
@@ -336,8 +411,7 @@ abstract public class AttributeMapper {
 	}
 
 	protected void applyBordstein(Kante kante, Bordstein bordstein,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt
-	) {
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
 		applyFuehrungsformAttributgruppeLinearReferenziert(kante, linearReferenzierterAbschnitt,
 			attribute -> attribute.toBuilder().bordstein(bordstein).build());
 	}
@@ -363,8 +437,7 @@ abstract public class AttributeMapper {
 				.trennstreifenFormLinks(trennstreifenForm)
 				.trennstreifenBreiteLinks(trennstreifenBreite)
 				.trennstreifenTrennungZuLinks(trennungZu)
-				.build()
-		);
+				.build());
 	}
 
 	protected void applyTrennstreifenInfoLinksUndRechts(Kante kante, TrennstreifenForm trennstreifenForm,
@@ -387,8 +460,7 @@ abstract public class AttributeMapper {
 				.trennstreifenFormLinks(trennstreifenForm)
 				.trennstreifenBreiteLinks(trennstreifenBreite)
 				.trennstreifenTrennungZuLinks(trennungZu)
-				.build()
-		);
+				.build());
 	}
 
 	protected void applyTrennstreifenInfoRechts(Kante kante, TrennstreifenForm trennstreifenForm,
@@ -401,8 +473,7 @@ abstract public class AttributeMapper {
 				.trennstreifenFormRechts(trennstreifenForm)
 				.trennstreifenBreiteRechts(trennstreifenBreite)
 				.trennstreifenTrennungZuRechts(trennungZu)
-				.build()
-		);
+				.build());
 	}
 
 	protected void applyTrennstreifenInfoRechts(Kante kante, TrennstreifenForm trennstreifenForm,
@@ -415,8 +486,7 @@ abstract public class AttributeMapper {
 				.trennstreifenFormRechts(trennstreifenForm)
 				.trennstreifenBreiteRechts(trennstreifenBreite)
 				.trennstreifenTrennungZuRechts(trennungZu)
-				.build()
-		);
+				.build());
 	}
 
 	private void applyFuehrungsformAttributgruppeLinearReferenziert(Kante kante,
@@ -457,32 +527,62 @@ abstract public class AttributeMapper {
 	}
 
 	protected void applyRadverkehrsfuehrung(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
-		Seitenbezug seitenbezug,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		Seitenbezug seitenbezug, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt)
+		throws AttributUebernahmeException {
 		require(!Seitenbezug.BEIDSEITIG.equals(seitenbezug));
+		ArrayList<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
 		applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(kante, seitenbezug,
 			linearReferenzierterAbschnitt,
-			attribute -> attribute.toBuilder().radverkehrsfuehrung(radverkehrsfuehrung).build());
+			attribute -> {
+				FuehrungsformAttributeBuilder builder = attribute.toBuilder();
+				if (!attribute.getBeschilderung().isValidForRadverkehrsfuehrung(radverkehrsfuehrung)) {
+					builder.beschilderung(Beschilderung.UNBEKANNT);
+					attributUebernahmeFehler
+						.add(new AttributUebernahmeFehler(RADVERKEHRSFUEHRUNG_BESCHILDERUNG_KONFLIKT_BESCHREIBUNG,
+							Set.of(attribute.getBeschilderung().name()), linearReferenzierterAbschnitt, seitenbezug));
+				}
+				return builder.radverkehrsfuehrung(radverkehrsfuehrung).build();
+			});
+
+		if (!attributUebernahmeFehler.isEmpty()) {
+			throw new AttributUebernahmeException(attributUebernahmeFehler);
+		}
 	}
 
 	protected void applyRadverkehrsfuehrungUndTrennstreifen(Kante kante, Radverkehrsfuehrung radverkehrsfuehrung,
 		TrennstreifenForm trennstreifenFormLinks, Laenge trennstreifenBreiteLinks, TrennungZu trennungZuLinks,
 		TrennstreifenForm trennstreifenFormRechts, Laenge trennstreifenBreiteRechts, TrennungZu trennungZuRechts,
-		Seitenbezug seitenbezug,
-		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		Seitenbezug seitenbezug, LinearReferenzierterAbschnitt linearReferenzierterAbschnitt)
+		throws AttributUebernahmeException {
 		require(!Seitenbezug.BEIDSEITIG.equals(seitenbezug));
+		ArrayList<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
+
 		applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(kante, seitenbezug,
 			linearReferenzierterAbschnitt,
-			attribute -> attribute.toBuilder()
-				.radverkehrsfuehrung(radverkehrsfuehrung)
-				.trennstreifenFormLinks(trennstreifenFormLinks)
-				.trennstreifenBreiteLinks(trennstreifenBreiteLinks)
-				.trennstreifenTrennungZuLinks(trennungZuLinks)
-				.trennstreifenFormRechts(trennstreifenFormRechts)
-				.trennstreifenBreiteRechts(trennstreifenBreiteRechts)
-				.trennstreifenTrennungZuRechts(trennungZuRechts)
-				.build()
-		);
+			attribute -> {
+
+				FuehrungsformAttributeBuilder builder = attribute.toBuilder();
+				if (!attribute.getBeschilderung().isValidForRadverkehrsfuehrung(radverkehrsfuehrung)) {
+					builder.beschilderung(Beschilderung.UNBEKANNT);
+					attributUebernahmeFehler
+						.add(new AttributUebernahmeFehler(RADVERKEHRSFUEHRUNG_BESCHILDERUNG_KONFLIKT_BESCHREIBUNG,
+							Set.of(attribute.getBeschilderung().name()), linearReferenzierterAbschnitt, seitenbezug));
+				}
+
+				return builder
+					.radverkehrsfuehrung(radverkehrsfuehrung)
+					.trennstreifenFormLinks(trennstreifenFormLinks)
+					.trennstreifenBreiteLinks(trennstreifenBreiteLinks)
+					.trennstreifenTrennungZuLinks(trennungZuLinks)
+					.trennstreifenFormRechts(trennstreifenFormRechts)
+					.trennstreifenBreiteRechts(trennstreifenBreiteRechts)
+					.trennstreifenTrennungZuRechts(trennungZuRechts)
+					.build();
+			});
+
+		if (!attributUebernahmeFehler.isEmpty()) {
+			throw new AttributUebernahmeException(attributUebernahmeFehler);
+		}
 	}
 
 	protected void applyKfzParkenTyp(Kante kante, KfzParkenTyp kfzParkenTyp, Seitenbezug seitenbezug,
@@ -523,6 +623,46 @@ abstract public class AttributeMapper {
 		applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(kante, seitenbezug,
 			linearReferenzierterAbschnitt,
 			attribute -> attribute.toBuilder().benutzungspflicht(benutzungspflicht).build());
+	}
+
+	protected void applySchaeden(Kante kante, Set<Schadenart> schaeden, Seitenbezug seitenbezug,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		require(!Seitenbezug.BEIDSEITIG.equals(seitenbezug));
+		applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(kante, seitenbezug,
+			linearReferenzierterAbschnitt,
+			attribute -> attribute.toBuilder().schaeden(schaeden).build());
+	}
+
+	protected void applyBeschilderung(Kante kante, Beschilderung beschilderung, Seitenbezug seitenbezug,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) throws AttributUebernahmeException {
+		require(!Seitenbezug.BEIDSEITIG.equals(seitenbezug));
+		List<AttributUebernahmeFehler> attributUebernahmeFehler = new ArrayList<>();
+
+		applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(kante, seitenbezug,
+			linearReferenzierterAbschnitt,
+			attribute -> {
+
+				if (beschilderung.isValidForRadverkehrsfuehrung(attribute.getRadverkehrsfuehrung())) {
+					return attribute.toBuilder().beschilderung(beschilderung).build();
+				} else {
+					attributUebernahmeFehler.add(new AttributUebernahmeFehler(
+						"Gewählte Beschilderung passt nicht zu Radverkehrsführung: nur für Betriebswege erlaubt",
+						Set.of(beschilderung.name()), linearReferenzierterAbschnitt, seitenbezug));
+					return attribute;
+				}
+			});
+
+		if (!attributUebernahmeFehler.isEmpty()) {
+			throw new AttributUebernahmeException(attributUebernahmeFehler);
+		}
+	}
+
+	protected void applyAbsenkung(Kante kante, Absenkung absenkung, Seitenbezug seitenbezug,
+		LinearReferenzierterAbschnitt linearReferenzierterAbschnitt) {
+		require(!Seitenbezug.BEIDSEITIG.equals(seitenbezug));
+		applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(kante, seitenbezug,
+			linearReferenzierterAbschnitt,
+			attribute -> attribute.toBuilder().absenkung(absenkung).build());
 	}
 
 	private void applyFuehrungsformAttributgruppeLinearReferenziertundSeitenbezogen(Kante kante,
@@ -654,4 +794,5 @@ abstract public class AttributeMapper {
 	public boolean shouldFilterNullValues(String attribut) {
 		return true;
 	}
+
 }

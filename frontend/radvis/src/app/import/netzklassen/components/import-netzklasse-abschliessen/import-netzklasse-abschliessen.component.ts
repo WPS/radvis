@@ -32,6 +32,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
   templateUrl: './import-netzklasse-abschliessen.component.html',
   styleUrls: ['./import-netzklasse-abschliessen.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ImportNetzklasseAbschliessenComponent implements OnDestroy {
   private static readonly STEP = 5;

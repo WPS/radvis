@@ -30,6 +30,7 @@ import { Color } from 'ol/color';
   templateUrl: './wegweiser-import-detail-view.component.html',
   styleUrls: ['./wegweiser-import-detail-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class WegweiserImportDetailViewComponent implements OnDestroy {
   importprotokoll$: Observable<WegweiserImportprotokoll>;

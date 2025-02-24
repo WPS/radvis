@@ -23,6 +23,7 @@ import { OlMapService } from 'src/app/shared/services/ol-map.service';
   templateUrl: './hintergrund-layer.component.html',
   styleUrls: ['./hintergrund-layer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HintergrundLayerComponent implements OnDestroy {
   olLayer: TileLayer | null = null;

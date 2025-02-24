@@ -25,6 +25,7 @@ import { CsvImportService } from 'src/app/viewer/viewer-shared/services/csv-impo
   templateUrl: './csv-import-dialog.component.html',
   styleUrls: ['./csv-import-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class CsvImportDialogComponent {
   formGroup: UntypedFormGroup;

@@ -39,6 +39,7 @@ import invariant from 'tiny-invariant';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class MultiOrganisationenDropdownControlComponent
   extends AbstractFormControl<Verwaltungseinheit[]>

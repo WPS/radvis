@@ -21,6 +21,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './validation-error-anzeige.component.html',
   styleUrls: ['./validation-error-anzeige.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ValidationErrorAnzeigeComponent {
   @Input()

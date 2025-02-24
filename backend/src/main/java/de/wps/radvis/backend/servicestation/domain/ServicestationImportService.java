@@ -42,6 +42,7 @@ import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.netz.domain.service.ZustaendigkeitsService;
+import de.wps.radvis.backend.organisation.domain.OrganisationsartUndNameNichtEindeutigException;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.servicestation.domain.entity.Servicestation;
@@ -238,9 +239,15 @@ public class ServicestationImportService
 					bezeichnung));
 		}
 
-		verwaltungseinheitService.getVerwaltungseinheitnachNameUndArt(nameUndOrganisationsart.getFirst(),
-			nameUndOrganisationsart.getSecond())
-			.map(servicestationBuilder::organisation)
+		Optional<Verwaltungseinheit> verwaltungseinheitNachNameUndArt;
+		try {
+			verwaltungseinheitNachNameUndArt = verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
+				nameUndOrganisationsart.getFirst(), nameUndOrganisationsart.getSecond());
+		} catch (OrganisationsartUndNameNichtEindeutigException e) {
+			throw new ServicestationAttributMappingException(e.getMessage());
+		}
+
+		verwaltungseinheitNachNameUndArt.map(servicestationBuilder::organisation)
 			.orElseThrow(() -> new ServicestationAttributMappingException(
 				String.format("Verwaltungseinheit '%s' konnte nicht gefunden werden", bezeichnung)));
 
@@ -276,8 +283,7 @@ public class ServicestationImportService
 		String normalizedInput = input.toLowerCase();
 		if (!(normalizedInput.equals("ja") || normalizedInput.equals("nein"))) {
 			throw new ServicestationAttributMappingException(
-				String.format("%s muss ja oder nein sein, aber ist '%s'", bezeichnung, input)
-			);
+				String.format("%s muss ja oder nein sein, aber ist '%s'", bezeichnung, input));
 		}
 	}
 

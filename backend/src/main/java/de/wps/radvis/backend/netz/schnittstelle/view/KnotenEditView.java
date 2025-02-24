@@ -14,13 +14,19 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.view;
 
+import java.util.Optional;
+import java.util.Set;
+
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.valueObject.Bauwerksmangel;
+import de.wps.radvis.backend.netz.domain.valueObject.BauwerksmangelArt;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenForm;
 import de.wps.radvis.backend.netz.domain.valueObject.KnotenOrtslage;
 import de.wps.radvis.backend.netz.domain.valueObject.Kommentar;
+import de.wps.radvis.backend.netz.domain.valueObject.QuerungshilfeDetails;
 import de.wps.radvis.backend.netz.domain.valueObject.Zustandsbeschreibung;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitView;
@@ -31,30 +37,37 @@ public class KnotenEditView {
 	private final Long id;
 	private final Geometry geometry;
 	private final String ortslage;
-	private final Kommentar kommentar;
-	private final Zustandsbeschreibung zustandsbeschreibung;
-	private final KnotenForm knotenForm;
-	private VerwaltungseinheitView gemeinde;
-	private VerwaltungseinheitView landkreis;
+	private final Optional<Kommentar> kommentar;
+	private final Optional<Zustandsbeschreibung> zustandsbeschreibung;
+	private final Optional<KnotenForm> knotenForm;
+	private final Optional<VerwaltungseinheitView> gemeinde;
+	private final Optional<VerwaltungseinheitView> landkreis;
 	private final Long knotenVersion;
 	private final QuellSystem quelle;
 	private final boolean liegtInZustaendigkeitsbereich;
+	private final Optional<QuerungshilfeDetails> querungshilfeDetails;
+	private final Optional<Bauwerksmangel> bauwerksmangel;
+	private final Optional<Set<BauwerksmangelArt>> bauwerksmangelArt;
 
 	public KnotenEditView(Knoten knoten, KnotenOrtslage berechneteOrtslage, boolean liegtInZustaendigkeitsbereich) {
 		id = knoten.getId();
 		geometry = knoten.getPoint();
 		ortslage = berechneteOrtslage != null ? berechneteOrtslage.toString() : null;
-		kommentar = knoten.getKnotenAttribute().getKommentar().orElse(null);
-		zustandsbeschreibung = knoten.getKnotenAttribute().getZustandsbeschreibung().orElse(null);
-		knotenForm = knoten.getKnotenAttribute().getKnotenForm().orElse(null);
+		kommentar = knoten.getKnotenAttribute().getKommentar();
+		zustandsbeschreibung = knoten.getKnotenAttribute().getZustandsbeschreibung();
+		knotenForm = knoten.getKnotenAttribute().getKnotenForm();
 
 		quelle = knoten.getQuelle();
 		this.liegtInZustaendigkeitsbereich = liegtInZustaendigkeitsbereich;
 
-		knoten.getKnotenAttribute().getGemeinde().ifPresent(g -> gemeinde = new VerwaltungseinheitView(g));
-		knoten.getKnotenAttribute().getGemeinde().flatMap(Verwaltungseinheit::getUebergeordneteVerwaltungseinheit)
-			.ifPresent(l -> landkreis = new VerwaltungseinheitView(l));
+		gemeinde = knoten.getKnotenAttribute().getGemeinde().map(g -> new VerwaltungseinheitView(g));
+		landkreis = knoten.getKnotenAttribute().getGemeinde()
+			.flatMap(Verwaltungseinheit::getUebergeordneteVerwaltungseinheit)
+			.map(l -> new VerwaltungseinheitView(l));
 
 		knotenVersion = knoten.getVersion();
+		querungshilfeDetails = knoten.getKnotenAttribute().getQuerungshilfeDetails();
+		bauwerksmangel = knoten.getKnotenAttribute().getBauwerksmangel();
+		bauwerksmangelArt = knoten.getKnotenAttribute().getBauwerksmangelArt();
 	}
 }

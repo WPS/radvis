@@ -30,6 +30,7 @@ import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shar
   providers: [
     { provide: AbstractInfrastrukturenFilterService, useExisting: forwardRef(() => FurtenKreuzungenFilterService) },
   ],
+  standalone: false,
 })
 export class FurtenKreuzungenTabelleComponent {
   selectedFurtKreuzungId$: Observable<number | null>;

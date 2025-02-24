@@ -39,6 +39,7 @@ import { BarrierenForm } from 'src/app/viewer/barriere/models/barrieren-form';
   templateUrl: './routing-profile-verwalten-dialog.component.html',
   styleUrls: ['./routing-profile-verwalten-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class RoutingProfileVerwaltenDialogComponent implements AfterViewInit, OnDestroy {
   public profileFormArray: UntypedFormArray;

@@ -123,6 +123,12 @@
       <nillable>true</nillable>
       <binding>org.locationtech.jts.geom.Geometry</binding>
     </attribute>
+    <attribute>
+      <name>barriere_form_details</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>
   <skipNumberMatched>false</skipNumberMatched>

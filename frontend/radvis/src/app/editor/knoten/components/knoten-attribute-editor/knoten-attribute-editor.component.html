@@ -12,11 +12,12 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<form [formGroup]="knotenFormGroup" class="form-group">
+<form [formGroup]="knotenFormGroup" class="display-flex flex-column h-100 align-items-stretch">
   <rad-warnhinweis *ngIf="!editingAllowed" class="editing-not-allowed-hinweis">
     Knoten kann nicht bearbeitet werden: RadNETZ oder fehlende Berechtigung
   </rad-warnhinweis>
   <rad-attribute-editor
+    class="flex-grow no-overflow"
     (dismiss)="onClose()"
     (resetForm)="onReset()"
     (save)="onSave()"
@@ -28,9 +29,8 @@
       <div class="label">Ortslage (aus Kanten abgeleitet)</div>
     </rad-text-input-control>
 
-    <rad-grouped-enum-dropdown-control formControlName="knotenForm" [groupedOptions]="knotenFormOptions">
-      Knotenform
-    </rad-grouped-enum-dropdown-control>
+    <rad-shared-knoten-form-group-component
+      [sharedKnotenFormGroup]="sharedKnotenFormGroup"></rad-shared-knoten-form-group-component>
 
     <rad-organisationen-dropdown-control formControlName="gemeinde" [options]="(gemeindeOptions | async) || []">
       Gemeinde

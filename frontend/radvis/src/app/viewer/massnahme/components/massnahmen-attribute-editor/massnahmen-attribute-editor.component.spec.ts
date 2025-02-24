@@ -29,6 +29,7 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Massnahme } from 'src/app/viewer/massnahme/models/massnahme';
 import { defaultMassnahme } from 'src/app/viewer/massnahme/models/massnahmen-test-data-provider.spec';
+import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SaveMassnahmeCommand } from 'src/app/viewer/massnahme/models/save-massnahme-command';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
@@ -117,6 +118,48 @@ describe(MassnahmenAttributeEditorComponent.name, () => {
     dataSubject.next({ massnahme: { ...defaultMassnahme, archiviert: false } });
     verify(massnahmeNetzbezugDisplayService.showNetzbezug(anything())).twice();
     expect(capture(massnahmeNetzbezugDisplayService.showNetzbezug).last()[0]).toBeFalse();
+  });
+
+  describe('massnahme kategorien', () => {
+    [
+      Konzeptionsquelle.KOMMUNALES_KONZEPT,
+      Konzeptionsquelle.KREISKONZEPT,
+      Konzeptionsquelle.RADNETZ_MASSNAHME,
+      Konzeptionsquelle.SONSTIGE,
+    ].forEach(quelle => {
+      it(`should show all options for massnahme with konzeptionsquelle=${quelle}`, () => {
+        dataSubject.next({ massnahme: { ...defaultMassnahme, konzeptionsquelle: quelle } });
+        expect(component.massnahmeKategorienOptions).toEqual(Massnahmenkategorien.ALL);
+      });
+    });
+
+    it('should show filtered options for massnahme with konzeptionsquelle=RADNETZ_MASSNAHME_2024', () => {
+      dataSubject.next({
+        massnahme: { ...defaultMassnahme, konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME_2024 },
+      });
+      expect(component.massnahmeKategorienOptions).toEqual(Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY);
+    });
+
+    describe('onKategorieChanged', () => {
+      it('should update options', () => {
+        component.massnahmeKategorienOptions = Massnahmenkategorien.RADNETZ_2024_KATEGORIEN_ONLY;
+        component.formGroup.controls.konzeptionsquelle.setValue(Konzeptionsquelle.RADNETZ_MASSNAHME);
+        expect(component.massnahmeKategorienOptions).toEqual(Massnahmenkategorien.ALL);
+      });
+
+      it('should validate kategorien', () => {
+        component.formGroup.patchValue({
+          konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME,
+          massnahmenkategorien: [Massnahmenkategorien.kategorienNotAllowedForRadnetz2024[0]],
+        });
+
+        expect(component.formGroup.controls.massnahmenkategorien.valid).toBeTrue();
+
+        component.formGroup.controls.konzeptionsquelle.setValue(Konzeptionsquelle.RADNETZ_MASSNAHME_2024);
+
+        expect(component.formGroup.controls.massnahmenkategorien.valid).toBeFalse();
+      });
+    });
   });
 
   describe('with massnahme', () => {

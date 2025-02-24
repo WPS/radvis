@@ -34,6 +34,7 @@ import { MatomoTracker } from 'ngx-matomo-client';
   templateUrl: './auswertung.component.html',
   styleUrls: ['./auswertung.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class AuswertungComponent {
   public ergebnis = 0;

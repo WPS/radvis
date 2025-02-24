@@ -24,6 +24,7 @@ public enum Beleuchtung {
 	VORHANDEN("Vorhanden"),
 	NICHT_VORHANDEN("Nicht Vorhanden"),
 	RETROREFLEKTIERENDE_RANDMARKIERUNG("Retroreflektierende Randmarkierung"),
+	STRASSENLATERNEN_UND_RANDMARKIERUNG("Straßenlaternen und Randmarkierung"),
 	UNBEKANNT("Unbekannt");
 	//@formatter:on
 

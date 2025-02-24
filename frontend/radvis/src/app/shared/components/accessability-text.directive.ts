@@ -16,6 +16,7 @@ import { AfterViewInit, Directive, ElementRef, Input, OnDestroy } from '@angular
 
 @Directive({
   selector: 'mat-icon[radAccessabilityText]',
+  standalone: false,
 })
 export class AccessabilityTextDirective implements AfterViewInit, OnDestroy {
   @Input()

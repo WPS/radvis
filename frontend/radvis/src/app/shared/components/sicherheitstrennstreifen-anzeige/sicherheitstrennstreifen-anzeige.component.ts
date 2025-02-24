@@ -22,6 +22,7 @@ import { TrennstreifenSeite } from 'src/app/shared/models/trennstreifen-seite';
   templateUrl: './sicherheitstrennstreifen-anzeige.component.html',
   styleUrls: ['./sicherheitstrennstreifen-anzeige.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SicherheitstrennstreifenAnzeigeComponent {
   @Input()

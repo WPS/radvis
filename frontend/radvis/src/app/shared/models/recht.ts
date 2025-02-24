@@ -41,6 +41,9 @@ export enum Recht {
   JOBS_AUSFUEHREN = 'JOBS_AUSFUEHREN',
   KREISNETZ_ROUTENVERLEGUNGEN = 'KREISNETZ_ROUTENVERLEGUNGEN',
   MASSNAHMEN_ARCHIVIEREN = 'MASSNAHMEN_ARCHIVIEREN',
+  DATEI_LAYER_VERWALTEN = 'DATEI_LAYER_VERWALTEN',
+  WEITERE_KARTENEBENEN_ALS_DEFAULT_FESTLEGEN = 'WEITERE_KARTENEBENEN_ALS_DEFAULT_FESTLEGEN',
+  ROUTINGPROFILE_VERWALTEN = 'ROUTINGPROFILE_VERWALTEN',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -107,6 +110,12 @@ export namespace Recht {
         return { name: k, displayText: 'Kreisnetz bearbeiten' };
       case Recht.MASSNAHMEN_ARCHIVIEREN:
         return { name: k, displayText: 'Maßnahmen archivieren' };
+      case Recht.DATEI_LAYER_VERWALTEN:
+        return { name: k, displayText: 'Datei-Layer verwalten' };
+      case Recht.WEITERE_KARTENEBENEN_ALS_DEFAULT_FESTLEGEN:
+        return { name: k, displayText: 'Weitere Kartenebenen für alle Nutzer hinzufügen' };
+      case Recht.ROUTINGPROFILE_VERWALTEN:
+        return { name: k, displayText: 'Routingprofile verwalten' };
     }
     throw new Error('Beschreibung für enum Recht fehlt: ' + k);
   });

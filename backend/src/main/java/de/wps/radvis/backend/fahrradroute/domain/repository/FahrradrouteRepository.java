@@ -26,6 +26,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.fahrradroute.domain.entity.Fahrradroute;
 import de.wps.radvis.backend.fahrradroute.domain.entity.TfisImportProblem;
 import de.wps.radvis.backend.fahrradroute.domain.entity.ToubizImportProblem;
@@ -36,7 +37,8 @@ import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 import de.wps.radvis.backend.matching.domain.repository.GraphhopperRoutingRepository;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 
-public interface FahrradrouteRepository extends CrudRepository<Fahrradroute, Long>, CustomFahrradrouteRepository {
+public interface FahrradrouteRepository
+	extends CrudRepository<Fahrradroute, Long>, CustomFahrradrouteRepository, FahrradrouteFilterRepository {
 
 	String GEOSERVER_BALM_FAHRRADROUTEN_VIEW_NAME = "geoserver_balm_fahrradrouten_view";
 

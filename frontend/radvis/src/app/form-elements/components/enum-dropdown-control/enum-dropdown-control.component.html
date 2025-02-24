@@ -12,23 +12,23 @@
   ~ See the Licence for the specific language governing permissions and limitations under the Licence.
   -->
 
-<mat-form-field class="w-100 form-field" [class.highlight-undetermined]="formControl.value === UNDETERMINED">
+<mat-form-field class="w-100 form-field" [class.highlight-undetermined]="showUndeterminedHint">
   <mat-label>
     <ng-content></ng-content>
   </mat-label>
   <mat-select [formControl]="formControl" [multiple]="multiple">
     <mat-option [disabled]="true" [value]="UNDETERMINED" *ngIf="showUndeterminedOption"></mat-option>
     <mat-option *ngIf="nullable" [value]="null">Keine Angabe</mat-option>
-    <ng-container *ngIf="showTooltip">
-      <mat-option *ngFor="let opt of options" [value]="opt.name" [matTooltip]="opt.displayText"
-        >{{ opt.displayText }}
-      </mat-option>
-    </ng-container>
-    <ng-container *ngIf="!showTooltip">
-      <mat-option *ngFor="let opt of options" [value]="opt.name">{{ opt.displayText }}</mat-option>
-    </ng-container>
+    <mat-option
+      *ngFor="let opt of options"
+      [value]="opt.name"
+      [matTooltip]="opt.displayText"
+      [matTooltipDisabled]="!showTooltip"
+      [disabled]="opt.disabled"
+      >{{ opt.displayText }}
+    </mat-option>
   </mat-select>
-  <mat-hint *ngIf="isUndetermined && formControl.value === UNDETERMINED">{{ UNDETERMINED_LABEL }}</mat-hint>
+  <mat-hint *ngIf="showUndeterminedHint">{{ UNDETERMINED_LABEL }}</mat-hint>
   <mat-error>
     <div *ngFor="let msg of errorMessages">{{ msg }}</div>
   </mat-error>

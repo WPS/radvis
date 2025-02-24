@@ -29,6 +29,7 @@ import invariant from 'tiny-invariant';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class DeckkraftSliderControlComponent extends AbstractFormControl<number> {
   value!: number;

@@ -13,24 +13,25 @@
  */
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs/operators';
-import { FahrradzaehlstelleDetailView } from 'src/app/viewer/fahrradzaehlstelle/models/fahrradzaehlstelle-detail-view';
-import { FahrradzaehlstelleService } from 'src/app/viewer/fahrradzaehlstelle/services/fahrradzaehlstelle.service';
 import { UntypedFormControl } from '@angular/forms';
-import { ArtDerAuswertung } from 'src/app/viewer/fahrradzaehlstelle/models/art-der-auswertung';
-import { ChannelDetailView } from 'src/app/viewer/fahrradzaehlstelle/models/channel-detail-view';
-import { EnumOption } from 'src/app/form-elements/models/enum-option';
+import { ActivatedRoute } from '@angular/router';
 import { Chart, ChartDataset, ChartOptions } from 'chart.js';
-import invariant from 'tiny-invariant';
+import { map } from 'rxjs/operators';
+import { EnumOption } from 'src/app/form-elements/models/enum-option';
 import { ColorToCssPipe } from 'src/app/shared/components/color-to-css.pipe';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
+import { ArtDerAuswertung } from 'src/app/viewer/fahrradzaehlstelle/models/art-der-auswertung';
+import { ChannelDetailView } from 'src/app/viewer/fahrradzaehlstelle/models/channel-detail-view';
+import { FahrradzaehlstelleDetailView } from 'src/app/viewer/fahrradzaehlstelle/models/fahrradzaehlstelle-detail-view';
+import { FahrradzaehlstelleService } from 'src/app/viewer/fahrradzaehlstelle/services/fahrradzaehlstelle.service';
+import invariant from 'tiny-invariant';
 
 @Component({
   selector: 'rad-fahrradzaehlstelle-statistik',
   templateUrl: './fahrradzaehlstelle-statistik.component.html',
   styleUrls: ['./fahrradzaehlstelle-statistik.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FahrradzaehlstelleStatistikComponent implements OnInit {
   @ViewChild('chartCanvas', { static: true })
@@ -142,11 +143,13 @@ export class FahrradzaehlstelleStatistikComponent implements OnInit {
       .subscribe(fahrradzaehlstelleDetailView => {
         this.fahrradzaehlstelle = fahrradzaehlstelleDetailView;
         this.channelOptions.push({ name: 'ALLE', displayText: 'Alle' });
-        this.channelOptions.push(
-          ...this.fahrradzaehlstelle?.channels.map(channel => {
-            return { name: '' + channel.id, displayText: channel.channelBezeichnung };
-          })
-        );
+        if (this.fahrradzaehlstelle) {
+          this.channelOptions.push(
+            ...this.fahrradzaehlstelle.channels.map(channel => {
+              return { name: '' + channel.id, displayText: channel.channelBezeichnung };
+            })
+          );
+        }
         this.channelFormControl.patchValue('ALLE');
         this.changeDetectorRef.detectChanges();
       });

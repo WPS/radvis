@@ -19,6 +19,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   templateUrl: './print-view.component.html',
   styleUrls: ['./print-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class PrintViewComponent {
   currentDate = new Date();

@@ -32,6 +32,7 @@ import invariant from 'tiny-invariant';
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class ZoomstufeSliderControlComponent extends AbstractFormControl<number> {
   value!: number;

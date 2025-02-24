@@ -23,5 +23,5 @@ export const fahrradrouteResolver: ResolveFn<FahrradrouteDetailView> = (route, s
   if (id) {
     return fahrradrouteService.getFahrradroute(+id);
   }
-  return Promise.reject('ID in der Route nicht gesetzt');
+  return Promise.reject(new Error('ID in der Route nicht gesetzt'));
 };

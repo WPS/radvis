@@ -49,6 +49,7 @@ export interface MassnahmenDateianhaengeDuplikateUeberpruefenRow {
   templateUrl: './massnahmen-dateianhaenge-duplikate-ueberpruefen.component.html',
   styleUrl: './massnahmen-dateianhaenge-duplikate-ueberpruefen.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MassnahmenDateianhaengeDuplikateUeberpruefenComponent implements OnDestroy, DiscardableComponent {
   private static readonly STEP = 3;

@@ -340,7 +340,7 @@ class MassnahmeTest {
 		void create_RadNetzMassnahme2024_erstelltUmsetzungsstand() {
 			// act
 			Massnahme massnahme = new Massnahme(Bezeichnung.of("Test"),
-				Set.of(Massnahmenkategorie.AENDERUNG_DER_VERKEHRSRECHTLICHEN_ANORDNUNG),
+				Set.of(Massnahmenkategorie.SONSTIGE_MASSNAHME_AN_BARRIERE),
 				netzbezug,
 				Umsetzungsstatus.IDEE,
 				false,
@@ -874,5 +874,19 @@ class MassnahmeTest {
 		// assert
 		assertThat(massnahme.getNetzbezug().getImmutableKnotenBezug()).contains(knoten2, ersatzKnoten);
 		assertThat(massnahme.getNetzbezug().getImmutableKnotenBezug()).doesNotContain(zuErsetzenderKnoten);
+	}
+
+	@Test
+	void areKategorienValidForKonzeptionsquelle() {
+		assertThat(Massnahme.areKategorienValidForKonzeptionsquelle(null, Set.of())).isTrue();
+		assertThat(Massnahme.areKategorienValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME, Set.of()))
+			.isTrue();
+		assertThat(Massnahme.areKategorienValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME,
+			Set.of(Massnahmenkategorie.NEUBAU_WEG_NACH_RADNETZ_QUALITAETSSTANDARD))).isTrue();
+		assertThat(Massnahme.areKategorienValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
+			Set.of(Massnahmenkategorie.SONSTIGE_MASSNAHME_AN_BARRIERE))).isTrue();
+		assertThat(Massnahme.areKategorienValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
+			Set.of(Massnahmenkategorie.SONSTIGE_MASSNAHME_AN_BARRIERE,
+				Massnahmenkategorie.NEUBAU_WEG_NACH_RADNETZ_QUALITAETSSTANDARD))).isFalse();
 	}
 }

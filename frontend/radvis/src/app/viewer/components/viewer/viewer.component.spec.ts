@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentFixture } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -136,7 +135,7 @@ describe(ViewerComponent.name, () => {
   describe('onFeatureSelected', () => {
     it('should set selectedLocation and invoke component', () => {
       const coordinate = [99, 10];
-      const menuSpy = spyOn(component.selectFeatureMenuComponent as SelectFeatureMenuComponent, 'onLocationSelect');
+      const menuSpy = spyOn(component.selectFeatureMenuComponent!, 'onLocationSelect');
       const selectEvent = { coordinate, selectedFeatures: [] };
       component.onFeatureSelected(selectEvent);
       expect(component.selectedLocation).toEqual(coordinate);
@@ -147,7 +146,7 @@ describe(ViewerComponent.name, () => {
     it('should not do anything if in netzbezugAuswahl', () => {
       component.startNetzbezugAuswahl();
       const coordinate = [99, 10];
-      const menuSpy = spyOn(component.selectFeatureMenuComponent as SelectFeatureMenuComponent, 'onLocationSelect');
+      const menuSpy = spyOn(component.selectFeatureMenuComponent!, 'onLocationSelect');
       const selectEvent = { coordinate, selectedFeatures: [] };
       component.onFeatureSelected(selectEvent);
       expect(menuSpy).not.toHaveBeenCalled();
@@ -156,7 +155,7 @@ describe(ViewerComponent.name, () => {
     it('should not call select on menu when fehlerprotokoll feature selected', () => {
       component.startNetzbezugAuswahl();
       const coordinate = [99, 10];
-      const menuSpy = spyOn(component.selectFeatureMenuComponent as SelectFeatureMenuComponent, 'onLocationSelect');
+      const menuSpy = spyOn(component.selectFeatureMenuComponent!, 'onLocationSelect');
       const selectedFeature = new RadVisFeature(
         1,
         toRadVisFeatureAttributesFromMap(),

@@ -31,6 +31,7 @@ public enum Recht {
 	RADNETZ_ROUTENVERLEGUNGEN("RadNETZ Routenverlegungen "),
 	BEARBEITUNG_VON_RADWEGSTRECKEN_DES_EIGENEN_GEOGRAPHISCHEN_ZUSTAENDIGKEIT("Bearbeitung von Radwegstrecken des eigenen geographischen Zuständigkeit"),
 	BEARBEITUNG_VON_ALLEN_RADWEGSTRECKEN("Bearbeitung von allen Radwegstrecken "),
+	ALLE_RADVIS_KANTEN_LOESCHEN("Alle RadVIS-Kanten löschen"),
 
 	ALLE_ROLLEN("Alle Rollen vergeben"),
 	KREISKOORDINATOREN_RADWEGE_ERFASSERIN_IMPORTE_VERANTWORTLICHER_UND_MASSNAHMEN_VERANTWORLICHER("Rollen \"KreiskoordinatorIn\", \"Radwege ErfasserIn - Kommune/Kreis\", \"Importe- VerantwortlicheR\" und \"Maßnahmen VerantworlicheR\" vergeben"),
@@ -57,7 +58,13 @@ public enum Recht {
 	ANPASSUNGSWUENSCHE_BEARBEITEN("Anpassungswünsche bearbeiten"),
 	ANPASSUNGSWUENSCHE_ERFASSEN("Anpassungswünsche erfassen"),
 
-	KREISNETZ_ROUTENVERLEGUNGEN("Kreisnetz Routenverlegungen")
+	KREISNETZ_ROUTENVERLEGUNGEN("Kreisnetz Routenverlegungen"),
+
+	DATEI_LAYER_VERWALTEN("Datei-Layer verwalten"),
+	WEITERE_KARTENEBENEN_ALS_DEFAULT_FESTLEGEN("Weitere Kartenebenen für alle Nutzer hinzufügen"),
+
+	ROUTINGPROFILE_VERWALTEN("Routingprofile verwalten"),
+	SYSTEMNACHRICHT_ERSTELLEN("Systemnachricht erstellen")
 	;
 	// @formatter:on
 

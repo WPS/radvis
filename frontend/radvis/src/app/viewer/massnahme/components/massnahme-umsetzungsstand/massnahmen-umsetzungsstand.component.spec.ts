@@ -103,7 +103,6 @@ describe(MassnahmenUmsetzungsstandComponent.name, () => {
 
   describe('form', () => {
     it('should fill form with umsetzungsstand correct', fakeAsync(() => {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       expect(massnahmenUmsetzungsstandComponent['umsetzungsstand']).toEqual(defaultUmsetzungsstand);
 
       expect(massnahmenUmsetzungsstandComponent.formGroup.getRawValue()).toEqual({

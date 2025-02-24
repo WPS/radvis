@@ -18,6 +18,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,22 +28,32 @@ import java.util.stream.Stream;
 
 import org.hibernate.spatial.jts.EnvelopeAdapter;
 import org.locationtech.jts.geom.Envelope;
+
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.WKBWriter;
+import org.locationtech.jts.operation.buffer.BufferOp;
+import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.springframework.data.domain.Slice;
 
 import com.google.common.collect.Lists;
 
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
+import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
+import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.netz.domain.dbView.KanteOsmMatchWithAttribute;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.KanteGeometryView;
 import de.wps.radvis.backend.netz.domain.entity.KanteOsmWayIdsInsert;
-import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.NahegelegeneneKantenDbView;
 import de.wps.radvis.backend.netz.domain.valueObject.KanteElevationUpdate;
+import de.wps.radvis.backend.netz.domain.valueObject.Laenge;
 import de.wps.radvis.backend.netz.domain.valueObject.LinearReferenzierteOsmWayId;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.NetzklasseFilter;
@@ -81,20 +93,7 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	}
 
 	@Override
-	public Stream<Kante> getKantenInBereichNachQuelle(Envelope bereich, QuellSystem quelle) {
-		Polygon bereichAlsPolygon = EnvelopeAdapter
-			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-
-		StringBuilder hqlStringBuilder = queryFuerBereichUndQuellSystem();
-
-		return entityManager.createQuery(hqlStringBuilder.toString(), Kante.class)
-			.setParameter("bereich", bereichAlsPolygon)
-			.setParameter("quelle", quelle)
-			.getResultStream();
-	}
-
-	@Override
-	public Stream<Kante> getKantenInBereichNachQuellen(Envelope bereich, Set<QuellSystem> quellen) {
+	public Stream<Kante> getKantenInBereichNachQuellen(Envelope bereich, Collection<QuellSystem> quellen) {
 		Polygon bereichAlsPolygon = EnvelopeAdapter
 			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 
@@ -142,62 +141,6 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 			.setParameter("bereich", bereichAlsPolygon)
 			.setParameter("quellen", quellen)
 			.getResultStream();
-	}
-
-	@Override
-	public Stream<Kante> getKantenInBereichNachQuelleEagerFetchKnoten(Envelope bereich, QuellSystem quelle) {
-		Polygon bereichAlsPolygon = EnvelopeAdapter
-			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-
-		String hqlStringBuilder = "SELECT kante FROM Kante kante"
-			+ CommonQueryLibrary.eagerFetchVonKnoten()
-			+ CommonQueryLibrary.eagerFetchNachKnoten()
-			+ " WHERE "
-			+ CommonQueryLibrary.whereClauseFuerBereichKante()
-			+ " AND " + "kante.quelle = :quelle";
-
-		return entityManager.createQuery(hqlStringBuilder, Kante.class)
-			.setParameter("bereich", bereichAlsPolygon)
-			.setParameter("quelle", quelle)
-			.getResultStream();
-	}
-
-	@Override
-	public Stream<Kante> getKantenInBereichNachQuelleEagerFetchKantenAttribute(Envelope bereich, QuellSystem quelle) {
-		Polygon bereichAlsPolygon = EnvelopeAdapter
-			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-
-		String hqlStringBuilder = "SELECT DISTINCT kante FROM Kante kante"
-			+ " LEFT OUTER JOIN FETCH kante.kantenAttributGruppe as kag"
-			+ " WHERE "
-			+ CommonQueryLibrary.whereClauseFuerBereichKante()
-			+ " AND " + "kante.quelle = :quelle";
-
-		return entityManager.createQuery(hqlStringBuilder, Kante.class)
-			.setParameter("bereich", bereichAlsPolygon)
-			.setParameter("quelle", quelle)
-			.getResultStream();
-	}
-
-	@Override
-	public List<Kante> getKantenInBereichNachQuelleList(Envelope bereich, QuellSystem quelle) {
-		Polygon bereichAlsPolygon = EnvelopeAdapter
-			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
-
-		StringBuilder hqlStringBuilder = queryFuerBereichUndQuellSystem();
-
-		return entityManager.createQuery(hqlStringBuilder.toString(), Kante.class)
-			.setParameter("bereich", bereichAlsPolygon)
-			.setParameter("quelle", quelle)
-			.getResultList();
-	}
-
-	private StringBuilder queryFuerBereichUndQuellSystem() {
-		StringBuilder hqlStringBuilder = new StringBuilder();
-		hqlStringBuilder.append("SELECT kante FROM Kante kante ").append(" WHERE ")
-			.append(CommonQueryLibrary.whereClauseFuerBereichKante())
-			.append(" AND ").append("kante.quelle = :quelle");
-		return hqlStringBuilder;
 	}
 
 	private StringBuilder queryFuerBereichUndMehrereQuellSysteme() {
@@ -255,18 +198,7 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	}
 
 	@Override
-	public Set<Kante> getAlleKantenEinesKnotens(Knoten knoten) {
-		String hqlStringBuilder = "SELECT DISTINCT kante FROM Kante kante"
-			+ " WHERE "
-			+ " kante.vonKnoten = :knoten OR kante.nachKnoten = :knoten";
-
-		return entityManager.createQuery(hqlStringBuilder, Kante.class)
-			.setParameter("knoten", knoten)
-			.getResultStream().collect(Collectors.toSet());
-	}
-
-	@Override
-	public Set<Kante> getKantenInBereich(MultiPolygon bereich) {
+	public Set<Kante> getKantenInBereich(Geometry bereich) {
 		if (bereich.isEmpty()) {
 			return new HashSet<>();
 		}
@@ -280,6 +212,117 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 		return entityManager.createQuery(hqlStringBuilder, Kante.class)
 			.setParameter("bereich", bereich)
 			.getResultStream().collect(Collectors.toSet());
+	}
+
+	@Override
+	public List<NahegelegeneneKantenDbView> getNahegelegeneKantenAufSeite(Kante basiskante,
+		LinearReferenzierterAbschnitt abschnitt, Seitenbezug seite, Laenge abstandInM) {
+		require(seite == Seitenbezug.LINKS || seite == Seitenbezug.RECHTS);
+		require(abstandInM.getValue() > 0);
+
+		double bufferAbstandValue = abstandInM.getValue();
+
+		// Gemäß BufferParameters Doku: Positive Abstände erzeugen einen Buffer nach links, negative nach rechts.
+		if (seite == Seitenbezug.RECHTS) {
+			bufferAbstandValue = -bufferAbstandValue;
+		}
+
+		LineString basiskanteAbschnittGeometry = abschnitt.toSegment(basiskante.getGeometry());
+
+		BufferParameters bufParams = new BufferParameters();
+		bufParams.setSingleSided(true);
+		Geometry bufferGeometry = BufferOp.bufferOp(basiskanteAbschnittGeometry, bufferAbstandValue, bufParams);
+
+		// Rein theoretisch kann beim BufferOp hier eine nicht-Polygon Geometrie raus kommen. Zumindest sichert uns der
+		// Rückgabetyp "Geometry" nichts genaueres zu. Daher Prüfung, ob es ein (Multi)Polygon ist. Wenn nicht, würde
+		// der Rest vom Code ggf. zwar laufen, aber es ist ein Indiz dafür, dass etwas schief gelaufen ist.
+		if (!(bufferGeometry instanceof MultiPolygon) && !(bufferGeometry instanceof Polygon)) {
+			throw new RuntimeException("Puffer für Kante " + basiskante.getId() + " nach " + seite.name()
+				+ " im Abstand von " + bufferAbstandValue + "m ist kein (Multi)Polygon, sondern " + bufferGeometry
+					.getGeometryType());
+		}
+
+		List<NahegelegeneneKantenDbView> result = new ArrayList<>();
+		Set<Kante> kantenInBuffer = getKantenInBereich(bufferGeometry);
+		for (Kante nahegelegeneKante : kantenInBuffer) {
+			if (nahegelegeneKante.equals(basiskante)) {
+				// Natürlich berührt die Basiskante ihren eigenen Buffer, deswegen kriegen wir sie hier immer. Sie ist
+				// aber zu sich selbst natürlich keine nahegelegene Kante, weswegen wir die hier ignorieren.
+				continue;
+			}
+
+			// Abschnitt auf nahegelegener Kante finden. Dies kann zu anderen Geometrien als LineString führen, insb. zu
+			// MultiLineString, wenn die nahegelegene Kante aus dem Buffer raus und wieder rein kommt. Diese Geometein
+			// entpacken wir daher und betrachten jedes Teilstück, was sich im Buffer befindet.
+			Geometry nahegelegeneKanteAbschnittGeometry = nahegelegeneKante.getGeometry().intersection(bufferGeometry);
+			for (Geometry nahegelegeneSubAbschnittGeometry : unwrapGeometry(nahegelegeneKanteAbschnittGeometry)) {
+				boolean nahegelegeneSubAbschnittIsEmpty = nahegelegeneSubAbschnittGeometry.isEmpty();
+				if (!(nahegelegeneSubAbschnittGeometry instanceof LineString) || nahegelegeneSubAbschnittIsEmpty) {
+					// Punkt-Geometrien sind sehr sehr häufig, da alle angrenzenten Kanten als solche erkannt werden.
+					// Andere Geometrien jedoch sind ungewöhnlich.
+					if (!(nahegelegeneSubAbschnittGeometry instanceof Point)) {
+						log.warn(
+							"Beim Suchen nach nahegelegenen Kanten von Kante {} war eine Abschnitt-Geometrie von Kante {} ungültig (Geometrietyp: {}, leere Geometrie? {})",
+							basiskante.getId(),
+							nahegelegeneKante.getId(),
+							nahegelegeneSubAbschnittGeometry.getGeometryType(),
+							nahegelegeneSubAbschnittIsEmpty
+						);
+					}
+					continue;
+				}
+
+				// Abschnitt auf Basiskante finden
+				Geometry bufferedIntersectionLineString = nahegelegeneSubAbschnittGeometry.buffer(abstandInM
+					.getValue());
+				Geometry basiskanteAbgedeckterAbschnittGeometry = basiskanteAbschnittGeometry.intersection(
+					bufferedIntersectionLineString);
+				boolean basiskanteAbgedeckterAbschnittIsEmpty = basiskanteAbgedeckterAbschnittGeometry.isEmpty();
+				if (!(basiskanteAbgedeckterAbschnittGeometry instanceof LineString)
+					|| basiskanteAbgedeckterAbschnittIsEmpty) {
+					log.warn(
+						"Beim Suchen nach nahegelegenen Kanten von Kante {} war die Basiskante-Abschnitt-Geometrie (der durch Kante {} abgedeckte Teil) ungültig (Geometrietyp: {}, leere Geometrie? {})",
+						basiskante.getId(),
+						nahegelegeneKante.getId(),
+						basiskanteAbgedeckterAbschnittGeometry.getGeometryType(),
+						basiskanteAbgedeckterAbschnittIsEmpty
+					);
+					continue;
+				}
+
+				result.add(new NahegelegeneneKantenDbView(basiskante,
+					(LineString) basiskanteAbgedeckterAbschnittGeometry, nahegelegeneKante,
+					(LineString) nahegelegeneSubAbschnittGeometry));
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Entpackt die übergebene Geometrie (egal ob einfache Geometrie, oder Multi-Geometrie wie MultiPoint,
+	 * MultiLineString, GeometryCollection, etc.) in ihre einzelnen "primitiven" Bestandteile. Also ein MultiLineString
+	 * wird in die enthaltenen LineStrings entpackt.
+	 *
+	 * Das Entpacken passiert rekursiv, enthält also z.B. eine GeometryCollection eine weitere GeometryCollection, wird
+	 * auch diese entpackt.
+	 *
+	 * @return Eine Liste aller simplen Geometrien. Die Liste enthält also keine Multi-Geometrien oder GeometryCollections mehr.
+	 */
+	private List<Geometry> unwrapGeometry(Geometry geometry) {
+		List<Geometry> result = new ArrayList<>();
+
+		for (int i = 0; i < geometry.getNumGeometries(); i++) {
+			Geometry childGeometry = geometry.getGeometryN(i);
+			// Multi-Geometrien (MultiPoint, etc.) erben von GeometryCollection und werden hier entsprechend unwrapped.
+			if (childGeometry instanceof GeometryCollection) {
+				result.addAll(unwrapGeometry((GeometryCollection) childGeometry));
+			} else {
+				result.add(childGeometry);
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -301,19 +344,11 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 	}
 
 	@Override
-	public Set<Kante> getKantenimBereich(Envelope bereich) {
+	public Set<Kante> getKantenInBereich(Envelope bereich) {
 		Polygon bereichAlsPolygon = EnvelopeAdapter
 			.toPolygon(bereich, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid());
 
-		String hqlStringBuilder = "SELECT kante FROM Kante kante "
-			+ " WHERE "
-			+ CommonQueryLibrary.whereClauseFuerBereichKante()
-			+ " AND "
-			+ CommonQueryLibrary.whereClauseGrundnetz(true);
-
-		return entityManager.createQuery(hqlStringBuilder, Kante.class)
-			.setParameter("bereich", bereichAlsPolygon)
-			.getResultStream().collect(Collectors.toSet());
+		return getKantenInBereich(bereichAlsPolygon);
 	}
 
 	@Override

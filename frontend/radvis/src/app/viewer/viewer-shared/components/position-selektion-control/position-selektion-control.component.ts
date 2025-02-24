@@ -48,6 +48,7 @@ import { puntuelleKantenBezuegeVectorLayerZIndex } from 'src/app/shared/models/s
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class PositionSelektionControlComponent
   extends AbstractFormControl<Coordinate>

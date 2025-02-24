@@ -28,6 +28,7 @@ import invariant from 'tiny-invariant';
   templateUrl: './select-feature-menu.component.html',
   styleUrls: ['./select-feature-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SelectFeatureMenuComponent implements OnDestroy {
   location: Coordinate | null = null;
@@ -79,7 +80,7 @@ export class SelectFeatureMenuComponent implements OnDestroy {
     }
 
     if (selectableFeatures.size === 1) {
-      this.layerRegistryService.toEditor(selectableFeatures.values().next().value, event.coordinate);
+      this.layerRegistryService.toEditor(selectableFeatures.values().next().value!, event.coordinate);
     } else if (selectableFeatures.size > 1) {
       this.location = event.coordinate;
       this.selectedFeatures = Array.from(selectableFeatures.values());

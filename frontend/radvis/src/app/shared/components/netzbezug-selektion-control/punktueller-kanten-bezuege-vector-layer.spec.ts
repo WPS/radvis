@@ -12,8 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-/* eslint-disable @typescript-eslint/dot-notation */
-
 import { Point } from 'ol/geom';
 import { PunktuellerKantenBezuegeVectorLayer } from 'src/app/shared/components/netzbezug-selektion-control/punktueller-kanten-bezuege-vector-layer';
 import { defaultNetzbezug } from 'src/app/shared/models/netzbezug-test-data-provider.spec';
@@ -36,8 +34,8 @@ describe(PunktuellerKantenBezuegeVectorLayer.name, () => {
           punktuellerKantenBezuegeVectorLayer
             .getSource()
             .getFeatures()
-            .filter(feature => feature.get(PunktuellerKantenBezuegeVectorLayer.KANTE_ID_PROPERTY_KEY) === 3)[0]
-            .getGeometry() as Point
+            .find(feature => feature.get(PunktuellerKantenBezuegeVectorLayer.KANTE_ID_PROPERTY_KEY) === 3)
+            ?.getGeometry() as Point
         ).getCoordinates()
       ).toEqual(defaultNetzbezug.punktuellerKantenBezug[0].geometrie.coordinates);
     });
