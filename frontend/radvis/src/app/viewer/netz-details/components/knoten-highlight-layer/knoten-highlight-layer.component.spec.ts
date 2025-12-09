@@ -61,8 +61,8 @@ describe(KnotenHighlightLayerComponent.name, () => {
   it('should initialize correct', () => {
     verify(netzAusblendenService.knotenAusblenden(anything())).once();
     expect(capture(netzAusblendenService.knotenAusblenden).last()[0]).toEqual(initialKnotenId);
-    expect(layer.getSource().getFeatures()).toHaveSize(1);
-    expect((layer.getSource().getFeatures()[0] as Feature<Point>).getGeometry()?.getCoordinates()).toEqual(
+    expect(layer.getSource()?.getFeatures()).toHaveSize(1);
+    expect((layer.getSource()?.getFeatures()[0] as Feature<Point>).getGeometry()?.getCoordinates()).toEqual(
       initialGeometrie.coordinates
     );
   });
@@ -79,8 +79,8 @@ describe(KnotenHighlightLayerComponent.name, () => {
 
     verify(netzAusblendenService.knotenAusblenden(anything())).once();
     expect(capture(netzAusblendenService.knotenAusblenden).last()[0]).toEqual(neueId);
-    expect(layer.getSource().getFeatures()).toHaveSize(1);
-    expect((layer.getSource().getFeatures()[0] as Feature<Point>).getGeometry()?.getCoordinates()).toEqual(
+    expect(layer.getSource()?.getFeatures()).toHaveSize(1);
+    expect((layer.getSource()?.getFeatures()[0] as Feature<Point>).getGeometry()?.getCoordinates()).toEqual(
       neueGeometrie.coordinates
     );
   });

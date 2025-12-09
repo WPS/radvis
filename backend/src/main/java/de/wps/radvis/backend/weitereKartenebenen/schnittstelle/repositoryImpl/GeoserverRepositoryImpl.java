@@ -18,9 +18,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.List;
@@ -67,7 +70,7 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 	@Override
 	public GeoserverLayerName createDataStoreAndLayer(GeoserverDatastoreName datastoreName,
 		DateiLayerFormat dateiLayerFormat, MultipartFile file)
-		throws IOException, InterruptedException {
+		throws IOException, InterruptedException, URISyntaxException {
 
 		String datastoreEndpoint;
 		byte[] fileBytes;
@@ -174,13 +177,14 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 	}
 
 	/**
-	 * Ermittelt den ersten Layer des angegebenen Datastores. Theoretisch kann es
-	 * mehrere pro store geben, wir erstellen
+	 * Ermittelt den ersten Layer des angegebenen Datastores. Theoretisch kann es mehrere pro store geben, wir erstellen
 	 * aber maximal einen. Weitere Layer werden daher ignoriert.
+	 * 
+	 * @throws URISyntaxException
 	 */
 	@Override
 	public GeoserverLayerName getLayerNameFromDatastore(GeoserverDatastoreName datastoreName)
-		throws IOException, InterruptedException {
+		throws IOException, InterruptedException, URISyntaxException {
 
 		HttpRequest request = getAuthenticatedRequestBuilderForDatastore(datastoreName, "/featuretypes")
 			.headers("Accept", "application/json")
@@ -213,13 +217,14 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 	}
 
 	/**
-	 * Löscht den angegebenen Datastore und rekursiv auch alles, was da dran hängt
-	 * (also z.B. alle Layer, den denen
-	 * es aber nur einen geben sollte).
+	 * Löscht den angegebenen Datastore und rekursiv auch alles, was da dran hängt (also z.B. alle Layer, den denen es
+	 * aber nur einen geben sollte).
+	 * 
+	 * @throws URISyntaxException
 	 */
 	@Override
 	public void removeDatastoreAndLayer(GeoserverDatastoreName datastoreName)
-		throws IOException, InterruptedException {
+		throws IOException, InterruptedException, URISyntaxException {
 
 		HttpRequest request = getAuthenticatedRequestBuilderForDatastore(datastoreName, "?recurse=true")
 			.DELETE()
@@ -248,14 +253,13 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 	@Override
 	public void addStyleToLayer(GeoserverLayerName geoserverLayerName, GeoserverStyleName geoserverStyleName,
 		boolean makeDefault)
-		throws IOException, InterruptedException {
+		throws IOException, InterruptedException, URISyntaxException {
 
-		URI dateiLayerGeoserverUrl = URI.create(
+		URI dateiLayerGeoserverUrl = new URI(
 			String.format(
 				"%s/geoserver/rest/layers/%s/styles?default=%b",
 				weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerHost(),
-				geoserverLayerName,
-				makeDefault));
+				URLEncoder.encode(geoserverLayerName.getValue(), StandardCharsets.UTF_8.toString()), makeDefault));
 
 		HttpRequest request = HttpRequest.newBuilder()
 			.uri(dateiLayerGeoserverUrl)
@@ -289,13 +293,12 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 
 	@Override
 	public GeoserverStyleName createStyle(GeoserverStyleName geoserverStyleName, MultipartFile sldFile)
-		throws IOException, InterruptedException {
-		URI dateiLayerGeoserverUrl = URI.create(
+		throws IOException, InterruptedException, URISyntaxException {
+		URI dateiLayerGeoserverUrl = new URI(
 			String.format(
 				"%s/geoserver/rest/styles?name=%s",
 				weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerHost(),
-				geoserverStyleName
-			));
+				URLEncoder.encode(geoserverStyleName.getValue(), StandardCharsets.UTF_8.toString())));
 
 		byte[] byteArray = new String(sldFile.getBytes()).replace("SvgParameter", "CssParameter").getBytes();
 
@@ -322,13 +325,13 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 	}
 
 	@Override
-	public void deleteStyle(GeoserverStyleName geoserverStyleName) throws IOException, InterruptedException {
-		URI dateiLayerGeoserverUrl = URI.create(
+	public void deleteStyle(GeoserverStyleName geoserverStyleName)
+		throws IOException, InterruptedException, URISyntaxException {
+		URI dateiLayerGeoserverUrl = new URI(
 			String.format(
 				"%s/geoserver/rest/styles/%s?recurse=true&purge=true",
 				weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerHost(),
-				geoserverStyleName
-			));
+				URLEncoder.encode(geoserverStyleName.getValue(), StandardCharsets.UTF_8.toString())));
 
 		HttpRequest request = HttpRequest.newBuilder()
 			.uri(dateiLayerGeoserverUrl)
@@ -357,16 +360,15 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 
 	@Override
 	public void validateStyleForLayer(GeoserverLayerName geoserverLayerName,
-		GeoserverStyleName geoserverStyleName) throws IOException, InterruptedException {
+		GeoserverStyleName geoserverStyleName) throws IOException, InterruptedException, URISyntaxException {
 
-		URI dateiLayerGeoserverWMSUrl = URI.create(
+		URI dateiLayerGeoserverWMSUrl = new URI(
 			String.format(
 				"%s/geoserver/%s/wms?LAYERS=datei-layer:%s&TILED=true&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=true&projection=EPSG:25832&WIDTH=256&HEIGHT=256&CRS=EPSG:25832&STYLES=%s&BBOX=469103.37588850036,5316504.926736319,547287.2718699168,5394688.822717736",
 				weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerHost(),
 				weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerWorkspace(),
-				geoserverLayerName,
-				geoserverStyleName
-			));
+				URLEncoder.encode(geoserverLayerName.getValue(), StandardCharsets.UTF_8.toString()),
+				geoserverStyleName));
 
 		HttpRequest request = HttpRequest.newBuilder()
 			.uri(dateiLayerGeoserverWMSUrl)
@@ -400,12 +402,12 @@ public class GeoserverRepositoryImpl implements GeoserverRepository {
 	}
 
 	private HttpRequest.Builder getAuthenticatedRequestBuilderForDatastore(GeoserverDatastoreName datastoreName,
-		String datastoreEndpoint) {
+		String datastoreEndpoint) throws URISyntaxException {
 
 		// Aufbau des Requests orientiert an folgendem cURL-Befehl:
 		// curl -u admin:geoserver -X PUT --data-binary @../daten.gpkg
 		// http://localhost:181/geoserver/rest/workspaces/<workspace>/datastores/<name>/file.gpkg
-		URI dateiLayerGeoserverUrl = URI.create(
+		URI dateiLayerGeoserverUrl = new URI(
 			String.format(
 				"%s/geoserver/rest/workspaces/%s/datastores/%s%s",
 				weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerHost(),

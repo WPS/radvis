@@ -30,6 +30,8 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -44,6 +46,7 @@ import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
@@ -52,6 +55,7 @@ import de.wps.radvis.backend.massnahme.domain.bezug.NetzBezugTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
@@ -83,6 +87,232 @@ public class MassnahmeGuardTest {
 		when(organisationConfigurationProperties.getZustaendigkeitBufferInMeter()).thenReturn(500);
 		zustaendigkeitsService = new ZustaendigkeitsService(organisationConfigurationProperties);
 		massnahmeGuard = new MassnahmeGuard(zustaendigkeitsService, netzService, benutzerResolver, massnahmeService);
+		when(massnahmeService.get(any())).thenReturn(MassnahmeTestDataProvider.withDefaultValues().build());
+	}
+
+	@Nested
+	class CreateMassnahmeStornieren {
+		Benutzer benutzer;
+
+		@BeforeEach
+		void setup() {
+			benutzer = mock(Benutzer.class);
+			when(benutzer.hatRecht(Recht.ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN)).thenReturn(true);
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(benutzer);
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void stornieren_hasRecht(Umsetzungsstatus toStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(true);
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.createMassnahme(mock(Authentication.class), CreateMassnahmeCommandTestDataProvider
+					.defaultValue().umsetzungsstatus(toStatus)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void stornieren_hasNoRecht_throws(Umsetzungsstatus toStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+
+			// act + assert
+			assertThrows(AccessDeniedException.class,
+				() -> massnahmeGuard.createMassnahme(mock(Authentication.class), CreateMassnahmeCommandTestDataProvider
+					.defaultValue().umsetzungsstatus(toStatus)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void stornieren_hasNoRecht_noRadNETZMassnahme_doesNotThrow(Umsetzungsstatus toStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.createMassnahme(mock(Authentication.class), CreateMassnahmeCommandTestDataProvider
+					.defaultValue().umsetzungsstatus(toStatus)
+					.konzeptionsquelle(Konzeptionsquelle.KOMMUNALES_KONZEPT).build()));
+		}
+
+		@Test
+		void nichtStornieren_hasNoRecht_doesNotThrow() {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.createMassnahme(mock(Authentication.class), CreateMassnahmeCommandTestDataProvider
+					.defaultValue().umsetzungsstatus(Umsetzungsstatus.IDEE)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build()));
+		}
+	}
+
+	@Nested
+	class SaveStornierteMassnahme {
+		Benutzer benutzer;
+
+		@BeforeEach
+		void setup() {
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT_ENGSTELLE)
+					.build());
+			benutzer = mock(Benutzer.class);
+			when(benutzer.hatRecht(Recht.ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN)).thenReturn(true);
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(benutzer);
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void changeStatus_hasRecht_doesNotThrow(Umsetzungsstatus fromStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(true);
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(fromStatus)
+					.build());
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(Umsetzungsstatus.IDEE).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void changeStatus_hasNoRecht_throws(Umsetzungsstatus fromStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(fromStatus)
+					.build());
+
+			// act + assert
+			assertThrows(AccessDeniedException.class,
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(Umsetzungsstatus.IDEE).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void changeStatus_hasNoRecht_noRedNetzMassnahme_doesNotThrow(Umsetzungsstatus fromStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(fromStatus)
+					.build());
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.KOMMUNALES_KONZEPT)
+					.umsetzungsstatus(Umsetzungsstatus.IDEE).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void keepStatus_hasNoRecht_doesNotThrow(Umsetzungsstatus fromStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(fromStatus)
+					.build());
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(fromStatus).build()));
+		}
+	}
+
+	@Nested
+	class SaveMassnahmeStornieren {
+		Benutzer benutzer;
+
+		@BeforeEach
+		void setup() {
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(Umsetzungsstatus.IDEE)
+					.build());
+			benutzer = mock(Benutzer.class);
+			when(benutzer.hatRecht(Recht.ALLE_MASSNAHMEN_ERFASSEN_BEARBEITEN)).thenReturn(true);
+			when(benutzerResolver.fromAuthentication(any())).thenReturn(benutzer);
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void stornieren_hasRecht(Umsetzungsstatus toStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(true);
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(toStatus).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void stornieren_noRecht_throws(Umsetzungsstatus toStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+
+			// act + assert
+			assertThrows(AccessDeniedException.class,
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(toStatus).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void stornieren_noRecht_noRadNETZMassnahme_doesNotThrow(Umsetzungsstatus toStatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.KREISKONZEPT)
+					.umsetzungsstatus(toStatus).build()));
+		}
+
+		@Test
+		void nichtStornieren_noRecht_doesNotThrow() {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(Umsetzungsstatus.IDEE).build()));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = Umsetzungsstatus.class, names = { "STORNIERT_ENGSTELLE", "STORNIERT_NICHT_ERFORDERLICH" })
+		void statusUnchanged_noRecht_doesNotThrow(Umsetzungsstatus umsetzungsstatus) {
+			// arrange
+			when(benutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)).thenReturn(false);
+			when(massnahmeService.get(any())).thenReturn(
+				MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(umsetzungsstatus)
+					.build());
+
+			// act + assert
+			assertDoesNotThrow(
+				() -> massnahmeGuard.saveMassnahme(mock(Authentication.class), SaveMassnahmeCommandTestDataProvider
+					.defaultValue().konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+					.umsetzungsstatus(umsetzungsstatus).build()));
+		}
 	}
 
 	@Nested

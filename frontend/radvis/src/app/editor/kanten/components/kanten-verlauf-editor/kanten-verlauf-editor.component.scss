@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
 }
@@ -60,9 +61,9 @@
 }
 
 .legende .color.einseitig {
-  background-color: map-get($radvis-accent-palette, 500);
+  background-color: map.get(colors.$radvis-accent-palette, 500);
 }
 
 .legende .color.geometrie {
-  background-color: map-get($radvis-accent-palette, 100);
+  background-color: map.get(colors.$radvis-accent-palette, 100);
 }

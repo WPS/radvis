@@ -32,9 +32,9 @@
       formControlName="geometrie"
       class="mt-10"
       [withInfrastrukturIcon]="iconName"></rad-position-selektion-control>
-    <rad-warnhinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
+    <rad-hinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
       Diese Abstellanlage wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
-    </rad-warnhinweis>
+    </rad-hinweis>
 
     <rad-text-input-control formControlName="betreiber" [errors]="formGroup.get('betreiber')?.errors">
       <div class="label">Betreiber</div>

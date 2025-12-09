@@ -120,7 +120,7 @@ export class HintergrundLayerService {
           resolutions: HintergrundLayerService.UTM32_STANDARD_RESOLUTIONS,
           origin: layer.origin,
         }),
-        projection: olProj.get('EPSG:25832'),
+        projection: olProj.get('EPSG:25832')!,
       });
     } else {
       source = new TileWMS({

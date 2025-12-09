@@ -16,7 +16,9 @@ package de.wps.radvis.backend.matching.domain;
 
 import java.util.Optional;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.matching.domain.service.KanteUpdateElevationService;
@@ -39,5 +41,15 @@ public class KanteUpdateElevationJob extends AbstractJob {
 		kanteUpdateElevationService.updateElevations();
 		log.info("Elevation Update done");
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Aktualisiert die Höheninformationen an allen Kanten, die derzeit keine Höheninformationen tragen. Tragen alle oder die meisten Kanten Höheninfos, läuft dieser Job in unter einer Minute durch.",
+			"Höheninfos auf Kanten werden ergänzt.",
+			"Sollte nach dem DLM-Reimport laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

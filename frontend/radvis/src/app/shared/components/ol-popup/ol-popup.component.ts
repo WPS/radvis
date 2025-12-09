@@ -25,7 +25,6 @@ import {
 } from '@angular/core';
 import { Overlay } from 'ol';
 import { Coordinate } from 'ol/coordinate';
-import OverlayPositioning from 'ol/OverlayPositioning';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 
 @Component({
@@ -51,7 +50,7 @@ export class OlPopupComponent implements OnDestroy, OnChanges {
   ) {
     this.popup = new Overlay({
       element: host.nativeElement,
-      positioning: OverlayPositioning.BOTTOM_CENTER,
+      positioning: 'bottom-center',
     });
     olMapService.addOverlay(this.popup);
   }

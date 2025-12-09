@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
 
 :host {
   display: flex;
@@ -25,7 +25,7 @@
 
   width: 3rem;
   border: 1px solid black;
-  background: repeating-linear-gradient(-45deg, transparent 0 5px, $primary-color 5px 10px);
+  background: repeating-linear-gradient(-45deg, transparent 0 5px, colors.$primary-color 5px 10px);
   font-size: 30pt;
   display: flex;
   justify-content: center;
@@ -40,7 +40,7 @@
 }
 
 .selected {
-  background: repeating-linear-gradient(-45deg, transparent 0 5px, $secondary-color 5px 10px);
+  background: repeating-linear-gradient(-45deg, transparent 0 5px, colors.$secondary-color 5px 10px);
 }
 
 .radweg {
@@ -49,7 +49,7 @@
   justify-content: center;
   align-items: center;
   width: 6rem;
-  background: $primary-color;
+  background: colors.$primary-color;
   border-top: 1px solid black;
   border-bottom: 1px solid black;
   user-select: none;
@@ -74,7 +74,7 @@
   display: flex;
   align-items: center;
   padding: 0 0.4rem;
-  color: $primary-color;
+  color: colors.$primary-color;
 }
 
 .badge span:after {

@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.weitereKartenebenen.schnittstelle;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -154,7 +155,7 @@ public class DateiLayerController {
 
 		try {
 			dateiLayerService.deleteStyle(layerId);
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException | InterruptedException | URISyntaxException e) {
 			throw new RuntimeException(
 				"Es ist ein unbekannter Fehler beim Entfernen eines DateiLayer-Styles aufgetreten.",
 				e);

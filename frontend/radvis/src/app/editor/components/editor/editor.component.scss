@@ -12,8 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -31,7 +32,7 @@
 
 .map-left-tools {
   background-color: white;
-  border-right: 1px solid map-get($grayscale, 300);
+  border-right: 1px solid map.get(colors.$grayscale, 300);
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -44,7 +45,7 @@
   background-color: rgba(255, 255, 255, 0.95);
 
   .mat-mdc-toolbar {
-    background: map-get($radvis-accent-palette, 600);
+    background: map.get(colors.$radvis-accent-palette, 600);
     color: #fff;
   }
 
@@ -53,7 +54,7 @@
 
     &:focus,
     &:hover {
-      background: map-get($radvis-accent-palette, 100);
+      background: map.get(colors.$radvis-accent-palette, 100);
     }
   }
 
@@ -92,7 +93,7 @@
 }
 
 .hinweis {
-  border-bottom: 1px solid map-get($grayscale, 100);
+  border-bottom: 1px solid map.get(colors.$grayscale, 100);
 }
 
 .loading-panel {

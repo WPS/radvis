@@ -33,17 +33,17 @@
   AUTHORITY[&quot;EPSG&quot;,&quot;25832&quot;]]</nativeCRS>
   <srs>EPSG:25832</srs>
   <nativeBoundingBox>
-    <minx>500225.01008097274</minx>
-    <maxx>500347.4623739816</maxx>
-    <miny>5410780.000402923</miny>
-    <maxy>5410930.803395945</maxy>
+    <minx>184738</minx>
+    <maxx>936166</maxx>
+    <miny>4990738</miny>
+    <maxy>6228213</maxy>
     <crs class="projected">EPSG:25832</crs>
   </nativeBoundingBox>
   <latLonBoundingBox>
-    <minx>9.00306712322033</minx>
-    <maxx>9.00473640425786</maxx>
-    <miny>48.84998905320982</miny>
-    <maxy>48.8513457108977</maxy>
+    <minx>5</minx>
+    <maxx>16</maxx>
+    <miny>45</miny>
+    <maxy>56</maxy>
     <crs>EPSG:4326</crs>
   </latLonBoundingBox>
   <projectionPolicy>FORCE_DECLARED</projectionPolicy>
@@ -171,6 +171,12 @@
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
       <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>radkultur</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>1</maxOccurs>
+      <binding>java.lang.Boolean</binding>
     </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>

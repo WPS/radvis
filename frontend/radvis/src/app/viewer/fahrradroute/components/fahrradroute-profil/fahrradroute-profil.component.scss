@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
 
 :host {
   display: flex;
@@ -25,7 +25,7 @@
 }
 
 .breadcrumb-active {
-  color: $color-primary-default;
+  color: colors.$color-primary-default;
   font-weight: bold;
 }
 

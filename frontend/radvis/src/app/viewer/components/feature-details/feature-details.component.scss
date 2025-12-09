@@ -12,10 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
+@use 'src/style/spacing';
 
 :host {
-  width: $viewer-side-bar-width;
+  width: spacing.$viewer-side-bar-width;
   display: flex;
   flex-direction: column;
   overflow: hidden;

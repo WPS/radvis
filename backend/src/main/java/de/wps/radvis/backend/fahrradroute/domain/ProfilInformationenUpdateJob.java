@@ -18,7 +18,9 @@ import java.util.Optional;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -59,5 +61,15 @@ public class ProfilInformationenUpdateJob extends AbstractJob {
 		fahrradrouteService.updateProfilEigenschaftenVonRadvisUndTfisRouten(profilInformationenUpdateStatistik);
 		log.info(profilInformationenUpdateStatistik.toString());
 		return Optional.of(profilInformationenUpdateStatistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Aktualisiert Profilinformationen (z.B. Radverkehrsführung) von Fahrradrouten für z.B. das Höhenprofil. Nur TFIS- und RadVIS-Routen werden hierbei betrachtet.",
+			"Die Profilinformationen werden in der DB gespeichert.",
+			"Es müssen Höheninfos für den DLM-GraphHopper vorhanden sein und dieser muss geladen sein.",
+			JobExecutionDurationEstimate.LONG
+		);
 	}
 }

@@ -21,12 +21,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.geotools.api.feature.Property;
+import org.geotools.api.feature.type.Name;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Envelope;
@@ -49,8 +54,10 @@ import de.wps.radvis.backend.common.schnittstelle.GeoJsonExportConverter;
 import de.wps.radvis.backend.common.schnittstelle.repositoryImpl.GeoJsonImportRepositoryImpl;
 import de.wps.radvis.backend.manuellerimport.common.domain.service.ManuellerImportService;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity.MassnahmenImportSession;
+import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.entity.MassnahmenImportZuordnung;
 import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject.MassnahmenImportAttribute;
 import de.wps.radvis.backend.massnahme.domain.MassnahmenExporterService;
+import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeListenDbViewTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
@@ -60,6 +67,7 @@ import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeViewRepository
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.matching.domain.valueObject.OsmMatchResult;
+import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -80,12 +88,8 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 	@Mock
 	private MassnahmeViewRepository massnahmeViewRepository;
 
-	private GeoJsonImportRepository geoJsonImportRepository;
-
 	@Mock
 	private ManuellerImportService manuellerImportService;
-
-	private MassnahmeNetzbezugService massnahmeNetzbezugService;
 
 	@Mock
 	private VerwaltungseinheitService verwaltungseinheitService;
@@ -111,9 +115,10 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 	public void setup() {
 		MockitoAnnotations.openMocks(this);
 
-		geoJsonImportRepository = new GeoJsonImportRepositoryImpl(
+		GeoJsonImportRepository geoJsonImportRepository = new GeoJsonImportRepositoryImpl(
 			new CoordinateReferenceSystemConverter(new Envelope(0, 0, 100, 100)));
-		massnahmeNetzbezugService = new MassnahmeNetzbezugService(simpleMatchingService, netzService);
+		MassnahmeNetzbezugService massnahmeNetzbezugService = new MassnahmeNetzbezugService(
+			simpleMatchingService, netzService);
 		geoJsonExportConverter = new GeoJsonExportConverter();
 
 		massnahmenExporterService = new MassnahmenExporterService(massnahmeViewRepository);
@@ -124,7 +129,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 
 	@Test
 	public void exportImport_simple() throws OrganisationsartUndNameNichtEindeutigException {
-		Kante kante = KanteTestDataProvider.withDefaultValues().id(12l).build();
+		Kante kante = KanteTestDataProvider.withDefaultValues().id(12L).build();
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(new AbschnittsweiserKantenSeitenBezug(
 				kante, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.BEIDSEITIG)),
@@ -132,7 +137,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).sonstigeKonzeptionsquelle(null).netzbezug(netzbezug)
-			.id(23l).build();
+			.id(23L).build();
 		Massnahme savedMassnahme = exportAndReimport(massnahme);
 
 		assertThat(savedMassnahme).usingRecursiveComparison()
@@ -142,14 +147,14 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 
 	@Test
 	public void exportImport_punktAufKante() throws OrganisationsartUndNameNichtEindeutigException {
-		Kante kante = KanteTestDataProvider.withDefaultValues().id(12l).build();
+		Kante kante = KanteTestDataProvider.withDefaultValues().id(12L).build();
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(), Set.of(new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.5), Seitenbezug.BEIDSEITIG)),
 			Collections.emptySet());
 
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).sonstigeKonzeptionsquelle(null).netzbezug(netzbezug)
-			.id(23l).build();
+			.id(23L).build();
 		Massnahme savedMassnahme = exportAndReimport(massnahme);
 
 		assertThat(savedMassnahme.getNetzbezug()).isEqualTo(netzbezug);
@@ -157,27 +162,68 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 
 	@Test
 	public void exportImport_punktAufKnoten() throws OrganisationsartUndNameNichtEindeutigException {
-		Knoten knoten = KnotenTestDataProvider.withDefaultValues().id(12l).build();
+		Knoten knoten = KnotenTestDataProvider.withDefaultValues().id(12L).build();
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(), Set.of(),
 			Set.of(knoten));
 
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).sonstigeKonzeptionsquelle(null).netzbezug(netzbezug)
-			.id(23l).build();
+			.id(23L).build();
 		Massnahme savedMassnahme = exportAndReimport(massnahme);
 
 		assertThat(savedMassnahme.getNetzbezug()).isEqualTo(netzbezug);
 	}
 
+	@Test
+	public void allImportableAttributesAreExportedAndCanBeReimported() {
+		// arrange
+		long massnahmeId = 23L;
+		Massnahme massnahme = MassnahmeTestDataProvider
+			.withKanten(KanteTestDataProvider.withDefaultValues().id(12L).build())
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+			.id(massnahmeId)
+			.build();
+		MassnahmeListenDbView massnahmeListenDbView = MassnahmeListenDbViewTestDataProvider
+			.withMassnahme(massnahme).build();
+
+		long organisationsId = 1L;
+		when(verwaltungseinheitService.getVereintenBereich(List.of(organisationsId)))
+			.thenReturn(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100));
+		when(massnahmeViewRepository.findAllByIdIn(List.of(massnahmeId))).thenReturn(List.of(massnahmeListenDbView));
+		when(verwaltungseinheitService.getAllNames(any())).thenReturn("bereiche");
+
+		List<ExportData> export = massnahmenExporterService.export(List.of(massnahmeId));
+		byte[] geoJson = geoJsonExportConverter.convert(export);
+
+		MassnahmenImportSession session = massnahmenImportService.createSession(
+			BenutzerTestDataProvider.defaultBenutzer().build(),
+			List.of(organisationsId),
+			massnahmeListenDbView.getKonzeptionsquelle(),
+			null
+		);
+
+		// act
+		massnahmenImportService.ladeFeatures(session, geoJson);
+
+		// assert
+		assertThat(session.getZuordnungen()).hasSize(1);
+		assertThat(session.getZuordnungen().get(0).getFeature().getProperties())
+			.extracting(Property::getName)
+			.extracting(Name::toString)
+			.containsAll(Stream.of(MassnahmenImportAttribute.values())
+				.map(MassnahmenImportAttribute::toString)
+				.toList());
+	}
+
 	private Massnahme exportAndReimport(Massnahme massnahme) throws OrganisationsartUndNameNichtEindeutigException {
-		long organisationsId = 1l;
+		long organisationsId = 1L;
 		Set<Kante> abschnittKanten = massnahme.getNetzbezug().getImmutableKantenAbschnittBezug().stream()
-			.map(ab -> ab.getKante()).collect(Collectors.toSet());
+			.map(AbschnittsweiserKantenBezug::getKante).collect(Collectors.toSet());
 		Set<Kante> punktKanten = massnahme.getNetzbezug().getImmutableKantenPunktBezug().stream()
-			.map(ab -> ab.getKante())
+			.map(PunktuellerKantenSeitenBezug::getKante)
 			.collect(Collectors.toSet());
-		Set<Kante> allKanten = abschnittKanten;
+		Set<Kante> allKanten = new HashSet<>(abschnittKanten);
 		allKanten.addAll(punktKanten);
 
 		assertThat(allKanten).allMatch(k -> k.getId() != null, "Bitte Kanten mit IDs ausstatten");
@@ -186,6 +232,7 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 			.thenReturn(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 100, 100));
 		when(massnahmeViewRepository.findAllByIdIn(any())).thenReturn(List.of(MassnahmeListenDbViewTestDataProvider
 			.withMassnahme(massnahme).build()));
+		assertThat(massnahme.getZustaendiger()).isPresent();
 		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(
 			eq(massnahme.getZustaendiger().get().getName()),
 			eq(massnahme.getZustaendiger().get().getOrganisationsArt()))).thenReturn(massnahme.getZustaendiger());
@@ -200,13 +247,13 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 		});
 
 		when(netzService.getRadVisNetzKantenInBereich(any()))
-			.thenReturn(punktKanten.stream().collect(Collectors.toList()));
+			.thenReturn(new ArrayList<>(punktKanten));
 		when(netzService.getRadVisNetzKnotenInBereich(any()))
-			.thenReturn(massnahme.getNetzbezug().getImmutableKnotenBezug().stream().collect(Collectors.toList()));
+			.thenReturn(new ArrayList<>(massnahme.getNetzbezug().getImmutableKnotenBezug()));
 		when(netzService.getKante(anyLong()))
 			.thenAnswer(
 				i -> abschnittKanten.stream().filter(k -> Objects.equal(k.getId(), i.getArguments()[0])).findAny()
-					.get());
+					.orElseThrow());
 
 		ArgumentCaptor<Massnahme> savedMassnahmeCaptor = ArgumentCaptor.forClass(Massnahme.class);
 		when(massnahmeRepository.save(savedMassnahmeCaptor.capture())).thenAnswer(i -> i.getArguments()[0]);
@@ -221,9 +268,8 @@ public class ManuellerMassnahmenImportServiceIntegrationTest {
 		massnahmenImportService.attributeValidieren(session, List.of(MassnahmenImportAttribute.values()));
 		massnahmenImportService.erstelleNetzbezuege(session);
 		massnahmenImportService.speichereMassnahmenDerZuordnungen(session,
-			session.getZuordnungen().stream().map(z -> z.getId()).collect(Collectors.toList()));
+			session.getZuordnungen().stream().map(MassnahmenImportZuordnung::getId).collect(Collectors.toList()));
 
-		Massnahme savedMassnahme = savedMassnahmeCaptor.getValue();
-		return savedMassnahme;
+		return savedMassnahmeCaptor.getValue();
 	}
 }

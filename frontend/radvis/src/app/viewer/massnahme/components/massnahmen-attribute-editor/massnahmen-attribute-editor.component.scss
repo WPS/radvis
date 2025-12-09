@@ -12,8 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/font-style';
-@import 'src/style/spacing';
+@use 'src/style/font-style' as font;
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use 'sass:map';
 
 // Die geerbte group Klasse aus dem abstract-attribute-gruppe-editor css
 // setzt flex auf den Elementen für Netzklassen und IstStandards, die in
@@ -27,11 +29,11 @@
 }
 
 .netzklassen-group {
+  margin-top: 0.5rem;
+
   > * {
     margin-top: 0.5rem;
   }
-
-  margin-top: 0.5rem;
 }
 
 .archivieren-button {
@@ -43,4 +45,10 @@
   flex-direction: column;
   position: sticky;
   bottom: 0px;
+}
+
+.stornierung-anfrage-hinweis {
+  border: 1px solid map.get(colors.$radvis-primary-palette, 500);
+  border-radius: 3px;
+  background-color: map.get(colors.$radvis-primary-palette, 50);
 }

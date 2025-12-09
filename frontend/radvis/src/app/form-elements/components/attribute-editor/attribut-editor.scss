@@ -12,9 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/font-style';
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/style/font-style' as font;
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   height: 100%;
@@ -41,15 +42,15 @@
 .group .header {
   align-self: stretch;
   height: 2rem;
-  background-color: $font-background-peripheral;
-  color: $font-color-peripheral;
-  font-size: $font-size-peripheral;
+  background-color: font.$font-background-peripheral;
+  color: font.$font-color-peripheral;
+  font-size: font.$font-size-peripheral;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid map-get($grayscale, 100);
-  border-top: 1px solid map-get($grayscale, 100);
-  margin-left: -$padding-attribute-editor-x;
-  margin-right: -$padding-attribute-editor-x;
+  border-bottom: 1px solid map.get(colors.$grayscale, 100);
+  border-top: 1px solid map.get(colors.$grayscale, 100);
+  margin-left: -(spacing.$padding-attribute-editor-x);
+  margin-right: -(spacing.$padding-attribute-editor-x);
   margin-bottom: 0.5rem;
   padding-left: 0.5rem;
   justify-content: space-between;
@@ -57,7 +58,7 @@
 
 .editing-not-allowed-hinweis {
   padding: 1rem 0.5rem;
-  border-bottom: 1px solid map-get($grayscale, 100);
+  border-bottom: 1px solid map.get(colors.$grayscale, 100);
 }
 
 .attribute-editor {

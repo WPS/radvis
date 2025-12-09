@@ -416,34 +416,85 @@ describe(WeitereKartenebenenVerwaltungDialogComponent.name, () => {
   }));
 
   describe('datei-layer', () => {
-    const layers: DateiLayer[] = [
-      {
-        id: 123,
-        quellangabe: 'Quellekatalog',
-        name: 'no-name',
-        geoserverLayerName: 'foobar-layer',
-        benutzer: {
-          vorname: 'Vor dem Namen ist nach dem Namen',
-          nachname: 'Nach dem Namen ist vor dem Namen',
-        } as BenutzerName,
-        erstelltAm: 'irgendwann',
-        format: DateiLayerFormat.GEOJSON,
-      } as DateiLayer,
-      {
-        id: 234,
-        quellangabe: 'Quallenangabe',
-        name: 'wichtiger Name',
-        geoserverLayerName: 'wichtiger-foobar-layer',
-        benutzer: {
-          vorname: 'Johann Wolfgang',
-          nachname: 'van Beethoven',
-        } as BenutzerName,
-        erstelltAm: 'nicht heute',
-        format: DateiLayerFormat.SHAPE,
-      } as DateiLayer,
-    ];
+    it('should have valid uri for layernames with spaces', fakeAsync(() => {
+      when(dateiLayerService.getAll()).thenResolve([
+        {
+          id: 123,
+          quellangabe: 'Quellekatalog',
+          name: 'no-name',
+          geoserverLayerName: 'foobar-layer 1',
+          benutzer: {
+            vorname: 'Vor dem Namen ist nach dem Namen',
+            nachname: 'Nach dem Namen ist vor dem Namen',
+          } as BenutzerName,
+          erstelltAm: 'irgendwann',
+          format: DateiLayerFormat.GEOJSON,
+        },
+      ]);
+      fixture = MockRender(
+        WeitereKartenebenenVerwaltungDialogComponent,
+        {} as WeitereKartenebenenVerwaltungDialogComponent,
+        {
+          reset: true,
+        }
+      );
+      component = fixture.point.componentInstance;
+      fixture.detectChanges();
+      tick();
+      component.onAddPredefinedWeitereKartenebenen(component.dateiLayerKartenebenen[0]);
+
+      expect(component.weitereKartenebenenFormArray.length).toBe(1);
+      expect(component.weitereKartenebenenFormArray.valid).toBeTrue();
+    }));
+
+    it('should save predefinedKatenebene', () => {
+      const saveCommand = {
+        name: 'ABC-Layer',
+        url: window.location.origin + '/api/geoserver/saml/datei-layer/wms?LAYERS=datei-layer:foobar-layer&TILED=true',
+        weitereKartenebeneTyp: WeitereKartenebeneTyp.WMS,
+        deckkraft: 1.0,
+        zoomstufe: 8.7,
+        zindex: 1000,
+        quellangabe: 'Test',
+        dateiLayerId: 123,
+        defaultLayer: false,
+        id: null,
+      };
+      component.onAddPredefinedWeitereKartenebenen({ ...saveCommand });
+      component.onSave();
+
+      verify(weitereKartenebenenService.save(anything())).once();
+      expect(capture(weitereKartenebenenService.save).last()[0]).toEqual([{ ...saveCommand, farbe: undefined }]);
+    });
 
     it('should create save-commands for datei-layer', fakeAsync(() => {
+      const layers: DateiLayer[] = [
+        {
+          id: 123,
+          quellangabe: 'Quellekatalog',
+          name: 'no-name',
+          geoserverLayerName: 'foobar-layer',
+          benutzer: {
+            vorname: 'Vor dem Namen ist nach dem Namen',
+            nachname: 'Nach dem Namen ist vor dem Namen',
+          } as BenutzerName,
+          erstelltAm: 'irgendwann',
+          format: DateiLayerFormat.GEOJSON,
+        },
+        {
+          id: 234,
+          quellangabe: 'Quallenangabe',
+          name: 'wichtiger Name',
+          geoserverLayerName: 'wichtiger-foobar-layer',
+          benutzer: {
+            vorname: 'Johann Wolfgang',
+            nachname: 'van Beethoven',
+          } as BenutzerName,
+          erstelltAm: 'nicht heute',
+          format: DateiLayerFormat.SHAPE,
+        },
+      ];
+
       when(dateiLayerService.getAll()).thenResolve(layers);
       fixture = MockRender(
         WeitereKartenebenenVerwaltungDialogComponent,

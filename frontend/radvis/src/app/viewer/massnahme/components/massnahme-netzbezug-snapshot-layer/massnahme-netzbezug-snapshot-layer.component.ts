@@ -12,14 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy } from '@angular/core';
-import { Geometry } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import { GeometryCollectionGeojson, geojsonGeometryToFeature } from 'src/app/shared/models/geojson-geometrie';
+import { geojsonGeometryToFeature, GeometryCollectionGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { kanteHighlightLayerZIndex } from 'src/app/viewer/viewer-shared/models/viewer-layer-zindex-config';
 import invariant from 'tiny-invariant';
+import Feature from 'ol/Feature';
+import { Geometry } from 'ol/geom';
 
 @Component({
   selector: 'rad-massnahme-netzbezug-snapshot-layer',
@@ -31,8 +32,8 @@ export class MassnahmeNetzbezugSnapshotLayerComponent implements OnDestroy, OnCh
   @Input()
   geometrie!: GeometryCollectionGeojson;
 
-  private source = new VectorSource<Geometry>();
-  private layer = new VectorLayer({
+  private source = new VectorSource<Feature<Geometry>>();
+  private layer = new VectorLayer<VectorSource<Feature<Geometry>>>({
     source: this.source,
     zIndex: kanteHighlightLayerZIndex,
     style: MapStyles.getDefaultHighlightStyle(MapStyles.FEATURE_SELECT_COLOR),

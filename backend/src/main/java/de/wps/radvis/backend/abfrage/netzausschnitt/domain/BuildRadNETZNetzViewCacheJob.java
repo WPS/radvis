@@ -22,7 +22,9 @@ import java.util.Set;
 import org.locationtech.jts.geom.Envelope;
 
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.entity.NetzMapView;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.StreckeVonKanten;
@@ -63,5 +65,14 @@ public class BuildRadNETZNetzViewCacheJob extends RadNetzCacheViewJob<NetzMapVie
 	@Override
 	protected Set<NetzklasseFilter> getNetzklassenFilter() {
 		return Set.of(NetzklasseFilter.RADNETZ);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Aktualisiert den internen In-Memory-Cache für RadNETZ-Kanten zur Darstellung auf hohen Zoomstufen.",
+			"In-Memory-Cache wird aktualisiert, ansonsten keine persistente Datenhaltung.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

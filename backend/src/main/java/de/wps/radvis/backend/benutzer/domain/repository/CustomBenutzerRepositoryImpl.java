@@ -21,9 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerDBListView;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;

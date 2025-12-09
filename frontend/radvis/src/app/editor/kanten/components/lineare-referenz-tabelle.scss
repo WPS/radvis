@@ -12,9 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
-@import 'src/style/colors';
-@import 'src/theme';
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use 'src/theme';
+@use "sass:map";
 
 table {
   background-color: white;
@@ -24,7 +25,7 @@ table {
 }
 
 td {
-  border: 1px solid map-get($grayscale, 100);
+  border: 1px solid map.get(colors.$grayscale, 100);
   text-align: left;
   padding: 0;
 }

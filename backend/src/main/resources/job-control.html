@@ -19,7 +19,22 @@
   <title>RadVIS Server</title>
   <style>
     li {
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.2rem;
+    }
+    ul {
+      margin-bottom: 1.5rem;
+    }
+    table {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+      color: #505050;
+    }
+    table, th, td {
+      border: 1px solid #eaeaea;
+      border-collapse: collapse;
+    }
+    td {
+      padding: 0.1rem;
     }
   </style>
 </head>
@@ -27,12 +42,13 @@
 
 <h2>Import-Jobs</h2>
 <ul>
-  <li><a href="/jobs/initial">Jobs initial ausführen</a></li>
-  <li><a href="/jobs/run">Jobs erneut ausführen</a></li>
+  <li><a href="/jobs/switchJobMode">Job-Modus Toggeln</a></li>
   <li><a href="/jobs/list">Jobs auflisten</a></li>
-  <li><a href="/jobs/listDetails">Jobs auflisten (Details)</a></li>
-  <li><a href="/jobs/run/attributprojektionsjobAndPrerequisites">Attributprojektionsjob und Vorraussetzungen
+  <li><a href="/jobs/listDetails">Job Details und Statistiken der letzten Ausführungen anzeigen</a></li>
+  <li><a href="/jobs/run/attributprojektionsjobAndPrerequisites" style="color: #a0a0a0">DEPRECATED: Attributprojektionsjob und Vorraussetzungen
     ausführen</a></li>
+  <li><a href="/jobs/initial" style="color: #a0a0a0">DEPRECATED: Initiale Jobs ausführen</a></li>
+  <li><a href="/jobs/run" style="color: #a0a0a0">DEPRECATED: Initiale Jobs erneut ausführen</a></li>
 </ul>
 
 <h2>Nächtlicher Job Schedule</h2>

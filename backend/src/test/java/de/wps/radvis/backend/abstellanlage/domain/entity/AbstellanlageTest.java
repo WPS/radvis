@@ -15,6 +15,9 @@
 package de.wps.radvis.backend.abstellanlage.domain.entity;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -24,6 +27,7 @@ import de.wps.radvis.backend.abstellanlage.domain.entity.provider.AbstellanlageT
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBeschreibung;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenBetreiber;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenOrt;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlLademoeglichkeiten;
@@ -34,6 +38,7 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProJahr;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProTag;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Groessenklasse;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.MobiDataQuellId;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -48,6 +53,30 @@ class AbstellanlageTest {
 				.abstellanlagenOrt(AbstellanlagenOrt.SONSTIGES)
 				.groessenklasse(Groessenklasse.HOTSPOT_XL)
 				.build());
+	}
+
+	@Test
+	void konstruktor_QuellSystemMobiData_MobidataQuellIdRequired() {
+		Abstellanlage.AbstellanlageBuilder abstellanlageBuilderMobiData = AbstellanlageTestDataProvider
+			.withDefaultValues()
+			.quellSystem(AbstellanlagenQuellSystem.MOBIDATABW);
+
+		assertThatNoException().isThrownBy(() -> abstellanlageBuilderMobiData.mobiDataQuellId(MobiDataQuellId.of(10)));
+
+		assertThatExceptionOfType(RequireViolation.class).isThrownBy(() -> abstellanlageBuilderMobiData.mobiDataQuellId(
+			null).build());
+	}
+
+	@Test
+	void konstruktor_QuellSystemRadVIS_MobidataQuellIdDarfNichtGesetztSein() {
+		Abstellanlage.AbstellanlageBuilder abstellanlageBuilderRadVIS = AbstellanlageTestDataProvider
+			.withDefaultValues()
+			.quellSystem(AbstellanlagenQuellSystem.RADVIS);
+
+		assertThatNoException().isThrownBy(() -> abstellanlageBuilderRadVIS.mobiDataQuellId(null));
+
+		assertThatExceptionOfType(RequireViolation.class).isThrownBy(() -> abstellanlageBuilderRadVIS.mobiDataQuellId(
+			MobiDataQuellId.of(10)).build());
 	}
 
 	@Test
@@ -75,5 +104,37 @@ class AbstellanlageTest {
 					AbstellanlagenStatus.AKTIV
 				));
 	}
+
+	@Test
+	void update_nurFuerQuellsystemRadVIS() {
+		assertThatNoException().isThrownBy(() -> defaultUpdate.accept(
+			AbstellanlageTestDataProvider.withDefaultValues().quellSystem(AbstellanlagenQuellSystem.RADVIS).build()
+		));
+
+		assertThatExceptionOfType(RequireViolation.class).isThrownBy(() -> defaultUpdate.accept(
+			AbstellanlageTestDataProvider.withDefaultValues().quellSystem(AbstellanlagenQuellSystem.MOBIDATABW).build()
+		));
+	}
+
+	Consumer<Abstellanlage> defaultUpdate = abstellanlage -> abstellanlage.update(
+		GeometryTestdataProvider.createPoint(new Coordinate(0, 0)),
+		AbstellanlagenBetreiber.of("betreiberString"),
+		ExterneAbstellanlagenId.of("externe-id_12###"),
+		null,
+		AnzahlStellplaetze.of(20),
+		AnzahlSchliessfaecher.of(10),
+		AnzahlLademoeglichkeiten.of(2),
+		Ueberwacht.UNBEKANNT,
+		AbstellanlagenOrt.SONSTIGES,
+		null,
+		Stellplatzart.FAHRRADBOX,
+		Ueberdacht.of(false),
+		GebuehrenProTag.of(2),
+		GebuehrenProMonat.of(10),
+		GebuehrenProJahr.of(100),
+		AbstellanlagenBeschreibung.of("beschreibung"),
+		AbstellanlagenWeitereInformation.of("weitereInformation"),
+		AbstellanlagenStatus.AKTIV
+	);
 
 }

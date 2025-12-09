@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright (c) 2023 WPS - Workplace Solutions GmbH
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
+  ~
+  ~ You may not use this work except in compliance with the Licence.
+  ~ You may obtain a copy of the Licence at:
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the Licence for the specific language governing permissions and limitations under the Licence.
+  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title th:remove="all">Template for HTML email</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>Sehr geehrte Damen und Herren,</p>
+<p>
+  soeben wurde für eine Maßnahme in Ihrem Zuständigkeitsbereich eine Stornierung angefragt.
+</p>
+<p>
+	<b>Begründung:</b></br>
+	<span th:text="${begruendung}"></span>
+</p>
+<p>
+	Angefragt von:</br>
+	<span th:text="${anfragerName}"></span> </br>
+	<a th:href="'mailto:'+${anfragerEmail}" th:text="${anfragerEmail}"></a>
+</p>
+<p>
+	Zuständige Organisation:</br>
+	<span th:text="${zustaendigerName}"></span>
+</p>
+<p>
+    Öffnen Sie die Maßnahme in RadVIS: <a th:href="${radvisLink}">Link zur Maßnahme</a>
+</p>
+<p><i>
+Falls Sie über die angegebenen Links nicht direkt an die korrekte Stelle in RadVIS geleitet werden, so melden Sie sich zuvor bitte bei RadVIS an und klicken anschließend erneut auf den jeweiligen Link.
+</i></p>
+<p>
+    Mit freundlichen Grüßen<br>
+    Ihr RadVIS
+</p>
+<p>
+    Diese E-Mail ist eine vom System generierte E-Mail.
+</p>
+<div th:replace="footer::footer(${radvisSupportMail})"></div>
+</body>
+</html>

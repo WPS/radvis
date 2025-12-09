@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.massnahme.schnittstelle.view;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.Umsetzungsstand;
@@ -46,7 +47,7 @@ public class UmsetzungsstandEditView {
 
 	private final Long kostenDerMassnahme;
 
-	private final GrundFuerNichtUmsetzungDerMassnahme grundFuerNichtUmsetzungDerMassnahme;
+	private final Optional<GrundFuerNichtUmsetzungDerMassnahme> grundFuerNichtUmsetzungDerMassnahme;
 
 	private final String anmerkung;
 	private final boolean canEdit;

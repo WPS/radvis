@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/theme';
+@use 'src/style/colors';
 
 :host {
   display: block;
@@ -46,5 +46,5 @@ button {
   position: absolute;
   left: -0.4rem;
   top: -0.3rem;
-  border: 5px solid $secondary-color;
+  border: 5px solid colors.$secondary-color;
 }

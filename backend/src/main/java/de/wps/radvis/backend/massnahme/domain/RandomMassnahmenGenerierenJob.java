@@ -30,7 +30,9 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -227,5 +229,14 @@ public class RandomMassnahmenGenerierenJob extends AbstractJob {
 	private Konzeptionsquelle createRandomKonzeptionsquelle() {
 		Konzeptionsquelle[] alleStatusse = Konzeptionsquelle.values();
 		return alleStatusse[random.nextInt(alleStatusse.length)];
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Erzeugt " + ANZAHL_RANDOM_MASSNAHMEN + " Maßnahmen mit zufälligen Attributen und zufälligen Netzbezügen.",
+			"Es werden " + ANZAHL_RANDOM_MASSNAHMEN + " neue Maßnahmen in der DB gespeichert.",
+			JobExecutionDurationEstimate.MEDIUM
+		);
 	}
 }

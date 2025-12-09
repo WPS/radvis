@@ -453,7 +453,10 @@ export class KantenAttributeEditorComponent extends AbstractAttributGruppeEditor
   }
 
   private subscribeToNetzklassenChanges(): Subscription | undefined {
-    return this.getNetzklassenFromGroup()?.valueChanges.subscribe((value: NetzklasseFlatUndertermined) => {
+    return this.getNetzklassenFromGroup()?.valueChanges.subscribe(() => {
+      // Wir nehmen .getRawValue(), da Teile der NetzklassenFormGroup disabled sein können, abh. von Berechtigungen.
+      // Diese Controls sind dadurch im value undefined.
+      const value: NetzklasseFlatUndertermined = this.getNetzklassenFromGroup()?.getRawValue();
       const currentNetzklassen = this.kanteSelektionService.selektion.map(s =>
         NetzklassenConverterService.convertFlatUndeterminedToNetzklassen(
           value,

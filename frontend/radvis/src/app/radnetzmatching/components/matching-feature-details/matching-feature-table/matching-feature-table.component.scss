@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: block;
@@ -39,15 +40,15 @@ table {
 }
 
 .feature-header.primary-color {
-  background-color: $primary-color;
+  background-color: colors.$primary-color;
 }
 
 .feature-header.secondary-color {
-  background-color: $secondary-color;
+  background-color: colors.$secondary-color;
 }
 
 .feature-header.generic-highlight-color {
-  background-color: map-get($radvis-accent-palette, 500);
+  background-color: map.get(colors.$radvis-accent-palette, 500);
 }
 
 .zuordnen-buttons {

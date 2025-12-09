@@ -14,13 +14,14 @@
 
 package de.wps.radvis.backend.netzfehler;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.konsistenz.pruefung.domain.KonsistenzregelVerletzungsRepository;
 import de.wps.radvis.backend.netzfehler.domain.AnpassungswuenscheConfigurationProperties;
@@ -42,26 +43,32 @@ public class NetzfehlerConfiguration {
 	private final BenutzerResolver benutzerResolver;
 	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 	private final FahrradrouteFilterRepository fahrradrouteFilterRepository;
-	private AnpassungswuenscheConfigurationProperties anpassungswuenscheConfigurationProperties;
+	private final AnpassungswuenscheConfigurationProperties anpassungswuenscheConfigurationProperties;
+	private final CommonConfigurationProperties commonConfigurationProperties;
+	private final NetzfehlerRepository netzfehlerRepository;
+	private final AnpassungswunschRepository anpassungswunschRepository;
+	private final KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository;
+	private final MailService mailService;
 
 	NetzfehlerConfiguration(@NonNull BenutzerResolver benutzerResolver,
 		VerwaltungseinheitResolver verwaltungseinheitResolver,
 		FahrradrouteFilterRepository fahrradrouteFilterRepository,
-		AnpassungswuenscheConfigurationProperties anpassungswuenscheConfigurationProperties) {
+		AnpassungswuenscheConfigurationProperties anpassungswuenscheConfigurationProperties,
+		CommonConfigurationProperties commonConfigurationProperties,
+		NetzfehlerRepository netzfehlerRepository,
+		AnpassungswunschRepository anpassungswunschRepository,
+		KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository, MailService mailService
+	) {
 		this.anpassungswuenscheConfigurationProperties = anpassungswuenscheConfigurationProperties;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 		this.benutzerResolver = benutzerResolver;
 		this.fahrradrouteFilterRepository = fahrradrouteFilterRepository;
+		this.commonConfigurationProperties = commonConfigurationProperties;
+		this.netzfehlerRepository = netzfehlerRepository;
+		this.anpassungswunschRepository = anpassungswunschRepository;
+		this.konsistenzregelVerletzungsRepository = konsistenzregelVerletzungsRepository;
+		this.mailService = mailService;
 	}
-
-	@Autowired
-	private NetzfehlerRepository netzfehlerRepository;
-
-	@Autowired
-	private AnpassungswunschRepository anpassungswunschRepository;
-
-	@Autowired
-	private KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository;
 
 	@Bean
 	public NetzfehlerService netzfehlerService() {
@@ -70,8 +77,15 @@ public class NetzfehlerConfiguration {
 
 	@Bean
 	public AnpassungswunschService anpassungswunschService() {
-		return new AnpassungswunschService(anpassungswunschRepository, konsistenzregelVerletzungsRepository,
-			fahrradrouteFilterRepository, anpassungswuenscheConfigurationProperties.getDistanzZuFahrradrouteInMetern());
+		return new AnpassungswunschService(
+			anpassungswunschRepository,
+			konsistenzregelVerletzungsRepository,
+			fahrradrouteFilterRepository,
+			mailService,
+			commonConfigurationProperties.getBasisUrl(),
+			anpassungswuenscheConfigurationProperties.getEmailProKategorie(),
+			anpassungswuenscheConfigurationProperties.getDistanzZuFahrradrouteInMetern()
+		);
 	}
 
 	@Bean

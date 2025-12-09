@@ -33,6 +33,7 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
+import { ZurueckstellungsGrund } from 'src/app/viewer/massnahme/models/zurueckstellung-grund';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/viewer-routing.service';
 import { ViewerModule } from 'src/app/viewer/viewer.module';
@@ -100,6 +101,75 @@ describe(MassnahmenCreatorComponent.name, () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('onUmsetzungsstatusChanged', () => {
+    it('should enable zurueckstellungsgrund if ZURUECKGESTELLT', () => {
+      component.formGroup.controls.zurueckstellungsGrund.reset();
+      component.formGroup.controls.zurueckstellungsGrund.disable();
+
+      component.formGroup.controls.umsetzungsstatus.setValue(Umsetzungsstatus.ZURUECKGESTELLT);
+
+      expect(component.formGroup.controls.zurueckstellungsGrund.enabled).toBeTrue();
+      expect(component.formGroup.value.zurueckstellungsGrund).toBeNull();
+    });
+
+    it('should disabled/reset zurueckstellungsgrund if not ZURUECKGESTELLT', () => {
+      component.formGroup.controls.zurueckstellungsGrund.setValue(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN);
+      component.formGroup.controls.zurueckstellungsGrund.enable();
+
+      component.formGroup.controls.umsetzungsstatus.setValue(Umsetzungsstatus.PLANUNG);
+
+      expect(component.formGroup.controls.zurueckstellungsGrund.enabled).toBeFalse();
+      expect(component.formGroup.getRawValue().zurueckstellungsGrund).toBeFalsy();
+    });
+
+    it('should enable begruendung if zurueckstellungsgrund=WEITERE_GRUENDE', () => {
+      component.formGroup.controls.umsetzungsstatus.setValue(Umsetzungsstatus.ZURUECKGESTELLT);
+
+      component.formGroup.controls.begruendungZurueckstellung.reset();
+      component.formGroup.controls.begruendungZurueckstellung.disable();
+
+      component.formGroup.controls.zurueckstellungsGrund.setValue(ZurueckstellungsGrund.WEITERE_GRUENDE);
+
+      expect(component.formGroup.controls.begruendungZurueckstellung.enabled).toBeTrue();
+      expect(component.formGroup.controls.begruendungZurueckstellung.valid).toBeFalse();
+      expect(component.formGroup.value.begruendungZurueckstellung).toBeNull();
+    });
+
+    it('should disabled/reset begruendung if zurueckstellungsgrund!=WEITERE_GRUENDE', () => {
+      component.formGroup.controls.umsetzungsstatus.setValue(Umsetzungsstatus.ZURUECKGESTELLT);
+
+      component.formGroup.controls.begruendungZurueckstellung.setValue('Test');
+      component.formGroup.controls.begruendungZurueckstellung.enable();
+
+      component.formGroup.controls.zurueckstellungsGrund.setValue(
+        ZurueckstellungsGrund.PERSONELLE_ZEITLICHE_RESSOURCEN
+      );
+
+      expect(component.formGroup.controls.begruendungZurueckstellung.enabled).toBeFalse();
+      expect(component.formGroup.value.begruendungZurueckstellung).toBeFalsy();
+    });
+
+    it('should enable begruendung if STORNIERUNG_ANGEFRAGT', () => {
+      component.formGroup.controls.begruendungStornierungsanfrage.reset();
+      component.formGroup.controls.begruendungStornierungsanfrage.disable();
+
+      component.formGroup.controls.umsetzungsstatus.setValue(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT);
+
+      expect(component.formGroup.controls.begruendungStornierungsanfrage.enabled).toBeTrue();
+      expect(component.formGroup.value.begruendungStornierungsanfrage).toBeNull();
+    });
+
+    it('should disabled/reset begruendung if not STORNIERUNG_ANGEFRAGT', () => {
+      component.formGroup.controls.begruendungStornierungsanfrage.setValue('Test');
+      component.formGroup.controls.begruendungStornierungsanfrage.enable();
+
+      component.formGroup.controls.umsetzungsstatus.setValue(Umsetzungsstatus.PLANUNG);
+
+      expect(component.formGroup.controls.begruendungStornierungsanfrage.enabled).toBeFalse();
+      expect(component.formGroup.getRawValue().begruendungStornierungsanfrage).toBeFalsy();
+    });
   });
 
   describe('onKategorieChanged', () => {
@@ -232,7 +302,7 @@ describe(MassnahmenCreatorComponent.name, () => {
         bezeichnung: 'bezeichnung',
         massnahmenkategorien: ['UMWIDMUNG_GEMEINSAMER_RADGEHWEG'],
         netzbezug,
-        umsetzungsstatus: Umsetzungsstatus.IDEE,
+        umsetzungsstatus: Umsetzungsstatus.ZURUECKGESTELLT,
         veroeffentlicht: false,
         planungErforderlich: false,
         durchfuehrungszeitraum: 2020,
@@ -242,6 +312,7 @@ describe(MassnahmenCreatorComponent.name, () => {
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
         sonstigeKonzeptionsquelle: 'WAMBO',
+        zurueckstellungsGrund: ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN,
       };
 
       when(massnahmeService.createMassnahme(anything())).thenResolve(1);
@@ -252,11 +323,11 @@ describe(MassnahmenCreatorComponent.name, () => {
 
       verify(massnahmeService.createMassnahme(anything())).once();
       const command = capture(massnahmeService.createMassnahme).last()[0];
-      expect(command).toEqual({
+      const expected: CreateMassnahmeCommand = {
         bezeichnung: 'bezeichnung',
         massnahmenkategorien: ['UMWIDMUNG_GEMEINSAMER_RADGEHWEG'],
         netzbezug,
-        umsetzungsstatus: Umsetzungsstatus.IDEE,
+        umsetzungsstatus: Umsetzungsstatus.ZURUECKGESTELLT,
         veroeffentlicht: false,
         planungErforderlich: false,
         durchfuehrungszeitraum: { geplanterUmsetzungsstartJahr: 2020 },
@@ -266,7 +337,11 @@ describe(MassnahmenCreatorComponent.name, () => {
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
         sonstigeKonzeptionsquelle: 'WAMBO',
-      } as CreateMassnahmeCommand);
+        zurueckstellungsGrund: ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN,
+        begruendungStornierungsanfrage: null,
+        begruendungZurueckstellung: null,
+      };
+      expect(command).toEqual(expected);
     }));
   });
 
@@ -320,7 +395,7 @@ describe(MassnahmenCreatorComponent.name, () => {
         bezeichnung: 'bezeichnung',
         massnahmenkategorien: ['UMWIDMUNG_GEMEINSAMER_RADGEHWEG'],
         netzbezug,
-        umsetzungsstatus: Umsetzungsstatus.PLANUNG,
+        umsetzungsstatus: Umsetzungsstatus.ZURUECKGESTELLT,
         veroeffentlicht: true,
         planungErforderlich: false,
         durchfuehrungszeitraum: -5,
@@ -330,8 +405,10 @@ describe(MassnahmenCreatorComponent.name, () => {
         handlungsverantwortlicher: Handlungsverantwortlicher.VERKEHRSBEHOERDE_TECHNIK,
         konzeptionsquelle: Konzeptionsquelle.SONSTIGE,
         sonstigeKonzeptionsquelle: 'WAMBO',
+        zurueckstellungsGrund: ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN,
       };
       component.formGroup.patchValue(values);
+      component.formGroup.controls.zurueckstellungsGrund.enable();
 
       component.onReset();
 
@@ -349,6 +426,101 @@ describe(MassnahmenCreatorComponent.name, () => {
         handlungsverantwortlicher: null,
         konzeptionsquelle: null,
         sonstigeKonzeptionsquelle: null,
+      });
+    });
+  });
+
+  describe('erlaubte umsetzungsstatus', () => {
+    it('should disable Storniert-Status if radNETZ-Maßnahme and nutzer has no recht', () => {
+      component.umsetzungsstatusOptions = Umsetzungsstatus.options;
+      when(benutzerDetailsService.canMassnahmenStornieren()).thenReturn(false);
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME });
+
+      [
+        Umsetzungsstatus.STORNIERT_ENGSTELLE,
+        Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH,
+        Umsetzungsstatus.STORNIERT,
+      ].forEach(status => {
+        expect(component.umsetzungsstatusOptions.map(opt => opt.name).includes(status)).toBe(false);
+      });
+    });
+
+    it('should disable/reset Stornierung angefragt if no radNETZ-Maßnahme', () => {
+      component.umsetzungsstatusOptions = Umsetzungsstatus.options;
+      component.formGroup.patchValue({ umsetzungsstatus: Umsetzungsstatus.STORNIERUNG_ANGEFRAGT });
+
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.KOMMUNALES_KONZEPT });
+
+      expect(
+        component.umsetzungsstatusOptions.map(opt => opt.name).includes(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+      ).toBe(false);
+      expect(component.formGroup.controls.umsetzungsstatus.value).toBeFalsy();
+      expect(component.formGroup.controls.umsetzungsstatus.valid).toBeFalse();
+      expect(component.formGroup.controls.umsetzungsstatus.disabled).toBeFalse();
+    });
+
+    it('should enable Stornierung angefragt if radNETZ-Maßnahme', () => {
+      component.umsetzungsstatusOptions = [];
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME });
+
+      expect(
+        component.umsetzungsstatusOptions.map(opt => opt.name).includes(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+      ).toBe(true);
+    });
+
+    it('should reset nicht erlaubte umsetzungsstatus on konzeptionsquelle changed', () => {
+      when(benutzerDetailsService.canMassnahmenStornieren()).thenReturn(false);
+      component.formGroup.patchValue({
+        konzeptionsquelle: Konzeptionsquelle.KOMMUNALES_KONZEPT,
+        umsetzungsstatus: Umsetzungsstatus.STORNIERT_ENGSTELLE,
+      });
+
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME });
+
+      expect(component.formGroup.controls.umsetzungsstatus.value).toBeFalsy();
+      expect(component.formGroup.controls.umsetzungsstatus.valid).toBeFalse();
+      expect(component.formGroup.controls.umsetzungsstatus.disabled).toBeFalse();
+    });
+
+    it('should not reset erlaubte umsetzungsstatus on konzeptionsquelle changed', () => {
+      when(benutzerDetailsService.canMassnahmenStornieren()).thenReturn(false);
+      component.formGroup.patchValue({
+        konzeptionsquelle: Konzeptionsquelle.KOMMUNALES_KONZEPT,
+        umsetzungsstatus: Umsetzungsstatus.IDEE,
+      });
+
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME });
+
+      expect(component.formGroup.controls.umsetzungsstatus.value).toBe(Umsetzungsstatus.IDEE);
+    });
+
+    it('should enable Storniert-Status if no radNETZ-Maßnahme nutzer has no recht', () => {
+      component.umsetzungsstatusOptions = [];
+      when(benutzerDetailsService.canMassnahmenStornieren()).thenReturn(false);
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.KOMMUNALES_KONZEPT });
+
+      [Umsetzungsstatus.STORNIERT_ENGSTELLE, Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH].forEach(status => {
+        expect(component.umsetzungsstatusOptions.map(opt => opt.name).includes(status)).toBe(true);
+      });
+    });
+
+    it('should enable Storniert-Status initially', () => {
+      [
+        Umsetzungsstatus.STORNIERT_ENGSTELLE,
+        Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH,
+        Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+      ].forEach(status => {
+        expect(component.umsetzungsstatusOptions.map(opt => opt.name).includes(status)).toBe(true);
+      });
+    });
+
+    it('should enable Storniert-Status if radNETZ-Maßnahme nutzer has recht', () => {
+      component.umsetzungsstatusOptions = [];
+      when(benutzerDetailsService.canMassnahmenStornieren()).thenReturn(true);
+      component.formGroup.patchValue({ konzeptionsquelle: Konzeptionsquelle.RADNETZ_MASSNAHME });
+
+      [Umsetzungsstatus.STORNIERT_ENGSTELLE, Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH].forEach(status => {
+        expect(component.umsetzungsstatusOptions.map(opt => opt.name).includes(status)).toBe(true);
       });
     });
   });

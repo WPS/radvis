@@ -39,6 +39,6 @@
     </button>
   </div>
   @if (systemnachricht) {
-    <div class="m-5">{{ systemnachricht.text }}</div>
+    <div class="m-5" [innerHTML]="systemnachricht.text"></div>
   }
 </div>

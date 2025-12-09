@@ -18,7 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,6 +34,7 @@ import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 
 class VerwaltungseinheitServiceTest {
 
@@ -44,12 +47,15 @@ class VerwaltungseinheitServiceTest {
 	@Mock
 	private OrganisationRepository organisationRepository;
 
+	private Map<Integer, Mailadresse> funktionsPostfaecher;
+
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
+		funktionsPostfaecher = new HashMap<Integer, Mailadresse>();
 
 		this.service = new VerwaltungseinheitService(repository, gebietskoerperschaftRepository,
-			organisationRepository, OrganisationsArt.BUNDESLAND, "Baden-Württemberg");
+			organisationRepository, OrganisationsArt.BUNDESLAND, "Baden-Württemberg", funktionsPostfaecher);
 	}
 
 	@Test
@@ -205,5 +211,23 @@ class VerwaltungseinheitServiceTest {
 		assertThat(result)
 			.containsExactlyInAnyOrder(obersteOrganisation, mittlereOrganisation, untersteOrganisation)
 			.doesNotContain(nebenOrganisationOben, nebenOrganisationUnten);
+	}
+
+	@Test
+	void findFunktionspostfach() {
+		// arrange
+		funktionsPostfaecher.put(1, Mailadresse.of("blubb@abc.de"));
+		Mailadresse expected = Mailadresse.of("blah@abc.de");
+		funktionsPostfaecher.put(2, expected);
+
+		// act + assert
+		assertThat(service
+			.findFunktionspostfach(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().fachId(2).build()))
+				.contains(expected);
+		assertThat(service
+			.findFunktionspostfach(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().fachId(3).build()))
+				.isEmpty();
+		assertThat(service.findFunktionspostfach(VerwaltungseinheitTestDataProvider.defaultOrganisation().build()))
+			.isEmpty();
 	}
 }

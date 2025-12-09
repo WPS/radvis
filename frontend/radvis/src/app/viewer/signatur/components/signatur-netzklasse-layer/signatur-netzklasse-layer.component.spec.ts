@@ -59,7 +59,7 @@ describe(SignaturNetzklasseLayerComponent.name, () => {
 
   describe('ngOnChanges', () => {
     it('should refresh source when signature changed', () => {
-      const refreshSpy = spyOn(component['olLayer'].getSource(), 'refresh');
+      const refreshSpy = spyOn(component['olLayer'].getSource(), 'refresh' as never);
 
       component.generatedStyleFunction = (): Style => {
         return new Style({});

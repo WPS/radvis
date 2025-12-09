@@ -102,7 +102,7 @@ export class WeitereKartenebenenVerwaltungDialogComponent implements OnDestroy, 
           url:
             window.location.origin +
             '/api/geoserver/saml/datei-layer/wms?LAYERS=datei-layer:' +
-            layer.geoserverLayerName +
+            encodeURI(layer.geoserverLayerName) +
             '&TILED=true',
           weitereKartenebeneTyp: WeitereKartenebeneTyp.WMS,
           deckkraft: 1.0,

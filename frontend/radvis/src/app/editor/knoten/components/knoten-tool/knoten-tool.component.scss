@@ -12,12 +12,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   flex-grow: 1;
 }
 
 .tool {
-  border-left: 1px solid map-get($grayscale, 300);
+  border-left: 1px solid map.get(colors.$grayscale, 300);
 }

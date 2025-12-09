@@ -20,6 +20,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -40,12 +42,15 @@ public interface MassnahmeRepository extends CrudRepository<Massnahme, Long> {
 
 	List<Massnahme> findByMassnahmenPaketId(MassnahmenPaketId massnahmenPaketId);
 
-	List<Massnahme> findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(MassnahmeKonzeptID massnahmeKonzeptID,
-		Konzeptionsquelle konzeptionsquelle);
+	List<Massnahme> findByMassnahmeKonzeptIdAndKonzeptionsquelleAndGeloeschtFalse(
+		MassnahmeKonzeptID massnahmeKonzeptID,
+		Konzeptionsquelle konzeptionsquelle
+	);
 
 	List<Massnahme> findByMassnahmeKonzeptIdAndKonzeptionsquelleAndSollStandardAndGeloeschtFalse(
 		MassnahmeKonzeptID massnahmeKonzeptID,
-		Konzeptionsquelle konzeptionsquelle, SollStandard sollStandard);
+		Konzeptionsquelle konzeptionsquelle, SollStandard sollStandard
+	);
 
 	@Query(
 		"SELECT massnahme.massnahmenPaketId FROM Massnahme massnahme " +
@@ -64,4 +69,8 @@ public interface MassnahmeRepository extends CrudRepository<Massnahme, Long> {
 			"LEFT JOIN massnahme.netzbezug.knotenBezug kb " +
 			"WHERE kb.id IN :knotenIds")
 	List<Massnahme> findByKnotenInNetzBezug(List<Long> knotenIds);
+
+	@Modifying
+	@NativeQuery(value = "REFRESH MATERIALIZED VIEW geoserver_massnahmen_erweitert_view")
+	void refreshMassnahmeMaterializedViews();
 }

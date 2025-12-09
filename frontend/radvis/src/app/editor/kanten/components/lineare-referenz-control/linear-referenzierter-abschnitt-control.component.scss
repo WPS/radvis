@@ -12,9 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
-@import 'src/style/colors';
-@import 'src/style/font-style';
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use 'src/style/font-style' as font;
 
 :host {
   display: block;
@@ -35,10 +35,10 @@
   }
 
   .mat-mdc-list-item.hovered {
-    background-color: $font-background-peripheral;
+    background-color: font.$font-background-peripheral;
   }
 
   .mat-mdc-list-item:focus-within {
-    background-color: $feature-highlight-color;
+    background-color: colors.$feature-highlight-color;
   }
 }

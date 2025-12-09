@@ -22,7 +22,9 @@ import java.util.Optional;
 
 import org.springframework.data.util.Lazy;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -88,5 +90,15 @@ public class VerwaltungseinheitImportJob extends AbstractJob {
 		}
 
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Verwaltungseinheiten",
+			"Verwaltungseinheiten sind danach in der DB gespeichert",
+			"",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

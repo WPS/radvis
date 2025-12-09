@@ -42,6 +42,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
@@ -118,6 +119,8 @@ class DlmReimportJobNetzUpdateTestIT extends DBIntegrationTestIT {
 	VerwaltungseinheitResolver verwaltungseinheitResolver;
 	@MockitoBean
 	BenutzerResolver benutzerResolver;
+	@MockitoBean
+	BenutzerService benutzerService;
 	@MockitoBean
 	FeatureToggleProperties featureToggleProperties;
 	@MockitoBean

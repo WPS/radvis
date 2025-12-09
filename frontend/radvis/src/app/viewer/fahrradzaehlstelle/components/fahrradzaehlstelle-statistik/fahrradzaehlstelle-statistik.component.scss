@@ -12,10 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
+@use 'src/style/spacing';
 
 :host {
-  width: $viewer-side-bar-width;
+  width: spacing.$viewer-side-bar-width;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -24,7 +24,7 @@
 
 .control-container {
   overflow-y: auto;
-  padding: 0 $padding-attribute-editor-x;
+  padding: 0 spacing.$padding-attribute-editor-x;
   display: flex;
   flex-direction: column;
   align-items: stretch;

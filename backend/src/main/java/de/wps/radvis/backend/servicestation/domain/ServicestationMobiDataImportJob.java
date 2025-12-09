@@ -42,7 +42,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -63,6 +65,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Fahrradhalterung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Gebuehren;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
@@ -279,6 +282,7 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 			.kettenwerkzeug(Kettenwerkzeug.of(false))
 			.fahrradhalterung(Fahrradhalterung.of(false))
 			.werkzeug(Werkzeug.of(false))
+			.radkultur(Radkultur.of(false))
 			.status(ServicestationStatus.AKTIV)
 			.gebuehren(Gebuehren.of(false));
 
@@ -402,5 +406,13 @@ public class ServicestationMobiDataImportJob extends AbstractJob {
 		Point pointWGS84 = (Point) feature.getDefaultGeometry();
 		return (Point) CoordinateReferenceSystemConverterUtility.transformGeometry(pointWGS84,
 			KoordinatenReferenzSystem.ETRS89_UTM32_N);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Servicestationen aus MobiData, aktualisiert bestehende und entfernt nicht mehr vorhandene.",
+			"Servicestationen in der DB verden angepasst, ergänzt oder entfernt.",
+			JobExecutionDurationEstimate.SHORT);
 	}
 }

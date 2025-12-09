@@ -68,7 +68,7 @@ describe('SignaturStyleProvider', () => {
         const feature = new Feature(new LineString([0, 1, 2, 3]));
         feature.setProperties({ BelagArt: 'Unbekannt' });
         const styleArray = styleFunction(feature, 0) as Style[];
-        expect(styleArray[0].getStroke().getColor()).toEqual('#000000');
+        expect(styleArray[0].getStroke()?.getColor()).toEqual('#000000');
         done();
       });
     });
@@ -81,12 +81,12 @@ describe('SignaturStyleProvider', () => {
         const feature = new Feature(new LineString([0, 1, 2, 3]));
         feature.setProperties({ Ortslage: 'Außerorts', Richtung: 'In Stationierungsrichtung' });
         const styleArray = styleFunction(feature, 0) as Style[];
-        expect(styleArray[0].getStroke().getColor()).toEqual('#FF0000');
+        expect(styleArray[0].getStroke()?.getColor()).toEqual('#FF0000');
 
         const feature2 = new Feature(new LineString([0, 1, 2, 3]));
         feature2.setProperties({ Ortslage: 'Innerorts', Richtung: 'Gegen Stationierungsrichtung' });
         const styleArray2 = styleFunction(feature2, 0) as Style[];
-        expect(styleArray2[0].getStroke().getColor()).toEqual('#00FF00');
+        expect(styleArray2[0].getStroke()?.getColor()).toEqual('#00FF00');
 
         const feature3 = new Feature(new LineString([0, 1, 2, 3]));
         // Diese Kombination ist in der SLD nicht definiert

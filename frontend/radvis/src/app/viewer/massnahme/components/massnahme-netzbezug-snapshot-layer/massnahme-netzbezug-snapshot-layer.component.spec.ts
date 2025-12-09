@@ -14,7 +14,6 @@
 
 import { MockBuilder, MockRender } from 'ng-mocks';
 import { LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import VectorLayer from 'ol/layer/Vector';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { GeometryCollectionGeojson, LineStringGeojson, PointGeojson } from 'src/app/shared/models/geojson-geometrie';
@@ -69,12 +68,12 @@ describe(MassnahmeNetzbezugSnapshotLayerComponent.name, () => {
     });
     fixture.detectChanges();
     const layer = capture(olMapService.addLayer).last()[0];
-    const features = (layer as VectorLayer).getSource().getFeatures();
+    const features = (layer as VectorLayer).getSource()?.getFeatures() ?? [];
 
     expect(features.length).toBe(2);
-    expect(features[0].getGeometry()?.getType()).toBe(GeometryType.POINT);
+    expect(features[0].getGeometry()?.getType()).toBe('Point');
     expect((features[0].getGeometry() as Point).getCoordinates()).toEqual([0, 0]);
-    expect(features[1].getGeometry()?.getType()).toBe(GeometryType.LINE_STRING);
+    expect(features[1].getGeometry()?.getType()).toBe('LineString');
     expect((features[1].getGeometry() as LineString).getCoordinates()).toEqual([
       [100, 100],
       [200, 200],
@@ -106,12 +105,12 @@ describe(MassnahmeNetzbezugSnapshotLayerComponent.name, () => {
     fixture.componentInstance.geometrie = changedGeometry;
     fixture.detectChanges();
     const layer = capture(olMapService.addLayer).last()[0];
-    const features = (layer as VectorLayer).getSource().getFeatures();
+    const features = (layer as VectorLayer).getSource()?.getFeatures() ?? [];
 
     expect(features.length).toBe(2);
-    expect(features[0].getGeometry()?.getType()).toBe(GeometryType.POINT);
+    expect(features[0].getGeometry()?.getType()).toBe('Point');
     expect((features[0].getGeometry() as Point).getCoordinates()).toEqual([0, 0]);
-    expect(features[1].getGeometry()?.getType()).toBe(GeometryType.LINE_STRING);
+    expect(features[1].getGeometry()?.getType()).toBe('LineString');
     expect((features[1].getGeometry() as LineString).getCoordinates()).toEqual([
       [100, 100],
       [200, 200],

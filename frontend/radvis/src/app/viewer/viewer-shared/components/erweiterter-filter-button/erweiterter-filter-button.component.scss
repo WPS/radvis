@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: block;
@@ -28,6 +29,6 @@
     position: absolute;
     left: 10px;
     top: -2px;
-    border: 4px solid map-get($radvis-accent-palette, 500);
+    border: 4px solid map.get(colors.$radvis-accent-palette, 500);
   }
 }

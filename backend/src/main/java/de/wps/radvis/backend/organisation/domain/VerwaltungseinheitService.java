@@ -19,6 +19,7 @@ import static org.valid4j.Assertive.require;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ import de.wps.radvis.backend.organisation.domain.dbView.VerwaltungseinheitDbView
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +46,18 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	private final OrganisationRepository organisationRepository;
 	private final OrganisationsArt obersteGebietskoerperschaftOrganisationsArt;
 	private final String obersteGebietskoerperschaftName;
+	private final Map<Integer, Mailadresse> funktionspostfaecher;
 
 	public VerwaltungseinheitService(VerwaltungseinheitRepository verwaltungseinheitRepository,
 		GebietskoerperschaftRepository gebietskoerperschaftRepository,
 		OrganisationRepository organisationRepository,
 		OrganisationsArt obersteGebietskoerperschaftOrganisationsArt,
-		String obersteGebietskoerperschaftName) {
+		String obersteGebietskoerperschaftName, Map<Integer, Mailadresse> funktionspostfaecher) {
 		require(verwaltungseinheitRepository, notNullValue());
 		require(gebietskoerperschaftRepository, notNullValue());
 		require(organisationRepository, notNullValue());
+		require(funktionspostfaecher, notNullValue());
+		this.funktionspostfaecher = funktionspostfaecher;
 		this.organisationRepository = organisationRepository;
 		this.gebietskoerperschaftRepository = gebietskoerperschaftRepository;
 		this.verwaltungseinheitRepository = verwaltungseinheitRepository;
@@ -84,8 +89,8 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 	}
 
 	/**
-	 * Verwaltungseinheit nicht casten!
-	 * Stattdessen dedizierte Repositories fuer Organisation / Gebietskoerperschaft verwenden!
+	 * Verwaltungseinheit nicht casten! Stattdessen dedizierte Repositories fuer Organisation / Gebietskoerperschaft
+	 * verwenden!
 	 */
 	public Optional<Verwaltungseinheit> findById(long id) {
 		return verwaltungseinheitRepository.findById(id);
@@ -248,5 +253,15 @@ public class VerwaltungseinheitService implements VerwaltungseinheitResolver {
 
 	public List<Verwaltungseinheit> getAllKommunenWIthKommunalnetzGreaterOrEqual(Integer laengeInMetern) {
 		return verwaltungseinheitRepository.findAllKommunenWithKommunalnetzGreaterOrEqual(laengeInMetern);
+	}
+
+	public Optional<Mailadresse> findFunktionspostfach(Verwaltungseinheit verwaltungseinheit) {
+		if (verwaltungseinheit instanceof Gebietskoerperschaft) {
+			Integer fachId = ((Gebietskoerperschaft) verwaltungseinheit).getFachId();
+			if (funktionspostfaecher.containsKey(fachId)) {
+				return Optional.of(funktionspostfaecher.get(fachId));
+			}
+		}
+		return Optional.empty();
 	}
 }

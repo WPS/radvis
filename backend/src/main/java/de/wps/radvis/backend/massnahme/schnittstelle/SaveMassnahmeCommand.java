@@ -21,6 +21,8 @@ import org.springframework.validation.annotation.Validated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -34,6 +36,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
@@ -88,6 +91,9 @@ public class SaveMassnahmeCommand {
 	private Konzeptionsquelle konzeptionsquelle;
 	private String sonstigeKonzeptionsquelle;
 	private Realisierungshilfe realisierungshilfe;
+	private ZurueckstellungsGrund zurueckstellungsGrund;
+	private BegruendungStornierungsanfrage begruendungStornierungsanfrage;
+	private BegruendungZurueckstellung begruendungZurueckstellung;
 
 	@AssertTrue(message = "Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.")
 	public boolean isRequiredAbUmsetzungsstatusPlanung() {
@@ -104,6 +110,29 @@ public class SaveMassnahmeCommand {
 	@AssertTrue(message = "Nur eine Massnahmenkategorie pro Oberkategorie erlaubt.")
 	public boolean isNurEineMassnahmenkategorieProOberkategorie() {
 		return Massnahme.hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien);
+	}
+
+	@AssertTrue(message = "Zurückstellungsgrund ist nicht erlaubt für Umsetzungsstatus.")
+	public boolean isErlaubterZurueckstellungsgrund() {
+		return Massnahme.isZurueckstellungsGrundValidForUmsetzungsstatus(umsetzungsstatus, zurueckstellungsGrund);
+	}
+
+	@AssertTrue(message = "Begründung für Zurückstellung ist nicht erlaubt für Zurückstellungsgrund.")
+	public boolean isBegruendungZurueckstellungsgrundValid() {
+		return Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(zurueckstellungsGrund,
+			begruendungZurueckstellung);
+	}
+
+	@AssertTrue(message = "Begründung für Stornierungsanfrage ist nicht erlaubt für Umsetzungsstatus.")
+	public boolean isBegruendungStornierungsanfrageValid() {
+		return Massnahme.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(umsetzungsstatus,
+			begruendungStornierungsanfrage);
+	}
+
+	@AssertTrue(message = "Umsetzungsstatus ist nicht erlaubt für Konzeptionsquelle.")
+	public boolean isUmsetzungsstatusValidForKonzeptionsquelle() {
+		return Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(konzeptionsquelle,
+			umsetzungsstatus);
 	}
 
 	@AssertTrue(message = "Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt.")

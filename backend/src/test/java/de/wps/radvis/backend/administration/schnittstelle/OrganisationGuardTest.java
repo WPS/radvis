@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,6 +49,7 @@ import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.EntityNotFoundException;
 
 class OrganisationGuardTest {
@@ -79,7 +81,7 @@ class OrganisationGuardTest {
 		organisationGuard = new OrganisationGuard(benutzerResolver,
 			new BenutzerService(benutzerRepository, new VerwaltungseinheitService(verwaltungseinheitRepository,
 				gebietskoerperschaftRepository, organisationRepository,
-				OrganisationsArt.BUNDESLAND, "Baden-Württemberg"),
+				OrganisationsArt.BUNDESLAND, "Baden-Württemberg", new HashMap<Integer, Mailadresse>()),
 				"technischerBenutzerServiceBwId", "basisUrl", mailService),
 			administrationService, organisationRepository);
 	}
@@ -88,12 +90,12 @@ class OrganisationGuardTest {
 	void save_hasRecht() {
 		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
 			.defaultGebietskoerperschaft()
-			.id(26354l).build();
-		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2l)
+			.id(26354L).build();
+		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2L)
 			.zustaendigFuerBereichOf(
 				Set.of(currentZugeordneteOrganisation))
 			.build();
-		long newZugeordneteOrganisationId = 34576l;
+		long newZugeordneteOrganisationId = 34576L;
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(OrganisationsArt.TOURISMUSVERBAND).name("Mein Test").id(currentOrganisation.getId())
 			.zustaendigFuerBereichOf(Set.of(newZugeordneteOrganisationId)).build();
@@ -115,14 +117,14 @@ class OrganisationGuardTest {
 	void save_hasRecht_uebergeordnet() {
 		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
 			.defaultGebietskoerperschaft()
-			.id(26354l).build();
+			.id(26354L).build();
 		Verwaltungseinheit uebergeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
 			.build();
-		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2l)
+		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2L)
 			.zustaendigFuerBereichOf(
 				Set.of(currentZugeordneteOrganisation))
 			.uebergeordneteOrganisation(uebergeordneteOrganisation).build();
-		long newZugeordneteOrganisationId = 34576l;
+		long newZugeordneteOrganisationId = 34576L;
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(OrganisationsArt.TOURISMUSVERBAND).name("Mein Test").id(currentOrganisation.getId())
 			.zustaendigFuerBereichOf(Set.of(newZugeordneteOrganisationId)).build();
@@ -144,22 +146,23 @@ class OrganisationGuardTest {
 	void save_hasRecht_nichtUebergeordnet() {
 		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
 			.defaultGebietskoerperschaft()
-			.id(26354l).build();
+			.id(26354L).build();
 		Verwaltungseinheit uebergeordneteOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.id(6534l)
+			.id(6534L)
 			.build();
 		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation()
 			.zustaendigFuerBereichOf(
-				Set.of(currentZugeordneteOrganisation)).id(2l).uebergeordneteOrganisation(uebergeordneteOrganisation)
+				Set.of(currentZugeordneteOrganisation))
+			.id(2L).uebergeordneteOrganisation(uebergeordneteOrganisation)
 			.build();
-		long newZugeordneteOrganisationId = 34576l;
+		long newZugeordneteOrganisationId = 34576L;
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(OrganisationsArt.TOURISMUSVERBAND).name("Mein Test").id(currentOrganisation.getId())
 			.zustaendigFuerBereichOf(Set.of(newZugeordneteOrganisationId)).build();
 		when(organisationRepository.findById(currentOrganisation.getId())).thenReturn(
 			Optional.of(currentOrganisation));
 		Benutzer benutzer = BenutzerTestDataProvider
-			.kreiskoordinator(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(678l).build())
+			.kreiskoordinator(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(678L).build())
 			.build();
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(
 			benutzer);
@@ -175,12 +178,12 @@ class OrganisationGuardTest {
 	void save_canZuweisen() {
 		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
 			.defaultGebietskoerperschaft()
-			.id(26354l).build();
-		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2l)
+			.id(26354L).build();
+		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(2L)
 			.zustaendigFuerBereichOf(
 				Set.of(currentZugeordneteOrganisation))
 			.build();
-		long newZugeordneteOrganisationId = 34576l;
+		long newZugeordneteOrganisationId = 34576L;
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(currentOrganisation.getOrganisationsArt()).name(currentOrganisation.getName())
 			.id(currentOrganisation.getId())
@@ -202,11 +205,11 @@ class OrganisationGuardTest {
 	@Test
 	void save_falscheOrgArt_throws() {
 		Gebietskoerperschaft currentOrganisation = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
-			.id(2l)
+			.id(2L)
 			.build();
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(OrganisationsArt.TOURISMUSVERBAND).name("Mein Test").id(currentOrganisation.getId())
-			.zustaendigFuerBereichOf(Set.of(34576l)).build();
+			.zustaendigFuerBereichOf(Set.of(34576L)).build();
 		when(verwaltungseinheitService.findById(currentOrganisation.getId())).thenReturn(
 			Optional.of(currentOrganisation));
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(
@@ -218,14 +221,14 @@ class OrganisationGuardTest {
 
 	@Test
 	void save_nameChanged_noRecht_throws() {
-		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(3l)
+		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation().id(3L)
 			.organisationsArt(OrganisationsArt.SONSTIGES).zustaendigFuerBereichOf(
-				Set.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(26354l).build()))
+				Set.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().id(26354L).build()))
 			.build();
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(OrganisationsArt.EXTERNER_DIENSTLEISTER).name(currentOrganisation.getName())
 			.id(currentOrganisation.getId())
-			.zustaendigFuerBereichOf(Set.of(34576l)).build();
+			.zustaendigFuerBereichOf(Set.of(34576L)).build();
 		when(organisationRepository.findById(currentOrganisation.getId())).thenReturn(
 			Optional.of(currentOrganisation));
 		when(benutzerResolver.fromAuthentication(any())).thenReturn(
@@ -241,15 +244,16 @@ class OrganisationGuardTest {
 	void save_zustaendigkeitAdded_notZuweisbar_throws() {
 		Gebietskoerperschaft currentZugeordneteOrganisation = VerwaltungseinheitTestDataProvider
 			.defaultGebietskoerperschaft()
-			.id(26354l).build();
+			.id(26354L).build();
 		Organisation currentOrganisation = VerwaltungseinheitTestDataProvider.defaultOrganisation()
 			.zustaendigFuerBereichOf(
-				Set.of(currentZugeordneteOrganisation)).id(2l)
+				Set.of(currentZugeordneteOrganisation))
+			.id(2L)
 			.build();
 		SaveOrganisationCommand command = SaveOrganisationCommand.builder()
 			.organisationsArt(currentOrganisation.getOrganisationsArt()).name(currentOrganisation.getName())
 			.id(currentOrganisation.getId())
-			.zustaendigFuerBereichOf(Set.of(34576l, currentZugeordneteOrganisation.getId())).build();
+			.zustaendigFuerBereichOf(Set.of(34576L, currentZugeordneteOrganisation.getId())).build();
 		when(organisationRepository.findById(currentOrganisation.getId())).thenReturn(
 			Optional.of(currentOrganisation));
 		Benutzer benutzer = BenutzerTestDataProvider

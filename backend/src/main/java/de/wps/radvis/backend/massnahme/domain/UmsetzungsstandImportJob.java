@@ -36,7 +36,9 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -248,4 +250,14 @@ public class UmsetzungsstandImportJob extends AbstractJob {
 			this.umsetzungsstandCsvZeileMapper.mapAnmerkung(zeile));
 	}
 
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Aktualisiert Umsetzungsstand und einige Attribute an Maßnahmen aus konfigurierbarer CSV-Datei",
+			"",
+			"",
+			"Nicht ausführen, wird nicht mehr produktiv benötigt.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
+	}
 }

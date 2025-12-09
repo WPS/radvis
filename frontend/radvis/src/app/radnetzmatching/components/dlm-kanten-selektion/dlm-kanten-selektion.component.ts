@@ -27,7 +27,6 @@ import { Feature, MapBrowserEvent } from 'ol';
 import { GeoJSON } from 'ol/format';
 import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { Geometry } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Layer } from 'ol/layer';
 import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
@@ -99,14 +98,12 @@ export class DlmKantenSelektionComponent implements OnDestroy, OnChanges {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(
       clickEvent.pixel,
       (layer: Layer<Source>) => this.selectionActive && layer === this.olLayer
     );
-    const linestringFeaturesAtPixel = featuresAtPixel?.filter(
-      feat => feat.getGeometry()?.getType() === GeometryType.LINE_STRING
-    );
+    const linestringFeaturesAtPixel = featuresAtPixel?.filter(feat => feat.getGeometry()?.getType() === 'LineString');
     if (!linestringFeaturesAtPixel || linestringFeaturesAtPixel.length === 0) {
       return;
     }

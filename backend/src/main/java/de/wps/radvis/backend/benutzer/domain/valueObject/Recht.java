@@ -44,6 +44,7 @@ public enum Recht {
 	UMSETZUNGSSTANDSABFRAGEN_STARTEN("Umsetzungsstandsabfragen starten"),
 	UMSETZUNGSSTANDSABFRAGEN_AUSWERTEN("Umsetzungsstandsabfragen auswerten"),
 	MASSNAHMEN_ARCHIVIEREN("Maßnahmen archivieren"),
+	MASSNAHMEN_STORNIEREN("Maßnahmen stornieren"),
 
 	RADROUTEN_IM_ZUSTAENDIGKEITSBEREICH_ERFASSEN_BEARBEITEN("Radrouten im eigenen Zuständigkeitsbereich erfassen/bearbeiten"),
 	ALLE_RADROUTEN_ERFASSEN_BEARBEITEN("Alle Radrouten erfassen/bearbeiten"),

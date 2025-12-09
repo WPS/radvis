@@ -20,7 +20,6 @@ import { Coordinate } from 'ol/coordinate';
 import { GeoJSON } from 'ol/format';
 import { GeoJSONFeature, GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { Geometry, LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Modify } from 'ol/interaction';
 import { ModifyEvent } from 'ol/interaction/Modify';
 import { Layer } from 'ol/layer';
@@ -194,10 +193,10 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
     return newFeature;
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const linestringFeaturesAtPixel = this.olMapService
       .getFeaturesAtPixel(clickEvent.pixel, (layer: Layer<Source>) => layer === this.mappingsLayer)
-      ?.filter(feat => feat.getGeometry()?.getType() === GeometryType.LINE_STRING);
+      ?.filter(feat => feat.getGeometry()?.getType() === 'LineString');
     if (!linestringFeaturesAtPixel || linestringFeaturesAtPixel.length === 0) {
       this.removeHiglightAndDisableModify();
       return;
@@ -272,6 +271,10 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
 
   private deleteFeatureMappingFromLayer(featureMappingFeatureId: number): void {
     const featureMappingFeature = this.mappingsVectorSource.getFeatureById(featureMappingFeatureId);
+    if (!featureMappingFeature) {
+      return;
+    }
+
     this.mappingsVectorSource.removeFeature(featureMappingFeature);
     const mappedGrundnetzkanten: MappedGrundnetzkante[] = featureMappingFeature.get(
       ImportAttributeLayerComponent.MAPPED_GRUNDNETZKANTEN_KEY
@@ -279,7 +282,9 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
     mappedGrundnetzkanten.forEach(mappedGrundnetzkante => {
       const mappedGrundnetzkanteId = `${featureMappingFeature.getId()}-${mappedGrundnetzkante.kanteId}`;
       const mappedGrundnetzkanteFeature = this.mappingsVectorSource.getFeatureById(mappedGrundnetzkanteId);
-      this.mappingsVectorSource.removeFeature(mappedGrundnetzkanteFeature);
+      if (mappedGrundnetzkanteFeature) {
+        this.mappingsVectorSource.removeFeature(mappedGrundnetzkanteFeature);
+      }
     });
   }
 
@@ -295,7 +300,7 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
       const mappedGrundnetzkanteId = `${selectedFeatureId}-${mappedGrundnetzkante.kanteId}`;
       this.mappingsVectorSource
         .getFeatureById(mappedGrundnetzkanteId)
-        .set(ImportAttributeLayerComponent.ASSOCIATED_KEY, true);
+        ?.set(ImportAttributeLayerComponent.ASSOCIATED_KEY, true);
       this.highlightedFeatureIds.push(mappedGrundnetzkanteId);
     });
   }
@@ -343,8 +348,10 @@ export class ImportAttributeLayerComponent implements OnInit, OnDestroy {
 
   private onModifySuccess = (geojsonFeature: GeoJSONFeature): void => {
     const feature = new GeoJSON().readFeature(geojsonFeature);
-    this.deleteFeatureMappingFromLayer(feature.getId() as number);
-    this.addFeatureMappingToLayer(feature, true);
+    if (feature instanceof Feature) {
+      this.deleteFeatureMappingFromLayer(feature.getId() as number);
+      this.addFeatureMappingToLayer(feature, true);
+    }
   };
 
   private clearSelection(): void {

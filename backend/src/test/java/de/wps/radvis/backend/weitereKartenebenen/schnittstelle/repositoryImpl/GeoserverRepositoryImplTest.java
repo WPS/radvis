@@ -14,6 +14,7 @@
 
 package de.wps.radvis.backend.weitereKartenebenen.schnittstelle.repositoryImpl;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +43,8 @@ import de.wps.radvis.backend.common.SimpleFeatureTestDataProvider;
 import de.wps.radvis.backend.common.domain.exception.ReadGeoJSONException;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.weitereKartenebenen.domain.WeitereKartenebenenConfigurationProperties;
+import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.GeoserverLayerName;
+import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.GeoserverStyleName;
 
 class GeoserverRepositoryImplTest {
 
@@ -57,6 +60,13 @@ class GeoserverRepositoryImplTest {
 		MockitoAnnotations.openMocks(this);
 		geoserverRepository = new GeoserverRepositoryImpl(weitereKartenebenenConfigurationProperties,
 			geoJsonImportRepository);
+	}
+
+	@Test
+	void addStyle_layerNameWithSpaces_doesNotThrow() {
+		when(weitereKartenebenenConfigurationProperties.getGeoserverDateiLayerHost()).thenReturn("http://test.de");
+		assertThatNoException().isThrownBy(() -> geoserverRepository.addStyleToLayer(GeoserverLayerName.of("Test 1234"),
+			GeoserverStyleName.of("teststyle"), false));
 	}
 
 	@Test
@@ -108,7 +118,7 @@ class GeoserverRepositoryImplTest {
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(geopackageData);
 
 		File tempFile = File.createTempFile("geopackage", ".gpkg");
-		tempFile.deleteOnExit();  // Ensure file is deleted after execution
+		tempFile.deleteOnExit(); // Ensure file is deleted after execution
 		Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 		List<SimpleFeature> features = new ArrayList<>();

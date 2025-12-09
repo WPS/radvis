@@ -39,14 +39,14 @@ describe(KanteGrundgeometrieLayerComponent.name, () => {
           [34, 66],
         ])
       );
-      component['olLayer'].getSource().addFeature(feature);
+      component['olLayer'].getSource()?.addFeature(feature);
       spyOnDeselected = spyOn(component['deselected'], 'emit');
     });
 
     it('should do nothing when no features are under cursor', () => {
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>);
 
       expect(spyOnDeselected).not.toHaveBeenCalled();
     });
@@ -54,7 +54,7 @@ describe(KanteGrundgeometrieLayerComponent.name, () => {
     it('should fire deselected event when features is under cursor', () => {
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([feature]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>);
 
       expect(spyOnDeselected).toHaveBeenCalled();
     });

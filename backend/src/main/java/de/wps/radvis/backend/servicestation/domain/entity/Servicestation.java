@@ -36,6 +36,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Marke;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Oeffnungszeiten;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBeschreibung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
@@ -77,6 +78,7 @@ public class Servicestation extends VersionierteEntity {
 		public static final String ZUSTAENDIG_IN_RAD_VIS = "Zuständig in RadVIS";
 		public static final String TYP = "Servicestation-Typ";
 		public static final String STATUS = "Status";
+		public static final String RADKULTUR = "RadKULTUR";
 
 		public static final String QUELL_SYSTEM = "Quellsystem";
 
@@ -87,6 +89,7 @@ public class Servicestation extends VersionierteEntity {
 			GEBUEHREN,
 			OEFFNUNGSZEITEN,
 			BETREIBER,
+			RADKULTUR,
 			MARKE,
 			LUFTPUMPE,
 			KETTENWERKZEUG,
@@ -154,6 +157,9 @@ public class Servicestation extends VersionierteEntity {
 	@NotAudited
 	private DokumentListe dokumentListe;
 
+	@Getter
+	private Radkultur radkultur;
+
 	@Builder(toBuilder = true)
 	private Servicestation(
 		Long id,
@@ -173,7 +179,7 @@ public class Servicestation extends VersionierteEntity {
 		ServicestationStatus status,
 		Verwaltungseinheit organisation,
 		DokumentListe dokumentListe,
-		ServicestationenQuellSystem quellSystem) {
+		ServicestationenQuellSystem quellSystem, Radkultur radkultur) {
 		super(id, version);
 		require(quellSystem, notNullValue());
 		require(geometrie, notNullValue());
@@ -188,6 +194,7 @@ public class Servicestation extends VersionierteEntity {
 		require(typ, notNullValue());
 		require(status, notNullValue());
 		require(dokumentListe, notNullValue());
+		require(radkultur, notNullValue());
 		this.geometrie = geometrie;
 		this.name = name;
 		this.gebuehren = gebuehren;
@@ -204,6 +211,7 @@ public class Servicestation extends VersionierteEntity {
 		this.organisation = organisation;
 		this.dokumentListe = dokumentListe;
 		this.quellSystem = quellSystem;
+		this.radkultur = radkultur;
 	}
 
 	/**
@@ -224,7 +232,8 @@ public class Servicestation extends VersionierteEntity {
 		Verwaltungseinheit organisation,
 		ServicestationTyp typ,
 		ServicestationStatus status,
-		DokumentListe dokumentListe) {
+		DokumentListe dokumentListe,
+		Radkultur radkultur) {
 		this(
 			null,
 			null,
@@ -243,7 +252,8 @@ public class Servicestation extends VersionierteEntity {
 			status,
 			organisation,
 			dokumentListe,
-			ServicestationenQuellSystem.RADVIS);
+			ServicestationenQuellSystem.RADVIS,
+			radkultur);
 	}
 
 	/**
@@ -263,13 +273,15 @@ public class Servicestation extends VersionierteEntity {
 		ServicestationBeschreibung beschreibung,
 		Verwaltungseinheit organisation,
 		ServicestationTyp typ,
-		ServicestationStatus status) {
+		ServicestationStatus status,
+		Radkultur radkultur) {
 		require(geometrie, notNullValue());
 		require(name, notNullValue());
 		require(gebuehren, notNullValue());
 		require(betreiber, notNullValue());
 		require(luftpumpe, notNullValue());
 		require(kettenwerkzeug, notNullValue());
+		require(radkultur, notNullValue());
 		require(werkzeug, notNullValue());
 		require(fahrradhalterung, notNullValue());
 		require(organisation, notNullValue());
@@ -292,6 +304,7 @@ public class Servicestation extends VersionierteEntity {
 		this.status = status;
 		this.geometrie = geometrie;
 		this.name = name;
+		this.radkultur = radkultur;
 	}
 
 	public void addDokument(Dokument dokument) {

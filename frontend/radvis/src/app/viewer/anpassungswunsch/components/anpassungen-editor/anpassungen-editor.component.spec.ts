@@ -44,7 +44,7 @@ describe(AnpassungenEditorComponent.name, () => {
   let data$: BehaviorSubject<any>;
   let bedienhinweisService: BedienhinweisService;
   let olMapService: OlMapService;
-  let olMapClick$: Subject<MapBrowserEvent<UIEvent>>;
+  let olMapClick$: Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>;
   let anpassungswunschService: AnpassungswunschService;
   let netzbezugAuswahlModusService: NetzbezugAuswahlModusService;
   let nutzerDetailService: BenutzerDetailsService;
@@ -60,7 +60,7 @@ describe(AnpassungenEditorComponent.name, () => {
     } as ActivatedRouteSnapshot);
     bedienhinweisService = mock(BedienhinweisService);
     olMapService = mock(OlMapComponent);
-    olMapClick$ = new Subject<MapBrowserEvent<UIEvent>>();
+    olMapClick$ = new Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>();
     when(olMapService.click$()).thenReturn(olMapClick$);
     anpassungswunschService = mock(AnpassungswunschService);
     netzbezugAuswahlModusService = mock(ViewerComponent);
@@ -153,7 +153,7 @@ describe(AnpassungenEditorComponent.name, () => {
       component.formGroup.markAsDirty();
       when(anpassungswunschService.createAnpassungswunsch(anything())).thenResolve(null as unknown as Anpassungswunsch);
       const coordinate: Coordinate = [0, 10];
-      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<UIEvent>);
+      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<PointerEvent>);
 
       component.onSave();
 
@@ -198,12 +198,12 @@ describe(AnpassungenEditorComponent.name, () => {
 
     it('should reset position on subsequent click', () => {
       let coordinate: Coordinate = [0, 10];
-      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<UIEvent>);
+      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<PointerEvent>);
 
       expect(component.selectedCoordinate).toEqual(coordinate);
 
       coordinate = [10, 100];
-      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<UIEvent>);
+      olMapClick$.next({ coordinate } as unknown as MapBrowserEvent<PointerEvent>);
 
       expect(component.selectedCoordinate).toEqual(coordinate);
     });

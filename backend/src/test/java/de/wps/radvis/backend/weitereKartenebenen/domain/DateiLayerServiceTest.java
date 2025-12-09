@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -47,6 +48,7 @@ import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.GeoserverLay
 import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.GeoserverStyleName;
 import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.Name;
 import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.Quellangabe;
+import jakarta.persistence.EntityNotFoundException;
 
 public class DateiLayerServiceTest {
 
@@ -62,7 +64,7 @@ public class DateiLayerServiceTest {
 	private GeoserverRepository geoserverRepository;
 
 	@BeforeEach
-	public void setup() throws IOException, InterruptedException {
+	public void setup() throws IOException, InterruptedException, URISyntaxException {
 		MockitoAnnotations.openMocks(this);
 
 		when(geoserverRepository.createDataStoreAndLayer(any(), any(), any())).thenReturn(
@@ -75,7 +77,7 @@ public class DateiLayerServiceTest {
 	}
 
 	@Test
-	public void test_createLayer() throws IOException, InterruptedException {
+	public void test_createLayer() throws IOException, InterruptedException, URISyntaxException {
 		// arrange
 		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
 		MultipartFile multipartFile = mock(MultipartFile.class);
@@ -97,7 +99,7 @@ public class DateiLayerServiceTest {
 	}
 
 	@Test
-	public void test_loeschen() throws IOException, InterruptedException {
+	public void test_loeschen() throws IOException, InterruptedException, EntityNotFoundException, URISyntaxException {
 		// Arrange
 		long dateiLayerId = 123L;
 		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
@@ -123,7 +125,8 @@ public class DateiLayerServiceTest {
 	}
 
 	@Test
-	public void test_changeOrAddStyleForLayer_keinStyleVorhanden() throws IOException, InterruptedException {
+	public void test_changeOrAddStyleForLayer_keinStyleVorhanden()
+		throws IOException, InterruptedException, URISyntaxException {
 		// arrange
 		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
 		MultipartFile multipartFile = mock(MultipartFile.class);
@@ -155,7 +158,8 @@ public class DateiLayerServiceTest {
 	}
 
 	@Test
-	public void test_changeOrAddStyleForLayer_styleVorhanden() throws IOException, InterruptedException {
+	public void test_changeOrAddStyleForLayer_styleVorhanden()
+		throws IOException, InterruptedException, URISyntaxException {
 		// arrange
 		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
 		MultipartFile multipartFile = mock(MultipartFile.class);
@@ -193,7 +197,7 @@ public class DateiLayerServiceTest {
 	}
 
 	@Test
-	public void test_deleteStyle() throws IOException, InterruptedException {
+	public void test_deleteStyle() throws IOException, InterruptedException, URISyntaxException {
 		// arrange
 		Benutzer benutzer = BenutzerTestDataProvider.defaultBenutzer().build();
 		MultipartFile multipartFile = mock(MultipartFile.class);

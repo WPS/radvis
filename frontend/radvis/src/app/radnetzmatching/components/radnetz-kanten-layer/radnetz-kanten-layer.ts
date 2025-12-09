@@ -15,7 +15,6 @@
 import { Injectable } from '@angular/core';
 import { FeatureLike } from 'ol/Feature';
 import { LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Icon } from 'ol/style';
 import Stroke from 'ol/style/Stroke';
 import Style from 'ol/style/Style';
@@ -39,7 +38,7 @@ export class RadnetzKantenLayer extends RadVisLayer {
     });
 
     const stylingFunction = (feature: FeatureLike, resolution: number): Style[] => {
-      if (feature.getGeometry()?.getType() === GeometryType.POINT && resolution < MapStyles.RESOLUTION_SMALL) {
+      if (feature.getGeometry()?.getType() === 'Point' && resolution < MapStyles.RESOLUTION_SMALL) {
         return [defaultPointLargeStyle];
       }
       let kantenColor = MapStyles.FEATURE_SELECT_COLOR_TRANSPARENT as Color;

@@ -34,7 +34,9 @@ import org.springframework.data.util.Lazy;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.SimpleFeatureTypeFactory;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
@@ -309,5 +311,14 @@ public class WegweisendeBeschilderungImportJob extends AbstractJob {
 		log.info("Anzahl zu entfernen: {}", anzahlToDelete);
 		wegweisendeBeschilderungRepository.deleteAll(toDelete);
 		wegweisendeBeschilderungImportJobStatistik.anzahlEntfernt = anzahlToDelete;
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert wie wegweisende Beschilderung, wobei bestehende Daten aktualisiert werden und nicht mehr vorhandene Beschilderungen gelöscht werden.",
+			"Beschilderungen werden in der DB ergänzt, aktualisiert oder entfernt.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

@@ -49,29 +49,29 @@ describe('KantenNetzVectorlayer', () => {
       kantenNetzVectorLayer.toggleHighlightKante(2);
     });
     it('unhighlight existing highlighted Kante', () => {
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
       expect(
-        kantenNetzVectorLayer.getSource().getFeatureById(2).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
+        kantenNetzVectorLayer.getSource()?.getFeatureById(2).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
       ).toBeTrue();
       kantenNetzVectorLayer.toggleHighlightKante(2);
       expect(
-        kantenNetzVectorLayer.getSource().getFeatureById(2).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
+        kantenNetzVectorLayer.getSource()?.getFeatureById(2).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
       ).toBeFalsy();
     });
     it('highlight existing unhighlighted Kante', () => {
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
       expect(
-        kantenNetzVectorLayer.getSource().getFeatureById(1).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
+        kantenNetzVectorLayer.getSource()?.getFeatureById(1).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
       ).toBeFalsy();
       kantenNetzVectorLayer.toggleHighlightKante(1);
       expect(
-        kantenNetzVectorLayer.getSource().getFeatureById(1).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
+        kantenNetzVectorLayer.getSource()?.getFeatureById(1).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
       ).toBeTrue();
     });
     it('should apply toggled highlighting to non-existing kanten when they are loaded', () => {
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenNetzVectorLayer.toggleHighlightKante(1);
       kantenNetzVectorLayer.toggleHighlightKante(2);
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
@@ -79,35 +79,35 @@ describe('KantenNetzVectorlayer', () => {
         radvisNetzFeatureService.getKantenForView(anything(), deepEqual(Netzklassefilter.getAll()), strictEqual(false))
       ).once();
       expect(
-        kantenNetzVectorLayer.getSource().getFeatureById(2).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
+        kantenNetzVectorLayer.getSource()?.getFeatureById(2).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
       ).toBeFalsy();
       expect(
-        kantenNetzVectorLayer.getSource().getFeatureById(1).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
+        kantenNetzVectorLayer.getSource()?.getFeatureById(1).get(KantenNetzVectorlayer['HIGHLIGHT_PROPERTY'])
       ).toBeTrue();
     });
   });
 
   describe('kante ein/ausblenden', () => {
     it('should ein und ausblenden', () => {
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
 
       kantenNetzVectorLayer.kanteAusblenden(2);
-      expect(kantenNetzVectorLayer.getSource().getFeatureById(2).getStyle()).toBeDefined();
+      expect(kantenNetzVectorLayer.getSource()?.getFeatureById(2).getStyle()).toBeDefined();
 
       kantenNetzVectorLayer.kanteEinblenden(2);
-      expect(kantenNetzVectorLayer.getSource().getFeatureById(2).getStyle()).toBeFalsy();
+      expect(kantenNetzVectorLayer.getSource()?.getFeatureById(2).getStyle()).toBeFalsy();
     });
 
     it('should consider ausgeblendete Kanten after initialization', () => {
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenNetzVectorLayer.kanteAusblenden(1, 2);
       kantenNetzVectorLayer.kanteEinblenden(1);
 
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
 
-      expect(kantenNetzVectorLayer.getSource().getFeatureById(2).getStyle()).toBeDefined();
-      expect(kantenNetzVectorLayer.getSource().getFeatureById(1).getStyle()).toBeFalsy();
+      expect(kantenNetzVectorLayer.getSource()?.getFeatureById(2).getStyle()).toBeDefined();
+      expect(kantenNetzVectorLayer.getSource()?.getFeatureById(1).getStyle()).toBeFalsy();
     });
   });
 
@@ -115,17 +115,17 @@ describe('KantenNetzVectorlayer', () => {
     it('should load and update Features correctly', () => {
       kantenNetzVectorLayer.setZweiseitigeNetzanzeige(true);
 
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
 
-      expect(kantenNetzVectorLayer.getSource().getFeatures().length).toEqual(
+      expect(kantenNetzVectorLayer.getSource()?.getFeatures().length).toEqual(
         createDummyRadVisFeatureCollection().features.length * 2
       );
 
       kantenNetzVectorLayer.setZweiseitigeNetzanzeige(false);
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
 
-      expect(kantenNetzVectorLayer.getSource().getFeatures().length).toEqual(
+      expect(kantenNetzVectorLayer.getSource()?.getFeatures().length).toEqual(
         createDummyRadVisFeatureCollection().features.length
       );
     });
@@ -133,10 +133,10 @@ describe('KantenNetzVectorlayer', () => {
     it('should set zweiseitigkeit correctly on Features', () => {
       kantenNetzVectorLayer.setZweiseitigeNetzanzeige(true);
 
-      kantenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      kantenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
 
-      const features = kantenNetzVectorLayer.getSource().getFeatures();
+      const features = kantenNetzVectorLayer.getSource()?.getFeatures() ?? [];
       expect(features.map(f => f.get(FeatureProperties.ZWEISEITIG_PROPERTY_NAME)).every(b => b)).toBeTrue();
       expect(
         features.map(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME)).filter(n => n === KantenSeite.LINKS).length
@@ -149,12 +149,12 @@ describe('KantenNetzVectorlayer', () => {
       kantenNetzVectorLayer.setZweiseitigeNetzanzeige(false);
       kantenViewSubject.next(createDummyRadVisFeatureCollection());
 
-      const features2 = kantenNetzVectorLayer.getSource().getFeatures();
+      const features2 = kantenNetzVectorLayer.getSource()?.getFeatures() ?? [];
       expect(features2.map(f => f.get(FeatureProperties.ZWEISEITIG_PROPERTY_NAME)).every(b => !b)).toBeTrue();
       expect(
-        features.map(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME)).filter(n => n === undefined).length
+        features2.map(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME)).filter(n => n === undefined).length
       ).toEqual(2);
-      expect(features.map(f => f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME))).toEqual(['1', '2']);
+      expect(features2.map(f => f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME))).toEqual(['1', '2']);
     });
   });
 });

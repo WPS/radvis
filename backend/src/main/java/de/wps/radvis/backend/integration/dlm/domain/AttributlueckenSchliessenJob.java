@@ -30,7 +30,9 @@ import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -191,5 +193,15 @@ public class AttributlueckenSchliessenJob extends AbstractJob {
 				statistik.anzahlBetrachteteKantenGesamt++;
 			});
 		return knotenToAllKantenMap;
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Sucht im Netz nach Lücken in Attributen, also Kanten ohne Attribute, die aber an Kanten mit Attributen grenzen, und schließt diese Attributlücken.",
+			"Attribute im Netz werden verändert, Geometrien bleiben unangetastet.",
+			"Sollte am besten nach einem DLM-Reimport ausgeführt werden, da dieser zu Lücken führen kann. Die Materialized Views sind hiernach veraltet.",
+			JobExecutionDurationEstimate.LONG
+		);
 	}
 }

@@ -14,7 +14,6 @@
 
 import { Color } from 'ol/color';
 import Feature, { FeatureLike } from 'ol/Feature';
-import { Geometry } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Style } from 'ol/style';
@@ -28,13 +27,14 @@ import { infrastrukturLayerZIndex } from 'src/app/viewer/viewer-shared/models/vi
 import { AbstractInfrastrukturenFilterService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-filter.service';
 import { AbstractInfrastrukturenRoutingService } from 'src/app/viewer/viewer-shared/services/abstract-infrastrukturen-routing.service';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
+import { Geometry } from 'ol/geom';
 
 export abstract class AbstractInfrastrukturLayerComponent<T> {
   public static BEZEICHNUNG_PROPERTY_NAME = 'bezeichnung';
 
   selectedId: number | null = null;
 
-  protected vectorSource: VectorSource<Geometry>;
+  protected vectorSource: VectorSource<Feature<Geometry>> = new VectorSource();
 
   protected subscriptions: Subscription[] = [];
 
@@ -52,8 +52,6 @@ export abstract class AbstractInfrastrukturLayerComponent<T> {
     private infrastruktur: Infrastruktur,
     private _layerId?: string
   ) {
-    this.vectorSource = new VectorSource();
-
     this.subscriptions.push(
       this.routingService.selectedInfrastrukturId$.subscribe(id => {
         if (this.selectedId) {

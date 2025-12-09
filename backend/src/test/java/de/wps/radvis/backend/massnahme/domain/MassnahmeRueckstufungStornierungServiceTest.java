@@ -70,6 +70,8 @@ import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
 class MassnahmeRueckstufungStornierungServiceTest {
+	private static final Umsetzungsstatus UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG = Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH;
+
 	@Mock
 	private MassnahmeService massnahmeService;
 
@@ -220,27 +222,29 @@ class MassnahmeRueckstufungStornierungServiceTest {
 		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 			MockitoHamcrest.argThat(is(oneOf(
 				betroffeneMassnahmeKanteAbschnittsweise, betroffeneMassnahmeKantePunktuell,
-				betroffeneMassnahmeVonKnoten, nurTeilweiseBetroffeneMassnahme
-			))))).thenReturn(List.of(benutzer));
+				betroffeneMassnahmeVonKnoten, nurTeilweiseBetroffeneMassnahme))))).thenReturn(List.of(benutzer));
 
 		// Act
 		massnahmeRueckstufungStornierungService
 			.storniereMassnahmenBeiRueckstufung(new RadNetzZugehoerigkeitEntferntEvent(kantenAttributGruppe.getId()));
 
 		// Assert
-		assertThat(betroffeneMassnahmeKanteAbschnittsweise.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahmeKanteAbschnittsweise.getUmsetzungsstatus())
+			.isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahmeKanteAbschnittsweise.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahmeKanteAbschnittsweise.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
-		assertThat(betroffeneMassnahmeVonKnoten.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahmeVonKnoten.getUmsetzungsstatus()).isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahmeVonKnoten.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahmeVonKnoten.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
-		assertThat(betroffeneMassnahmeKantePunktuell.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahmeKantePunktuell.getUmsetzungsstatus())
+			.isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahmeKantePunktuell.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahmeKantePunktuell.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
-		assertThat(nurTeilweiseBetroffeneMassnahme.getUmsetzungsstatus()).isNotEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(nurTeilweiseBetroffeneMassnahme.getUmsetzungsstatus())
+			.isNotEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(nurTeilweiseBetroffeneMassnahme.getBenutzerLetzteAenderung()).isNotEqualTo(technischerBenutzer);
 		assertThat(nurTeilweiseBetroffeneMassnahme.getLetzteAenderung()).isNotEqualTo(localDateTimeTestValue);
 
@@ -258,8 +262,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.containsExactlyInAnyOrder(
 				String.format(linkTemplate, betroffeneMassnahmeKanteAbschnittsweise.getId()),
 				String.format(linkTemplate, betroffeneMassnahmeVonKnoten.getId()),
-				String.format(linkTemplate, betroffeneMassnahmeKantePunktuell.getId())
-			);
+				String.format(linkTemplate, betroffeneMassnahmeKantePunktuell.getId()));
 	}
 
 	@Test
@@ -309,19 +312,18 @@ class MassnahmeRueckstufungStornierungServiceTest {
 
 		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 			MockitoHamcrest.argThat(is(oneOf(
-				betroffeneMassnahmeKante, betroffeneMassnahmeVonKnoten
-			))))).thenReturn(Collections.emptyList());
+				betroffeneMassnahmeKante, betroffeneMassnahmeVonKnoten))))).thenReturn(Collections.emptyList());
 
 		// Act
 		massnahmeRueckstufungStornierungService
 			.storniereMassnahmenBeiRueckstufung(new RadNetzZugehoerigkeitEntferntEvent(kantenAttributGruppe.getId()));
 
 		// Assert
-		assertThat(betroffeneMassnahmeKante.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahmeKante.getUmsetzungsstatus()).isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahmeKante.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahmeKante.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
-		assertThat(betroffeneMassnahmeVonKnoten.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahmeVonKnoten.getUmsetzungsstatus()).isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahmeVonKnoten.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahmeVonKnoten.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
@@ -399,8 +401,7 @@ class MassnahmeRueckstufungStornierungServiceTest {
 
 		when(massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(
 			MockitoHamcrest.argThat(is(oneOf(
-				betroffeneMassnahme1, betroffeneMassnahme2
-			))))).thenReturn(List.of(benutzer));
+				betroffeneMassnahme1, betroffeneMassnahme2))))).thenReturn(List.of(benutzer));
 
 		// Act
 		massnahmeRueckstufungStornierungService
@@ -408,11 +409,11 @@ class MassnahmeRueckstufungStornierungServiceTest {
 				new RadNetzZugehoerigkeitEntferntEvent(kantenAttributGruppe1.getId(), kantenAttributGruppe2.getId()));
 
 		// Assert
-		assertThat(betroffeneMassnahme1.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahme1.getUmsetzungsstatus()).isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahme1.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahme1.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
-		assertThat(betroffeneMassnahme2.getUmsetzungsstatus()).isEqualTo(Umsetzungsstatus.STORNIERT);
+		assertThat(betroffeneMassnahme2.getUmsetzungsstatus()).isEqualTo(UMSETZUNGSSTATUS_DURCH_RUECKSTUFUNG);
 		assertThat(betroffeneMassnahme2.getBenutzerLetzteAenderung()).isEqualTo(technischerBenutzer);
 		assertThat(betroffeneMassnahme2.getLetzteAenderung()).isEqualTo(localDateTimeTestValue);
 
@@ -429,7 +430,6 @@ class MassnahmeRueckstufungStornierungServiceTest {
 			.asInstanceOf(LIST)
 			.containsExactlyInAnyOrder(
 				String.format(linkTemplate, betroffeneMassnahme1.getId()),
-				String.format(linkTemplate, betroffeneMassnahme2.getId())
-			);
+				String.format(linkTemplate, betroffeneMassnahme2.getId()));
 	}
 }

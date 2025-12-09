@@ -12,8 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-@import 'src/style/spacing';
+@use 'src/style/colors';
+@use 'src/style/spacing';
+@use "sass:map";
 
 :host {
   flex-grow: 1;
@@ -43,12 +44,12 @@
 .tool {
   display: flex;
   flex-direction: column;
-  border-left: 1px solid map-get($grayscale, 300);
+  border-left: 1px solid map.get(colors.$grayscale, 300);
 }
 
 .second-nav-bar {
-  background: map-get($grayscale, 100);
-  width: $editor-side-bar-width;
+  background: map.get(colors.$grayscale, 100);
+  width: spacing.$editor-side-bar-width;
 }
 
 .tab-panel {

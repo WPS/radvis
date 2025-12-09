@@ -72,18 +72,16 @@ public class MassnahmeNetzBezug extends AbstractNetzBezug {
 	public static MassnahmeNetzBezug vereinige(Set<MassnahmeNetzBezug> netzbezuege) {
 		// Kantenabschnitte, die sich überlappen, werden zusammengefasst
 		Set<AbschnittsweiserKantenSeitenBezug> abschnittsweiserKantenSeitenBezug = AbschnittsweiserKantenSeitenBezug
-			.fasseUeberlappendeBezuegeProKanteZusammen(netzbezuege.stream()
-				.flatMap(netzbezug -> netzbezug.getImmutableKantenAbschnittBezug().stream())
-				.collect(Collectors.toSet()));
+			.fasseUeberlappendeBezuegeProKanteZusammen(
+				netzbezuege.stream().flatMap(netzbezug -> netzbezug.getImmutableKantenAbschnittBezug().stream())
+					.collect(Collectors.toSet()));
 
 		// Duplikate von PunktuellerKantenSeitenBezug und Knoten werden durch das Sammeln in einem Set automatisch
 		// dedupliziert!
 		Set<PunktuellerKantenSeitenBezug> punktuellerKantenSeitenBezug = netzbezuege.stream()
-			.flatMap(netzbezug -> netzbezug.getImmutableKantenPunktBezug().stream())
-			.collect(Collectors.toSet());
+			.flatMap(netzbezug -> netzbezug.getImmutableKantenPunktBezug().stream()).collect(Collectors.toSet());
 		Set<Knoten> knotenBezug = netzbezuege.stream()
-			.flatMap(netzbezug -> netzbezug.getImmutableKnotenBezug().stream())
-			.collect(Collectors.toSet());
+			.flatMap(netzbezug -> netzbezug.getImmutableKnotenBezug().stream()).collect(Collectors.toSet());
 
 		return new MassnahmeNetzBezug(abschnittsweiserKantenSeitenBezug, punktuellerKantenSeitenBezug, knotenBezug);
 	}
@@ -95,11 +93,9 @@ public class MassnahmeNetzBezug extends AbstractNetzBezug {
 
 		return new MassnahmeNetzBezug(
 			AbschnittsweiserKantenSeitenBezug.ersetzeKanteInAbschnitten(abschnittsweiserKantenSeitenBezug,
-				zuErsetzendeKante,
-				zuErsetzenDurch, erlaubteAbweichung),
+				zuErsetzendeKante, zuErsetzenDurch, erlaubteAbweichung),
 			AbschnittsweiserKantenSeitenBezug.ersetzeKanteInPunkten(punktuellerKantenSeitenBezug, zuErsetzendeKante,
-				zuErsetzenDurch,
-				erlaubteAbweichung),
+				zuErsetzenDurch, erlaubteAbweichung),
 			knotenBezug);
 	}
 
@@ -120,13 +116,10 @@ public class MassnahmeNetzBezug extends AbstractNetzBezug {
 
 	public MassnahmeNetzBezug withoutKanten(Set<Long> kantenIds) {
 		MassnahmeNetzBezug result = new MassnahmeNetzBezug();
-		result.abschnittsweiserKantenSeitenBezug = abschnittsweiserKantenSeitenBezug
-			.stream().filter(
-				kantenBezug -> !kantenIds.contains(kantenBezug.getKante().getId()))
-			.collect(Collectors.toSet());
+		result.abschnittsweiserKantenSeitenBezug = abschnittsweiserKantenSeitenBezug.stream()
+			.filter(kantenBezug -> !kantenIds.contains(kantenBezug.getKante().getId())).collect(Collectors.toSet());
 		result.punktuellerKantenSeitenBezug = punktuellerKantenSeitenBezug.stream()
-			.filter(punkt -> !kantenIds.contains(punkt.getKante().getId()))
-			.collect(Collectors.toSet());
+			.filter(punkt -> !kantenIds.contains(punkt.getKante().getId())).collect(Collectors.toSet());
 		result.knotenBezug = new HashSet<>(knotenBezug);
 		return result;
 	}

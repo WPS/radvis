@@ -19,7 +19,7 @@ import { GeoJSONFeature, GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { Geometry, LineString } from 'ol/geom';
 import { Modify } from 'ol/interaction';
 import { ModifyEvent } from 'ol/interaction/Modify';
-import { Subject, of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import {
   FeatureTyp,
   ImportAttributeLayerComponent,
@@ -124,11 +124,11 @@ describe(ImportAttributeLayerComponent.name, () => {
     });
 
     describe('with mapClickedSubject', () => {
-      let mapClicked: Subject<MapBrowserEvent>;
+      let mapClicked: Subject<MapBrowserEvent<PointerEvent>>;
 
       beforeEach(() => {
         component.editable = true;
-        mapClicked = new Subject<MapBrowserEvent>();
+        mapClicked = new Subject<MapBrowserEvent<PointerEvent>>();
         when(olMapService.click$()).thenReturn(mapClicked);
 
         component.ngOnInit();
@@ -141,8 +141,8 @@ describe(ImportAttributeLayerComponent.name, () => {
               ctrlKey: false,
               metaKey: false,
             },
-          } as unknown as MapBrowserEvent;
-          const clickedFeature = component['mappingsVectorSource'].getFeatureById('3');
+          } as unknown as MapBrowserEvent<PointerEvent>;
+          const clickedFeature = component['mappingsVectorSource'].getFeatureById('3')!;
 
           when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]).thenReturn([]);
 
@@ -167,9 +167,9 @@ describe(ImportAttributeLayerComponent.name, () => {
               ctrlKey: false,
               metaKey: false,
             },
-          } as unknown as MapBrowserEvent;
+          } as unknown as MapBrowserEvent<PointerEvent>;
 
-          clickedFeature = component['mappingsVectorSource'].getFeatureById('3');
+          clickedFeature = component['mappingsVectorSource'].getFeatureById('3')!;
           when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]);
 
           mapClicked.next(clickEvent);
@@ -177,7 +177,7 @@ describe(ImportAttributeLayerComponent.name, () => {
 
         it('should highlight the associated Kante on click on the imported Kante', () => {
           const associatedFeature = component['mappingsVectorSource'].getFeatureById('3-1');
-          expect(associatedFeature.get(ImportAttributeLayerComponent['ASSOCIATED_KEY'])).toBeTrue();
+          expect(associatedFeature?.get(ImportAttributeLayerComponent['ASSOCIATED_KEY'])).toBeTrue();
           expect(component['highlightedFeatureIds']).toContain('3-1');
         });
 
@@ -196,7 +196,7 @@ describe(ImportAttributeLayerComponent.name, () => {
         let modifyEvent: ModifyEvent;
 
         beforeEach(done => {
-          const feature = component['mappingsVectorSource'].getFeatureById('3');
+          const feature = component['mappingsVectorSource'].getFeatureById('3')!;
           const features = new Collection<Feature<Geometry>>();
           features.push(feature);
           modifyEvent = {
@@ -208,7 +208,7 @@ describe(ImportAttributeLayerComponent.name, () => {
               ctrlKey: false,
               metaKey: false,
             },
-          } as unknown as MapBrowserEvent;
+          } as unknown as MapBrowserEvent<PointerEvent>;
 
           when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([feature]).thenReturn([]);
 
@@ -254,13 +254,13 @@ describe(ImportAttributeLayerComponent.name, () => {
         });
 
         it('should update Feature', () => {
-          const kante = component['mappingsVectorSource'].getFeatureById('3-1');
+          const kante = component['mappingsVectorSource'].getFeatureById('3-1')!;
           expect(kante).toBeTruthy();
           expect(kante.get(ImportAttributeLayerComponent['ASSOCIATED_KEY'])).toEqual(true);
           expect(component['highlightedFeatureIds']).toContain('3-1');
 
           expect(
-            (component['mappingsVectorSource'].getFeatureById('3').getGeometry() as LineString).getCoordinates()
+            (component['mappingsVectorSource'].getFeatureById('3')?.getGeometry() as LineString).getCoordinates()
           ).toEqual([
             [1, 2],
             [2, 3],
@@ -269,7 +269,7 @@ describe(ImportAttributeLayerComponent.name, () => {
       });
 
       describe('deleteMappedGrundnetzkantenAtPositionOf', () => {
-        let clickEvent: MapBrowserEvent;
+        let clickEvent: MapBrowserEvent<PointerEvent>;
 
         beforeEach(() => {
           clickEvent = {
@@ -278,12 +278,12 @@ describe(ImportAttributeLayerComponent.name, () => {
               metaKey: false,
             },
             coordinate: [1.5, 1.5],
-          } as unknown as MapBrowserEvent;
+          } as unknown as MapBrowserEvent<PointerEvent>;
         });
 
         describe('with feature without mappedGrundnetzkante', () => {
           beforeEach(() => {
-            const clickedFeature = component['mappingsVectorSource'].getFeatureById('3');
+            const clickedFeature = component['mappingsVectorSource'].getFeatureById('3')!;
             when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]);
             when(olMapService.getFeaturesAtCoordinate(anything(), anything(), anything())).thenReturn([clickedFeature]);
 
@@ -298,7 +298,7 @@ describe(ImportAttributeLayerComponent.name, () => {
 
         describe('with feature with mappedGrundnetzkante', () => {
           beforeEach(waitForAsync(() => {
-            const clickedFeature = component['mappingsVectorSource'].getFeatureById('3-1');
+            const clickedFeature = component['mappingsVectorSource'].getFeatureById('3-1')!;
             when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([clickedFeature]);
             when(olMapService.getFeaturesAtCoordinate(anything(), anything(), anything())).thenReturn([clickedFeature]);
 
@@ -332,7 +332,7 @@ describe(ImportAttributeLayerComponent.name, () => {
             expect(command).toHaveSize(1);
             expect(command[0]).toEqual({ featureMappingId: 3, kanteId: 1 });
 
-            const kante = component['mappingsVectorSource'].getFeatureById('3');
+            const kante = component['mappingsVectorSource'].getFeatureById('3')!;
             expect(kante).toBeTruthy();
             expect(kante.get(ImportAttributeLayerComponent['FEATURE_TYP_KEY'])).toEqual(
               FeatureTyp.IMPORTIERT_OHNE_MAPPING

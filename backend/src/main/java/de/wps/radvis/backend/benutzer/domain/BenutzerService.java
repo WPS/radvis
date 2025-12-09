@@ -32,7 +32,6 @@ import de.wps.radvis.backend.benutzer.domain.exception.BenutzerExistiertBereitsE
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerIstNichtRegistriertException;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
@@ -42,6 +41,7 @@ import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Organisation;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;

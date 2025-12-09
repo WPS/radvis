@@ -16,6 +16,10 @@ package de.wps.radvis.backend.common.domain;
 
 public class FrontendLinks {
 
+	public static String anpassungswunschDetailView(Long id) {
+		return String.format("/viewer/anpassungen/%d", id);
+	}
+
 	public static String fahrradrouteDetailView(Long id) {
 		return String.format("/viewer/fahrradrouten/%d", id);
 	}

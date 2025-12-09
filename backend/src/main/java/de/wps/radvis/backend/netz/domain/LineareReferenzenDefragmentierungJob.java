@@ -20,7 +20,9 @@ import java.util.Optional;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -142,5 +144,15 @@ public class LineareReferenzenDefragmentierungJob extends AbstractJob {
 		log.info("JobStatistik:\n{}", statistik.toPrettyJSON());
 
 		return Optional.of(statistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Fasst zu kleine Segmente auf Kanten zusammen, sodass möglichst alle Kantensegmente eine gewisse Mindestlänge erfüllen.",
+			"Kantensegmente werden zusammengefasst, wodurch alle Attributgruppen angepasst werden können. Es ist möglich, dass hierbei Attribute wegfallen, wenn diese sich auf benachbarten Segmenten unterschieden haben.",
+			"Sollte nach netzverändernden Jobs laufen, insb. nach dem DLM-Reimport.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

@@ -136,19 +136,19 @@ describe(ImportNetzklasseAbbildungBearbeitenLayerComponent.name, () => {
       component.kanteIdsMitNetzklasse = [1, 2];
 
       const styleFeature1 = component['olLayer'].getStyleFunction()?.(feature1, 20) as Style;
-      expect(styleFeature1.getStroke().getColor()).toEqual(
+      expect(styleFeature1.getStroke()?.getColor()).toEqual(
         ImportNetzklasseAbbildungBearbeitenLayerComponent['COLOR_NETZKLASSE_INSERTED']
       );
       const styleFeature2 = component['olLayer'].getStyleFunction()?.(feature2, 20) as Style;
-      expect(styleFeature2.getStroke().getColor()).toEqual(
+      expect(styleFeature2.getStroke()?.getColor()).toEqual(
         ImportNetzklasseAbbildungBearbeitenLayerComponent['COLOR_NETZKLASSE_ALREADYPRESENT']
       );
       const styleFeature3 = component['olLayer'].getStyleFunction()?.(feature3, 20) as Style;
-      expect(styleFeature3.getStroke().getColor()).toEqual(
+      expect(styleFeature3.getStroke()?.getColor()).toEqual(
         ImportNetzklasseAbbildungBearbeitenLayerComponent['COLOR_NETZKLASSE_DELETED']
       );
       const styleFeature4 = component['olLayer'].getStyleFunction()?.(feature4, 20) as Style;
-      expect(styleFeature4.getStroke().getColor()).toEqual(MapStyles.FEATURE_COLOR);
+      expect(styleFeature4.getStroke()?.getColor()).toEqual(MapStyles.FEATURE_COLOR);
     });
 
     it('should emit korrekt info about feature-visibilty', () => {

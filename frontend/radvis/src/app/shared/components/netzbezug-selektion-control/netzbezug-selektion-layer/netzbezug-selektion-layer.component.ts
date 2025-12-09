@@ -27,7 +27,6 @@ import {
 import { Feature, MapBrowserEvent } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { Geometry, LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Subscription } from 'rxjs';
 import { SelectElementEvent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
 import { FeatureProperties } from 'src/app/shared/models/feature-properties';
@@ -189,14 +188,14 @@ export class NetzbezugSelektionLayerComponent implements OnDestroy, OnInit, OnCh
     }
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const removeSelectedPointKeyActive =
       (clickEvent.originalEvent as PointerEvent).ctrlKey || (clickEvent.originalEvent as PointerEvent).metaKey;
 
     let featuresAtPixel = this.olMapService.getFeaturesAtPixel(clickEvent.pixel)?.map(f => f as Feature<Geometry>);
 
     if (this.pointSelectionMode && removeSelectedPointKeyActive) {
-      featuresAtPixel = featuresAtPixel?.filter(f => f.getGeometry()?.getType() === GeometryType.POINT);
+      featuresAtPixel = featuresAtPixel?.filter(f => f.getGeometry()?.getType() === 'Point');
     }
 
     if (!featuresAtPixel || featuresAtPixel.length === 0) {
@@ -220,17 +219,17 @@ export class NetzbezugSelektionLayerComponent implements OnDestroy, OnInit, OnCh
       return;
     }
 
-    if (this.knotenNetzLayer?.getSource().hasFeature(clickedFeature)) {
+    if (this.knotenNetzLayer?.getSource()?.hasFeature(clickedFeature)) {
       this.selectKnoten(clickedFeature);
     } else if (this.pointSelectionMode) {
-      if (this.kantenNetzLayer?.getSource().hasFeature(clickedFeature)) {
+      if (this.kantenNetzLayer?.getSource()?.hasFeature(clickedFeature)) {
         const kanteId = +(clickedFeature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number);
         this.selectPointOnKante(kanteId, clickedFeature.getGeometry() as LineString, clickEvent.coordinate);
       }
-      if (this.punktuelleKantenBezuegeLayer?.getSource().hasFeature(clickedFeature) && removeSelectedPointKeyActive) {
+      if (this.punktuelleKantenBezuegeLayer?.getSource()?.hasFeature(clickedFeature) && removeSelectedPointKeyActive) {
         this.removePointOnKante(clickedFeature);
       }
-    } else if (this.kantenNetzLayer?.getSource().hasFeature(clickedFeature)) {
+    } else if (this.kantenNetzLayer?.getSource()?.hasFeature(clickedFeature)) {
       this.selectKante(clickedFeature);
     }
 

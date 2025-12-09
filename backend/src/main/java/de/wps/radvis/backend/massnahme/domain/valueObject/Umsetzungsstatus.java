@@ -27,7 +27,11 @@ public enum Umsetzungsstatus {
 	PLANUNG("Planung"),
 	UMSETZUNG("Umsetzung"),
 	UMGESETZT("Umgesetzt"),
-	STORNIERT("Storniert")
+	STORNIERT("Storniert"),
+	ZURUECKGESTELLT("Zurückgestellt"),
+	STORNIERUNG_ANGEFRAGT("Stornierung angefragt"),
+	STORNIERT_ENGSTELLE("Storniert (Engstelle begründet)"),
+	STORNIERT_NICHT_ERFORDERLICH("Storniert (Nicht mehr erforderlich)")
 	;
 	// @formatter:on
 
@@ -40,10 +44,23 @@ public enum Umsetzungsstatus {
 	}
 
 	public static final List<Umsetzungsstatus> STATUS_AB_PLANUNG = List.of(Umsetzungsstatus.PLANUNG,
-		Umsetzungsstatus.UMGESETZT,
-		Umsetzungsstatus.UMSETZUNG);
+		Umsetzungsstatus.UMGESETZT, Umsetzungsstatus.UMSETZUNG);
 
 	public static boolean isAbPlanung(Umsetzungsstatus umsetzungsstatus) {
 		return STATUS_AB_PLANUNG.contains(umsetzungsstatus);
 	}
+
+	public static final List<Umsetzungsstatus> STORNIERT_STATUS = List.of(Umsetzungsstatus.STORNIERT,
+		Umsetzungsstatus.STORNIERT_ENGSTELLE, Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH);
+
+	public static boolean isStorniert(Umsetzungsstatus umsetzungsstatus) {
+		return STORNIERT_STATUS.contains(umsetzungsstatus);
+	}
+
+	/**
+	 * Status, bei denen die Maßnahme als "historisch" gilt und bei entsprechender Filterung nicht angezeigt werden soll
+	 */
+	public static final List<Umsetzungsstatus> HISTORISCH_STATUS = List.of(Umsetzungsstatus.STORNIERT,
+		Umsetzungsstatus.STORNIERT_ENGSTELLE, Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH,
+		Umsetzungsstatus.UMGESETZT);
 }

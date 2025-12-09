@@ -362,4 +362,60 @@
 			UPDATE fahrradroute_variante_profil_eigenschaften SET radverkehrsfuehrung='PIKTOGRAMMKETTE_BEIDSEITIG' WHERE radverkehrsfuehrung='PIKTOGRAMMKETTE';
 		</sql>
   </changeSet>
+  
+  <changeSet id="RAD-7484" author="mr">
+  	<addColumn tableName="massnahme">
+  		<column name="zurueckstellungs_grund" type="varchar(255)"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7484-2" author="mr">
+  	<addColumn tableName="massnahme_aud">
+  		<column name="zurueckstellungs_grund" type="varchar(255)"></column>
+  	</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7484-3" author="mr">
+  	<addColumn tableName="massnahme">
+  		<column name="begruendung_stornierungsanfrage" type="varchar(3000)"></column>
+  	</addColumn>
+  	<addColumn tableName="massnahme_aud">
+  		<column name="begruendung_stornierungsanfrage" type="varchar(3000)"></column>
+  	</addColumn>
+  </changeSet>
+
+	<changeSet id="RAD-7552" author="par">
+		<addColumn tableName="abstellanlage">
+			<column name="mobi_data_quell_id" type="BIGINT"/>
+		</addColumn>
+		<addColumn tableName="abstellanlage_aud">
+			<column name="mobi_data_quell_id" type="BIGINT"/>
+		</addColumn>
+  </changeSet>
+  
+  <changeSet id="RAD-7551" author="mr">
+  	<addColumn tableName="servicestation">
+  		<column name="radkultur" type="boolean"></column>
+  	</addColumn>
+  	<sql>UPDATE servicestation SET radkultur=false</sql>
+  </changeSet>
+  
+  <changeSet id="RAD-7551-2" author="mr">
+  	<addColumn tableName="servicestation_aud">
+  		<column name="radkultur" type="boolean"></column>
+  	</addColumn>
+  	<sql>UPDATE servicestation_aud SET radkultur=false</sql>
+  </changeSet>
+  
+	<changeSet id="RAD-7550" author="mr">
+		<addColumn tableName="massnahme">
+			<column name="begruendung_zurueckstellung" type="varchar(3000)"></column>
+		</addColumn>
+		<addColumn tableName="massnahme_aud">
+			<column name="begruendung_zurueckstellung" type="varchar(3000)"></column>
+		</addColumn>
+		<sql>UPDATE massnahme SET zurueckstellungs_grund='WEITERE_GRUENDE',
+			begruendung_zurueckstellung='Keine Angabe gemacht (Migration)' WHERE
+			zurueckstellungs_grund='KEINE_ANGABE'</sql>
+	</changeSet>
 </databaseChangeLog>

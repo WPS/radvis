@@ -185,7 +185,7 @@ export class MassnahmenLayerComponent
             const strokeColor = styleForFeature
               .find(style => !!style.getStroke())
               ?.getStroke()
-              .getColor();
+              ?.getColor();
             iconFeature.set(this.ICON_COLOR_PROPERTY_NAME, strokeColor);
             shouldResetStyle = false;
           }

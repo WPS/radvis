@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -53,6 +55,9 @@ import de.wps.radvis.backend.common.domain.valueObject.Seitenbezug;
 import de.wps.radvis.backend.dokument.domain.entity.Dokument;
 import de.wps.radvis.backend.dokument.domain.entity.provider.DokumentTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
+import de.wps.radvis.backend.massnahme.domain.event.MassnahmeStornierungAngefragtEvent;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.GrundFuerAbweichungZumMassnahmenblatt;
@@ -63,6 +68,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.PruefungQualitaetsstandardsErfolgt;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -239,7 +245,7 @@ class MassnahmeTest {
 			Umsetzungsstatus.PLANUNG, true, true, Durchfuehrungszeitraum.of(2021),
 			testOrganisation, testOrganisation, LocalDateTime.of(2021, 12, 17, 14, 20),
 			BenutzerTestDataProvider.admin(testOrganisation).build(), SollStandard.BASISSTANDARD,
-			Handlungsverantwortlicher.BAULASTTRAEGER, Konzeptionsquelle.KOMMUNALES_KONZEPT, null);
+			Handlungsverantwortlicher.BAULASTTRAEGER, Konzeptionsquelle.KOMMUNALES_KONZEPT, null, null, null, null);
 
 		// assert
 		assertThat(massnahme.getBaulastZustaendiger()).contains(testOrganisation);
@@ -330,7 +336,7 @@ class MassnahmeTest {
 				SollStandard.BASISSTANDARD,
 				Handlungsverantwortlicher.BAULASTTRAEGER_UND_VERKEHRSBEHORDE_TECHNIK,
 				Konzeptionsquelle.KOMMUNALES_KONZEPT,
-				null);
+				null, null, null, null);
 
 			// assert
 			assertThat(massnahme.getUmsetzungsstand()).isEmpty();
@@ -353,7 +359,7 @@ class MassnahmeTest {
 				SollStandard.BASISSTANDARD,
 				Handlungsverantwortlicher.BAULASTTRAEGER_UND_VERKEHRSBEHORDE_TECHNIK,
 				Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
-				null);
+				null, null, null, null);
 
 			// assert
 			assertThat(massnahme.getUmsetzungsstand()).isPresent();
@@ -391,7 +397,7 @@ class MassnahmeTest {
 				massnahme.getHandlungsverantwortlicher().get(),
 				Konzeptionsquelle.KOMMUNALES_KONZEPT,
 				null,
-				massnahme.getRealisierungshilfe().get());
+				massnahme.getRealisierungshilfe().get(), null, null, null);
 
 			// assert
 			assertThat(massnahme.getUmsetzungsstand()).isEmpty();
@@ -435,7 +441,7 @@ class MassnahmeTest {
 							massnahme.getHandlungsverantwortlicher().get(),
 							konzeptionsquelle,
 							null,
-							massnahme.getRealisierungshilfe().get());
+							massnahme.getRealisierungshilfe().get(), null, null, null);
 
 						// assert
 						assertThat(massnahme.getUmsetzungsstand()).isPresent();
@@ -482,7 +488,7 @@ class MassnahmeTest {
 							massnahme.getHandlungsverantwortlicher().get(),
 							konzeptionsquelle,
 							null,
-							massnahme.getRealisierungshilfe().get());
+							massnahme.getRealisierungshilfe().get(), null, null, null);
 
 						// assert
 						assertThat(massnahme.getUmsetzungsstand()).isPresent();
@@ -533,7 +539,7 @@ class MassnahmeTest {
 			massnahme.getHandlungsverantwortlicher().get(),
 			massnahme.getKonzeptionsquelle(),
 			null,
-			massnahme.getRealisierungshilfe().get());
+			massnahme.getRealisierungshilfe().get(), null, null, null);
 
 		// assert
 		assertThat(massnahme.getUmsetzungsstand()).isPresent();
@@ -590,7 +596,7 @@ class MassnahmeTest {
 			massnahme.getHandlungsverantwortlicher().get(),
 			massnahme.getKonzeptionsquelle(),
 			null,
-			massnahme.getRealisierungshilfe().get());
+			massnahme.getRealisierungshilfe().get(), null, null, null);
 
 		// assert
 		assertThat(massnahme.getUmsetzungsstand()).isPresent();
@@ -888,5 +894,255 @@ class MassnahmeTest {
 		assertThat(Massnahme.areKategorienValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
 			Set.of(Massnahmenkategorie.SONSTIGE_MASSNAHME_AN_BARRIERE,
 				Massnahmenkategorie.NEUBAU_WEG_NACH_RADNETZ_QUALITAETSSTANDARD))).isFalse();
+	}
+
+	@Test
+	void isUmsetzungsstatusAenderungValid_alreadyStornierteMassnahme_WeiterhinSpeicherbar() {
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(Umsetzungsstatus.STORNIERT)
+			.build();
+
+		assertThat(massnahme.isUmsetzungsstatusAenderungValid(Umsetzungsstatus.STORNIERT)).isTrue();
+	}
+
+	@Test
+	void isUmsetzungsstatusAenderungValid() {
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().umsetzungsstatus(Umsetzungsstatus.IDEE)
+			.build();
+
+		assertThat(massnahme.isUmsetzungsstatusAenderungValid(Umsetzungsstatus.STORNIERT)).isFalse();
+	}
+
+	@Test
+	void isZurueckstellungsGrundValidForUmsetzungsstatus() {
+		assertThat(Massnahme.isZurueckstellungsGrundValidForUmsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT, null))
+			.isFalse();
+		assertThat(Massnahme.isZurueckstellungsGrundValidForUmsetzungsstatus(Umsetzungsstatus.PLANUNG, null)).isTrue();
+		assertThat(Massnahme.isZurueckstellungsGrundValidForUmsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT,
+			ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN)).isTrue();
+	}
+
+	@Test
+	void create_stornierungAngefragt_publishesEvent() {
+		// arrange
+		Kante kante = KanteTestDataProvider.withDefaultValues().id(1L).build();
+		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
+			kante,
+			LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.LINKS);
+
+		// act
+		Massnahme massnahme = new Massnahme(Bezeichnung.of("Bezeichnung"),
+			Set.of(Massnahmenkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME),
+			new MassnahmeNetzBezug(Set.of(abschnittsweiserKantenSeitenBezug), Set.of(), Collections.emptySet()),
+			Umsetzungsstatus.STORNIERUNG_ANGEFRAGT, true, true, Durchfuehrungszeitraum.of(2021),
+			testOrganisation, testOrganisation, LocalDateTime.of(2021, 12, 17, 14, 20),
+			BenutzerTestDataProvider.admin(testOrganisation).build(), SollStandard.BASISSTANDARD,
+			Handlungsverantwortlicher.BAULASTTRAEGER, Konzeptionsquelle.RADNETZ_MASSNAHME_2024, null, null,
+			BegruendungStornierungsanfrage.of("Test"), null);
+
+		// assert
+		ArgumentCaptor<MassnahmeStornierungAngefragtEvent> captor = ArgumentCaptor
+			.forClass(MassnahmeStornierungAngefragtEvent.class);
+		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()));
+		assertThat(captor.getValue().getMassnahme()).usingRecursiveComparison(RecursiveComparisonConfiguration.builder()
+			.withComparedFields("zustaendiger", "benutzerLetzteAenderung", "begruendungStornierungsanfrage")
+			.build())
+			.isEqualTo(massnahme);
+	}
+
+	@Test
+	void create_keineStornierungAngefragt_doesNotPublish() {
+		// arrange
+		Kante kante = KanteTestDataProvider.withDefaultValues().id(1L).build();
+		AbschnittsweiserKantenSeitenBezug abschnittsweiserKantenSeitenBezug = new AbschnittsweiserKantenSeitenBezug(
+			kante,
+			LinearReferenzierterAbschnitt.of(0, 1),
+			Seitenbezug.LINKS);
+
+		// act
+		Massnahme massnahme = new Massnahme(Bezeichnung.of("Bezeichnung"),
+			Set.of(Massnahmenkategorie.MARKIERUNGSTECHNISCHE_MASSNAHME),
+			new MassnahmeNetzBezug(Set.of(abschnittsweiserKantenSeitenBezug), Set.of(), Collections.emptySet()),
+			Umsetzungsstatus.IDEE, true, true, Durchfuehrungszeitraum.of(2021),
+			testOrganisation, testOrganisation, LocalDateTime.of(2021, 12, 17, 14, 20),
+			BenutzerTestDataProvider.admin(testOrganisation).build(), SollStandard.BASISSTANDARD,
+			Handlungsverantwortlicher.BAULASTTRAEGER, Konzeptionsquelle.RADNETZ_MASSNAHME_2024, null, null, null, null);
+
+		// assert
+		ArgumentCaptor<MassnahmeStornierungAngefragtEvent> captor = ArgumentCaptor
+			.forClass(MassnahmeStornierungAngefragtEvent.class);
+		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()), never());
+	}
+
+	@Test
+	void update_stornierungAngefragt_publishesEvent() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).id(42l)
+			.umsetzungsstatus(Umsetzungsstatus.IDEE)
+			.build();
+
+		// act
+		massnahme.update(massnahme.getBezeichnung(),
+			massnahme.getMassnahmenkategorien(),
+			massnahme.getNetzbezug(),
+			massnahme.getDurchfuehrungszeitraum().get(),
+			Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+			massnahme.getVeroeffentlicht(),
+			massnahme.getPlanungErforderlich(),
+			massnahme.getMaViSID().get(),
+			massnahme.getVerbaID().get(),
+			massnahme.getLGVFGID().get(),
+			massnahme.getPrioritaet().get(),
+			massnahme.getKostenannahme().get(),
+			massnahme.getNetzklassen(),
+			massnahme.getBenutzerLetzteAenderung(),
+			massnahme.getLetzteAenderung(),
+			massnahme.getBaulastZustaendiger().orElse(null),
+			massnahme.getunterhaltsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
+			massnahme.getMassnahmeKonzeptID().get(),
+			massnahme.getSollStandard(),
+			massnahme.getHandlungsverantwortlicher().get(),
+			massnahme.getKonzeptionsquelle(),
+			"Test",
+			massnahme.getRealisierungshilfe().get(), null, BegruendungStornierungsanfrage.of("Test"), null);
+
+		// assert
+		ArgumentCaptor<MassnahmeStornierungAngefragtEvent> captor = ArgumentCaptor
+			.forClass(MassnahmeStornierungAngefragtEvent.class);
+		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()));
+		assertThat(captor.getValue().getMassnahme())
+			.usingRecursiveComparison(RecursiveComparisonConfiguration.builder()
+				.withComparedFields("zustaendiger", "benutzerLetzteAenderung", "begruendungStornierungsanfrage")
+				.build())
+			.isEqualTo(massnahme);
+	}
+
+	@Test
+	void update_stornierungAngefragt_alreadyAngefragt_doesNotPublishEvent() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().id(42l)
+			.umsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+			.begruendungStornierungsanfrage(BegruendungStornierungsanfrage.of("Test"))
+			.build();
+
+		// act
+		massnahme.update(massnahme.getBezeichnung(),
+			massnahme.getMassnahmenkategorien(),
+			massnahme.getNetzbezug(),
+			massnahme.getDurchfuehrungszeitraum().get(),
+			Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+			massnahme.getVeroeffentlicht(),
+			massnahme.getPlanungErforderlich(),
+			massnahme.getMaViSID().get(),
+			massnahme.getVerbaID().get(),
+			massnahme.getLGVFGID().get(),
+			massnahme.getPrioritaet().get(),
+			massnahme.getKostenannahme().get(),
+			massnahme.getNetzklassen(),
+			massnahme.getBenutzerLetzteAenderung(),
+			massnahme.getLetzteAenderung(),
+			massnahme.getBaulastZustaendiger().orElse(null),
+			massnahme.getunterhaltsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
+			massnahme.getMassnahmeKonzeptID().get(),
+			massnahme.getSollStandard(),
+			massnahme.getHandlungsverantwortlicher().get(),
+			massnahme.getKonzeptionsquelle(),
+			"Test",
+			massnahme.getRealisierungshilfe().get(), null, BegruendungStornierungsanfrage.of("Test"), null);
+
+		// assert
+		ArgumentCaptor<MassnahmeStornierungAngefragtEvent> captor = ArgumentCaptor
+			.forClass(MassnahmeStornierungAngefragtEvent.class);
+		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()), never());
+	}
+
+	@Test
+	void update_keineStornierungAngefragt_doesNotPublishEvent() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().id(42l)
+			.umsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+			.begruendungStornierungsanfrage(BegruendungStornierungsanfrage.of("Test"))
+			.build();
+
+		// act
+		massnahme.update(massnahme.getBezeichnung(),
+			massnahme.getMassnahmenkategorien(),
+			massnahme.getNetzbezug(),
+			massnahme.getDurchfuehrungszeitraum().get(),
+			Umsetzungsstatus.IDEE,
+			massnahme.getVeroeffentlicht(),
+			massnahme.getPlanungErforderlich(),
+			massnahme.getMaViSID().get(),
+			massnahme.getVerbaID().get(),
+			massnahme.getLGVFGID().get(),
+			massnahme.getPrioritaet().get(),
+			massnahme.getKostenannahme().get(),
+			massnahme.getNetzklassen(),
+			massnahme.getBenutzerLetzteAenderung(),
+			massnahme.getLetzteAenderung(),
+			massnahme.getBaulastZustaendiger().orElse(null),
+			massnahme.getunterhaltsZustaendiger().orElse(null),
+			massnahme.getZustaendiger().orElse(null),
+			massnahme.getMassnahmeKonzeptID().get(),
+			massnahme.getSollStandard(),
+			massnahme.getHandlungsverantwortlicher().get(),
+			massnahme.getKonzeptionsquelle(),
+			"Test",
+			massnahme.getRealisierungshilfe().get(), null, null, null);
+
+		// assert
+		ArgumentCaptor<MassnahmeStornierungAngefragtEvent> captor = ArgumentCaptor
+			.forClass(MassnahmeStornierungAngefragtEvent.class);
+		domainPublisherMock.verify(() -> RadVisDomainEventPublisher.publish(captor.capture()), never());
+	}
+
+	@Test
+	void isBegruendungStornierungsanfrageValidForUmsetzungsstatus() {
+		// act + assert
+		assertThat(Massnahme.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(Umsetzungsstatus.IDEE, null))
+			.isTrue();
+		assertThat(Massnahme.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(Umsetzungsstatus.IDEE,
+			BegruendungStornierungsanfrage.of("Test")))
+				.isFalse();
+		assertThat(Massnahme
+			.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+				BegruendungStornierungsanfrage.of("Test")))
+					.isTrue();
+		assertThat(Massnahme
+			.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT, null))
+				.isFalse();
+	}
+
+	@Test
+	void isUmsetzungsstatusValidForKonzeptionsquelle() {
+		// act + assert
+		assertThat(Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(Konzeptionsquelle.KOMMUNALES_KONZEPT,
+			Umsetzungsstatus.IDEE)).isTrue();
+		assertThat(Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(Konzeptionsquelle.KOMMUNALES_KONZEPT,
+			Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)).isFalse();
+		assertThat(Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME,
+			Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)).isTrue();
+		assertThat(Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024,
+			Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)).isTrue();
+	}
+
+	@Test
+	void isBegruendungZurueckstellungValidForZurueckstellungsgrund() {
+		// act + assert
+		assertThat(Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(null, null)).isTrue();
+		assertThat(Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(null,
+			BegruendungZurueckstellung.of("Test"))).isFalse();
+		assertThat(
+			Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(ZurueckstellungsGrund.WEITERE_GRUENDE,
+				BegruendungZurueckstellung.of("Test"))).isTrue();
+		assertThat(Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(
+			ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN,
+			BegruendungZurueckstellung.of("Test"))).isFalse();
+
 	}
 }

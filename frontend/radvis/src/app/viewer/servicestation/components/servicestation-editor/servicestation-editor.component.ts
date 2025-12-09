@@ -88,6 +88,7 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
         organisation: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
         typ: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
         status: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
+        radkultur: new UntypedFormControl(false),
       }),
       notifyUserService,
       changeDetector,
@@ -188,6 +189,7 @@ export class ServicestationEditorComponent extends SimpleEditorCreatorComponent<
       luftpumpe: formGroup.value.luftpumpe || false,
       typ: formGroup.value.typ,
       status: formGroup.value.status,
+      radkultur: formGroup.value.radkultur,
     };
   }
 }

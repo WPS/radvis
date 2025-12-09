@@ -16,6 +16,7 @@ package de.wps.radvis.backend.common;
 
 import static org.valid4j.Assertive.require;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -36,6 +37,7 @@ import org.locationtech.jts.linearref.LengthIndexedLine;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
+import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 
 public class GeometryTestdataProvider {
@@ -67,9 +69,11 @@ public class GeometryTestdataProvider {
 	}
 
 	public static Coordinate moveToValidBounds(Coordinate coordinate) {
-		require(coordinate.x >= -100000 && coordinate.x <= 100000 && coordinate.y >= -100000
-			&& coordinate.y <= 100000,
-			"Test-Koordinate muss vor dem Verschieben im Bereich von (-100000,-100000,100000,10000) liegen");
+		require(
+			coordinate.x >= -100000 && coordinate.x <= 100000 && coordinate.y >= -100000
+				&& coordinate.y <= 100000,
+			"Test-Koordinate muss vor dem Verschieben im Bereich von (-100000,-100000,100000,10000) liegen"
+		);
 		return new Coordinate(coordinate.x + 450000, coordinate.y + 5400000);
 	}
 
@@ -91,8 +95,20 @@ public class GeometryTestdataProvider {
 		return GEO_FACTORY.createMultiPointFromCoords(coordinates);
 	}
 
+	public static MultiPoint createMultiPoint(Point... points) {
+		return GEO_FACTORY.createMultiPoint(points);
+	}
+
+	public static MultiPoint createMultiPoint() {
+		return GEO_FACTORY.createMultiPoint();
+	}
+
 	public static Point createPoint(Coordinate coordinate) {
 		return GEO_FACTORY.createPoint(coordinate);
+	}
+
+	public static Point createPoint() {
+		return GEO_FACTORY.createPoint();
 	}
 
 	public static MultiPolygon createQuadratischerBereich(double minX, double minY, double maxX, double maxY) {
@@ -113,10 +129,12 @@ public class GeometryTestdataProvider {
 
 	public static MultiPolygon getQuadratischenBereichFuerLinestrings(Collection<LineString> lineStrings) {
 		Envelope envelope = lineStrings.stream().map(LineString::getEnvelopeInternal)
-			.reduce(lineStrings.iterator().next().getEnvelopeInternal(), (env1, env2) -> {
-				env1.expandToInclude(env2);
-				return env1;
-			});
+			.reduce(
+				lineStrings.iterator().next().getEnvelopeInternal(), (env1, env2) -> {
+					env1.expandToInclude(env2);
+					return env1;
+				}
+			);
 		return GEO_FACTORY.createMultiPolygon(new Polygon[] {
 			EnvelopeAdapter.toPolygon(envelope, KoordinatenReferenzSystem.ETRS89_UTM32_N.getSrid()) }
 		);
@@ -124,11 +142,32 @@ public class GeometryTestdataProvider {
 
 	public static LineString getAbschnitt(LineString lineString, LinearReferenzierterAbschnitt of) {
 		LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(lineString);
-		return (LineString) lengthIndexedLine.extractLine(of.getVonValue() * lineString.getLength(),
-			of.getBisValue() * lineString.getLength());
+		return (LineString) lengthIndexedLine.extractLine(
+			of.getVonValue() * lineString.getLength(),
+			of.getBisValue() * lineString.getLength()
+		);
 	}
 
 	public static GeometryCollection creatGeometryCollection(Geometry... geometry) {
 		return GEO_FACTORY.createGeometryCollection(geometry);
+	}
+
+	public static Point getPunktAufKante(LineString lineString, LineareReferenz lineareReferenz) {
+		LengthIndexedLine lengthIndexedLine = new LengthIndexedLine(lineString);
+		return createPoint(
+			lengthIndexedLine.extractPoint(lineareReferenz.getAbschnittsmarke() * lineString.getLength()));
+
+	}
+
+	public static MultiPoint mergeMultiPoint(MultiPoint... multiPoints) {
+		Point[] allPoints = Arrays.stream(multiPoints).flatMap(multiPoint -> {
+			ArrayList<Point> points = new ArrayList<>();
+
+			for (int i = 0; i < multiPoint.getNumGeometries(); i++) {
+				points.add((Point) multiPoint.getGeometryN(i));
+			}
+			return points.stream();
+		}).toArray(Point[]::new);
+		return createMultiPoint(allPoints);
 	}
 }

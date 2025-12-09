@@ -13,9 +13,9 @@
  */
 
 @use '@angular/material' as mat;
-@import 'src/theme';
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/theme';
+@use 'src/style/spacing';
+@use 'src/style/colors';
 
 $hightligt-line-thickness: 6px;
 $hightligt-line-overflow-width: 0.6em;

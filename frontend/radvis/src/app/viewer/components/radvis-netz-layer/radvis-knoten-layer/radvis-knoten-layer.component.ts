@@ -17,14 +17,11 @@ import { Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
 import VectorLayer from 'ol/layer/Vector';
-import { Circle, Style } from 'ol/style';
-import CircleStyle from 'ol/style/Circle';
+import { Style } from 'ol/style';
 import { Subscription } from 'rxjs';
-import { isArray } from 'rxjs/internal-compatibility';
 import { filter } from 'rxjs/operators';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { Netzklassefilter } from 'src/app/shared/models/netzklassefilter';
-import { getRadvisNetzStyleFunction } from 'src/app/shared/models/radvis-netz-style';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
@@ -62,19 +59,6 @@ export class RadvisKnotenLayerComponent implements OnInit, OnDestroy, OnChanges 
     private featureHighlightService: FeatureHighlightService
   ) {}
 
-  private static setHoverColorToStrokeAndFill(styles: Style | Style[]): Style[] {
-    return (isArray(styles) ? styles : [styles]).map(style => {
-      const circle: CircleStyle = style.getImage() as Circle;
-      circle?.getStroke().setColor(MapStyles.FEATURE_HOVER_COLOR);
-      circle?.getFill().setColor(MapStyles.FEATURE_HOVER_COLOR);
-
-      const clonedStyle = style.clone();
-      clonedStyle.setZIndex(highlightNetzklasseLayerZIndex + 1);
-
-      return clonedStyle;
-    });
-  }
-
   ngOnInit(): void {
     this.olLayer = this.createKnotenLayer();
     this.olMapService.addLayer(this.olLayer);
@@ -111,9 +95,7 @@ export class RadvisKnotenLayerComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   ngOnChanges(): void {
-    if (this.olLayer) {
-      this.olLayer.getSource().refresh();
-    }
+    this.olLayer?.getSource()?.refresh();
   }
 
   ngOnDestroy(): void {
@@ -122,7 +104,7 @@ export class RadvisKnotenLayerComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   private getKnotenById(knotenId: number): Feature | null {
-    return this.olLayer.getSource().getFeatureById(knotenId);
+    return this.olLayer?.getSource()?.getFeatureById(knotenId);
   }
 
   private createKnotenLayer(): VectorLayer {
@@ -135,13 +117,18 @@ export class RadvisKnotenLayerComponent implements OnInit, OnDestroy, OnChanges 
       onError: error => this.errorHandlingService.handleError(error),
     });
 
+    const normalStyle = MapStyles.defaultPointStyleLarge(MapStyles.FEATURE_COLOR);
+    normalStyle.setZIndex(highlightNetzklasseLayerZIndex + 1);
+
+    const hoverStyle = MapStyles.defaultPointStyleLarge(MapStyles.FEATURE_HOVER_COLOR);
+    hoverStyle.setZIndex(highlightNetzklasseLayerZIndex + 1);
+
     const olLayer = new VectorLayer({
       source: vectorSource,
       // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
-      style: (feature: FeatureLike, resolution: number): Style | Style[] => {
-        const styles: Style | Style[] = getRadvisNetzStyleFunction()(feature, resolution);
-        return feature.get('highlighted') ? RadvisKnotenLayerComponent.setHoverColorToStrokeAndFill(styles) : styles;
+      style: (feature: FeatureLike, resolution: number): Style | Style[] | void => {
+        return feature.get('highlighted') ? hoverStyle : normalStyle;
       },
       minZoom: 16,
       zIndex: defaultNetzklasseLayerZIndex + 1,

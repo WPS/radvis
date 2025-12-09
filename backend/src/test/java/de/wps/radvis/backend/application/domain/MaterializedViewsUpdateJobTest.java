@@ -12,10 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.wps.radvis.backend.netz.domain;
+package de.wps.radvis.backend.application.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
@@ -27,6 +26,7 @@ import org.mockito.MockitoAnnotations;
 
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 
 class MaterializedViewsUpdateJobTest {
@@ -34,15 +34,18 @@ class MaterializedViewsUpdateJobTest {
 	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 	@Mock
 	private NetzService netzService;
+	@Mock
+	private MassnahmeRepository massnahmeRepository;
 
 	private MaterializedViewsUpdateJob materializedViewsUpdateJob;
 
 	@BeforeEach
 	public void setup() {
+
 		MockitoAnnotations.openMocks(this);
 
 		materializedViewsUpdateJob = new MaterializedViewsUpdateJob(
-			jobExecutionDescriptionRepository, netzService);
+			jobExecutionDescriptionRepository, netzService, massnahmeRepository);
 	}
 
 	@Test
@@ -53,5 +56,6 @@ class MaterializedViewsUpdateJobTest {
 		// Assert
 		assertThat(jobStatistik).isEmpty();
 		verify(netzService).refreshNetzMaterializedViews();
+		verify(massnahmeRepository).refreshMassnahmeMaterializedViews();
 	}
 }

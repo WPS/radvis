@@ -46,38 +46,38 @@ describe('KnotenNetzVectorLayer', () => {
       knotenNetzVectorLayer.toggleHighlightKnoten(2);
     });
     it('unhighlight existing highlighted Kante', () => {
-      knotenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      knotenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       knotenViewSubject.next(createDummyRadVisFeatureCollection());
       expect(
-        knotenNetzVectorLayer.getSource().getFeatureById(2).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
+        knotenNetzVectorLayer.getSource()?.getFeatureById(2).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
       ).toBeTrue();
       knotenNetzVectorLayer.toggleHighlightKnoten(2);
       expect(
-        knotenNetzVectorLayer.getSource().getFeatureById(2).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
+        knotenNetzVectorLayer.getSource()?.getFeatureById(2).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
       ).toBeFalsy();
     });
     it('highlight existing unhighlighted Kante', () => {
-      knotenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      knotenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       knotenViewSubject.next(createDummyRadVisFeatureCollection());
       expect(
-        knotenNetzVectorLayer.getSource().getFeatureById(1).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
+        knotenNetzVectorLayer.getSource()?.getFeatureById(1).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
       ).toBeFalsy();
       knotenNetzVectorLayer.toggleHighlightKnoten(1);
       expect(
-        knotenNetzVectorLayer.getSource().getFeatureById(1).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
+        knotenNetzVectorLayer.getSource()?.getFeatureById(1).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
       ).toBeTrue();
     });
     it('should apply toggled highlighting to non-existing knoten when they are loaded', () => {
-      knotenNetzVectorLayer.getSource().loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
+      knotenNetzVectorLayer.getSource()?.loadFeatures([0, 0, 20, 20], 10, new Projection({ code: '' }));
       knotenNetzVectorLayer.toggleHighlightKnoten(1);
       knotenNetzVectorLayer.toggleHighlightKnoten(2);
       knotenViewSubject.next(createDummyRadVisFeatureCollection());
       verify(radvisNetzFeatureService.getKnotenForView(anything(), deepEqual(Netzklassefilter.getAll()))).once();
       expect(
-        knotenNetzVectorLayer.getSource().getFeatureById(2).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
+        knotenNetzVectorLayer.getSource()?.getFeatureById(2).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
       ).toBeFalsy();
       expect(
-        knotenNetzVectorLayer.getSource().getFeatureById(1).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
+        knotenNetzVectorLayer.getSource()?.getFeatureById(1).get(KnotenNetzVectorLayer['HIGHLIGHT_PROPERTY'])
       ).toBeTrue();
     });
   });

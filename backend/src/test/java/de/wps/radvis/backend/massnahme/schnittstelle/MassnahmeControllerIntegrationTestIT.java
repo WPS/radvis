@@ -412,7 +412,7 @@ class MassnahmeControllerIntegrationTestIT extends DBIntegrationTestIT {
 			massnahme.getSollStandard(),
 			massnahme.getHandlungsverantwortlicher().orElse(null), massnahme.getKonzeptionsquelle(),
 			massnahme.getSonstigeKonzeptionsquelle().orElse(null),
-			null);
+			null, null, null, null);
 
 		// Act
 		MassnahmeEditView result = massnahmeController.saveMassnahme(authentication, updateMassnahmeCommand);

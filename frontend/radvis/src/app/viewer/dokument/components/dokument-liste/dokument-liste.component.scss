@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -25,7 +26,7 @@
 .keine-dokumente {
   margin: 2rem 0 0;
   text-align: center;
-  color: $dark-gray;
+  color: colors.$dark-gray;
 }
 
 .dokument-list {
@@ -40,7 +41,7 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 1rem;
-  border-bottom: 1px solid map-get($grayscale, 300);
+  border-bottom: 1px solid map.get(colors.$grayscale, 300);
 
   .row-left-side {
     display: flex;
@@ -56,7 +57,7 @@
 
 .uploader {
   width: 100%;
-  border-top: 1px solid map-get($grayscale, 300);
+  border-top: 1px solid map.get(colors.$grayscale, 300);
 
   .upload-selector {
     padding: 0 0.8rem;

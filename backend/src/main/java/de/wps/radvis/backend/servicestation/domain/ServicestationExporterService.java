@@ -51,6 +51,7 @@ public class ServicestationExporterService implements ExporterService {
 				attribute.put(Servicestation.CsvHeader.OEFFNUNGSZEITEN,
 					servicestation.getOeffnungszeiten().map(Oeffnungszeiten::getValue).orElse(""));
 				attribute.put(Servicestation.CsvHeader.BETREIBER, servicestation.getBetreiber().getValue());
+				attribute.put(Servicestation.CsvHeader.RADKULTUR, servicestation.getRadkultur().getValueAsString());
 				attribute.put(Servicestation.CsvHeader.MARKE,
 					servicestation.getMarke().map(Marke::getValue).orElse(""));
 				attribute.put(Servicestation.CsvHeader.LUFTPUMPE,
@@ -62,7 +63,8 @@ public class ServicestationExporterService implements ExporterService {
 				attribute.put(Servicestation.CsvHeader.FAHRRADHALTERUNG,
 					servicestation.getFahrradhalterung().getValueAsString());
 				attribute.put(Servicestation.CsvHeader.BESCHREIBUNG, servicestation.getBeschreibung().isPresent()
-					? servicestation.getBeschreibung().get().getValue() : "");
+					? servicestation.getBeschreibung().get().getValue()
+					: "");
 				attribute.put(Servicestation.CsvHeader.ZUSTAENDIG_IN_RAD_VIS,
 					servicestation.getOrganisation().getDisplayText());
 				attribute.put(Servicestation.CsvHeader.TYP, servicestation.getTyp().toString());

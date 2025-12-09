@@ -36,9 +36,42 @@
     <rad-enum-dropdown-control
       formControlName="umsetzungsstatus"
       [options]="umsetzungsstatusOptions"
+      [errors]="formGroup.controls.umsetzungsstatus.errors || null"
       [nullable]="false">
       Umsetzungsstatus
     </rad-enum-dropdown-control>
+    <rad-hinweis level="info" *ngIf="istStornierungAngefragt" class="stornierung-anfrage-hinweis">
+      Das zuständige RP wird informiert und prüft die Anfrage
+    </rad-hinweis>
+
+    <rad-enum-dropdown-control
+      *ngIf="zurueckstellungsGrundVisible"
+      [errors]="formGroup.controls.zurueckstellungsGrund.errors || null"
+      formControlName="zurueckstellungsGrund"
+      [options]="zurueckstellungsGrundOptions"
+      [nullable]="false">
+      Zurückstellungsgrund
+    </rad-enum-dropdown-control>
+
+    <mat-form-field class="mat-form-field-full-width w-100" *ngIf="begruendungZurueckstellungVisible">
+      <mat-label>Begründung Zurückstellung</mat-label>
+      <textarea class="text-area" formControlName="begruendungZurueckstellung" matInput></textarea>
+      <mat-hint align="end">{{ formGroup.controls.begruendungZurueckstellung.value?.length || 0 }}/3000</mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="formGroup.controls.begruendungZurueckstellung.errors || null">
+    </rad-validation-error-anzeige>
+
+    <mat-form-field class="mat-form-field-full-width w-100" *ngIf="begruendungStornierungVisible">
+      <mat-label>Begründung Stornierungsanfrage</mat-label>
+      <textarea
+        placeholder="Bitte geben Sie eine Begründung für die Prüfung durch das zuständige RP an"
+        class="text-area"
+        formControlName="begruendungStornierungsanfrage"
+        matInput></textarea>
+      <mat-hint align="end">{{ formGroup.controls.begruendungStornierungsanfrage.value?.length || 0 }}/3000</mat-hint>
+    </mat-form-field>
+    <rad-validation-error-anzeige [errors]="formGroup.controls.begruendungStornierungsanfrage.errors || null">
+    </rad-validation-error-anzeige>
 
     <rad-text-input-control formControlName="bezeichnung" [errors]="formGroup.get('bezeichnung')?.errors">
       <div class="label">Bezeichnung</div>

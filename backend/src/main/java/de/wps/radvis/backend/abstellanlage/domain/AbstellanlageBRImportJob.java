@@ -23,17 +23,18 @@ import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.api.referencing.FactoryException;
 import org.geotools.api.referencing.operation.TransformException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
+import org.springframework.data.util.Pair;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage.AbstellanlageBuilder;
@@ -46,25 +47,26 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStat
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenWeitereInformation;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AnzahlStellplaetze;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.ExterneAbstellanlagenId;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.MobiDataQuellId;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
-import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
-import de.wps.radvis.backend.common.domain.exception.CsvReadException;
-import de.wps.radvis.backend.common.domain.repository.CsvRepository;
-import de.wps.radvis.backend.common.domain.valueObject.CsvData;
 import de.wps.radvis.backend.common.domain.valueObject.Fehlercode;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.schnittstelle.CoordinateReferenceSystemConverter;
 import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import jakarta.transaction.Transactional;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -72,42 +74,37 @@ import lombok.extern.slf4j.Slf4j;
 public class AbstellanlageBRImportJob extends AbstractJob {
 	public static final String JOB_NAME = "AbstellanlageBRImportJob";
 
-	public static class CsvHeader {
-		public static final String ID = "ID";
-		public static final String DATENQUELLE = "Datenquelle";
-		public static final String LONGITUDE = "Longitude";
-		public static final String LATITUDE = "Latitude";
-		public static final String ANLAGENTYP = "Anlagentyp";
-		public static final String STELLPLATZANZAHL = "Stellplatzanzahl";
-		public static final String UEBERDACHT = "ueberdacht";
-		public static final String NOTIZEN = "Notizen";
-		public static final String ANLAGE_FOTO = "Anlage_Foto";
-		public static final String WEGZUR_ANLAGE_FOTO = "WegzurAnlage_Foto";
-		public static final String HINDERNISZUFAHRT_FOTO = "Hinderniszufahrt_Foto";
-		public static final String BESONDERHEITEN_FOTO = "Besonderheiten_Foto";
-		public static final List<String> ALL = List.of(
-			ID, DATENQUELLE, LONGITUDE, LATITUDE, ANLAGENTYP, STELLPLATZANZAHL, UEBERDACHT, NOTIZEN, ANLAGE_FOTO,
-			WEGZUR_ANLAGE_FOTO, HINDERNISZUFAHRT_FOTO, BESONDERHEITEN_FOTO);
-	}
-
-	private final JobConfigurationProperties jobConfigurationProperties;
-	private final CsvRepository csvRepository;
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(
+		DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	private final CoordinateReferenceSystemConverter converter;
 	private final AbstellanlageRepository abstellanlageRepository;
+	private final String abstellanlageBRDatenquellenImportUrl;
+	private final String abstellanlageBRImportUrl;
 
-	public AbstellanlageBRImportJob(JobExecutionDescriptionRepository repository,
-		JobConfigurationProperties jobConfigurationProperties, CsvRepository csvRepository,
-		CoordinateReferenceSystemConverter converter, AbstellanlageRepository abstellanlageRepository) {
+	public AbstellanlageBRImportJob(
+		JobExecutionDescriptionRepository repository,
+		CoordinateReferenceSystemConverter converter,
+		AbstellanlageRepository abstellanlageRepository,
+		String abstellanlageBRDatenquellenImportUrl,
+		String abstellanlageBRImportUrl) {
 		super(repository);
-		this.jobConfigurationProperties = jobConfigurationProperties;
-		this.csvRepository = csvRepository;
 		this.converter = converter;
 		this.abstellanlageRepository = abstellanlageRepository;
+		this.abstellanlageBRDatenquellenImportUrl = abstellanlageBRDatenquellenImportUrl;
+		this.abstellanlageBRImportUrl = abstellanlageBRImportUrl;
 	}
 
 	@Override
 	public String getName() {
 		return JOB_NAME;
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Abstellanlagen aus einem JSON-Endpunkt der ParkApi Daten. Duplikate und Abstellanlagen mit der Quelle 'RadVIS' werden übersprungen und bereits existierende aktualisiert.",
+			"Abstellanlagen werden erstellt und in der Datenbank gespeichert.",
+			JobExecutionDurationEstimate.SHORT);
 	}
 
 	@Override
@@ -124,95 +121,138 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik = new AbstellanlageBRImportStatistik();
 
 		log.info("AbstellanlageBRImportJob gestartet.");
-		Set<ExterneAbstellanlagenId> aktuelleAbstellanlagen = new HashSet<>();
+		Set<Long> aktuelleAbstellanlagenIds = new HashSet<>();
 
-		List<URL> urlsToImport = jobConfigurationProperties.getAbstellanlageBRImportUrlList().stream()
-			.map(s -> {
-				try {
-					return new URL(s);
-				} catch (MalformedURLException e) {
-					log.error("Folgende Datei kann aufgrund einer Fehlerhaften URL nicht importiert werden: " + s);
-					abstellanlageBRImportStatistik.anzahlUrlsOderDateienFehlerhaft++;
-					return null;
-				}
-			})
-			.filter(Objects::nonNull)
-			.collect(Collectors.toList());
+		Optional<Integer> radvisParkApiId = tryToGetRadvisParkApiId(abstellanlageBRImportStatistik);
 
-		log.info("Zu importierende Abstellanlagen B+R Csv Dateien: " + urlsToImport);
+		if (radvisParkApiId.isEmpty()) {
+			return Optional.of(abstellanlageBRImportStatistik);
+		}
 
-		Set<ExterneAbstellanlagenId> bereitsImportierteAbstellanlagen = new HashSet<>();
-		for (URL url : urlsToImport) {
-			CsvData csvData;
-			try (InputStream is = url.openStream()) {
-				byte[] bytes = IOUtils.toByteArray(is);
-				csvData = csvRepository.read(bytes, CsvHeader.ALL, ';', true);
+		log.info("Zu importierende Abstellanlagen B+R GeoJson Url: {}", this.abstellanlageBRImportUrl);
 
-			} catch (IOException | CsvReadException e) {
-				log.error("Die Datei mit der URL {} konnte aus folgendem Grund nicht eingelesen werden: ", url, e);
-				abstellanlageBRImportStatistik.anzahlUrlsOderDateienFehlerhaft++;
+		Optional<ParkApiAbstellanlagenJson> parkApiAbstellanlagenJson = tryToGetAbstellanlagenJson(
+			this.abstellanlageBRImportUrl, abstellanlageBRImportStatistik);
+
+		if (parkApiAbstellanlagenJson.isEmpty()) {
+			return Optional.of(abstellanlageBRImportStatistik);
+		}
+
+		List<ParkApiAbstellanlageJson> zuImportierendeDatensaetze = parkApiAbstellanlagenJson.get().getItems();
+		log.info("Anzahl Datensätze im Json: {}", zuImportierendeDatensaetze.size());
+
+		Set<Pair<ExterneAbstellanlagenId, MobiDataQuellId>> bereitsImportierteAbstellanlagen = new HashSet<>();
+		for (ParkApiAbstellanlageJson abstellanlageJson : zuImportierendeDatensaetze) {
+			// Keine in RadVIS gepflegten Anlagen importieren
+			if (abstellanlageJson.getSource_id().equals(radvisParkApiId.get())) {
+				abstellanlageBRImportStatistik.anzahlRadVISAbstellanlagenUebersprungen++;
 				continue;
 			}
 
-			abstellanlageBRImportStatistik.anzahlBeimCsvImportUebersprungenerZeilen = csvData
-				.getAnzahlUebersprungenerZeilen();
-			log.info("Anzahl zeilen in der csvData: " + csvData.getRows().size());
+			ExterneAbstellanlagenId externeId = ExterneAbstellanlagenId.of(abstellanlageJson.getOriginal_uid());
+			MobiDataQuellId mobiDataQuellId = MobiDataQuellId.of(abstellanlageJson.getSource_id());
 
-			for (Map<String, String> csvDataRow : csvData.getRows()) {
-				ExterneAbstellanlagenId externeId = ExterneAbstellanlagenId.of(csvDataRow.get(CsvHeader.ID));
-				if (bereitsImportierteAbstellanlagen.contains(externeId)) {
-					log.error("Duplicate ID found: " + externeId);
-					abstellanlageBRImportStatistik.anzahlAbstellanlagenIdNichtEindeutig++;
-					continue;
-				}
-				if (csvDataRow.get(CsvHeader.DATENQUELLE)
-					.equalsIgnoreCase(AbstellanlagenQuellSystem.RADVIS.toString())) {
-					abstellanlageBRImportStatistik.anzahlRadVISAbstellanlagenUebersprungen++;
-					continue;
-				}
-				bereitsImportierteAbstellanlagen.add(externeId);
-				AbstellanlageBuilder abstellanlageBuilder = getExistingOrNewAbstellanlagenBuilder(externeId);
-				addDefaultBRAttributes(abstellanlageBuilder);
-				try {
-					mapAttributesAndAddToBuilder(abstellanlageBuilder, csvDataRow);
-				} catch (AbstellanlageAttributMappingException e) {
-					log.warn(
-						"Die Abstellanlage mit der ID " + externeId.getValue()
-							+ " kann nicht importiert werden, aufgrund von: "
-							+ e);
-					abstellanlageBRImportStatistik.anzahlAbstellanlagenAttributmappingFehlerhaft++;
-					continue;
-				}
-				Abstellanlage abstellanlage = abstellanlageBuilder.build();
-				if (abstellanlage.getId() == null) {
-					abstellanlageBRImportStatistik.anzahlNeuErstellt++;
-				} else {
-					abstellanlageBRImportStatistik.anzahlGeupdated++;
-				}
-				abstellanlageRepository.save(abstellanlage);
-				aktuelleAbstellanlagen.add(externeId);
+			// Keine Duplikate importieren
+			Pair<ExterneAbstellanlagenId, MobiDataQuellId> mobiDataIdentifier = Pair.of(externeId, mobiDataQuellId);
+			if (bereitsImportierteAbstellanlagen.contains(mobiDataIdentifier)) {
+				log.error("Duplicate ID {} found for MobiDataQuellId {}!", externeId, mobiDataQuellId);
+				abstellanlageBRImportStatistik.anzahlAbstellanlagenIdNichtEindeutig++;
+				continue;
 			}
-		}
-		if (!urlsToImport.isEmpty()) {
-			int anzahlGeloeschteMobiDataAbstellanlagen = abstellanlageRepository
-				.deleteAllByQuellSystemAndExterneIdNotIn(
-					AbstellanlagenQuellSystem.MOBIDATABW, aktuelleAbstellanlagen);
-			abstellanlageBRImportStatistik.anzahlGeloescht = anzahlGeloeschteMobiDataAbstellanlagen;
-		}
+			bereitsImportierteAbstellanlagen.add(mobiDataIdentifier);
 
-		log.info("JobStatistik: " + abstellanlageBRImportStatistik);
+			// Auf Abstellanlage mappen und - wenn Mapping möglich - persistieren
+			mapToAbstellanlage(
+				abstellanlageJson,
+				externeId,
+				mobiDataQuellId,
+				abstellanlageBRImportStatistik).ifPresent(abstellanlage -> {
+					abstellanlageRepository.save(abstellanlage);
+					aktuelleAbstellanlagenIds.add(abstellanlage.getId());
+				});
+		}
+		// noinspection UnnecessaryLocalVariable
+		int anzahlGeloeschteMobiDataAbstellanlagen = abstellanlageRepository
+			.deleteAllByQuellSystemAndIdNotIn(AbstellanlagenQuellSystem.MOBIDATABW, aktuelleAbstellanlagenIds);
+		abstellanlageBRImportStatistik.anzahlGeloescht = anzahlGeloeschteMobiDataAbstellanlagen;
+
+		log.info("JobStatistik: {}", abstellanlageBRImportStatistik);
 		return Optional.of(abstellanlageBRImportStatistik);
 	}
 
-	private AbstellanlageBuilder getExistingOrNewAbstellanlagenBuilder(ExterneAbstellanlagenId externeId) {
-		Optional<Abstellanlage> abstellanlageOpt = abstellanlageRepository.findByExterneIdAndQuellSystem(externeId,
-			AbstellanlagenQuellSystem.MOBIDATABW);
-		return abstellanlageOpt.map(Abstellanlage::toBuilder)
-			.orElse(Abstellanlage.builder().dokumentListe(new DokumentListe()).externeId(externeId));
+	private Optional<ParkApiAbstellanlagenJson> tryToGetAbstellanlagenJson(String urlString,
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik) {
+		try (InputStream is = new URL(urlString).openStream()) {
+			byte[] bytes = IOUtils.toByteArray(is);
+			return Optional.of(OBJECT_MAPPER.readValue(bytes, ParkApiAbstellanlagenJson.class));
+		} catch (MalformedURLException e) {
+			log.error(
+				"Folgende Datei kann aufgrund einer Fehlerhaften URL nicht importiert werden: {}",
+				urlString, e);
+			abstellanlageBRImportStatistik.urlOderGeojsonFehlerhaft = true;
+			return Optional.empty();
+		} catch (IOException e) {
+			log.error("Die Datei mit der URL {} konnte aus folgendem Grund nicht eingelesen werden: ", urlString, e);
+			abstellanlageBRImportStatistik.urlOderGeojsonFehlerhaft = true;
+			return Optional.empty();
+		}
 	}
 
-	private void addDefaultBRAttributes(AbstellanlageBuilder abstellanlageBuilder) {
-		abstellanlageBuilder.quellSystem(AbstellanlagenQuellSystem.MOBIDATABW)
+	private Optional<Integer> tryToGetRadvisParkApiId(AbstellanlageBRImportStatistik abstellanlageBRImportStatistik) {
+		Integer radvisParkApiId = null;
+
+		try (
+			InputStream is = new URL(this.abstellanlageBRDatenquellenImportUrl).openStream()) {
+			ParkApiDatenquellenJson parkApiDatenquellenJson = OBJECT_MAPPER.readValue(
+				is,
+				ParkApiDatenquellenJson.class);
+			Optional<ParkApiDatenquelleJson> radvisQuelle = parkApiDatenquellenJson.getItems().stream()
+				.filter(quelle -> quelle.getUid().equalsIgnoreCase("radvis_bw")).findFirst();
+			radvisParkApiId = radvisQuelle.map(ParkApiDatenquelleJson::getId).orElse(null);
+		} catch (IOException e) {
+			log.error(
+				"Folgende Datei mit Datenquellen kann aufgrund einer Fehlerhaften URL nicht ausgelesen werden: {}",
+				this.abstellanlageBRDatenquellenImportUrl, e);
+			abstellanlageBRImportStatistik.urlOderGeojsonFehlerhaft = true;
+		}
+		return Optional.ofNullable(radvisParkApiId);
+	}
+
+	private Optional<Abstellanlage> mapToAbstellanlage(
+		ParkApiAbstellanlageJson abstellanlageJson,
+		ExterneAbstellanlagenId externeId,
+		MobiDataQuellId mobiDataQuellId,
+		AbstellanlageBRImportStatistik abstellanlageBRImportStatistik) {
+		AbstellanlageBuilder abstellanlageBuilder = getExistingOrNewAbstellanlagenBuilder(externeId, mobiDataQuellId);
+		try {
+			mapAttributesAndAddToBuilder(abstellanlageBuilder, abstellanlageJson);
+		} catch (AbstellanlageAttributMappingException e) {
+			log.warn("Die Abstellanlage mit der ID {} kann nicht importiert werden.", externeId.getValue(), e);
+			abstellanlageBRImportStatistik.anzahlAbstellanlagenAttributmappingFehlerhaft++;
+			return Optional.empty();
+		}
+		Abstellanlage abstellanlage = abstellanlageBuilder.build();
+		if (abstellanlage.getId() == null) {
+			abstellanlageBRImportStatistik.anzahlNeuErstellt++;
+		} else {
+			abstellanlageBRImportStatistik.anzahlGeupdated++;
+		}
+		return Optional.of(abstellanlage);
+	}
+
+	private AbstellanlageBuilder getExistingOrNewAbstellanlagenBuilder(ExterneAbstellanlagenId externeId,
+		MobiDataQuellId mobiDataQuellId) {
+		Optional<Abstellanlage> abstellanlageOpt = abstellanlageRepository
+			.findByExterneIdAndQuellSystemAndMobiDataQuellId(
+				externeId,
+				AbstellanlagenQuellSystem.MOBIDATABW,
+				mobiDataQuellId);
+		AbstellanlageBuilder abstellanlageBuilder = abstellanlageOpt.map(Abstellanlage::toBuilder)
+			.orElse(Abstellanlage.builder().dokumentListe(new DokumentListe()).externeId(externeId).mobiDataQuellId(
+				mobiDataQuellId));
+		// Add Default Attributes
+		return abstellanlageBuilder
+			.quellSystem(AbstellanlagenQuellSystem.MOBIDATABW)
 			.zustaendig(null)
 			.ueberwacht(Ueberwacht.UNBEKANNT)
 			.abstellanlagenOrt(AbstellanlagenOrt.BIKE_AND_RIDE)
@@ -220,65 +260,65 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 			.status(AbstellanlagenStatus.AKTIV);
 	}
 
-	private void mapAttributesAndAddToBuilder(AbstellanlageBuilder abstellanlageBuilder, Map<String, String> csvDataRow)
+	private void mapAttributesAndAddToBuilder(
+		AbstellanlageBuilder abstellanlageBuilder,
+		ParkApiAbstellanlageJson abstellanlageJson)
 		throws AbstellanlageAttributMappingException {
 		// Geometrie
 		try {
-			abstellanlageBuilder.geometrie(extractGeometryAsUtm32Point(csvDataRow));
+			abstellanlageBuilder.geometrie(extractGeometryAsUtm32Point(abstellanlageJson));
 		} catch (ParseException e) {
 			throw new AbstellanlageAttributMappingException(
-				"Die Felder Latitude und Longitude müssen Kommazahlen sein.");
+				"Die Felder Latitude und Longitude müssen Kommazahlen im Format 1.234 sein.");
 		} catch (FactoryException | TransformException e) {
 			throw new AbstellanlageAttributMappingException(
 				"Die angegebenen Koordinaten können nicht in valide UTM32-Koordinaten transformiert werden.");
 		}
 
 		// Betreiber
-		String betreiberString = csvDataRow.get(CsvHeader.DATENQUELLE);
-		if (betreiberString.isEmpty()) {
-			throw new AbstellanlageAttributMappingException(
-				"Es muss ein Betreiber angegeben sein. (Spaltenname: \"" + CsvHeader.DATENQUELLE + "\").");
-		} else {
-			abstellanlageBuilder.betreiber(AbstellanlagenBetreiber.of(betreiberString));
+		String betreiberString = abstellanlageJson.getOperator_name();
+		if (betreiberString == null || betreiberString.isEmpty()) {
+			betreiberString = "Unbekannt";
 		}
 
+		abstellanlageBuilder.betreiber(AbstellanlagenBetreiber.of(betreiberString));
+
 		// Anzahl Stellplaetze
-		String stellplatzanzahlString = csvDataRow.get(CsvHeader.STELLPLATZANZAHL);
-		if (stellplatzanzahlString.isEmpty()) {
+		Integer stellplatzanzahl = abstellanlageJson.getCapacity();
+		if (stellplatzanzahl == null) {
 			throw new AbstellanlageAttributMappingException(
-				"Es muss eine Anzahl an Stellplätzen angegeben sein. (Spaltenname: \"" + CsvHeader.STELLPLATZANZAHL
-					+ "\").");
+				"Es muss eine Anzahl an Stellplätzen angegeben sein. (Attribut: \"capacity\").");
 		} else {
-			abstellanlageBuilder.anzahlStellplaetze(AnzahlStellplaetze.of(stellplatzanzahlString));
+			abstellanlageBuilder.anzahlStellplaetze(AnzahlStellplaetze.of(stellplatzanzahl));
 		}
 
 		// Stellplatzart
-		abstellanlageBuilder.stellplatzart(mapAnlagentypAufStellplatzart(csvDataRow.get(CsvHeader.ANLAGENTYP)));
+		abstellanlageBuilder.stellplatzart(mapAnlagentypAufStellplatzart(abstellanlageJson.getType()));
 
 		// Ueberdacht
-		AbstellanlageImportService.pruefeBooleanInput("Überdacht", csvDataRow.get(CsvHeader.UEBERDACHT));
-		abstellanlageBuilder.ueberdacht(Ueberdacht.of(csvDataRow.get(CsvHeader.UEBERDACHT).equals("ja")));
+		abstellanlageBuilder.ueberdacht(Ueberdacht.of(abstellanlageJson.isCovered().orElse(false)));
 
 		// Beschreibung
-		String notizenString = csvDataRow.get(CsvHeader.NOTIZEN);
-		if (notizenString.isEmpty()) {
+		String beschreibungString = abstellanlageJson.getDescription();
+		if (beschreibungString == null || beschreibungString.isEmpty()) {
 			abstellanlageBuilder.beschreibung(null);
 		} else {
-			abstellanlageBuilder.beschreibung(AbstellanlagenBeschreibung.of(notizenString));
+			abstellanlageBuilder.beschreibung(AbstellanlagenBeschreibung.of(beschreibungString));
 		}
 
 		// Weitere Informationen
-		abstellanlageBuilder.weitereInformation(generateWeitereInformationen(csvDataRow));
+		abstellanlageBuilder.weitereInformation(generateWeitereInformationen(abstellanlageJson));
 	}
 
-	private Point extractGeometryAsUtm32Point(Map<String, String> csvDataRow) throws ParseException,
+	private Point extractGeometryAsUtm32Point(ParkApiAbstellanlageJson json) throws ParseException,
 		TransformException, FactoryException {
-		NumberFormat format = NumberFormat.getInstance(Locale.GERMAN);
-		double lat = format.parse(csvDataRow.get(CsvHeader.LATITUDE)).doubleValue();
-		double lon = format.parse(csvDataRow.get(CsvHeader.LONGITUDE)).doubleValue();
+		NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);
+		double lat = format.parse(json.getLat()).doubleValue();
+		double lon = format.parse(json.getLon()).doubleValue();
 
 		Coordinate coordinateWGS84 = new Coordinate(lat, lon);
-		Coordinate coordinateUTM32 = converter.transformCoordinate(coordinateWGS84,
+		Coordinate coordinateUTM32 = converter.transformCoordinate(
+			coordinateWGS84,
 			KoordinatenReferenzSystem.WGS84,
 			KoordinatenReferenzSystem.ETRS89_UTM32_N);
 		return KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(coordinateUTM32);
@@ -286,51 +326,76 @@ public class AbstellanlageBRImportJob extends AbstractJob {
 
 	private Stellplatzart mapAnlagentypAufStellplatzart(String anlagentyp)
 		throws AbstellanlageAttributMappingException {
-		switch (anlagentyp) {
-		case "Vorderradhalter":
-			return Stellplatzart.VORDERRADANSCHLUSS;
-		case "Fahrradboxen":
-			return Stellplatzart.FAHRRADBOX;
-		case "Anlehnbuegel":
-			return Stellplatzart.ANLEHNBUEGEL;
-		case "doppelstoeckig":
-			return Stellplatzart.DOPPELSTOECKIG;
-		case "Fahrradsammelanlage":
-			return Stellplatzart.SAMMELANLAGE;
-		case "automatisches Parksystem":
-			return Stellplatzart.AUTOMATISCHES_PARKSYSTEM;
-		case "Fahrradparkhaus":
-			return Stellplatzart.FAHRRADPARKHAUS;
-		case "Sonstiges":
-			return Stellplatzart.SONSTIGE;
-		}
-		throw new AbstellanlageAttributMappingException(
+		return switch (anlagentyp) {
+		case "WALL_LOOPS", "SAFE_WALL_LOOPS" -> Stellplatzart.VORDERRADANSCHLUSS;
+		case "LOCKBOX", "LOCKERS" -> Stellplatzart.FAHRRADBOX;
+		case "STANDS" -> Stellplatzart.ANLEHNBUEGEL;
+		case "TWO_TIER" -> Stellplatzart.DOPPELSTOECKIG;
+		case "SHED" -> Stellplatzart.SAMMELANLAGE;
+		case "BUILDING" -> Stellplatzart.FAHRRADPARKHAUS;
+		case "OTHER", "FLOOR" -> Stellplatzart.SONSTIGE;
+		default -> throw new AbstellanlageAttributMappingException(
 			"Es muss ein gültiger Anlagentyp (Stellplatzart) angegeben sein. Falscher Wert: " + anlagentyp);
+		};
 	}
 
-	private AbstellanlagenWeitereInformation generateWeitereInformationen(Map<String, String> csvDataRow) {
-		String anlageFotoUrl = csvDataRow.get(CsvHeader.ANLAGE_FOTO);
-		String wegZurAnlageUrl = csvDataRow.get(CsvHeader.WEGZUR_ANLAGE_FOTO);
-		String hindernisZufahrtUrl = csvDataRow.get(CsvHeader.HINDERNISZUFAHRT_FOTO);
-		String besonderheitenUrl = csvDataRow.get(CsvHeader.BESONDERHEITEN_FOTO);
-
-		if (anlageFotoUrl.isEmpty() && wegZurAnlageUrl.isEmpty() && hindernisZufahrtUrl.isEmpty()
-			&& besonderheitenUrl.isEmpty()) {
+	private AbstellanlagenWeitereInformation generateWeitereInformationen(ParkApiAbstellanlageJson abstellanlageJson) {
+		String anlageFotoUrl = abstellanlageJson.getPhoto_url();
+		String anlageInfoUrl = abstellanlageJson.getPublic_url();
+		if ((anlageFotoUrl == null || anlageFotoUrl.isEmpty()) && (anlageInfoUrl == null || anlageInfoUrl.isEmpty())) {
 			return null;
 		}
 
-		StringBuilder htmlText = new StringBuilder();
-		htmlText.append("<ul>\n")
-			.append(generateHtmlLinkIfUrlNotEmpty("Anlage", anlageFotoUrl))
-			.append(generateHtmlLinkIfUrlNotEmpty("Weg zur Anlage", wegZurAnlageUrl))
-			.append(generateHtmlLinkIfUrlNotEmpty("Hinderniszufahrt", hindernisZufahrtUrl))
-			.append(generateHtmlLinkIfUrlNotEmpty("Besonderheiten", besonderheitenUrl))
-			.append("</ul>");
-		return AbstellanlagenWeitereInformation.of(htmlText.toString());
+		String htmlText = "<ul>\n"
+			+ generateHtmlLinkIfUrlNotEmpty("Weitere Informationen zur Anlage", anlageInfoUrl)
+			+ generateHtmlLinkIfUrlNotEmpty("Foto der Anlage", anlageFotoUrl)
+			+ "</ul>";
+		return AbstellanlagenWeitereInformation.of(htmlText);
 	}
 
 	private String generateHtmlLinkIfUrlNotEmpty(String linkName, String linkUrl) {
-		return linkUrl.isEmpty() ? ""
+		return linkUrl == null || linkUrl.isEmpty() ? ""
 			: String.format("<li><a href=\"%s\" target=\"_blank\">%s</a></li>\n", linkUrl, linkName);
+	}
+
+	@Getter
+	@Setter
+	public static class ParkApiAbstellanlageJson {
+		private Integer source_id;
+		private String original_uid;
+		private String operator_name;
+		private String lat;
+		private String lon;
+
+		private String type;
+		private Integer capacity;
+		private Boolean is_covered;
+		private String description;
+		private String photo_url;
+		private String public_url;
+
+		private Optional<Boolean> isCovered() {
+			return Optional.ofNullable(is_covered);
+		}
+	}
+
+	@Getter
+	@Setter
+	public static class ParkApiAbstellanlagenJson {
+		private List<ParkApiAbstellanlageJson> items;
+	}
+
+	@Getter
+	@Setter
+	public static class ParkApiDatenquelleJson {
+		private Integer id;
+		private String uid;
+		private String name;
+	}
+
+	@Getter
+	@Setter
+	public static class ParkApiDatenquellenJson {
+		private List<ParkApiDatenquelleJson> items;
 	}
 }

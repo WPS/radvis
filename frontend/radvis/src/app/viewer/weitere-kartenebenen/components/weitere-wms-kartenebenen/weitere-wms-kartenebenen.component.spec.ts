@@ -19,6 +19,7 @@ import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Feature } from 'ol';
 import { LineString, Point } from 'ol/geom';
 import Geometry from 'ol/geom/Geometry';
+import { TileWMS } from 'ol/source';
 import { Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
@@ -28,7 +29,7 @@ import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/f
 import { WeitereWmsKartenebenenComponent } from 'src/app/viewer/weitere-kartenebenen/components/weitere-wms-kartenebenen/weitere-wms-kartenebenen.component';
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
 import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
-import { instance, mock, when } from 'ts-mockito';
+import { anything, instance, mock, when } from 'ts-mockito';
 
 describe(WeitereWmsKartenebenenComponent.name, () => {
   let component: WeitereWmsKartenebenenComponent;
@@ -83,6 +84,10 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
     expect(component).toBeTruthy();
   });
 
+  it('should have correct url set', () => {
+    expect(component.source.getUrls()).toEqual([testUrl]);
+  });
+
   describe('convert to feature', () => {
     let httpMock: HttpTestingController;
 
@@ -91,6 +96,10 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
     });
 
     it('should set layer id and reset feature id', fakeAsync(() => {
+      const tileWMSMock = mock(TileWMS);
+      when(tileWMSMock.getFeatureInfoUrl(anything(), anything(), anything(), anything())).thenReturn(testUrl);
+      component.source = instance(tileWMSMock);
+
       const featuresSpy = jasmine.createSpy();
       component['getFeaturesCallback']([0, 0], 0).then(fs => {
         featuresSpy(fs);
@@ -180,9 +189,9 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
         )
       );
 
-      expect(component['highlightLayer']?.getSource().getFeatures()).toHaveSize(1);
+      expect(component['highlightLayer']?.getSource()?.getFeatures()).toHaveSize(1);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()[0].getId()).toEqual('A');
+      expect(component['highlightLayer']?.getSource()?.getFeatures()[0].getId()).toEqual('A');
     });
 
     it('should unhighlight', () => {
@@ -196,7 +205,7 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
       highlight$$.next(highlightedFeature);
 
       unhighlight$$.next(highlightedFeature);
-      expect(component['highlightLayer']?.getSource().getFeatures()).toHaveSize(0);
+      expect(component['highlightLayer']?.getSource()?.getFeatures()).toHaveSize(0);
     });
 
     it('should filter by layer name for highlighted', () => {
@@ -209,7 +218,7 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
       );
       highlight$$.next(highlightedFeatureNichtExtern);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()).toHaveSize(0);
+      expect(component['highlightLayer']?.getSource()?.getFeatures()).toHaveSize(0);
     });
 
     it('should filter by layer id for highlighted', () => {
@@ -224,7 +233,7 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
       );
       highlight$$.next(highlightedFeatureNichtExtern);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()).toHaveSize(0);
+      expect(component['highlightLayer']?.getSource()?.getFeatures()).toHaveSize(0);
     });
 
     it('should filter by layer name for unhighlighted', () => {
@@ -247,9 +256,9 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
       );
       unhighlight$$.next(highlightedFeatureNichtExtern);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()).toHaveSize(1);
+      expect(component['highlightLayer']?.getSource()?.getFeatures()).toHaveSize(1);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()[0].getId()).toEqual('A');
+      expect(component['highlightLayer']?.getSource()?.getFeatures()[0].getId()).toEqual('A');
     });
 
     it('should filter by layer id for unhighlighted', () => {
@@ -274,9 +283,9 @@ describe(WeitereWmsKartenebenenComponent.name, () => {
       );
       unhighlight$$.next(highlightedFeatureNichtExtern);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()).toHaveSize(1);
+      expect(component['highlightLayer']?.getSource()?.getFeatures()).toHaveSize(1);
 
-      expect(component['highlightLayer']?.getSource().getFeatures()[0].getId()).toEqual('A');
+      expect(component['highlightLayer']?.getSource()?.getFeatures()[0].getId()).toEqual('A');
     });
   });
 });

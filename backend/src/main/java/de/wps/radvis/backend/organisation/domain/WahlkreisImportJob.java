@@ -22,7 +22,9 @@ import java.util.stream.Stream;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.MultiPolygon;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -99,4 +101,13 @@ public class WahlkreisImportJob extends AbstractJob {
 			geometry);
 	}
 
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Wahlkreise aus der konfigurierten ShapeFile.",
+			"Bestehende Wahlkreise werden gelöscht und neu importiert.",
+			"",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
+	}
 }

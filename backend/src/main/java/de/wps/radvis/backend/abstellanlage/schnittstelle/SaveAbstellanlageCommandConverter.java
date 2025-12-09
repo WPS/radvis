@@ -17,8 +17,6 @@ package de.wps.radvis.backend.abstellanlage.schnittstelle;
 import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
-import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
-import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitResolver;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import jakarta.validation.Valid;
@@ -36,7 +34,6 @@ public class SaveAbstellanlageCommandConverter {
 			(Point) command.getGeometrie(),
 			command.getBetreiber(),
 			command.getExterneId(),
-			AbstellanlagenQuellSystem.RADVIS,
 			zustaendig,
 			command.getAnzahlStellplaetze(),
 			command.getAnzahlSchliessfaecher(),
@@ -51,8 +48,7 @@ public class SaveAbstellanlageCommandConverter {
 			command.getGebuehrenProJahr(),
 			command.getBeschreibung(),
 			command.getWeitereInformation(),
-			command.getStatus(),
-			new DokumentListe());
+			command.getStatus());
 	}
 
 	public void apply(Abstellanlage abstellanlage, @Valid SaveAbstellanlageCommand command) {

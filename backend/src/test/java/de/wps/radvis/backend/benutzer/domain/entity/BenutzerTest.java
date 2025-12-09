@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
@@ -33,6 +32,7 @@ import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 
 class BenutzerTest {
 
@@ -104,8 +104,8 @@ class BenutzerTest {
 			Recht.BETRACHTER_EXTERNER_DIENSTLEISTER,
 			Recht.ANPASSUNGSWUENSCHE_BEARBEITEN,
 			Recht.ANPASSUNGSWUENSCHE_ERFASSEN,
-			Recht.KREISNETZ_ROUTENVERLEGUNGEN
-		);
+			Recht.KREISNETZ_ROUTENVERLEGUNGEN,
+			Recht.MASSNAHMEN_STORNIEREN);
 	}
 
 }

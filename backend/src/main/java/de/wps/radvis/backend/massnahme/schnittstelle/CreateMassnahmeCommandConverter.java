@@ -83,7 +83,8 @@ public class CreateMassnahmeCommandConverter extends NetzbezugCommandConverter<M
 			command.getSollStandard(),
 			command.getHandlungsverantwortlicher(),
 			command.getKonzeptionsquelle(),
-			command.getSonstigeKonzeptionsquelle());
+			command.getSonstigeKonzeptionsquelle(), command.getZurueckstellungsGrund(),
+			command.getBegruendungStornierungsanfrage(), command.getBegruendungZurueckstellung());
 	}
 
 	@Override

@@ -15,12 +15,15 @@
 package de.wps.radvis.backend.massnahme.schnittstelle.view;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 import org.locationtech.jts.geom.Geometry;
 
 import de.wps.radvis.backend.benutzer.schnittstelle.BenutzerView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -34,6 +37,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.netz.schnittstelle.view.NetzbezugView;
@@ -72,6 +76,9 @@ public class MassnahmeEditView {
 	private final boolean canEdit;
 	private final Realisierungshilfe realisierungshilfe;
 	private final boolean archiviert;
+	private final Optional<ZurueckstellungsGrund> zurueckstellungsGrund;
+	private final Optional<BegruendungStornierungsanfrage> begruendungStornierungsanfrage;
+	private final Optional<BegruendungZurueckstellung> begruendungZurueckstellung;
 
 	public MassnahmeEditView(Massnahme massnahme, boolean isBerechtigtZuBearbeiten) {
 		this.canEdit = isBerechtigtZuBearbeiten && !massnahme.isArchiviert();
@@ -105,5 +112,8 @@ public class MassnahmeEditView {
 		this.sonstigeKonzeptionsquelle = massnahme.getSonstigeKonzeptionsquelle().orElse(null);
 		this.realisierungshilfe = massnahme.getRealisierungshilfe().orElse(null);
 		this.archiviert = massnahme.isArchiviert();
+		this.zurueckstellungsGrund = massnahme.getZurueckstellungsGrund();
+		this.begruendungStornierungsanfrage = massnahme.getBegruendungStornierungsanfrage();
+		this.begruendungZurueckstellung = massnahme.getBegruendungZurueckstellung();
 	}
 }

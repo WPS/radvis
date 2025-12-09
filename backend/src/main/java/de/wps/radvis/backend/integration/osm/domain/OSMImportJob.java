@@ -49,7 +49,9 @@ import de.topobyte.osm4j.pbf.seq.PbfIterator;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.CoordinateReferenceSystemConverterUtility;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -655,5 +657,16 @@ public class OSMImportJob extends AbstractJob {
 				.equals(serviceValue));
 
 		return hasValidHighwayTag;
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert das Wegenetz der konfigurierten OSM-PBF-Datei als DLM-Kanten. Siehe Klassenkommentar für Details.",
+			"Die Wege aus OSM sind in Form von normalen DLM-Kanten in der DB gespeichert.",
+			"",
+			"Nicht auf produktiven Systemen mit echten DLM-Kanten ausführen! Kanten werden zudem nur ergänzt, es findet keine Duplikaterkennung oder Aktualisierung bestehender Kanten statt!",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

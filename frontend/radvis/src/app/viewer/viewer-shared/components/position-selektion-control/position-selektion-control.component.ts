@@ -156,7 +156,7 @@ export class PositionSelektionControlComponent
     this.olMapService.resetCursor();
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     this.position = clickEvent.coordinate;
     this.onChange(this.position);
   }

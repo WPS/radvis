@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
 
 :host {
   display: flex;
@@ -22,7 +22,7 @@
 
 .hover-info-wrapper {
   margin-left: 0.5rem;
-  color: $secondary-color;
+  color: colors.$secondary-color;
   display: flex;
   align-items: center;
   height: 1rem;

@@ -16,6 +16,7 @@ package de.wps.radvis.backend.organisation.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,7 @@ import de.wps.radvis.backend.common.schnittstelle.DBIntegrationTestIT;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.EntityManager;
 
 @Tag("group1")
@@ -50,7 +52,8 @@ public class VerwaltungseinheitServiceTestIT extends DBIntegrationTestIT {
 	@BeforeEach
 	void setup() {
 		this.service = new VerwaltungseinheitService(repository, gebietskoerperschaftRepository,
-			organisationRepository, OrganisationsArt.BUNDESLAND, "Baden-Württemberg");
+			organisationRepository, OrganisationsArt.BUNDESLAND, "Baden-Württemberg",
+			new HashMap<Integer, Mailadresse>());
 	}
 
 	@Test

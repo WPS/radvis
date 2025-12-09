@@ -28,13 +28,13 @@ import org.hibernate.annotations.Formula;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Recht;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
 import de.wps.radvis.backend.common.domain.entity.VersionierteEntity;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

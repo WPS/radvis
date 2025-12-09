@@ -13,6 +13,7 @@ spring:
     password: password # Beispielwert
   liquibase:
     change-log: classpath:liquibase.xml
+    analytics-enabled: false
   jpa:
     hibernate:
       ddl-auto: validate
@@ -135,9 +136,8 @@ radVis:
     # Anfangsdatum für den Import der Fahrradzählstellen aus MobiData-BW. Format: YYYY.MM
     fahrradzaehlstellenMobiDataImportStartDate: 202101
     # Liste der Urls für den Import der Bike&Ride-Abstellanlagen
-    abstellanlageBRImportUrlList:
-      - https://www.nvbw.de/fileadmin/user_upload/service/open_data/haltestellen/SPNV/BFRK_Fahrradanlage.csv
-      - https://www.nvbw.de/fileadmin/user_upload/service/open_data/haltestellen/OEPNV/BFRK_Fahrradanlage.csv
+    abstellanlageBRImportUrl: https://api.mobidata-bw.de/park-api/api/public/v3/parking-sites?purpose=BIKE
+    abstellanlageBRDatenquellenImportUrl: https://api.mobidata-bw.de/park-api/api/public/v3/sources
   schedule:
     # Zeitpunkt/Häufigkeit der nächtlichen Datenverarbeitungsprozesse als Cron-Expression
     naechtlich: 0 0 1 * * ?
@@ -164,9 +164,16 @@ radVis:
     kantenParallelitaetToleranz: 10
     # Wert von 0 und 1, der angibt wie viel Prozent eine Kante insgesamt mindestens abgebildet sein muss, um in der Prüfung auf Parallelität betrachtet zu werden.
     nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge: 0.33
+    # Batch-size, die beim Ergänzen von Auditing-Einträgen genutzt wird. So viele Datenbankeinträge werden dann in einem Rutsch verarbeitet.
+    auditingErgaenzenBatchSize: 30000
   fahrradroute:
     # Beim Berechnen der geometrischen Differenz zwischen 2 Import-Versionen einer Fahrradroute werden Fahrradrouten nicht betrachtet, die mehr Koordinaten im LineString haben, damit die Berechnung performant bleibt
     maximaleAnzahlKoordinatenFuerImportDiff: 50000
+    # Beim Import aus Toubiz werden Routing/Matching-Versuche nach der spezifizierten Zeit übersprungen und die Toubiz-ID in der Statistik geloggt. Die Route wird trotzdem importiert.
+    timeoutToubizImportMatchingInSeconds: 600
+    # Hier gelistete Routen werden beim Import ignoriert. Sofern sie bereits importiert wurden, werden sie jedoch nicht gelöscht. Kann verwendet werden, um fehlerhafte Datensätze vorübergehend auszuschließen.
+    toubizIgnoreList:
+      # - Toubiz-Id
   osm:
     # Basisnetz OSM-PBF für den Import des Netzes. Diese unterscheidet sich von der regulären OSM-PBF für die Auszeichnung.
     osmBasisnetzDaten: /resourcecache/baden-wuerttemberg-latest_basisnetz.osm.pbf
@@ -203,7 +210,7 @@ radVis:
       tiffTilesVerzeichnis: /lgl_hoehendaten/tiffTiles
   ortssuche:
     # Basis-Url für den an die Ortssuche angeschlossenen Dienst
-    baseUrl: http://sg.geodatenzentrum.de
+    baseUrl: https://sg.geodatenzentrum.de
     # Token für den Abruf des Dienstes
     token: invalid # Beispielwert
     # Endpunkt und Format für den Abruf des Dienstes als Dateiname: endpunkt.format
@@ -229,9 +236,9 @@ radVis:
         maxZoom: 19
         # Optional: Quelle für die Anzeige in der Info-Box
         quelle: "© OpenStreetMap\n(https://www.openstreetmap.org/copyright)"
-          # Optional: Angabe eines Origin, nur bei Typ WMTS_UTM32_TILE nötig
-          # center:
-          # Koordinaten in UTM32 Projektion
+        # Optional: Angabe eines Origin, nur bei Typ WMTS_UTM32_TILE nötig
+        # center:
+        # Koordinaten in UTM32 Projektion
         # x: # easting
         # y: # nothing
     # Hier kann die initial angezeigte Karte konfiguriert werden. Dazu einen Key aus der Liste der Hintergrundkarten eintragen. Es muss ein Wert angegeben werden.
@@ -371,6 +378,9 @@ radVis:
     # Anzahl an Metern, die als Toleranz für die Vergröberung des Zuständigkeitsbereichs genutzt wird
     zustaendigkeitSimplificationToleranceInMeter: 100 # in Meter
     verwaltungsgrenzenShapeFilesPath: shp/Verwaltungsgrenzen_NOrA_2021_ATKIS
+      # Funktionspostfächer für Organisationen, die RadNETZ-Maßnahmen stornieren dürfen. Angabe als <fachId>: <Email-Adresse>
+    # postfaecher:
+    # 1: mail@abc.de
   weiterekartenebenen:
     # Host (mit Protokoll) über den der Datei-Layer-Geoserver vom Backend angesprochen werden kann
     geoserverDateiLayerHost: http://geoserver-datei-layer:8080
@@ -416,6 +426,16 @@ radVis:
   anpassungswuensche:
     # Distanz in Metern für die erweiterte Filterung nach Fahrradrouten, die innerhalb dieser Entfernung liegen müssen.
     distanzZuFahrradrouteInMetern: 20
+    # An diese Adresse wird bei Erstellung eines Anpassungswunsches der entsprechenden Kategorie eine Email verschickt
+    emailProKategorie:
+      DLM:
+      TOUBIZ:
+      RADVIS:
+      OSM:
+      TT_SIB:
+      WEGWEISUNGSSYSTEM:
+      MOBIDATA:
+
   netzkorrektur:
     # Breite einer Partition (vertikaler Streifen) bei der Vernetzungskorrektur in Metern.
     vernetzungKorrekturPartitionBreiteInM: 20000.0

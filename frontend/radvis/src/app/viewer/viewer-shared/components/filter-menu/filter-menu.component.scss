@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 .filter-icon {
   margin: 0;
@@ -61,6 +62,6 @@ button[matSuffix] {
   transform: scale(0.9);
 
   mat-icon {
-    color: map-get($grayscale, 600);
+    color: map.get(colors.$grayscale, 600);
   }
 }

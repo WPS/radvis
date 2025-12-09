@@ -23,6 +23,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Marke;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Oeffnungszeiten;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBeschreibung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
@@ -48,7 +49,7 @@ public class SaveServicestationCommand {
 	@NotNull
 	private Betreiber betreiber;
 
-	private Marke marke; //  kein Pflichtfeld
+	private Marke marke; // kein Pflichtfeld
 
 	@NotNull
 	private Luftpumpe luftpumpe;
@@ -72,6 +73,9 @@ public class SaveServicestationCommand {
 
 	@NotNull
 	private ServicestationStatus status;
+
+	@NotNull
+	private Radkultur radkultur;
 
 	@AssertTrue
 	public boolean isGeometrieValid() {

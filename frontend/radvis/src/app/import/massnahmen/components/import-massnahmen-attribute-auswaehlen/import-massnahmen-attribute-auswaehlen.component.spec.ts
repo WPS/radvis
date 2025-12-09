@@ -203,6 +203,9 @@ describe(ImportMassnahmenAttributeAuswaehlenComponent.name, () => {
         false,
         false,
         false,
+        false,
+        false,
+        false,
       ]);
       expect(component.schrittAbgeschlossen).toBeTrue();
     });

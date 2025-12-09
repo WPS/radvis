@@ -92,8 +92,8 @@ describe('KantenHighlightLayerComponent', () => {
   it('should initialize correct', () => {
     verify(netzAusblendenService.kanteAusblenden(anything())).once();
     expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(initialKanteId);
-    expect(layer.getSource().getFeatures()).toHaveSize(1);
-    expect((layer.getSource().getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
+    expect(layer.getSource()?.getFeatures()).toHaveSize(1);
+    expect((layer.getSource()?.getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
       initialLinestring
     );
   });
@@ -121,8 +121,8 @@ describe('KantenHighlightLayerComponent', () => {
     it('should refill vector layer and netz ausblenden', () => {
       verify(netzAusblendenService.kanteAusblenden(anything())).once();
       expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(currentKantenId);
-      expect(layer.getSource().getFeatures()).toHaveSize(1);
-      let feature = layer.getSource().getFeatures()[0] as Feature<LineString>;
+      expect(layer.getSource()?.getFeatures()).toHaveSize(1);
+      let feature = layer.getSource()?.getFeatures()[0] as Feature<LineString>;
       expect(feature.getGeometry()?.getCoordinates()).toEqual(currentLinestring);
       expect(feature.get(FeatureProperties.ZWEISEITIG_PROPERTY_NAME)).toBeFalsy();
 
@@ -142,8 +142,8 @@ describe('KantenHighlightLayerComponent', () => {
       expect(capture(netzAusblendenService.kanteEinblenden).last()[0]).toEqual(currentKantenId);
       verify(netzAusblendenService.kanteAusblenden(anything())).once();
       expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(currentKantenId + 10);
-      expect(layer.getSource().getFeatures()).toHaveSize(1);
-      feature = layer.getSource().getFeatures()[0] as Feature<LineString>;
+      expect(layer.getSource()?.getFeatures()).toHaveSize(1);
+      feature = layer.getSource()?.getFeatures()[0] as Feature<LineString>;
       expect(feature.getGeometry()?.getCoordinates()).toEqual(updatedLinestring);
       expect(feature.get(FeatureProperties.ZWEISEITIG_PROPERTY_NAME)).toBeFalsy();
     });
@@ -152,10 +152,10 @@ describe('KantenHighlightLayerComponent', () => {
       reset(netzAusblendenService);
       component.verlauf = true;
       fixture.detectChanges();
-      expect(layer.getSource().getFeatures()).toHaveSize(1);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(1);
       verify(netzAusblendenService.kanteEinblenden(anything())).never();
       verify(netzAusblendenService.kanteAusblenden(anything())).never();
-      expect((layer.getSource().getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
+      expect((layer.getSource()?.getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
         currentLinestring
       );
     });
@@ -196,8 +196,8 @@ describe('KantenHighlightLayerComponent', () => {
     it('should use hauptGeometry', () => {
       verify(netzAusblendenService.kanteAusblenden(anything())).once();
       expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(currentKantenId);
-      expect(layer.getSource().getFeatures()).toHaveSize(1);
-      const feature = layer.getSource().getFeatures()[0] as Feature<LineString>;
+      expect(layer.getSource()?.getFeatures()).toHaveSize(1);
+      const feature = layer.getSource()?.getFeatures()[0] as Feature<LineString>;
       expect(feature.getGeometry()?.getCoordinates()).toEqual(currentLinestring);
       expect(feature.get(FeatureProperties.ZWEISEITIG_PROPERTY_NAME)).toBeFalsy();
     });
@@ -206,14 +206,14 @@ describe('KantenHighlightLayerComponent', () => {
       reset(netzAusblendenService);
       component.verlauf = true;
       fixture.detectChanges();
-      expect(layer.getSource().getFeatures()).toHaveSize(1);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(1);
       verify(netzAusblendenService.kanteEinblenden(anything())).never();
       verify(netzAusblendenService.kanteAusblenden(anything())).never();
-      expect((layer.getSource().getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
+      expect((layer.getSource()?.getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
         verlauf
       );
       expect(
-        (layer.getSource().getFeatures()[0] as Feature<LineString>).get(FeatureProperties.SEITE_PROPERTY_NAME)
+        (layer.getSource()?.getFeatures()[0] as Feature<LineString>).get(FeatureProperties.SEITE_PROPERTY_NAME)
       ).toBeFalsy();
     });
   });
@@ -241,15 +241,15 @@ describe('KantenHighlightLayerComponent', () => {
     it('should draw zweiseitig and highlight correct seite', () => {
       verify(netzAusblendenService.kanteAusblenden(anything())).once();
       expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(currentKantenId);
-      expect(layer.getSource().getFeatures()).toHaveSize(2);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(2);
 
       const linkesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
@@ -277,15 +277,15 @@ describe('KantenHighlightLayerComponent', () => {
       expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(currentKantenId);
       verify(netzAusblendenService.kanteEinblenden(anything())).once();
       expect(capture(netzAusblendenService.kanteEinblenden).last()[0]).toEqual(currentKantenId);
-      expect(layer.getSource().getFeatures()).toHaveSize(2);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(2);
 
       const linkesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
@@ -301,13 +301,13 @@ describe('KantenHighlightLayerComponent', () => {
       reset(netzAusblendenService);
       component.verlauf = true;
       fixture.detectChanges();
-      expect(layer.getSource().getFeatures()).toHaveSize(2);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(2);
       verify(netzAusblendenService.kanteEinblenden(anything())).never();
       verify(netzAusblendenService.kanteAusblenden(anything())).never();
-      expect((layer.getSource().getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
+      expect((layer.getSource()?.getFeatures()[0] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
         currentLinestring
       );
-      expect((layer.getSource().getFeatures()[1] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
+      expect((layer.getSource()?.getFeatures()[1] as Feature<LineString>).getGeometry()?.getCoordinates()).toEqual(
         currentLinestring
       );
     });
@@ -352,15 +352,15 @@ describe('KantenHighlightLayerComponent', () => {
     it('should draw zweiseitig and highlight correct seite, wenn kein verlauf angezeigt', () => {
       verify(netzAusblendenService.kanteAusblenden(anything())).once();
       expect(capture(netzAusblendenService.kanteAusblenden).last()[0]).toEqual(currentKantenId);
-      expect(layer.getSource().getFeatures()).toHaveSize(2);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(2);
 
       const linkesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();
@@ -376,17 +376,17 @@ describe('KantenHighlightLayerComponent', () => {
       reset(netzAusblendenService);
       component.verlauf = true;
       fixture.detectChanges();
-      expect(layer.getSource().getFeatures()).toHaveSize(2);
+      expect(layer.getSource()?.getFeatures()).toHaveSize(2);
       verify(netzAusblendenService.kanteEinblenden(anything())).never();
       verify(netzAusblendenService.kanteAusblenden(anything())).never();
 
       const linkesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.LINKS) as Feature<LineString>;
       const rechtesFeature = layer
         .getSource()
-        .getFeatures()
+        ?.getFeatures()
         .find(f => f.get(FeatureProperties.SEITE_PROPERTY_NAME) === KantenSeite.RECHTS) as Feature<LineString>;
       expect(rechtesFeature).toBeTruthy();
       expect(linkesFeature).toBeTruthy();

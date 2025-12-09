@@ -92,7 +92,8 @@ public class OrganisationConfiguration {
 	public VerwaltungseinheitService verwaltungseinheitService() {
 		return new VerwaltungseinheitService(verwaltungseinheitRepository, gebietskoerperschaftRepository,
 			organisationRepository, commonConfigurationProperties.getObersteGebietskoerperschaftOrganisationsArt(),
-			commonConfigurationProperties.getObersteGebietskoerperschaftName());
+			commonConfigurationProperties.getObersteGebietskoerperschaftName(),
+			organisationConfigurationProperties.getPostfaecher());
 	}
 
 	@Bean

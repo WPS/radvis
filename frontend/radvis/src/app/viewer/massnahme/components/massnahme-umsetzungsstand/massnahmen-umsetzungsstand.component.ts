@@ -16,7 +16,9 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { Subscription } from 'rxjs';
+import { AbstractEventTrackedEditor } from 'src/app/form-elements/components/abstract-event-tracked-editor';
 import { RadvisValidators } from 'src/app/form-elements/models/radvis-validators';
 import { HinweisDialogComponent } from 'src/app/shared/components/hinweis-dialog/hinweis-dialog.component';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
@@ -32,8 +34,6 @@ import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massna
 import { MassnahmeNetzbezugDisplayService } from 'src/app/viewer/massnahme/services/massnahme-netzbezug-display.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import invariant from 'tiny-invariant';
-import { AbstractEventTrackedEditor } from 'src/app/form-elements/components/abstract-event-tracked-editor';
-import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'rad-massnahmen-umsetzungsstand',
@@ -82,7 +82,10 @@ export class MassnahmenUmsetzungsstandComponent
         RadvisValidators.isPositiveInteger,
         RadvisValidators.between(0, 1000000000),
       ]),
-      grundFuerNichtUmsetzungDerMassnahme: new UntypedFormControl(null),
+      grundFuerNichtUmsetzungDerMassnahme: new UntypedFormControl(
+        null,
+        this.validateGrundFuerNichtUmsetzungDerMassnahme
+      ),
       anmerkung: new UntypedFormControl('', [RadvisValidators.maxLength(3000)]),
     });
 
@@ -95,22 +98,23 @@ export class MassnahmenUmsetzungsstandComponent
     );
   }
 
-  private static validateGrundFuerNichtUmsetzungDerMassnahme(umsetzungsstand: Umsetzungsstand | null): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (
-        (umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.IDEE ||
-          umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.STORNIERT) &&
-        umsetzungsstand?.umsetzungsstandStatus === UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT &&
-        !control.value
-      ) {
-        return {
-          grundFuerNichtUmsetzungDerMassnahmeNichtVorhanden:
-            'Das Feld darf nicht leer sein, wenn die Maßnahme im Status "Idee" oder "Storniert" ist',
-        };
-      }
-      return null;
-    };
-  }
+  private validateGrundFuerNichtUmsetzungDerMassnahme: ValidatorFn = (
+    control: AbstractControl
+  ): ValidationErrors | null => {
+    if (
+      (this.umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.IDEE ||
+        this.umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT ||
+        Umsetzungsstatus.isStorniert(this.umsetzungsstand?.massnahmeUmsetzungsstatus)) &&
+      this.umsetzungsstand?.umsetzungsstandStatus === UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT &&
+      !control.value
+    ) {
+      return {
+        grundFuerNichtUmsetzungDerMassnahmeNichtVorhanden:
+          'Das Feld darf nicht leer sein, wenn die Maßnahme im Status "Idee" oder storniert ist',
+      };
+    }
+    return null;
+  };
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
@@ -185,31 +189,28 @@ export class MassnahmenUmsetzungsstandComponent
 
   get istBearbeitungGesperrt(): boolean {
     return (
-      (this.umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.STORNIERT ||
+      (Umsetzungsstatus.isStorniert(this.umsetzungsstand?.massnahmeUmsetzungsstatus) ||
         this.umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.UMGESETZT) &&
-      this.umsetzungsstand.umsetzungsstandStatus !== UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT
+      this.umsetzungsstand?.umsetzungsstandStatus !== UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT
     );
   }
 
   private get mussAbfrageFinalBestaetigtWerden(): boolean {
+    const finaleUmsetzungsstatus = [
+      Umsetzungsstatus.UMGESETZT,
+      Umsetzungsstatus.STORNIERT,
+      Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+    ];
     return (
-      (this.umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.STORNIERT ||
-        this.umsetzungsstand?.massnahmeUmsetzungsstatus === Umsetzungsstatus.UMGESETZT) &&
-      this.umsetzungsstand.umsetzungsstandStatus === UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT
+      Boolean(this.umsetzungsstand) &&
+      finaleUmsetzungsstatus.includes(this.umsetzungsstand!.massnahmeUmsetzungsstatus) &&
+      this.umsetzungsstand!.umsetzungsstandStatus === UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT
     );
   }
 
   private resetForm(umsetzungsstand: Umsetzungsstand | null): void {
     invariant(umsetzungsstand);
     this.formGroup.reset(umsetzungsstand);
-    // Kann nicht gleich am Anfang beim Erstellen der formGroup gesetzt werden,
-    // weil this.umsetzungsstand noch nicht initialisiert ist und man in einem nicht static Validator mit this nicht
-    // auf die Properties der Component zugreifen kann
-    this.formGroup
-      .get('grundFuerNichtUmsetzungDerMassnahme')
-      ?.setValidators(
-        MassnahmenUmsetzungsstandComponent.validateGrundFuerNichtUmsetzungDerMassnahme(this.umsetzungsstand)
-      );
     if (this.istBearbeitungGesperrt || !umsetzungsstand.canEdit) {
       this.formGroup.disable({ emitEvent: false });
     } else {

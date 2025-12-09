@@ -24,6 +24,7 @@ import org.springframework.data.repository.CrudRepository;
 import de.wps.radvis.backend.abstellanlage.domain.entity.Abstellanlage;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.ExterneAbstellanlagenId;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.MobiDataQuellId;
 
 public interface AbstellanlageRepository extends CrudRepository<Abstellanlage, Long> {
 
@@ -32,9 +33,10 @@ public interface AbstellanlageRepository extends CrudRepository<Abstellanlage, L
 
 	Optional<Abstellanlage> findByIdAndQuellSystem(Long id, AbstellanlagenQuellSystem quellsystem);
 
-	Optional<Abstellanlage> findByExterneIdAndQuellSystem(ExterneAbstellanlagenId externeAbstellanlagenId,
-		AbstellanlagenQuellSystem quellsystem);
+	Optional<Abstellanlage> findByExterneIdAndQuellSystemAndMobiDataQuellId(
+		ExterneAbstellanlagenId externeAbstellanlagenId,
+		AbstellanlagenQuellSystem quellsystem, MobiDataQuellId mobiDataQuellId);
 
-	int deleteAllByQuellSystemAndExterneIdNotIn(AbstellanlagenQuellSystem quellSystem,
-		Set<ExterneAbstellanlagenId> externeAbstellanlagenIds);
+	int deleteAllByQuellSystemAndIdNotIn(AbstellanlagenQuellSystem quellSystem,
+		Set<Long> externeAbstellanlagenIds);
 }

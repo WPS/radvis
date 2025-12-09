@@ -12,14 +12,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host.is-creator {
   height: 100%;
   display: flex;
   flex-direction: column;
-  width: $viewer-side-bar-width;
+  width: spacing.$viewer-side-bar-width;
 
   .form-group {
     flex-grow: 1;
@@ -41,5 +42,5 @@
 
 .fremdnetz-hinweis {
   padding: 1rem 0.5rem;
-  border-bottom: 1px solid map-get($grayscale, 100);
+  border-bottom: 1px solid map.get(colors.$grayscale, 100);
 }

@@ -109,4 +109,7 @@ export const defaultMassnahme: Massnahme = {
   canEdit: true,
   realisierungshilfe: Realisierungshilfe.NR_2_2_1,
   archiviert: false,
+  zurueckstellungsGrund: null,
+  begruendungStornierungsanfrage: null,
+  begruendungZurueckstellung: null,
 };

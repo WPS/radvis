@@ -48,7 +48,7 @@ export class FahrradrouteLayerComponent
   extends AbstractInfrastrukturLayerComponent<FahrradrouteListenView>
   implements OnDestroy
 {
-  private layer: ImageLayer;
+  private layer: ImageLayer<ImageWMS>;
   private source: ImageWMS;
 
   constructor(
@@ -64,7 +64,7 @@ export class FahrradrouteLayerComponent
       url: `/api/geoserver/saml/radvis/wms`,
       params: {
         LAYERS: 'radvis:fahrradroute',
-        PROJECTION: olProj.get('EPSG:25832').getCode(),
+        PROJECTION: olProj.get('EPSG:25832')!.getCode(),
         STYLES: 'Fahrradrouten',
       },
       imageLoadFunction: (image, src): void => {

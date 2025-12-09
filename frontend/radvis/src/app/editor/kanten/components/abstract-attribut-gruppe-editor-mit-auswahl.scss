@@ -12,9 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/font-style';
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/style/font-style' as font;
+@use 'src/style/spacing';
+@use 'src/style/colors';
 
 :host {
   height: 100%;
@@ -23,7 +23,7 @@
 }
 
 .group {
-  padding: 0 $padding-attribute-editor-x;
+  padding: 0 spacing.$padding-attribute-editor-x;
 }
 
 .mat-tab-wrapper::ng-deep .mat-mdc-tab-labels {

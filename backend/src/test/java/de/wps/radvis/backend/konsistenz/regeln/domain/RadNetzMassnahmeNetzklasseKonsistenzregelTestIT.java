@@ -165,6 +165,20 @@ public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKon
 
 		// ok
 		massnahmeRepository
+			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse)
+				.umsetzungsstatus(Umsetzungsstatus.STORNIERT_ENGSTELLE)
+				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
+				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build());
+
+		// ok
+		massnahmeRepository
+			.save(MassnahmeTestDataProvider.withKanten(kanteOhneNetzklasse)
+				.umsetzungsstatus(Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH)
+				.benutzerLetzteAenderung(benutzer).zustaendiger(gebietskoerperschaft)
+				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024).build());
+
+		// ok
+		massnahmeRepository
 			.save(MassnahmeTestDataProvider.withKanten(radnetzKante).benutzerLetzteAenderung(benutzer)
 				.zustaendiger(gebietskoerperschaft)
 				.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME).build());
@@ -231,7 +245,7 @@ public class RadNetzMassnahmeNetzklasseKonsistenzregelTestIT extends AbstractKon
 
 		List<Map<String, Object>> allMassnahmen = jdbcTemplate
 			.queryForList("SELECT id, konzeptionsquelle FROM massnahme");
-		assertThat(allMassnahmen).hasSize(12);
+		assertThat(allMassnahmen).hasSize(14);
 
 		// act
 		List<KonsistenzregelVerletzungsDetails> result = konsistenzregel.pruefen();

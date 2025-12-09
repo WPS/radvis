@@ -96,6 +96,7 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
   private selectableSegmentLinesSource = new VectorSource();
   private readonly selectableSegmentLinesLayer: VectorLayer;
 
+  private readonly selektionLayerSource: VectorSource = new VectorSource();
   private readonly selektionLayer: VectorLayer;
 
   private readonly modifyInteraction: Modify;
@@ -131,9 +132,8 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
     this.olMapService.addInteraction(this.modifyInteraction);
     this.interactionAdded = true;
 
-    const selektierteFeaturesSource: VectorSource = new VectorSource();
     this.selektionLayer = new VectorLayer({
-      source: selektierteFeaturesSource,
+      source: this.selektionLayerSource,
       style: this.getStyleForSelektionLayer(MapStyles.FEATURE_SELECT_COLOR),
       minZoom: 0,
     });
@@ -247,7 +247,7 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
     }
   }
 
-  private onMapPointerMove(pointerMoveEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapPointerMove(pointerMoveEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(pointerMoveEvent.pixel, undefined, 5);
     if (!featuresAtPixel || featuresAtPixel.length === 0) {
       this.changeHoveredSegmentIndex(null);
@@ -269,14 +269,14 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
     }
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(clickEvent.pixel, this.layerFilter);
     if (!featuresAtPixel || featuresAtPixel.length === 0) {
       return;
     }
     // Das erste Feature im Array ist das am nähesten zur Click-Position liegende
     const clickedFeature = featuresAtPixel[0] as Feature<Geometry>;
-    if (this.selectableSegmentLinesLayer.getSource().hasFeature(clickedFeature)) {
+    if (this.selectableSegmentLinesSource.hasFeature(clickedFeature)) {
       //<-- ist nicht unbedingt durch LayerFilter gegeben (und darf auch nicht darüber gemacht werden)
       const pointerEvent = clickEvent.originalEvent as PointerEvent;
       const toggle = pointerEvent.ctrlKey || pointerEvent.metaKey;
@@ -316,12 +316,12 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
   }
 
   private selectSegmentsOnIndices(selectedIndices: number[] | null): void {
-    this.selektionLayer.getSource().clear();
+    this.selektionLayerSource.clear();
     if (selectedIndices !== null) {
       selectedIndices.forEach(selectedIndex => {
         const selectedFeature = this.selectableSegmentLinesSource.getFeatures()[selectedIndex];
         selectedFeature.set('segmentIndex', selectedIndex);
-        this.selektionLayer.getSource().addFeature(selectedFeature);
+        this.selektionLayerSource.addFeature(selectedFeature);
       });
       this.selektionLayer.changed();
     }
@@ -342,9 +342,8 @@ export class LineareReferenzierungLayerComponent implements OnDestroy, OnChanges
   private setColorForSegment(segmentIndex: number, kantenLayerColor: Color, selektionLayerColor: Color): void {
     const selectableFeature = this.selectableSegmentLinesSource.getFeatures()[segmentIndex];
     selectableFeature.setStyle(this.getStyleFunctionForSelectableSegmentLinesLayer(kantenLayerColor));
-    const selectedFeature = this.selektionLayer
-      .getSource()
-      .getFeatures()
+    const selectedFeature = this.selektionLayerSource
+      ?.getFeatures()
       .find(feature => feature.get('segmentIndex') === segmentIndex);
     if (selectedFeature) {
       selectedFeature.setStyle(this.getStyleForSelektionLayer(selektionLayerColor));

@@ -14,21 +14,21 @@
 
 package de.wps.radvis.backend.netz.domain.repository;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.valid4j.Assertive.require;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.hibernate.spatial.jts.EnvelopeAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Envelope;
-
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;
@@ -62,6 +62,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.require;
 
 @Slf4j
 public class CustomKantenRepositoryImpl implements CustomKantenRepository {
@@ -556,5 +559,208 @@ public class CustomKantenRepositoryImpl implements CustomKantenRepository {
 				})
 				.collect(Collectors.joining(",")));
 		entityManager.createNativeQuery(sql).executeUpdate();
+	}
+
+	@Override
+	public HashMap<String, Integer> addMissingAuditingEntries(Long benutzerId, int batchSize,
+		String auditingContextName, Long jobExecutionDescriptionId) {
+		require(auditingContextName != null, "auditingContextName darf nicht null sein");
+
+		final int enversEntityAddedRevtype = 0;
+		final int initialVersionOfEntities = 0;
+
+		HashMap<String, Integer> tableToNewAuditingEntries = new HashMap<>();
+		HashMap<String, String> tableToIdColumnMap = new HashMap<>();
+		tableToIdColumnMap.put("kante", "id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe", "id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_ist_standards", "kanten_attribut_gruppe_id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_netzklassen", "kanten_attribut_gruppe_id");
+		tableToIdColumnMap.put("fahrtrichtung_attribut_gruppe", "id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe", "id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_attribute_rechts", "fuehrungsform_attribut_gruppe_id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_attribute_links", "fuehrungsform_attribut_gruppe_id");
+		tableToIdColumnMap.put("geschwindigkeit_attribut_gruppe", "id");
+		tableToIdColumnMap.put("geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute",
+			"geschwindigkeit_attribut_gruppe_id");
+		tableToIdColumnMap.put("zustaendigkeit_attribut_gruppe", "id");
+		tableToIdColumnMap.put("zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute",
+			"zustaendigkeit_attribut_gruppe_id");
+
+		log.debug("Legt rev_info Eintrag an");
+		Long revId = createRevInfoEntry(benutzerId, auditingContextName, jobExecutionDescriptionId);
+		log.debug("Nutze rev_info Eintrag mit ID {}", revId);
+
+		AtomicInteger i = new AtomicInteger();
+		for (Map.Entry<String, String> entry : tableToIdColumnMap.entrySet()) {
+			String entityTableName = entry.getKey();
+			String entityIdColumnName = entry.getValue();
+
+			log.info("Starte Anlegen von Auditing-Einträgen für Tabelle {} ({} / {})", entityTableName, i
+				.incrementAndGet(), tableToIdColumnMap.size());
+
+			int newEntries = addMissingAuditingEntriesForTable(entityTableName, entityIdColumnName, batchSize,
+				enversEntityAddedRevtype, initialVersionOfEntities, revId);
+			log.info("Für Tabelle {} wurden {} fehlende Auditing Einträge ergänzt", entityTableName, newEntries);
+
+			tableToNewAuditingEntries.put(entityTableName, newEntries);
+		}
+
+		return tableToNewAuditingEntries;
+	}
+
+	/**
+	 * Legt für die angegebene Tabelle Auditing-Einträge für die Elemente an, für die es noch keine gibt. Dabei wird
+	 * pro Batch ein INSERT-Statement für die Auditing-Tabelle ausgeführt.
+	 *
+	 * Es wird NICHT auf Envers zurückgegriffen, da es bei größeren Tabellen viel zu viele Entities sind und es mehrere
+	 * Tage dauern könnte. Zudem bietet Envers keine Standard-Funktion an einen Auditing Eintrag zu forcieren, daher
+	 * wäre hier auch Hacks nötig, um das zu erreichen. Daher einfach direkt per SQL.
+	 *
+	 * @return Anzahl an ergänzen Auditing-Einträgen.
+	 */
+	private int addMissingAuditingEntriesForTable(String entityTableName, String entityIdColumnName, int batchSize,
+		int enversEntityAddedRevtype, int initialVersionOfEntities, Long revId) {
+		require(batchSize > 0, "Batch-Größe muss mindestens 1 betragen");
+		// Durch Postgres vorgegeben, da dies die maximale Anzahl an Elementen in "IN"-Statements ist:
+		require(batchSize <= 32767, "Batch-Größe darf maximal 32767 betragen");
+
+		log.debug("Hole IDs von Entities aus Datenbank-Tabelle {}, die keine Auditing-Einträge haben", entityTableName);
+		List<Long> entityIds = getEntityIdsWithoutAuditingEntries(entityTableName, entityIdColumnName);
+		if (entityIds.size() == 0) {
+			log.debug("Keine Entities in der Tabelle {} gefunden, deren Auditing-Einträge fehlen - Fertig",
+				entityTableName);
+			return 0;
+		}
+		log.debug("{} Entities in der Tabelle {} gefunden, deren Auditing-Einträge fehlen", entityIds.size(),
+			entityTableName);
+
+		log.debug("Ermittel Spaltennamen, die in Auditing-Tabelle zu setzen sind");
+		List<String> columnNames = getAuditedColumnsOfTable(entityTableName);
+		boolean hasVersionColumn = columnNames.remove("version");
+		log.debug("Ermittelte gemeinsame Spalten aus Daten- und Auditing-Tabelle: {}", columnNames);
+
+		// Spalten-Listen für die INSERT- und SELECT-Statements bauen
+		String columnNamesParamList = columnNames.stream()
+			.map(columnName -> String.format("\"%s\"", columnName))
+			.collect(Collectors.joining(", "));
+		String columnValuesParamList = columnNames.stream()
+			.map(columnName -> String.format("entity.%s", columnName))
+			.collect(Collectors.joining(", "));
+
+		log.debug("Starte das batchweise Einfügen neuer Auditing-Einträge");
+		int lastBatch = entityIds.size() / batchSize;
+		for (int batch = 0; batch <= lastBatch; batch++) {
+			int fromIdx = batch * batchSize;
+			int toIdx = Math.min((batch + 1) * batchSize, entityIds.size());
+			List<Long> entityIdsOfBatch = entityIds.subList(fromIdx, toIdx);
+
+			if (entityIdsOfBatch.size() == 0) {
+				// Wenn die Anzahl an Entities glatt durch die batchSize teilbar ist, hat der letzte Batch die Größe 0.
+				break;
+			}
+
+			log.trace("Verarbeite batch {} / {} mit {} Entities für Tabelle {}", batch + 1, lastBatch, entityIdsOfBatch
+				.size(), entityTableName);
+
+			String entityIdsOfBatchListSql = entityIdsOfBatch.stream().map(id -> id.toString()).collect(Collectors
+				.joining(", "));
+
+			// Eigentliche INSERT-Statements für die auditing-Tabellen bauen. Einzelne Statements wären sehr langsam.
+			String auditingTableInsertStatement;
+			if (hasVersionColumn) {
+				auditingTableInsertStatement = String.format(
+					"""
+						INSERT INTO %s_aud("rev", "revtype", "version", %s)
+						SELECT %d, %d, %d, %s
+						FROM %s entity
+						WHERE %s IN (%s);
+						""",
+					entityTableName, columnNamesParamList, revId, enversEntityAddedRevtype, initialVersionOfEntities,
+					columnValuesParamList, entityTableName, entityIdColumnName, entityIdsOfBatchListSql);
+			} else {
+				auditingTableInsertStatement = String.format(
+					"""
+						INSERT INTO %s_aud("rev", "revtype", %s)
+						SELECT %d, %d, %s
+						FROM %s entity
+						WHERE %s IN (%s);
+						""",
+					entityTableName, columnNamesParamList, revId, enversEntityAddedRevtype, columnValuesParamList,
+					entityTableName, entityIdColumnName, entityIdsOfBatchListSql);
+			}
+
+			entityManager.createNativeQuery(auditingTableInsertStatement).executeUpdate();
+
+			int bisherVerarbeiteteEntities = batch * batchSize + entityIdsOfBatch.size();
+			log.trace("Für {} von {} ({}%) Entities wurden fehlende Auditing-Einträge ergänzt",
+				bisherVerarbeiteteEntities, entityIds.size(), (int) ((float) bisherVerarbeiteteEntities
+					/ (float) entityIds.size() * 100));
+		}
+
+		return entityIds.size();
+	}
+
+	/**
+	 * Ermittelt alle IDs der gegebenen Entity-Tabelle, die keine dazugehörigen Auditing-Einträge haben. Hier wird aus
+	 * Performance-Gründen nicht Envers genutzt, sondern direkt auf die "..._aud"-Tabelle gegangen.
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private List<Long> getEntityIdsWithoutAuditingEntries(String entityTableName, String entityIdColumnName) {
+		return entityManager.createNativeQuery(String.format("""
+			SELECT DISTINCT entity.%s FROM %s entity
+			LEFT JOIN %s_aud aud ON aud.%s = entity.%s
+			WHERE aud.%s IS NULL""", entityIdColumnName, entityTableName, entityTableName, entityIdColumnName,
+			entityIdColumnName, entityIdColumnName), Long.class)
+			.getResultList();
+	}
+
+	/**
+	 * Ermittelt die Liste an Spaltennamen der angegebenen Tabelle, die auch in der Auditing-Tabelle enthalten sind.
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private @NotNull List<String> getAuditedColumnsOfTable(String entityTableName) {
+		log.debug("Ermittle Spaltennamen von Auditing-Tabelle '{}_aud'", entityTableName);
+		List<String> columnsOfAuditingTable = entityManager.createNativeQuery(String.format("""
+			SELECT column_name
+			FROM information_schema.columns
+			WHERE table_schema = 'public' AND table_name = '%s_aud';
+			""", entityTableName), String.class)
+			.getResultList();
+
+		log.debug("Ermittle Spaltennamen von Daten-Tabelle '{}'", entityTableName);
+		List<String> columnsOfDataTable = entityManager.createNativeQuery(String.format("""
+			SELECT column_name
+			FROM information_schema.columns
+			WHERE table_schema = 'public' AND table_name = '%s';
+			""", entityTableName), String.class)
+			.getResultList();
+
+		// Schnittmenge bilden, also nur die Spalten behalten, die in beiden Tabellen enthalten sind.
+		columnsOfDataTable.retainAll(columnsOfAuditingTable);
+
+		return columnsOfDataTable;
+	}
+
+	/**
+	 * Legt einen Eintrag in der rev_info Tabelle mit den übergebenen Werten an und gibt dessen ID zurück
+	 */
+	@SuppressWarnings({ "unchecked" })
+	private @NotNull Long createRevInfoEntry(Long benutzerId, String auditingContextName,
+		Long jobExecutionDescriptionId) {
+		log.debug("Erzeugt neue IDs");
+		String generateRevInfoIdsQuery = "SELECT nextval('hibernate_sequence');";
+		List<Long> revIdValues = entityManager.createNativeQuery(generateRevInfoIdsQuery, Long.class).getResultList();
+		require(revIdValues.size() == 1, "Es muss exakt eine rev-ID erzeugt worden sein");
+		Long revId = revIdValues.get(0);
+
+		log.debug("Schreibt neuen rev-Eintrag in die Datenbank");
+		String revsInsertStatement = String.format(
+			"""
+				INSERT INTO rev_info("id", "timestamp", "auditing_context", "benutzer_id", "job_execution_description_id") VALUES(%d, %d, '%s', %d, %d)""",
+			revId, System.currentTimeMillis(), auditingContextName, benutzerId, jobExecutionDescriptionId);
+
+		entityManager.createNativeQuery(revsInsertStatement).executeUpdate();
+
+		return revId;
 	}
 }

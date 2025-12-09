@@ -21,7 +21,6 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Style } from 'ol/style';
 import Circle from 'ol/style/Circle';
-import Stroke from 'ol/style/Stroke';
 import { Subscription } from 'rxjs';
 import { EditorLayerZindexConfig } from 'src/app/editor/editor-shared/models/editor-layer-zindex-config';
 import { EditorRoutingService } from 'src/app/editor/editor-shared/services/editor-routing.service';
@@ -34,6 +33,7 @@ import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.se
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { createVectorSource } from 'src/app/shared/services/vector-source.factory';
 import { filter } from 'rxjs/operators';
+import Fill from 'ol/style/Fill';
 
 @Component({
   selector: 'rad-knoten-selektion',
@@ -105,10 +105,9 @@ export class KnotenSelektionComponent implements OnDestroy {
       source: selektierteFeaturesSource,
       style: new Style({
         image: new Circle({
-          radius: 7,
-          fill: new Stroke({
+          radius: MapStyles.POINT_WIDTH_THICK,
+          fill: new Fill({
             color: MapStyles.FEATURE_SELECT_COLOR,
-            width: 3,
           }),
         }),
       }),
@@ -142,14 +141,14 @@ export class KnotenSelektionComponent implements OnDestroy {
     });
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(clickEvent.pixel, () => this.knotenSelectable);
     if (!featuresAtPixel || featuresAtPixel.length === 0) {
       return;
     }
     // Das erste Feature im Array ist das am nächsten zur Click-Position liegende
     const clickedFeature = featuresAtPixel[0] as Feature<Geometry>;
-    if (this.knotenLayers.some(kl => kl.getSource().hasFeature(clickedFeature))) {
+    if (this.knotenLayers.some(kl => kl.getSource()?.hasFeature(clickedFeature))) {
       this.zone.run(() => {
         this.editorRoutingService.toKnotenAttributeEditor(+(clickedFeature.getId() as number));
       });
@@ -157,16 +156,16 @@ export class KnotenSelektionComponent implements OnDestroy {
   }
 
   private refreshSelektionLayer(): void {
-    this.selektionLayer.getSource().clear();
+    this.selektionLayer.getSource()?.clear();
     const knotenId = this.activatedRoute.snapshot.firstChild?.params.id;
     if (knotenId) {
       let found = false;
       this.knotenLayers.forEach(kl => {
         kl.getSource()
-          .getFeatures()
+          ?.getFeatures()
           .forEach(feature => {
             if (!found && +knotenId === +(feature.getId() as number)) {
-              this.selektionLayer.getSource().addFeature(feature);
+              this.selektionLayer.getSource()?.addFeature(feature);
               found = true;
             }
           });

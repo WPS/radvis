@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.netz.domain.repository;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -90,4 +91,12 @@ public interface CustomKantenRepository {
 	void refreshNetzMaterializedViews();
 
 	void updateKanteElevation(Slice<KanteElevationUpdate> kanteElevationInserts);
+
+	/**
+	 * Ergänzt fehlende Auditing-Einträge an Kanten und ihren Attributgruppen.
+	 *
+	 * @return Anzahl an Kanten, bei denen Auditing-Einträge ergänzt wurden.
+	 */
+	HashMap<String, Integer> addMissingAuditingEntries(Long benutzerId, int batchSize, String auditingContextName,
+		Long jobExecutionDescriptionId);
 }

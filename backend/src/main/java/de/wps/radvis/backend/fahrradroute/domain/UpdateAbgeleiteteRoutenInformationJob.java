@@ -18,7 +18,9 @@ import java.util.Optional;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -51,5 +53,15 @@ public class UpdateAbgeleiteteRoutenInformationJob extends AbstractJob {
 		fahrradrouteService.updateAbgeleiteteRoutenInformationVonRadvisUndTfis(updateAbgeleiteteRoutenInfoStatistik);
 		log.info(updateAbgeleiteteRoutenInfoStatistik.toString());
 		return Optional.of(updateAbgeleiteteRoutenInfoStatistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Aktualisiert aus Höhendaten abgeleitete Routeninformationen, z.B. An- und Abstieg, an Fahrradrouten und Varianten.",
+			"Aktualisiert Attribute an Fahrradrouten.",
+			"Höhendaten und ein funktionierender DLM-GraphHopper sind vorhanden.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

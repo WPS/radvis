@@ -13,13 +13,14 @@
  */
 
 import { Durchfuehrungszeitraum } from 'src/app/shared/models/durchfuehrungszeitraum';
+import { Netzbezug } from 'src/app/shared/models/netzbezug';
 import { Netzklasse } from 'src/app/shared/models/netzklasse';
 import { Umsetzungsstatus } from 'src/app/shared/models/umsetzungsstatus';
 import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handlungsverantwortlicher';
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
-import { Netzbezug } from 'src/app/shared/models/netzbezug';
+import { ZurueckstellungsGrund } from 'src/app/viewer/massnahme/models/zurueckstellung-grund';
 
 export interface SaveMassnahmeCommand {
   id: number;
@@ -46,4 +47,7 @@ export interface SaveMassnahmeCommand {
   konzeptionsquelle: Konzeptionsquelle;
   sonstigeKonzeptionsquelle: string | null;
   realisierungshilfe: Realisierungshilfe | null;
+  zurueckstellungsGrund: ZurueckstellungsGrund | null;
+  begruendungZurueckstellung: string | null;
+  begruendungStornierungsanfrage: string | null;
 }

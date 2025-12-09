@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -51,7 +52,7 @@
   }
 
   .darkBlue {
-    background-color: $primary-color;
+    background-color: colors.$primary-color;
   }
 
   .blue {
@@ -77,7 +78,7 @@
     grid-column-end: 3;
 
     font-style: italic;
-    color: map-get($grayscale, 800);
+    color: map.get(colors.$grayscale, 800);
   }
 }
 

@@ -54,6 +54,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Marke;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Oeffnungszeiten;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBeschreibung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
@@ -192,6 +193,11 @@ public class ServicestationImportService
 					Betreiber.MAX_LENGTH));
 		}
 		servicestationBuilder.betreiber(Betreiber.of(row.get(Servicestation.CsvHeader.BETREIBER)));
+
+		// RADKULTUR
+		input = row.get(Servicestation.CsvHeader.RADKULTUR);
+		pruefeBooleanInput("Radkultur", input);
+		servicestationBuilder.radkultur(Radkultur.of(input));
 
 		// LUFTPUMPE
 		input = row.get(Servicestation.CsvHeader.LUFTPUMPE);

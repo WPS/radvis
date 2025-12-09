@@ -22,7 +22,9 @@ import java.util.Set;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -119,7 +121,15 @@ public class LandesradfernwegeVariantenTfisImportJob extends AbstractFahrradrout
 	@Override
 	protected Set<TfisId> getZuBeruecksichtigendeFahrradroutenTfisIds() {
 		return fahrradrouteRepository.findAllTfisIdsOfLandesradfernwege();
-
 	}
 
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert LRFW-Varianten aus der TFIS-Datei von Platte und versucht diese auf das Netz zu matchen. Bestehende Varianten werden aktualisiert, nicht mehr vorhandene entfernt.",
+			"Listen von Varianten an TFIS-LRFW-Fahrradrouten verändern sich.",
+			"Profilinformationen sind hiernach ggf. veraltet oder leer. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
+	}
 }

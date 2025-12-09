@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: block;
@@ -23,7 +24,7 @@
   background-color: rgba(255, 255, 255, 0.95);
 
   mat-toolbar {
-    background: map-get($radvis-accent-palette, 500);
+    background: map.get(colors.$radvis-accent-palette, 500);
     color: #fff;
     white-space: break-spaces;
   }

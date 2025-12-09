@@ -96,15 +96,15 @@
       Bitte passen Sie fehlerhafte Datensätze an, bevor Sie fortfahren. In den folgenden Schritten werden diese nicht
       mehr angezeigt.
     } @else {
-      <rad-warnhinweis>
+      <rad-hinweis>
         Es wurde keine valide Maßnahme zum Importieren gefunden, bitte korrigieren Sie den Datensatz.
-      </rad-warnhinweis>
+      </rad-hinweis>
     }
   </div>
 
-  <rad-warnhinweis *ngIf="anzahlMassnahmen === 0" class="import-step-footer-message hinweis mx-20">
+  <rad-hinweis *ngIf="anzahlMassnahmen === 0" class="import-step-footer-message hinweis mx-20">
     Es wurde keine Maßnahme zum Importieren im angegebenen Bereich gefunden. Bitte überprüfen Sie die Eingabedaten.
-  </rad-warnhinweis>
+  </rad-hinweis>
 
   <rad-info-panel class="import-step-footer-message mx-20 my-10" [fehler]="fehler"></rad-info-panel>
 

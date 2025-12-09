@@ -80,9 +80,7 @@
 </div>
 
 <div [hidden]="dataSource.data.length === 0" class="pagination-container">
-  <rad-warnhinweis *ngIf="hasFilterOnAusgeblendetenSpalten">
-    Es sind Filter an ausgeblendeten Spalten gesetzt
-  </rad-warnhinweis>
+  <rad-hinweis *ngIf="hasFilterOnAusgeblendetenSpalten"> Es sind Filter an ausgeblendeten Spalten gesetzt </rad-hinweis>
   <div class="flex-grow"></div>
   <mat-paginator
     [pageSizeOptions]="[10, 20, 50]"

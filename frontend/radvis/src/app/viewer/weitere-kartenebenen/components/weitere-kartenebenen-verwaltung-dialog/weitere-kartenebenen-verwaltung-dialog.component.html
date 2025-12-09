@@ -47,7 +47,7 @@
             Für alle Nutzer:innen anzeigen
           </mat-slide-toggle>
         } @else if (formGroup.get('defaultLayer')?.value) {
-          <rad-warnhinweis>Dieser Layer wurde vom Administrator hinzugefügt und ist nicht bearbeitbar.</rad-warnhinweis>
+          <rad-hinweis>Dieser Layer wurde vom Administrator hinzugefügt und ist nicht bearbeitbar.</rad-hinweis>
         }
 
         <rad-text-input-control formControlName="name" [errors]="formGroup.get('name')?.errors">

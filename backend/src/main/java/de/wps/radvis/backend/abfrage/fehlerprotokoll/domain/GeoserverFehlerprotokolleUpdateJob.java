@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.entity.GeoserverFehlerprotokoll;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.repository.GeoserverFehlerprotokollRepository;
 import de.wps.radvis.backend.abfrage.fehlerprotokoll.domain.service.FehlerprotokollAbfrageService;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.FehlerprotokollEintrag;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -51,5 +53,15 @@ public class GeoserverFehlerprotokolleUpdateJob extends AbstractJob {
 				.collect(Collectors.toList()));
 
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Liest alle existierenden Fehlerprotokolleinträge aus der DB aus und speichert sie in einer zentralen Tabelle auf die der Geoserver zugreift.",
+			"Die zentrale Tabelle aller Fehlerprotokolleinträge wird geleert und neu befüllt.",
+			"Sollte nach allen Importen laufen, die Fehlerprotokolleinträge anlegen könnten.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

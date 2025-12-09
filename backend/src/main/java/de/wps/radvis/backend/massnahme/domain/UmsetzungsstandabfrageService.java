@@ -99,7 +99,7 @@ public class UmsetzungsstandabfrageService {
 			postgisConfigurationProperties.getArgumentLimit());
 
 		return partitionierteIDs.stream().flatMap(massnahmeRepository::findAllByIdInAndGeloeschtFalse)
-			.filter(massnahme -> massnahme.getUmsetzungsstatus() != Umsetzungsstatus.STORNIERT
+			.filter(massnahme -> !massnahme.isStorniert()
 				&& massnahme.getUmsetzungsstatus() != Umsetzungsstatus.UMGESETZT
 				&& massnahme.getUmsetzungsstand().isPresent()
 				&& !massnahme.isArchiviert())

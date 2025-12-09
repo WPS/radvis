@@ -14,7 +14,7 @@
 
 package de.wps.radvis.backend.benutzer.domain.valueObject.usertype;
 
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

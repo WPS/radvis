@@ -17,13 +17,13 @@ package de.wps.radvis.backend.massnahme.schnittstelle.view;
 import java.util.List;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import lombok.Getter;
 
 @Getter
 public class UmsetzungsstandAbfrageVorschauView {
-	private String emailVorschau;
-	private List<Mailadresse> empfaenger;
+	private final String emailVorschau;
+	private final List<Mailadresse> empfaenger;
 
 	public UmsetzungsstandAbfrageVorschauView(String emailVorschau, List<Benutzer> zuBenachrichtigendeBenutzer) {
 		this.emailVorschau = emailVorschau;

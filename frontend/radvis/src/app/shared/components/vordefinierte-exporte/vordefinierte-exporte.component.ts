@@ -13,13 +13,14 @@
  */
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { ErrorHandlingService } from 'src/app/shared/services/error-handling.service';
 import { FileHandlingService } from 'src/app/shared/services/file-handling.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OrganisationenService } from 'src/app/shared/services/organisationen.service';
-import { MatomoTracker } from 'ngx-matomo-client';
+import invariant from 'tiny-invariant';
 
 @Component({
   selector: 'rad-vordefinierte-exporte',
@@ -32,14 +33,15 @@ export class VordefinierteExporteComponent {
   private static readonly FILETYPE_SHAPE_ZIP = '(Shape-ZIP)';
   private static readonly FILETYPE_PBF = '(PBF)';
 
-  @Input()
-  isFetching = false;
+  isFetchingNetz = false;
+  isFetchingMassnahmen = false;
 
   alleGebietskoerperschaften$: Promise<Verwaltungseinheit[]>;
 
   readonly geoserverBaseUrl = '/api/geoserver/saml/radvis/wfs?service=WFS&version=1.0.0&request=GetFeature';
   readonly geoserverBaseUrlShapezip = this.geoserverBaseUrl + '&outputFormat=SHAPE-ZIP';
   readonly geoserverBaseUrlGeoPackage = this.geoserverBaseUrl + '&outputFormat=gpkg';
+  readonly geoserverBaseUrlCsv = this.geoserverBaseUrl + '&outputFormat=csv';
 
   public exportLinksDaten = [
     {
@@ -110,7 +112,6 @@ export class VordefinierteExporteComponent {
       filetype: VordefinierteExporteComponent.FILETYPE_SHAPE_ZIP,
     },
   ];
-
   public exportLinksNetz = [
     {
       url:
@@ -138,20 +139,48 @@ export class VordefinierteExporteComponent {
     this.alleGebietskoerperschaften$ = organisationenService.getGebietskoerperschaften();
   }
 
-  ladeHerunter(value: Verwaltungseinheit | null): Promise<void> | null {
-    this.isFetching = true;
+  protected onDownloadMassnahmen(verwaltungseinheit: Verwaltungseinheit | null, format: 'CSV' | 'GEOPACKAGE'): void {
+    this.isFetchingMassnahmen = true;
 
-    if (value) {
-      this.matomoTracker.trackEvent('Vordefinierte Exporte', 'Download', 'Netz für Gebietskörperschaft');
-    }
+    this.ladeHerunter(verwaltungseinheit, format, 'MASSNAHME').finally(() => {
+      this.isFetchingMassnahmen = false;
+      this.changeDetector.markForCheck();
+    });
+  }
+
+  protected onDownloadNetz(verwaltungseinheit: Verwaltungseinheit | null): void {
+    this.isFetchingNetz = true;
+
+    this.matomoTracker.trackEvent('Vordefinierte Exporte', 'Download', 'Netz für Gebietskörperschaft');
+
+    this.ladeHerunter(verwaltungseinheit, 'GEOPACKAGE', 'NETZ').finally(() => {
+      this.isFetchingNetz = false;
+      this.changeDetector.markForCheck();
+    });
+  }
+
+  private ladeHerunter(
+    verwaltungseinheit: Verwaltungseinheit | null,
+    format: 'CSV' | 'GEOPACKAGE',
+    entity: 'NETZ' | 'MASSNAHME'
+  ): Promise<void> {
+    // Vom Typ her könnte die Funktion mit null aufgerufen werden, damit das Template kompiliert.
+    // Da wir aber die Buttons disablen solange der übergebene Wert null ist, können wir das hier hart absichern.
+    invariant(verwaltungseinheit);
+
+    let url = format === 'CSV' ? this.geoserverBaseUrlCsv : this.geoserverBaseUrlGeoPackage;
+
+    const typeName =
+      entity === 'NETZ' ? 'radvis:radvisnetz_kante_abschnitte' : 'radvis:geoserver_massnahmen_erweitert_view';
+
+    url += `&typeName=${typeName}`;
 
     return this.organisationenService
-      .getBereichVonOrganisationAlsString(value?.id)
+      .getBereichVonOrganisationAlsString(verwaltungseinheit?.id)
       .then(bereich => {
         const body = new URLSearchParams();
         body.set('CQL_FILTER', 'INTERSECTS(geometry,' + bereich + ')');
         const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-        const url = this.geoserverBaseUrlGeoPackage + '&typeName=radvis:radvisnetz_kante_abschnitte';
 
         return this.http
           .post<Blob>(url, body, {
@@ -174,10 +203,6 @@ export class VordefinierteExporteComponent {
             }
           })
           .catch(err => this.errorHandlingService.handleError(err, 'Die Datei konnte nicht heruntergeladen werden'));
-      })
-      .finally(() => {
-        this.isFetching = false;
-        this.changeDetector.markForCheck();
       })
       .catch(err => this.errorHandlingService.handleError(err, 'Die Datei konnte nicht heruntergeladen werden'));
   }

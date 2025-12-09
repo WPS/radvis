@@ -1,0 +1,14 @@
+  <nativeBoundingBox>
+    <minx>184738</minx>
+    <maxx>936166</maxx>
+    <miny>4990738</miny>
+    <maxy>6228213</maxy>
+    <crs class="projected">EPSG:25832</crs>
+  </nativeBoundingBox>
+  <latLonBoundingBox>
+    <minx>5</minx>
+    <maxx>16</maxx>
+    <miny>45</miny>
+    <maxy>56</maxy>
+    <crs>EPSG:4326</crs>
+  </latLonBoundingBox>

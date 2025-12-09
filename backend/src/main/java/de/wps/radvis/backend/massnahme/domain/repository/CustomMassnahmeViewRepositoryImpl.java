@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.MultiPolygon;
 
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -51,7 +52,9 @@ public class CustomMassnahmeViewRepositoryImpl implements CustomMassnahmeViewRep
 
 		if (!historischeMassnahmenAnzeigen) {
 			hqlStringBuilder.append(
-				"massnahmeListenDbView.umsetzungsstatus != 'UMGESETZT' AND massnahmeListenDbView.umsetzungsstatus != 'STORNIERT' AND massnahmeListenDbView.archiviert = false");
+				"massnahmeListenDbView.umsetzungsstatus NOT IN ("
+					+ String.join(",", Umsetzungsstatus.HISTORISCH_STATUS.stream().map(u -> u.name()).toList())
+					+ ") AND massnahmeListenDbView.archiviert = false");
 		}
 
 		TypedQuery<MassnahmeListenDbView> query = entityManager.createQuery(hqlStringBuilder.toString(),

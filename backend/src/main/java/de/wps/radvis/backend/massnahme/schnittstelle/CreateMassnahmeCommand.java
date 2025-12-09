@@ -21,12 +21,15 @@ import org.springframework.validation.annotation.Validated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommand;
 import jakarta.validation.constraints.AssertTrue;
@@ -70,6 +73,9 @@ public class CreateMassnahmeCommand {
 	private Long zustaendigerId;
 	private Handlungsverantwortlicher handlungsverantwortlicher;
 	private String sonstigeKonzeptionsquelle;
+	private ZurueckstellungsGrund zurueckstellungsGrund;
+	private BegruendungStornierungsanfrage begruendungStornierungsanfrage;
+	private BegruendungZurueckstellung begruendungZurueckstellung;
 
 	@AssertTrue(message = "Durchführungszeitpunkt und Zuständiger-Baulast sind ab Status 'Planung' ein Pflichtfeld.")
 	public boolean isRequiredAbUmsetzungsstatusPlanung() {
@@ -91,6 +97,34 @@ public class CreateMassnahmeCommand {
 	@AssertTrue(message = "RadNETZ-Maßnahmen (2016) dürfen nicht angelegt werden.")
 	public boolean isErlaubteKonzeptionsquelle() {
 		return !konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME);
+	}
+
+	@AssertTrue(message = "Zurückstellungsgrund ist nicht erlaubt für Umsetzungsstatus.")
+	public boolean isErlaubterZurueckstellungsgrund() {
+		return Massnahme.isZurueckstellungsGrundValidForUmsetzungsstatus(umsetzungsstatus, zurueckstellungsGrund);
+	}
+
+	@AssertTrue(message = "Begründung für Stornierungsanfrage ist nicht erlaubt für Umsetzungsstatus.")
+	public boolean isBegruendungStornierungsanfrageValid() {
+		return Massnahme.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(umsetzungsstatus,
+			begruendungStornierungsanfrage);
+	}
+
+	@AssertTrue(message = "Begründung für Zurückstellung ist nicht erlaubt für Zurückstellungsgrund.")
+	public boolean isBegruendungZurueckstellungsgrundValid() {
+		return Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(zurueckstellungsGrund,
+			begruendungZurueckstellung);
+	}
+
+	@AssertTrue(message = "Maßnahmen mit Umsetzungsstatus STORNIERT dürfen nicht angelegt werden.")
+	public boolean isErlaubterUmsetzungsstatus() {
+		return !umsetzungsstatus.equals(Umsetzungsstatus.STORNIERT);
+	}
+
+	@AssertTrue(message = "Umsetzungsstatus ist nicht erlaubt für Konzeptionsquelle.")
+	public boolean isUmsetzungsstatusValidForKonzeptionsquelle() {
+		return Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(konzeptionsquelle,
+			umsetzungsstatus);
 	}
 
 	@AssertTrue(message = "Nicht alle Kategorien sind für die gewählte Konzeptionsquelle erlaubt.")

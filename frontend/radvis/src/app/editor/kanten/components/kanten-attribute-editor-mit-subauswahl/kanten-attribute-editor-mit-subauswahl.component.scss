@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
+@use 'src/style/spacing';
 
 :host {
   display: block;
@@ -28,7 +28,7 @@
 }
 
 .mat-tab-wrapper {
-  width: $editor-side-bar-width;
+  width: spacing.$editor-side-bar-width;
   height: 100%;
   flex-grow: 1;
   position: relative;

@@ -25,6 +25,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Marke;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Oeffnungszeiten;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBeschreibung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
@@ -54,6 +55,7 @@ public class ServicestationView {
 	private final ServicestationTyp typ;
 	private final ServicestationStatus status;
 	private final ServicestationenQuellSystem quellSystem;
+	private final Radkultur radkultur;
 
 	public ServicestationView(Servicestation servicestation, boolean darfBenutzerBearbeiten) {
 		geometrie = servicestation.getGeometrie();
@@ -75,5 +77,6 @@ public class ServicestationView {
 		organisation = new VerwaltungseinheitView(servicestation.getOrganisation());
 		typ = servicestation.getTyp();
 		status = servicestation.getStatus();
+		radkultur = servicestation.getRadkultur();
 	}
 }

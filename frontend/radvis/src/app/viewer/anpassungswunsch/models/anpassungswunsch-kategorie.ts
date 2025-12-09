@@ -22,6 +22,7 @@ export enum AnpassungswunschKategorie {
   OSM = 'OSM',
   TT_SIB = 'TT_SIB',
   WEGWEISUNGSSYSTEM = 'WEGWEISUNGSSYSTEM',
+  MOBIDATA = 'MOBIDATA',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -40,6 +41,8 @@ export namespace AnpassungswunschKategorie {
         return { name: k, displayText: 'TT-SIB' };
       case AnpassungswunschKategorie.WEGWEISUNGSSYSTEM:
         return { name: k, displayText: 'Wegweisungssystem' };
+      case AnpassungswunschKategorie.MOBIDATA:
+        return { name: k, displayText: 'Mobidata' };
     }
     throw new Error('Beschreibung für enum AnpassungswunschKategorie fehlt: ' + k);
   });

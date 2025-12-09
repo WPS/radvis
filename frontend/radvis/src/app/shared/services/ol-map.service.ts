@@ -54,11 +54,11 @@ export abstract class OlMapService {
 
   public abstract getResolution$(): Observable<number>;
 
-  public abstract click$(): Observable<MapBrowserEvent<UIEvent>>;
+  public abstract click$(): Observable<MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>>;
 
   public abstract locationSelected$(): Observable<LocationSelectEvent>;
 
-  public abstract pointerMove$(): Observable<MapBrowserEvent<UIEvent>>;
+  public abstract pointerMove$(): Observable<MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>>;
 
   public abstract pointerLeave$(): Observable<void>;
 

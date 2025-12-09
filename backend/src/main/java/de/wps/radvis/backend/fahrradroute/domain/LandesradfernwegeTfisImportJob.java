@@ -22,7 +22,9 @@ import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -97,5 +99,15 @@ public class LandesradfernwegeTfisImportJob extends AbstractTFISRadroutenImportJ
 	protected Stream<SimpleFeature> filterFeaturesToImport(Stream<SimpleFeature> featureStream,
 		AbstractTfisImportStatistik statistik) {
 		return featureStream.filter(tfisImportService::isLandesradfernweg);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Import alle Fahrradrouten, die in TFIS als LRFW markiert sind. Keine Berücksichtigung, ob bereits importiert wurde.",
+			"Fahrradrouten werden in der DB gespeichert.",
+			"Profilinformationen sind hiernach ggf. veraltet oder leer. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

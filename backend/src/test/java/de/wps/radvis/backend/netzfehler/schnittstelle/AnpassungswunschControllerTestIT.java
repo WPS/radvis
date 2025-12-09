@@ -73,7 +73,6 @@ import de.wps.radvis.backend.netzfehler.schnittstelle.view.AnpassungswunschView;
 import de.wps.radvis.backend.organisation.OrganisationConfiguration;
 import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
-import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
@@ -125,9 +124,14 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 					BenutzerTestDataProvider.admin(
 						VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build())
 						.build());
-			return new AnpassungswunschController(anpassungswunschService,
-				anpassungswunschGuard, benutzerResolver, verwaltungseinheitService,
-				anpassungswunschRepository, new SaveAnpassungswunschCommandConverter(verwaltungseinheitService));
+			return new AnpassungswunschController(
+				anpassungswunschService,
+				anpassungswunschGuard,
+				benutzerResolver,
+				verwaltungseinheitService,
+				anpassungswunschRepository,
+				new SaveAnpassungswunschCommandConverter(verwaltungseinheitService)
+			);
 		}
 	}
 
@@ -144,9 +148,6 @@ class AnpassungswunschControllerTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	BenutzerRepository benutzerRepository;
-
-	@Autowired
-	VerwaltungseinheitRepository verwaltungseinheitRepository;
 
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;

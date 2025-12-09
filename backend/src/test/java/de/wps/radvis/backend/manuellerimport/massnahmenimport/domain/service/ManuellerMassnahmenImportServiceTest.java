@@ -16,7 +16,9 @@ package de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.service;
 
 import static de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.service.MassnahmenImportZuordnungAssert.assertThatMassnahmenImportZuordnung;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atMostOnce;
@@ -45,6 +47,7 @@ import org.assertj.core.api.Assertions;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -83,6 +86,8 @@ import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.MaViSID;
@@ -90,6 +95,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.MassnahmeKonzeptID;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
 import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
 import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
@@ -1140,6 +1146,812 @@ class ManuellerMassnahmenImportServiceTest {
 			MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE_KONZEPTIONSQUELLE.getText()));
 	}
 
+	@Nested
+	class UmsetzungsstatusQuervalidierung {
+		@BeforeEach
+		void setup() throws OrganisationsartUndNameNichtEindeutigException {
+			when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(anyString(), any())).thenReturn(
+				Optional.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()));
+		}
+
+		@Nested
+		class OhneZuordnung {
+			@Test
+			void stornierungsbegruendungRequired_nichtImportiert_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.STORNIERUNG_ANGEFRAGT.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = MassnahmenImportAttribute.getPflichtAttribute();
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString());
+			}
+
+			@Test
+			void zurueckstellungWeitereGruende_importiertWithoutValue_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.STORNIERUNG_ANGEFRAGT.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString());
+			}
+
+			@Test
+			void zurueckstellungWeitereGruende_importiertWithValue_valid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.STORNIERUNG_ANGEFRAGT.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void zurueckstellungsgrundRequired_importiertWithValue_valid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void zurueckstellungsgrundRequired_importiertWithoutValue_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString());
+			}
+
+			@Test
+			void zurueckstellungsgrundRequired_nichtImportiert_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = MassnahmenImportAttribute.getPflichtAttribute();
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString());
+			}
+
+			@Test
+			void zurueckstellungsgrundNichtRequired_nichtImportiert_valid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = MassnahmenImportAttribute.getPflichtAttribute();
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void zurueckstellungsGrundNichtImportiert_begruendungNichtImportiert_valid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = MassnahmenImportAttribute.getPflichtAttribute();
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void zurueckstellungsGrundImportiert_weitereGruende_begruendungNichtImportiert_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void zurueckstellungsGrundImportiert_weitereGruende_begruendungImportiertWithoutValue_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void zurueckstellungsGrundImportiert_weitereGruende_begruendungImportiertWithValue_valid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void zurueckstellungsGrundNichtImportiert_begruendungImportiert_invalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).extracting(f -> f.getAttributName())
+					.containsExactly(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void zurueckstellungsGrundImportiert_finanzielleRessourcen_begruendungNichtImportiert_valid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.ZURUECKGESTELLT.toString());
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME_2024, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void umsetzungsstatusForKonzeptionsquelleInvalid() {
+				// Arrange
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider.dummyPflichtattribute();
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.STORNIERUNG_ANGEFRAGT.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.neuWithQuellAttribute(attribute);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.KOMMUNALES_KONZEPT, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+				ausgewaehlteAttribute.add(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString());
+			}
+		}
+
+		@Nested
+		class MitZuordnung {
+			@Test
+			void neuerUmsetzungsstatus_alterZurueckstellungsgrund_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString());
+			}
+
+			@Test
+			void neuerUmsetzungsstatus_alterZurueckstellungsgrund_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void alterUmsetzungsstatus_neuerZurueckstellungsgrund_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString());
+
+			}
+
+			@Test
+			void alterUmsetzungsstatus_neuerZurueckstellungsgrund_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.PERSONELLE_ZEITLICHE_RESSOURCEN.getDisplayText());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void neuerUmsetzungsstatus_alteStornierungsbegruendung_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+					.begruendungStornierungsanfrage(BegruendungStornierungsanfrage.of("Test")).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString());
+			}
+
+			@Test
+			void neuerUmsetzungsstatus_alteStornierungsbegruendung_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.IDEE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = new ArrayList<>(
+					MassnahmenImportAttribute.getPflichtAttribute());
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void alterUmsetzungsstatus_neueStornierungsbegruendung_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.begruendungStornierungsanfrage(BegruendungStornierungsanfrage.of("Test")).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString());
+			}
+
+			@Test
+			void alterUmsetzungsstatus_neueStornierungsbegruendung_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.begruendungStornierungsanfrage(BegruendungStornierungsanfrage.of("Test")).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "Blubb");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void alterZurueckstellungsgrund_weitereGruende_neueBegruendungWithoutValue_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.WEITERE_GRUENDE)
+					.begruendungZurueckstellung(BegruendungZurueckstellung.of("Test")).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void alterZurueckstellungsgrund_weitereGruende_neueBegruendungWithValue_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.WEITERE_GRUENDE)
+					.begruendungZurueckstellung(BegruendungZurueckstellung.of("Test")).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "Blubb");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void neuerZurueckstellungsgrund_finanzielleRessourcen_alteBegruendungWithValue_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.WEITERE_GRUENDE)
+					.begruendungZurueckstellung(BegruendungZurueckstellung.of("Test")).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void neuerZurueckstellungsgrund_finanzielleRessourcen_alteBegruendungWithoutValue_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.PERSONELLE_ZEITLICHE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void neuerZurueckstellungsgrund_weitereGruende_alteBegruendungWithoutValue_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void neuerZurueckstellungsgrund_weitereGruende_neueBegruendungWithoutValue_invalid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND,
+						MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString());
+			}
+
+			@Test
+			void neuerZurueckstellungsgrund_weitereGruende_neueBegruendungWithValue_valid() {
+				// Arrange
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.ZURUECKGESTELLT)
+					.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
+					.zurueckstellungsGrund(ZurueckstellungsGrund.FINANZIELLE_RESSOURCEN).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					ZurueckstellungsGrund.WEITERE_GRUENDE.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List
+					.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND,
+						MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+
+			@Test
+			void neuerUmsetzungsstatus_konzeptionsquelle_invalid() {
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.STORNIERUNG_ANGEFRAGT.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSessionKommunalesKonzept(zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List.of(
+					MassnahmenImportAttribute.UMSETZUNGSSTATUS,
+					MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).hasSize(1);
+				assertThat(zuordnung.getMappingFehler().iterator().next().getAttributName())
+					.isEqualTo(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString());
+			}
+
+			@Test
+			void neuerUmsetzungsstatus_konzeptionsquelle_valid() {
+				Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues()
+					.umsetzungsstatus(Umsetzungsstatus.STORNIERT).build();
+				Map<String, String> attribute = MassnahmenImportAttributeMapTestDataProvider
+					.fromMassnahme(massnahme);
+				attribute.put(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					Umsetzungsstatus.STORNIERUNG_ANGEFRAGT.toString());
+				attribute.put(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(), "Test");
+				MassnahmenImportZuordnung zuordnung = MassnahmenImportZuordnungTestDataProvider
+					.gemapptWithQuellAttributeAndMassnahme(attribute, massnahme);
+
+				MassnahmenImportSession session = getSession(Konzeptionsquelle.RADNETZ_MASSNAHME, zuordnung);
+				List<MassnahmenImportAttribute> ausgewaehlteAttribute = List.of(
+					MassnahmenImportAttribute.UMSETZUNGSSTATUS,
+					MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE);
+
+				// Act
+				service.attributeValidieren(session, ausgewaehlteAttribute);
+
+				// Assert
+				assertThatSessionHasCorrectState(session, ausgewaehlteAttribute);
+				assertThat(zuordnung.getMappingFehler()).isEmpty();
+			}
+		}
+	}
+
 	@Test
 	void testAttributeValidieren_gemappteMassanahmekeineAttributeAusgewaehlt_keineHinweise() {
 		// Arrange
@@ -1373,6 +2185,35 @@ class ManuellerMassnahmenImportServiceTest {
 	}
 
 	@Test
+	void testMassnahmenDerZuordnungenSpeichern_alleAttributeWerdenGemappt()
+		throws OrganisationsartUndNameNichtEindeutigException {
+		// Arrange
+		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.build();
+		when(verwaltungseinheitService.getVerwaltungseinheitNachNameUndArt(any(), any()))
+			.thenReturn(Optional.of(verwaltungseinheit));
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValuesAndOrganisation(verwaltungseinheit).build();
+		Map<String, String> quellAttribute = MassnahmenImportAttributeMapTestDataProvider.fromMassnahme(massnahme);
+		assertThat(quellAttribute.keySet())
+			.containsExactlyInAnyOrderElementsOf(getAlleAttribute().stream().map(a -> a.toString()).toList());
+
+		MassnahmenImportSession session = getSessionKommunalesKonzept(
+			MassnahmenImportZuordnungTestDataProvider.neuWithQuellAttribute(quellAttribute));
+		session.setAttribute(getAlleAttribute());
+
+		Knoten knoten = KnotenTestDataProvider.withDefaultValues().build();
+		MassnahmeNetzBezug netzbezug = NetzBezugTestDataProvider.forKnoten(knoten);
+		session.getZuordnungen().get(0).aktualisiereNetzbezug(netzbezug, true);
+
+		session.setSchritt(MassnahmenImportSession.IMPORT_UEBERPRUEFEN_UND_SPEICHERN);
+
+		// Act + Assert
+		assertThatNoException().isThrownBy(() -> service.speichereMassnahmenDerZuordnungen(session,
+			List.of(session.getZuordnungen().get(0).getId())));
+		assertThat(session.getLog()).isEmpty();
+	}
+
+	@Test
 	void testMassnahmenDerZuordnungenSpeichern_selektionWirdUebernommen() {
 		// Arrange
 		Verwaltungseinheit verwaltungseinheit = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
@@ -1392,8 +2233,6 @@ class ManuellerMassnahmenImportServiceTest {
 		session.getZuordnungen().get(2).aktualisiereNetzbezug(netzbezug, true);
 
 		session.setSchritt(MassnahmenImportSession.IMPORT_UEBERPRUEFEN_UND_SPEICHERN);
-		// Vorbedingung, damit der Test im Assert aussagekräftig ist. Mit anderen Worten: Zuordnung 2 soll abgewählt
-		// werden.
 		assertThat(session.getZuordnungen().stream().allMatch(zuordnung -> zuordnung.isSelected()));
 
 		// Act

@@ -25,8 +25,7 @@ public class AbstellanlageBRImportStatistik extends JobStatistik {
 	public int anzahlGeloescht = 0;
 	public int anzahlAbstellanlagenAttributmappingFehlerhaft = 0;
 	public int anzahlAbstellanlagenIdNichtEindeutig = 0;
-	public int anzahlUrlsOderDateienFehlerhaft = 0;
-	public int anzahlBeimCsvImportUebersprungenerZeilen = 0;
+	public boolean urlOderGeojsonFehlerhaft = false;
 	public int anzahlRadVISAbstellanlagenUebersprungen = 0;
 
 	@Override

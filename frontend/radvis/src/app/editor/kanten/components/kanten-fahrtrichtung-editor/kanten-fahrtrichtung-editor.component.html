@@ -13,9 +13,9 @@
   -->
 
 <ng-container *ngIf="hasKanten$ | async">
-  <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+  <rad-hinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
     NICHT_BEARBEITBAR_HINWEIS
-  }}</rad-warnhinweis>
+  }}</rad-hinweis>
   <rad-kanten-attribute-editor-mit-subauswahl
     [disabled]="!editingAllowed"
     [dirty]="!areAttributesPristine"

@@ -28,12 +28,12 @@ describe(PunktuellerKantenBezuegeVectorLayer.name, () => {
       punktuellerKantenBezuegeVectorLayer.updatePuntuelleKantenNetzbezuege(defaultNetzbezug.punktuellerKantenBezug);
     });
     it('should add new features', () => {
-      expect(punktuellerKantenBezuegeVectorLayer.getSource().getFeatures().length).toEqual(1);
+      expect(punktuellerKantenBezuegeVectorLayer.getSource()?.getFeatures().length).toEqual(1);
       expect(
         (
           punktuellerKantenBezuegeVectorLayer
             .getSource()
-            .getFeatures()
+            ?.getFeatures()
             .find(feature => feature.get(PunktuellerKantenBezuegeVectorLayer.KANTE_ID_PROPERTY_KEY) === 3)
             ?.getGeometry() as Point
         ).getCoordinates()
@@ -41,7 +41,7 @@ describe(PunktuellerKantenBezuegeVectorLayer.name, () => {
     });
     it('should remove old features', () => {
       punktuellerKantenBezuegeVectorLayer.updatePuntuelleKantenNetzbezuege([]);
-      expect(punktuellerKantenBezuegeVectorLayer.getSource().getFeatures().length).toEqual(0);
+      expect(punktuellerKantenBezuegeVectorLayer.getSource()?.getFeatures().length).toEqual(0);
     });
   });
 });

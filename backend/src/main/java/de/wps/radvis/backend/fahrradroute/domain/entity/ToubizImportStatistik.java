@@ -14,12 +14,16 @@
 
 package de.wps.radvis.backend.fahrradroute.domain.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.fahrradroute.domain.valueObject.ToubizId;
 
 public class ToubizImportStatistik extends JobStatistik {
 
@@ -27,6 +31,8 @@ public class ToubizImportStatistik extends JobStatistik {
 	public int anzahlAlterFahrradroutenGeloescht = 0;
 
 	public int anzahlRoutenOhneGeometrie = 0;
+	public List<ToubizId> routenMitTimeoutBeimNetzbezugErstellen = new ArrayList<>();
+	public List<ToubizId> beimImportIgnoriert = new ArrayList<>();
 
 	public FahrradrouteMatchingStatistik fahrradrouteMatchingStatistik = new FahrradrouteMatchingStatistik();
 

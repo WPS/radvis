@@ -31,13 +31,13 @@ describe(PositionSelektionControlComponent.name, () => {
   let component: PositionSelektionControlComponent;
 
   let olMapService: OlMapService;
-  let olMapClick$: Subject<MapBrowserEvent<UIEvent>>;
+  let olMapClick$: Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>;
   let bedienhinweisService: BedienhinweisService;
   let netzbezugAuswahlModusService: NetzbezugAuswahlModusService;
 
   beforeEach(() => {
     olMapService = mock(OlMapComponent);
-    olMapClick$ = new Subject<MapBrowserEvent<UIEvent>>();
+    olMapClick$ = new Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>();
     when(olMapService.click$()).thenReturn(olMapClick$);
     bedienhinweisService = mock(BedienhinweisService);
     netzbezugAuswahlModusService = mock(ViewerComponent);
@@ -82,7 +82,7 @@ describe(PositionSelektionControlComponent.name, () => {
   it('should not update position on MapClick if not in selektionMode', () => {
     expect(component.selectionMode).toBeFalse();
 
-    olMapClick$.next({ coordinate: [42, 42] } as MapBrowserEvent);
+    olMapClick$.next({ coordinate: [42, 42] } as MapBrowserEvent<PointerEvent>);
 
     expect(component.position).toEqual(null);
   });
@@ -119,7 +119,7 @@ describe(PositionSelektionControlComponent.name, () => {
     });
 
     it('should update position on MapClick', () => {
-      olMapClick$.next({ coordinate: [42, 42] } as MapBrowserEvent);
+      olMapClick$.next({ coordinate: [42, 42] } as MapBrowserEvent<PointerEvent>);
 
       expect(component.position).toEqual([42, 42]);
     });

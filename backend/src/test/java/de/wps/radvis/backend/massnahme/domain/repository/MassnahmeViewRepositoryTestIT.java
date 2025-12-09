@@ -20,9 +20,11 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -37,6 +39,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
+import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -64,10 +67,14 @@ import de.wps.radvis.backend.massnahme.domain.MassnahmenConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.UmsetzungsstandsabfrageConfigurationProperties;
 import de.wps.radvis.backend.massnahme.domain.dbView.MassnahmeListenDbView;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.massnahme.domain.entity.Massnahme.MassnahmeBuilder;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.matching.domain.service.SimpleMatchingService;
 import de.wps.radvis.backend.netz.NetzConfiguration;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
@@ -151,6 +158,8 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	private Benutzer benutzer;
+
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
@@ -160,7 +169,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 				.organisationsArt(
 					OrganisationsArt.BUNDESLAND)
 				.build());
-
+		benutzer = benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -173,8 +182,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
 			.letzteAenderung(LocalDateTime.of(2021, 12, 17, 14, 20))
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -301,8 +309,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -384,8 +391,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -427,8 +433,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 		massnahmeRepository.save(massnahme);
@@ -456,8 +461,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 		massnahme.removeKanteFromNetzbezug(List.of(kante.getId()));
@@ -481,8 +485,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 		massnahme.removeKanteFromNetzbezug(List.of(kante.getId()));
@@ -507,8 +510,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 		massnahme.archivieren();
@@ -571,8 +573,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -640,8 +641,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -693,8 +693,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -764,8 +763,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -836,8 +834,7 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			.baulastZustaendiger(gebietskoerperschaft)
 			.unterhaltsZustaendiger(gebietskoerperschaft)
 			.zustaendiger(gebietskoerperschaft)
-			.benutzerLetzteAenderung(
-				benutzerRepository.save(BenutzerTestDataProvider.admin(gebietskoerperschaft).build()))
+			.benutzerLetzteAenderung(benutzer)
 			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME)
 			.build();
 
@@ -853,5 +850,72 @@ class MassnahmeViewRepositoryTestIT extends DBIntegrationTestIT {
 			// in kante 2
 			new CoordinateXY(30.0, 2.0),
 			new CoordinateXY(70.0, 2.0));
+	}
+
+	@Nested
+	class HistorischeMassnahmenFilter {
+		private Massnahme massnahmeUmgesetzt;
+		private Massnahme massnahmeAktuell;
+		private Massnahme massnahmeStorniert;
+		private Massnahme massnahmeStorniertEngstelle;
+		private Massnahme massnahmeArchiviert;
+		private Massnahme massnahmeStorniertNichtBenötigt;
+
+		@BeforeEach
+		void setup() {
+			// arrange
+			massnahmeAktuell = massnahmeRepository.save(builderWithSavedInstances().build());
+			massnahmeUmgesetzt = massnahmeRepository
+				.save(builderWithSavedInstances().durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2024))
+					.baulastZustaendiger(gebietskoerperschaft)
+					.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
+					.umsetzungsstatus(Umsetzungsstatus.UMGESETZT).build());
+			massnahmeStorniert = massnahmeRepository
+				.save(builderWithSavedInstances().umsetzungsstatus(Umsetzungsstatus.STORNIERT).build());
+			massnahmeStorniertEngstelle = massnahmeRepository
+				.save(builderWithSavedInstances().umsetzungsstatus(Umsetzungsstatus.STORNIERT_ENGSTELLE)
+					.build());
+			massnahmeArchiviert = massnahmeRepository.save(builderWithSavedInstances().build());
+			massnahmeArchiviert.archivieren();
+			massnahmeStorniertNichtBenötigt = massnahmeRepository
+				.save(builderWithSavedInstances().umsetzungsstatus(Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH)
+					.build());
+
+			entityManager.flush();
+
+		}
+
+		@Test
+		void withHistorischeMassnahmen() {
+			// act
+			List<MassnahmeListenDbView> withFilters = massnahmeViewRepository.findAllWithFilters(Optional.empty(),
+				true);
+
+			// assert
+			assertThat(withFilters).extracting(view -> view.getId()).containsExactlyInAnyOrder(massnahmeAktuell.getId(),
+				massnahmeUmgesetzt.getId(), massnahmeStorniert.getId(), massnahmeStorniertEngstelle.getId(),
+				massnahmeStorniertNichtBenötigt.getId(), massnahmeArchiviert.getId());
+		}
+
+		@Test
+		void withoutHistorischeMassnahmen() {
+			// act
+			List<MassnahmeListenDbView> withFilters = massnahmeViewRepository.findAllWithFilters(Optional.empty(),
+				false);
+
+			// assert
+			assertThat(withFilters).hasSize(1);
+			assertThat(withFilters).extracting(view -> view.getId()).contains(massnahmeAktuell.getId());
+			assertThat(withFilters).extracting(view -> view.getId()).doesNotContain(massnahmeUmgesetzt.getId(),
+				massnahmeStorniert.getId(), massnahmeStorniertEngstelle.getId(),
+				massnahmeStorniertNichtBenötigt.getId(), massnahmeArchiviert.getId());
+		}
+
+		private MassnahmeBuilder builderWithSavedInstances() {
+			MassnahmeBuilder builder = MassnahmeTestDataProvider
+				.withKanten(kantenRepository.save(KanteTestDataProvider.withDefaultValues().build()))
+				.zustaendiger(gebietskoerperschaft).benutzerLetzteAenderung(benutzer);
+			return builder;
+		}
 	}
 }

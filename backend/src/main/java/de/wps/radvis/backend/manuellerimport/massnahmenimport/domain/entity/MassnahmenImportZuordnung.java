@@ -62,6 +62,7 @@ public class MassnahmenImportZuordnung {
 	@Getter
 	private final List<NetzbezugHinweis> netzbezugHinweise;
 
+	@Getter
 	private boolean selected;
 
 	public MassnahmenImportZuordnung(MassnahmeKonzeptID massnahmeKonzeptId, SimpleFeature feature, Massnahme massnahme,
@@ -135,10 +136,6 @@ public class MassnahmenImportZuordnung {
 
 	public void deselect() {
 		this.selected = false;
-	}
-
-	public boolean isSelected() {
-		return selected;
 	}
 
 	public void aktualisiereNetzbezug(MassnahmeNetzBezug netzbezug, boolean clearNetzbezugHinweise) {

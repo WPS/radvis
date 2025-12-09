@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.wps.radvis.backend.common.domain.Job;
+import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 
 @Controller
 public class JobController {
@@ -102,8 +103,13 @@ public class JobController {
 					.filter(job -> job.getName().toLowerCase().startsWith(prefix))
 					.map(j -> {
 						try {
-							return String.format("<li><a href=\"/jobs/run/%s\">%s</a></li>",
-								new URI(null, null, j.getName(), null).toASCIIString(), j.getName());
+							boolean isRepeatable = true;
+							if (j instanceof AbstractJob abstractJob) {
+								isRepeatable = abstractJob.isRepeatable();
+							}
+							String descriptionHtml = j.getDescription() == null ? "<table><tr><td>Keine Details vorhanden</td></tr></table>" : "<br>"+j.getDescription().toHtml(isRepeatable);
+							return String.format("<li><a href=\"/jobs/run/%s\">%s</a>%s</li>",
+								new URI(null, null, j.getName(), null).toASCIIString(), j.getName(), descriptionHtml);
 						} catch (URISyntaxException e) {
 							return "";
 						}

@@ -28,17 +28,24 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class SaveAnpassungswunschCommandConverter {
-	VerwaltungseinheitResolver verwaltungseinheitResolver;
+	private final VerwaltungseinheitResolver verwaltungseinheitResolver;
 
 	public void apply(Anpassungswunsch anpassungswunsch, SaveAnpassungswunschCommand command, Benutzer benutzer) {
-		String beschreibung = command.getBeschreibung();
-		AnpassungswunschStatus status = command.getStatus();
-		AnpassungswunschKategorie kategorie = command.getKategorie();
-		Optional<Verwaltungseinheit> verantwortlicheOrganisation = Optional
+		String neueBeschreibung = command.getBeschreibung();
+		AnpassungswunschStatus neuerStatus = command.getStatus();
+		AnpassungswunschKategorie neueKategorie = command.getKategorie();
+		Optional<Verwaltungseinheit> neueVerantwortlicheOrganisation = Optional
 			.ofNullable(command.getVerantwortlicheOrganisation())
-			.map(orgId -> verwaltungseinheitResolver.resolve(orgId));
-		Point geometrie = (Point) command.getGeometrie();
+			.map(verwaltungseinheitResolver::resolve);
+		Point neueGeometrie = (Point) command.getGeometrie();
 
-		anpassungswunsch.update(beschreibung, status, kategorie, benutzer, verantwortlicheOrganisation, geometrie);
+		anpassungswunsch.update(
+			neueBeschreibung,
+			neuerStatus,
+			neueKategorie,
+			benutzer,
+			neueVerantwortlicheOrganisation,
+			neueGeometrie
+		);
 	}
 }

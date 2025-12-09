@@ -16,7 +16,9 @@ package de.wps.radvis.backend.matching.schnittstelle;
 
 import java.util.Optional;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
@@ -36,5 +38,15 @@ public class LoadGraphhopperJob extends AbstractJob {
 	protected Optional<JobStatistik> doRun() {
 		dlmMatchedGraphHopperFactory.loadDlmGraphHopper();
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Lädt GraphHopper aus existierendem GraphHopper-Cache. Dies ist KIEN Update vom GraphHopper bei dem die PBF neu eingelesen und der GH-Cache neu gebaut wird.",
+			"GraphHopper wird neu geladen.",
+			"Ein existierende GraphHopper-Cache ist Voraussetzung.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

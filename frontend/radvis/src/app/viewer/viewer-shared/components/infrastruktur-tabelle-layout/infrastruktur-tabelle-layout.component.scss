@@ -12,8 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-@import 'src/style/spacing';
+@use 'src/style/colors';
+@use 'src/style/spacing';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -29,7 +30,7 @@
 
 .toolbar {
   box-shadow: 0 3px 3px -2px rgb(0 0 0 / 20%);
-  margin-bottom: $shadow-spacing;
+  margin-bottom: spacing.$shadow-spacing;
   padding: 0.8rem;
   flex-wrap: wrap;
   gap: 0.8rem;
@@ -52,15 +53,15 @@ table {
 
 tr:hover {
   &.highlighted {
-    background-color: map-get($radvis-accent-palette, 200);
+    background-color: map.get(colors.$radvis-accent-palette, 200);
   }
 
-  background-color: map-get($grayscale, 100);
+  background-color: map.get(colors.$grayscale, 100);
   cursor: pointer;
 }
 
 tr.highlighted {
-  background-color: map-get($radvis-accent-palette, 100);
+  background-color: map.get(colors.$radvis-accent-palette, 100);
 }
 
 .infrastruktur-tabelle-layout::ng-deep td.mat-mdc-cell:not(:last-of-type) {
@@ -81,7 +82,7 @@ tr.highlighted {
   align-items: center;
 
   mat-icon {
-    color: map-get($grayscale, 600);
+    color: map.get(colors.$grayscale, 600);
     margin-left: 0.2rem;
   }
 }

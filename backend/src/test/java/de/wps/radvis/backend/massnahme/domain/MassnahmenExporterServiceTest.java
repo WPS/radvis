@@ -91,7 +91,7 @@ public class MassnahmenExporterServiceTest {
 			.isEqualTo(massnahme.getNetzbezug().getImmutableKantenAbschnittBezug().iterator().next().getKante()
 				.getGeometry().getCoordinates());
 
-		assertThat(exportDataProperties).hasSize(25);
+		assertThat(exportDataProperties).hasSize(28);
 		assertThat(exportDataProperties.get("RADVIS_ID"))
 			.isEqualTo("1");
 		assertThat(exportDataProperties.get("Bezeichnung"))

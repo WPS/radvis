@@ -74,8 +74,7 @@ class SaveUmsetzungsstandCommandConverterTest {
 	}
 
 	@ParameterizedTest
-	@EnumSource(
-		value = GrundFuerNichtUmsetzungDerMassnahme.class, names = { "KAPAZITAETSGRUENDE" })
+	@EnumSource(value = GrundFuerNichtUmsetzungDerMassnahme.class, names = { "KAPAZITAETSGRUENDE" })
 	@NullSource
 	void convert_Umsetzungsstand(GrundFuerNichtUmsetzungDerMassnahme grundFuerNichtUmsetzungDerMassnahme) {
 		// arrange
@@ -117,8 +116,12 @@ class SaveUmsetzungsstandCommandConverterTest {
 		assertThat(umsetzungsstand.getBeschreibungAbweichenderMassnahme()).isEqualTo(
 			"neue Beschreibung abweichender Massnahme");
 		assertThat(umsetzungsstand.getKostenDerMassnahme()).isEqualTo(30000L);
-		assertThat(umsetzungsstand.getGrundFuerNichtUmsetzungDerMassnahme()).isEqualTo(
-			grundFuerNichtUmsetzungDerMassnahme);
+		if (grundFuerNichtUmsetzungDerMassnahme != null) {
+			assertThat(umsetzungsstand.getGrundFuerNichtUmsetzungDerMassnahme()).contains(
+				grundFuerNichtUmsetzungDerMassnahme);
+		} else {
+			assertThat(umsetzungsstand.getGrundFuerNichtUmsetzungDerMassnahme()).isEmpty();
+		}
 		assertThat(umsetzungsstand.getBenutzerLetzteAenderung()).isEqualTo(testBenutzer);
 		assertThat(umsetzungsstand.getLetzteAenderung()).isAfter(letzteAenderungInitial);
 
@@ -244,7 +247,7 @@ class SaveUmsetzungsstandCommandConverterTest {
 					assertThat(umsetzungsstand.getBeschreibungAbweichenderMassnahme()).isEqualTo(
 						"neue Beschreibung abweichender Massnahme");
 					assertThat(umsetzungsstand.getKostenDerMassnahme()).isEqualTo(30000L);
-					assertThat(umsetzungsstand.getGrundFuerNichtUmsetzungDerMassnahme()).isEqualTo(
+					assertThat(umsetzungsstand.getGrundFuerNichtUmsetzungDerMassnahme()).contains(
 						GrundFuerNichtUmsetzungDerMassnahme.NOCH_IN_PLANUNG_UMSETZUNG);
 					assertThat(umsetzungsstand.getBenutzerLetzteAenderung()).isEqualTo(testBenutzer);
 					assertThat(umsetzungsstand.getLetzteAenderung()).isAfter(letzteAenderungInitial);

@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 $abgesetzter-hintergrund: #fafafa;
 
@@ -53,7 +54,7 @@ table {
 
 .collapse-toggle-area {
   display: flex;
-  border-bottom: 1px solid map-get($grayscale, 300);
+  border-bottom: 1px solid map.get(colors.$grayscale, 300);
 }
 
 .collapsed {
@@ -71,8 +72,8 @@ table {
 }
 
 rad-infrastrukturen-sub-menu {
-  border-bottom: 1px solid map-get($grayscale, 300);
-  border-top: 1px solid map-get($grayscale, 300);
+  border-bottom: 1px solid map.get(colors.$grayscale, 300);
+  border-top: 1px solid map.get(colors.$grayscale, 300);
 }
 
 rad-infrastrukturen-sub-menu + rad-infrastrukturen-sub-menu {
@@ -100,7 +101,7 @@ tr {
   height: 2.8em;
 
   &:hover {
-    background: map-get($radvis-accent-palette, 50);
+    background: map.get(colors.$radvis-accent-palette, 50);
     cursor: pointer;
   }
 }
@@ -111,12 +112,11 @@ td {
 
 .selected {
   & .icon-column {
-    filter: brightness(0) saturate(100%) invert(19%) sepia(100%) saturate(3336%) hue-rotate(327deg) brightness(87%)
-      contrast(93%);
+    filter: brightness(0) saturate(100%) invert(19%) sepia(100%) saturate(3336%) hue-rotate(327deg) brightness(87%) contrast(93%);
   }
 
   & .text-column {
-    color: $secondary-color;
+    color: colors.$secondary-color;
   }
 }
 

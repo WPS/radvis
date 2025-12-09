@@ -22,7 +22,9 @@ import java.util.Set;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -115,7 +117,15 @@ public class FahrradroutenVariantenTfisUpdateJob extends AbstractFahrradroutenVa
 	@Override
 	protected Set<TfisId> getZuBeruecksichtigendeFahrradroutenTfisIds() {
 		return fahrradrouteRepository.findAllTfisIdsWithVariantenWithoutGeometrie();
-
 	}
 
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Farradrouten-Varianten aus der TFIS-Datei von Platte und versucht diese auf das Netz zu matchen. Es werden nur Varianten ohne Netzbezug-LineString betrachtet. Varianten werden nicht gelöscht, aber ggf. ersetzt.",
+			"Listen von Varianten an TFIS-Fahrradrouten verändern sich.",
+			"Profilinformationen sind hiernach ggf. veraltet oder leer. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.SHORT
+		);
+	}
 }

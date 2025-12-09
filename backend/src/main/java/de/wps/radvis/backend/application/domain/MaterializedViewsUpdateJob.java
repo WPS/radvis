@@ -12,15 +12,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.wps.radvis.backend.netz.domain;
+package de.wps.radvis.backend.application.domain;
 
 import java.util.Optional;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +32,15 @@ import lombok.extern.slf4j.Slf4j;
 public class MaterializedViewsUpdateJob extends AbstractJob {
 
 	private final NetzService netzService;
+	private final MassnahmeRepository massnahmenRepository;
 
-	public MaterializedViewsUpdateJob(JobExecutionDescriptionRepository jobExecutionDescriptionRepository,
-		NetzService netzService) {
+	public MaterializedViewsUpdateJob(
+		JobExecutionDescriptionRepository jobExecutionDescriptionRepository,
+		NetzService netzService,
+		MassnahmeRepository massnahmenRepository) {
 		super(jobExecutionDescriptionRepository);
 		this.netzService = netzService;
+		this.massnahmenRepository = massnahmenRepository;
 	}
 
 	@Override
@@ -54,6 +61,17 @@ public class MaterializedViewsUpdateJob extends AbstractJob {
 	@Override
 	protected Optional<JobStatistik> doRun() {
 		netzService.refreshNetzMaterializedViews();
+		log.info("Refreshing Maßnahmen Materialized View");
+		massnahmenRepository.refreshMassnahmeMaterializedViews();
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Aktualisiert alle Materialized Views.",
+			"Materialized Views sind aktualisiert. Tabellen und normale Views sind davon nicht betroffen.",
+			"Sollte nach allen anderen Jobs ausgeführt werden, da die Materialized Views Daten aus nahezu allen größeren fachlichen Bereichen benötigen. Wichtig: Manche anderen Jobs benötigen jedoch bereits Netz-Daten aus diesen Materialized Views.",
+			JobExecutionDurationEstimate.LONG);
 	}
 }

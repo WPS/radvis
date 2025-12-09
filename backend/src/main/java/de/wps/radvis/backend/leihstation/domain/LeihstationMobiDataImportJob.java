@@ -31,7 +31,9 @@ import org.locationtech.jts.geom.prep.PreparedGeometry;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -220,5 +222,14 @@ public class LeihstationMobiDataImportJob extends AbstractJob {
 
 		log.info("JobStatistik: " + statistik);
 		return Optional.of(statistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Leihstationen aus MobiData, aktualisiert bestehende und entfernt nicht mehr vorhandene. Es werden nur Stationen innerhalb des Bundesland-Gebietes betrachtet.",
+			"Leihstationen in der DB verden angepasst, ergänzt oder entfernt.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

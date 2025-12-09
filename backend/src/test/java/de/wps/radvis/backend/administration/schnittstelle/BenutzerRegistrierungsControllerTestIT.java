@@ -50,7 +50,6 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerExistiertBereitsException;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
@@ -64,6 +63,7 @@ import de.wps.radvis.backend.organisation.domain.GebietskoerperschaftRepository;
 import de.wps.radvis.backend.organisation.domain.OrganisationConfigurationProperties;
 import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 

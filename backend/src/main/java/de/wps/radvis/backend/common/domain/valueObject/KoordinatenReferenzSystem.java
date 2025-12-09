@@ -18,6 +18,7 @@ import static org.valid4j.Assertive.require;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.geojson.Crs;
 import org.geojson.jackson.CrsType;
@@ -42,7 +43,7 @@ public class KoordinatenReferenzSystem {
 		this.srid = srid;
 	}
 
-	private static Map<Integer, KoordinatenReferenzSystem> sridToReferenzSystem = new HashMap<>();
+	private static Map<Integer, KoordinatenReferenzSystem> sridToReferenzSystem = new ConcurrentHashMap<>();
 
 	public static KoordinatenReferenzSystem ETRS89_UTM32_N = new KoordinatenReferenzSystem(25832);
 	public static KoordinatenReferenzSystem DHDN_3_Degree_Gauss_Zone_3 = new KoordinatenReferenzSystem(31463);

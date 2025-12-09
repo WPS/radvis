@@ -52,9 +52,9 @@
       (dismiss)="onClose()"
       (resetForm)="onReset()"
       [showHeader]="false">
-      <rad-warnhinweis *ngIf="isFremdsystemLeading" class="fremdnetz-hinweis">
+      <rad-hinweis *ngIf="isFremdsystemLeading" class="fremdnetz-hinweis">
         Diese Fahrradroute wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar
-      </rad-warnhinweis>
+      </rad-hinweis>
       <div>
         <div class="m-5"><b>Routenverlauf</b></div>
         <div class="display-flex">

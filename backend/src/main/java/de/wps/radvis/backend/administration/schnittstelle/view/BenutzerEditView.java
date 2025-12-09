@@ -19,9 +19,9 @@ import java.util.Set;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.organisation.schnittstelle.VerwaltungseinheitView;
 import lombok.Getter;
 

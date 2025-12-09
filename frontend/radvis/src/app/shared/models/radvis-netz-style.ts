@@ -14,7 +14,6 @@
 
 import { FeatureLike } from 'ol/Feature';
 import { LineString } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Style } from 'ol/style';
 import { StyleFunction } from 'ol/style/Style';
 import { isArray } from 'rxjs/internal-compatibility';
@@ -27,7 +26,7 @@ const STROKE_WIDTH_IN_PIXEL = 4;
 export const GAP_WIDTH_IN_PIXEL = 2;
 
 const defaultPointLargeStyle = new Style({
-  image: MapStyles.circleWithFill(5),
+  image: MapStyles.circleWithFill(MapStyles.POINT_WIDTH_MEDIUM),
 });
 
 export const shiftFeature = (feature: FeatureLike, resolution: number, gapWidth: number): LineString => {
@@ -49,8 +48,8 @@ export const shiftFeature = (feature: FeatureLike, resolution: number, gapWidth:
 };
 
 export const getRadvisNetzStyleFunction = (kantenStyle?: StyleFunction, pointStyle?: StyleFunction) => {
-  return (feature: FeatureLike, resolution: any): Style | Style[] => {
-    if (feature.getGeometry()?.getType() === GeometryType.POINT && resolution < MapStyles.RESOLUTION_SMALL) {
+  return (feature: FeatureLike, resolution: any): Style | Style[] | void => {
+    if (feature.getGeometry()?.getType() === 'Point' && resolution < MapStyles.RESOLUTION_SMALL) {
       return pointStyle ? pointStyle(feature, resolution) : defaultPointLargeStyle;
     }
 
@@ -69,7 +68,7 @@ export const getRadvisNetzStyleFunction = (kantenStyle?: StyleFunction, pointSty
         style
           .filter(s => s.getGeometry() == null)
           .forEach(s => s.setGeometry(shiftFeature(feature, resolution, GAP_WIDTH_IN_PIXEL)));
-      } else if (style.getGeometry() == null) {
+      } else if (style instanceof Style && style.getGeometry() == null) {
         style.setGeometry(shiftFeature(feature, resolution, GAP_WIDTH_IN_PIXEL));
       }
     }

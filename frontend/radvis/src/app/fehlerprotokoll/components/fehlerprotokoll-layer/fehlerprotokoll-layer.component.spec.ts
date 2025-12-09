@@ -14,7 +14,7 @@
 
 import { DatePipe } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -219,7 +219,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
         { ...defaultFehlerpotokoll, id: 2, fehlerprotokollKlasse: 'Klasse1' },
       ])
     );
-    component['iconVectorSource'].loadFeatures([0, 1000, 100, 1000], 0, olProj.get('EPSG:25832'));
+    component['iconVectorSource'].loadFeatures([0, 1000, 100, 1000], 0, olProj.get('EPSG:25832')!);
     expect(component['iconVectorSource'].getFeatures().length).toBe(2);
 
     const feature = component['iconVectorSource'].getFeatures()[0];
@@ -238,7 +238,7 @@ describe(FehlerprotokollLayerComponent.name, () => {
       component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME)
     ).toBe(true);
 
-    component['iconVectorSource'].loadFeatures([100, 1000, 200, 1000], 0, olProj.get('EPSG:25832'));
+    component['iconVectorSource'].loadFeatures([100, 1000, 200, 1000], 0, olProj.get('EPSG:25832')!);
 
     expect(
       component['iconVectorSource'].getFeatures()[0].get(FehlerprotokollLayerComponent.HIGHLIGHTED_PROPERTY_NAME)
@@ -257,6 +257,6 @@ describe(FehlerprotokollLayerComponent.name, () => {
   });
 
   const triggerLoadFeatures = (): void => {
-    component['iconVectorSource'].loadFeatures([0, 1000, 100, 1000], 0, olProj.get('EPSG:25832'));
+    component['iconVectorSource'].loadFeatures([0, 1000, 100, 1000], 0, olProj.get('EPSG:25832')!);
   };
 });

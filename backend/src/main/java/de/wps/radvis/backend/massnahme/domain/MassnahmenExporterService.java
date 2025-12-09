@@ -65,6 +65,13 @@ public class MassnahmenExporterService implements ExporterService {
 				: massnahme.getDurchfuehrungszeitraum().getGeplanterUmsetzungsstartJahr() == null ? ""
 				: massnahme.getDurchfuehrungszeitraum().getGeplanterUmsetzungsstartJahr().toString());
 		result.put("Umsetzungsstatus", massnahme.getUmsetzungsstatus().toString());
+		result.put("Zurückstellungsgrund",
+			massnahme.getZurueckstellungsGrund().map(v -> v.getDisplayText()).orElse(""));
+		result.put("Begründung Stornierungsanfrage",
+			massnahme.getBegruendungStornierungsanfrage().map(v -> v.getValue()).orElse(""));
+		result.put("Begründung Zurückstellung",
+			massnahme.getBegruendungZurueckstellung().map(v -> v.getValue()).orElse(""));
+		result.put("Umsetzungsstatus", massnahme.getUmsetzungsstatus().toString());
 		result.put("Umsetzungsstand-Status",
 			massnahme.getUmsetzungsstandStatus() == null ? "" : massnahme.getUmsetzungsstandStatus().toString());
 		result.put("Veröffentlicht",

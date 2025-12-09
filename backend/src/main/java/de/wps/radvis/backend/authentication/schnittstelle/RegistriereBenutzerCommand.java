@@ -21,9 +21,9 @@ import org.springframework.validation.annotation.Validated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -44,5 +44,5 @@ public class RegistriereBenutzerCommand {
 	private Long organisation;
 	@NotNull
 	@NotEmpty
-	private Set<Rolle> rollen = new HashSet<>();
+	private final Set<Rolle> rollen = new HashSet<>();
 }

@@ -12,9 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use 'src/style/spacing';
 
 :host {
   display: block;
@@ -33,7 +32,7 @@
 .umsetzungsstand-form {
   overflow-y: auto;
   flex-grow: 1;
-  padding: 0 $padding-attribute-editor-x;
+  padding: 0 spacing.$padding-attribute-editor-x;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -49,11 +48,11 @@
 }
 
 .aktualitaet-bestaetigt {
-  color: $valid-input-color;
+  color: colors.$valid-input-color;
 }
 
 .aktualitaet-angefordert {
-  color: $warning-color;
+  color: colors.$warning-color;
 }
 
 .buttons {

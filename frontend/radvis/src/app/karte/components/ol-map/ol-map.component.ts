@@ -125,8 +125,12 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
 
   private locationSelectSubject = new Subject<LocationSelectEvent>();
   private resolutionChangeSubject: Subject<number> = new Subject<number>();
-  private clickSubject: Subject<MapBrowserEvent<UIEvent>> = new Subject<MapBrowserEvent<UIEvent>>();
-  private pointerMoveSubject: Subject<MapBrowserEvent<UIEvent>> = new Subject<MapBrowserEvent<UIEvent>>();
+  private clickSubject: Subject<MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>> = new Subject<
+    MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+  >();
+  private pointerMoveSubject: Subject<MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>> = new Subject<
+    MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+  >();
   private pointerLeaveSubject: Subject<void> = new Subject<void>();
   private outsideMapClickSubject: Subject<void> = new Subject<void>();
 
@@ -233,6 +237,7 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
 
       this.map.on('click', event => {
         if (!environment.production) {
+          // eslint-disable-next-line no-console
           console.debug('coordinate', event.coordinate);
         }
 
@@ -426,7 +431,7 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
     return this.resolutionChangeSubject.asObservable();
   }
 
-  public click$(): Observable<MapBrowserEvent<UIEvent>> {
+  public click$(): Observable<MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>> {
     return this.clickSubject.asObservable();
   }
 
@@ -434,7 +439,7 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
     return this.locationSelect;
   }
 
-  public pointerMove$(): Observable<MapBrowserEvent<UIEvent>> {
+  public pointerMove$(): Observable<MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>> {
     return this.pointerMoveSubject.pipe(throttleTime(50));
   }
 
@@ -571,8 +576,8 @@ export class OlMapComponent implements OnDestroy, OlMapService, AfterViewInit {
   private refreshBboxLayers(): void {
     invariant(this.map);
     this.map.getLayers().forEach(layer => {
-      if (layer.get(OlMapService.IS_BBOX_LAYER)) {
-        (layer as Layer).getSource().refresh();
+      if (layer.get(OlMapService.IS_BBOX_LAYER) && layer instanceof Layer) {
+        (layer as Layer).getSource()?.refresh();
       }
     });
   }

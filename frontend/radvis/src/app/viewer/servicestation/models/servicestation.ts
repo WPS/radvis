@@ -13,10 +13,10 @@
  */
 
 import { PointGeojson } from 'src/app/shared/models/geojson-geometrie';
-import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
-import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
 import { Verwaltungseinheit } from 'src/app/shared/models/verwaltungseinheit';
 import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
+import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
+import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 
 export interface Servicestation {
   geometrie: PointGeojson;
@@ -38,4 +38,5 @@ export interface Servicestation {
   organisation: Verwaltungseinheit;
   typ: ServicestationTyp;
   status: ServicestationStatus;
+  radkultur: boolean;
 }

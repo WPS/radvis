@@ -12,27 +12,28 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Feature } from 'ol';
+import GeoJSON from 'ol/format/GeoJSON';
+import Geometry from 'ol/geom/Geometry';
 import TileLayer from 'ol/layer/Tile';
+import VectorLayer from 'ol/layer/Vector';
 import * as olProj from 'ol/proj';
 import { TileWMS } from 'ol/source';
 import { TileSourceEvent } from 'ol/source/Tile';
+import VectorSource from 'ol/source/Vector';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, filter } from 'rxjs/operators';
+import { MapStyles } from 'src/app/shared/models/layers/map-styles';
+import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
 import { WMSLegende } from 'src/app/shared/models/wms-legende';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import invariant from 'tiny-invariant';
-import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
-import Geometry from 'ol/geom/Geometry';
-import { Feature } from 'ol';
-import { HttpClient } from '@angular/common/http';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
-import VectorLayer from 'ol/layer/Vector';
-import { MapStyles } from 'src/app/shared/models/layers/map-styles';
-import VectorSource from 'ol/source/Vector';
-import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
-import GeoJSON from 'ol/format/GeoJSON';
+import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
+import invariant from 'tiny-invariant';
+import { ListenerFunction } from 'ol/events';
 
 @Component({
   selector: 'rad-weitere-wms-kartenebenen',
@@ -57,10 +58,11 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
   @Input()
   public layerId!: number;
 
-  layer: TileLayer | null = null;
-  source: TileWMS | null = null;
+  layer: TileLayer;
+  source: TileWMS;
 
-  highlightLayer: VectorLayer | null = null;
+  highlightLayer: VectorLayer;
+  highlightLayerSource: VectorSource = new VectorSource();
 
   errorOccurred = new Subject<TileSourceEvent>();
 
@@ -75,6 +77,34 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
     const featureFilter = (f: RadVisFeature): boolean =>
       f.layer === WeitereKartenebene.LAYER_NAME && f.attributes.get(WeitereKartenebene.LAYER_ID_KEY) === this.layerId;
 
+    this.source = new TileWMS({
+      url: this.url,
+      params: { projection: olProj.get('EPSG:25832')!.getCode() },
+      transition: 0,
+    });
+    this.layer = new TileLayer({
+      source: this.source,
+    });
+
+    this.highlightLayer = new VectorLayer({
+      style: MapStyles.getDefaultHighlightStyle(MapStyles.FEATURE_HOVER_COLOR),
+      source: this.highlightLayerSource,
+      opacity: 1,
+    });
+
+    this.errorOccurred
+      // debounceTime, weil viele Images gleichzeitig geholt werden und sich sonst die Fehlermeldungen stapeln
+      .pipe(debounceTime(2000))
+      .subscribe(event => {
+        if (event) {
+          this.notifyUserService.warn(
+            `Beim Laden von weiteren WMS-Kartenebenen "${this.name}" ist ein Fehler aufgetreten. Bitte prüfen Sie die angegebene URL.`
+          );
+        }
+      });
+
+    this.source.addEventListener('tileloaderror', this.onTileLoadError);
+
     this.subscriptions.push(
       featureHighlightService.highlightedFeature$.pipe(filter(featureFilter)).subscribe(f => {
         this.highlightFeature(f);
@@ -84,6 +114,11 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
       })
     );
   }
+
+  // Arg, die OL-Typisierung lässt uns wieder mal im Stich, deshalb unknown statt BaseEvent :(
+  private onTileLoadError: ListenerFunction = (event: unknown): void => {
+    this.errorOccurred.next(event as TileSourceEvent);
+  };
 
   ngOnInit(): void {
     invariant(this.deckkraft != null, 'Deckkraft muss gesetzt sein');
@@ -96,17 +131,10 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
     invariant(this.zoomstufe != null, 'zoomstufe muss gesetzt sein');
     invariant(this.zoomstufe >= 0, 'zoomstufe muss >= 0 sein');
 
-    this.source = new TileWMS({
-      url: this.url,
-      params: { projection: olProj.get('EPSG:25832').getCode() },
-      transition: 0,
-    });
-    this.layer = new TileLayer({
-      source: this.source,
-      zIndex: this.zindex,
-      opacity: this.deckkraft,
-      minZoom: this.zoomstufe,
-    });
+    this.layer.setZIndex(this.zindex);
+    this.layer.setOpacity(this.deckkraft);
+    this.layer.setMinZoom(this.zoomstufe);
+    this.highlightLayer.setZIndex(this.zindex + 1);
 
     const legende: WMSLegende = new WMSLegende(this.name, this.url);
 
@@ -122,36 +150,16 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
       legende
     );
 
-    this.layer.getSource().addEventListener('tileloaderror', (event: any): boolean => {
-      this.errorOccurred.next(event as TileSourceEvent);
-      return false;
-    });
-
-    this.highlightLayer = new VectorLayer({
-      style: MapStyles.getDefaultHighlightStyle(MapStyles.FEATURE_HOVER_COLOR),
-      source: new VectorSource(),
-      zIndex: this.zindex + 1,
-      opacity: 1,
-    });
-
     this.olMapService.addLayer(this.highlightLayer);
-
-    this.errorOccurred
-      // debounceTime, weil viele Images gleichzeitig geholt werden und sich sonst die Fehlermeldungen stapeln
-      .pipe(debounceTime(2000))
-      .subscribe(event => {
-        if (event) {
-          this.notifyUserService.warn(
-            `Beim Laden von weiteren WMS-Kartenebenen "${this.name}" ist ein Fehler aufgetreten. Bitte prüfen Sie die angegebene URL.`
-          );
-        }
-      });
+    this.source.setUrl(this.url);
   }
 
   ngOnDestroy(): void {
     if (this.layer) {
       this.olMapService.removeLayer(this.layer);
     }
+    this.subscriptions.forEach(it => it.unsubscribe());
+    this.source.removeEventListener('tileloaderror', this.onTileLoadError);
   }
 
   private highlightFeature(f: RadVisFeature): void {
@@ -159,17 +167,17 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
     if (externeWmsId) {
       const feature = new Feature<Geometry>(f.geometry);
       feature.setId(externeWmsId);
-      this.highlightLayer?.getSource().addFeature(feature);
-      this.highlightLayer?.getSource().changed();
+      this.highlightLayerSource.addFeature(feature);
+      this.highlightLayerSource.changed();
     }
   }
 
   private unhighlightFeature(f: RadVisFeature): void {
     const externeWmsId = this.getExterneWmsId(f);
     if (externeWmsId) {
-      const feature = this.highlightLayer?.getSource().getFeatureById(externeWmsId);
+      const feature = this.highlightLayerSource.getFeatureById(externeWmsId);
       if (feature) {
-        this.highlightLayer?.getSource().removeFeature(feature);
+        this.highlightLayerSource.removeFeature(feature);
         this.highlightLayer?.changed();
       }
     }
@@ -180,7 +188,7 @@ export class WeitereWmsKartenebenenComponent implements OnDestroy, OnInit {
   }
 
   private getFeaturesCallback = (coordinate: number[], resolution: number): Promise<Feature<Geometry>[]> => {
-    const featureInfoUrl = this.source?.getFeatureInfoUrl(coordinate, resolution, 'EPSG:25832', {
+    const featureInfoUrl = this.source.getFeatureInfoUrl(coordinate, resolution, 'EPSG:25832', {
       // Explizit GeoJSON anfragen, um Fehler in encoding oder Feature-Typen zu vermeiden, da GeoJSON am flexibelsten ist.
       INFO_FORMAT: 'application/json',
       FEATURE_COUNT: 3,

@@ -120,6 +120,7 @@ export class OrganisationenDropdownControlComponent
     const value = event.option.value;
     this.onChange(value);
     this.selectedOrganisation = value;
+    this.changeDetector.markForCheck();
   }
 
   // Verlässt man das Formularfeld, ohne einen Wert auszuwählen, so wird die zuletzt ausgewählte Option wieder gesetzt

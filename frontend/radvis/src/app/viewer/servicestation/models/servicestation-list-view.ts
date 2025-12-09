@@ -33,4 +33,5 @@ export interface ServicestationListView {
   organisation: Verwaltungseinheit;
   typ: ServicestationTyp;
   status: ServicestationStatus;
+  radkultur: boolean;
 }

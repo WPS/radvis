@@ -13,9 +13,9 @@
   -->
 
 <form [formGroup]="knotenFormGroup" class="display-flex flex-column h-100 align-items-stretch">
-  <rad-warnhinweis *ngIf="!editingAllowed" class="editing-not-allowed-hinweis">
+  <rad-hinweis *ngIf="!editingAllowed" class="editing-not-allowed-hinweis">
     Knoten kann nicht bearbeitet werden: RadNETZ oder fehlende Berechtigung
-  </rad-warnhinweis>
+  </rad-hinweis>
   <rad-attribute-editor
     class="flex-grow no-overflow"
     (dismiss)="onClose()"

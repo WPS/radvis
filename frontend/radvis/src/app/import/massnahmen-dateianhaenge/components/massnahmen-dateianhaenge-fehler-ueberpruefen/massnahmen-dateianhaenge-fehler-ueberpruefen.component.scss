@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -70,5 +71,5 @@ tr {
 }
 
 .red {
-  color: map-get($radvis-app-red-palette, 200);
+  color: map.get(colors.$radvis-app-red-palette, 200);
 }

@@ -32,10 +32,10 @@ export class KantenAttributeCopiedLayerComponent implements OnChanges, OnDestroy
   @Input()
   copiedKante!: number;
 
-  private kanteVectorSource = new VectorSource<LineString>();
+  private kanteVectorSource = new VectorSource<Feature<LineString>>();
   private kanteLayer: VectorLayer;
 
-  private symbolVectorSource = new VectorSource<Point>();
+  private symbolVectorSource = new VectorSource<Feature<Point>>();
   private symbolLayer: VectorLayer;
 
   constructor(

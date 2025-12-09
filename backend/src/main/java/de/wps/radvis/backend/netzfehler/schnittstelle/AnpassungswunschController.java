@@ -41,6 +41,7 @@ import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
 import de.wps.radvis.backend.kommentar.schnittstelle.AddKommentarCommand;
 import de.wps.radvis.backend.kommentar.schnittstelle.view.KommentarView;
+import de.wps.radvis.backend.konsistenz.pruefung.domain.entity.KonsistenzregelVerletzung;
 import de.wps.radvis.backend.netzfehler.domain.AnpassungswunschRepository;
 import de.wps.radvis.backend.netzfehler.domain.AnpassungswunschService;
 import de.wps.radvis.backend.netzfehler.domain.entity.Anpassungswunsch;
@@ -108,6 +109,8 @@ public class AnpassungswunschController {
 			Optional.ofNullable(command.getVerantwortlicheOrganisation())
 				.map(verwaltungseinheitResolver::resolve),
 			Optional.ofNullable(command.getFehlerprotokollId()));
+
+		anpassungswunschService.versendeInfoMailZuNeuemAnpassungswunsch(created);
 		return new AnpassungswunschView(created, anpassungswunschService.getUrsaechlicheKonsistenzregelVerletzung(
 			created.getKonsistenzregelVerletzungReferenz().orElse(null)), true);
 	}
@@ -124,12 +127,24 @@ public class AnpassungswunschController {
 		@RequestBody @Valid SaveAnpassungswunschCommand command) throws AccessDeniedException {
 		anpassungswunschGuard.updateAnpassungswunsch(authentication, id, command);
 		Anpassungswunsch anpassungswunsch = anpassungswunschService.getAnpassungswunsch(id);
+		// Wir versenden nur dann eine Mail, wenn sich die Kategorie geändert hat
+		boolean infoMailVersenden = !anpassungswunsch.getKategorie().equals(command.getKategorie());
+
 		saveAnpassungswunschCommandConverter.apply(anpassungswunsch, command,
 			benutzerResolver.fromAuthentication(authentication));
 
-		return new AnpassungswunschView(anpassungswunschRepository.save(anpassungswunsch),
-			anpassungswunschService.getUrsaechlicheKonsistenzregelVerletzung(
-				anpassungswunsch.getKonsistenzregelVerletzungReferenz().orElse(null)),
+		Anpassungswunsch saved = anpassungswunschRepository.save(anpassungswunsch);
+		KonsistenzregelVerletzung ursaechlicheKonsistenzregelVerletzung = anpassungswunschService
+			.getUrsaechlicheKonsistenzregelVerletzung(
+				anpassungswunsch.getKonsistenzregelVerletzungReferenz().orElse(null));
+
+		if (infoMailVersenden) {
+			anpassungswunschService.versendeInfoMailZuNeuemAnpassungswunsch(saved);
+		}
+
+		return new AnpassungswunschView(
+			saved,
+			ursaechlicheKonsistenzregelVerletzung,
 			true);
 	}
 

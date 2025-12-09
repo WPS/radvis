@@ -38,6 +38,7 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.entity.RevInfo;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.domain.AuditingTestIT;
@@ -72,6 +73,8 @@ class JobAuditingTestIT extends AuditingTestIT {
 	private VerwaltungseinheitResolver verwaltungseinheitResolver;
 	@MockitoBean
 	private BenutzerResolver benutzerResolver;
+	@MockitoBean
+	private BenutzerService benutzerService;
 	@MockitoBean
 	private CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
 

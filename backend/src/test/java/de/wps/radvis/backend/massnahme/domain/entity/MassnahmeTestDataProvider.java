@@ -78,7 +78,8 @@ public class MassnahmeTestDataProvider {
 			Set.of(new AbschnittsweiserKantenSeitenBezug(
 				kante, LinearReferenzierterAbschnitt.of(0, 1), Seitenbezug.LINKS)),
 			Set.of(new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.25), Seitenbezug.BEIDSEITIG)),
-			Collections.emptySet());
+			Collections.emptySet()
+		);
 
 		return Massnahme.builder()
 			.bezeichnung(Bezeichnung.of("Bezeichnung"))
@@ -117,7 +118,8 @@ public class MassnahmeTestDataProvider {
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			kantenAbschnitte,
 			Set.of(),
-			Collections.emptySet());
+			Collections.emptySet()
+		);
 		return withDefaultValues().netzbezug(netzbezug);
 	}
 
@@ -127,7 +129,8 @@ public class MassnahmeTestDataProvider {
 		final MassnahmeNetzBezug netzbezug = new MassnahmeNetzBezug(
 			Set.of(),
 			Set.of(),
-			knotenSet);
+			knotenSet
+		);
 		return withDefaultValues().netzbezug(netzbezug);
 	}
 
@@ -136,5 +139,12 @@ public class MassnahmeTestDataProvider {
 			.baulastZustaendiger(organisation)
 			.unterhaltsZustaendiger(organisation)
 			.zustaendiger(organisation);
+	}
+
+	public static Massnahme.MassnahmeBuilder withDefaultValuesBenutzerAndOrganisation(
+		Benutzer benutzer,
+		Verwaltungseinheit organisation
+	) {
+		return withDefaultValuesAndOrganisation(organisation).benutzerLetzteAenderung(benutzer);
 	}
 }

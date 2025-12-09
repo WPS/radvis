@@ -33,6 +33,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
 import de.wps.radvis.backend.common.domain.ExtentProperty;
 import de.wps.radvis.backend.common.domain.Job;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.JobExecutionInputSummarySupplier;
 import de.wps.radvis.backend.common.domain.RadVisStopWatchPrinter;
@@ -89,22 +90,29 @@ public abstract class AbstractJob implements Job {
 			log.info("Starting first job execution for {}.", name);
 		}
 
+		// Schon vor der Job-Ausführung die Description setzen, damit diese (wenn auch größtenteils leer) innerhalb
+		// der Jobs einsehbar ist. Z.B. für den Start-Zeitpunkt relevant.
 		LocalDateTime startTime = LocalDateTime.now();
+		var descriptionBuilder = JobExecutionDescription
+			.builder()
+			.name(name)
+			.inputSummary(inputSummary)
+			.executionStart(startTime)
+			.executionEnd(startTime);
+		JobExecutionDescription jobExecutionDescription = repository.save(descriptionBuilder.build());
+		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
+
 		Optional<JobStatistik> jobstatistic = doRun();
 		LocalDateTime endTime = LocalDateTime.now();
+		jobExecutionDescription.setExecutionEnd(endTime);
 
-		var descriptionBuilder = JobExecutionDescription
-			.builder().name(name).inputSummary(inputSummary).executionStart(startTime).executionEnd(endTime);
 		if (jobstatistic.isPresent()) {
 			try {
-				descriptionBuilder.statistic(jobstatistic.get().toJSON());
+				jobExecutionDescription.setStatistic(jobstatistic.get().toJSON());
 			} catch (JsonProcessingException e) {
 				log.error("JobStatistic für " + name + " konnte nicht erzeugt werden.", e);
 			}
 		}
-		JobExecutionDescription jobExecutionDescription = repository.save(descriptionBuilder.build());
-
-		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
 
 		log.info("Completed job execution for {}. Duration: {}", name, RadVisStopWatchPrinter.stringify(
 			jobExecutionDescription.getDuration()));
@@ -141,6 +149,11 @@ public abstract class AbstractJob implements Job {
 	@Override
 	public String getName() {
 		return getClass().getSimpleName();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return null;
 	}
 
 	public static List<Envelope> getPartitionen(ExtentProperty extentProperty, int anzahlPartitionenX) {

@@ -22,8 +22,6 @@ import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.not;
 import static org.valid4j.Assertive.require;
 
-import java.util.List;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
@@ -67,7 +65,9 @@ public class JobConfigurationProperties {
 
 	private final String wahlkreisePath;
 
-	private final List<String> abstellanlageBRImportUrlList;
+	private final String abstellanlageBRImportUrl;
+
+	private final String abstellanlageBRDatenquellenImportUrl;
 
 	private final String leihstationImportUrl;
 
@@ -96,7 +96,8 @@ public class JobConfigurationProperties {
 		String tfisRadwegePath,
 		String dRoutenPath,
 		String wahlkreisePath,
-		List<String> abstellanlageBRImportUrlList,
+		String abstellanlageBRImportUrl,
+		String abstellanlageBRDatenquellenImportUrl,
 		String leihstationImportUrl,
 		String fahrradzaehlstellenMobiDataImportBaseUrl,
 		String fahrradzaehlstellenMobiDataImportStartDate,
@@ -135,11 +136,13 @@ public class JobConfigurationProperties {
 			"dRoutenPath muss Dateipfadstruktur haben");
 		require(isValidDateipfad(wahlkreisePath),
 			"dRoutenPath muss Dateipfadstruktur haben");
-		require(abstellanlageBRImportUrlList, notNullValue());
-		require(abstellanlageBRImportUrlList, not(empty()));
-		abstellanlageBRImportUrlList.forEach(abstellanlageBRImportUrl -> {
-			require(isValidURL(abstellanlageBRImportUrl), "Die abstellanlageBRImportUrl muss URL-Struktur haben");
-		});
+		require(abstellanlageBRImportUrl, notNullValue());
+		require(abstellanlageBRImportUrl, not(empty()));
+		require(isValidURL(abstellanlageBRImportUrl), "Die abstellanlageBRImportUrl muss URL-Struktur haben");
+		require(abstellanlageBRDatenquellenImportUrl, notNullValue());
+		require(abstellanlageBRDatenquellenImportUrl, not(empty()));
+		require(isValidURL(abstellanlageBRDatenquellenImportUrl),
+			"Die abstellanlageBRDatenquellenImportUrl muss URL-Struktur haben");
 		require(isValidURL(leihstationImportUrl), "Die LeihstationImportURL muss URL-Struktur haben");
 		require(isValidURL(servicestationImportUrl), "Die ServicestationImportURL muss URL-Struktur haben");
 		require(isValidURL(fahrradzaehlstellenMobiDataImportBaseUrl),
@@ -160,7 +163,8 @@ public class JobConfigurationProperties {
 		this.umsetzungsstandabfragenCsvImportFilePath = umsetzungsstandabfragenCsvImportFilePath;
 		this.massnahmenBlaetterImportPath = massnahmenBlaetterImportPath;
 		this.tfisRadwegePath = tfisRadwegePath;
-		this.abstellanlageBRImportUrlList = abstellanlageBRImportUrlList;
+		this.abstellanlageBRImportUrl = abstellanlageBRImportUrl;
+		this.abstellanlageBRDatenquellenImportUrl = abstellanlageBRDatenquellenImportUrl;
 		this.leihstationImportUrl = leihstationImportUrl;
 		this.servicestationImportUrl = servicestationImportUrl;
 		this.dRoutenPath = dRoutenPath;

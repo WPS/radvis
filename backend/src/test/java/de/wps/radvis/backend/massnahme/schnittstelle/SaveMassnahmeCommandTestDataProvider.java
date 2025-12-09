@@ -54,6 +54,8 @@ public class SaveMassnahmeCommandTestDataProvider {
 			.sollStandard(SollStandard.BASISSTANDARD)
 			.handlungsverantwortlicher(Handlungsverantwortlicher.BAULASTTRAEGER)
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)
+			.version(3l)
+			.id(345l)
 			.sonstigeKonzeptionsquelle("WAMBO");
 	}
 

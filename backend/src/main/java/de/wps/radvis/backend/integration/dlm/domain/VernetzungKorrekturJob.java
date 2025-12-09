@@ -27,7 +27,9 @@ import org.locationtech.jts.geom.Point;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -412,5 +414,16 @@ public class VernetzungKorrekturJob extends AbstractJob {
 		log.info("Von Dlm-Kanten verwaiste Knoten: " + vonDlmKantenVerwaisteKnotenNachher);
 		log.info("Komplett verwaiste Knoten: " + komplettVerwaisteKnotenNachher);
 		log.info("Knoten an denen nur RadVis Kanten liegen Nachher: " + knotenMitNurRadvisKantenNachher);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Führt eine Reihe von automatischen Korrekturen am Netz durch, z.B. die Entfernung von doppelten Knoten oder verwaisten Knoten. Kanten werden zudem neu vernetzt.",
+			"Viele Teile am Netz werden angepasst und editiert.",
+			"",
+			"Dieser Job nimmt automatisch ggf. weitreichende Änderungen vor. Nur ausführen, wenn man weiß, was man tut.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

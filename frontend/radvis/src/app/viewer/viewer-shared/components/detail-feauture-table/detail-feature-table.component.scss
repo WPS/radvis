@@ -12,8 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/font-style';
-@import 'src/style/spacing';
+@use 'src/style/font-style' as font;
+@use 'src/style/spacing';
 
 :host {
   display: block;
@@ -37,14 +37,14 @@ th {
 }
 
 td.group-header {
-  padding: 0.2rem $padding-left-head !important;
-  font-size: $font-size-peripheral;
-  color: $font-color-peripheral;
+  padding: 0.2rem spacing.$padding-left-head !important;
+  font-size: font.$font-size-peripheral;
+  color: font.$font-color-peripheral;
   top: var(--mat-table-header-container-height);
   position: sticky;
 }
 
 tr.group-header {
-  background-color: $font-background-peripheral;
+  background-color: font.$font-background-peripheral;
   height: unset;
 }

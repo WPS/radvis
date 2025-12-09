@@ -28,6 +28,8 @@ import de.wps.radvis.backend.dokument.schnittstelle.AddDokumentCommand;
 import de.wps.radvis.backend.massnahme.domain.MassnahmeService;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
@@ -58,7 +60,55 @@ public class MassnahmeGuard {
 
 	public void saveMassnahme(Authentication authentication, SaveMassnahmeCommand command) {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
+
+		Massnahme alteMassnahme = massnahmeService.get(command.getId());
+		boolean hasUmsetzungsstatusChanged = !alteMassnahme.getUmsetzungsstatus().equals(command.getUmsetzungsstatus());
+		if (hasUmsetzungsstatusChanged) {
+			assertDarfUmsetzungsstatusAendern(aktiverBenutzer, alteMassnahme.getUmsetzungsstatus(),
+				command.getUmsetzungsstatus(), command.getKonzeptionsquelle());
+		}
+
 		assertDarfMassnahmenBearbeiten(aktiverBenutzer, command.getNetzbezug());
+	}
+
+	private void assertDarfUmsetzungsstatusAendern(Benutzer aktiverBenutzer, Umsetzungsstatus alterUmsetzungsstatus,
+		Umsetzungsstatus neuerUmsetzungsstatus, Konzeptionsquelle konzeptionsquelle) {
+		assertDarfUmsetzungsstatusSetzen(aktiverBenutzer, neuerUmsetzungsstatus, konzeptionsquelle);
+
+		if (aktiverBenutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)) {
+			return;
+		}
+
+		if (!Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle)) {
+			return;
+		}
+
+		if (alterUmsetzungsstatus.equals(neuerUmsetzungsstatus)) {
+			return;
+		}
+
+		if (alterUmsetzungsstatus.equals(Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH)
+			|| alterUmsetzungsstatus.equals(Umsetzungsstatus.STORNIERT_ENGSTELLE)) {
+			throw new AccessDeniedException(
+				"Sie sind nicht berechtigt, den Status von stornierten Maßnahmen zu ändern.");
+		}
+
+	}
+
+	private void assertDarfUmsetzungsstatusSetzen(Benutzer aktiverBenutzer, Umsetzungsstatus neuerUmsetzungsstatus,
+		Konzeptionsquelle konzeptionsquelle) {
+		if (aktiverBenutzer.hatRecht(Recht.MASSNAHMEN_STORNIEREN)) {
+			return;
+		}
+
+		if (!Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle)) {
+			return;
+		}
+
+		if (neuerUmsetzungsstatus.equals(Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH)
+			|| neuerUmsetzungsstatus.equals(Umsetzungsstatus.STORNIERT_ENGSTELLE)) {
+			throw new AccessDeniedException("Sie sind nicht berechtigt, Maßnahmen zu stornieren.");
+		}
 	}
 
 	public boolean darfMassnahmeBearbeiten(Benutzer benutzer, Massnahme massnahme) {
@@ -112,6 +162,8 @@ public class MassnahmeGuard {
 
 	public void createMassnahme(Authentication authentication, CreateMassnahmeCommand command) {
 		Benutzer aktiverBenutzer = benutzerResolver.fromAuthentication(authentication);
+		assertDarfUmsetzungsstatusSetzen(aktiverBenutzer, command.getUmsetzungsstatus(),
+			command.getKonzeptionsquelle());
 		assertDarfMassnahmenBearbeiten(aktiverBenutzer, command.getNetzbezug());
 	}
 

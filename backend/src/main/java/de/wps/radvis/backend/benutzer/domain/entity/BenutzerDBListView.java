@@ -19,11 +19,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;

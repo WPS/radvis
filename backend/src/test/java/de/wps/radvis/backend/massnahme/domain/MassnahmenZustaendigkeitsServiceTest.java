@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.massnahme.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -23,33 +24,42 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
 import org.mockito.Mock;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.netz.domain.entity.provider.KanteTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
+import de.wps.radvis.backend.organisation.domain.entity.Gebietskoerperschaft;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 
 class MassnahmenZustaendigkeitsServiceTest {
 
 	@Mock
 	private BenutzerRepository benutzerRepository;
 
+	@Mock
+	private VerwaltungseinheitRepository verwaltungseinheitRepository;
+
 	private MassnahmenZustaendigkeitsService massnahmenZustaendigkeitsService;
 
 	@BeforeEach
 	void setup() {
 		openMocks(this);
-		massnahmenZustaendigkeitsService = new MassnahmenZustaendigkeitsService(benutzerRepository);
+		massnahmenZustaendigkeitsService = new MassnahmenZustaendigkeitsService(benutzerRepository,
+			verwaltungseinheitRepository);
 	}
 
 	@Test
@@ -114,11 +124,13 @@ class MassnahmenZustaendigkeitsServiceTest {
 		Benutzer benutzer1 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(1L)
 			.vorname(Name.of("BenutzerA")).mailadresse(
-				Mailadresse.of("benutzerA@testRadvis.com")).build();
+				Mailadresse.of("benutzerA@testRadvis.com"))
+			.build();
 		Benutzer benutzer2 = BenutzerTestDataProvider.radwegeErfasserinKommuneKreis(organisation)
 			.id(2L)
 			.vorname(Name.of("BenutzerB")).mailadresse(
-				Mailadresse.of("benutzerB@testRadvis.com")).build();
+				Mailadresse.of("benutzerB@testRadvis.com"))
+			.build();
 
 		when(benutzerRepository.findByOrganisationAndStatus(organisation, BenutzerStatus.AKTIV))
 			.thenReturn(List.of(benutzer1, benutzer2));
@@ -161,4 +173,21 @@ class MassnahmenZustaendigkeitsServiceTest {
 		assertThat(zustaendigeBearbeiter).isEmpty();
 	}
 
+	@Test
+	void getZustaendigeRegierungsbezirke_filtersByIntesection() {
+		// arrange
+		Gebietskoerperschaft rp1 = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.bereich(GeometryTestdataProvider.createQuadratischerBereich(0, 0, 10, 10)).id(1L).build();
+		Gebietskoerperschaft rp2 = VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft()
+			.bereich(GeometryTestdataProvider.createQuadratischerBereich(100, 100, 110, 110)).id(2L).build();
+		when(verwaltungseinheitRepository.findByOrganisationsArt(any())).thenReturn(List.of(rp1, rp2));
+		Massnahme massnahme = MassnahmeTestDataProvider.withKanten(KanteTestDataProvider
+			.withCoordinates(new Coordinate[] { new Coordinate(5, 5), new Coordinate(15, 15) }).build()).build();
+
+		// act
+		List<Verwaltungseinheit> result = massnahmenZustaendigkeitsService.getZustaendigeRegierungsbezirke(massnahme);
+
+		// assert
+		assertThat(result).containsExactly(rp1);
+	}
 }

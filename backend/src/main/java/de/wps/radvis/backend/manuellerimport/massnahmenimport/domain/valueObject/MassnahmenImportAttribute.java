@@ -37,7 +37,11 @@ public enum MassnahmenImportAttribute {
 	REALISIERUNGSHILFE("Realisierungshilfe"),
 	NETZKLASSEN("Netzklassen"),
 	PLANUNG_ERFORDERLICH("Planung erforderlich"),
-	VEROEFFENTLICHT("Veröffentlicht");
+	VEROEFFENTLICHT("Veröffentlicht"),
+	ZURUECKSTELLUNGS_GRUND("Zurückstellungsgrund"),
+	BEGRUENDUNG_ZURUECKSTELLUNG("Begründung Zurückstellung"),
+	BEGRUENDUNG_STORNIERUNGSANFRAGE("Begründung Stornierungsanfrage"),
+	;
 
 	private final String displayText;
 

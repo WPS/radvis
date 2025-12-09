@@ -36,6 +36,9 @@ export enum MassnahmenImportAttribute {
   NETZKLASSEN = 'NETZKLASSEN',
   PLANUNG_ERFORDERLICH = 'PLANUNG_ERFORDERLICH',
   VEROEFFENTLICHT = 'VEROEFFENTLICHT',
+  ZURUECKSTELLUNGS_GRUND = 'ZURUECKSTELLUNGS_GRUND',
+  BEGRUENDUNG_STORNIERUNGSANFRAGE = 'BEGRUENDUNG_STORNIERUNGSANFRAGE',
+  BEGRUENDUNG_ZURUECKSTELLUNG = 'BEGRUENDUNG_ZURUECKSTELLUNG',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -83,6 +86,9 @@ export namespace MassnahmenImportAttribute {
     MassnahmenImportAttribute.NETZKLASSEN,
     MassnahmenImportAttribute.PLANUNG_ERFORDERLICH,
     MassnahmenImportAttribute.VEROEFFENTLICHT,
+    MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE,
+    MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG,
+    MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND,
   ];
   export const optionaleAttributeOptions: EnumOption[] = optionaleAttribute.map((k: string): EnumOption => {
     switch (k) {
@@ -106,6 +112,12 @@ export namespace MassnahmenImportAttribute {
         return { name: k, displayText: 'Planung erforderlich' };
       case MassnahmenImportAttribute.VEROEFFENTLICHT:
         return { name: k, displayText: 'Veröffentlicht' };
+      case MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND:
+        return { name: k, displayText: 'Zurückstellungsgrund' };
+      case MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE:
+        return { name: k, displayText: 'Begründung Stornierungsanfrage' };
+      case MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG:
+        return { name: k, displayText: 'Begründung Zurückstellung' };
     }
     throw new Error('Beschreibung für enum MassnahmenImportAttribute fehlt: ' + k);
   });

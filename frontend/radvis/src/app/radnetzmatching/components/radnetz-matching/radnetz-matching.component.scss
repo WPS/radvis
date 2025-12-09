@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -35,7 +36,7 @@
 
 .map-properties-display {
   position: absolute;
-  border-left: 1px solid map-get($grayscale, 300);
+  border-left: 1px solid map.get(colors.$grayscale, 300);
   right: 0;
   top: 0;
   height: 100%;
@@ -47,7 +48,7 @@
 
 .map-left-tools {
   background-color: white;
-  border-right: 1px solid map-get($grayscale, 300);
+  border-right: 1px solid map.get(colors.$grayscale, 300);
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;

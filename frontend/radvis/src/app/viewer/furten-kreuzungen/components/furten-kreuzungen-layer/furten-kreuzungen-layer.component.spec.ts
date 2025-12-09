@@ -18,7 +18,6 @@ import { instance, mock, when } from 'ts-mockito';
 import { FeatureHighlightService } from 'src/app/viewer/viewer-shared/services/feature-highlight.service';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { PointGeojson } from 'src/app/shared/models/geojson-geometrie';
-import VectorSource from 'ol/source/Vector';
 import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
 import { Point } from 'ol/geom';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
@@ -69,7 +68,6 @@ describe(FurtenKreuzungenLayerComponent.name, () => {
   beforeEach(() => {
     fixture = MockRender(FurtenKreuzungenLayerComponent);
     component = fixture.point.componentInstance;
-    // @ts-expect-error Migration von ts-ignore
     component['vectorSource']['loader_']();
   });
 

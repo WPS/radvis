@@ -12,13 +12,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/theme';
-@import 'src/style/spacing';
+@use 'src/style/colors';
+@use 'src/style/spacing';
 
 :host {
   display: block;
 }
 
 .dialog-title {
-  color: $secondary-color;
+  color: colors.$secondary-color;
 }

@@ -23,7 +23,9 @@ import org.geotools.api.feature.simple.SimpleFeature;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -138,5 +140,15 @@ public class FahrradroutenTfisImportJob extends AbstractTFISRadroutenImportJob {
 			.filter(simpleFeature -> !tfisImportService.isLandesradfernweg(simpleFeature))
 			.filter(simpleFeature -> !tfisImportService.extractName(simpleFeature).startsWith("Landkreis"))
 			.filter(simpleFeature -> !tfisImportService.extractName(simpleFeature).startsWith("Stadtkreis"));
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Farradrouten aus der TFIS-Datei von Platte und versucht diese auf das Netz zu matchen. Landesradfernwege werden nicht importiert. Wird eher als manuell anzustoßender Job genutzt. Bestehende Routen werden aktualisiert, nicht mehr vorhandene entfernt.",
+			"TFIS-Fahrradrouten verändern sich im Netzbezug und ihren Attributen.",
+			"Profilinformationen sind hiernach ggf. veraltet oder leer. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

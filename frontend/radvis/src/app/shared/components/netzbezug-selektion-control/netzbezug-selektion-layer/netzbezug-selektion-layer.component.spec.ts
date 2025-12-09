@@ -29,8 +29,6 @@ import { ErrorHandlingService } from 'src/app/shared/services/error-handling.ser
 import { NetzausschnittService } from 'src/app/shared/services/netzausschnitt.service';
 import { NotifyUserService } from 'src/app/shared/services/notify-user.service';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
-import { KantenNetzVectorlayer } from 'src/app/shared/components/netzbezug-selektion-control/kanten-netz-vectorlayer';
-import { KnotenNetzVectorLayer } from 'src/app/shared/components/netzbezug-selektion-control/knoten-netz-vectorlayer';
 import { NetzbezugSelektionLayerComponent } from 'src/app/shared/components/netzbezug-selektion-control/netzbezug-selektion-layer/netzbezug-selektion-layer.component';
 import { PunktuellerKantenBezuegeVectorLayer } from 'src/app/shared/components/netzbezug-selektion-control/punktueller-kanten-bezuege-vector-layer';
 import { KnotenNetzbezug } from 'src/app/shared/models/knoten-netzbezug';
@@ -51,7 +49,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
   let errorHandlingService: ErrorHandlingService;
   let netzbezugAuswahlModusService: NetzbezugAuswahlModusService;
 
-  let onMapClick$: Subject<MapBrowserEvent<UIEvent>>;
+  let onMapClick$: Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>;
 
   beforeEach(() => {
     olMapService = mock(OlMapComponent);
@@ -101,11 +99,11 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
     it('should highlight initial netzbezug', () => {
       expect(component['kantenNetzLayer']?.['ausgeblendeteKantenIds']).toEqual(new Set([42, 43]));
       expect(component['knotenNetzLayer']?.['highlightedKnotenIDs']).toEqual(new Set([20, 21]));
-      expect(component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures().length).toEqual(1);
+      expect(component['punktuelleKantenBezuegeLayer']?.getSource()?.getFeatures().length).toEqual(1);
       expect(
         component['punktuelleKantenBezuegeLayer']
           ?.getSource()
-          .getFeatures()[0]
+          ?.getFeatures()[0]
           .get(PunktuellerKantenBezuegeVectorLayer.KANTE_ID_PROPERTY_KEY)
       ).toEqual(5);
     });
@@ -153,8 +151,8 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
 
       expect(component['kantenNetzLayer']!['ausgeblendeteKantenIds']).toEqual(new Set([42, 55]));
       expect(component['knotenNetzLayer']!['highlightedKnotenIDs']).toEqual(new Set([20, 40]));
-      expect(component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures().length).toEqual(1);
-      const feature = component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures()[0];
+      expect(component['punktuelleKantenBezuegeLayer']?.getSource()?.getFeatures().length).toEqual(1);
+      const feature = component['punktuelleKantenBezuegeLayer']?.getSource()?.getFeatures()[0];
       expect(feature?.get(PunktuellerKantenBezuegeVectorLayer.KANTE_ID_PROPERTY_KEY)).toEqual(
         defaultNetzbezug.punktuellerKantenBezug[0].kanteId
       );
@@ -196,7 +194,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
         ctrlKey: false,
         metaKey: false,
       } as PointerEvent,
-    } as unknown as MapBrowserEvent<UIEvent>;
+    } as unknown as MapBrowserEvent<PointerEvent>;
 
     describe('in normal selectionMode', () => {
       describe('with Knoten', () => {
@@ -207,7 +205,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
           const feature = new Feature(knotenPoint);
           feature.setId(1);
           when(olMapService.getFeaturesAtPixel(anything())).thenReturn([feature]);
-          component['knotenNetzLayer']?.getSource().addFeature(feature);
+          component['knotenNetzLayer']?.getSource()?.addFeature(feature);
           emitSpy = spyOn(component.netzbezugChange, 'emit');
           inputNetzbezug({ kantenBezug: [], knotenBezug: [], punktuellerKantenBezug: [] });
         });
@@ -285,7 +283,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
           const feature = new Feature(kanteLinestring);
           feature.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, 1);
           when(olMapService.getFeaturesAtPixel(anything())).thenReturn([feature]);
-          component['kantenNetzLayer']?.getSource().addFeature(feature);
+          component['kantenNetzLayer']?.getSource()?.addFeature(feature);
           emitSpy = spyOn(component.netzbezugChange, 'emit');
           inputNetzbezug({ kantenBezug: [], knotenBezug: [], punktuellerKantenBezug: [] });
         });
@@ -354,8 +352,8 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
           const featureRechts = feature.clone();
           featureRechts.set(FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.RECHTS);
           when(olMapService.getFeaturesAtPixel(anything())).thenReturn([featureLinks, featureRechts]);
-          component['kantenNetzLayer']?.getSource().addFeature(featureLinks);
-          component['kantenNetzLayer']?.getSource().addFeature(featureRechts);
+          component['kantenNetzLayer']?.getSource()?.addFeature(featureLinks);
+          component['kantenNetzLayer']?.getSource()?.addFeature(featureRechts);
           emitSpy = spyOn(component.netzbezugChange, 'emit');
           inputNetzbezug({ kantenBezug: [], knotenBezug: [], punktuellerKantenBezug: [] });
         });
@@ -425,8 +423,8 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
           knotenFeature.setId(1);
           featureKante.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, 2);
           when(olMapService.getFeaturesAtPixel(anything())).thenReturn([knotenFeature, featureKante]);
-          component['kantenNetzLayer']?.getSource().addFeature(featureKante);
-          component['knotenNetzLayer']?.getSource().addFeature(knotenFeature);
+          component['kantenNetzLayer']?.getSource()?.addFeature(featureKante);
+          component['knotenNetzLayer']?.getSource()?.addFeature(knotenFeature);
           emitSpy = spyOn(component.netzbezugChange, 'emit');
           inputNetzbezug({ kantenBezug: [], knotenBezug: [], punktuellerKantenBezug: [] });
         });
@@ -458,8 +456,8 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
           knotenFeature.setId(1);
           featureKante.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, 2);
           when(olMapService.getFeaturesAtPixel(anything())).thenReturn([featureKante, knotenFeature]);
-          component['kantenNetzLayer']?.getSource().addFeature(featureKante);
-          component['knotenNetzLayer']?.getSource().addFeature(knotenFeature);
+          component['kantenNetzLayer']?.getSource()?.addFeature(featureKante);
+          component['knotenNetzLayer']?.getSource()?.addFeature(knotenFeature);
           emitSpy = spyOn(component.netzbezugChange, 'emit');
           inputNetzbezug({ kantenBezug: [], knotenBezug: [], punktuellerKantenBezug: [] });
         });
@@ -526,11 +524,11 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
         beforeEach(() => {
           knotenFeature = new Feature(knotenPoint);
           knotenFeature.setId(1);
-          component['knotenNetzLayer']?.getSource().addFeature(knotenFeature);
+          component['knotenNetzLayer']?.getSource()?.addFeature(knotenFeature);
 
           featureKante = new Feature(linestring);
           featureKante.set(FeatureProperties.KANTE_ID_PROPERTY_NAME, 2);
-          component['kantenNetzLayer']?.getSource().addFeature(featureKante);
+          component['kantenNetzLayer']?.getSource()?.addFeature(featureKante);
 
           emitSpy = spyOn(component.netzbezugChange, 'emit');
         });
@@ -549,7 +547,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
           });
 
           punktuellerKantenBezugFeature = // feature wird erst oben im inputNetzbezug von Component erzeugt und kann deshalb erst hier gesetzt werden
-            component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures()[0] || ({} as Feature);
+            component['punktuelleKantenBezuegeLayer']?.getSource()?.getFeatures()[0] || ({} as Feature);
 
           when(olMapService.getFeaturesAtPixel(anything())).thenReturn([
             featureKante,
@@ -582,7 +580,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
               ctrlKey: true,
               metaKey: false,
             } as PointerEvent,
-          } as unknown as MapBrowserEvent<UIEvent>;
+          } as unknown as MapBrowserEvent<PointerEvent>;
 
           it('should remove from existing Netzbezug', fakeAsync(() => {
             inputNetzbezug({
@@ -598,7 +596,7 @@ describe(NetzbezugSelektionLayerComponent.name, () => {
             });
 
             punktuellerKantenBezugFeature = // feature wird erst oben im inputNetzbezug von Component erzeugt und kann deshalb erst hier gesetzt werden
-              component['punktuelleKantenBezuegeLayer']?.getSource().getFeatures()[0] || ({} as Feature);
+              component['punktuelleKantenBezuegeLayer']?.getSource()?.getFeatures()[0] || ({} as Feature);
 
             when(olMapService.getFeaturesAtPixel(anything())).thenReturn([
               featureKante,

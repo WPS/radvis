@@ -16,7 +16,9 @@ package de.wps.radvis.backend.fahrradroute.domain;
 
 import java.util.Optional;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.fahrradroute.domain.repository.FahrradrouteRepository;
@@ -49,5 +51,15 @@ public class RecreateFahrradrouteImportDiffViewJob extends AbstractJob {
 		fahrradrouteRepository.resetGeoserverFahrradrouteImportDiffMaterializedView(anzahlTageImportprotokolle,
 			maximaleAnzahlKoordinatenFuerImportDiff);
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Erzeugt eine Materialized View, bzw. erzeugt diese neu, die einen geometrischen Diff zwischen importierten Fahrradrouten enthält. Hierbei werden die Auditing-Informationen der Fahrradrouten ausgelesen.",
+			"",
+			"Abhängigkeiten",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

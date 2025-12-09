@@ -21,7 +21,9 @@ import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -112,5 +114,15 @@ public class DRouteMatchingJob extends AbstractJob {
 
 		log.info(fahrradrouteMatchingStatistik.toString());
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Matcht die DRouten ohne Netzbezug aber mit Originalgeometrie auf das Netz.",
+			"Netzbezug und dazugehörige Geometrien an der Fahrradroute verändern sich.",
+			"Profilinformationen sind hiernach ggf. veraltet. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

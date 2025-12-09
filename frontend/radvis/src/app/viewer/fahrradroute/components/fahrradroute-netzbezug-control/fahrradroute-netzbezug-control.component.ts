@@ -27,7 +27,6 @@ import { asString } from 'ol/color';
 import { Coordinate } from 'ol/coordinate';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { Geometry, LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Draw, Modify } from 'ol/interaction';
 import { DrawEvent } from 'ol/interaction/Draw';
 import { ModifyEvent } from 'ol/interaction/Modify';
@@ -137,7 +136,7 @@ export class FahrradrouteNetzbezugControlComponent
 
     this.drawStartEndInteraction = new Draw({
       source: this.stuetzpunktVectorSource,
-      type: GeometryType.POINT,
+      type: 'Point',
     });
     this.olMapService.addInteraction(this.drawStartEndInteraction);
     this.drawStartEndInteraction.on('drawend', this.onStartEndErstellt);
@@ -432,10 +431,9 @@ export class FahrradrouteNetzbezugControlComponent
     if (feature.get(this.START_END_PROPERTY_NAME) === true) {
       return new Style({
         image: new Circle({
-          radius: 8,
-          fill: new Stroke({
+          radius: MapStyles.POINT_WIDTH_THICK,
+          fill: new Fill({
             color: MapStyles.FEATURE_SELECT_COLOR,
-            width: MapStyles.LINE_WIDTH_MEDIUM,
           }),
         }),
         text: new Text({
@@ -450,7 +448,7 @@ export class FahrradrouteNetzbezugControlComponent
     } else {
       return new Style({
         image: new Circle({
-          radius: 8,
+          radius: MapStyles.POINT_WIDTH_THICK,
           stroke: new Stroke({
             color: MapStyles.FEATURE_SELECT_COLOR,
             width: MapStyles.LINE_WIDTH_MEDIUM,

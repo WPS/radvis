@@ -24,6 +24,7 @@ import { Handlungsverantwortlicher } from 'src/app/viewer/massnahme/models/handl
 import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsquelle';
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
+import { ZurueckstellungsGrund } from 'src/app/viewer/massnahme/models/zurueckstellung-grund';
 
 export interface Massnahme extends VersionierteEntitaet {
   bezeichnung: string;
@@ -52,6 +53,9 @@ export interface Massnahme extends VersionierteEntitaet {
   konzeptionsquelle: Konzeptionsquelle;
   sonstigeKonzeptionsquelle: string | null;
   realisierungshilfe: Realisierungshilfe | null;
+  zurueckstellungsGrund: ZurueckstellungsGrund | null;
+  begruendungZurueckstellung: string | null;
+  begruendungStornierungsanfrage: string | null;
 
   geometry: LineStringGeojson;
 

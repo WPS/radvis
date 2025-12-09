@@ -70,10 +70,13 @@ export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
     private featureHighlightService: FeatureHighlightService
   ) {}
 
-  private static setHoverColorToStroke(styles: Style | Style[]): Style[] {
+  private static setHoverColorToStroke(styles: Style | Style[] | void): Style[] | void {
+    if (!styles) {
+      return styles;
+    }
     return (isArray(styles) ? styles : [styles]).map(style => {
       const clonedStyle = style.clone();
-      clonedStyle.getStroke().setColor(MapStyles.FEATURE_HOVER_COLOR);
+      clonedStyle.getStroke()?.setColor(MapStyles.FEATURE_HOVER_COLOR);
       clonedStyle.setZIndex(highlightNetzklasseLayerZIndex);
       return clonedStyle;
     });
@@ -97,11 +100,13 @@ export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
 
       // Feature hat sowohl Seitenattribute als auch Verlauf-Geometrien
       if (feature.getGeometry()?.getType() === 'MultiLineString') {
-        const [coordinatesLinks, coordinatesRechts] = (feature.getGeometry() as SimpleGeometry).getCoordinates();
-        featureLinks.setGeometry(new LineString(coordinatesLinks));
-        featureLinks.set(FeatureProperties.VERLAUF_PROPERTY_NAME, true, true);
-        featureRechts.setGeometry(new LineString(coordinatesRechts));
-        featureRechts.set(FeatureProperties.VERLAUF_PROPERTY_NAME, true, true);
+        const coordinates = (feature.getGeometry() as SimpleGeometry).getCoordinates();
+        if (coordinates && coordinates.length >= 2) {
+          featureLinks.setGeometry(new LineString(coordinates[0]));
+          featureLinks.set(FeatureProperties.VERLAUF_PROPERTY_NAME, true, true);
+          featureRechts.setGeometry(new LineString(coordinates[1]));
+          featureRechts.set(FeatureProperties.VERLAUF_PROPERTY_NAME, true, true);
+        }
       }
 
       return [featureLinks, featureRechts];
@@ -154,10 +159,10 @@ export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     invariant(!changes.netzklasse || changes.netzklasse.firstChange, 'Netzklasse darf sich nicht ändern!');
     if (this.olLayer) {
-      this.olLayer.getSource().refresh();
+      this.olLayer.getSource()?.refresh();
     }
     if (this.olStreckenLayer) {
-      this.olStreckenLayer.getSource().refresh();
+      this.olStreckenLayer.getSource()?.refresh();
     }
   }
 
@@ -181,18 +186,20 @@ export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private getFeaturesByIdsAndSeitenbezug(kanteId: number | string, kantenSeite?: KantenSeite): Feature<Geometry>[] {
-    return this.getActiveLayer()
-      .getSource()
-      .getFeatures()
-      .filter(feature => {
-        return String(kanteId) === String(feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME));
-      })
-      .filter(feature => {
-        if (kantenSeite) {
-          return feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === kantenSeite;
-        }
-        return true;
-      });
+    return (
+      this.getActiveLayer()
+        .getSource()
+        ?.getFeatures()
+        .filter(feature => {
+          return String(kanteId) === String(feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME));
+        })
+        .filter(feature => {
+          if (kantenSeite) {
+            return feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === kantenSeite;
+          }
+          return true;
+        }) ?? []
+    );
   }
 
   private getActiveLayer(): VectorLayer {
@@ -213,8 +220,8 @@ export class NetzklasseLayerComponent implements OnInit, OnDestroy, OnChanges {
       source: vectorSource,
       // @ts-expect-error Migration von ts-ignore
       renderOrder: null,
-      style: (feature: FeatureLike, resolution: number): Style | Style[] => {
-        const styles: Style | Style[] = getRadvisNetzStyleFunction()(feature, resolution);
+      style: (feature: FeatureLike, resolution: number): Style | Style[] | void => {
+        const styles: Style | Style[] | void = getRadvisNetzStyleFunction()(feature, resolution);
         return feature.get('highlighted') ? NetzklasseLayerComponent.setHoverColorToStroke(styles) : styles;
       },
       minZoom,

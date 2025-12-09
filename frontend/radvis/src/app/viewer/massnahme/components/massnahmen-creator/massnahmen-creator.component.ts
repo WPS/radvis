@@ -31,6 +31,7 @@ import { Konzeptionsquelle } from 'src/app/viewer/massnahme/models/konzeptionsqu
 import { MASSNAHMEN } from 'src/app/viewer/massnahme/models/massnahme.infrastruktur';
 import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmenkategorien';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
+import { ZurueckstellungsGrund } from 'src/app/viewer/massnahme/models/zurueckstellung-grund';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeService } from 'src/app/viewer/massnahme/services/massnahme.service';
 import { MassnahmenRoutingService } from 'src/app/viewer/massnahme/services/massnahmen-routing.service';
@@ -45,11 +46,12 @@ import { ViewerRoutingService } from 'src/app/viewer/viewer-shared/services/view
 })
 export class MassnahmenCreatorComponent implements OnDestroy, DiscardableComponent {
   public formGroup: UntypedFormGroup;
-  public umsetzungsstatusOptions = Umsetzungsstatus.options;
+  public umsetzungsstatusOptions = Umsetzungsstatus.options.filter(opt => !opt.disabled);
   public massnahmenkategorieOptions = Massnahmenkategorien.ALL;
   public alleOrganisationenOptions: Observable<AutoCompleteOption[]>;
   public sollStandardOptions = SollStandard.options;
   public handlungsverantwortlicherOptions = Handlungsverantwortlicher.options;
+  public zurueckstellungsGrundOptions = ZurueckstellungsGrund.options;
   public konzeptionsquelleOptions = Konzeptionsquelle.options.filter(
     o => o.name !== Konzeptionsquelle.RADNETZ_MASSNAHME
   );
@@ -60,6 +62,10 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
 
   private subscriptions: Subscription[] = [];
   private saved = false;
+
+  get istStornierungAngefragt(): boolean {
+    return this.formGroup.value.umsetzungsstatus === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT;
+  }
 
   constructor(
     private massnahmenRoutingService: MassnahmenRoutingService,
@@ -73,7 +79,7 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
   ) {
     this.formGroup = new UntypedFormGroup({
       netzbezug: new UntypedFormControl(null),
-      umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE),
+      umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE, RadvisValidators.isNotNullOrEmpty),
       massnahmenkategorien: new UntypedFormControl(
         [],
         [
@@ -98,6 +104,15 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
       handlungsverantwortlicher: new UntypedFormControl(null),
       konzeptionsquelle: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
       sonstigeKonzeptionsquelle: new UntypedFormControl(null),
+      zurueckstellungsGrund: new UntypedFormControl({ value: null, disabled: true }, RadvisValidators.isNotNullOrEmpty),
+      begruendungZurueckstellung: new UntypedFormControl({ value: null, disabled: true }, [
+        RadvisValidators.isNotNullOrEmpty,
+        RadvisValidators.maxLength(3000),
+      ]),
+      begruendungStornierungsanfrage: new UntypedFormControl({ value: null, disabled: true }, [
+        RadvisValidators.isNotNullOrEmpty,
+        RadvisValidators.maxLength(3000),
+      ]),
     });
     this.alleOrganisationenOptions = organisationenService
       .getAlleOrganisationen()
@@ -109,8 +124,41 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
 
     this.subscriptions.push(
       this.formGroup.get('umsetzungsstatus')!.valueChanges.subscribe(this.onUmsetzungsstatusChanged),
-      this.formGroup.get('konzeptionsquelle')!.valueChanges.subscribe(this.onKonzeptionsquelleChanged)
+      this.formGroup.get('konzeptionsquelle')!.valueChanges.subscribe(this.onKonzeptionsquelleChanged),
+      this.formGroup.controls.zurueckstellungsGrund.valueChanges.subscribe(v => {
+        if (v === ZurueckstellungsGrund.WEITERE_GRUENDE) {
+          this.formGroup.controls.begruendungZurueckstellung.enable();
+          // damit es gleich rot angezeigt wird
+          this.formGroup.controls.begruendungZurueckstellung.markAsTouched();
+        } else {
+          this.formGroup.controls.begruendungZurueckstellung.disable();
+        }
+      })
     );
+  }
+
+  private disableForbiddenUmsetzungsstatus(konzeptionsquelle: Konzeptionsquelle): void {
+    this.umsetzungsstatusOptions = Umsetzungsstatus.options
+      .filter(opt => {
+        return opt.name !== Umsetzungsstatus.STORNIERT;
+      })
+      .filter(opt => {
+        if (Konzeptionsquelle.isRadNetzMassnahme(konzeptionsquelle)) {
+          return (
+            this.benutzerDetailsService.canMassnahmenStornieren() ||
+            (opt.name !== Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH &&
+              opt.name !== Umsetzungsstatus.STORNIERT_ENGSTELLE)
+          );
+        } else {
+          return opt.name !== Umsetzungsstatus.STORNIERUNG_ANGEFRAGT;
+        }
+      });
+
+    if (
+      !Boolean(this.umsetzungsstatusOptions.find(opt => opt.name === this.formGroup.controls.umsetzungsstatus.value))
+    ) {
+      this.formGroup.controls.umsetzungsstatus.reset();
+    }
   }
 
   canDiscard(): boolean {
@@ -161,6 +209,9 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
       handlungsverantwortlicher: this.formGroup.get('handlungsverantwortlicher')?.value,
       konzeptionsquelle: this.formGroup.get('konzeptionsquelle')?.value,
       sonstigeKonzeptionsquelle: this.formGroup.get('sonstigeKonzeptionsquelle')?.value,
+      zurueckstellungsGrund: this.formGroup.value.zurueckstellungsGrund ?? null,
+      begruendungStornierungsanfrage: this.formGroup.value.begruendungStornierungsanfrage ?? null,
+      begruendungZurueckstellung: this.formGroup.value.begruendungZurueckstellung ?? null,
     };
 
     this.isFetching = true;
@@ -221,6 +272,26 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
     durchfuehrungszeitraumControl.updateValueAndValidity();
     baulastZustaendigerControl.updateValueAndValidity();
     handlungsverantwortlicherControl.updateValueAndValidity();
+
+    if (newValue === Umsetzungsstatus.ZURUECKGESTELLT) {
+      this.formGroup.controls.zurueckstellungsGrund.reset({
+        value: null,
+        disabled: false,
+      });
+      // damit es gleich rot angezeigt wird
+      this.formGroup.controls.zurueckstellungsGrund.markAsTouched();
+    } else {
+      this.formGroup.controls.zurueckstellungsGrund.reset({ value: null, disabled: true });
+    }
+
+    if (newValue === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT) {
+      this.formGroup.controls.begruendungStornierungsanfrage.reset({
+        value: null,
+        disabled: false,
+      });
+    } else {
+      this.formGroup.controls.begruendungStornierungsanfrage.reset({ value: null, disabled: true });
+    }
   };
 
   private updateMassnahmenkategorieOptionsFromKonzeptionsquelle(konzeptionsquelle: Konzeptionsquelle): void {
@@ -240,6 +311,7 @@ export class MassnahmenCreatorComponent implements OnDestroy, DiscardableCompone
     sonstigeKonzeptionsquelleControl.updateValueAndValidity();
 
     this.updateMassnahmenkategorieOptionsFromKonzeptionsquelle(newValue);
+    this.disableForbiddenUmsetzungsstatus(newValue);
     this.formGroup.controls.massnahmenkategorien.updateValueAndValidity();
   };
 

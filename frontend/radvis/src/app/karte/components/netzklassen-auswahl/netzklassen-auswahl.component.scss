@@ -12,13 +12,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 .zoomstufen-hinweis {
-  color: map-get($radvis-app-red-palette, 200);
+  color: map.get(colors.$radvis-app-red-palette, 200);
 }
 
 .compatibility-notice {
   max-width: 20rem;
-  color: map-get($radvis-app-red-palette, 200);
+  color: map.get(colors.$radvis-app-red-palette, 200);
 }

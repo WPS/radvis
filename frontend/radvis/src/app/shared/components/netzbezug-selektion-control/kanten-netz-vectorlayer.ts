@@ -69,46 +69,45 @@ export class KantenNetzVectorlayer extends VectorLayer {
     this.zweiseitigeNetzanzeige = anzeige;
 
     if (changed) {
-      this.getSource().refresh();
+      this.getSource()?.refresh();
     }
   }
 
   public kanteAusblenden(...ids: number[]): void {
-    const features = this.getSource()
-      .getFeatures()
-      .filter(f => ids.includes(+(f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number)));
-
-    features.forEach(f => {
-      f.setStyle(new Style());
-      f.changed();
-    });
+    this.getSource()
+      ?.getFeatures()
+      .filter(f => ids.includes(+(f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number)))
+      .forEach(f => {
+        f.setStyle(new Style());
+        f.changed();
+      });
     ids.forEach(id => {
       this.ausgeblendeteKantenIds.add(id);
     });
   }
 
   public kanteEinblenden(...ids: number[]): void {
-    const features = this.getSource()
-      .getFeatures()
-      .filter(f => ids.includes(+(f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number)));
-
-    features.forEach(f => {
-      f.setStyle(undefined);
-      f.changed();
-    });
+    this.getSource()
+      ?.getFeatures()
+      .filter(f => ids.includes(+(f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number)))
+      .forEach(f => {
+        f.setStyle(undefined);
+        f.changed();
+      });
     ids.forEach(id => {
       this.ausgeblendeteKantenIds.delete(id);
     });
   }
 
   public hasFeature(f: Feature<Geometry>): boolean {
-    return this.getSource().hasFeature(f);
+    return this.getSource()?.hasFeature(f) ?? false;
   }
 
   public toggleHighlightKante(id: number): void {
-    const features = this.getSource()
-      .getFeatures()
-      .filter(f => +(f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number) === id);
+    const features =
+      this.getSource()
+        ?.getFeatures()
+        .filter(f => +(f.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number) === id) ?? [];
     features.forEach(feature => {
       feature.set(
         KantenNetzVectorlayer.HIGHLIGHT_PROPERTY,

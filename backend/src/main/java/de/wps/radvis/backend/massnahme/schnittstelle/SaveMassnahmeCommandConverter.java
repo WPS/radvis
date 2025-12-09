@@ -78,6 +78,11 @@ public class SaveMassnahmeCommandConverter extends NetzbezugCommandConverter<Mas
 				"Konzeptionsquelle " + command.getKonzeptionsquelle() + " ist nicht erlaubt");
 		}
 
+		if (!massnahme.isUmsetzungsstatusAenderungValid(command.getUmsetzungsstatus())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Umsetzungsstatus " + command.getUmsetzungsstatus() + " ist nicht erlaubt");
+		}
+
 		massnahme.update(
 			command.getBezeichnung(),
 			command.getMassnahmenkategorien(),
@@ -102,7 +107,8 @@ public class SaveMassnahmeCommandConverter extends NetzbezugCommandConverter<Mas
 			command.getHandlungsverantwortlicher(),
 			command.getKonzeptionsquelle(),
 			command.getSonstigeKonzeptionsquelle(),
-			command.getRealisierungshilfe());
+			command.getRealisierungshilfe(), command.getZurueckstellungsGrund(),
+			command.getBegruendungStornierungsanfrage(), command.getBegruendungZurueckstellung());
 	}
 
 	@Override

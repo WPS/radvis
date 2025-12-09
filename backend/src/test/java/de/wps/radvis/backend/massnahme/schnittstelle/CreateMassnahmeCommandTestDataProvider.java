@@ -21,6 +21,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum
 import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Massnahmenkategorie;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
 import de.wps.radvis.backend.netz.schnittstelle.command.NetzbezugCommandTestDataProvider;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
 
@@ -36,6 +37,7 @@ public class CreateMassnahmeCommandTestDataProvider {
 			.durchfuehrungszeitraum(Durchfuehrungszeitraum.of(2021))
 			.baulastZustaendigerId(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build().getId())
 			.konzeptionsquelle(Konzeptionsquelle.SONSTIGE)
+			.zustaendigerId(12l).sollStandard(SollStandard.BASISSTANDARD)
 			.sonstigeKonzeptionsquelle("WAMBO");
 	}
 

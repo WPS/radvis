@@ -44,7 +44,6 @@ import org.thymeleaf.context.Context;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
@@ -62,6 +61,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 
 class UmsetzungsstandabfrageServiceTest {
 	@Mock
@@ -158,15 +158,14 @@ class UmsetzungsstandabfrageServiceTest {
 			.zustaendiger(organisation)
 			.build();
 		this.setzeUmsetzungsstandStatusAufAktualisiert(nichtBetroffeneMassnahme3, benutzer);
-		nichtBetroffeneMassnahme3.stornieren(benutzer, LocalDateTime.now());
+		nichtBetroffeneMassnahme3.alsNichtMehrErforderlichMarkieren(benutzer, LocalDateTime.now());
 
 		List<Long> massnahmeIds = List.of(betroffeneMassnahme1.getId(), betroffeneMassnahme2.getId(),
 			nichtBetroffeneMassnahme1.getId(),
 			nichtBetroffeneMassnahme2.getId(), nichtBetroffeneMassnahme3.getId());
 		when(massnahmeRepository.findAllByIdInAndGeloeschtFalse(eq(massnahmeIds))).thenReturn(
 			Stream.of(betroffeneMassnahme1, betroffeneMassnahme2,
-				nichtBetroffeneMassnahme1,
-				nichtBetroffeneMassnahme2, nichtBetroffeneMassnahme3));
+				nichtBetroffeneMassnahme1, nichtBetroffeneMassnahme2, nichtBetroffeneMassnahme3));
 
 		// Act
 		List<Massnahme> massnahmen = umsetzungsstandabfrageService.starteUmsetzungsstandsabfrage(massnahmeIds);

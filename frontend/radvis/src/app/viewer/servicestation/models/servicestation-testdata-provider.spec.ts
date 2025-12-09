@@ -12,11 +12,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
 import { defaultGemeinden } from 'src/app/shared/models/organisation-test-data-provider.spec';
-import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
-import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
+import { Servicestation } from 'src/app/viewer/servicestation/models/servicestation';
 import { ServicestationQuellSystem } from 'src/app/viewer/servicestation/models/servicestation-quell-system';
+import { ServicestationStatus } from 'src/app/viewer/servicestation/models/servicestation-status';
+import { ServicestationTyp } from 'src/app/viewer/servicestation/models/servicestation-typ';
 
 export const defaultServicestation: Servicestation = {
   name: 'Meine Servicestation',
@@ -40,4 +40,5 @@ export const defaultServicestation: Servicestation = {
   version: 1,
   darfBenutzerBearbeiten: true,
   quellSystem: ServicestationQuellSystem.RADVIS,
+  radkultur: false,
 };

@@ -85,9 +85,7 @@ export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnCh
 
   ngOnChanges(changes: SimpleChanges): void {
     invariant(!changes.netzklasse || changes.netzklasse.firstChange, 'Netzklasse darf sich nicht ändern!');
-    if (this.olLayer) {
-      this.olLayer.getSource().refresh();
-    }
+    this.olLayer?.getSource()?.refresh();
 
     if (changes.legende && this.olLayer) {
       this.olMapService.updateLegende(this.olLayer, this.legende);
@@ -113,7 +111,7 @@ export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnCh
   private getFeaturesByIds(kanteId: number): Feature<Geometry>[] {
     if (this.olLayer.getVisible()) {
       return this.olLayer
-        .getSource()
+        .getSource()!
         .getFeatures()
         .filter(feature => kanteId === +(feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME) as number));
     }
@@ -144,7 +142,7 @@ export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnCh
     return olLayer;
   }
 
-  private styleFunction = (feature: FeatureLike, resolution: any): Style | Style[] => {
+  private styleFunction = (feature: FeatureLike, resolution: number): Style | Style[] => {
     if (!this.generatedStyleFunction) {
       return new Style();
     } else {
@@ -154,10 +152,10 @@ export class SignaturNetzklasseLayerComponent implements OnInit, OnDestroy, OnCh
       const shiftedGeometry = shiftFeature(feature, resolution, MapStyles.LINE_GAP_FOR_DOUBLE_LINE);
       if (Array.isArray(generatedStyles)) {
         generatedStyles.forEach(value => value.setGeometry(shiftedGeometry));
-      } else {
+      } else if (generatedStyles instanceof Style) {
         generatedStyles.setGeometry(shiftedGeometry);
       }
-      return generatedStyles;
+      return generatedStyles ?? [];
     }
   };
 }

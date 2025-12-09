@@ -28,7 +28,9 @@ import org.springframework.beans.factory.BeanInitializationException;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
@@ -233,5 +235,16 @@ public class DlmReimportJob extends AbstractJob {
 			throw new BeanInitializationException(
 				"Temporäre PBF-Datei für DLM-Reimport GraphHopper konnte nicht angelegt werden", e);
 		}
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert DLM-Daten aus externer Quelle und integriert diese in das bestehende Netz. Kanten können dadurch gelöscht, geometrisch verändert oder neu erstellt werden. Netzbezüge werden neu gematcht (je nach Einstellung vom Toggle "
+				+ FeatureTogglz.NETZBEZUG_REMATCH.name() + ").",
+			"Geometrien von Kanten und Knoten verändern sich und auch einige Attribute (z.B. Straßenname).",
+			"Materialized Views und auf dem Netz aufbauende Daten (z.B. Profileigenschaften von Fahrradrouten) sind hiernach veraltet.",
+			JobExecutionDurationEstimate.VERY_LONG
+		);
 	}
 }

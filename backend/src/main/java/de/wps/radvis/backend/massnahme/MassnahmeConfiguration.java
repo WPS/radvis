@@ -181,7 +181,7 @@ public class MassnahmeConfiguration {
 
 	@Bean
 	public MassnahmenZustaendigkeitsService massnahmenZustaendigkeitsService() {
-		return new MassnahmenZustaendigkeitsService(benutzerRepository);
+		return new MassnahmenZustaendigkeitsService(benutzerRepository, verwaltungseinheitRepository);
 	}
 
 	@Bean
@@ -208,7 +208,8 @@ public class MassnahmeConfiguration {
 	@Bean
 	public MassnahmenBenachrichtigungsService massnahmenBenachrichtigungsService() {
 		return new MassnahmenBenachrichtigungsService(massnahmeService(), mailService,
-			mailConfigurationProperties, commonConfigurationProperties, templateEngine);
+			mailConfigurationProperties, commonConfigurationProperties, templateEngine,
+			massnahmenZustaendigkeitsService(), verwaltungseinheitService);
 	}
 
 	@Bean

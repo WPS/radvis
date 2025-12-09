@@ -26,7 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -68,5 +70,14 @@ public class OsmPbfDownloadJob extends AbstractJob {
 		}
 
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Lädt die OpenStreetMap PBF-Datei herunter und legt sie an den konfigurierten Ort. Sie wird nicht weiter verarbeitet.",
+			"Es liegt die PBF-Datei auf Platte.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

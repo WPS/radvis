@@ -71,6 +71,8 @@ import de.wps.radvis.backend.manuellerimport.massnahmenimport.domain.valueObject
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeNetzBezug;
 import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -84,6 +86,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.matching.domain.entity.MatchingStatistik;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
@@ -528,6 +531,9 @@ public class ManuellerMassnahmenImportService {
 		Optional<Durchfuehrungszeitraum> durchfuehrungszeitraum = Optional.empty();
 		Optional<Verwaltungseinheit> baulastZustaendiger = Optional.empty();
 		Optional<Handlungsverantwortlicher> handlungsverantwortlicher = Optional.empty();
+		Optional<ZurueckstellungsGrund> zurueckstellungsgrund = Optional.empty();
+		Optional<BegruendungStornierungsanfrage> begruendungStornierungsanfrage = Optional.empty();
+		Optional<BegruendungZurueckstellung> begruendungZurueckstellung = Optional.empty();
 
 		if (zuordnung.getZuordnungStatus() == MassnahmenImportZuordnungStatus.ZUGEORDNET) {
 			// Attribute bestehender Maßnahmen sollen unabhängig von den ausgewählten Attributen
@@ -538,6 +544,9 @@ public class ManuellerMassnahmenImportService {
 			durchfuehrungszeitraum = massnahme.getDurchfuehrungszeitraum();
 			baulastZustaendiger = massnahme.getBaulastZustaendiger();
 			handlungsverantwortlicher = massnahme.getHandlungsverantwortlicher();
+			zurueckstellungsgrund = massnahme.getZurueckstellungsGrund();
+			begruendungStornierungsanfrage = massnahme.getBegruendungStornierungsanfrage();
+			begruendungZurueckstellung = massnahme.getBegruendungZurueckstellung();
 		} else {
 			// Für neu angelegte Maßnahmen müssen alle Pflichtattribute auswählt sein.
 			List<MassnahmenImportAttribute> nichtAusgewaehltePflichtattribute = MassnahmenImportAttribute
@@ -590,6 +599,13 @@ public class ManuellerMassnahmenImportService {
 					case REALISIERUNGSHILFE -> mapToEnumConstantAllowEmpty(Realisierungshilfe.class, attributString);
 					case NETZKLASSEN -> mapToNetzklassen(attributString);
 					case PLANUNG_ERFORDERLICH, VEROEFFENTLICHT -> validiereJaNein(attributString);
+					case ZURUECKSTELLUNGS_GRUND -> zurueckstellungsgrund = Optional
+						.ofNullable(mapToEnumConstantAllowEmpty(ZurueckstellungsGrund.class,
+							attributString));
+					case BEGRUENDUNG_STORNIERUNGSANFRAGE -> begruendungStornierungsanfrage = Optional
+						.ofNullable(validiereBegruendungStornierungsanfrage(attributString));
+					case BEGRUENDUNG_ZURUECKSTELLUNG -> begruendungZurueckstellung = Optional
+						.ofNullable(validiereBegruendungZurueckstellung(attributString));
 					default -> throw new RuntimeException(
 						String.format("Das MassnahmenImportAttribut '%s' fehlt bei der Validierung!", attribut));
 					}
@@ -634,6 +650,26 @@ public class ManuellerMassnahmenImportService {
 			}
 		}
 
+		if (umsetzungsstatus.isPresent()) {
+			if (!Massnahme.isUmsetzungsstatusValidForKonzeptionsquelle(konzeptionsquelle, umsetzungsstatus.get())) {
+				zuordnung.addMappingFehler(MappingFehler.of(MassnahmenImportAttribute.UMSETZUNGSSTATUS.toString(),
+					"Umsetzungsstatus nicht valid für Konzeptionsquelle der Maßnahme."));
+			}
+
+			if (!Massnahme.isBegruendungStornierungsanfrageValidForUmsetzungsstatus(umsetzungsstatus.get(),
+				begruendungStornierungsanfrage.orElse(null))) {
+				zuordnung.addMappingFehler(
+					MappingFehler.of(MassnahmenImportAttribute.BEGRUENDUNG_STORNIERUNGSANFRAGE.toString(),
+						"Begründung Stornierungsanfrage nicht valid für Umsetzungsstatus der Maßnahme."));
+			}
+
+			if (!Massnahme.isZurueckstellungsGrundValidForUmsetzungsstatus(umsetzungsstatus.get(),
+				zurueckstellungsgrund.orElse(null))) {
+				zuordnung.addMappingFehler(MappingFehler.of(MassnahmenImportAttribute.ZURUECKSTELLUNGS_GRUND.toString(),
+					"Zurückstellungsgrund nicht valid für Umsetzungsstatus der Maßnahme."));
+			}
+		}
+
 		if (!Massnahme.hatNurEineMassnahmenkategorieProOberkategorie(massnahmenkategorien)) {
 			zuordnung.addMappingFehler(
 				MappingFehler.of(
@@ -648,6 +684,39 @@ public class ManuellerMassnahmenImportService {
 					MappingFehlermeldung.QUERVALIDIERUNG_MASSNAHMENKATEGORIE_KONZEPTIONSQUELLE.getText()));
 
 		}
+
+		if (!Massnahme.isBegruendungZurueckstellungValidForZurueckstellungsgrund(zurueckstellungsgrund.orElse(null),
+			begruendungZurueckstellung.orElse(null))) {
+			zuordnung.addMappingFehler(
+				MappingFehler.of(MassnahmenImportAttribute.BEGRUENDUNG_ZURUECKSTELLUNG.toString(),
+					"Begründung Zurückstellung nicht valid für Zurückstellungsgrund der Maßnahme."));
+		}
+	}
+
+	private static BegruendungZurueckstellung validiereBegruendungZurueckstellung(
+		String attributString) throws MassnahmenAttributWertValidierungsException {
+		if (attributString.isBlank()) {
+			return null;
+		}
+
+		if (!BegruendungZurueckstellung.isValid(attributString)) {
+			throw new MassnahmenAttributWertValidierungsException();
+		}
+
+		return BegruendungZurueckstellung.of(attributString);
+	}
+
+	private static BegruendungStornierungsanfrage validiereBegruendungStornierungsanfrage(
+		String attributString) throws MassnahmenAttributWertValidierungsException {
+		if (attributString.isBlank()) {
+			return null;
+		}
+
+		if (!BegruendungStornierungsanfrage.isValid(attributString)) {
+			throw new MassnahmenAttributWertValidierungsException();
+		}
+
+		return BegruendungStornierungsanfrage.of(attributString);
 	}
 
 	private static void validiereJaNein(String attributString) throws MassnahmenAttributWertValidierungsException {
@@ -1048,6 +1117,13 @@ public class ManuellerMassnahmenImportService {
 				case NETZKLASSEN -> builder.netzklassen(mapToNetzklassen(attributWert));
 				case PLANUNG_ERFORDERLICH -> builder.planungErforderlich(jaNeinToBool(attributWert));
 				case VEROEFFENTLICHT -> builder.veroeffentlicht(jaNeinToBool(attributWert));
+				case BEGRUENDUNG_STORNIERUNGSANFRAGE -> builder.begruendungStornierungsanfrage(
+					attributWert.isBlank() ? null : BegruendungStornierungsanfrage.of(attributWert));
+				case ZURUECKSTELLUNGS_GRUND -> builder
+					.zurueckstellungsGrund(mapToEnumConstantAllowEmpty(ZurueckstellungsGrund.class, attributWert));
+				case BEGRUENDUNG_ZURUECKSTELLUNG -> builder.begruendungZurueckstellung(
+					attributWert.isBlank() ? null : BegruendungZurueckstellung.of(attributWert));
+
 				default -> throw new RuntimeException(
 					String.format("Das MassnahmenImportAttribut '%s' fehlt bei der Speicherung!", attribut));
 				}

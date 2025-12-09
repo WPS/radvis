@@ -24,7 +24,9 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.SetzeBenutzerInaktivJobStatistik;
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerIstNichtRegistriertException;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import jakarta.persistence.OptimisticLockException;
@@ -76,5 +78,15 @@ public class SetzeBenutzerInaktivJob extends AbstractJob {
 
 		log.info(setzeBenutzerInaktivJobStatistik.toString());
 		return Optional.of(setzeBenutzerInaktivJobStatistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Setzt Benutzer inaktiv, die sich die vergangenen " + inaktivitaetsTimeoutInTagen
+				+ " Tage (konfigurierbar) nicht in RadVIS angemeldet haben. RadVIS-Administratoren sind von dieser Überprüfung ausgenommen.",
+			"Benutzer ändern ggf. ihren Status zu inaktiv.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

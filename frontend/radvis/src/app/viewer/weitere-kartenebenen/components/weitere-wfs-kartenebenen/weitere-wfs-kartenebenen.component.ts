@@ -14,12 +14,10 @@
 
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Feature } from 'ol';
 import { fromString } from 'ol/color';
 import { Extent } from 'ol/extent';
 import { FeatureLike } from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
-import { Geometry } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
 import Projection from 'ol/proj/Projection';
@@ -91,8 +89,10 @@ export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnCha
         .subscribe(f => {
           if (f.id) {
             const selectedFeature = this.source.getFeatureById(f.id.toString());
-            selectedFeature.set(WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, true);
-            selectedFeature.changed();
+            if (selectedFeature) {
+              selectedFeature.set(WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, true);
+              selectedFeature.changed();
+            }
           }
         }),
       featureHighlightService.unhighlightedFeature$
@@ -106,8 +106,10 @@ export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnCha
         .subscribe(f => {
           if (f.id) {
             const selectedFeature = this.source.getFeatureById(f.id.toString());
-            selectedFeature.set(WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, false);
-            selectedFeature.changed();
+            if (selectedFeature) {
+              selectedFeature.set(WeitereWfsKartenebenenComponent.HIGHLIGHTED_PROPERTY_NAME, false);
+              selectedFeature.changed();
+            }
           }
         })
     );
@@ -185,7 +187,7 @@ export class WeitereWfsKartenebenenComponent implements OnInit, OnDestroy, OnCha
         .toPromise()
         .then(data => {
           try {
-            const features = this.source?.getFormat()?.readFeatures(data) as Feature<Geometry>[];
+            const features = this.source?.getFormat()?.readFeatures(data) ?? [];
             if (features) {
               features.forEach((f, index) => {
                 f.set(this.FEATURE_ID_PROPERTY_NAME, f.getId());

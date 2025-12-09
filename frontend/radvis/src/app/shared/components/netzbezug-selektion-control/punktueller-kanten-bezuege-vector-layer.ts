@@ -44,7 +44,7 @@ export class PunktuellerKantenBezuegeVectorLayer extends VectorLayer {
   }
 
   public hasFeature(f: Feature<Geometry>): boolean {
-    return this.getSource().hasFeature(f);
+    return this.getSource()?.hasFeature(f) ?? false;
   }
 
   public updatePuntuelleKantenNetzbezuege(punktuelleKantenNetzBezuege: PunktuellerKantenNetzBezug[]): void {
@@ -54,7 +54,7 @@ export class PunktuellerKantenBezuegeVectorLayer extends VectorLayer {
       feature.set(PunktuellerKantenBezuegeVectorLayer.LINEARE_REFERENZ_PROPERTY_KEY, pKNB.lineareReferenz);
       return feature;
     });
-    this.getSource().clear();
-    this.getSource().addFeatures(features);
+    this.getSource()?.clear();
+    this.getSource()?.addFeatures(features);
   }
 }

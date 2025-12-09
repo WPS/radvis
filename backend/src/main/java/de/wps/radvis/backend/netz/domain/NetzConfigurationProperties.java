@@ -30,11 +30,12 @@ public class NetzConfigurationProperties {
 	private final int kantenParallelitaetSegmente;
 	private final double kantenParallelitaetToleranz;
 	private final double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
+	private final int auditingErgaenzenBatchSize;
 
 	@ConstructorBinding
 	public NetzConfigurationProperties(double minimaleSegmentLaenge, double nahegelegeneKantenDistanzInM,
 		int kantenParallelitaetSegmente, double kantenParallelitaetToleranz,
-		double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge) {
+		double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge, int auditingErgaenzenBatchSize) {
 		require(minimaleSegmentLaenge > 0, "Minimale Segment Laenge muss größer 0 sein.");
 		require(nahegelegeneKantenDistanzInM >= 0, "Die Distanz für nahegelegene Kanten darf nicht negativ sein.");
 		require(kantenParallelitaetSegmente >= 1,
@@ -44,11 +45,16 @@ public class NetzConfigurationProperties {
 		require(nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge >= 0
 			&& nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge <= 1,
 			"Die relative Gesamtlänge der abgebildeten Kanten muss >= 0 und <=1 sein.");
+		require(auditingErgaenzenBatchSize > 0,
+			"Batch-size für das Ergänzen von Auditing-Einträgen muss größer 0 sein.");
+		require(auditingErgaenzenBatchSize <= 32767,
+			"Batch-size für das Ergänzen von Auditing-Einträgen darf maximal 32767 betragen");
 
 		this.minimaleSegmentLaenge = Laenge.of(minimaleSegmentLaenge);
 		this.nahegelegeneKantenDistanzInM = Laenge.of(nahegelegeneKantenDistanzInM);
 		this.kantenParallelitaetSegmente = kantenParallelitaetSegmente;
 		this.kantenParallelitaetToleranz = kantenParallelitaetToleranz;
 		this.nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge = nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
+		this.auditingErgaenzenBatchSize = auditingErgaenzenBatchSize;
 	}
 }

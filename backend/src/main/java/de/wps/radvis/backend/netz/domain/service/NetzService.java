@@ -21,6 +21,7 @@ import static org.valid4j.Assertive.require;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,9 +44,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ResponseStatusException;
 
+import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
 import de.wps.radvis.backend.auditing.domain.entity.RevInfo;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
+import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.VersionedId;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -132,6 +135,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 	private final int kantenParallelitaetSegmente;
 	private final double kantenParallelitaetToleranz;
 	private final double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
+	private final int auditingErgaenzenBatchSize;
 
 	public NetzService(KantenRepository kantenRepository,
 		KnotenRepository knotenRepository,
@@ -143,7 +147,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		VerwaltungseinheitResolver verwaltungseinheitResolver, EntityManager entityManager,
 		double erlaubteAbweichungKnotenRematch, Laenge nahegelegeneKantenDistanzInM,
 		int kantenParallelitaetSegmente, double kantenParallelitaetToleranz,
-		double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge) {
+		double nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge, int auditingErgaenzenBatchSize) {
 
 		this.kantenRepository = kantenRepository;
 		this.knotenRepository = knotenRepository;
@@ -159,6 +163,7 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		this.kantenParallelitaetSegmente = kantenParallelitaetSegmente;
 		this.kantenParallelitaetToleranz = kantenParallelitaetToleranz;
 		this.nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge = nahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge;
+		this.auditingErgaenzenBatchSize = auditingErgaenzenBatchSize;
 
 		curvebuilderLinks = new OffsetCurveBuilder(10, 1);
 		curvebuilderRechts = new OffsetCurveBuilder(-10, 1);
@@ -819,5 +824,20 @@ public class NetzService implements KanteResolver, KnotenResolver {
 		return knotenRepository.findErsatzKnotenCandidates(fuerKnotenId, erlaubteAbweichungKnotenRematch).stream()
 			.filter(k -> !excludeIds.contains(k.getId()))
 			.findFirst();
+	}
+
+	public HashMap<String, Integer> addMissingAuditingEntries(Long benutzerId) {
+		require(AdditionalRevInfoHolder.getAuditingContext() != null, "Auditing-Context muss gesetzt sein");
+
+		String auditingContextName = AdditionalRevInfoHolder.getAuditingContext().name();
+
+		JobExecutionDescription jobExecutionDescription = AdditionalRevInfoHolder.getJobExecutionDescription();
+		Long jobExecutionDescriptionId = null;
+		if (jobExecutionDescription != null) {
+			jobExecutionDescriptionId = jobExecutionDescription.getId();
+		}
+
+		return kantenRepository.addMissingAuditingEntries(benutzerId, auditingErgaenzenBatchSize, auditingContextName,
+			jobExecutionDescriptionId);
 	}
 }

@@ -14,11 +14,20 @@
 
 package de.wps.radvis.backend.fahrradroute.domain;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.locationtech.jts.geom.Geometry;
@@ -26,7 +35,9 @@ import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
@@ -70,16 +81,25 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 	private final FahrradrouteRepository fahrradrouteRepository;
 	private final FahrradroutenMatchingService fahrradroutenMatchingService;
 
+	private Duration netzbezugTimeout;
+
+	private List<String> toubizIgnoreList;
+
 	public FahrradroutenToubizImportJob(
 		JobExecutionDescriptionRepository jobExecutionDescriptionRepository,
 		ToubizRepository toubizRepository,
 		VerwaltungseinheitService verwaltungseinheitService, FahrradrouteRepository fahrradrouteRepository,
-		FahrradroutenMatchingService fahrradroutenMatchingService) {
+		FahrradroutenMatchingService fahrradroutenMatchingService, Duration netzbezugTimeout,
+		List<String> toubizIgnoreList) {
 		super(jobExecutionDescriptionRepository);
+
+		require(toubizIgnoreList, notNullValue());
 		this.toubizRepository = toubizRepository;
 		this.verwaltungseinheitService = verwaltungseinheitService;
 		this.fahrradrouteRepository = fahrradrouteRepository;
 		this.fahrradroutenMatchingService = fahrradroutenMatchingService;
+		this.netzbezugTimeout = netzbezugTimeout;
+		this.toubizIgnoreList = toubizIgnoreList;
 	}
 
 	@Override
@@ -106,6 +126,8 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 	@Override
 	protected Optional<JobStatistik> doRun() {
 		log.info("FahrradroutenToubizImportJob gestartet");
+		log.info("Timeout für Erstellung Netzbezug: {} ms", netzbezugTimeout.toMillis());
+		log.info("ToubizIds to be ignored: {}", toubizIgnoreList);
 		ToubizImportStatistik toubizImportStatistik = new ToubizImportStatistik();
 
 		List<ImportedToubizRoute> importedToubizRouten = toubizRepository.importRouten();
@@ -114,6 +136,13 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 
 		AtomicInteger progressCount = new AtomicInteger();
 		importedToubizRouten.stream()
+			.filter(importedToubizRoute -> {
+				if (toubizIgnoreList.contains(importedToubizRoute.getToubizId().getToubizId())) {
+					toubizImportStatistik.beimImportIgnoriert.add(importedToubizRoute.getToubizId());
+					return false;
+				}
+				return true;
+			})
 			.filter(importedToubizRoute -> !importedToubizRoute.isLandesradfernweg() ||
 				bestehendeLandesradfernwegIds.contains(importedToubizRoute.getToubizId()))
 			.map(importedToubizRoute -> createFahrradroute(importedToubizRoute,
@@ -130,11 +159,13 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 			});
 
 		// Alle entfernen, die in Toubiz nicht mehr existieren und kein Landesradfernweg sind
-		Set<ToubizId> radvisToubizIds = fahrradrouteRepository.findAllToubizIdsWithoutLandesradfernwege();
-		radvisToubizIds.removeAll(frischeIds);
-		fahrradrouteRepository.deleteAllByToubizIdIn(radvisToubizIds);
+		Set<ToubizId> toubizIdsToRemove = fahrradrouteRepository.findAllToubizIdsWithoutLandesradfernwege();
+		toubizIdsToRemove.removeAll(frischeIds);
+		// ältere Importe ignorierter Toubiz-Routen sollen bestehen bleiben, sofern die Datensätze noch vorhanden sind
+		toubizIdsToRemove.removeAll(toubizImportStatistik.beimImportIgnoriert);
+		fahrradrouteRepository.deleteAllByToubizIdIn(toubizIdsToRemove);
 
-		toubizImportStatistik.anzahlAlterFahrradroutenGeloescht = radvisToubizIds.size();
+		toubizImportStatistik.anzahlAlterFahrradroutenGeloescht = toubizIdsToRemove.size();
 		log.info("Es wurden {} alte Fahrradrouten gelöscht.", toubizImportStatistik.anzahlAlterFahrradroutenGeloescht);
 
 		toubizImportStatistik.anzahlFahrradroutenErstellt = progressCount.get();
@@ -173,11 +204,23 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 			// das anschließende Routing klappt, wird dieser Wert noch auf "true" gesetzt.
 			.abbildungDurchRouting(false);
 
-		Optional<FahrradrouteNetzbezugResult> netzbezugResult = fahrradroutenMatchingService
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Future<Optional<FahrradrouteNetzbezugResult>> future = executor.submit(() -> fahrradroutenMatchingService
 			.getFahrradrouteNetzbezugResult(
 				(LineString) importedToubizRoute.getOriginalGeometrie(),
 				toubizImportStatistik.fahrradrouteMatchingStatistik,
-				fahrradroutenMatchingAndRoutingInformationBuilder, true);
+				fahrradroutenMatchingAndRoutingInformationBuilder, true));
+		Optional<FahrradrouteNetzbezugResult> netzbezugResult = Optional.empty();
+		try {
+			netzbezugResult = future.get(netzbezugTimeout.toMillis(), TimeUnit.MILLISECONDS);
+		} catch (TimeoutException e) {
+			toubizImportStatistik.routenMitTimeoutBeimNetzbezugErstellen.add(importedToubizRoute.getToubizId());
+			future.cancel(true);
+		} catch (Exception e) {
+			log.error("Unerwarteter Fehler beim Erstellen des Netzbezugs", e);
+		} finally {
+			executor.shutdownNow();
+		}
 
 		return createFahradrouteFromImportedToubizRoute(
 			importedToubizRoute,
@@ -222,5 +265,14 @@ public class FahrradroutenToubizImportJob extends AbstractJob {
 			netzbezugLineString,
 			profilEigenschaften,
 			fahrradroutenMatchingAndRoutingInformation);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Farradrouten aus Toubiz und matchst diese auf das Netz. Bestehende Routen werden aktualisiert, nicht mehr vorhandene entfernt. Bei Landesradfernwegen werden nur Attribute aktualisiert, keine Geometrien.",
+			"Fahrradrouten mit Toubiz-ID verändern sich im Netzbezug und ihren Attributen.",
+			"Profilinformationen sind hiernach ggf. veraltet. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.SHORT);
 	}
 }

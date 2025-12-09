@@ -34,6 +34,7 @@ import { EnumDisplayPipe } from 'src/app/shared/components/enum-display.pipe';
 import { ExpandLinkComponent } from 'src/app/shared/components/expandable-content/expand-link/expand-link.component';
 import { ExpandableContentComponent } from 'src/app/shared/components/expandable-content/expandable-content.component';
 import { HinweisDialogComponent } from 'src/app/shared/components/hinweis-dialog/hinweis-dialog.component';
+import { HinweisComponent } from 'src/app/shared/components/hinweis/hinweis.component';
 import { HoverDirective } from 'src/app/shared/components/hover.directive';
 import { KommazahlPipe } from 'src/app/shared/components/kommazahl.pipe';
 import { LineareReferenzierungLayerComponent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
@@ -54,7 +55,6 @@ import { TruncateTextPipe } from 'src/app/shared/components/truncate-text.pipe';
 import { VerwaltungZugangsdatenComponent } from 'src/app/shared/components/verwaltung-zugangsdaten/verwaltung-zugangsdaten.component';
 import { VordefinierteExporteComponent } from 'src/app/shared/components/vordefinierte-exporte/vordefinierte-exporte.component';
 import { WahlkreisDropdownControlComponent } from 'src/app/shared/components/wahlkreis-dropdown-control/wahlkreis-dropdown-control.component';
-import { WarnhinweisComponent } from 'src/app/shared/components/warnhinweis/warnhinweis.component';
 import { environment } from 'src/environments/environment';
 import { MatPaginatorIntlLocalizationService } from './services/mat-paginator-intl-localization.service';
 
@@ -87,7 +87,7 @@ const allDeclarations = [
   BearbeitungsModusToggleButtonComponent,
   BedienhinweisComponent,
   OriginalGeometrieLayerComponent,
-  WarnhinweisComponent,
+  HinweisComponent,
   ExpandableContentComponent,
   CollapseDownButtonComponent,
   SharedKnotenFormGroupComponent,

@@ -18,8 +18,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Collection, Feature, MapBrowserEvent } from 'ol';
 import { Geometry, LineString, Point } from 'ol/geom';
-import { ModifyEvent, ModifyEventType } from 'ol/interaction/Modify';
-import { Subject, of } from 'rxjs';
+import { ModifyEvent } from 'ol/interaction/Modify';
+import { of, Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { LineareReferenzierungLayerComponent } from 'src/app/shared/components/lineare-referenzierung-layer/lineare-referenzierung-layer.component';
 import { MapStyles } from 'src/app/shared/models/layers/map-styles';
@@ -124,9 +124,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({ segmentierung: {} } as unknown as SimpleChanges);
 
       const event = new ModifyEvent(
-        'modifystart' as ModifyEventType,
+        'modifystart',
         new Collection([component['shiftableSegmentPointsSource'].getFeatures()[0]]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
 
       component['onModifyStart'](event);
@@ -147,9 +147,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({});
 
       const event = new ModifyEvent(
-        'modifyend' as ModifyEventType,
+        'modifyend',
         new Collection([new Feature(new Point([0, 5]))]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
       component['modifiedFeatureIndex'] = 1;
 
@@ -171,9 +171,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({});
 
       const event = new ModifyEvent(
-        'modifyend' as ModifyEventType,
+        'modifyend',
         new Collection([new Feature(new Point([5, 5]))]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
       component['modifiedFeatureIndex'] = 1;
 
@@ -195,9 +195,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({});
 
       const event = new ModifyEvent(
-        'modifyend' as ModifyEventType,
+        'modifyend',
         new Collection([new Feature(new Point([0, 1]))]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
       component['modifiedFeatureIndex'] = 2;
 
@@ -224,9 +224,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({});
 
       const event = new ModifyEvent(
-        'modifyend' as ModifyEventType,
+        'modifyend',
         new Collection([new Feature(new Point([0, 8.5]))]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
       component['modifiedFeatureIndex'] = 1;
 
@@ -253,9 +253,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({});
 
       const event = new ModifyEvent(
-        'modifyend' as ModifyEventType,
+        'modifyend',
         new Collection([new Feature(new Point([0, 11]))]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
       component['modifiedFeatureIndex'] = 2;
 
@@ -282,9 +282,9 @@ describe('LineareReferenzierungLayerComponent', () => {
       component.ngOnChanges({});
 
       const event = new ModifyEvent(
-        'modifyend' as ModifyEventType,
+        'modifyend',
         new Collection([new Feature(new Point([0, 0.5]))]),
-        undefined as unknown as MapBrowserEvent
+        undefined as unknown as MapBrowserEvent<PointerEvent>
       );
       component['modifiedFeatureIndex'] = 1;
 
@@ -349,7 +349,7 @@ describe('LineareReferenzierungLayerComponent', () => {
       const spyOnDeselectElement = spyOn(component['deselectElement'], 'emit');
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent>);
 
       expect(spyOnSelectElement).not.toHaveBeenCalled();
       expect(spyOnDeselectElement).not.toHaveBeenCalled();
@@ -366,7 +366,7 @@ describe('LineareReferenzierungLayerComponent', () => {
       );
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([someFeature]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent>);
 
       expect(spyOnSelectElement).not.toHaveBeenCalled();
       expect(spyOnDeselectElement).not.toHaveBeenCalled();
@@ -383,7 +383,7 @@ describe('LineareReferenzierungLayerComponent', () => {
         pixel: [0, 0],
         coordinate: [100, 40],
         originalEvent: { ctrlKey: false, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       expect(spyOnSelectElement).toHaveBeenCalledWith({ index: 0, additiv: false, clickedCoordinate: [100, 40] });
       expect(spyOnDeselectElement).not.toHaveBeenCalled();
@@ -401,7 +401,7 @@ describe('LineareReferenzierungLayerComponent', () => {
         pixel: [0, 0],
         coordinate: [100, 40],
         originalEvent: { ctrlKey: true, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       expect(spyOnSelectElement).toHaveBeenCalledWith({ index: 0, additiv: true, clickedCoordinate: [100, 40] });
       expect(spyOnDeselectElement).not.toHaveBeenCalled();
@@ -418,7 +418,7 @@ describe('LineareReferenzierungLayerComponent', () => {
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: true, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       expect(spyOnDeselectElement).toHaveBeenCalledWith(0);
       expect(spyOnSelectElement).not.toHaveBeenCalled();
@@ -453,7 +453,7 @@ describe('LineareReferenzierungLayerComponent', () => {
         const hoveredSegmentIndexChangedSpy = spyOn(component.hoveredSegmentIndexChanged, 'emit');
         component['hoveredSegmentIndex'] = 2;
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         expect(component.hoveredSegmentIndex).toBeNull();
         expect(hoveredSegmentIndexChangedSpy).toHaveBeenCalledWith(null);
@@ -464,7 +464,7 @@ describe('LineareReferenzierungLayerComponent', () => {
         const hoveredSegmentIndexChangedSpy = spyOn(component.hoveredSegmentIndexChanged, 'emit');
         component['hoveredSegmentIndex'] = null;
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         expect(component.hoveredSegmentIndex).toBeNull();
         expect(hoveredSegmentIndexChangedSpy).not.toHaveBeenCalledWith(null);
@@ -473,8 +473,8 @@ describe('LineareReferenzierungLayerComponent', () => {
       it('should change hovered segment index', () => {
         const features = createDummyFeatures();
         component['selectableSegmentLinesSource'].addFeatures(features);
-        const firstFeature = component['selectableSegmentLinesLayer'].getSource().getFeatures()[0];
-        const secondFeature = component['selectableSegmentLinesLayer'].getSource().getFeatures()[1];
+        const firstFeature = component['selectableSegmentLinesLayer'].getSource()?.getFeatures()[0];
+        const secondFeature = component['selectableSegmentLinesLayer'].getSource()?.getFeatures()[1];
         when(olMapService.getFeaturesAtPixel(anything(), anything(), anything())).thenReturn([
           firstFeature,
           secondFeature,
@@ -482,7 +482,7 @@ describe('LineareReferenzierungLayerComponent', () => {
         const hoveredSegmentIndexChangedSpy = spyOn(component.hoveredSegmentIndexChanged, 'emit');
         component['hoveredSegmentIndex'] = 4;
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         expect(component.hoveredSegmentIndex).toEqual(0);
         expect(hoveredSegmentIndexChangedSpy).toHaveBeenCalledWith(0);
@@ -495,7 +495,7 @@ describe('LineareReferenzierungLayerComponent', () => {
         const hoveredSegmentIndexChangedSpy = spyOn(component.hoveredSegmentIndexChanged, 'emit');
         component['hoveredSegmentIndex'] = 4;
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         expect(component.hoveredSegmentIndex).toBeNull();
         expect(hoveredSegmentIndexChangedSpy).toHaveBeenCalledWith(null);

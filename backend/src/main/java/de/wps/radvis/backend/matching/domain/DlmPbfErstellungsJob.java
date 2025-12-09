@@ -19,7 +19,9 @@ import java.util.Optional;
 
 import org.springframework.data.util.Lazy;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.RamUsageUtility;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -55,5 +57,15 @@ public class DlmPbfErstellungsJob extends AbstractJob {
 		// auch verwendet wird
 		this.graphhopperUpdateService.get().update();
 		return Optional.empty();
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Erstellt die PBF-Datei vom DLM-Netz, die für alle Routing- und Matching-Funktionen gebraucht wird.",
+			"Liest Daten aus DB und legt eine PBF-Datei auf die Festplatte.",
+			"Sollte nach Netz-verändernden Jobs laufen (insb. nach dem DLM-Reimport).",
+			JobExecutionDurationEstimate.LONG
+		);
 	}
 }

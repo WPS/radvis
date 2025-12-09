@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -189,7 +190,9 @@ public class FahrradrouteConfiguration {
 	@Bean
 	public FahrradroutenToubizImportJob fahrradroutenToubizImportJob() {
 		return new FahrradroutenToubizImportJob(jobExecutionDescriptionRepository, toubizRepository(),
-			verwaltungseinheitService, fahrradrouteRepository, fahrradroutenMatchingService());
+			verwaltungseinheitService, fahrradrouteRepository, fahrradroutenMatchingService(),
+			Duration.ofSeconds(fahrradrouteConfigurationProperties.getTimeoutToubizImportMatchingInSeconds()),
+			fahrradrouteConfigurationProperties.getToubizIgnoreList());
 	}
 
 	@Bean

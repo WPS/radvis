@@ -16,7 +16,6 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Coordinate } from 'ol/coordinate';
 import { FeatureLike } from 'ol/Feature';
 import { LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Draw, Modify } from 'ol/interaction';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -102,7 +101,7 @@ export class MeasureDistanceLayerComponent implements OnDestroy {
 
   private modifyStyle = new Style({
     image: new CircleStyle({
-      radius: 5,
+      radius: MapStyles.POINT_WIDTH_MEDIUM,
       stroke: new Stroke({
         color: 'rgba(0, 0, 0, 0.8)',
       }),
@@ -127,7 +126,7 @@ export class MeasureDistanceLayerComponent implements OnDestroy {
 
     this.drawInteraction = new Draw({
       source: this.featureSource,
-      type: GeometryType.LINE_STRING,
+      type: 'LineString',
       style: (feature: FeatureLike): Style[] => this.styleFunction(feature),
     });
     this.drawInteraction.on('drawstart', () => {
@@ -175,12 +174,12 @@ export class MeasureDistanceLayerComponent implements OnDestroy {
       const segmentPoint = new Point(segment.getCoordinateAt(0.5));
       const segmentStyle = this.segmentLengthLabelStyle.clone();
       segmentStyle.setGeometry(segmentPoint);
-      segmentStyle.getText().setText(this.getLengthOfLine(segment));
+      segmentStyle.getText()?.setText(this.getLengthOfLine(segment));
       styles.push(segmentStyle);
     });
 
     this.totalLengthLabelStyle.setGeometry(lastPoint);
-    this.totalLengthLabelStyle.getText().setText('Gesamtlänge:\n' + this.getLengthOfLine(line));
+    this.totalLengthLabelStyle.getText()?.setText('Gesamtlänge:\n' + this.getLengthOfLine(line));
     styles.push(this.totalLengthLabelStyle);
 
     return styles;

@@ -32,7 +32,9 @@ import com.graphhopper.matching.MatchResult;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -301,5 +303,15 @@ public class MatchNetzAufOSMJob extends AbstractJob {
 
 		return new OsmAbbildungsFehler(kante.getId(), kante.getGeometry(), startTimeJob, radNETZ, kreisnetz,
 			kommunalnetz);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Erzeugt mittels Matching ein Mapping zwischen RadVIS-Kanten-IDs und den IDs aus OpenStreetMap.",
+			"ID-Mapping wird in DB abgespeichert.",
+			"Braucht Sollte nach netzverändernden Jobs, insb. dem DLM-Reimport, laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

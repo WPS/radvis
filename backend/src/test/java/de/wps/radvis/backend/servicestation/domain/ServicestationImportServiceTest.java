@@ -66,6 +66,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Fahrradhalterung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Gebuehren;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationTyp;
@@ -127,6 +128,7 @@ class ServicestationImportServiceTest {
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
 			.quellSystem(ServicestationenQuellSystem.RADVIS)
+			.radkultur(Radkultur.of(false))
 			.build();
 		Servicestation servicestation2 = Servicestation.builder()
 			.id(20L)
@@ -141,6 +143,7 @@ class ServicestationImportServiceTest {
 				KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(new Coordinate(500, 600)))
 			.status(ServicestationStatus.GEPLANT)
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_GROSS)
+			.radkultur(Radkultur.of(true))
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
 			.quellSystem(ServicestationenQuellSystem.RADVIS)
@@ -188,6 +191,7 @@ class ServicestationImportServiceTest {
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
 			.quellSystem(ServicestationenQuellSystem.RADVIS)
+			.radkultur(Radkultur.of(true))
 			.build();
 		Servicestation servicestation2 = Servicestation.builder()
 			.id(20L)
@@ -205,6 +209,7 @@ class ServicestationImportServiceTest {
 			.organisation(verwaltungseinheit)
 			.dokumentListe(new DokumentListe())
 			.quellSystem(ServicestationenQuellSystem.RADVIS)
+			.radkultur(Radkultur.of(false))
 			.build();
 
 		when(servicestationRepository.findByPositionAndQuellSystemRadvis(any())).thenAnswer(
@@ -319,6 +324,7 @@ class ServicestationImportServiceTest {
 				.organisation(verwaltungseinheit)
 				.dokumentListe(new DokumentListe())
 				.quellSystem(ServicestationenQuellSystem.RADVIS)
+				.radkultur(Radkultur.of(true))
 				.build();
 
 			ServicestationRepository servicestationRepository = Mockito.mock(ServicestationRepository.class);

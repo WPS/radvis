@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/font-style';
+@use 'src/style/font-style' as font;
 
 :host {
   display: block;
@@ -31,6 +31,6 @@
 }
 
 .date {
-  color: $font-color-peripheral;
-  font-size: $font-size-peripheral;
+  color: font.$font-color-peripheral;
+  font-size: font.$font-size-peripheral;
 }

@@ -27,8 +27,12 @@ import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
+import de.wps.radvis.backend.massnahme.domain.event.MassnahmeStornierungAngefragtEvent;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MassnahmenBenachrichtigungsService {
 
 	private final MassnahmeService massnahmeService;
@@ -36,22 +40,46 @@ public class MassnahmenBenachrichtigungsService {
 	private final MailConfigurationProperties mailConfigurationProperties;
 	private final CommonConfigurationProperties commonConfigurationProperties;
 	private final TemplateEngine templateEngine;
+	private final MassnahmenZustaendigkeitsService massnahmenZustaendigkeitsService;
+	private VerwaltungseinheitService verwaltungseinheitService;
 
 	public MassnahmenBenachrichtigungsService(
 		MassnahmeService massnahmeService, MailService mailService,
 		MailConfigurationProperties mailConfigurationProperties,
-		CommonConfigurationProperties commonConfigurationProperties, TemplateEngine templateEngine) {
+		CommonConfigurationProperties commonConfigurationProperties, TemplateEngine templateEngine,
+		MassnahmenZustaendigkeitsService massnahmenZustaendigkeitsService,
+		VerwaltungseinheitService verwaltungseinheitService) {
 		this.massnahmeService = massnahmeService;
 		this.mailService = mailService;
 		this.mailConfigurationProperties = mailConfigurationProperties;
 		this.commonConfigurationProperties = commonConfigurationProperties;
 		this.templateEngine = templateEngine;
+		this.massnahmenZustaendigkeitsService = massnahmenZustaendigkeitsService;
+		this.verwaltungseinheitService = verwaltungseinheitService;
 	}
 
 	@TransactionalEventListener(fallbackExecution = true)
 	public void onMassnahmeChanged(MassnahmeChangedEvent massnahmeChangedEvent) {
 		Massnahme massnahme = this.massnahmeService.get(massnahmeChangedEvent.getMassnahmeId());
 		this.versendeAenderungsBenachrichtigung(massnahme);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMassnahmeStornierungAngefragt(MassnahmeStornierungAngefragtEvent event) {
+		Massnahme massnahme = event.getMassnahme();
+		String stornierungsAnfrageBenachrichtigungsEmail = generateStornierungsAnfrageBenachrichtigungsEmail(massnahme);
+		List<String> zustaendigeRpEmailAdressen = massnahmenZustaendigkeitsService
+			.getZustaendigeRegierungsbezirke(massnahme).stream()
+			.map(verwE -> verwaltungseinheitService.findFunktionspostfach(verwE))
+			.filter(postfach -> postfach.isPresent()).map(p -> p.get().getValue()).toList();
+		if (zustaendigeRpEmailAdressen.isEmpty()) {
+			log.warn("Es wurde keine Email-Adresse für Stornierungsanfrage zu Maßnahme {} gefunden", massnahme.getId());
+			return;
+		}
+		mailService.sendHtmlMail(
+			zustaendigeRpEmailAdressen,
+			String.format("[RadVIS] Stornierungsanfrage zu Maßnahme %s", massnahme.getBezeichnung()),
+			stornierungsAnfrageBenachrichtigungsEmail);
 	}
 
 	private void versendeAenderungsBenachrichtigung(Massnahme massnahme) {
@@ -81,6 +109,23 @@ public class MassnahmenBenachrichtigungsService {
 		ctx.setVariable("bezeichnung", bezeichnung.toString());
 
 		return this.templateEngine.process("massnahme-aenderungs-benachrichtigung-mail-template.html", ctx);
+	}
+
+	private String generateStornierungsAnfrageBenachrichtigungsEmail(Massnahme massnahme) {
+		String radvisSupportMail = mailConfigurationProperties.getRadvisSupportMail();
+		String radvisLink = getRadvisLink(massnahme.getId());
+
+		Context ctx = new Context();
+		ctx.setVariable("radvisSupportMail", radvisSupportMail);
+		ctx.setVariable("radvisLink", radvisLink);
+		ctx.setVariable("zustaendigerName",
+			massnahme.getZustaendiger().map(v -> v.getDisplayText()).orElse("Keine Angabe"));
+		ctx.setVariable("anfragerEmail", massnahme.getBenutzerLetzteAenderung().getMailadresse().getValue());
+		ctx.setVariable("anfragerName", massnahme.getBenutzerLetzteAenderung().getVollerName());
+		ctx.setVariable("begruendung",
+			massnahme.getBegruendungStornierungsanfrage().map(begr -> begr.getValue()).orElse("Keine Angabe"));
+
+		return this.templateEngine.process("massnahme-stornierung-angefragt-benachrichtigung-mail-template.html", ctx);
 	}
 
 	protected String getRadvisLink(Long massnahmeId) {

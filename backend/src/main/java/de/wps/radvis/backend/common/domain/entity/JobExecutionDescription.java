@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -46,8 +47,10 @@ public class JobExecutionDescription extends AbstractEntity {
 
 	@Column(columnDefinition = "TIMESTAMP", nullable = false)
 	@NonNull
+	@Setter
 	private LocalDateTime executionEnd;
 
+	@Setter
 	private String statistic;
 
 	public Duration getDuration() {

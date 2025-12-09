@@ -43,7 +43,7 @@ public class SaveServicestationCommandConverter {
 			command.getBeschreibung(),
 			verwaltungseinheitResolver.resolve(command.getOrganisationId()),
 			command.getTyp(),
-			command.getStatus());
+			command.getStatus(), command.getRadkultur());
 	}
 
 	public Servicestation convert(@Valid SaveServicestationCommand command) {
@@ -62,6 +62,6 @@ public class SaveServicestationCommandConverter {
 			verwaltungseinheitResolver.resolve(command.getOrganisationId()),
 			command.getTyp(),
 			command.getStatus(),
-			new DokumentListe());
+			new DokumentListe(), command.getRadkultur());
 	}
 }

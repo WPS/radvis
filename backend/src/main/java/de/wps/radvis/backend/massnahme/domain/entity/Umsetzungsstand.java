@@ -19,6 +19,7 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 import static org.valid4j.Assertive.require;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.hibernate.envers.Audited;
 
@@ -69,7 +70,6 @@ public class Umsetzungsstand extends VersionierteEntity {
 	private Long kostenDerMassnahme;
 
 	@Enumerated(EnumType.STRING)
-	@Getter
 	private GrundFuerNichtUmsetzungDerMassnahme grundFuerNichtUmsetzungDerMassnahme;
 
 	@Getter
@@ -85,8 +85,7 @@ public class Umsetzungsstand extends VersionierteEntity {
 		Long kostenDerMassnahme,
 		GrundFuerNichtUmsetzungDerMassnahme grundFuerNichtUmsetzungDerMassnahme,
 		String anmerkung,
-		Umsetzungsstatus umsetzungsstatusDerMassnahme
-	) {
+		Umsetzungsstatus umsetzungsstatusDerMassnahme) {
 		require(letzteAenderung, notNullValue());
 		require(benutzerLetzteAenderung, notNullValue());
 		require(pruefungQualitaetsstandardsErfolgt, notNullValue());
@@ -115,8 +114,7 @@ public class Umsetzungsstand extends VersionierteEntity {
 		String beschreibungAbweichenderMassnahme,
 		Long kostenDerMassnahme,
 		GrundFuerNichtUmsetzungDerMassnahme grundFuerNichtUmsetzungDerMassnahme,
-		String anmerkung
-	) {
+		String anmerkung) {
 		this.umsetzungsstandStatus = UmsetzungsstandStatus.IMPORTIERT;
 		this.letzteAenderung = letzteAenderung;
 		this.benutzerLetzteAenderung = benutzerLetzteAenderung;
@@ -134,9 +132,12 @@ public class Umsetzungsstand extends VersionierteEntity {
 	}
 
 	public static boolean isUmsetzungsstandBearbeitungGesperrt(Umsetzungsstand umsetzungsstand, Massnahme massnahme) {
-		return (massnahme.getUmsetzungsstatus() == Umsetzungsstatus.STORNIERT
-			|| massnahme.getUmsetzungsstatus() == Umsetzungsstatus.UMGESETZT)
+		return (massnahme.isStorniert() || massnahme.getUmsetzungsstatus() == Umsetzungsstatus.UMGESETZT)
 			&& umsetzungsstand.umsetzungsstandStatus != UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT;
+	}
+
+	public Optional<GrundFuerNichtUmsetzungDerMassnahme> getGrundFuerNichtUmsetzungDerMassnahme() {
+		return Optional.ofNullable(grundFuerNichtUmsetzungDerMassnahme);
 	}
 
 	private static boolean grundFuerNichtUmsetzungGesetztWennInBestimmtenZustand(
@@ -144,7 +145,8 @@ public class Umsetzungsstand extends VersionierteEntity {
 		GrundFuerNichtUmsetzungDerMassnahme grundFuerNichtUmsetzungDerMassnahme,
 		Umsetzungsstatus umsetzungsstatusDerMassnahme) {
 		if ((umsetzungsstatusDerMassnahme == Umsetzungsstatus.IDEE
-			|| umsetzungsstatusDerMassnahme == Umsetzungsstatus.STORNIERT)
+			|| Umsetzungsstatus.isStorniert(umsetzungsstatusDerMassnahme)
+			|| umsetzungsstatusDerMassnahme.equals(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT))
 			&& umsetzungsstandStatus == UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT) {
 			return grundFuerNichtUmsetzungDerMassnahme != null;
 		}

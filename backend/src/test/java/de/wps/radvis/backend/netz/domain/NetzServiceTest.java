@@ -158,7 +158,7 @@ class NetzServiceTest {
 			zustaendigkeitAttributGruppeRepository, fahrtrichtungAttributGruppeRepository,
 			geschwindigkeitAttributGruppeRepository, fuehrungsformAttributGruppeRepository,
 			kantenAttributGruppeRepository, verwaltungseinheitResolver, entityManager, 1.0,
-			Laenge.of(10), 10, 15.0, 0.1);
+			Laenge.of(10), 10, 15.0, 0.1, 100);
 	}
 
 	@Test

@@ -17,9 +17,13 @@ package de.wps.radvis.backend.organisation.domain;
 import static de.wps.radvis.backend.common.domain.Validators.isValidDateipfad;
 import static org.valid4j.Assertive.require;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import lombok.Getter;
 
 @ConfigurationProperties("radvis.organisation")
@@ -28,16 +32,25 @@ public class OrganisationConfigurationProperties {
 	private final int zustaendigkeitBufferInMeter;
 	private final int zustaendigkeitSimplificationToleranceInMeter;
 	private final String verwaltungsgrenzenShapeFilesPath;
+	private final Map<Integer, Mailadresse> postfaecher;
 
 	@ConstructorBinding
 	public OrganisationConfigurationProperties(int zustaendigkeitBufferInMeter,
-		int zustaendigkeitSimplificationToleranceInMeter, String verwaltungsgrenzenShapeFilesPath) {
+		int zustaendigkeitSimplificationToleranceInMeter, String verwaltungsgrenzenShapeFilesPath,
+		Map<Integer, String> postfaecher) {
 		require(zustaendigkeitBufferInMeter >= 0,
 			"Der Zuständigkeits-Puffer in Metern muss größer oder gleich 0 sein.");
 		require(zustaendigkeitSimplificationToleranceInMeter >= 0,
 			"Simplification-tolerance in Metern muss größer oder gleich 0 sein.");
 		require(isValidDateipfad(verwaltungsgrenzenShapeFilesPath),
 			"verwaltungsgrenzenShapeFilesPath muss Dateipfadstruktur haben");
+
+		this.postfaecher = new HashMap<Integer, Mailadresse>();
+		if (postfaecher != null) {
+			require(postfaecher.values().stream().allMatch(v -> Mailadresse.isValid(v)),
+				"Alle Organisations-Postfächer müssen valide Emails enthalten.");
+			postfaecher.forEach((key, value) -> this.postfaecher.put(key, Mailadresse.of(value)));
+		}
 
 		this.zustaendigkeitBufferInMeter = zustaendigkeitBufferInMeter;
 		this.zustaendigkeitSimplificationToleranceInMeter = zustaendigkeitSimplificationToleranceInMeter;

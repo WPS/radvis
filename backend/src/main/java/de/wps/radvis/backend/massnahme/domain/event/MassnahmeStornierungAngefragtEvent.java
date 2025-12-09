@@ -11,13 +11,18 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-@Component({
-  selector: 'rad-warnhinweis',
-  templateUrl: './warnhinweis.component.html',
-  styleUrl: './warnhinweis.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
-})
-export class WarnhinweisComponent {}
+package de.wps.radvis.backend.massnahme.domain.event;
+
+import de.wps.radvis.backend.common.domain.RadVisDomainEvent;
+import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import lombok.Getter;
+
+public class MassnahmeStornierungAngefragtEvent implements RadVisDomainEvent {
+	@Getter
+	private Massnahme massnahme;
+
+	public MassnahmeStornierungAngefragtEvent(Massnahme massnahme) {
+		this.massnahme = massnahme;
+	}
+}

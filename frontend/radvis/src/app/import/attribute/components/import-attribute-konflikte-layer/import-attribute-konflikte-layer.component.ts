@@ -71,7 +71,7 @@ export class ImportAttributeKonflikteLayerComponent implements OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(
       clickEvent.pixel,
       (layer: Layer<Source>) => layer === this.konflikteLayer

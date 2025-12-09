@@ -44,7 +44,9 @@ import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -356,5 +358,16 @@ public class MassnahmenImportJob extends AbstractJob {
 					&& name.endsWith(".shp")));
 
 		return Arrays.stream(shpFiles);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert Maßnahmen aus ShapeFile.",
+			"",
+			"",
+			"DEPRECATED, nicht mehr nutzen!",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

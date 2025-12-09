@@ -28,4 +28,5 @@ public interface Job {
 
 	String getName();
 
+	JobDescription getDescription();
 }

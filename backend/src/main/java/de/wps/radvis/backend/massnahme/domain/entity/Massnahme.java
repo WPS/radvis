@@ -52,6 +52,9 @@ import de.wps.radvis.backend.dokument.domain.entity.DokumentListe;
 import de.wps.radvis.backend.kommentar.domain.entity.Kommentar;
 import de.wps.radvis.backend.kommentar.domain.entity.KommentarListe;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
+import de.wps.radvis.backend.massnahme.domain.event.MassnahmeStornierungAngefragtEvent;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -66,6 +69,7 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Prioritaet;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.AbstractEntityWithNetzbezug;
@@ -211,6 +215,13 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 	@Getter(value = AccessLevel.PACKAGE)
 	private MultiLineString netzbezugSnapshotLines;
 
+	@Enumerated(EnumType.STRING)
+	private ZurueckstellungsGrund zurueckstellungsGrund;
+
+	private BegruendungStornierungsanfrage begruendungStornierungsanfrage;
+
+	private BegruendungZurueckstellung begruendungZurueckstellung;
+
 	@Builder(builderMethodName = "privateBuilder", toBuilder = true)
 	private Massnahme(Long id, Long version, Bezeichnung bezeichnung,
 		Set<Massnahmenkategorie> massnahmenkategorien, MassnahmeNetzBezug netzbezug,
@@ -223,7 +234,9 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		MassnahmeKonzeptID massnahmeKonzeptId, SollStandard sollStandard,
 		Handlungsverantwortlicher handlungsverantwortlicher, Konzeptionsquelle konzeptionsquelle,
 		String sonstigeKonzeptionsquelle, Geometry originalRadNETZGeometrie, MassnahmenPaketId massnahmenPaketId,
-		Set<Benutzer> zuBenachrichtigendeBenutzer, boolean geloescht, Realisierungshilfe realisierungshilfe) {
+		Set<Benutzer> zuBenachrichtigendeBenutzer, boolean geloescht, Realisierungshilfe realisierungshilfe,
+		ZurueckstellungsGrund zurueckstellungsGrund, BegruendungStornierungsanfrage begruendungStornierungsanfrage,
+		BegruendungZurueckstellung begruendungZurueckstellung) {
 		super(id, version);
 		require(bezeichnung, notNullValue());
 		require(massnahmenkategorien, notNullValue());
@@ -247,6 +260,16 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		require(sonstigeKonzeptionsquelleNichtLeerWennSonstigeKonzeptionsquelle(konzeptionsquelle,
 			sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
+		require(isZurueckstellungsGrundValidForUmsetzungsstatus(umsetzungsstatus, zurueckstellungsGrund),
+			"Zurückstellungsgrund darf nur für Status ZURUECKGESTELLT gesetzt sein");
+		require(isBegruendungZurueckstellungValidForZurueckstellungsgrund(zurueckstellungsGrund,
+			begruendungZurueckstellung),
+			"Begründung Zurückstellung muss für Zurückstellungsgrund WEITERE_GRUENDE gesetzt sein");
+		require(
+			isBegruendungStornierungsanfrageValidForUmsetzungsstatus(umsetzungsstatus, begruendungStornierungsanfrage),
+			"Begründung Stornierungsanfrage darf nur für Status STORNIERUNG_ANGEFRAGT gesetzt sein.");
+		require(isUmsetzungsstatusValidForKonzeptionsquelle(konzeptionsquelle, umsetzungsstatus),
+			"Umsetzungsstatus STORNIERUNG ANGEFRAGT darf nur für RadNETZ-Maßnahmen gesetzt sein.");
 
 		this.bezeichnung = bezeichnung;
 		this.massnahmenkategorien = new HashSet<>(massnahmenkategorien);
@@ -280,6 +303,9 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		this.geloescht = geloescht;
 		this.realisierungshilfe = realisierungshilfe;
 		this.archiviert = false;
+		this.zurueckstellungsGrund = zurueckstellungsGrund;
+		this.begruendungStornierungsanfrage = begruendungStornierungsanfrage;
+		this.begruendungZurueckstellung = begruendungZurueckstellung;
 
 		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
 
@@ -303,15 +329,24 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		SollStandard sollStandard,
 		Handlungsverantwortlicher handlungsverantwortlicher,
 		Konzeptionsquelle konzeptionsquelle,
-		String sonstigeKonzeptionsquelle) {
+		String sonstigeKonzeptionsquelle, ZurueckstellungsGrund zurueckstellungsGrund,
+		BegruendungStornierungsanfrage begruendungStornierungsanfrage,
+		BegruendungZurueckstellung begruendungZurueckstellung) {
 		this(null, null, bezeichnung, massnahmenkategorien, netzbezug, durchfuehrungszeitraum, umsetzungsstatus,
 			new DokumentListe(), veroeffentlicht, planungErforderlich, new KommentarListe(), null, null, null,
 			null, null, new HashSet<>(), benutzerLetzteAenderung, letzteAenderung, baulastZustaendiger, null,
 			zustaendiger, null, sollStandard, handlungsverantwortlicher, konzeptionsquelle, sonstigeKonzeptionsquelle,
-			null, null, new HashSet<>(), false, null);
+			null, null, new HashSet<>(), false, null, zurueckstellungsGrund, begruendungStornierungsanfrage,
+			begruendungZurueckstellung);
 
 		require(!konzeptionsquelle.equals(Konzeptionsquelle.RADNETZ_MASSNAHME), "Für Konzeptionsquelle "
 			+ Konzeptionsquelle.RADNETZ_MASSNAHME + " dürfen keine neuen Maßnahmen angelegt werden.");
+		require(!umsetzungsstatus.equals(Umsetzungsstatus.STORNIERT),
+			"Umsetzungsstatus STORNIERT darf nicht mehr neu gesetzt werden.");
+
+		if (umsetzungsstatus.equals(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)) {
+			RadVisDomainEventPublisher.publish(new MassnahmeStornierungAngefragtEvent(this));
+		}
 	}
 
 	public static MassnahmeBuilder builder() {
@@ -328,7 +363,9 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		Verwaltungseinheit zustaendiger,
 		MassnahmeKonzeptID massnahmeKonzeptID, SollStandard sollStandard,
 		Handlungsverantwortlicher handlungsverantwortlicher, Konzeptionsquelle konzeptionsquelle,
-		String sonstigeKonzeptionsquelle, Realisierungshilfe realisierungshilfe) {
+		String sonstigeKonzeptionsquelle, Realisierungshilfe realisierungshilfe,
+		ZurueckstellungsGrund zurueckstellungsGrund, BegruendungStornierungsanfrage begruendungStornierungsanfrage,
+		BegruendungZurueckstellung begruendungZurueckstellung) {
 		require(bezeichnung, notNullValue());
 		require(massnahmenkategorien, notNullValue());
 		require(massnahmenkategorien, is(not(empty())));
@@ -349,6 +386,22 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 			sonstigeKonzeptionsquelle),
 			"Sonstige Konzeptionsquelle ist ein Pflichtfeld, wenn Konzeptionsquelle 'Sonstige' ist.");
 		require(!archiviert);
+		require(isUmsetzungsstatusAenderungValid(umsetzungsstatus),
+			"Umsetzungsstatus STORNIERT darf nicht mehr neu gesetzt werden.");
+		require(isZurueckstellungsGrundValidForUmsetzungsstatus(umsetzungsstatus, zurueckstellungsGrund),
+			"Zurückstellungsgrund darf nur für Status ZURUECKGESTELLT gesetzt sein");
+		require(
+			isBegruendungZurueckstellungValidForZurueckstellungsgrund(zurueckstellungsGrund,
+				begruendungZurueckstellung),
+			"Begründung Zurückstellung muss für Zurückstellungsgrund WEITERE_GRUENDE gesetzt sein");
+		require(
+			isBegruendungStornierungsanfrageValidForUmsetzungsstatus(umsetzungsstatus, begruendungStornierungsanfrage),
+			"Begründung Stornierungsanfrage darf nur für Status STORNIERUNG_ANGEFRAGT gesetzt sein.");
+		require(isUmsetzungsstatusValidForKonzeptionsquelle(konzeptionsquelle, umsetzungsstatus),
+			"Umsetzungsstatus STORNIERUNG ANGEFRAGT darf nur für RadNETZ-Maßnahmen gesetzt sein.");
+
+		boolean wurdeStornierungAngefragt = umsetzungsstatus.equals(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+			&& !this.umsetzungsstatus.equals(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT);
 
 		aktualisiereKonzeptionsquelleUndUmsetzungsstand(konzeptionsquelle, umsetzungsstatus);
 
@@ -374,10 +427,69 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		this.handlungsverantwortlicher = handlungsverantwortlicher;
 		this.sonstigeKonzeptionsquelle = sonstigeKonzeptionsquelle;
 		this.realisierungshilfe = realisierungshilfe;
+		this.zurueckstellungsGrund = zurueckstellungsGrund;
+		this.begruendungStornierungsanfrage = begruendungStornierungsanfrage;
+		this.begruendungZurueckstellung = begruendungZurueckstellung;
 
 		ensure(umsetzungsstandValidForKonzeptionsquelle());
 
 		RadVisDomainEventPublisher.publish(new MassnahmeChangedEvent(this.id));
+
+		if (wurdeStornierungAngefragt) {
+			RadVisDomainEventPublisher.publish(new MassnahmeStornierungAngefragtEvent(this));
+		}
+	}
+
+	public static boolean isBegruendungStornierungsanfrageValidForUmsetzungsstatus(Umsetzungsstatus umsetzungsstatus,
+		BegruendungStornierungsanfrage begruendungStornierungsanfrage) {
+		require(umsetzungsstatus, notNullValue());
+
+		if (umsetzungsstatus.equals(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)) {
+			return begruendungStornierungsanfrage != null;
+		}
+
+		return begruendungStornierungsanfrage == null;
+	}
+
+	public static boolean isBegruendungZurueckstellungValidForZurueckstellungsgrund(
+		ZurueckstellungsGrund zurueckstellungsGrund, BegruendungZurueckstellung begruendungZurueckstellung) {
+		if (zurueckstellungsGrund != null && zurueckstellungsGrund.equals(ZurueckstellungsGrund.WEITERE_GRUENDE)) {
+			return begruendungZurueckstellung != null;
+		}
+
+		return begruendungZurueckstellung == null;
+	}
+
+	public static boolean isZurueckstellungsGrundValidForUmsetzungsstatus(Umsetzungsstatus umsetzungsstatus,
+		ZurueckstellungsGrund zurueckstellungsGrund) {
+		require(umsetzungsstatus, notNullValue());
+
+		if (umsetzungsstatus.equals(Umsetzungsstatus.ZURUECKGESTELLT)) {
+			return zurueckstellungsGrund != null;
+		}
+
+		return zurueckstellungsGrund == null;
+	}
+
+	public static boolean isUmsetzungsstatusValidForKonzeptionsquelle(Konzeptionsquelle konzeptionsquelle,
+		Umsetzungsstatus umsetzungsstatus) {
+		require(umsetzungsstatus, notNullValue());
+
+		if (umsetzungsstatus.equals(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)) {
+			return Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle);
+		}
+
+		return true;
+	}
+
+	public boolean isUmsetzungsstatusAenderungValid(Umsetzungsstatus neuerStatus) {
+		require(umsetzungsstatus, notNullValue());
+
+		if (umsetzungsstatus.equals(Umsetzungsstatus.STORNIERT)) {
+			return true;
+		}
+
+		return !neuerStatus.equals(Umsetzungsstatus.STORNIERT);
 	}
 
 	private boolean umsetzungsstandValidForKonzeptionsquelle() {
@@ -396,7 +508,7 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 
 		this.getUmsetzungsstand().ifPresent(umsetzungsstand -> {
 			if (neuerUmsetzungsstatus != this.umsetzungsstatus &&
-				(neuerUmsetzungsstatus == Umsetzungsstatus.STORNIERT ||
+				(neuerUmsetzungsstatus == Umsetzungsstatus.STORNIERUNG_ANGEFRAGT ||
 					neuerUmsetzungsstatus == Umsetzungsstatus.UMGESETZT)) {
 				umsetzungsstand.fordereAktualisierungAn();
 			}
@@ -459,6 +571,18 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 
 	public Optional<MassnahmeKonzeptID> getMassnahmeKonzeptID() {
 		return Optional.ofNullable(massnahmeKonzeptId);
+	}
+
+	public Optional<ZurueckstellungsGrund> getZurueckstellungsGrund() {
+		return Optional.ofNullable(zurueckstellungsGrund);
+	}
+
+	public Optional<BegruendungZurueckstellung> getBegruendungZurueckstellung() {
+		return Optional.ofNullable(this.begruendungZurueckstellung);
+	}
+
+	public Optional<BegruendungStornierungsanfrage> getBegruendungStornierungsanfrage() {
+		return Optional.ofNullable(begruendungStornierungsanfrage);
 	}
 
 	public Optional<LGVFGID> getLGVFGID() {
@@ -625,8 +749,8 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 		return Konzeptionsquelle.isRadNetzKonzeptionsquelle(konzeptionsquelle);
 	}
 
-	public void stornieren(Benutzer benutzerLetzteAenderung, LocalDateTime letzteAenderung) {
-		this.umsetzungsstatus = Umsetzungsstatus.STORNIERT;
+	public void alsNichtMehrErforderlichMarkieren(Benutzer benutzerLetzteAenderung, LocalDateTime letzteAenderung) {
+		this.umsetzungsstatus = Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH;
 		this.benutzerLetzteAenderung = benutzerLetzteAenderung;
 		this.letzteAenderung = letzteAenderung;
 	}
@@ -684,4 +808,9 @@ public class Massnahme extends AbstractEntityWithNetzbezug {
 	public void ersetzeKnotenInNetzbezug(Map<Long, Knoten> ersatzKnoten) {
 		netzbezug = netzbezug.withKnotenErsetzt(ersatzKnoten);
 	}
+
+	public boolean isStorniert() {
+		return Umsetzungsstatus.isStorniert(umsetzungsstatus);
+	}
+
 }

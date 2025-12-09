@@ -22,7 +22,7 @@ import Select, { SelectEvent } from 'ol/interaction/Select';
 import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
 import VectorSource from 'ol/source/Vector';
-import { Circle, Stroke, Style } from 'ol/style';
+import { Circle, Style } from 'ol/style';
 import Fill from 'ol/style/Fill';
 import Text from 'ol/style/Text';
 import { Subscription } from 'rxjs';
@@ -107,7 +107,7 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
     // Möglichkeit sieht, gerne!
     this.olMapService.click$().subscribe(event => {
       if (this.selectInteraction.getFeatures().getLength() === 0) {
-        this.onSelect(new SelectEvent('select' as any, [], [], event));
+        this.onSelect(new SelectEvent('select', [], [], event));
       }
     });
 
@@ -115,7 +115,7 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
 
     this.selectedNetzklassenSubscription = this.mapQueryParamsService.netzklassen$.subscribe(newSelectedNetzklassen => {
       this.selectedNetzklassen = newSelectedNetzklassen;
-      this.olLayer.getSource().refresh();
+      this.olLayer.getSource()?.refresh();
     });
   }
 
@@ -189,11 +189,11 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
   };
 
   private createOrChangeNewBKnoten(coordinate: Coordinate): Feature<Geometry> {
-    let feature = this.olLayer.getSource().getFeatureById(this.newBKnotenId);
+    let feature = this.olLayer.getSource()?.getFeatureById(this.newBKnotenId);
     if (!feature) {
       feature = new Feature<Geometry>(new Point(coordinate));
       feature.setId(this.newBKnotenId);
-      this.olLayer.getSource().addFeature(feature);
+      this.olLayer.getSource()?.addFeature(feature);
     } else {
       feature.setGeometry(new Point(coordinate));
       feature.changed();
@@ -202,9 +202,9 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
   }
 
   private removeNewBisKnotenIfExists(): void {
-    const newBisKnotenFeature = this.olLayer.getSource().getFeatureById('new');
+    const newBisKnotenFeature = this.olLayer.getSource()?.getFeatureById('new');
     if (newBisKnotenFeature) {
-      this.olLayer.getSource().removeFeature(newBisKnotenFeature);
+      this.olLayer.getSource()?.removeFeature(newBisKnotenFeature);
     }
   }
 
@@ -224,10 +224,9 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
 
     return new Style({
       image: new Circle({
-        radius: 8,
-        fill: new Stroke({
+        radius: MapStyles.POINT_WIDTH_THICK,
+        fill: new Fill({
           color: text ? MapStyles.VALID_INPUT_COLOR : MapStyles.FEATURE_HOVER_COLOR,
-          width: MapStyles.LINE_WIDTH_MEDIUM,
         }),
       }),
       text: text
@@ -247,7 +246,7 @@ export class KantenCreatorKnotenSelektionComponent implements OnDestroy {
     this.selectInteraction.getFeatures().clear();
     this.olLayer
       .getSource()
-      .getFeatures()
+      ?.getFeatures()
       .forEach(feature => {
         if (feature.getId() === this.selectedVonKnoten?.getId()) {
           this.selectedVonKnoten = feature;

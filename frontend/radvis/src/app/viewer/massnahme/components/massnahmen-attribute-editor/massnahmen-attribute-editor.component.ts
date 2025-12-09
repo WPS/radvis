@@ -38,6 +38,7 @@ import { Massnahmenkategorien } from 'src/app/viewer/massnahme/models/massnahmen
 import { Realisierungshilfe } from 'src/app/viewer/massnahme/models/realisierungshilfe';
 import { SaveMassnahmeCommand } from 'src/app/viewer/massnahme/models/save-massnahme-command';
 import { SollStandard } from 'src/app/viewer/massnahme/models/soll-standard';
+import { ZurueckstellungsGrund } from 'src/app/viewer/massnahme/models/zurueckstellung-grund';
 import { MassnahmeFilterService } from 'src/app/viewer/massnahme/services/massnahme-filter.service';
 import { MassnahmeNetzbezugDisplayService } from 'src/app/viewer/massnahme/services/massnahme-netzbezug-display.service';
 import { MassnahmeUpdatedService } from 'src/app/viewer/massnahme/services/massnahme-updated.service';
@@ -64,6 +65,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   public alleOrganisationenOptions: Observable<AutoCompleteOption[]>;
   public sollStandardOptions = SollStandard.options;
   public handlungsverantwortlicherOptions = Handlungsverantwortlicher.options;
+  public zurueckstellungsGrundOptions = ZurueckstellungsGrund.options;
 
   public konzeptionsquelleOptions = Konzeptionsquelle.options;
 
@@ -77,6 +79,25 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
   private subscriptions: Subscription[] = [];
   darfUnarchivieren: boolean;
 
+  get istStornierungAngefragt(): boolean {
+    return (
+      this.formGroup.value.umsetzungsstatus === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT &&
+      this.currentMassnahme?.umsetzungsstatus !== Umsetzungsstatus.STORNIERUNG_ANGEFRAGT
+    );
+  }
+
+  get zurueckstellungsGrundVisible(): boolean {
+    return this.isZurueckstellungsGrundEnabled(this.formGroup.value.umsetzungsstatus);
+  }
+
+  get begruendungZurueckstellungVisible(): boolean {
+    return this.isBegruendungZurueckstellungEnabled(this.formGroup.value.zurueckstellungsGrund);
+  }
+
+  get begruendungStornierungVisible(): boolean {
+    return this.isBegruendungStornierungEnabled(this.formGroup.value.umsetzungsstatus);
+  }
+
   constructor(
     organisationenService: OrganisationenService,
     private massnahmeService: MassnahmeService,
@@ -87,7 +108,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     private massnahmeUpdatedService: MassnahmeUpdatedService,
     private massnahmenRoutingService: MassnahmenRoutingService,
     massnahmeNetzbezugDisplayService: MassnahmeNetzbezugDisplayService,
-    benutzerDetailsService: BenutzerDetailsService,
+    private benutzerDetailsService: BenutzerDetailsService,
     private changeDetector: ChangeDetectorRef
   ) {
     this.formGroup = new UntypedFormGroup({
@@ -101,7 +122,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
         ]
       ),
       netzbezug: new UntypedFormControl(null),
-      umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE),
+      umsetzungsstatus: new UntypedFormControl(Umsetzungsstatus.IDEE, RadvisValidators.isNotNullOrEmpty),
       veroeffentlicht: new UntypedFormControl(false),
       planungErforderlich: new UntypedFormControl(false),
       durchfuehrungszeitraum: new UntypedFormControl(null, [
@@ -131,6 +152,15 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       konzeptionsquelle: new UntypedFormControl(null, RadvisValidators.isNotNullOrEmpty),
       sonstigeKonzeptionsquelle: new UntypedFormControl(null),
       realisierungshilfe: new UntypedFormControl(null),
+      zurueckstellungsGrund: new UntypedFormControl({ value: null, disabled: true }, RadvisValidators.isNotNullOrEmpty),
+      begruendungZurueckstellung: new UntypedFormControl({ value: null, disabled: true }, [
+        RadvisValidators.isNotNullOrEmpty,
+        RadvisValidators.maxLength(3000),
+      ]),
+      begruendungStornierungsanfrage: new UntypedFormControl({ value: null, disabled: true }, [
+        RadvisValidators.isNotNullOrEmpty,
+        RadvisValidators.maxLength(3000),
+      ]),
     });
 
     this.realisierungshilfeOptions = Realisierungshilfe.options.map(option => ({
@@ -151,6 +181,15 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     this.subscriptions.push(
       this.formGroup.get('umsetzungsstatus')!.valueChanges.subscribe(this.onUmsetzungsstatusChanged),
       this.formGroup.get('konzeptionsquelle')!.valueChanges.subscribe(this.onKonzeptionsquelleChanged),
+      this.formGroup.controls.zurueckstellungsGrund.valueChanges.subscribe(v => {
+        if (this.isBegruendungZurueckstellungEnabled(v)) {
+          this.formGroup.controls.begruendungZurueckstellung.enable();
+          // damit es gleich rot angezeigt wird
+          this.formGroup.controls.begruendungZurueckstellung.markAsTouched();
+        } else {
+          this.formGroup.controls.begruendungZurueckstellung.disable();
+        }
+      }),
       this.activatedRoute.data.subscribe(data => {
         this.currentMassnahme = data.massnahme;
         invariant(this.currentMassnahme);
@@ -158,6 +197,37 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
         this.resetForm(this.currentMassnahme);
       })
     );
+  }
+
+  private disableForbiddenUmsetzungsstatus(konzeptionsquelle: Konzeptionsquelle): void {
+    this.umsetzungsstatusOptions = Umsetzungsstatus.options.map(opt => {
+      if (
+        opt.name === Umsetzungsstatus.STORNIERT_ENGSTELLE ||
+        opt.name === Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH
+      ) {
+        return {
+          ...opt,
+          disabled:
+            Konzeptionsquelle.isRadNetzMassnahme(konzeptionsquelle) &&
+            !this.benutzerDetailsService.canMassnahmenStornieren(),
+        };
+      }
+
+      if (opt.name === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT) {
+        return {
+          ...opt,
+          disabled: !Konzeptionsquelle.isRadNetzMassnahme(konzeptionsquelle),
+        };
+      }
+
+      return opt;
+    });
+
+    if (
+      this.umsetzungsstatusOptions.find(opt => opt.name === this.formGroup.controls.umsetzungsstatus.value)?.disabled
+    ) {
+      this.formGroup.controls.umsetzungsstatus.reset();
+    }
   }
 
   ngOnDestroy(): void {
@@ -198,16 +268,16 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       massnahmenkategorien: this.formGroup.get('massnahmenkategorien')?.value,
       netzbezug: this.formGroup.get('netzbezug')?.value,
       umsetzungsstatus: this.formGroup.get('umsetzungsstatus')?.value,
-      veroeffentlicht: this.formGroup.get('veroeffentlicht')?.value || false,
-      planungErforderlich: this.formGroup.get('planungErforderlich')?.value || false,
+      veroeffentlicht: this.formGroup.get('veroeffentlicht')?.value ?? false,
+      planungErforderlich: this.formGroup.get('planungErforderlich')?.value ?? false,
       durchfuehrungszeitraum,
-      baulastZustaendigerId: this.formGroup.get('baulastZustaendiger')?.value?.id || null,
+      baulastZustaendigerId: this.formGroup.get('baulastZustaendiger')?.value?.id ?? null,
 
-      prioritaet: this.formGroup.get('prioritaet')?.value || null,
-      kostenannahme: this.formGroup.get('kostenannahme')?.value || null,
+      prioritaet: this.formGroup.get('prioritaet')?.value ?? null,
+      kostenannahme: this.formGroup.get('kostenannahme')?.value ?? null,
       netzklassen: newNetzklassen,
       zustaendigerId: this.formGroup.get('zustaendiger')?.value.id,
-      unterhaltsZustaendigerId: this.formGroup.get('unterhaltsZustaendiger')?.value?.id || null,
+      unterhaltsZustaendigerId: this.formGroup.get('unterhaltsZustaendiger')?.value?.id ?? null,
       maViSID: this.formGroup.get('maViSID')?.value,
       verbaID: this.formGroup.get('verbaID')?.value,
       lgvfgid: this.formGroup.get('lgvfgid')?.value,
@@ -216,7 +286,10 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       handlungsverantwortlicher: this.formGroup.get('handlungsverantwortlicher')?.value,
       konzeptionsquelle: this.formGroup.get('konzeptionsquelle')?.value,
       sonstigeKonzeptionsquelle: this.formGroup.get('sonstigeKonzeptionsquelle')?.value,
-      realisierungshilfe: this.formGroup.get('realisierungshilfe')?.value?.name || null,
+      realisierungshilfe: this.formGroup.get('realisierungshilfe')?.value?.name ?? null,
+      zurueckstellungsGrund: this.formGroup.value.zurueckstellungsGrund ?? null,
+      begruendungStornierungsanfrage: this.formGroup.value.begruendungStornierungsanfrage ?? null,
+      begruendungZurueckstellung: this.formGroup.value.begruendungZurueckstellung ?? null,
     };
 
     this.isFetching = true;
@@ -228,7 +301,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
         umsetzungsstandabfrageAktualisieren =
           this.currentMassnahme?.umsetzungsstatus !== massnahme.umsetzungsstatus &&
           Konzeptionsquelle.isRadNetzMassnahme(massnahme.konzeptionsquelle) &&
-          (massnahme.umsetzungsstatus === Umsetzungsstatus.STORNIERT ||
+          (massnahme.umsetzungsstatus === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT ||
             massnahme.umsetzungsstatus === Umsetzungsstatus.UMGESETZT);
 
         this.notifyUserService.inform('Maßnahme wurde erfolgreich gespeichert.');
@@ -243,6 +316,7 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       .finally(() => {
         this.isFetching = false;
         this.massnahmeFilterService.refetchData();
+        this.changeDetector.markForCheck();
       });
   }
 
@@ -305,7 +379,10 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       benutzerLetzteAenderung: benutzer.vorname + ' ' + benutzer.nachname,
       letzteAenderung: new DatePipe('en-US').transform(new Date(massnahme.letzteAenderung), 'dd.MM.yy HH:mm')!,
       durchfuehrungszeitraum: massnahme.durchfuehrungszeitraum?.geplanterUmsetzungsstartJahr,
+      begruendungZurueckstellung: massnahme.begruendungZurueckstellung,
     });
+
+    this.disableForbiddenUmsetzungsstatus(massnahme.konzeptionsquelle);
 
     this.formGroup.patchValue({
       netzklassen: NetzklassenConverterService.convertToFlat<NetzklasseFlat>(massnahme.netzklassen),
@@ -324,8 +401,64 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
       this.formGroup.get('konzeptionsquelle')?.enable({ emitEvent: false });
     }
 
+    if (this.isZurueckstellungsGrundEnabled(massnahme.umsetzungsstatus)) {
+      this.formGroup.controls.zurueckstellungsGrund.enable({ emitEvent: false });
+    } else {
+      this.formGroup.controls.zurueckstellungsGrund.disable({ emitEvent: false });
+    }
+
+    if (this.isBegruendungStornierungEnabled(massnahme.umsetzungsstatus)) {
+      this.formGroup.controls.begruendungStornierungsanfrage.enable({ emitEvent: false });
+    } else {
+      this.formGroup.controls.begruendungStornierungsanfrage.disable({ emitEvent: false });
+    }
+
+    if (this.isBegruendungZurueckstellungEnabled(massnahme.zurueckstellungsGrund)) {
+      this.formGroup.controls.begruendungZurueckstellung.enable({ emitEvent: false });
+    } else {
+      this.formGroup.controls.begruendungZurueckstellung.disable({ emitEvent: false });
+    }
+
+    this.updateUmsetzungsstatusEnabled(massnahme.umsetzungsstatus, massnahme.konzeptionsquelle);
+
+    // 2025-09-15 mr: weiter oben findet ein reset statt, wodurch folgende onKonzeptionsquelleChanged() -> disableForbiddenUmsetzungsstatus() -> nicht erlaubte Umsetzungsstatus werden aus dem Control entfernt
+    // wenn die Konzeptionsquelle durch den Nutzer geändert wird, ist dies gewollt. Eigentlich müsste oben reset mit {emitEvent:false} aufgerufen werden
+    // aus Rückwärtskombatibilität machen wir das nicht, sondern setzen hier den Umsetzungsstatus erneut, damit auch disabled Umsetzungsstatus (für nicht berechtigte Nutzer) im Dropdown angezeigt werden
+    this.formGroup.patchValue({ umsetzungsstatus: massnahme.umsetzungsstatus }, { emitEvent: false });
+
     if (!massnahme.canEdit) {
       this.formGroup.disable({ emitEvent: false });
+    }
+  }
+
+  private isBegruendungZurueckstellungEnabled(zurueckstellungsGrund: ZurueckstellungsGrund | null): boolean {
+    return zurueckstellungsGrund === ZurueckstellungsGrund.WEITERE_GRUENDE;
+  }
+
+  private isZurueckstellungsGrundEnabled(umsetzungsstatus: Umsetzungsstatus): boolean {
+    return umsetzungsstatus === Umsetzungsstatus.ZURUECKGESTELLT;
+  }
+
+  private isBegruendungStornierungEnabled(umsetzungsstatus: Umsetzungsstatus): boolean {
+    return umsetzungsstatus === Umsetzungsstatus.STORNIERUNG_ANGEFRAGT;
+  }
+
+  private updateUmsetzungsstatusEnabled(
+    umsetzungsstatus: Umsetzungsstatus,
+    konzeptionsquelle: Konzeptionsquelle
+  ): void {
+    if (
+      [
+        Umsetzungsstatus.STORNIERT_ENGSTELLE,
+        Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH,
+        Umsetzungsstatus.STORNIERT,
+      ].includes(umsetzungsstatus) &&
+      Konzeptionsquelle.isRadNetzMassnahme(konzeptionsquelle) &&
+      !this.benutzerDetailsService.canMassnahmenStornieren()
+    ) {
+      this.formGroup.controls.umsetzungsstatus.disable({ emitEvent: false });
+    } else {
+      this.formGroup.controls.umsetzungsstatus.enable({ emitEvent: false });
     }
   }
 
@@ -359,6 +492,26 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     durchfuehrungszeitraumControl.updateValueAndValidity();
     baulastZustaendigerControl.updateValueAndValidity();
     handlungsverantwortlicherControl.updateValueAndValidity();
+
+    if (this.isZurueckstellungsGrundEnabled(newValue)) {
+      this.formGroup.controls.zurueckstellungsGrund.reset({
+        value: null,
+        disabled: false,
+      });
+      // damit es gleich rot angezeigt wird
+      this.formGroup.controls.zurueckstellungsGrund.markAsTouched();
+    } else {
+      this.formGroup.controls.zurueckstellungsGrund.reset({ value: null, disabled: true });
+    }
+
+    if (this.isBegruendungStornierungEnabled(newValue)) {
+      this.formGroup.controls.begruendungStornierungsanfrage.reset({
+        value: null,
+        disabled: false,
+      });
+    } else {
+      this.formGroup.controls.begruendungStornierungsanfrage.reset({ value: null, disabled: true });
+    }
   };
 
   private onKonzeptionsquelleChanged = (newValue: Konzeptionsquelle): void => {
@@ -370,6 +523,8 @@ export class MassnahmenAttributeEditorComponent implements OnDestroy, Discardabl
     }
     sonstigeKonzeptionsquelleControl.updateValueAndValidity();
     this.updateMassnahmenkategorieOptionsFromKonzeptionsquelle(newValue);
+    this.disableForbiddenUmsetzungsstatus(newValue);
+    this.updateUmsetzungsstatusEnabled(this.formGroup.controls.umsetzungsstatus.value, newValue);
     this.formGroup.controls.massnahmenkategorien.updateValueAndValidity();
   };
 

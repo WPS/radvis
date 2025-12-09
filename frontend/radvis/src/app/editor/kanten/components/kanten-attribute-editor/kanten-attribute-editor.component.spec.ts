@@ -1202,6 +1202,32 @@ describe(KantenAttributeEditorComponent.name, () => {
   });
 
   describe('netzklassen', () => {
+    it('should not remove radNetz-IstStandards if user has no Radnetz-verlegen-recht (RAD-7576)', fakeAsync(() => {
+      when(benutzerDetailsService.canKreisnetzVerlegen()).thenReturn(true);
+      when(benutzerDetailsService.canRadNetzVerlegen()).thenReturn(false);
+      when(netzService.saveKanteAllgemein(anything())).thenReturn(Promise.resolve([defaultKante]));
+      updateSelektierteKanten([
+        {
+          ...defaultKante,
+          kantenAttributGruppe: {
+            ...defaultKante.kantenAttributGruppe,
+            netzklassen: [Netzklasse.RADNETZ_ALLTAG],
+            istStandards: [IstStandard.STARTSTANDARD_RADNETZ],
+          },
+        },
+      ]);
+      tick();
+
+      component.formGroup.get('netzklassen')?.get('kreisnetzAlltag')?.setValue(true);
+      component.formGroup.markAsDirty();
+      component.onSave();
+
+      verify(netzService.saveKanteAllgemein(anything())).once();
+      expect(capture(netzService.saveKanteAllgemein).last()[0][0].istStandards).toEqual([
+        IstStandard.STARTSTANDARD_RADNETZ,
+      ]);
+    }));
+
     it('should enable changing Netzklasse Kreisnetz when authorized', fakeAsync(() => {
       // arrange
       when(benutzerDetailsService.canKreisnetzVerlegen()).thenReturn(true);

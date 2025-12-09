@@ -16,18 +16,44 @@ package de.wps.radvis.backend.netzfehler.domain;
 
 import static org.valid4j.Assertive.require;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import de.wps.radvis.backend.netzfehler.domain.valueObject.AnpassungswunschKategorie;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @ConfigurationProperties("radvis.anpassungswuensche")
+@Slf4j
 public class AnpassungswuenscheConfigurationProperties {
 
 	@Getter
 	private final double distanzZuFahrradrouteInMetern;
 
-	public AnpassungswuenscheConfigurationProperties(double distanzZuFahrradrouteInMetern) {
+	@Getter
+	private final Map<AnpassungswunschKategorie, String> emailProKategorie;
+
+	public AnpassungswuenscheConfigurationProperties(
+		double distanzZuFahrradrouteInMetern,
+		Map<AnpassungswunschKategorie, String> emailProKategorie
+	) {
 		require(distanzZuFahrradrouteInMetern > 0, "distanzZuFahrradrouteInMetern > 0");
 		this.distanzZuFahrradrouteInMetern = distanzZuFahrradrouteInMetern;
+		this.emailProKategorie = emailProKategorie == null ? new HashMap<>() : emailProKategorie.entrySet().stream()
+			// leere Strings rausfiltern
+			.filter(e -> !e.getValue().isBlank())
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+		String kategorienOhneEmail = Arrays.stream(AnpassungswunschKategorie.values())
+			.filter(anpassungswunschKategorie -> !this.emailProKategorie.containsKey(anpassungswunschKategorie))
+			.map(Enum::name)
+			.collect(Collectors.joining(", "));
+
+		log.info("Für folgende Anpassungswunschkategoerien ist keine Email hinterlegt: {}", kategorienOhneEmail);
+
 	}
 }

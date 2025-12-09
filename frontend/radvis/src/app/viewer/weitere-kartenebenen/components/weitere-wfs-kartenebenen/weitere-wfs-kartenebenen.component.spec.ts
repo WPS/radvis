@@ -28,6 +28,7 @@ import { WeitereWfsKartenebenenComponent } from 'src/app/viewer/weitere-karteneb
 import { WeitereKartenebene } from 'src/app/viewer/weitere-kartenebenen/models/weitere-kartenebene';
 import { WeitereKartenebenenModule } from 'src/app/viewer/weitere-kartenebenen/weitere-kartenebenen.module';
 import { instance, mock, when } from 'ts-mockito';
+import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 
 describe(WeitereWfsKartenebenenComponent.name, () => {
   let component: WeitereWfsKartenebenenComponent;
@@ -92,7 +93,7 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
       const req = httpTesting.expectOne(
         `${testUrl}/?request=GetFeature&version=1.1.0&srsname=EPSG%3A25832&outputFormat=application%2Fjson&bbox=0%2C0%2C0%2C0%2CEPSG%3A25832`
       );
-      const geojson: GeoJSON.FeatureCollection = {
+      const geojson: GeoJSONFeatureCollection = {
         type: 'FeatureCollection',
         features: [
           {
@@ -133,7 +134,7 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
       expect(features.length).toBe(2);
 
       expect((features[0].getGeometry() as LineString).getCoordinates()).toEqual(
-        (geojson.features[0].geometry as GeoJSON.LineString).coordinates
+        geojson.features[0].geometry.coordinates
       );
       expect(features[0].getId()).toEqual(1);
       expect(features[0].get(component['FEATURE_ID_PROPERTY_NAME'])).toEqual(geojson.features[0].id);
@@ -142,7 +143,7 @@ describe(WeitereWfsKartenebenenComponent.name, () => {
       expect(features[0].get('testAttribut')).toEqual(geojson.features[0].properties?.testAttribut);
 
       expect((features[1].getGeometry() as LineString).getCoordinates()).toEqual(
-        (geojson.features[1].geometry as GeoJSON.LineString).coordinates
+        geojson.features[1].geometry.coordinates
       );
       expect(features[1].getId()).toEqual(2);
       expect(features[1].get(component['FEATURE_ID_PROPERTY_NAME'])).toEqual(geojson.features[1].id);

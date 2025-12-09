@@ -15,7 +15,6 @@
 import { Injectable } from '@angular/core';
 import { FeatureLike } from 'ol/Feature';
 import { LineString, Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Icon, Stroke } from 'ol/style';
 import Style from 'ol/style/Style';
 import { LayerTypes } from 'src/app/shared/models/layers/layer-types';
@@ -37,7 +36,7 @@ export class DlmKantenLayer extends RadVisLayer {
     });
 
     const stylingFunction = (feature: FeatureLike, resolution: number): Style[] => {
-      if (feature.getGeometry()?.getType() === GeometryType.POINT && resolution < MapStyles.RESOLUTION_SMALL) {
+      if (feature.getGeometry()?.getType() === 'Point' && resolution < MapStyles.RESOLUTION_SMALL) {
         return [defaultPointLargeStyle];
       }
       let kantenColor = MapStyles.FEATURE_COLOR_TRANSPARENT as Color;

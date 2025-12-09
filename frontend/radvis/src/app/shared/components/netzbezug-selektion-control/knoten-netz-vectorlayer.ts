@@ -58,7 +58,7 @@ export class KnotenNetzVectorLayer extends VectorLayer {
   };
 
   public toggleHighlightKnoten(id: number): void {
-    const feature = this.getSource().getFeatureById(id);
+    const feature = this.getSource()?.getFeatureById(id);
     if (feature) {
       feature.set(
         KnotenNetzVectorLayer.HIGHLIGHT_PROPERTY,
@@ -74,7 +74,7 @@ export class KnotenNetzVectorLayer extends VectorLayer {
   }
 
   public hasFeature(f: Feature<Geometry>): boolean {
-    return this.getSource().hasFeature(f);
+    return this.getSource()?.hasFeature(f) ?? false;
   }
 
   private createVectorSource(): VectorSource {

@@ -15,7 +15,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { View } from 'ol';
-import { get } from 'ol/proj';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 import { AbstractFormControl } from 'src/app/form-elements/components/abstract-form-control';
 import invariant from 'tiny-invariant';
@@ -62,12 +61,12 @@ export class ZoomstufeSliderControlComponent extends AbstractFormControl<number>
 
   getMassStab(): number {
     const resolution = this.viewEPSG25832.getResolutionForZoom(this.value);
-    const unit = get('EPSG:25832').getUnits();
+    // const unit = get('EPSG:25832')!.getUnits();
     const inchesPerMeter = 39.37;
     const mmPerInch = 25.4;
     const mmPerPixel = 0.28; // siehe https://openlayers.org/en/latest/apidoc/module-ol_control_ScaleLine-ScaleLine.html option dpi
     const dpi = mmPerInch / mmPerPixel;
-    return resolution * METERS_PER_UNIT[unit] * inchesPerMeter * dpi;
+    return resolution * METERS_PER_UNIT.m * inchesPerMeter * dpi;
   }
 
   getMassStabInfo(): string {

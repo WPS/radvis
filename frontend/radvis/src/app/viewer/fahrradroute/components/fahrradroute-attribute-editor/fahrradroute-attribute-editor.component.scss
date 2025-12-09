@@ -12,11 +12,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/spacing';
-@import 'src/style/colors';
+@use 'src/style/spacing';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
-  width: $viewer-side-bar-width;
+  width: spacing.$viewer-side-bar-width;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -63,8 +64,8 @@
 
 .hinweisbox {
   // TODO: Styling absprechen
-  border: 1px solid $primary-color-light;
-  background-color: $primary-color-light;
+  border: 1px solid colors.$primary-color-light;
+  background-color: colors.$primary-color-light;
   color: white;
   font-style: italic;
   margin-bottom: 0.75rem;
@@ -79,7 +80,7 @@
 
 .fremdnetz-hinweis {
   padding: 1rem 0.5rem;
-  border-bottom: 1px solid map-get($grayscale, 100);
+  border-bottom: 1px solid map.get(colors.$grayscale, 100);
 }
 
 .current-eigenschaft-legende {

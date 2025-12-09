@@ -53,6 +53,7 @@ export class ServicestationFilterService extends AbstractInfrastrukturenFilterSe
       case 'kettenwerkzeug':
       case 'werkzeug':
       case 'fahrradhalterung':
+      case 'radkultur':
         return item[key] ? 'ja' : 'nein';
       default:
         return (Object.entries(item).find(entry => entry[0] === key)?.[1] ?? '').toString();

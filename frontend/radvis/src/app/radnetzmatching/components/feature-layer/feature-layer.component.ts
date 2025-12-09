@@ -80,16 +80,16 @@ export class FeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
       throw new Error('layer Input for FeatureLayerComponent must not change');
     }
     if (changes.index && !changes.index.firstChange) {
-      this.olLayer.setZIndex(this.index + 1);
+      this.olLayer?.setZIndex(this.index + 1);
     }
     if (changes.netzklassen && !changes.netzklassen.firstChange) {
-      this.olLayer.getSource().refresh();
+      this.olLayer?.getSource()?.refresh();
     }
     if (changes.featureWasRemoved && !changes.featureWasRemoved.firstChange) {
       if (this.featureWasRemoved) {
-        const featureToRemove = this.olLayer.getSource().getFeatureById(this.featureWasRemoved);
+        const featureToRemove = this.olLayer?.getSource()?.getFeatureById(this.featureWasRemoved);
         if (featureToRemove) {
-          this.olLayer.getSource().removeFeature(featureToRemove);
+          this.olLayer?.getSource()?.removeFeature(featureToRemove);
         }
       }
     }
@@ -137,7 +137,7 @@ export class FeatureLayerComponent implements OnInit, OnDestroy, OnChanges {
 
   private changeHighlightingByFeatureId(highlight: boolean, id: number | null): void {
     if (id) {
-      const feature = this.olLayer.getSource().getFeatureById(id);
+      const feature = this.olLayer?.getSource()?.getFeatureById(id);
       feature?.set('highlighted', highlight);
       feature?.changed();
     }

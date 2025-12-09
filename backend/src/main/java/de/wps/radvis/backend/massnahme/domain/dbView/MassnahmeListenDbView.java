@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,10 +29,11 @@ import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPoint;
 
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungZurueckstellung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Durchfuehrungszeitraum;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Handlungsverantwortlicher;
@@ -46,8 +48,10 @@ import de.wps.radvis.backend.massnahme.domain.valueObject.Realisierungshilfe;
 import de.wps.radvis.backend.massnahme.domain.valueObject.UmsetzungsstandStatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
 import de.wps.radvis.backend.massnahme.domain.valueObject.VerbaID;
+import de.wps.radvis.backend.massnahme.domain.valueObject.ZurueckstellungsGrund;
 import de.wps.radvis.backend.netz.domain.valueObject.Netzklasse;
 import de.wps.radvis.backend.netz.domain.valueObject.SollStandard;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -127,6 +131,10 @@ public class MassnahmeListenDbView {
 	boolean archiviert;
 	private MultiPoint netzbezugSnapshotPoints;
 	private MultiLineString netzbezugSnapshotLines;
+	@Enumerated(EnumType.STRING)
+	private ZurueckstellungsGrund zurueckstellungsGrund;
+	private BegruendungStornierungsanfrage begruendungStornierungsanfrage;
+	private BegruendungZurueckstellung begruendungZurueckstellung;
 
 	public Set<Netzklasse> getNetzklassen() {
 		return netzklassen == null ? Collections.emptySet()
@@ -137,6 +145,18 @@ public class MassnahmeListenDbView {
 
 	public String getNetzklassenString() {
 		return this.netzklassen;
+	}
+
+	public Optional<ZurueckstellungsGrund> getZurueckstellungsGrund() {
+		return Optional.ofNullable(zurueckstellungsGrund);
+	}
+
+	public Optional<BegruendungStornierungsanfrage> getBegruendungStornierungsanfrage() {
+		return Optional.ofNullable(begruendungStornierungsanfrage);
+	}
+
+	public Optional<BegruendungZurueckstellung> getBegruendungZurueckstellung() {
+		return Optional.ofNullable(begruendungZurueckstellung);
 	}
 
 	public Set<Massnahmenkategorie> getMassnahmenkategorien() {

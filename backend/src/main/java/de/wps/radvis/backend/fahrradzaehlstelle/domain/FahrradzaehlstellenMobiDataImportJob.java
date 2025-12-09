@@ -47,7 +47,9 @@ import org.locationtech.jts.geom.Point;
 import org.valid4j.errors.RequireViolation;
 
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.WithFehlercode;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
@@ -427,4 +429,12 @@ public class FahrradzaehlstellenMobiDataImportJob extends AbstractJob {
 		return KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory().createPoint(coordinateUTM32);
 	}
 
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert alle Fahrradzählstellen von MobiData seit dem letzten Import-Datum. Es werden dabei die monatlichen CSV-Dateien importiert. Neue Fahrradzählstellen werden ergänzt, alte bleiben bestehen.",
+			"Fahrradzählstellen und Messergebnisse werden in der DB gespeichert.",
+			JobExecutionDurationEstimate.MEDIUM
+		);
+	}
 }

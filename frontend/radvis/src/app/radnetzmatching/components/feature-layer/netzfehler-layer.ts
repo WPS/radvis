@@ -12,7 +12,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import GeometryType from 'ol/geom/GeometryType';
 import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import Style from 'ol/style/Style';
@@ -77,7 +76,7 @@ export class NetzfehlerLayer extends RadVisLayer {
       `${NetzausschnittService.BASE_URL}/netzfehler/SONSTIGER_FEHLER,NETZBILDUNG,ATTRIBUT_ABBILDUNG`,
       RadVisLayerTyp.GEO_JSON,
       (feature, resolution): Style => {
-        if (feature.getGeometry()?.getType() === GeometryType.POINT) {
+        if (feature.getGeometry()?.getType() === 'Point') {
           return netzfehlerWarningPointStyle;
         }
         if (resolution < MapStyles.RESOLUTION_SMALL) {

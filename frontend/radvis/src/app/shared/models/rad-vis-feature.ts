@@ -13,7 +13,6 @@
  */
 
 import Geometry from 'ol/geom/Geometry';
-import GeometryType from 'ol/geom/GeometryType';
 import { LayerId } from 'src/app/shared/models/layers/rad-vis-layer';
 import { RadVisFeatureAttributes } from 'src/app/shared/models/rad-vis-feature-attributes';
 
@@ -44,6 +43,6 @@ export class RadVisFeature {
   }
 
   public get isKnoten(): boolean {
-    return this.geometry.getType() === GeometryType.POINT;
+    return this.geometry.getType() === 'Point';
   }
 }

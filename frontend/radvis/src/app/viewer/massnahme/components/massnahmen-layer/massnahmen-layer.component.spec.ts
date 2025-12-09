@@ -103,7 +103,6 @@ describe(MassnahmenLayerComponent.name, () => {
   beforeEach(() => {
     fixture = MockRender(MassnahmenLayerComponent);
     component = fixture.point.componentInstance;
-    // @ts-expect-error Migration von ts-ignore
     component['vectorSource']['loader_']();
     selectedMassnahmenIdTestSubject.next(null);
   });
@@ -166,13 +165,13 @@ describe(MassnahmenLayerComponent.name, () => {
     it('should set feature properties correctly on selection change', () => {
       selectedMassnahmenIdTestSubject.next(1);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTrue();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeTrue();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       selectedMassnahmenIdTestSubject.next(2);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeFalse();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeTrue();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeFalse();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeTrue();
     });
   });
 
@@ -192,23 +191,23 @@ describe(MassnahmenLayerComponent.name, () => {
         new Point([1, 2])
       );
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeFalsy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       highlightFeatureSubject.next(radVisFeature1);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTruthy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       unhighlightFeatureSubject.next(radVisFeature1);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeFalsy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       highlightFeatureSubject.next(radVisFeature2);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeFalsy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeTruthy();
     });
 
     it('should not unhighlight selectedFeature', () => {
@@ -227,23 +226,23 @@ describe(MassnahmenLayerComponent.name, () => {
         new Point([1, 2])
       );
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTruthy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       highlightFeatureSubject.next(radVisFeature1);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTruthy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       unhighlightFeatureSubject.next(radVisFeature1);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTruthy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeFalsy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeFalsy();
 
       highlightFeatureSubject.next(radVisFeature2);
 
-      expect(component['vectorSource'].getFeatureById(1).get('highlighted')).toBeTruthy();
-      expect(component['vectorSource'].getFeatureById(2).get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(1)?.get('highlighted')).toBeTruthy();
+      expect(component['vectorSource'].getFeatureById(2)?.get('highlighted')).toBeTruthy();
     });
   });
 

@@ -88,7 +88,8 @@ public class MassnahmeRueckstufungStornierungService {
 		massnahmen.stream()
 			.filter(massnahme -> !massnahmeService.hatRadNETZNetzBezug(massnahme) && massnahme.isRadNETZMassnahme())
 			.forEach(massnahme -> {
-				massnahme.stornieren(benutzerService.getTechnischerBenutzer(), stornierungsZeitpunkt);
+				massnahme.alsNichtMehrErforderlichMarkieren(benutzerService.getTechnischerBenutzer(),
+					stornierungsZeitpunkt);
 				massnahmeService.saveMassnahme(massnahme);
 				massnahmenZustaendigkeitsService.getZustaendigeBarbeiterVonUmsetzungsstandabfrage(massnahme).forEach(
 					benutzer -> benutzerMassnahmenIdMap.merge(

@@ -16,12 +16,15 @@ package de.wps.radvis.backend.massnahme.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,14 +36,22 @@ import org.thymeleaf.context.Context;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
+import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailConfigurationProperties;
 import de.wps.radvis.backend.common.domain.MailService;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
 import de.wps.radvis.backend.massnahme.domain.entity.MassnahmeTestDataProvider;
 import de.wps.radvis.backend.massnahme.domain.event.MassnahmeChangedEvent;
+import de.wps.radvis.backend.massnahme.domain.event.MassnahmeStornierungAngefragtEvent;
+import de.wps.radvis.backend.massnahme.domain.valueObject.BegruendungStornierungsanfrage;
 import de.wps.radvis.backend.massnahme.domain.valueObject.Bezeichnung;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Konzeptionsquelle;
+import de.wps.radvis.backend.massnahme.domain.valueObject.Umsetzungsstatus;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitService;
+import de.wps.radvis.backend.organisation.domain.provider.VerwaltungseinheitTestDataProvider;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 
 class MassnahmenBenachrichtigungsServiceTest {
 
@@ -59,6 +70,12 @@ class MassnahmenBenachrichtigungsServiceTest {
 	@Mock
 	private TemplateEngine templateEngine;
 
+	@Mock
+	private MassnahmenZustaendigkeitsService massnahmenZustaendigkeitsService;
+
+	@Mock
+	private VerwaltungseinheitService verwaltungseinheitService;
+
 	@Captor
 	private ArgumentCaptor<List<String>> captor;
 
@@ -68,13 +85,14 @@ class MassnahmenBenachrichtigungsServiceTest {
 	void setup() {
 		openMocks(this);
 		massnahmenBenachrichtigungsService = new MassnahmenBenachrichtigungsService(massnahmeService, mailService,
-			mailConfigurationProperties, commonConfigurationProperties, templateEngine);
+			mailConfigurationProperties, commonConfigurationProperties, templateEngine,
+			massnahmenZustaendigkeitsService, verwaltungseinheitService);
 		when(commonConfigurationProperties.getBasisUrl()).thenReturn("basisUrl");
 	}
 
 	@Test
 	void test_onMassnahmeChanged() {
-		//arrange
+		// arrange
 		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().bezeichnung(Bezeichnung.of(
 			"Good Ol' Massnahme")).id(42L).build();
 
@@ -92,10 +110,10 @@ class MassnahmenBenachrichtigungsServiceTest {
 
 		MassnahmeChangedEvent massnahmeChangedEvent = new MassnahmeChangedEvent(42L);
 
-		//act
+		// act
 		massnahmenBenachrichtigungsService.onMassnahmeChanged(massnahmeChangedEvent);
 
-		//assert
+		// assert
 		ArgumentCaptor<String> betreffCaptor = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
 
@@ -109,4 +127,90 @@ class MassnahmenBenachrichtigungsServiceTest {
 
 	}
 
+	@Test
+	void onMassnahmeStornierungAngefragt() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().bezeichnung(Bezeichnung.of("Blubb"))
+			.benutzerLetzteAenderung(BenutzerTestDataProvider.defaultBenutzer()
+				.mailadresse(Mailadresse.of("blubb@abc.de")).vorname(Name.of("Rad")).nachname(Name.of("Vis"))
+				.build())
+			.umsetzungsstatus(Umsetzungsstatus.STORNIERUNG_ANGEFRAGT)
+			.konzeptionsquelle(Konzeptionsquelle.RADNETZ_MASSNAHME_2024)
+			.begruendungStornierungsanfrage(BegruendungStornierungsanfrage.of("Zwingende Begründung"))
+			.zustaendiger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Gebiet")
+				.organisationsArt(OrganisationsArt.REGIERUNGSBEZIRK).build())
+			.id(756L).build();
+		when(massnahmenZustaendigkeitsService.getZustaendigeRegierungsbezirke(any()))
+			.thenReturn(List.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()));
+		String mailadresse = "test@abc.de";
+		when(verwaltungseinheitService.findFunktionspostfach(any()))
+			.thenReturn(Optional.of(Mailadresse.of(mailadresse)));
+
+		// act
+		massnahmenBenachrichtigungsService
+			.onMassnahmeStornierungAngefragt(new MassnahmeStornierungAngefragtEvent(massnahme));
+
+		// assert
+		ArgumentCaptor<String> betreffCaptor = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+
+		verify(mailService, times(1)).sendHtmlMail(captor.capture(), betreffCaptor.capture(), any());
+		verify(templateEngine, times(1)).process(any(String.class), contextCaptor.capture());
+		assertThat(captor.getValue()).containsExactly(mailadresse);
+		assertThat(betreffCaptor.getValue()).isEqualTo("[RadVIS] Stornierungsanfrage zu Maßnahme Blubb");
+		assertThat(contextCaptor.getValue().getVariable("radvisLink").toString())
+			.isEqualTo("basisUrl/viewer/massnahmen/756?infrastrukturen=massnahmen&tabellenVisible=true");
+		assertThat(contextCaptor.getValue().getVariable("zustaendigerName").toString())
+			.isEqualTo("Gebiet (Regierungsbezirk)");
+		assertThat(contextCaptor.getValue().getVariable("anfragerEmail").toString()).isEqualTo("blubb@abc.de");
+		assertThat(contextCaptor.getValue().getVariable("anfragerName").toString()).isEqualTo("Rad Vis");
+		assertThat(contextCaptor.getValue().getVariable("begruendung").toString()).isEqualTo("Zwingende Begründung");
+	}
+
+	@Test
+	void onMassnahmeStornierungAngefragt_noZustaendigesRP_doesNotSend() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().bezeichnung(Bezeichnung.of("Blubb"))
+			.benutzerLetzteAenderung(BenutzerTestDataProvider.defaultBenutzer()
+				.mailadresse(Mailadresse.of("blubb@abc.de")).vorname(Name.of("Rad")).nachname(Name.of("Vis"))
+				.build())
+			.zustaendiger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Gebiet")
+				.organisationsArt(OrganisationsArt.REGIERUNGSBEZIRK).build())
+			.id(756L).build();
+		when(massnahmenZustaendigkeitsService.getZustaendigeRegierungsbezirke(any()))
+			.thenReturn(Collections.emptyList());
+		String mailadresse = "test@abc.de";
+		when(verwaltungseinheitService.findFunktionspostfach(any()))
+			.thenReturn(Optional.of(Mailadresse.of(mailadresse)));
+
+		// act
+		massnahmenBenachrichtigungsService
+			.onMassnahmeStornierungAngefragt(new MassnahmeStornierungAngefragtEvent(massnahme));
+
+		// assert
+		verify(mailService, never()).sendHtmlMail(any(), any(), any());
+	}
+
+	@Test
+	void onMassnahmeStornierungAngefragt_noFunktionspostfach_doesNotSend() {
+		// arrange
+		Massnahme massnahme = MassnahmeTestDataProvider.withDefaultValues().bezeichnung(Bezeichnung.of("Blubb"))
+			.benutzerLetzteAenderung(BenutzerTestDataProvider.defaultBenutzer()
+				.mailadresse(Mailadresse.of("blubb@abc.de")).vorname(Name.of("Rad")).nachname(Name.of("Vis"))
+				.build())
+			.zustaendiger(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().name("Gebiet")
+				.organisationsArt(OrganisationsArt.REGIERUNGSBEZIRK).build())
+			.id(756L).build();
+		when(massnahmenZustaendigkeitsService.getZustaendigeRegierungsbezirke(any()))
+			.thenReturn(List.of(VerwaltungseinheitTestDataProvider.defaultGebietskoerperschaft().build()));
+		when(verwaltungseinheitService.findFunktionspostfach(any()))
+			.thenReturn(Optional.empty());
+
+		// act
+		massnahmenBenachrichtigungsService
+			.onMassnahmeStornierungAngefragt(new MassnahmeStornierungAngefragtEvent(massnahme));
+
+		// assert
+		verify(mailService, never()).sendHtmlMail(any(), any(), any());
+	}
 }

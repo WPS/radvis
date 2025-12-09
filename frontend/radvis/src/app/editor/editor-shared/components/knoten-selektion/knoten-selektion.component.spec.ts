@@ -87,13 +87,13 @@ describe('KnotenSelektionComponent', () => {
     );
     invariant(knotenLayerNichtklassifiziertSearch);
     knotenLayerNichtklassifiziert = knotenLayerNichtklassifiziertSearch;
-    knotenLayerNichtklassifiziert.getSource().loadFeatures([0, 0, 5, 5], 20, new Projection({ code: 'EPSG:25832' }));
+    knotenLayerNichtklassifiziert.getSource()?.loadFeatures([0, 0, 5, 5], 20, new Projection({ code: 'EPSG:25832' }));
     tick();
   }));
 
   describe('olLayer', () => {
     it('should fill layer with features', fakeAsync(() => {
-      expect(knotenLayerNichtklassifiziert.getSource().getFeatures().length).toEqual(3);
+      expect(knotenLayerNichtklassifiziert.getSource()?.getFeatures().length).toEqual(3);
     }));
   });
 
@@ -101,7 +101,7 @@ describe('KnotenSelektionComponent', () => {
     it('should do nothing when no features are under cursor', () => {
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent>);
 
       verify(editorRoutingService.toKnotenAttributeEditor(anything())).never();
       expect().nothing();
@@ -111,21 +111,21 @@ describe('KnotenSelektionComponent', () => {
       const someFeature = new Feature(new Point([23, 77]));
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([someFeature]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent>);
 
       verify(editorRoutingService.toKnotenAttributeEditor(anything())).never();
       expect().nothing();
     });
 
     it('should adjust route when nearest clicked feature is on knoten layer', () => {
-      const firstFeatureOnLayer = knotenLayerNichtklassifiziert.getSource().getFeatures()[0];
-      const secondFeatureOnLayer = knotenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const firstFeatureOnLayer = knotenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
+      const secondFeatureOnLayer = knotenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([
         firstFeatureOnLayer,
         secondFeatureOnLayer,
       ]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent>);
 
       verify(editorRoutingService.toKnotenAttributeEditor(Number(firstFeatureOnLayer.getId()))).called();
       expect().nothing();
@@ -201,7 +201,7 @@ describe('KnotenSelektionComponent', () => {
           kl => kl.getProperties().netzklasse === Netzklassefilter.RADNETZ
         );
         invariant(knotenLayerRadnetz);
-        const refreshSpy = spyOn(knotenLayerRadnetz.getSource(), 'refresh');
+        const refreshSpy = spyOn(knotenLayerRadnetz.getSource(), 'refresh' as never);
         component['netzklassen'] = [];
 
         netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);

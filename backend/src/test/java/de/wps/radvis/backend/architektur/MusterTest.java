@@ -46,17 +46,30 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import de.wps.radvis.backend.abfrage.netzausschnitt.AbfrageNetzausschnittConfiguration;
 import de.wps.radvis.backend.abfrage.netzausschnitt.domain.StreckeViewCacheRepository;
+import de.wps.radvis.backend.abfrage.signatur.SignaturConfiguration;
 import de.wps.radvis.backend.abfrage.statistik.domain.StatistikRepository;
+import de.wps.radvis.backend.application.JobConfiguration;
 import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoApplier;
 import de.wps.radvis.backend.authentication.domain.RadVisAuthentication;
 import de.wps.radvis.backend.authentication.domain.entity.RadVisUserDetails;
+import de.wps.radvis.backend.basicAuthentication.BasicAuthenticationConfiguration;
 import de.wps.radvis.backend.basicAuthentication.domain.BasicAuthPasswortService;
 import de.wps.radvis.backend.basicAuthentication.domain.BenutzerBasicAuthenticationToken;
 import de.wps.radvis.backend.benutzer.domain.BenutzerAktivitaetsService;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.fahrradroute.FahrradrouteConfiguration;
+import de.wps.radvis.backend.fahrradzaehlstelle.FahrradzaehlstelleConfiguration;
+import de.wps.radvis.backend.karte.KarteConfiguration;
 import de.wps.radvis.backend.manuellerimport.common.domain.repository.InMemoryKantenRepository;
+import de.wps.radvis.backend.massnahme.MassnahmeConfiguration;
 import de.wps.radvis.backend.massnahme.domain.RandomMassnahmenGenerierenJob;
+import de.wps.radvis.backend.matching.MatchingConfiguration;
+import de.wps.radvis.backend.netz.NetzConfiguration;
+import de.wps.radvis.backend.ortssuche.OrtsSucheConfiguration;
+import de.wps.radvis.backend.quellimport.grundnetz.ImportsGrundnetzConfiguration;
+import de.wps.radvis.backend.weitereKartenebenen.WeitereKartenebenenConfiguration;
 
 @AnalyzeClasses(packages = { "de.wps.radvis.backend" }, importOptions = ImportOption.DoNotIncludeTests.class)
 public class MusterTest {
@@ -125,6 +138,60 @@ public class MusterTest {
 			"de.wps.radvis.backend.netz.schnittstelle.NetzController.createKante(de.wps.radvis.backend.netz.schnittstelle.command.CreateKanteCommand, org.springframework.security.core.Authentication)")
 		.should(callCorrespondingGuard());
 
+	@ArchTest
+	static final ArchRule PROPERTIES_SHOULD_BE_UNPACKED_IN_CONFIG = classes().that()
+		.haveSimpleNameEndingWith("Configuration")
+		// FIXME
+		.and().areNotAssignableTo(AbfrageNetzausschnittConfiguration.class)
+		.and().areNotAssignableTo(SignaturConfiguration.class)
+		.and().areNotAssignableTo(JobConfiguration.class)
+		.and().areNotAssignableTo(BasicAuthenticationConfiguration.class)
+		.and().areNotAssignableTo(FahrradrouteConfiguration.class)
+		.and().areNotAssignableTo(FahrradzaehlstelleConfiguration.class)
+		.and().areNotAssignableTo(KarteConfiguration.class)
+		.and().areNotAssignableTo(MassnahmeConfiguration.class)
+		.and().areNotAssignableTo(MatchingConfiguration.class)
+		.and().areNotAssignableTo(NetzConfiguration.class)
+		.and().areNotAssignableTo(OrtsSucheConfiguration.class)
+		.and().areNotAssignableTo(ImportsGrundnetzConfiguration.class)
+		.and().areNotAssignableTo(WeitereKartenebenenConfiguration.class)
+		.should(notPassConfigurationPropertiesClassesToBeans())
+		.because("Information Hiding is important & ConfigurationProperties shouldn't be all over the place");
+
+	private static ArchCondition<JavaClass> notPassConfigurationPropertiesClassesToBeans() {
+		return new ArchCondition<>("not pass ConfigurationProperties-Classes to Beans") {
+			@Override
+			public void check(JavaClass javaClass, ConditionEvents conditionEvents) {
+				Set<JavaCall<?>> ctorCallsWithPropertiesPassed = javaClass.getConstructorCallsFromSelf().stream()
+					.filter(javaCall -> javaCall.getTarget().getRawParameterTypes().stream().anyMatch(
+						parameter -> parameter.getName().endsWith("Properties")))
+					.collect(Collectors.toSet());
+
+				if (ctorCallsWithPropertiesPassed.isEmpty()) {
+					conditionEvents.add(new SimpleConditionEvent(
+						javaClass,
+						true,
+						javaClass.getFullName() + " doesn't pass Properties to any Bean: "
+							+ javaClass.getSourceCodeLocation()
+					));
+				} else {
+					String listOfViolations = ctorCallsWithPropertiesPassed.stream()
+						.map(ctorCall -> "\t" + ctorCall.getTargetOwner().getSimpleName() + " "
+							+ ctorCall.getSourceCodeLocation())
+						.collect(Collectors
+							.joining("\n"));
+					conditionEvents.add(new SimpleConditionEvent(
+						javaClass,
+						false,
+						javaClass.getFullName() + " passes Properties to following Beans:\n"
+							+ listOfViolations
+					));
+				}
+
+			}
+		};
+	}
+
 	private static DescribedPredicate<List<JavaClass>> containing(DescribedPredicate<JavaClass> clazz) {
 		return new DescribedPredicate<>("containing " + clazz.getDescription()) {
 			@Override
@@ -161,7 +228,7 @@ public class MusterTest {
 					.stream()
 					.map(JavaParameter::getType)
 					.map(JavaType::getName)
-					.collect(Collectors.toList());
+					.toList();
 
 				List<String> guardMethodParameterTypes = callWithCorrespondingMethodName.get().getTarget()
 					.resolveMember().get()
@@ -169,7 +236,7 @@ public class MusterTest {
 					.stream()
 					.map(JavaParameter::getType)
 					.map(JavaType::getName)
-					.collect(Collectors.toList());
+					.toList();
 
 				boolean methodSignaturesAreEqual = callerParameterTypes.equals(guardMethodParameterTypes);
 

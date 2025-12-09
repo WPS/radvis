@@ -20,7 +20,6 @@ import { getCenter } from 'ol/extent';
 import GeoJSON from 'ol/format/GeoJSON';
 import { GeometryCollection, LineString, MultiLineString, MultiPoint, Point } from 'ol/geom';
 import Geometry from 'ol/geom/Geometry';
-import GeometryType from 'ol/geom/GeometryType';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Style } from 'ol/style';
@@ -45,8 +44,8 @@ export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestr
   static readonly featureSelectedField = 'selected';
 
   private readonly layerId = 'massnahmen-import-zuordnungen-layer';
-  private readonly vectorSource: VectorSource<Geometry>;
-  private readonly vectorLayer: VectorLayer;
+  private readonly vectorSource: VectorSource<Feature<Geometry>>;
+  private readonly vectorLayer: VectorLayer<VectorSource<Feature<Geometry>>>;
 
   private readonly subscriptions: Subscription[] = [];
 
@@ -164,11 +163,11 @@ export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestr
     const iconBaseGeometries: Geometry[] = unwrapGeometries(geometry);
     let iconPoint: Geometry | undefined = undefined;
 
-    const lineStrings = iconBaseGeometries.filter(geom => geom.getType() == GeometryType.LINE_STRING);
+    const lineStrings = iconBaseGeometries.filter(geom => geom.getType() == 'LineString');
     if (lineStrings.length > 0) {
       iconPoint = new Point((lineStrings[0] as LineString).getCoordinateAt(0.5));
     } else {
-      const points = iconBaseGeometries.filter(geom => geom.getType() == GeometryType.POINT);
+      const points = iconBaseGeometries.filter(geom => geom.getType() == 'Point');
       if (points.length > 0) {
         iconPoint = points[0] as Point;
       }
@@ -199,21 +198,24 @@ export class ImportMassnahmenImportUeberpruefenLayerComponent implements OnDestr
   public focusMassnahmeIntoView(): void {
     const originalGeometrie = this.massnahmenImportZuordnungenService.selektierteZuordnungsOriginalGeometrie;
     if (originalGeometrie) {
-      const toFocus = new GeoJSON().readFeature(originalGeometrie).getGeometry()?.getExtent();
+      const readFeature = new GeoJSON().readFeature(originalGeometrie);
+      if (readFeature instanceof Feature) {
+        const toFocus = readFeature.getGeometry()?.getExtent();
 
-      if (toFocus) {
-        this.olMapService.scrollIntoViewByCoordinate(getCenter(toFocus));
+        if (toFocus) {
+          this.olMapService.scrollIntoViewByCoordinate(getCenter(toFocus));
+        }
       }
     }
   }
 }
 
 export const unwrapGeometries = (geometry: Geometry): Geometry[] => {
-  if (geometry.getType() == GeometryType.GEOMETRY_COLLECTION) {
+  if (geometry.getType() == 'GeometryCollection') {
     return (geometry as GeometryCollection).getGeometries().flatMap(geom => unwrapGeometries(geom));
-  } else if (geometry.getType() == GeometryType.MULTI_LINE_STRING) {
+  } else if (geometry.getType() == 'MultiLineString') {
     return (geometry as MultiLineString).getLineStrings().flatMap(geom => unwrapGeometries(geom));
-  } else if (geometry.getType() == GeometryType.MULTI_POINT) {
+  } else if (geometry.getType() == 'MultiPoint') {
     return (geometry as MultiPoint).getPoints().flatMap(geom => unwrapGeometries(geom));
   }
 

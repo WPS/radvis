@@ -11,7 +11,8 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-@import 'src/style/colors';
+@use 'src/style/colors';
+@use "sass:map";
 
 :host {
   display: flex;
@@ -74,7 +75,7 @@ tr {
 }
 
 .row-is-selected {
-  background-color: map-get($radvis-accent-palette, 100);
+  background-color: map.get(colors.$radvis-accent-palette, 100);
 }
 
 .footer-shadow {
@@ -90,7 +91,7 @@ tr {
 }
 
 .warning-color {
-  color: $warning-color;
+  color: colors.$warning-color;
 }
 
 ul {
@@ -125,11 +126,11 @@ ul {
   }
 
   .blue {
-    background-color: map-get($radvis-primary-palette, 200);
+    background-color: map.get(colors.$radvis-primary-palette, 200);
   }
 
   .red {
-    background-color: map-get($radvis-accent-palette, 700);
+    background-color: map.get(colors.$radvis-accent-palette, 700);
   }
 
   .green {

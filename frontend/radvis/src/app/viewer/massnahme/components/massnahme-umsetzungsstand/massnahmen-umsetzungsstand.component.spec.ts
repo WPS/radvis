@@ -14,7 +14,7 @@
 
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, ActivatedRouteSnapshot, Data } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { MockBuilder } from 'ng-mocks';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { Subject } from 'rxjs';
@@ -36,7 +36,7 @@ describe(MassnahmenUmsetzungsstandComponent.name, () => {
   let massnahmenUmsetzungsstandComponent: MassnahmenUmsetzungsstandComponent;
   let fixture: ComponentFixture<MassnahmenUmsetzungsstandComponent>;
 
-  let dataSubject: Subject<Data>;
+  let dataSubject: Subject<{ umsetzungsstand: Umsetzungsstand }>;
 
   let massnahmeService: MassnahmeService;
   let notifyUserService: NotifyUserService;
@@ -224,26 +224,181 @@ describe(MassnahmenUmsetzungsstandComponent.name, () => {
   });
 
   describe('hinweis-dialog', () => {
-    it('should show dialog if Massnahme is umgesetzt/storniert and aktualisierung angefordert', fakeAsync(() => {
-      const umsetzungsstand: Umsetzungsstand = { ...defaultUmsetzungsstand };
-      umsetzungsstand.massnahmeUmsetzungsstatus = Umsetzungsstatus.UMGESETZT;
-      umsetzungsstand.umsetzungsstandStatus = UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT;
-      dataSubject.next({ umsetzungsstand });
-      tick();
+    const finaleUmsetzungsstatus = [
+      Umsetzungsstatus.UMGESETZT,
+      Umsetzungsstatus.STORNIERT,
+      Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+    ];
 
-      verify(dialog.open(anything(), anything())).once();
-      expect().nothing();
-    }));
+    finaleUmsetzungsstatus.forEach(status => {
+      it(`should show dialog if Massnahme is ${status} and aktualisierung angefordert`, fakeAsync(() => {
+        const umsetzungsstand: Umsetzungsstand = {
+          ...defaultUmsetzungsstand,
+          massnahmeUmsetzungsstatus: status,
+          umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT,
+        };
+        dataSubject.next({ umsetzungsstand });
+        tick();
 
-    it('should not show dialog if Massnahme is not umgesetzt/storniert', fakeAsync(() => {
-      const umsetzungsstand: Umsetzungsstand = { ...defaultUmsetzungsstand };
-      umsetzungsstand.massnahmeUmsetzungsstatus = Umsetzungsstatus.IDEE;
-      umsetzungsstand.umsetzungsstandStatus = UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT;
-      dataSubject.next({ umsetzungsstand });
-      tick();
+        verify(dialog.open(anything(), anything())).once();
+        expect().nothing();
+      }));
 
-      verify(dialog.open(anything(), anything())).never();
-      expect().nothing();
-    }));
+      it(`should not show dialog if Massnahme is ${status} and aktualisiert`, fakeAsync(() => {
+        const umsetzungsstand: Umsetzungsstand = {
+          ...defaultUmsetzungsstand,
+          massnahmeUmsetzungsstatus: status,
+          umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERT,
+        };
+        dataSubject.next({ umsetzungsstand });
+        tick();
+
+        verify(dialog.open(anything(), anything())).never();
+        expect().nothing();
+      }));
+    });
+
+    Umsetzungsstatus.options
+      .map(o => o.name)
+      .filter(n => !finaleUmsetzungsstatus.includes(n as Umsetzungsstatus))
+      .forEach(status => {
+        it(`should not show dialog if Massnahme is ${status}`, fakeAsync(() => {
+          const umsetzungsstand: Umsetzungsstand = { ...defaultUmsetzungsstand };
+          umsetzungsstand.massnahmeUmsetzungsstatus = status as Umsetzungsstatus;
+          umsetzungsstand.umsetzungsstandStatus = UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT;
+          dataSubject.next({ umsetzungsstand });
+          tick();
+
+          verify(dialog.open(anything(), anything())).never();
+          expect().nothing();
+        }));
+      });
+  });
+
+  describe('validateGrundFuerNichtUmsetzungDerMassnahme', () => {
+    const statusWithRequiredGrund = [
+      Umsetzungsstatus.IDEE,
+      Umsetzungsstatus.STORNIERT,
+      Umsetzungsstatus.STORNIERT_ENGSTELLE,
+      Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH,
+      Umsetzungsstatus.STORNIERUNG_ANGEFRAGT,
+    ];
+
+    beforeEach(() => {
+      spyOnProperty(massnahmenUmsetzungsstandComponent, 'istBearbeitungGesperrt').and.returnValue(false);
+    });
+
+    Umsetzungsstatus.options
+      .map(o => o.name)
+      .filter(n => !statusWithRequiredGrund.includes(n as Umsetzungsstatus))
+      .forEach(status => {
+        it(`should be valid if ${status} and aktualisierung angefordert and empty`, () => {
+          dataSubject.next({
+            umsetzungsstand: {
+              ...defaultUmsetzungsstand,
+              umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT,
+              massnahmeUmsetzungsstatus: status as Umsetzungsstatus,
+            },
+          });
+          massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.reset();
+          expect(
+            massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.valid
+          ).toBeTrue();
+        });
+      });
+
+    statusWithRequiredGrund.forEach(status => {
+      it(`should be invalid if ${status} and aktualisierung angefordert and empty`, () => {
+        dataSubject.next({
+          umsetzungsstand: {
+            ...defaultUmsetzungsstand,
+            umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT,
+            massnahmeUmsetzungsstatus: status,
+          },
+        });
+        massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.reset();
+        expect(
+          massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.valid
+        ).toBeFalse();
+      });
+
+      it(`should be valid if ${status} and aktualisierung angefordert and not empty`, () => {
+        dataSubject.next({
+          umsetzungsstand: {
+            ...defaultUmsetzungsstand,
+            umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT,
+            massnahmeUmsetzungsstatus: status,
+          },
+        });
+        massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.reset(
+          GrundFuerNichtUmsetzungDerMassnahme.AUS_SUBJEKTIVER_SICHT_NICHT_ERFORDERLICH
+        );
+        expect(
+          massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.valid
+        ).toBeTrue();
+      });
+
+      it(`should be valid if ${status} and aktualisierung not angefordert and empty`, () => {
+        dataSubject.next({
+          umsetzungsstand: {
+            ...defaultUmsetzungsstand,
+            umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERT,
+            massnahmeUmsetzungsstatus: status,
+          },
+        });
+        massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.reset();
+        expect(
+          massnahmenUmsetzungsstandComponent.formGroup.controls.grundFuerNichtUmsetzungDerMassnahme.valid
+        ).toBeTrue();
+      });
+    });
+  });
+
+  describe('istBearbeitungGesperrt', () => {
+    const nichtBearbeitbareStatus = [
+      Umsetzungsstatus.UMGESETZT,
+      Umsetzungsstatus.STORNIERT,
+      Umsetzungsstatus.STORNIERT_ENGSTELLE,
+      Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH,
+    ];
+
+    nichtBearbeitbareStatus.forEach(status => {
+      it(`should be false for status ${status} if not aktualisierung angefordert`, () => {
+        massnahmenUmsetzungsstandComponent.umsetzungsstand = {
+          ...defaultUmsetzungsstand,
+          umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERT,
+          massnahmeUmsetzungsstatus: status,
+        };
+
+        expect(massnahmenUmsetzungsstandComponent.istBearbeitungGesperrt).toBe(true);
+      });
+    });
+
+    nichtBearbeitbareStatus.forEach(status => {
+      it(`should be true for status ${status} if aktualisierung angefordert`, () => {
+        massnahmenUmsetzungsstandComponent.umsetzungsstand = {
+          ...defaultUmsetzungsstand,
+          umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT,
+          massnahmeUmsetzungsstatus: status,
+        };
+
+        expect(massnahmenUmsetzungsstandComponent.istBearbeitungGesperrt).toBe(false);
+      });
+    });
+
+    Umsetzungsstatus.options
+      .map(o => o.name)
+      .filter(n => !nichtBearbeitbareStatus.includes(n as Umsetzungsstatus))
+      .forEach(status => {
+        it(`should be false for status ${status} if aktualisierung angefordert`, () => {
+          massnahmenUmsetzungsstandComponent.umsetzungsstand = {
+            ...defaultUmsetzungsstand,
+            umsetzungsstandStatus: UmsetzungsstandStatus.AKTUALISIERUNG_ANGEFORDERT,
+            massnahmeUmsetzungsstatus: status as Umsetzungsstatus,
+          };
+
+          expect(massnahmenUmsetzungsstandComponent.istBearbeitungGesperrt).toBe(false);
+        });
+      });
   });
 });

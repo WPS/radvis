@@ -12,7 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/theme';
+@use 'src/style/colors';
+@use "sass:map";
 
 $hightligt-line-thickness: 6px;
 $hightligt-line-overflow-width: 0.6em;
@@ -46,13 +47,13 @@ $hightligt-line-overflow-width: 0.6em;
 }
 
 .toolbar {
-  background-color: map-get($radvis-accent-palette, 600);
-  color: map-get(map-get($radvis-accent-palette, contrast), 600);
+  background-color: map.get(colors.$radvis-accent-palette, 600);
+  color: map.get(map.get(colors.$radvis-accent-palette, contrast), 600);
   flex-shrink: 0;
   position: relative;
 
   button.activated {
-    background-color: map-get($radvis-accent-palette, 200);
+    background-color: map.get(colors.$radvis-accent-palette, 200);
   }
 
   nav {
@@ -72,7 +73,7 @@ $hightligt-line-overflow-width: 0.6em;
       }
 
       &.activated {
-        border-bottom: $hightligt-line-thickness solid $secondary-color-light;
+        border-bottom: $hightligt-line-thickness solid colors.$secondary-color-light;
 
         .nav-link {
           margin-top: $hightligt-line-thickness;

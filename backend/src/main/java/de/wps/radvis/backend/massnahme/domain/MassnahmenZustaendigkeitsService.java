@@ -24,20 +24,24 @@ import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.repository.BenutzerRepository;
 import de.wps.radvis.backend.benutzer.domain.valueObject.BenutzerStatus;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Rolle;
+import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
 import de.wps.radvis.backend.massnahme.domain.entity.Massnahme;
+import de.wps.radvis.backend.organisation.domain.VerwaltungseinheitRepository;
 import de.wps.radvis.backend.organisation.domain.entity.Verwaltungseinheit;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MassnahmenZustaendigkeitsService {
-
-	private final BenutzerRepository benutzerRepository;
-
 	private final static Set<Rolle> ZUSTAENDIGE_BEARBEITER = Set.of(Rolle.RADWEGE_ERFASSERIN, Rolle.KREISKOORDINATOREN,
 		Rolle.RADVERKEHRSBEAUFTRAGTER);
 
-	public MassnahmenZustaendigkeitsService(BenutzerRepository benutzerRepository) {
+	private final BenutzerRepository benutzerRepository;
+	private final VerwaltungseinheitRepository verwaltungseinheitRepository;
+
+	public MassnahmenZustaendigkeitsService(BenutzerRepository benutzerRepository,
+		VerwaltungseinheitRepository verwaltungseinheitRepository) {
 		this.benutzerRepository = benutzerRepository;
+		this.verwaltungseinheitRepository = verwaltungseinheitRepository;
 	}
 
 	public List<Benutzer> getZustaendigeBarbeiterVonUmsetzungsstandabfrage(Massnahme massnahme) {
@@ -72,5 +76,13 @@ public class MassnahmenZustaendigkeitsService {
 
 	public List<Benutzer> getZustaendigeKreiskoordinatoren(Verwaltungseinheit verwaltungseinheit) {
 		return benutzerRepository.findByOrganisationAndRollen(verwaltungseinheit, Rolle.KREISKOORDINATOREN);
+	}
+
+	public List<Verwaltungseinheit> getZustaendigeRegierungsbezirke(Massnahme massnahme) {
+		return verwaltungseinheitRepository.findByOrganisationsArt(OrganisationsArt.REGIERUNGSBEZIRK).stream()
+			.filter(org -> {
+				return org.getBereich().isPresent() &&
+					massnahme.getNetzbezug().getGeometrie().intersects(org.getBereich().get());
+			}).toList();
 	}
 }

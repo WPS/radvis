@@ -30,7 +30,6 @@ import VectorLayer from 'ol/layer/Vector';
 import { bbox } from 'ol/loadingstrategy';
 import VectorSource from 'ol/source/Vector';
 import { Icon, Style } from 'ol/style';
-import IconOrigin from 'ol/style/IconOrigin';
 import { Subscription } from 'rxjs';
 import { FehlerprotokollDetailViewComponent } from 'src/app/fehlerprotokoll/components/fehlerprotokoll-detail-view/fehlerprotokoll-detail-view.component';
 import { FehlerprotokollView } from 'src/app/fehlerprotokoll/models/fehlerprotokoll-view';
@@ -155,7 +154,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
       new Style({
         image: new Icon({
           anchor: [0.6, 0.5],
-          anchorOrigin: IconOrigin.BOTTOM_LEFT,
+          anchorOrigin: 'bottom-left',
           src: './assets/konflikt-background.svg',
           color,
           opacity,
@@ -164,7 +163,7 @@ export class FehlerprotokollLayerComponent implements OnInit, OnDestroy {
       new Style({
         image: new Icon({
           anchor: [0.6, 0.5],
-          anchorOrigin: IconOrigin.BOTTOM_LEFT,
+          anchorOrigin: 'bottom-left',
           src: './assets/konflikt.svg',
           opacity,
         }),

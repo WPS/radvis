@@ -75,7 +75,7 @@ export class LandkreisErledigtMarkierenComponent implements OnChanges, OnDestroy
     }
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(
       clickEvent.pixel,
       (layer: Layer<Source>) => layer === this.olLayer

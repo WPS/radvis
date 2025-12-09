@@ -14,12 +14,21 @@
 
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Feature } from 'ol';
+import * as OlColors from 'ol/color';
+import { FeatureLike } from 'ol/Feature';
 import { Geometry, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
+import { Style } from 'ol/style';
+import Fill from 'ol/style/Fill';
+import Stroke from 'ol/style/Stroke';
+import TextStyle from 'ol/style/Text';
+import { MapStyles } from 'src/app/shared/models/layers/map-styles';
 import { RadVisFeature } from 'src/app/shared/models/rad-vis-feature';
+import { SignaturLegende } from 'src/app/shared/models/signatur-legende';
 import { OlMapService } from 'src/app/shared/services/ol-map.service';
 import { Abstellanlage } from 'src/app/viewer/abstellanlage/models/abstellanlage';
 import { ABSTELLANLAGEN } from 'src/app/viewer/abstellanlage/models/abstellanlage.infrastruktur';
+import { AbstellanlagenQuellSystem } from 'src/app/viewer/abstellanlage/models/abstellanlagen-quell-system';
 import { AbstellanlageFilterService } from 'src/app/viewer/abstellanlage/services/abstellanlage-filter.service';
 import { AbstellanlageRoutingService } from 'src/app/viewer/abstellanlage/services/abstellanlage-routing.service';
 import { AbstractInfrastrukturLayerComponent } from 'src/app/viewer/viewer-shared/components/abstract-infrastruktur-layer.component';
@@ -35,7 +44,15 @@ export class AbstellanlageLayerComponent
   extends AbstractInfrastrukturLayerComponent<Abstellanlage>
   implements OnDestroy
 {
+  private readonly LEGENDE: SignaturLegende = {
+    name: 'Abstellanlagen',
+    entries: [
+      { name: 'Quelle RadVIS', color: OlColors.toString(MapStyles.INFRASTRUKTUR_ICON_COLOR) },
+      { name: 'Quelle MobiDATA', color: OlColors.toString(MapStyles.MOBIDATA_COLOR) },
+    ],
+  };
   private layer: VectorLayer;
+  private readonly IS_MOBIDATA_PROPERTY_NAME = 'isMobidata';
 
   constructor(
     routingService: AbstellanlageRoutingService,
@@ -48,6 +65,7 @@ export class AbstellanlageLayerComponent
     this.layer = this.createLayer();
     this.layer.setStyle(this.styleWithHighlightCircleFn);
     this.olMapService.addLayer(this.layer);
+    this.olMapService.updateLegende(this.layer, this.LEGENDE);
     this.initServiceSubscriptions();
   }
 
@@ -63,8 +81,41 @@ export class AbstellanlageLayerComponent
       AbstractInfrastrukturLayerComponent.BEZEICHNUNG_PROPERTY_NAME,
       `Abstellanlage (${infrastruktur.betreiber})`
     );
+    if (infrastruktur.quellSystem === AbstellanlagenQuellSystem.MOBIDATABW) {
+      feature.set(this.IS_MOBIDATA_PROPERTY_NAME, true);
+      feature.set(this.ICON_COLOR_PROPERTY_NAME, MapStyles.MOBIDATA_COLOR);
+    }
     return [feature];
   }
+
+  protected override styleFn = (feature: FeatureLike, resolution: number): Style | Style[] => {
+    const defaultStyles = AbstractInfrastrukturLayerComponent.infrastrukturIconStyle(
+      feature.get(this.HIGHLIGHTED_PROPERTY_NAME),
+      ABSTELLANLAGEN,
+      feature.get(this.ICON_COLOR_PROPERTY_NAME)
+    );
+    if (feature.get(this.IS_MOBIDATA_PROPERTY_NAME) && resolution < MapStyles.RESOLUTION_VERY_SMALL) {
+      defaultStyles.push(
+        new Style({
+          text: new TextStyle({
+            fill: new Fill({
+              color: 'white',
+            }),
+            text: ' MobiData',
+            backgroundFill: new Fill({
+              color: MapStyles.MOBIDATA_COLOR,
+            }),
+            backgroundStroke: new Stroke({
+              color: 'white',
+            }),
+            textAlign: 'left',
+            offsetY: 2,
+          }),
+        })
+      );
+    }
+    return defaultStyles;
+  };
 
   protected extractIdFromFeature(hf: RadVisFeature): number {
     return hf.id!;

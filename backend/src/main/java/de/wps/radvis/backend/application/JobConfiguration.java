@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Scope;
 
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageBRImportJob;
 import de.wps.radvis.backend.abstellanlage.domain.AbstellanlageRepository;
+import de.wps.radvis.backend.application.domain.MaterializedViewsUpdateJob;
 import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.benutzer.domain.InaktivitaetConfigurationProperties;
 import de.wps.radvis.backend.benutzer.domain.InitialAdminImportConfigurationProperties;
@@ -38,7 +39,6 @@ import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.OsmPbfConfigurationProperties;
-import de.wps.radvis.backend.common.domain.repository.CsvRepository;
 import de.wps.radvis.backend.common.domain.repository.GeoJsonImportRepository;
 import de.wps.radvis.backend.common.domain.repository.ShapeFileRepository;
 import de.wps.radvis.backend.common.domain.valueObject.QuellSystem;
@@ -56,6 +56,7 @@ import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungJo
 import de.wps.radvis.backend.integration.radwegedb.domain.RadwegeDBNetzbildungService;
 import de.wps.radvis.backend.leihstation.domain.LeihstationMobiDataImportJob;
 import de.wps.radvis.backend.leihstation.domain.LeihstationRepository;
+import de.wps.radvis.backend.massnahme.domain.repository.MassnahmeRepository;
 import de.wps.radvis.backend.matching.domain.DlmPbfErstellungsJob;
 import de.wps.radvis.backend.matching.domain.KanteUpdateElevationJob;
 import de.wps.radvis.backend.matching.domain.MatchNetzAufDLMJob;
@@ -65,13 +66,13 @@ import de.wps.radvis.backend.matching.domain.OsmPbfDownloadJob;
 import de.wps.radvis.backend.matching.domain.repository.DlmMatchingRepository;
 import de.wps.radvis.backend.matching.domain.repository.OsmAbbildungsFehlerRepository;
 import de.wps.radvis.backend.matching.domain.repository.OsmMatchingRepository;
-import de.wps.radvis.backend.matching.schnittstelle.LoadGraphhopperJob;
 import de.wps.radvis.backend.matching.domain.service.DlmPbfErstellungService;
 import de.wps.radvis.backend.matching.domain.service.GraphhopperUpdateService;
 import de.wps.radvis.backend.matching.domain.service.KanteUpdateElevationService;
 import de.wps.radvis.backend.matching.domain.service.MatchingJobProtokollService;
 import de.wps.radvis.backend.matching.domain.service.MatchingKorrekturService;
 import de.wps.radvis.backend.matching.domain.service.OsmAuszeichnungsService;
+import de.wps.radvis.backend.matching.schnittstelle.LoadGraphhopperJob;
 import de.wps.radvis.backend.matching.schnittstelle.repositoryImpl.DlmMatchedGraphHopperFactory;
 import de.wps.radvis.backend.netz.domain.service.NetzService;
 import de.wps.radvis.backend.netz.domain.service.StreckenViewService;
@@ -218,9 +219,6 @@ public class JobConfiguration {
 	private WegweisendeBeschilderungConfigurationProperties wegweisendeBeschilderungConfigurationProperties;
 
 	@Autowired
-	private CsvRepository csvRepository;
-
-	@Autowired
 	CoordinateReferenceSystemConverter coordinateReferenceSystemConverter;
 
 	@Autowired
@@ -257,16 +255,22 @@ public class JobConfiguration {
 	BenutzerService benutzerService;
 
 	@Autowired
+	MassnahmeRepository massnahmeRepository;
+
+	@Autowired
 	@Lazy
 	VerwaltungseinheitImportRepository organisationenImportRepository;
 
 	@Bean
 	public RadNETZQuellImportJob radNetzQuellImportJob() {
-		File radNetzShapeFileRoot = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File radNetzShapeFileRoot = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getRadNetzShapeFilesPath());
-		File radNetzStreckenShapeFileRoot = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File radNetzStreckenShapeFileRoot = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getRadNetzStreckenShapeFilesPath());
-		return new RadNETZQuellImportJob(jobExecutionDescriptionRepository,
+		return new RadNETZQuellImportJob(
+			jobExecutionDescriptionRepository,
 			featureImportRepository,
 			importedFeatureRepository,
 			radNetzShapeFileRoot,
@@ -275,20 +279,24 @@ public class JobConfiguration {
 
 	@Bean
 	public GenericQuellImportJob radwegeLglTuttlingenImportJob() {
-		File radwegeLglTuttlingenLinienFile = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File radwegeLglTuttlingenLinienFile = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getRadwegeLglTuttlingenShpFilePath());
-		return new GenericQuellImportJob(jobExecutionDescriptionRepository,
+		return new GenericQuellImportJob(
+			jobExecutionDescriptionRepository,
 			featureImportRepository, importedFeatureRepository,
 			"tuttlingen", radwegeLglTuttlingenLinienFile, QuellSystem.LGL, Art.Strecke, Geometry.TYPENAME_LINESTRING);
 	}
 
 	@Bean
 	public GenericQuellImportJob radwegeDbImportJob() {
-		File radwegeDBShapeFile = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File radwegeDBShapeFile = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getRadWegeDBShapeFilePath());
 		Predicate<ImportedFeature> filter = importedFeature -> importedFeature.getAttribute()
 			.getOrDefault("radverkehr", "0").equals(1);
-		return new GenericQuellImportJob(jobExecutionDescriptionRepository,
+		return new GenericQuellImportJob(
+			jobExecutionDescriptionRepository,
 			featureImportRepository, importedFeatureRepository,
 			"radwegeDB", radwegeDBShapeFile, QuellSystem.RadwegeDB, Art.Strecke, Geometry.TYPENAME_MULTILINESTRING,
 			filter);
@@ -296,18 +304,22 @@ public class JobConfiguration {
 
 	@Bean
 	public GenericQuellImportJob rvkEsslingenImportJob() {
-		File rvkEsslingenShapeFile = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File rvkEsslingenShapeFile = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getRvkEsslingenShapeFilePath());
-		return new GenericQuellImportJob(jobExecutionDescriptionRepository,
+		return new GenericQuellImportJob(
+			jobExecutionDescriptionRepository,
 			featureImportRepository, importedFeatureRepository,
 			"RvkEsslingen", rvkEsslingenShapeFile, QuellSystem.RvkEsslingen, Art.Strecke, Geometry.TYPENAME_LINESTRING);
 	}
 
 	@Bean
 	public GenericQuellImportJob bietigheimBissingenImportJob() {
-		File bietigheimBissingenShapeFile = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File bietigheimBissingenShapeFile = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getBietigheimBissingenShapeFilePath());
-		return new GenericQuellImportJob(jobExecutionDescriptionRepository,
+		return new GenericQuellImportJob(
+			jobExecutionDescriptionRepository,
 			featureImportRepository, importedFeatureRepository,
 			"bietigheimBissingen", bietigheimBissingenShapeFile, QuellSystem.BietigheimBissingen, Art.Strecke,
 			Geometry.TYPENAME_LINESTRING);
@@ -315,9 +327,11 @@ public class JobConfiguration {
 
 	@Bean
 	public TTSibImportJob ttSibImportJob() {
-		File ttSibFolder = new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		File ttSibFolder = new File(
+			commonConfigurationProperties.getExterneResourcenBasisPfad(),
 			jobConfigurationProperties.getTtSibFilesPath());
-		return new TTSibImportJob(jobExecutionDescriptionRepository, ttSibRepository, ttSibFahrradwegRepository,
+		return new TTSibImportJob(
+			jobExecutionDescriptionRepository, ttSibRepository, ttSibFahrradwegRepository,
 			ttSibFolder, entityManager);
 	}
 
@@ -332,27 +346,31 @@ public class JobConfiguration {
 
 	@Bean
 	public InitialBenutzerImportJob initialAdminImportJob(BenutzerService benutzerService) {
-		return new InitialBenutzerImportJob(jobExecutionDescriptionRepository,
+		return new InitialBenutzerImportJob(
+			jobExecutionDescriptionRepository,
 			initialAdminImportConfigurationProperties,
 			technischerBenutzerConfigurationProperties, benutzerService);
 	}
 
 	@Bean
 	public RadNETZNetzbildungJob radNetzNetzbildungJob() {
-		return new RadNETZNetzbildungJob(importedFeatureRepository, netzfehlerRepository, radNetzNetzbildungService,
+		return new RadNETZNetzbildungJob(
+			importedFeatureRepository, netzfehlerRepository, radNetzNetzbildungService,
 			jobExecutionDescriptionRepository);
 	}
 
 	@Bean
 	public RadwegeDBNetzbildungJob radwegeDBNetzbildungJob() {
-		return new RadwegeDBNetzbildungJob(importedFeatureRepository, netzfehlerRepository, radwegeDBNetzbildungService,
+		return new RadwegeDBNetzbildungJob(
+			importedFeatureRepository, netzfehlerRepository, radwegeDBNetzbildungService,
 			jobExecutionDescriptionRepository);
 	}
 
 	@Bean
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	public MatchNetzAufOSMJob matchNetzAufOSMJob() {
-		return new MatchNetzAufOSMJob(jobExecutionDescriptionRepository, netzfehlerRepository,
+		return new MatchNetzAufOSMJob(
+			jobExecutionDescriptionRepository, netzfehlerRepository,
 			org.springframework.data.util.Lazy.of(() -> osmMatchingRepository),
 			netzService, osmMatchingKorrekturService, osmJobProtokollService, entityManager,
 			dlmConfigurationProperties, osmAbbildungsFehlerRepository);
@@ -360,7 +378,8 @@ public class JobConfiguration {
 
 	@Bean
 	public MatchNetzAufDLMJob matchRadwegeDbAufDLMJob() {
-		return new MatchNetzAufDLMJob(jobExecutionDescriptionRepository, netzfehlerRepository,
+		return new MatchNetzAufDLMJob(
+			jobExecutionDescriptionRepository, netzfehlerRepository,
 			org.springframework.data.util.Lazy.of(() -> dlmMatchingRepository), netzService, streckenViewService,
 			osmMatchingKorrekturService, osmJobProtokollService,
 			entityManager, dlmConfigurationProperties, QuellSystem.RadwegeDB);
@@ -368,7 +387,8 @@ public class JobConfiguration {
 
 	@Bean
 	public MatchNetzAufDLMJob matchRadNETZAufDLMJob() {
-		return new MatchNetzAufDLMJob(jobExecutionDescriptionRepository, netzfehlerRepository,
+		return new MatchNetzAufDLMJob(
+			jobExecutionDescriptionRepository, netzfehlerRepository,
 			org.springframework.data.util.Lazy.of(() -> dlmMatchingRepository), netzService, streckenViewService,
 			osmMatchingKorrekturService, osmJobProtokollService,
 			entityManager, dlmConfigurationProperties, QuellSystem.RadNETZ);
@@ -376,7 +396,8 @@ public class JobConfiguration {
 
 	@Bean
 	public AttributProjektionsJob radwegeDbAttributProjektionsJob() {
-		return new AttributProjektionsJob(jobExecutionDescriptionRepository, attributProjektionsService,
+		return new AttributProjektionsJob(
+			jobExecutionDescriptionRepository, attributProjektionsService,
 			attributAnreicherungsService, attributProjektionsStatistikService, netzfehlerRepository,
 			kantenDublettenPruefungService, netzService,
 			importedFeatureRepository, dlmConfigurationProperties, entityManager, QuellSystem.RadwegeDB);
@@ -384,7 +405,8 @@ public class JobConfiguration {
 
 	@Bean
 	public AttributProjektionsJob radNETZAttributProjektionsJob() {
-		return new AttributProjektionsJob(jobExecutionDescriptionRepository, attributProjektionsService,
+		return new AttributProjektionsJob(
+			jobExecutionDescriptionRepository, attributProjektionsService,
 			attributAnreicherungsService, attributProjektionsStatistikService, netzfehlerRepository,
 			kantenDublettenPruefungService, netzService,
 			importedFeatureRepository, dlmConfigurationProperties, entityManager, QuellSystem.RadNETZ);
@@ -393,7 +415,8 @@ public class JobConfiguration {
 	@Bean
 	public OsmPbfDownloadJob osmPbfDownloadJob() {
 		File osmBasisDaten = new File(osmPbfConfigurationProperties.getOsmBasisDaten());
-		return new OsmPbfDownloadJob(jobExecutionDescriptionRepository, osmBasisDaten,
+		return new OsmPbfDownloadJob(
+			jobExecutionDescriptionRepository, osmBasisDaten,
 			osmPbfConfigurationProperties.getOsmBasisDatenDownloadLink());
 	}
 
@@ -401,7 +424,8 @@ public class JobConfiguration {
 	public OsmAuszeichnungsJob osmAuszeichnungsJob() {
 		File osmBasisDaten = new File(osmPbfConfigurationProperties.getOsmBasisDaten());
 		File osmAngereichertDaten = new File(osmPbfConfigurationProperties.getOsmAngereichertDaten());
-		return new OsmAuszeichnungsJob(jobExecutionDescriptionRepository, osmAuszeichnungsService,
+		return new OsmAuszeichnungsJob(
+			jobExecutionDescriptionRepository, osmAuszeichnungsService,
 			osmBasisDaten, osmAngereichertDaten);
 	}
 
@@ -415,7 +439,8 @@ public class JobConfiguration {
 
 	@Bean
 	public RadNETZSackgassenJob radNETZSackgassenJob() {
-		return new RadNETZSackgassenJob(netzfehlerRepository, radNETZNachbearbeitungsRepository,
+		return new RadNETZSackgassenJob(
+			netzfehlerRepository, radNETZNachbearbeitungsRepository,
 			jobExecutionDescriptionRepository);
 	}
 
@@ -438,8 +463,13 @@ public class JobConfiguration {
 
 	@Bean
 	public AbstellanlageBRImportJob abstellanlageBRImportJob() {
-		return new AbstellanlageBRImportJob(jobExecutionDescriptionRepository, jobConfigurationProperties,
-			csvRepository, coordinateReferenceSystemConverter, abstellanlageRepository);
+		return new AbstellanlageBRImportJob(
+			jobExecutionDescriptionRepository,
+			coordinateReferenceSystemConverter,
+			abstellanlageRepository,
+			jobConfigurationProperties.getAbstellanlageBRDatenquellenImportUrl(),
+			jobConfigurationProperties.getAbstellanlageBRImportUrl()
+		);
 	}
 
 	@Bean
@@ -470,8 +500,10 @@ public class JobConfiguration {
 
 	@Bean
 	public WahlkreisImportJob wahlkreisImportJob() {
-		return new WahlkreisImportJob(jobExecutionDescriptionRepository, wahlkreisRepository, shapeFileRepository,
-			new File(commonConfigurationProperties.getExterneResourcenBasisPfad(),
+		return new WahlkreisImportJob(
+			jobExecutionDescriptionRepository, wahlkreisRepository, shapeFileRepository,
+			new File(
+				commonConfigurationProperties.getExterneResourcenBasisPfad(),
 				jobConfigurationProperties.getWahlkreisePath()));
 	}
 
@@ -486,5 +518,10 @@ public class JobConfiguration {
 	@Bean
 	public LoadGraphhopperJob reloadGraphhopperJob() {
 		return new LoadGraphhopperJob(jobExecutionDescriptionRepository, dlmMatchedGraphHopperFactory);
+	}
+
+	@Bean
+	public MaterializedViewsUpdateJob materializedViewsUpdateJob() {
+		return new MaterializedViewsUpdateJob(jobExecutionDescriptionRepository, netzService, massnahmeRepository);
 	}
 }

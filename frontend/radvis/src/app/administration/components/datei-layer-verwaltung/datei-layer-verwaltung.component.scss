@@ -12,8 +12,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-@import 'src/theme';
+@use 'src/style/colors';
+@use 'src/theme';
 
 :host {
   display: block;

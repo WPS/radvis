@@ -14,7 +14,11 @@
 
 package de.wps.radvis.backend.netzfehler.domain;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +29,8 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.context.event.EventListener;
 
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
+import de.wps.radvis.backend.common.domain.FrontendLinks;
+import de.wps.radvis.backend.common.domain.MailService;
 import de.wps.radvis.backend.common.domain.repository.FahrradrouteFilterRepository;
 import de.wps.radvis.backend.common.domain.service.FahrradrouteFilter;
 import de.wps.radvis.backend.konsistenz.pruefung.domain.KonsistenzregelVerletzungsRepository;
@@ -44,14 +50,21 @@ public class AnpassungswunschService {
 	private final AnpassungswunschRepository anpassungswunschRepository;
 	private final KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository;
 	private final FahrradrouteFilterRepository fahrradrouteFilterRepository;
+	private final MailService mailService;
+	private final String basisUrl;
+	private final Map<AnpassungswunschKategorie, String> emailProKategorie;
 	private final double erlaubterAbstand;
 
 	public AnpassungswunschService(AnpassungswunschRepository anpassungswunschRepository,
 		KonsistenzregelVerletzungsRepository konsistenzregelVerletzungsRepository,
-		FahrradrouteFilterRepository fahrradrouteFilterRepository, double erlaubterAbstand) {
+		FahrradrouteFilterRepository fahrradrouteFilterRepository, MailService mailService,
+		String basisUrl, Map<AnpassungswunschKategorie, String> emailProKategorie, double erlaubterAbstand) {
 		this.anpassungswunschRepository = anpassungswunschRepository;
 		this.konsistenzregelVerletzungsRepository = konsistenzregelVerletzungsRepository;
 		this.fahrradrouteFilterRepository = fahrradrouteFilterRepository;
+		this.mailService = mailService;
+		this.basisUrl = basisUrl;
+		this.emailProKategorie = emailProKategorie;
 		this.erlaubterAbstand = erlaubterAbstand;
 	}
 
@@ -59,9 +72,34 @@ public class AnpassungswunschService {
 		AnpassungswunschKategorie kategorie, Benutzer benutzer,
 		Optional<Verwaltungseinheit> verantwortlicheOrganisation,
 		Optional<String> fehlerprotokollId) {
+
 		return anpassungswunschRepository.save(
-			new Anpassungswunsch(geometrie, beschreibung, status, kategorie, benutzer, verantwortlicheOrganisation,
+			new Anpassungswunsch(
+				geometrie, beschreibung, status, kategorie, benutzer, verantwortlicheOrganisation,
 				buildKonsistenzregelVerletzungReferenz(fehlerprotokollId)));
+	}
+
+	/**
+	 *
+	 * Falls für die AnpassungswunschKategorie eine E-Mail-Adresse hinterlegt ist, wird eine entsprechende InfoMail
+	 * versendet.
+	 *
+	 * @param anpassungswunsch
+	 *     Der Anpassungswunsch muss bereits persistiert sein. Id muss gesetzt sein.
+	 */
+	public void versendeInfoMailZuNeuemAnpassungswunsch(Anpassungswunsch anpassungswunsch) {
+		require(anpassungswunsch, notNullValue());
+		require(anpassungswunsch.getId(), notNullValue());
+
+		if (!emailProKategorie.containsKey(anpassungswunsch.getKategorie())) {
+			return;
+		}
+
+		mailService.sendMail(
+			List.of(emailProKategorie.get(anpassungswunsch.getKategorie())),
+			"RadVIS: Neuer Anpassungswunsch",
+			String.format("Es gibt einen neuen Anpassungswunsch in RadVIS: %s%s", basisUrl, FrontendLinks
+				.anpassungswunschDetailView(anpassungswunsch.getId())));
 	}
 
 	private Optional<KonsistenzregelVerletzungReferenz> buildKonsistenzregelVerletzungReferenz(

@@ -39,6 +39,7 @@ import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProJahr;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProTag;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Groessenklasse;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.MobiDataQuellId;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Stellplatzart;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberdacht;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.Ueberwacht;
@@ -116,6 +117,8 @@ public class Abstellanlage extends VersionierteEntity {
 
 	private ExterneAbstellanlagenId externeId;
 
+	private MobiDataQuellId mobiDataQuellId;
+
 	@Getter
 	@Enumerated(EnumType.STRING)
 	private AbstellanlagenQuellSystem quellSystem;
@@ -175,6 +178,7 @@ public class Abstellanlage extends VersionierteEntity {
 		AbstellanlagenBetreiber betreiber,
 		ExterneAbstellanlagenId externeId,
 		AbstellanlagenQuellSystem quellSystem,
+		MobiDataQuellId mobiDataQuellId,
 		Verwaltungseinheit zustaendig,
 		AnzahlStellplaetze anzahlStellplaetze,
 		AnzahlSchliessfaecher anzahlSchliessfaecher,
@@ -195,6 +199,11 @@ public class Abstellanlage extends VersionierteEntity {
 		require(geometrie, notNullValue());
 		require(betreiber, notNullValue());
 		require(quellSystem, notNullValue());
+		if (quellSystem.equals(AbstellanlagenQuellSystem.MOBIDATABW)) {
+			require(mobiDataQuellId != null, "MobiDataQuellId muss bei Quellsystem MobiData gesetzt sein.");
+		} else {
+			require(mobiDataQuellId == null, "MobiDataQuellId darf nur bei Quellsystem MobiData gesetzt sein.");
+		}
 		require(ueberwacht, notNullValue());
 		require(abstellanlagenOrt, notNullValue());
 		require(stellplatzart, notNullValue());
@@ -210,6 +219,7 @@ public class Abstellanlage extends VersionierteEntity {
 		this.externeId = externeId;
 
 		this.quellSystem = quellSystem;
+		this.mobiDataQuellId = mobiDataQuellId;
 		this.zustaendig = zustaendig;
 		this.anzahlStellplaetze = anzahlStellplaetze;
 		this.anzahlSchliessfaecher = anzahlSchliessfaecher;
@@ -228,11 +238,13 @@ public class Abstellanlage extends VersionierteEntity {
 		this.dokumentListe = dokumentListe;
 	}
 
+	/**
+	 * Wird nur zum Erstellen neuer Anlagen aus dem FE (mit QuellSystem.RadVIS) genutzt
+	 */
 	public Abstellanlage(
 		Point geometrie,
 		AbstellanlagenBetreiber betreiber,
 		ExterneAbstellanlagenId externeId,
-		AbstellanlagenQuellSystem quellSystem,
 		Verwaltungseinheit zustaendig,
 		AnzahlStellplaetze anzahlStellplaetze,
 		AnzahlSchliessfaecher anzahlSchliessfaecher,
@@ -247,15 +259,15 @@ public class Abstellanlage extends VersionierteEntity {
 		GebuehrenProJahr gebuehrenProJahr,
 		AbstellanlagenBeschreibung beschreibung,
 		AbstellanlagenWeitereInformation weitereInformation,
-		AbstellanlagenStatus status,
-		DokumentListe dokumentListe) {
+		AbstellanlagenStatus status) {
 		this(
 			null,
 			null,
 			geometrie,
 			betreiber,
 			externeId,
-			quellSystem,
+			AbstellanlagenQuellSystem.RADVIS,
+			null,
 			zustaendig,
 			anzahlStellplaetze,
 			anzahlSchliessfaecher,
@@ -271,9 +283,12 @@ public class Abstellanlage extends VersionierteEntity {
 			beschreibung,
 			weitereInformation,
 			status,
-			dokumentListe);
+			new DokumentListe());
 	}
 
+	/**
+	 * Nur für Updates von Anlagen mit Quellsystem RadVIS aus dem Frontend
+	 */
 	public void update(
 		Point geometrie,
 		AbstellanlagenBetreiber betreiber,
@@ -293,6 +308,7 @@ public class Abstellanlage extends VersionierteEntity {
 		AbstellanlagenBeschreibung beschreibung,
 		AbstellanlagenWeitereInformation weitereInformation,
 		AbstellanlagenStatus status) {
+		require(this.quellSystem.equals(AbstellanlagenQuellSystem.RADVIS));
 		require(geometrie, notNullValue());
 		require(betreiber, notNullValue());
 		require(anzahlStellplaetze, notNullValue());
@@ -340,6 +356,10 @@ public class Abstellanlage extends VersionierteEntity {
 
 	public Optional<ExterneAbstellanlagenId> getExterneId() {
 		return Optional.ofNullable(externeId);
+	}
+
+	public Optional<MobiDataQuellId> getMobiDataQuellId() {
+		return Optional.ofNullable(mobiDataQuellId);
 	}
 
 	public Optional<AnzahlStellplaetze> getAnzahlStellplaetze() {

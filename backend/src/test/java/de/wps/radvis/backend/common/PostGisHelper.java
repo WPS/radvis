@@ -14,12 +14,19 @@
 
 package de.wps.radvis.backend.common;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
 import java.sql.SQLException;
 
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
 import org.locationtech.jts.io.WKBWriter;
 import org.postgresql.util.PGobject;
+
+import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 
 public class PostGisHelper {
 	public static PGobject getPGobject(Geometry geometry) throws SQLException {
@@ -39,5 +46,13 @@ public class PostGisHelper {
 			+ hexValueOfByteRepresentation.substring(2);
 		pGobject.setValue(hexValueOfByteRepresentation);
 		return pGobject;
+	}
+
+	public static Geometry getGeometryFromPGobject(PGobject pGobject) throws ParseException {
+		WKBReader reader = new WKBReader(KoordinatenReferenzSystem.ETRS89_UTM32_N.getGeometryFactory());
+
+		String hexValue = pGobject.getValue();
+		require(hexValue, notNullValue());
+		return reader.read(WKBReader.hexToBytes(hexValue));
 	}
 }

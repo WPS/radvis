@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.springframework.data.util.Lazy;
+import org.springframework.util.StopWatch;
 
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
@@ -76,11 +78,11 @@ public class FahrradroutenMatchingService {
 		LineString zuMatchendeGeometrie, FahrradrouteMatchingStatistik fahrradrouteMatchingStatistik,
 		FahrradroutenMatchingAndRoutingInformationBuilder fahrradroutenMatchingAndRoutingInformationBuilder,
 		boolean fahrtrichtungBeruecksichtigen) {
+		StopWatch watch = new StopWatch("getFahrradrouteNetzbezugResult");
 		// Erster Versuch
 		Optional<FahrradrouteNetzbezugResult> netzbezugResult = createFahrradrouteNetzbezug(
 			fahrradrouteMatchingStatistik, fahrradroutenMatchingAndRoutingInformationBuilder, zuMatchendeGeometrie,
-			fahrtrichtungBeruecksichtigen);
-
+			fahrtrichtungBeruecksichtigen, watch);
 		// Zweiter Versuch nach Schneiden der Route
 		if (netzbezugResult.isEmpty()) {
 			fahrradrouteMatchingStatistik.anzahlRoutenTeilweiseAusserhalbBW++;
@@ -90,7 +92,7 @@ public class FahrradroutenMatchingService {
 			if (zusammenhaengenderVerlaufInBw.isPresent()) {
 				netzbezugResult = createFahrradrouteNetzbezug(fahrradrouteMatchingStatistik,
 					fahrradroutenMatchingAndRoutingInformationBuilder,
-					zusammenhaengenderVerlaufInBw.get(), fahrtrichtungBeruecksichtigen);
+					zusammenhaengenderVerlaufInBw.get(), fahrtrichtungBeruecksichtigen, watch);
 			} else {
 				fahrradrouteMatchingStatistik.anzahlNachZuschnittVieleTeilstrecken++;
 				log.warn(
@@ -101,6 +103,7 @@ public class FahrradroutenMatchingService {
 				fahrradrouteMatchingStatistik.anzahlRoutenNachBwZuschnittErfolgreich++;
 			}
 		}
+		log.info(watch.prettyPrint(TimeUnit.MILLISECONDS));
 		return netzbezugResult;
 	}
 
@@ -183,7 +186,8 @@ public class FahrradroutenMatchingService {
 		FahrradrouteMatchingStatistik fahrradrouteMatchingStatistik,
 		FahrradroutenMatchingAndRoutingInformationBuilder fahrradroutenMatchingAndRoutingInformationBuilder,
 		LineString originalGeometrie,
-		boolean fahrtrichtungBeruecksichtigen) {
+		boolean fahrtrichtungBeruecksichtigen, StopWatch watch) {
+		watch.start("try matching");
 		try {
 			FahrradrouteNetzbezugResult netzbezugResult = tryToCreateNetzbezugWithMatching(
 				fahrradrouteMatchingStatistik,
@@ -194,8 +198,11 @@ public class FahrradroutenMatchingService {
 		} catch (KeinMatchGefundenException e) {
 			log.warn("Probiere Routing, da über Matching kein Netzbezug erstellt werden konnte: " + e.getMessage());
 			fahrradrouteMatchingStatistik.anzahlMatchingFehlgeschlagen++;
+		} finally {
+			watch.stop();
 		}
 
+		watch.start("try routing");
 		try {
 			FahrradrouteNetzbezugResult netzbezugResult = tryToCreateNetzbezugWithRouting(
 				fahrradrouteMatchingStatistik,
@@ -206,6 +213,8 @@ public class FahrradroutenMatchingService {
 		} catch (KeineRouteGefundenException routingException) {
 			log.warn("Routing Fehlgeschlagen: " + routingException.getMessage());
 			fahrradrouteMatchingStatistik.anzahlRoutingFehlgeschlagen++;
+		} finally {
+			watch.stop();
 		}
 
 		return Optional.empty();

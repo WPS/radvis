@@ -43,10 +43,11 @@
       </ul>
 
       <div class="pt-20 mb-4">
-        Wählen Sie eine Gebietskörperschaft aus, um das darin enthaltene Netz als GeoPackage-Datei herunterzuladen.
+        Wählen Sie eine Gebietskörperschaft aus, um das vollständige Netz (GeoPackage) oder die erweiterten
+        Informationen zu Maßnahmen (GeoPackage/CSV) herunterzuladen.
       </div>
 
-      <form class="justify-content-flex-end flex-wrap display-flex">
+      <div class="flex-wrap display-flex">
         <rad-organisationen-dropdown-control
           class="organisation-dropdown"
           #dropdownValue
@@ -54,18 +55,45 @@
           [nullable]="false"
           >Gebietskörperschaft auswählen
         </rad-organisationen-dropdown-control>
+      </div>
+      <div class="flex-wrap display-flex download-buttons">
         <button
-          class="button-size ml-10"
+          class="button-size flex-grow"
           mat-stroked-button
           color="primary"
           type="button"
-          [disabled]="dropdownValue.selectedOrganisation === null"
-          (click)="ladeHerunter(dropdownValue.selectedOrganisation)">
-          <span *ngIf="isFetching">Lade...</span>
-          <span *ngIf="!isFetching">Download</span>
+          [disabled]="dropdownValue.selectedOrganisation === null || isFetchingNetz"
+          (click)="onDownloadNetz(dropdownValue.selectedOrganisation)">
+          <mat-spinner *ngIf="isFetchingNetz" [diameter]="28"></mat-spinner>
+          <span *ngIf="!isFetchingNetz">Download Netz</span>
         </button>
-      </form>
+        <button
+          [matMenuTriggerFor]="downloadMassnahmenMenu"
+          class="button-size flex-grow"
+          mat-stroked-button
+          color="primary"
+          type="button"
+          [disabled]="dropdownValue.selectedOrganisation === null || isFetchingMassnahmen">
+          <mat-spinner *ngIf="isFetchingMassnahmen" [diameter]="28"></mat-spinner>
+          <span *ngIf="!isFetchingMassnahmen">Download Maßnahmen</span>
+        </button>
+      </div>
       <div class="info-text">Der Download kann bei großen Gebieten einige Minuten dauern.</div>
     </div>
   </div>
 </div>
+
+<mat-menu #downloadMassnahmenMenu="matMenu">
+  <button
+    mat-menu-item
+    (click)="onDownloadMassnahmen(dropdownValue.selectedOrganisation, 'CSV')"
+    [disabled]="dropdownValue.selectedOrganisation === null || isFetchingMassnahmen">
+    CSV
+  </button>
+  <button
+    mat-menu-item
+    (click)="onDownloadMassnahmen(dropdownValue.selectedOrganisation, 'GEOPACKAGE')"
+    [disabled]="dropdownValue.selectedOrganisation === null || isFetchingMassnahmen">
+    GeoPackage
+  </button>
+</mat-menu>

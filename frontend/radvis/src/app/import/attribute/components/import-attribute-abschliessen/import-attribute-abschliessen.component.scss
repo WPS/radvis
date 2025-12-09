@@ -12,9 +12,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-@import 'src/style/spacing';
-@import 'src/style/font-style';
+@use 'src/style/colors';
+@use 'src/style/spacing';
+@use 'src/style/font-style' as font;
+@use "sass:map";
 
 :host {
   display: flex;
@@ -51,8 +52,8 @@
 }
 
 .conflict-detail-view-container {
-  margin-left: -$manueller-import-sub-tool-padding;
-  margin-right: -$manueller-import-sub-tool-padding;
+  margin-left: -(spacing.$manueller-import-sub-tool-padding);
+  margin-right: -(spacing.$manueller-import-sub-tool-padding);
 }
 
 .conflict-detail-view {
@@ -70,11 +71,11 @@
     padding-bottom: 0.4rem;
     padding-left: 24px;
     font-weight: 500;
-    background: map-get($grayscale, 100);
+    background: map.get(colors.$grayscale, 100);
   }
 
   .konflikt-property-row:hover {
-    background-color: map-get($grayscale, 50);
+    background-color: map.get(colors.$grayscale, 50);
   }
 
   .konflikt-property-value {

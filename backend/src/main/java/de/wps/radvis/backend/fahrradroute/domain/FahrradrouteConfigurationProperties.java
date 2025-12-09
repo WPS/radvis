@@ -17,6 +17,10 @@ package de.wps.radvis.backend.fahrradroute.domain;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.valid4j.Assertive.require;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
@@ -26,11 +30,16 @@ import lombok.Getter;
 @Getter
 public class FahrradrouteConfigurationProperties {
 	private final int maximaleAnzahlKoordinatenFuerImportDiff;
+	private final int timeoutToubizImportMatchingInSeconds;
+	private final List<String> toubizIgnoreList;
 
 	@ConstructorBinding
-	public FahrradrouteConfigurationProperties(Integer maximaleAnzahlKoordinatenFuerImportDiff) {
+	public FahrradrouteConfigurationProperties(Integer maximaleAnzahlKoordinatenFuerImportDiff,
+		Integer timeoutToubizImportMatchingInSeconds, List<String> toubizIgnoreList) {
 		require(maximaleAnzahlKoordinatenFuerImportDiff, notNullValue());
+		require(timeoutToubizImportMatchingInSeconds, notNullValue());
 		this.maximaleAnzahlKoordinatenFuerImportDiff = maximaleAnzahlKoordinatenFuerImportDiff;
+		this.timeoutToubizImportMatchingInSeconds = timeoutToubizImportMatchingInSeconds;
+		this.toubizIgnoreList = Optional.ofNullable(toubizIgnoreList).orElse(new ArrayList<String>());
 	}
-
 }

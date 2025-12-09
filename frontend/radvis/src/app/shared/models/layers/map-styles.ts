@@ -17,11 +17,9 @@ import { Color } from 'ol/color';
 import { ColorLike } from 'ol/colorlike';
 import { Coordinate } from 'ol/coordinate';
 import { Point } from 'ol/geom';
-import GeometryType from 'ol/geom/GeometryType';
 import { Icon } from 'ol/style';
 import Circle from 'ol/style/Circle';
 import Fill from 'ol/style/Fill';
-import IconOrigin from 'ol/style/IconOrigin';
 import Stroke from 'ol/style/Stroke';
 import Style from 'ol/style/Style';
 import Text from 'ol/style/Text';
@@ -30,6 +28,7 @@ import invariant from 'tiny-invariant';
 export class MapStyles {
   public static DEFAULT_MIN_ZOOM_VALUE = 14.72;
 
+  public static RESOLUTION_VERY_SMALL = 1;
   public static RESOLUTION_SMALL = 5;
   public static RESOLUTION_MEDIUM = 20;
 
@@ -40,6 +39,9 @@ export class MapStyles {
 
   public static LINE_WIDTH_FOR_DOUBLE_LINE = 4;
   public static LINE_GAP_FOR_DOUBLE_LINE = 4;
+
+  public static POINT_WIDTH_MEDIUM = 5;
+  public static POINT_WIDTH_THICK = 8;
 
   public static FEATURE_COLOR: Color = [28, 91, 154, 1];
   public static FEATURE_COLOR_LIGHTER: Color = [139, 199, 248, 1];
@@ -55,6 +57,7 @@ export class MapStyles {
   public static FREMDNETZ_COLOR_LIGHTER: Color = [157, 214, 122, 1];
   public static FAHRRADROUTEN_GEOMETRIE_COLOR: Color = [126, 0, 69, 1];
   public static FEHLERPROTOKOLL_COLOR: Color = [235, 147, 80, 0.8];
+  public static MOBIDATA_COLOR: Color = [0, 110, 175, 1];
 
   public static VERLAUF_LINKS: Color = [80, 100, 240, 1];
   public static VERLAUF_RECHTS: Color = [100, 240, 80, 1];
@@ -67,7 +70,7 @@ export class MapStyles {
   ): (feature: FeatureLike, resolution: number) => Style {
     return (feature: FeatureLike, resolution: number): Style => {
       if (resolution < MapStyles.RESOLUTION_SMALL) {
-        if (feature.getGeometry()?.getType() === GeometryType.POINT) {
+        if (feature.getGeometry()?.getType() === 'Point') {
           return MapStyles.defaultPointStyleLarge(color);
         }
         return new Style({
@@ -182,10 +185,9 @@ export class MapStyles {
   public static getModifyPointStyle(): Style {
     return new Style({
       image: new Circle({
-        radius: 5,
-        fill: new Stroke({
+        radius: MapStyles.POINT_WIDTH_MEDIUM,
+        fill: new Fill({
           color: MapStyles.FEATURE_MODIFY_COLOR,
-          width: 3,
         }),
       }),
     });
@@ -194,11 +196,9 @@ export class MapStyles {
   public static getPositionPointStyle(): Style {
     return new Style({
       image: new Circle({
-        radius: 8,
-        stroke: MapStyles.strokeMedium(MapStyles.HOEHENPROFIL_HOVER_COLOR),
-        fill: new Stroke({
+        radius: MapStyles.POINT_WIDTH_THICK,
+        fill: new Fill({
           color: MapStyles.HOEHENPROFIL_HOVER_COLOR,
-          width: 3,
         }),
       }),
     });
@@ -217,7 +217,7 @@ export class MapStyles {
           src: './assets/map-icon.svg',
           color,
           opacity,
-          anchorOrigin: IconOrigin.BOTTOM_LEFT,
+          anchorOrigin: 'bottom-left',
         }),
       }),
       new Style({
@@ -226,7 +226,7 @@ export class MapStyles {
           src: './assets/map-icon-halo.svg',
           color: [255, 255, 255, 1],
           opacity,
-          anchorOrigin: IconOrigin.BOTTOM_LEFT,
+          anchorOrigin: 'bottom-left',
         }),
       }),
       new Style({
@@ -236,7 +236,7 @@ export class MapStyles {
           scale: 0.85,
           color: [255, 255, 255, 1],
           opacity,
-          anchorOrigin: IconOrigin.BOTTOM_LEFT,
+          anchorOrigin: 'bottom-left',
         }),
       }),
     ];

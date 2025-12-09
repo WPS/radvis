@@ -31,9 +31,9 @@
       formControlName="geometrie"
       class="mt-10"
       [withInfrastrukturIcon]="iconName"></rad-position-selektion-control>
-    <rad-warnhinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
+    <rad-hinweis *ngIf="isQuellsystemMobiData" class="fremdnetz-hinweis">
       Diese Servicestation wird in einem externen System geführt und ist nicht in RadVIS bearbeitbar.
-    </rad-warnhinweis>
+    </rad-hinweis>
 
     <rad-text-input-control formControlName="name" [errors]="formGroup.get('name')?.errors">
       <div class="label">Name</div>
@@ -60,6 +60,8 @@
     <rad-text-input-control formControlName="betreiber" [errors]="formGroup.get('betreiber')?.errors">
       <div class="label">Betreiber</div>
     </rad-text-input-control>
+
+    <mat-checkbox formControlName="radkultur">RadKULTUR</mat-checkbox>
 
     <rad-text-input-control formControlName="marke" [errors]="formGroup.get('marke')?.errors">
       <div class="label">Marke</div>

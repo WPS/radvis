@@ -14,9 +14,9 @@
 
 <ng-container *ngIf="hasKanten$ | async">
   <form [formGroup]="formGroup" class="form-group">
-    <rad-warnhinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
+    <rad-hinweis *ngIf="showRadNetzHinweis" class="editing-not-allowed-hinweis">{{
       NICHT_BEARBEITBAR_HINWEIS
-    }}</rad-warnhinweis>
+    }}</rad-hinweis>
     <rad-attribute-editor
       (dismiss)="onClose()"
       (resetForm)="onReset()"

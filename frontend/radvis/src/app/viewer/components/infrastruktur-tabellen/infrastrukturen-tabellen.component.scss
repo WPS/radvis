@@ -12,9 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/theme';
-@import 'src/style/colors';
-@import 'src/style/spacing';
+@use 'src/theme';
+@use 'src/style/colors';
+@use 'src/style/spacing';
 
 :host {
   display: block;

@@ -93,14 +93,14 @@ export class KanteGrundgeometrieLayerComponent implements OnChanges, OnDestroy, 
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(clickEvent.pixel, this.layerFilter);
     if (!featuresAtPixel || featuresAtPixel.length === 0) {
       return;
     }
     // Das erste Feature im Array ist das am nähesten zur Click-Position liegende
     const clickedFeature = featuresAtPixel[0] as Feature<Geometry>;
-    if (this.olLayer.getSource().hasFeature(clickedFeature)) {
+    if (this.vectorSource.hasFeature(clickedFeature)) {
       // Pro Layer wird nur eine Geometrie angezeigt, wird diese also angeklickt, ist das definitiv ein deselect.
       this.deselected.emit();
     }

@@ -17,7 +17,7 @@ import { MockBuilder } from 'ng-mocks';
 import { Feature, MapBrowserEvent } from 'ol';
 import { Extent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
-import { GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
+import { GeoJSONFeature, GeoJSONFeatureCollection } from 'ol/format/GeoJSON';
 import { LineString } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import { BehaviorSubject, of, Subject } from 'rxjs';
@@ -62,7 +62,7 @@ describe(KantenSelektionComponent.name, () => {
   const loadingNetzForNichtKlassifiziert = (extent: Extent): void => {
     kantenLayerNichtklassifiziert
       .getSource()
-      .loadFeatures(extent, 20, kantenLayerNichtklassifiziert.getSource().getProjection());
+      ?.loadFeatures(extent, 20, kantenLayerNichtklassifiziert.getSource()!.getProjection()!);
   };
 
   beforeEach(() => {
@@ -172,7 +172,7 @@ describe(KantenSelektionComponent.name, () => {
     it('should do nothing when no features are under cursor', () => {
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>);
 
       verify(kantenSelektionService.select(anything(), anything(), anything(), anything())).never();
       verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
@@ -188,7 +188,7 @@ describe(KantenSelektionComponent.name, () => {
       );
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([someFeature]);
 
-      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<UIEvent>);
+      component['onMapClick']({ pixel: [0, 0] } as MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>);
 
       verify(kantenSelektionService.select(anything(), anything(), anything(), anything())).never();
       verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
@@ -196,14 +196,14 @@ describe(KantenSelektionComponent.name, () => {
     });
 
     it('should select nearest Kante non-additiv without Seitenbezug on normal click', () => {
-      const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
-      const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
+      const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
 
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: false, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       verify(kantenSelektionService.select(Number(firstFeature.getId()), false, undefined)).called();
       verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
@@ -211,15 +211,15 @@ describe(KantenSelektionComponent.name, () => {
     });
 
     it('should select nearest Seite non-additiv on normal click', () => {
-      const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
+      const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
       firstFeature.set(FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.LINKS);
-      const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
 
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: false, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       verify(kantenSelektionService.select(Number(firstFeature.getId()), false, KantenSeite.LINKS)).called();
       verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
@@ -227,15 +227,15 @@ describe(KantenSelektionComponent.name, () => {
     });
 
     it('should select nearest Kante additiv without Seitenbezug on Kante selection with toggle', () => {
-      const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
-      const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
+      const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
       when(kantenSelektionService.isSelektiert(Number(firstFeature.getId()), undefined)).thenReturn(false);
 
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: true, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       verify(kantenSelektionService.select(Number(firstFeature.getId()), true, undefined)).called();
       verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
@@ -243,16 +243,16 @@ describe(KantenSelektionComponent.name, () => {
     });
 
     it('should select nearest Seite additiv on Seite selection with toggle', () => {
-      const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
+      const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
       firstFeature.set(FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.LINKS);
-      const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
       when(kantenSelektionService.isSelektiert(Number(firstFeature.getId()), undefined)).thenReturn(false);
 
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: false, metaKey: true } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       verify(kantenSelektionService.select(Number(firstFeature.getId()), true, KantenSeite.LINKS)).called();
       verify(kantenSelektionService.deselect(anything(), anything(), anything())).never();
@@ -260,15 +260,15 @@ describe(KantenSelektionComponent.name, () => {
     });
 
     it('should deselect nearest Kante without Seitenbezug on toggle deselection of kante', () => {
-      const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
-      const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
+      const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
       when(kantenSelektionService.isSelektiert(Number(firstFeature.getId()), undefined)).thenReturn(true);
 
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: true, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       verify(kantenSelektionService.deselect(Number(firstFeature.getId()), undefined)).called();
       verify(kantenSelektionService.select(anything(), anything(), anything(), anything())).never();
@@ -276,17 +276,17 @@ describe(KantenSelektionComponent.name, () => {
     });
 
     it('should deselect nearest Seite on toggle deselection of seite', fakeAsync(() => {
-      const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
+      const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
       firstFeature.set(FeatureProperties.SEITE_PROPERTY_NAME, KantenSeite.LINKS);
       firstFeature.set(FeatureProperties.ZWEISEITIG_PROPERTY_NAME, true);
-      const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+      const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
       when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
       when(kantenSelektionService.isSelektiert(Number(firstFeature.getId()), KantenSeite.LINKS)).thenReturn(true);
 
       component['onMapClick']({
         pixel: [0, 0],
         originalEvent: { ctrlKey: true, metaKey: false } as PointerEvent,
-      } as unknown as MapBrowserEvent<UIEvent>);
+      } as unknown as MapBrowserEvent<PointerEvent>);
 
       verify(kantenSelektionService.deselect(Number(firstFeature.getId()), KantenSeite.LINKS)).called();
       verify(kantenSelektionService.select(anything(), anything(), anything(), anything())).never();
@@ -315,7 +315,7 @@ describe(KantenSelektionComponent.name, () => {
         component['onMapClick']({
           pixel: [0, 0],
           originalEvent: { ctrlKey: true, metaKey: false } as PointerEvent,
-        } as unknown as MapBrowserEvent<UIEvent>);
+        } as unknown as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionService.deselect(Number(feature.getId()), KantenSeite.LINKS)).called();
         verify(kantenSelektionService.select(anything(), anything(), anything(), anything())).never();
@@ -327,11 +327,11 @@ describe(KantenSelektionComponent.name, () => {
   describe('refreshSelection', () => {
     it('should add Feature from selected Kante without Seitenbezug', () => {
       when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofGesamteKante(defaultKante)]);
-      expect(component['selektionLayer'].getSource().getFeatures().length).toBe(0);
+      expect(component['selektionLayer'].getSource()?.getFeatures().length).toBe(0);
 
       component['loadingSelection']();
-      expect(component['selektionLayer'].getSource().getFeatures().length).toBe(1);
-      expect(component['selektionLayer'].getSource().getFeatures()[0].getId()).toBe(1);
+      expect(component['selektionLayer'].getSource()?.getFeatures().length).toBe(1);
+      expect(component['selektionLayer'].getSource()?.getFeatures()[0].getId()).toBe(1);
     });
 
     it('should add single Seite of Feature from selected Seite', fakeAsync(() => {
@@ -343,15 +343,15 @@ describe(KantenSelektionComponent.name, () => {
       loadingNetzForNichtKlassifiziert([0, 0, 5, 5]);
       tick(1);
       when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofSeite(defaultKante, KantenSeite.LINKS)]);
-      expect(component['selektionLayer'].getSource().getFeatures().length).toBe(0);
+      expect(component['selektionLayer'].getSource()?.getFeatures().length).toBe(0);
 
       component['loadingSelection']();
 
-      expect(component['selektionLayer'].getSource().getFeatures().length).toBe(1);
+      expect(component['selektionLayer'].getSource()?.getFeatures().length).toBe(1);
       expect(
-        component['selektionLayer'].getSource().getFeatures()[0].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        component['selektionLayer'].getSource()?.getFeatures()[0].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(1);
-      expect(component['selektionLayer'].getSource().getFeatures()[0].get(FeatureProperties.SEITE_PROPERTY_NAME)).toBe(
+      expect(component['selektionLayer'].getSource()?.getFeatures()[0].get(FeatureProperties.SEITE_PROPERTY_NAME)).toBe(
         KantenSeite.LINKS
       );
     }));
@@ -365,21 +365,21 @@ describe(KantenSelektionComponent.name, () => {
       loadingNetzForNichtKlassifiziert([0, 0, 5, 5]);
       tick(1);
       when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofGesamteKante(defaultKante)]);
-      expect(component['selektionLayer'].getSource().getFeatures().length).toBe(0);
+      expect(component['selektionLayer'].getSource()?.getFeatures().length).toBe(0);
 
       component['loadingSelection']();
 
-      expect(component['selektionLayer'].getSource().getFeatures().length).toBe(2);
+      expect(component['selektionLayer'].getSource()?.getFeatures().length).toBe(2);
       expect(
-        component['selektionLayer'].getSource().getFeatures()[0].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        component['selektionLayer'].getSource()?.getFeatures()[0].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(1);
-      expect(component['selektionLayer'].getSource().getFeatures()[0].get(FeatureProperties.SEITE_PROPERTY_NAME)).toBe(
+      expect(component['selektionLayer'].getSource()?.getFeatures()[0].get(FeatureProperties.SEITE_PROPERTY_NAME)).toBe(
         KantenSeite.LINKS
       );
       expect(
-        component['selektionLayer'].getSource().getFeatures()[1].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        component['selektionLayer'].getSource()?.getFeatures()[1].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(1);
-      expect(component['selektionLayer'].getSource().getFeatures()[1].get(FeatureProperties.SEITE_PROPERTY_NAME)).toBe(
+      expect(component['selektionLayer'].getSource()?.getFeatures()[1].get(FeatureProperties.SEITE_PROPERTY_NAME)).toBe(
         KantenSeite.RECHTS
       );
     }));
@@ -393,14 +393,14 @@ describe(KantenSelektionComponent.name, () => {
       loadingNetzForNichtKlassifiziert([0, 0, 10, 10]);
       tick(1);
       verify(radNetzFeatureService.getKantenForView(anything(), anything(), anything())).called();
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures().length).toBe(0);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures().length).toBe(0);
     }));
 
     it('should add one feature per feature in GeoJSON without Seitenbezug', () => {
       // default -> See beforeEach()
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures().length).toBe(2);
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures()[0].getId()).toBe('1');
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures()[1].getId()).toBe('2');
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures().length).toBe(2);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0].getId()).toBe('1');
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1].getId()).toBe('2');
     });
 
     it('should add two features per feature in GeoJSON with Seitenbezug', fakeAsync(() => {
@@ -412,35 +412,35 @@ describe(KantenSelektionComponent.name, () => {
       loadingNetzForNichtKlassifiziert([0, 0, 5, 5]);
       tick(1);
 
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures().length).toBe(4);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures().length).toBe(4);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[0].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(1);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[0].get(FeatureProperties.SEITE_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0].get(FeatureProperties.SEITE_PROPERTY_NAME)
       ).toBe(KantenSeite.LINKS);
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures()[0].getId()).toBe('1' + KantenSeite.LINKS);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0].getId()).toBe('1' + KantenSeite.LINKS);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[1].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(1);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[1].get(FeatureProperties.SEITE_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1].get(FeatureProperties.SEITE_PROPERTY_NAME)
       ).toBe(KantenSeite.RECHTS);
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures()[1].getId()).toBe('1' + KantenSeite.RECHTS);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1].getId()).toBe('1' + KantenSeite.RECHTS);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[2].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[2].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(2);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[2].get(FeatureProperties.SEITE_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[2].get(FeatureProperties.SEITE_PROPERTY_NAME)
       ).toBe(KantenSeite.LINKS);
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures()[2].getId()).toBe('2' + KantenSeite.LINKS);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures()[2].getId()).toBe('2' + KantenSeite.LINKS);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[3].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[3].get(FeatureProperties.KANTE_ID_PROPERTY_NAME)
       ).toBe(2);
       expect(
-        kantenLayerNichtklassifiziert.getSource().getFeatures()[3].get(FeatureProperties.SEITE_PROPERTY_NAME)
+        kantenLayerNichtklassifiziert.getSource()?.getFeatures()[3].get(FeatureProperties.SEITE_PROPERTY_NAME)
       ).toBe(KantenSeite.RECHTS);
-      expect(kantenLayerNichtklassifiziert.getSource().getFeatures()[3].getId()).toBe('2' + KantenSeite.RECHTS);
+      expect(kantenLayerNichtklassifiziert.getSource()?.getFeatures()[3].getId()).toBe('2' + KantenSeite.RECHTS);
     }));
   });
 
@@ -449,7 +449,7 @@ describe(KantenSelektionComponent.name, () => {
       it('should not highlight when nothing is selected', () => {
         when(kantenSelektionService.selektion).thenReturn([]);
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionHoverService.notifyHover(anything())).never();
         verify(kantenSelektionHoverService.notifyUnhover()).never();
@@ -460,7 +460,7 @@ describe(KantenSelektionComponent.name, () => {
         when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofGesamteKante(defaultKante)]);
         aktiveGruppeSubject.next(AttributGruppe.ZUSTAENDIGKEIT);
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionHoverService.notifyHover(anything())).never();
         verify(kantenSelektionHoverService.notifyUnhover()).never();
@@ -471,7 +471,7 @@ describe(KantenSelektionComponent.name, () => {
         when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofGesamteKante(defaultKante)]);
         aktiveGruppeSubject.next(AttributGruppe.FUEHRUNGSFORM);
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionHoverService.notifyHover(anything())).never();
         verify(kantenSelektionHoverService.notifyUnhover()).never();
@@ -483,7 +483,7 @@ describe(KantenSelektionComponent.name, () => {
         aktiveGruppeSubject.next(AttributGruppe.FAHRTRICHTUNG);
         when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([]);
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionHoverService.notifyHover(anything())).never();
         verify(kantenSelektionHoverService.notifyUnhover()).once();
@@ -494,14 +494,14 @@ describe(KantenSelektionComponent.name, () => {
         when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofGesamteKante(defaultKante)]);
         when(kantenSelektionService.isSelektiert(defaultKante.id)).thenReturn(true);
         aktiveGruppeSubject.next(AttributGruppe.FAHRTRICHTUNG);
-        const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
-        const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+        const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
+        const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
         when(olMapService.getFeaturesAtPixel(anything(), anything(), anything())).thenReturn([
           firstFeature,
           secondFeature,
         ]);
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionHoverService.notifyHover(deepEqual({ kanteId: 1, kantenSeite: undefined }))).once();
         verify(kantenSelektionHoverService.notifyUnhover()).never();
@@ -512,11 +512,11 @@ describe(KantenSelektionComponent.name, () => {
         when(kantenSelektionService.selektion).thenReturn([KantenSelektion.ofGesamteKante(anotherKante)]);
         when(kantenSelektionService.isSelektiert(anotherKante.id)).thenReturn(true);
         aktiveGruppeSubject.next(AttributGruppe.FAHRTRICHTUNG);
-        const firstFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[0];
-        const secondFeature = kantenLayerNichtklassifiziert.getSource().getFeatures()[1];
+        const firstFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[0];
+        const secondFeature = kantenLayerNichtklassifiziert.getSource()?.getFeatures()[1];
         when(olMapService.getFeaturesAtPixel(anything(), anything())).thenReturn([firstFeature, secondFeature]);
 
-        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<UIEvent>);
+        component['onMapPointerMove']({ pixel: [0, 1] } as MapBrowserEvent<PointerEvent>);
 
         verify(kantenSelektionHoverService.notifyHover(anything())).never();
         verify(kantenSelektionHoverService.notifyUnhover()).once();
@@ -650,7 +650,7 @@ describe(KantenSelektionComponent.name, () => {
           kl => kl.getProperties().netzklasse === Netzklassefilter.RADNETZ
         );
         invariant(knotenLayerRadnetz);
-        const refreshSpy = spyOn(knotenLayerRadnetz.getSource(), 'refresh');
+        const refreshSpy = spyOn(knotenLayerRadnetz.getSource(), 'refresh' as never);
 
         component['netzklassen'] = [];
         netzklassenAuswahlSubject$.next([Netzklassefilter.NICHT_KLASSIFIZIERT]);
@@ -708,7 +708,7 @@ function createDummyFeatureCollection(): GeoJSONFeatureCollection {
 
 function createDummyFeatureCollectionWithSeitenAttribute(): GeoJSONFeatureCollection {
   const collection = createDummyFeatureCollection();
-  collection.features = collection.features.map(feature => {
+  collection.features = collection.features.map((feature: GeoJSONFeature) => {
     if (!feature.properties) {
       feature.properties = {};
     }

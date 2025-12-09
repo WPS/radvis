@@ -27,6 +27,7 @@ import de.wps.radvis.backend.servicestation.domain.valueObject.Kettenwerkzeug;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Luftpumpe;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Marke;
 import de.wps.radvis.backend.servicestation.domain.valueObject.Oeffnungszeiten;
+import de.wps.radvis.backend.servicestation.domain.valueObject.Radkultur;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationBeschreibung;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationName;
 import de.wps.radvis.backend.servicestation.domain.valueObject.ServicestationStatus;
@@ -53,6 +54,7 @@ public class ServicestationTestDataProvider {
 			.typ(ServicestationTyp.RADSERVICE_PUNKT_GROSS)
 			.status(ServicestationStatus.AKTIV)
 			.dokumentListe(new DokumentListe())
+			.radkultur(Radkultur.of(false))
 			.quellSystem(ServicestationenQuellSystem.RADVIS);
 	}
 
@@ -71,6 +73,7 @@ public class ServicestationTestDataProvider {
 			.fahrradhalterung(Fahrradhalterung.of(false))
 			.betreiber(Betreiber.of(""))
 			.dokumentListe(new DokumentListe())
+			.radkultur(Radkultur.of(false))
 			.quellSystem(ServicestationenQuellSystem.MOBIDATABW);
 	}
 }

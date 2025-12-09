@@ -12,7 +12,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.wps.radvis.backend.benutzer.domain.valueObject;
+package de.wps.radvis.backend.massnahme.domain.valueObject;
 
 import static org.valid4j.Assertive.require;
 
@@ -24,26 +24,26 @@ import lombok.Getter;
 import lombok.NonNull;
 
 @EqualsAndHashCode
-public class Mailadresse {
-	public static final int EMAIL_MAX_LENGTH = 60;
+public class BegruendungZurueckstellung {
+	public static final int MAX_LENGTH = 3000;
 
 	@Getter
 	@JsonValue
 	@NonNull
 	String value;
 
-	private Mailadresse(String value) {
+	private BegruendungZurueckstellung(String value) {
 		require(isValid(value));
 		this.value = value;
 	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-	public static Mailadresse of(String value) {
-		return new Mailadresse(value);
+	public static BegruendungZurueckstellung of(String value) {
+		return new BegruendungZurueckstellung(value);
 	}
 
 	public static boolean isValid(String value) {
-		return value != null && value.length() <= EMAIL_MAX_LENGTH && value.matches("^(.+)@(\\S+)$");
+		return value != null && !value.isBlank() && value.length() <= MAX_LENGTH;
 	}
 
 	@Override

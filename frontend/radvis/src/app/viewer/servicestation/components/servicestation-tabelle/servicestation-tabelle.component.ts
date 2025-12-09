@@ -57,6 +57,7 @@ export class ServicestationTabelleComponent implements CsvImportService {
     { name: 'quellSystem', displayName: 'Quellsystem' },
     { name: 'gebuehren', displayName: 'Gebühren' },
     { name: 'betreiber', displayName: 'Betreiber' },
+    { name: 'radkultur', displayName: 'RadKULTUR' },
     { name: 'marke', displayName: 'Marke' },
     { name: 'luftpumpe', displayName: 'Luftpumpe' },
     { name: 'kettenwerkzeug', displayName: 'Kettenwerkzeug' },

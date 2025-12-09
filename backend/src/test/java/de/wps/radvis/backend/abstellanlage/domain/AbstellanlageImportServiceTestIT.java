@@ -46,6 +46,7 @@ import de.wps.radvis.backend.abstellanlage.domain.entity.provider.AbstellanlageT
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenQuellSystem;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.AbstellanlagenStatus;
 import de.wps.radvis.backend.abstellanlage.domain.valueObject.GebuehrenProMonat;
+import de.wps.radvis.backend.abstellanlage.domain.valueObject.MobiDataQuellId;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
 import de.wps.radvis.backend.benutzer.domain.entity.Benutzer;
 import de.wps.radvis.backend.benutzer.domain.entity.BenutzerTestDataProvider;
@@ -183,6 +184,7 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		// arrange
 		CsvData csvData = createCsv(AbstellanlageTestDataProvider.withDefaultValues()
 			.quellSystem(AbstellanlagenQuellSystem.MOBIDATABW)
+			.mobiDataQuellId(MobiDataQuellId.of(123))
 			// Diese id gibt es nicht in der Datenbank, -> Abstellanlage soll neu angelegt werden
 			// wird aber für das Erstellen der CSV-Datei benoetigt
 			.id(123456789L)
@@ -211,11 +213,13 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		Abstellanlage abstellanlage = abstellanlageRepository
 			.save(AbstellanlageTestDataProvider.withDefaultValues()
 				.quellSystem(AbstellanlagenQuellSystem.MOBIDATABW)
+				.mobiDataQuellId(MobiDataQuellId.of(123))
 				.build());
 
 		Abstellanlage updatedAbstellanlage = abstellanlage.toBuilder().status(AbstellanlagenStatus.AKTIV)
 			.gebuehrenProMonat(GebuehrenProMonat.of("399"))
 			.quellSystem(AbstellanlagenQuellSystem.RADVIS)
+			.mobiDataQuellId(null)
 			.build();
 
 		CsvData csvData = createCsv(updatedAbstellanlage);
@@ -229,7 +233,7 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 
 		Abstellanlage savedAbstellanlage = StreamSupport.stream(allAbstellanlagen.spliterator(), false)
 			.filter(abstellanlage1 -> abstellanlage1.getQuellSystem().equals(AbstellanlagenQuellSystem.RADVIS))
-			.findFirst().get();
+			.findFirst().orElseThrow();
 		assertThat(savedAbstellanlage).usingRecursiveComparison().usingOverriddenEquals()
 			.ignoringOverriddenEqualsForTypes(Abstellanlage.class)
 			.ignoringFields("id", "version", "dokumentListe")
@@ -271,11 +275,10 @@ class AbstellanlageImportServiceTestIT extends DBIntegrationTestIT {
 		AbstellanlageRepository abstellanlageRepositoryMock = Mockito.mock(AbstellanlageRepository.class);
 		when(abstellanlageRepositoryMock.findAllById(any())).thenReturn(List.of(abstellanlage));
 		List<ExportData> export = new AbstellanlageExporterService(abstellanlageRepositoryMock)
-			.export(List.of(1l));
+			.export(List.of(1L));
 
 		CsvRepository csvRepository = new CsvRepositoryImpl();
 		byte[] csv = new CSVExportConverter(csvRepository).convert(export);
-		CsvData csvData = csvRepository.read(csv, Abstellanlage.CsvHeader.ALL);
-		return csvData;
+		return csvRepository.read(csv, Abstellanlage.CsvHeader.ALL);
 	}
 }

@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "uid": "bfrk_bw_bike",
+      "name": "Barrierefreie Reisekette Baden-W\u00fcrttemberg: Fahrrad-Parkpl\u00e4tze",
+      "public_url": "https://www.mobidata-bw.de/dataset/bfrk-barrierefreiheit-an-bw-haltestellen",
+      "static_data_updated_at": "2025-08-25T01:01:21Z",
+      "attribution_license": null,
+      "attribution_contributor": null,
+      "attribution_url": null,
+      "static_status": "ACTIVE",
+      "realtime_status": "DISABLED",
+      "static_parking_site_error_count": 793,
+      "static_parking_spot_error_count": null,
+      "id": 38,
+      "created_at": "2024-09-03T09:29:45Z",
+      "modified_at": "2025-08-25T01:01:21Z"
+    },
+    {
+      "uid": "radvis_bw",
+      "name": "RadVIS BW",
+      "public_url": "https://www.aktivmobil-bw.de/radverkehr/raddaten/radvis-bw/",
+      "static_data_updated_at": "2025-08-25T01:01:28Z",
+      "attribution_license": null,
+      "attribution_contributor": null,
+      "attribution_url": null,
+      "static_status": "ACTIVE",
+      "realtime_status": "DISABLED",
+      "static_parking_site_error_count": 1,
+      "static_parking_spot_error_count": null,
+      "id": 28,
+      "created_at": "2024-07-23T12:00:39Z",
+      "modified_at": "2025-08-25T01:01:28Z"
+    }
+  ],
+  "total_count": 2
+}

@@ -17,12 +17,14 @@ package de.wps.radvis.backend.benutzer.domain;
 import java.util.Optional;
 
 import de.wps.radvis.backend.benutzer.domain.exception.BenutzerExistiertBereitsException;
-import de.wps.radvis.backend.benutzer.domain.valueObject.Mailadresse;
 import de.wps.radvis.backend.benutzer.domain.valueObject.Name;
 import de.wps.radvis.backend.benutzer.domain.valueObject.ServiceBwId;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
+import de.wps.radvis.backend.organisation.domain.valueObject.Mailadresse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -85,5 +87,14 @@ public class InitialBenutzerImportJob extends AbstractJob {
 		} catch (BenutzerExistiertBereitsException e) {
 			log.error("Der gegebene technische Benutzer aus der Konfiguration ist bereits registriert.", e);
 		}
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Erstellt die wichtigsten Nutzer, die in der application.yml-Datei konfiguriert sind. Das heißt Administrator und technischer Benutzer. Existieren Nutzer mit der konfigurierten ServiceBW-ID bereits, werden diese ignoriert. Der Job kann daher beliebig häufig ausgeführt werden.",
+			"Bei erster Ausführung oder nach Config-Änderungen werden ggf. Nutzer angelegt und registriert.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

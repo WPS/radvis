@@ -17,11 +17,16 @@ package de.wps.radvis.backend.massnahme.domain.valueObject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MassnahmenPaketId {
 	private static final String VALID_MASSNAHMEN_PAKET_ID_REGEX = "^[A-ZÜÖÄ]{1,4} [0-9]{1,4}\\.[0-9]{1,2}[A-Z]?$";
 
@@ -29,10 +34,6 @@ public class MassnahmenPaketId {
 	@JsonValue
 	@NonNull
 	String value;
-
-	private MassnahmenPaketId(String value) {
-		this.value = value;
-	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
 	public static MassnahmenPaketId of(String value) {

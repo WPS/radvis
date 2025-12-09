@@ -86,6 +86,7 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': 'error',
       'no-shadow': 'off',
       '@typescript-eslint/no-shadow': 'error',
+      'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
 
       'no-underscore-dangle': [
         'error',

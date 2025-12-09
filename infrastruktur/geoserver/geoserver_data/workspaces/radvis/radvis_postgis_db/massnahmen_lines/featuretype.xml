@@ -33,17 +33,17 @@
   AUTHORITY[&quot;EPSG&quot;,&quot;25832&quot;]]</nativeCRS>
   <srs>EPSG:25832</srs>
   <nativeBoundingBox>
-    <minx>492855.35</minx>
-    <maxx>500134.98</maxx>
-    <miny>5400382.53</miny>
-    <maxy>5418010.72</maxy>
+    <minx>184738</minx>
+    <maxx>936166</maxx>
+    <miny>4990738</miny>
+    <maxy>6228213</maxy>
     <crs class="projected">EPSG:25832</crs>
   </nativeBoundingBox>
   <latLonBoundingBox>
-    <minx>8.902484630224055</minx>
-    <maxx>9.001842306422516</maxx>
-    <miny>48.75641328900978</miny>
-    <maxy>48.91503524839552</maxy>
+    <minx>5</minx>
+    <maxx>16</maxx>
+    <miny>45</miny>
+    <maxy>56</maxy>
     <crs>EPSG:4326</crs>
   </latLonBoundingBox>
   <projectionPolicy>FORCE_DECLARED</projectionPolicy>
@@ -181,6 +181,24 @@
       <maxOccurs>1</maxOccurs>
       <nillable>true</nillable>
       <binding>java.lang.Boolean</binding>
+    </attribute>
+    <attribute>
+      <name>zurueckstellungs_grund</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>0</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>begruendung_stornierungsanfrage</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>0</maxOccurs>
+      <binding>java.lang.String</binding>
+    </attribute>
+    <attribute>
+      <name>begruendung_zurueckstellung</name>
+      <minOccurs>0</minOccurs>
+      <maxOccurs>0</maxOccurs>
+      <binding>java.lang.String</binding>
     </attribute>
   </attributes>
   <overridingServiceSRS>false</overridingServiceSRS>

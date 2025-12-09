@@ -103,7 +103,7 @@ export class RadnetzSignaturLayerComponent implements OnInit, OnDestroy, OnChang
       source: new TileWMS({
         url: '/api/geoserver/saml/radvis/wms?layers=radvis%3Aradvisnetz_klassifiziert',
         params: {
-          PROJECTION: olProj.get('EPSG:25832').getCode(),
+          PROJECTION: olProj.get('EPSG:25832')!.getCode(),
           STYLES: 'radvis:' + this.replaceUmlaute(this.signaturname),
           CQL_FILTER: "netzklassen like 'RADNETZ_%'",
         },
@@ -150,16 +150,15 @@ export class RadnetzSignaturLayerComponent implements OnInit, OnDestroy, OnChang
   }
 
   private getFeaturesByIds(kanteId: number): Feature<Geometry>[] {
-    if (this.olStreckenLayer) {
-      return this.olStreckenLayer
-        .getSource()
-        .getFeatures()
-        .filter(feature => kanteId === +feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME));
-    }
-    return [];
+    return (
+      this.olStreckenLayer
+        ?.getSource()
+        ?.getFeatures()
+        .filter(feature => kanteId === +feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME)) ?? []
+    );
   }
 
-  private styleFunction = (feature: FeatureLike, resolution: any): Style | Style[] => {
+  private styleFunction = (feature: FeatureLike, resolution: any): Style | Style[] | void => {
     if (!this.generatedStyleFunction) {
       return new Style();
     } else {

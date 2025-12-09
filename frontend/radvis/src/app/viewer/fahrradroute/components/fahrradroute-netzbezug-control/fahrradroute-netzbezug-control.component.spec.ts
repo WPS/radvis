@@ -13,14 +13,13 @@
  */
 
 import { fakeAsync, tick } from '@angular/core/testing';
-import { ValidationErrors } from '@angular/forms';
-import { MockBuilder, MockRender, MockedComponentFixture } from 'ng-mocks';
+import { MockBuilder, MockedComponentFixture, MockRender } from 'ng-mocks';
 import { Collection, Feature, MapBrowserEvent } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { LineString, Point } from 'ol/geom';
 import { DrawEvent } from 'ol/interaction/Draw';
 import { ModifyEvent } from 'ol/interaction/Modify';
-import { Subject, of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { OlMapComponent } from 'src/app/karte/components/ol-map/ol-map.component';
 import { LineStringGeojson } from 'src/app/shared/models/geojson-geometrie';
 import { BedienhinweisService } from 'src/app/shared/services/bedienhinweis.service';
@@ -41,14 +40,14 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
   let component: FahrradrouteNetzbezugControlComponent;
   let olMapService: OlMapService;
   let fahrradrouteService: FahrradrouteService;
-  let mapClickSubject: Subject<MapBrowserEvent>;
+  let mapClickSubject: Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>;
   let bedienhinweisService: BedienhinweisService;
   let netzbezugAuswahlService: NetzbezugAuswahlModusService;
   let routingProfileService: RoutingProfileService;
 
   beforeEach(() => {
     olMapService = mock(OlMapComponent);
-    mapClickSubject = new Subject<MapBrowserEvent>();
+    mapClickSubject = new Subject<MapBrowserEvent<PointerEvent | WheelEvent | KeyboardEvent>>();
     when(olMapService.click$()).thenReturn(mapClickSubject);
     fahrradrouteService = mock(FahrradrouteService);
     bedienhinweisService = mock(BedienhinweisService);
@@ -113,13 +112,11 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
 
       // irgendwie kompiliert das nicht, wenn man DrawEventType verwendet, um das DrawEvent zu erstellen
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(startCoordinate)))
       );
       tick();
 
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(endCoordinate)))
       );
       tick();
@@ -168,14 +165,14 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
     });
 
     describe('with stuetzpunkt added', () => {
-      const eventMock = mock(MapBrowserEvent);
+      const eventMock = mock(MapBrowserEvent<PointerEvent>);
       const clickedPixel = [0, 1];
       const stuetzpunktCoordinate = [0, 50];
 
       const createStuetzpunkt = (coordinate: Coordinate): void => {
         when(eventMock.coordinate).thenReturn(coordinate);
         when(olMapService.getFeaturesAtPixel(clickedPixel, component['verlaufLayerFilter'])).thenReturn(
-          component['verlaufVectorLayer'].getSource().getFeatures()
+          component['verlaufVectorLayer'].getSource()?.getFeatures()
         );
         when(olMapService.getFeaturesAtPixel(clickedPixel, component['stuetzpunktLayerFilter'])).thenReturn([]);
         mapClickSubject.next(instance(eventMock));
@@ -366,7 +363,7 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
     });
 
     it('should reemit correct values after stuetzpunkt added', fakeAsync(() => {
-      const eventMock = mock(MapBrowserEvent);
+      const eventMock = mock(MapBrowserEvent<PointerEvent>);
       const clickedPixel = [0, 1];
       const newStuetzpunktCoordinate = [0, 2];
 
@@ -398,7 +395,7 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
       const createStuetzpunkt = (coordinate: Coordinate): void => {
         when(eventMock.coordinate).thenReturn(coordinate);
         when(olMapService.getFeaturesAtPixel(clickedPixel, component['verlaufLayerFilter'])).thenReturn(
-          component['verlaufVectorLayer'].getSource().getFeatures()
+          component['verlaufVectorLayer'].getSource()?.getFeatures()
         );
         when(olMapService.getFeaturesAtPixel(clickedPixel, component['stuetzpunktLayerFilter'])).thenReturn([]);
         mapClickSubject.next(instance(eventMock));
@@ -470,14 +467,12 @@ describe(FahrradrouteNetzbezugControlComponent.name, () => {
 
       // irgendwie kompiliert das nicht, wenn man DrawEventType verwendet, um das DrawEvent zu erstellen
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(startCoordinate)))
       );
       tick();
       verify(bedienhinweisService.showBedienhinweis(component['BEDIENHINWEIS_END'])).once();
 
       component['drawStartEndInteraction'].dispatchEvent(
-        // @ts-expect-error Migration von ts-ignore
         new DrawEvent('drawend', new Feature(new Point(endCoordinate)))
       );
       tick();

@@ -86,6 +86,10 @@ export class BenutzerDetailsService {
     return this.benutzer.rechte?.includes(Recht.KREISNETZ_ROUTENVERLEGUNGEN) ?? false;
   }
 
+  canMassnahmenStornieren(): boolean {
+    return this.benutzer.rechte?.includes(Recht.MASSNAHMEN_STORNIEREN) ?? false;
+  }
+
   canMassnahmenArchivieren(): boolean {
     return this.benutzer.rechte?.includes(Recht.MASSNAHMEN_ARCHIVIEREN) ?? false;
   }

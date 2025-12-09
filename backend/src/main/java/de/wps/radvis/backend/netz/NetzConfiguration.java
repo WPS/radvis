@@ -21,10 +21,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.netz.domain.KantenAuditingSetzenJob;
 import de.wps.radvis.backend.netz.domain.LineareReferenzenDefragmentierungJob;
-import de.wps.radvis.backend.netz.domain.MaterializedViewsUpdateJob;
 import de.wps.radvis.backend.netz.domain.NetzConfigurationProperties;
 import de.wps.radvis.backend.netz.domain.repository.FahrtrichtungAttributGruppeRepository;
 import de.wps.radvis.backend.netz.domain.repository.FuehrungsformAttributGruppeRepository;
@@ -79,6 +80,9 @@ public class NetzConfiguration {
 	@Autowired
 	private JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
+	@Autowired
+	private BenutzerService benutzerService;
+
 	@PersistenceContext
 	EntityManager entityManager;
 
@@ -92,22 +96,27 @@ public class NetzConfiguration {
 	@Autowired
 	CommonConfigurationProperties commonConfigurationProperties;
 
-	public NetzConfiguration(@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
-		@NonNull BenutzerResolver benutzerResolver) {
+	public NetzConfiguration(
+		@NonNull VerwaltungseinheitResolver verwaltungseinheitResolver,
+		@NonNull BenutzerResolver benutzerResolver
+	) {
 		this.benutzerResolver = benutzerResolver;
 		this.verwaltungseinheitResolver = verwaltungseinheitResolver;
 	}
 
 	@Bean
 	public NetzService netzService() {
-		return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppeRepository,
+		return new NetzService(
+			kantenRepository, knotenRepository, zustaendigkeitAttributGruppeRepository,
 			fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
 			fuehrungsformAttributGruppeRepository, kantenAttributGruppeRepository, verwaltungseinheitResolver,
 			entityManager, commonConfigurationProperties.getErlaubteAbweichungFuerKnotenNetzbezugRematch(),
 			netzConfigurationProperties.getNahegelegeneKantenDistanzInM(),
 			netzConfigurationProperties.getKantenParallelitaetSegmente(),
 			netzConfigurationProperties.getKantenParallelitaetToleranz(),
-			netzConfigurationProperties.getNahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge());
+			netzConfigurationProperties.getNahegelegeneKantenMinAbgebildeteRelativeGesamtlaenge(),
+			netzConfigurationProperties.getAuditingErgaenzenBatchSize()
+		);
 	}
 
 	@Bean
@@ -147,14 +156,16 @@ public class NetzConfiguration {
 
 	@Bean
 	public LineareReferenzenDefragmentierungJob lineareReferenzenDefragmentierungJob() {
-		return new LineareReferenzenDefragmentierungJob(jobExecutionDescriptionRepository,
+		return new LineareReferenzenDefragmentierungJob(
+			jobExecutionDescriptionRepository,
 			zustaendigkeitAttributGruppeRepository, fuehrungsformAttributGruppeRepository,
 			geschwindigkeitAttributGruppeRepository, kantenRepository,
-			netzConfigurationProperties.getMinimaleSegmentLaenge());
+			netzConfigurationProperties.getMinimaleSegmentLaenge()
+		);
 	}
 
 	@Bean
-	public MaterializedViewsUpdateJob materializedViewsUpdateJob() {
-		return new MaterializedViewsUpdateJob(jobExecutionDescriptionRepository, netzService());
+	public KantenAuditingSetzenJob kantenAuditingSetzenJob() {
+		return new KantenAuditingSetzenJob(jobExecutionDescriptionRepository, netzService(), benutzerService);
 	}
 }

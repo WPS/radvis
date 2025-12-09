@@ -92,7 +92,7 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
   private static setHoverColorToStroke(styles: Style | Style[]): Style[] {
     return (isArray(styles) ? styles : [styles]).map(style => {
       const clonedStyle = style.clone();
-      clonedStyle.getStroke().setColor(MapStyles.FEATURE_HOVER_COLOR);
+      clonedStyle.getStroke()?.setColor(MapStyles.FEATURE_HOVER_COLOR);
       clonedStyle.setZIndex(highlightNetzklasseLayerZIndex);
       return clonedStyle;
     });
@@ -186,8 +186,7 @@ export class KantenHighlightLayerComponent implements OnChanges, OnDestroy {
   }
 
   private getFeaturesByIdsAndSeitenbezug(kanteId: number | string, kantenSeite?: KantenSeite): Feature<Geometry>[] {
-    return this.olLayer
-      .getSource()
+    return this.vectorSource
       .getFeatures()
       .filter(feature => {
         return String(kanteId) === String(feature.get(FeatureProperties.KANTE_ID_PROPERTY_NAME));

@@ -133,7 +133,7 @@ public class FahrradroutenTfisImportJobTestIT extends DBIntegrationTestIT {
 			return new NetzService(kantenRepository, knotenRepository, zustaendigkeitAttributGruppenRepository,
 				fahrtrichtungAttributGruppeRepository, geschwindigkeitAttributGruppeRepository,
 				fuehrungsformAttributGruppenRepository, kantenAttributGruppenRepository, verwaltungseinheitResolver,
-				entityManager, 1.0, Laenge.of(10), 10, 15.0, 0.5);
+				entityManager, 1.0, Laenge.of(10), 10, 15.0, 0.5, 100);
 		}
 
 	}

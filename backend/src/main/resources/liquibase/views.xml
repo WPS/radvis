@@ -14,8 +14,8 @@
   -->
 
 <databaseChangeLog
-	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 	<changeSet id="Views" author="jg" runAlways="true" runOnChange="true">
 		<sql>
@@ -135,7 +135,10 @@
 	    m.verbaid,
 	    m.lgvfgid,
 	    m.konzeptionsquelle,
-	    m.archiviert
+	    m.archiviert,
+	    m.zurueckstellungs_grund,
+	    m.begruendung_stornierungsanfrage,
+	    m.begruendung_zurueckstellung
 	   FROM ((((((((((((((massnahme m
 	     LEFT JOIN massnahme_massnahmenkategorien mkat ON ((m.id = mkat.massnahme_id)))
 	     LEFT JOIN organisation baulast ON ((m.baulast_zustaendiger_id = baulast.id)))
@@ -228,7 +231,10 @@
         m.konzeptionsquelle,
         m.veroeffentlicht,
         m.soll_standard,
-        m.archiviert
+        m.archiviert,
+	    m.zurueckstellungs_grund,
+	    m.begruendung_stornierungsanfrage,
+	    m.begruendung_zurueckstellung        
       FROM massnahme m
         LEFT JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
         LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
@@ -269,7 +275,10 @@
         m.geplanter_umsetzungsstart_jahr AS durchfuehrungszeitraum,
         m.konzeptionsquelle,
         m.veroeffentlicht,
-        m.archiviert
+        m.archiviert,
+	    m.zurueckstellungs_grund,
+	    m.begruendung_stornierungsanfrage,
+	    m.begruendung_zurueckstellung
       FROM massnahme m
         LEFT JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
         LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
@@ -1681,7 +1690,8 @@
              COALESCE(o.name, '') as zustaendig,
              COALESCE(o.organisations_art, '') as zustaendig_orga_typ,
              s.typ,
-             s.status
+             s.status,
+             s.radkultur
       FROM servicestation s
       JOIN organisation o ON s.organisation_id = o.id;
     </createView>
@@ -1904,4 +1914,153 @@
 			WHERE r.auditing_context='ATTRIBUTLUECKEN_SCHLIESSEN_JOB';
 	</createView>
   </changeSet>
+
+	<changeSet id="RAD-7549" author="par" runOnChange="true">
+		<sql>
+			DROP MATERIALIZED VIEW IF EXISTS geoserver_massnahmen_erweitert_view;
+		</sql>
+		<sql>
+			CREATE MATERIALIZED VIEW geoserver_massnahmen_erweitert_view AS
+			WITH dokumente_aufbereitet AS (
+					SELECT
+							dl.id AS dokument_liste_id,
+							CASE WHEN MAX(d.id) IS NULL THEN '' ELSE string_agg(d.dateiname, E'\n') END AS dateinamen
+					FROM dokument_liste dl
+					LEFT JOIN dokument d ON d.dokument_liste_id = dl.id
+					GROUP BY dl.id
+			),
+			kommentare_aufbereitet AS (
+					SELECT
+							kl.id AS kommentar_liste_id,
+							CASE WHEN MAX(k.id) IS NULL THEN '' ELSE string_agg(concat('Kommentar-ID: ', k.id, E'\nBenutzer: ', b.vorname, ' ', b.nachname, E'\nDatum: ', k.datum, E'\n', k.kommentar_text), E'\n\n') END AS kommentare
+					FROM kommentar_liste kl
+					LEFT JOIN kommentar k ON k.kommentar_liste_id = kl.id
+					LEFT JOIN benutzer b ON b.id = k.benutzer_id
+					GROUP BY kl.id
+			),
+			massnahme_geometrien AS (
+					SELECT
+							m.id,
+							st_force2d(COALESCE(m.original_radnetzgeometrie, st_multi(
+									CASE
+									-- Fall 1: Nur Seitenabschnitte von Kanten vorhanden
+									WHEN st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)) IS NULL AND st_union(knot.point) IS NULL
+											THEN st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))
+									-- Fall 2: Nur Knotenpunkte vorhanden
+									WHEN st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)) IS NULL AND st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis)) IS NULL
+											THEN st_union(knot.point)
+									-- Fall 3: Nur Punkte auf Kanten vorhanden
+									WHEN st_union(knot.point) IS NULL AND st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis)) IS NULL
+											THEN st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz))
+									-- Fall 4: Knotenpunkte und Seitenabschnitte von Kanten vorhanden
+									WHEN st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)) IS NULL AND st_union(knot.point) IS NOT NULL
+											THEN st_collect(st_multi(st_union(knot.point)), st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))))
+									-- Fall 5: Punkte auf Kanten und Seitenabschnitte von Kanten vorhanden
+									WHEN st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)) IS NOT NULL AND st_union(knot.point) IS NULL
+											THEN st_collect(st_multi(st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz))), st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))))
+									-- Fall 6: Punkte auf Kanten und Knotenpunkte vorhanden
+									WHEN st_union(knot.point) IS NOT NULL AND st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis)) IS NULL
+											THEN st_collect(st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)), st_union(knot.point))
+									-- Fall 7: Alle Arten von Netzbezügen vorhanden
+									ELSE st_collect(st_union(st_union(st_lineinterpolatepoint(mkptk.geometry, mkpt.lineare_referenz)), st_multi(st_union(knot.point))),
+																	st_multi(st_union(st_linesubstring(kantefuerseitenabschnitt.geometry, seitenabschnitt.von, seitenabschnitt.bis))))
+									END
+							))) AS geometry
+					FROM massnahme m
+					LEFT JOIN massnahme_kantenseitenabschnitte seitenabschnitt ON m.id = seitenabschnitt.massnahme_id
+					LEFT JOIN kante kantefuerseitenabschnitt ON seitenabschnitt.kante_id = kantefuerseitenabschnitt.id
+					LEFT JOIN massnahme_knoten mkno ON m.id = mkno.massnahme_id
+					LEFT JOIN knoten knot ON mkno.knoten_id = knot.id
+					LEFT JOIN massnahme_kantenpunkte mkpt ON m.id = mkpt.massnahme_id
+					LEFT JOIN kante mkptk ON mkpt.kante_id = mkptk.id
+					GROUP BY m.id
+			),
+			massnahme_kategorien_netzklassen_aufbereitet AS (
+					SELECT
+							m.id,
+							string_agg(DISTINCT(mkat.massnahmenkategorien)::text, ';'::text) AS massnahmenkategorien,
+							string_agg(DISTINCT(mnetz.netzklassen)::text, ';'::text) AS massnahmennetzklassen
+					FROM massnahme m
+					LEFT JOIN massnahme_massnahmenkategorien mkat ON m.id = mkat.massnahme_id
+					LEFT JOIN massnahme_netzklassen mnetz ON m.id = mnetz.massnahme_id
+					GROUP BY m.id
+			),
+			massnahme_orgas AS (
+					SELECT
+							m.id,
+							CASE WHEN MIN(baulast.name) IS NOT NULL THEN COALESCE(MIN(baulast.name), '') || ' (' || COALESCE(MIN(baulast.organisations_art), '') || ')' END AS baulasttraeger_name,
+							CASE WHEN MIN(zustaendiger.name) IS NOT NULL THEN COALESCE(MIN(zustaendiger.name), '') || ' (' || COALESCE(MIN(zustaendiger.organisations_art), '') || ')' END AS zustaendiger_name,
+							CASE WHEN MIN(unterhaelter.name) IS NOT NULL THEN COALESCE(MIN(unterhaelter.name), '') || ' (' || COALESCE(MIN(unterhaelter.organisations_art), '') || ')' END AS unterhaltszustaeniger_name
+					FROM massnahme m
+					LEFT JOIN organisation baulast ON m.baulast_zustaendiger_id = baulast.id
+					LEFT JOIN organisation zustaendiger ON m.zustaendiger_id = zustaendiger.id
+					LEFT JOIN organisation unterhaelter ON m.unterhalts_zustaendiger_id = unterhaelter.id
+					GROUP BY m.id
+			)
+			SELECT
+				m.massnahme_konzept_id AS massnahme_konzept_id,
+				m.id AS radvis_massnahme_id,
+				mgeom.geometry AS geometry,
+				CASE WHEN m.original_radnetzgeometrie IS NULL THEN 'nein' ELSE 'ja' END ist_originalgeometrie,
+				m_kat_netz.massnahmenkategorien AS massnahmenkategorien,
+				m_kat_netz.massnahmennetzklassen AS massnahmennetzklassen,
+				m.umsetzungsstatus,
+				m.bezeichnung,
+				morgas.baulasttraeger_name AS baulasttraeger_name,
+				morgas.zustaendiger_name AS zustaendiger_name,
+				morgas.unterhaltszustaeniger_name AS unterhaltszustaeniger_name,
+				m.geplanter_umsetzungsstart_jahr AS durchfuehrungszeitraum,
+				m.konzeptionsquelle,
+				m.sonstige_konzeptionsquelle,
+				m.veroeffentlicht,
+				m.soll_standard,
+				m.lgvfgid,
+				m.ma_visid,
+				m.verbaid,
+				m.archiviert,
+				m.prioritaet,
+				m.letzte_aenderung AS massnahmen_letzte_aenderung,
+				m.von_zeitpunkt,
+				m.bis_zeitpunkt,
+				m.handlungsverantwortlicher,
+				m.umsetzungsstand_id AS massnahmen_umsetzungsstand_id,
+				m.massnahmen_paket_id,
+				m.planung_erforderlich,
+				m.realisierungshilfe,
+				m.kostenannahme,
+				u.id AS radvis_umsetzungsstand_id,
+				u.umsetzungsstand_status,
+				u.umsetzung_gemaess_massnahmenblatt,
+				u.grund_fuer_abweichung_zum_massnahmenblatt,
+				u.pruefung_qualitaetsstandards_erfolgt,
+				u.beschreibung_abweichender_massnahme,
+				u.kosten_der_massnahme,
+				u.grund_fuer_nicht_umsetzung_der_massnahme,
+				u.anmerkung,
+				u.letzte_aenderung AS umsetzungsstand_letzte_aenderung,
+				d.dateinamen AS dateinamen,
+				k.kommentare AS kommentare
+			FROM massnahme m
+						 LEFT JOIN massnahme_kategorien_netzklassen_aufbereitet m_kat_netz ON m_kat_netz.id = m.id
+						 LEFT JOIN massnahme_geometrien mgeom ON mgeom.id = m.id
+						 LEFT JOIN massnahme_orgas morgas ON morgas.id = m.id
+						 LEFT JOIN umsetzungsstand u ON m.umsetzungsstand_id = u.id
+						 LEFT JOIN dokument_liste dl ON dl.id = m.dokument_liste_id
+						 LEFT JOIN dokumente_aufbereitet d ON d.dokument_liste_id = dl.id
+						 LEFT JOIN kommentar_liste kl ON kl.id = m.kommentar_liste_id
+						 LEFT JOIN kommentare_aufbereitet k ON k.kommentar_liste_id = kl.id
+			WHERE m.geloescht = FALSE
+		</sql>
+		<sql>
+			CREATE INDEX geoserver_massnahmen_erweitert_view_idx ON geoserver_massnahmen_erweitert_view USING GIST ("geometry");
+    </sql>
+	</changeSet>
+
+	<changeSet id="RAD-7549-2" author="par">
+		<insert tableName="gt_pk_metadata">
+			<column name="table_schema" value="public"/>
+			<column name="table_name" value="geoserver_massnahmen_erweitert_view"/>
+			<column name="pk_column" value="radvis_massnahme_id"/>
+		</insert>
+	</changeSet>
 </databaseChangeLog>

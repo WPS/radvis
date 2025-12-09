@@ -52,6 +52,7 @@ import de.wps.radvis.backend.auditing.AuditingConfiguration;
 import de.wps.radvis.backend.auditing.schnittstelle.WithAuditingAspect;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.BenutzerResolver;
+import de.wps.radvis.backend.benutzer.domain.BenutzerService;
 import de.wps.radvis.backend.common.CommonConfiguration;
 import de.wps.radvis.backend.common.domain.AuditingTestIT;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
@@ -178,6 +179,8 @@ class DlmReimportJobAttributMappingTestIT extends AuditingTestIT {
 	VerwaltungseinheitResolver verwaltungseinheitResolver;
 	@MockitoBean
 	BenutzerResolver benutzerResolver;
+	@MockitoBean
+	BenutzerService benutzerService;
 	@MockitoBean
 	FeatureToggleProperties featureToggleProperties;
 	@MockitoBean

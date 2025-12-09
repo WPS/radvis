@@ -12,19 +12,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/style/colors';
-@import 'src/style/spacing';
+@use 'src/style/colors';
+@use 'src/style/spacing';
+@use "sass:map";
 
 :host {
   display: block;
   height: 100%;
   min-width: 20rem;
-  width: $viewer-side-bar-width;
+  width: spacing.$viewer-side-bar-width;
 }
 
 .editing-not-allowed-hinweis {
   padding: 1rem 0.5rem;
-  border-bottom: 1px solid map-get($grayscale, 100);
+  border-bottom: 1px solid map.get(colors.$grayscale, 100);
 }
 
 .text-area {

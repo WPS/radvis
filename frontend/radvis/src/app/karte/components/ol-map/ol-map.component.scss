@@ -155,10 +155,11 @@ $z-index-side-bars: 25;
 
     .mitte-unten-unten {
       max-height: 50%;
+      z-index: $z-index-bottom-area;
+      
       @media screen and (max-width: 1279.98px) {
         max-height: 70%;
       }
-      z-index: $z-index-bottom-area;
     }
   }
 

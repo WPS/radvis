@@ -21,7 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobStatistik;
 import de.wps.radvis.backend.matching.domain.service.OsmAuszeichnungsService;
@@ -61,5 +63,16 @@ public class OsmAuszeichnungsJob extends AbstractJob {
 		}
 
 		return Optional.ofNullable(statistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Reichert die OSM-PBF mit einigen der RadVIS-Attribute an. Geometrien werden nicht verändert.",
+			"Es wird eine zweite PBF-Datei erzeugt, die zusätzliche OSM-Tags enthält.",
+			"Es müssen vorher die Jobs " + OsmPbfDownloadJob.class.getName() + " und " + MatchNetzAufOSMJob.class
+				.getName() + " gelaufen sein.",
+			JobExecutionDurationEstimate.SHORT
+		);
 	}
 }

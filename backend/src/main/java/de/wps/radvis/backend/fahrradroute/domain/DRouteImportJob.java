@@ -28,7 +28,9 @@ import org.locationtech.jts.geom.LineString;
 
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
 import de.wps.radvis.backend.common.domain.entity.AbstractJob;
 import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
@@ -156,5 +158,16 @@ public class DRouteImportJob extends AbstractJob {
 			log.error("Could not match D-Route ID for D-Route with name: " + name);
 			return null;
 		}
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Importiert die D-Routen aus externer Quelle, wobei bestehende Routen aktualisiert werden. Es findet KEIN Matching auf das Netz statt!",
+			"Fahrradrouten (nur die D-Routen) verändern sich in ihrer Geometrie und ihren Attributen.",
+			DRouteMatchingJob.JOB_NAME
+				+ " sollte hiernach laufen. Profilinformationen sind hiernach ggf. veraltet. Sollte nach allen netzverändernden Jobs laufen.",
+			JobExecutionDurationEstimate.UNKNOWN
+		);
 	}
 }

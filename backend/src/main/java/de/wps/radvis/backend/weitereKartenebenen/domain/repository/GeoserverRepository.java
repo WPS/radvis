@@ -15,6 +15,7 @@
 package de.wps.radvis.backend.weitereKartenebenen.domain.repository;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,22 +27,25 @@ import de.wps.radvis.backend.weitereKartenebenen.domain.valueobject.GeoserverSty
 public interface GeoserverRepository {
 
 	GeoserverLayerName createDataStoreAndLayer(GeoserverDatastoreName datastoreName,
-		DateiLayerFormat dateiLayerFormat, MultipartFile file) throws IOException, InterruptedException;
+		DateiLayerFormat dateiLayerFormat, MultipartFile file)
+		throws IOException, InterruptedException, URISyntaxException;
 
 	GeoserverLayerName getLayerNameFromDatastore(GeoserverDatastoreName datastoreName)
-		throws IOException, InterruptedException;
+		throws IOException, InterruptedException, URISyntaxException;
 
-	void removeDatastoreAndLayer(GeoserverDatastoreName datastoreName) throws IOException, InterruptedException;
+	void removeDatastoreAndLayer(GeoserverDatastoreName datastoreName)
+		throws IOException, InterruptedException, URISyntaxException;
 
 	void addStyleToLayer(GeoserverLayerName geoserverLayerName, GeoserverStyleName geoserverStyleName,
 		boolean makeDefault)
-		throws IOException, InterruptedException;
+		throws IOException, InterruptedException, URISyntaxException;
 
 	GeoserverStyleName createStyle(GeoserverStyleName geoserverStyleName, MultipartFile sldFile)
-		throws IOException, InterruptedException;
+		throws IOException, InterruptedException, URISyntaxException;
 
-	void deleteStyle(GeoserverStyleName geoserverStyleName) throws IOException, InterruptedException;
+	void deleteStyle(GeoserverStyleName geoserverStyleName)
+		throws IOException, InterruptedException, URISyntaxException;
 
 	void validateStyleForLayer(GeoserverLayerName geoserverLayerName, GeoserverStyleName geoserverStyleName)
-		throws IOException, InterruptedException;
+		throws IOException, InterruptedException, URISyntaxException;
 }

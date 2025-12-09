@@ -144,6 +144,7 @@ describe(ServicestationEditorComponent.name, () => {
         organisation: defaultOrganisation,
         typ: null,
         status: null,
+        radkultur: null,
       });
       expect(component.formGroup.get('quellSystem')?.value).toEqual(AbstellanlagenQuellSystem.RADVIS);
     }));
@@ -168,6 +169,7 @@ describe(ServicestationEditorComponent.name, () => {
         organisation: defaultGemeinden[0],
         typ: ServicestationTyp.RADSERVICE_PUNKT_GROSS,
         status: ServicestationStatus.AKTIV,
+        radkultur: true,
       });
       expect(component.formGroup.valid).toBeTrue();
 
@@ -190,6 +192,7 @@ describe(ServicestationEditorComponent.name, () => {
         organisationId: defaultGemeinden[0].id,
         typ: ServicestationTyp.RADSERVICE_PUNKT_GROSS,
         status: ServicestationStatus.AKTIV,
+        radkultur: true,
       });
 
       tick();
@@ -254,6 +257,7 @@ describe(ServicestationEditorComponent.name, () => {
         organisation: defaultServicestation.organisation,
         typ: defaultServicestation.typ,
         status: defaultServicestation.status,
+        radkultur: defaultServicestation.radkultur,
       });
       expect(component.formGroup.get('quellSystem')?.value).toEqual(AbstellanlagenQuellSystem.MOBIDATABW);
       expect(component.currentServicestation).toEqual({
@@ -304,6 +308,7 @@ describe(ServicestationEditorComponent.name, () => {
         typ: ServicestationTyp.RADSERVICE_PUNKT_KLEIN,
         status: ServicestationStatus.AUSSER_BETRIEB,
         version: defaultServicestation.version,
+        radkultur: false,
       });
       expect(capture(servicestationService.save).last()[0]).toEqual(defaultServicestation.id);
       verify(servicestationUpdateService.updateServicestation()).once();

@@ -59,6 +59,7 @@ export class KantenSelektionComponent implements OnDestroy {
   private selektion$: Observable<KantenSelektion[]>;
 
   private readonly kantenLayers: VectorLayer[] = [];
+  private readonly selektionLayerSource: VectorSource = new VectorSource();
   private readonly selektionLayer!: VectorLayer;
 
   private netzklassen: Netzklassefilter[] = [];
@@ -138,11 +139,9 @@ export class KantenSelektionComponent implements OnDestroy {
       this.olMapService.addLayer(kl);
     });
 
-    const selektierteFeaturesSource: VectorSource = new VectorSource({
-      loader: this.loadingSelection,
-    });
+    this.selektionLayerSource.setLoader(this.loadingSelection);
     this.selektionLayer = new VectorLayer({
-      source: selektierteFeaturesSource,
+      source: this.selektionLayerSource,
       style: this.getStyleFunctionForSelektionLayer(MapStyles.FEATURE_SELECT_COLOR),
       minZoom: 0,
       zIndex: EditorLayerZindexConfig.KANTEN_SELECTION_LAYER,
@@ -152,13 +151,13 @@ export class KantenSelektionComponent implements OnDestroy {
 
     this.subscriptions.push(
       this.notifyGeometryChangedService.geometryChanged$.subscribe(() => {
-        this.kantenLayers.forEach(kl => kl.getSource().refresh());
+        this.kantenLayers.forEach(kl => kl.getSource()?.refresh());
       })
     );
 
     this.subscriptions.push(
       this.selektion$.pipe(debounceTime(100)).subscribe(() => {
-        this.selektionLayer.getSource().refresh();
+        this.selektionLayerSource.refresh();
         this.kantenLayers.forEach(kl => kl.changed());
         // Wenn die letzte Teilselektion einer Kante auf der Karte aufgehoben wird, kann kein Unhover mehr ausgelöst werden
         if (this.hoveredKante && !this.kantenSelektionService.isSelektiert(this.hoveredKante.kanteId)) {
@@ -203,8 +202,8 @@ export class KantenSelektionComponent implements OnDestroy {
     );
     this.subscriptions.push(
       isZweiseitigChanged$.subscribe(() => {
-        this.kantenLayers.forEach(kl => kl.getSource().refresh());
-        this.selektionLayer.getSource().refresh();
+        this.kantenLayers.forEach(kl => kl.getSource()?.refresh());
+        this.selektionLayerSource.refresh();
       })
     );
 
@@ -230,7 +229,7 @@ export class KantenSelektionComponent implements OnDestroy {
     });
   }
 
-  private onMapClick(clickEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapClick(clickEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     // nicht selektierbare Layer rausfiltern, z.B. Originalgeometrie von FehlerprotokollEintrag
     const featuresAtPixel = this.olMapService.getFeaturesAtPixel(
       clickEvent.pixel,
@@ -241,7 +240,7 @@ export class KantenSelektionComponent implements OnDestroy {
     }
     // Das erste Feature im Array ist das am nähesten zur Click-Position liegende
     const clickedFeature = featuresAtPixel[0] as Feature<Geometry>;
-    if (this.kantenLayers.some(kl => kl.getSource().hasFeature(clickedFeature))) {
+    if (this.kantenLayers.some(kl => kl.getSource()?.hasFeature(clickedFeature))) {
       //<-- ist nicht unbedingt durch LayerFilter gegeben (und darf auch nicht darüber gemacht werden)
       if (clickedFeature.get(FeatureProperties.STRECKE_PROPERTY_NAME)) {
         this.notifyUserService.inform('Um RadNETZ-Kanten auszuwählen, zoomen Sie weiter rein.');
@@ -264,7 +263,7 @@ export class KantenSelektionComponent implements OnDestroy {
     }
   }
 
-  private onMapPointerMove(pointerMoveEvent: MapBrowserEvent<UIEvent>): void {
+  private onMapPointerMove(pointerMoveEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
     if (
       this.kantenSelektionService.selektion.length === 0 ||
       !AttributGruppe.isSeitenbezogen(this.activeAttributGruppe) ||
@@ -323,7 +322,7 @@ export class KantenSelektionComponent implements OnDestroy {
       feature.get(FeatureProperties.SEITE_PROPERTY_NAME) === kantenSeite;
     const featuresOnKantenLayer: Feature<Geometry>[] = [];
     this.kantenLayers.forEach(kl => {
-      const feature = kl.getSource().getFeatures().find(condition);
+      const feature = kl.getSource()?.getFeatures().find(condition);
       if (feature) {
         featuresOnKantenLayer.push(feature);
       }
@@ -331,14 +330,14 @@ export class KantenSelektionComponent implements OnDestroy {
     if (featuresOnKantenLayer.length > 0) {
       featuresOnKantenLayer.forEach(feature => feature.setStyle(this.getStyleFunctionForKantenLayer(kantenLayerColor)));
     }
-    const featureOnSelektionLayer = this.selektionLayer.getSource().getFeatures().find(condition);
+    const featureOnSelektionLayer = this.selektionLayerSource.getFeatures().find(condition);
     if (featureOnSelektionLayer) {
       featureOnSelektionLayer.setStyle(this.getStyleFunctionForSelektionLayer(selektionLayerColor));
     }
   }
 
   private loadingSelection = (): void => {
-    this.selektionLayer.getSource().clear();
+    this.selektionLayerSource.clear();
     this.kantenSelektionService.selektion.forEach(kantenSelektion => {
       const selectedFeature = new Feature(new LineString(kantenSelektion.kante.geometry.coordinates));
       selectedFeature.setId(kantenSelektion.kante.id);
@@ -346,14 +345,14 @@ export class KantenSelektionComponent implements OnDestroy {
       if (kantenSelektion.kante.zweiseitig && AttributGruppe.isSeitenbezogen(this.activeAttributGruppe)) {
         if (kantenSelektion.istSeiteSelektiert(KantenSeite.LINKS)) {
           const clonedFeature = this.cloneFeatureForSeitenbezug(selectedFeature, KantenSeite.LINKS);
-          this.selektionLayer.getSource().addFeature(clonedFeature);
+          this.selektionLayerSource.addFeature(clonedFeature);
         }
         if (kantenSelektion.istSeiteSelektiert(KantenSeite.RECHTS)) {
           const clonedFeature = this.cloneFeatureForSeitenbezug(selectedFeature, KantenSeite.RECHTS);
-          this.selektionLayer.getSource().addFeature(clonedFeature);
+          this.selektionLayerSource.addFeature(clonedFeature);
         }
       } else {
-        this.selektionLayer.getSource().addFeature(selectedFeature);
+        this.selektionLayerSource.addFeature(selectedFeature);
       }
     });
   };

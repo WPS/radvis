@@ -1,0 +1,55 @@
+{
+  "items": [
+    {
+      "source_id": 38,
+      "original_uid": "INFRA-de:08136:2042-FAHRRADANLAGE-1",
+      "name": "Schloßvorstadt",
+      "operator_name": "Landratsamt Ostalbkreis",
+      "type": "STANDS",
+      "purpose": "BIKE",
+      "is_covered": false,
+      "description": "Direkt neben Steig 1",
+      "photo_url": "https://mobidata-bw.de/linkZuAnlageFoto",
+      "public_url": "https://mobidata-bw.de/infosZuAnlage",
+      "supervision_type": "NO",
+      "has_realtime_data": false,
+      "has_lighting": true,
+      "static_data_updated_at": "2025-08-25T01:01:22Z",
+      "lat": "48.9604554",
+      "lon": "10.1354153",
+      "capacity": 16,
+      "id": 8014,
+      "created_at": "2024-07-23T12:00:42Z",
+      "modified_at": "2025-08-25T01:01:24Z",
+      "is_supervised": false,
+      "external_identifiers": [
+        {
+          "type": "DHID",
+          "value": "de:08136:2042"
+        }
+      ]
+    },
+    {
+      "source_id": 28,
+      "original_uid": "RadVisId",
+      "name": "InRadvisAngelegteAnlage",
+      "operator_name": "Radvis",
+      "type": "STANDS",
+      "purpose": "BIKE",
+      "is_covered": false,
+      "description": "Beschreibung aus RadVis",
+      "supervision_type": "NO",
+      "has_realtime_data": false,
+      "has_lighting": true,
+      "static_data_updated_at": "2025-08-25T01:01:22Z",
+      "lat": "48.9604554",
+      "lon": "10.1354153",
+      "capacity": 16,
+      "id": 8014,
+      "created_at": "2024-07-23T12:00:42Z",
+      "modified_at": "2025-08-25T01:01:24Z",
+      "is_supervised": false
+    }
+  ],
+  "total_count": 2
+}

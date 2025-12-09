@@ -12,9 +12,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@import 'src/theme';
-@import 'src/style/colors';
-@import 'src/style/font-style';
+@use 'src/theme';
+@use 'src/style/colors';
+@use 'src/style/font-style' as font;
 
 $header-height: 130px;
 
@@ -23,11 +23,11 @@ $header-height: 130px;
 }
 
 td.hovered {
-  background-color: $font-background-peripheral;
+  background-color: font.$font-background-peripheral;
 }
 
 .element:focus {
-  background-color: $feature-highlight-color;
+  background-color: colors.$feature-highlight-color;
 }
 
 .element {

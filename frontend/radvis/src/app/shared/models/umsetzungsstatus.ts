@@ -19,6 +19,10 @@ export enum Umsetzungsstatus {
   PLANUNG = 'PLANUNG',
   UMSETZUNG = 'UMSETZUNG',
   UMGESETZT = 'UMGESETZT',
+  ZURUECKGESTELLT = 'ZURUECKGESTELLT',
+  STORNIERUNG_ANGEFRAGT = 'STORNIERUNG_ANGEFRAGT',
+  STORNIERT_ENGSTELLE = 'STORNIERT_ENGSTELLE',
+  STORNIERT_NICHT_ERFORDERLICH = 'STORNIERT_NICHT_ERFORDERLICH',
   STORNIERT = 'STORNIERT',
 }
 
@@ -34,9 +38,25 @@ export namespace Umsetzungsstatus {
         return { name: k, displayText: 'Umsetzung' };
       case Umsetzungsstatus.UMGESETZT:
         return { name: k, displayText: 'Umgesetzt' };
+      case Umsetzungsstatus.ZURUECKGESTELLT:
+        return { name: k, displayText: 'Zurückgestellt' };
+      case Umsetzungsstatus.STORNIERUNG_ANGEFRAGT:
+        return { name: k, displayText: 'Stornierung angefragt' };
+      case Umsetzungsstatus.STORNIERT_ENGSTELLE:
+        return { name: k, displayText: 'Storniert (Engstelle begründet)' };
+      case Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH:
+        return { name: k, displayText: 'Storniert (Nicht mehr erforderlich)' };
       case Umsetzungsstatus.STORNIERT:
-        return { name: k, displayText: 'Storniert' };
+        return { name: k, displayText: 'Storniert', disabled: true };
     }
     throw new Error('Beschreibung für enum Umsetzungsstatus fehlt: ' + k);
   });
+
+  export const isStorniert = (umsetzungsstatus?: Umsetzungsstatus): boolean => {
+    return (
+      umsetzungsstatus === Umsetzungsstatus.STORNIERT ||
+      umsetzungsstatus === Umsetzungsstatus.STORNIERT_ENGSTELLE ||
+      umsetzungsstatus === Umsetzungsstatus.STORNIERT_NICHT_ERFORDERLICH
+    );
+  };
 }

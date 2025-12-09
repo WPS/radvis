@@ -15,8 +15,8 @@
 package de.wps.radvis.backend.massnahme.domain.bezug;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.LineareReferenz;
@@ -26,29 +26,46 @@ import de.wps.radvis.backend.netz.domain.bezug.AbschnittsweiserKantenSeitenBezug
 import de.wps.radvis.backend.netz.domain.bezug.PunktuellerKantenSeitenBezug;
 import de.wps.radvis.backend.netz.domain.entity.Kante;
 import de.wps.radvis.backend.netz.domain.entity.Knoten;
+import de.wps.radvis.backend.netz.domain.entity.provider.KnotenTestDataProvider;
 
 public class NetzBezugTestDataProvider {
-	public static MassnahmeNetzBezug forKanteAbschnittsweise(Kante... kanten) {
+	public static MassnahmeNetzBezug forKanteAbschnittsweise(Seitenbezug seitenbezug, Kante... kanten) {
 		return new MassnahmeNetzBezug(
-			Arrays.stream(kanten)
-				.map(kante -> new AbschnittsweiserKantenSeitenBezug(kante, LinearReferenzierterAbschnitt.of(0, 1),
-					Seitenbezug.LINKS)).collect(Collectors.toSet()),
-			Set.of(),
-			Set.of());
+			new HashSet<>(Arrays.stream(kanten)
+				.map(kante -> new AbschnittsweiserKantenSeitenBezug(
+					kante, LinearReferenzierterAbschnitt.of(0, 1),
+					seitenbezug
+				)).toList()),
+			new HashSet<>(),
+			new HashSet<>()
+		);
+	}
+
+	public static MassnahmeNetzBezug forKanteAbschnittsweise(Kante... kanten) {
+		return forKanteAbschnittsweise(Seitenbezug.LINKS, kanten);
 	}
 
 	public static MassnahmeNetzBezug forKantePunktuell(Kante... kanten) {
 		return new MassnahmeNetzBezug(
-			Set.of(),
-			Arrays.stream(kanten).map(kante -> new PunktuellerKantenSeitenBezug(kante, LineareReferenz.of(0.5),
-				Seitenbezug.LINKS)).collect(Collectors.toSet()),
-			Set.of());
+			new HashSet<>(),
+			new HashSet<>(Arrays.stream(kanten).map(kante -> new PunktuellerKantenSeitenBezug(
+				kante, LineareReferenz.of(0.5),
+				Seitenbezug.LINKS
+			)).toList()),
+			new HashSet<>()
+		);
 	}
 
 	public static MassnahmeNetzBezug forKnoten(Knoten... knoten) {
 		return new MassnahmeNetzBezug(
-			Set.of(),
-			Set.of(),
-			Arrays.stream(knoten).collect(Collectors.toSet()));
+			new HashSet<>(),
+			new HashSet<>(),
+			new HashSet<>(Arrays.stream(knoten).toList())
+		);
+	}
+
+	public static MassnahmeNetzBezug empty() {
+		// Nur über das Entfernen können wir einen komplett leeren NetzBezug erzeugen
+		return forKnoten(KnotenTestDataProvider.withDefaultValues().id(987654L).build()).withoutKnoten(Set.of(987654L));
 	}
 }

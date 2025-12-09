@@ -27,7 +27,9 @@ import org.springframework.util.StopWatch;
 import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.auditing.domain.WithAuditing;
 import de.wps.radvis.backend.common.domain.FeatureTogglz;
+import de.wps.radvis.backend.common.domain.JobDescription;
 import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
+import de.wps.radvis.backend.common.domain.JobExecutionDurationEstimate;
 import de.wps.radvis.backend.common.domain.RadVisDomainEventPublisher;
 import de.wps.radvis.backend.common.domain.RadVisStopWatchPrinter;
 import de.wps.radvis.backend.common.domain.annotation.SuppressChangedEvents;
@@ -148,5 +150,15 @@ public class KonsistenzregelPruefJob extends AbstractJob {
 		log.info("Dauer pro Regel \n{}", statistik.dauerProRegel);
 
 		return Optional.of(statistik);
+	}
+
+	@Override
+	public JobDescription getDescription() {
+		return new JobDescription(
+			"Prüft alle registrierten Konsistenzregeln und protokolliert die gefundenen Verletzungen. Dabei werden bestehende Verletzungen aktualisiert und nicht mehr gefundene gelöscht. Verletzungen werden nicht automatisch behoben.",
+			"Gespeicherte Konsistenzregelverletzungen werden gespeichert/aktualisiert. Daten in Fachtabellen werden nicht verändert.",
+			"Je nach Konsistenzregeln sollte dieser Job nach allen Jobs laufen, die hierfür relevant sind.",
+			JobExecutionDurationEstimate.MEDIUM
+		);
 	}
 }

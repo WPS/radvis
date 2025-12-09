@@ -13,11 +13,11 @@
  */
 
 import { Component, ViewChild } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MockComponents } from 'ng-mocks';
-import { Feature, MapBrowserEvent, PluggableMap } from 'ol';
+import { Feature, Map, MapBrowserEvent } from 'ol';
 import { buffer, getCenter } from 'ol/extent';
 import { MultiLineString, Point } from 'ol/geom';
 import TileLayer from 'ol/layer/Tile';
@@ -56,7 +56,7 @@ describe(OlMapComponent.name, () => {
   let hostComponent: TestWrapperComponent;
   let hostFixture: ComponentFixture<TestWrapperComponent>;
   let mapQueryParamsService: MapQueryParamsService;
-  let map: PluggableMap;
+  let map: Map;
 
   beforeEach(async () => {
     mapQueryParamsService = mock(MapQueryParamsService);
@@ -179,7 +179,7 @@ describe(OlMapComponent.name, () => {
     beforeEach(fakeAsync(() => {
       const feature = new Feature<Point>(new Point([0, 0]));
       feature.set(OlMapService.LAYER_ID, FehlerprotokollLayerComponent.LAYER_ID);
-      const vectorSource = new VectorSource<Point>();
+      const vectorSource = new VectorSource<Feature<Point>>();
       vectorSource.addFeature(feature);
       const vectorLayer = new VectorLayer({ source: vectorSource });
       map.addLayer(vectorLayer);
@@ -197,7 +197,7 @@ describe(OlMapComponent.name, () => {
       locationSelectedOutputSpy = jasmine.createSpy();
       hostComponent.component.locationSelect.subscribe(locationSelectedOutputSpy);
 
-      map.dispatchEvent({ type: 'click', coordinate: [0, 0], pixel: [0, 0] } as MapBrowserEvent);
+      map.dispatchEvent({ type: 'click', coordinate: [0, 0], pixel: [0, 0] } as MapBrowserEvent<PointerEvent>);
       tick();
     }));
 

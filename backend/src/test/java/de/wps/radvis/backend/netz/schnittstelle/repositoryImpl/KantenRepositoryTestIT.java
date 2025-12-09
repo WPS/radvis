@@ -14,10 +14,6 @@
 
 package de.wps.radvis.backend.netz.schnittstelle.repositoryImpl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -48,6 +44,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.wps.radvis.backend.application.JacksonConfiguration;
+import de.wps.radvis.backend.auditing.domain.AdditionalRevInfoHolder;
+import de.wps.radvis.backend.auditing.domain.AuditingContext;
 import de.wps.radvis.backend.benutzer.BenutzerConfiguration;
 import de.wps.radvis.backend.benutzer.domain.TechnischerBenutzerConfigurationProperties;
 import de.wps.radvis.backend.common.CommonConfiguration;
@@ -56,7 +54,10 @@ import de.wps.radvis.backend.common.GeometryTestdataProvider;
 import de.wps.radvis.backend.common.PostGisHelper;
 import de.wps.radvis.backend.common.domain.CommonConfigurationProperties;
 import de.wps.radvis.backend.common.domain.FeatureToggleProperties;
+import de.wps.radvis.backend.common.domain.JobExecutionDescriptionRepository;
 import de.wps.radvis.backend.common.domain.PostgisConfigurationProperties;
+import de.wps.radvis.backend.common.domain.entity.JobExecutionDescription;
+import de.wps.radvis.backend.common.domain.entity.JobExecutionDescriptionTestDataProvider;
 import de.wps.radvis.backend.common.domain.valueObject.KoordinatenReferenzSystem;
 import de.wps.radvis.backend.common.domain.valueObject.LinearReferenzierterAbschnitt;
 import de.wps.radvis.backend.common.domain.valueObject.OrganisationsArt;
@@ -138,6 +139,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @Tag("group3")
 @Slf4j
 @EnableJpaRepositories(basePackageClasses = { FahrradrouteConfiguration.class })
@@ -170,6 +175,9 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 
 	@Autowired
 	private GebietskoerperschaftRepository gebietskoerperschaftRepository;
+
+	@Autowired
+	JobExecutionDescriptionRepository jobExecutionDescriptionRepository;
 
 	@PersistenceContext
 	EntityManager entityManager;
@@ -4526,6 +4534,211 @@ class KantenRepositoryTestIT extends DBIntegrationTestIT {
 		assertThat(result).hasSize(2);
 		assertThat(result).contains(kante1, kante2);
 		assertThat(result).doesNotContain(kante3);
+	}
+
+	@Test
+	void addMissingAuditingEntries() {
+		// Arrange
+		JobExecutionDescription jobExecutionDescription = jobExecutionDescriptionRepository.save(
+			JobExecutionDescriptionTestDataProvider.withDefaultValues().build());
+		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
+		AdditionalRevInfoHolder.setAuditingContext(AuditingContext.KANTEN_AUDITING_SETZEN_JOB);
+
+		Kante kante1 = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppe.builder()
+				.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG, Netzklasse.RADNETZ_FREIZEIT))
+				.build())
+			.build());
+		Kante kante2 = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppe.builder()
+				.istStandards(Set.of(IstStandard.STARTSTANDARD_RADNETZ))
+				.build())
+			.build());
+		Kante kante3 = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppe.builder()
+				.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG))
+				.istStandards(Set.of(IstStandard.STARTSTANDARD_RADNETZ))
+				.build())
+			.build());
+
+		Long benutzerId = 123L;
+
+		entityManager.flush();
+		entityManager.clear();
+
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kante_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kanten_attribut_gruppe_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kanten_attribut_gruppe_ist_standards_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kanten_attribut_gruppe_netzklassen_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fahrtrichtung_attribut_gruppe_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fuehrungsform_attribut_gruppe_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fuehrungsform_attribut_gruppe_attribute_rechts_aud"))
+			.isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fuehrungsform_attribut_gruppe_attribute_links_aud"))
+			.isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM geschwindigkeit_attribut_gruppe_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList(
+			"SELECT * FROM geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM zustaendigkeit_attribut_gruppe_aud")).isEmpty();
+		assertThat(jdbcTemplate.queryForList(
+			"SELECT * FROM zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_aud")).isEmpty();
+
+		// Act
+		HashMap<String, Integer> tableToActualNewAuditingEntries = kantenRepository.addMissingAuditingEntries(
+			benutzerId, 2, "test-auditing-context", 123L);
+		entityManager.flush();
+		entityManager.clear();
+
+		AdditionalRevInfoHolder.clear();
+
+		// Assert
+		Map<String, Integer> tableToExpectedNewAuditingEntries = new HashMap<>();
+		tableToExpectedNewAuditingEntries.put("kante", 3);
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe", 3);
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe_ist_standards", 2);
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe_netzklassen", 2);
+		tableToExpectedNewAuditingEntries.put("fahrtrichtung_attribut_gruppe", 3);
+		tableToExpectedNewAuditingEntries.put("fuehrungsform_attribut_gruppe", 3);
+		tableToExpectedNewAuditingEntries.put("fuehrungsform_attribut_gruppe_attribute_rechts", 3);
+		tableToExpectedNewAuditingEntries.put("fuehrungsform_attribut_gruppe_attribute_links", 3);
+		tableToExpectedNewAuditingEntries.put("geschwindigkeit_attribut_gruppe", 3);
+		tableToExpectedNewAuditingEntries.put("geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute", 3);
+		tableToExpectedNewAuditingEntries.put("zustaendigkeit_attribut_gruppe", 3);
+		tableToExpectedNewAuditingEntries.put("zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute", 3);
+
+		assertThat(tableToActualNewAuditingEntries).isEqualTo(tableToExpectedNewAuditingEntries);
+
+		HashMap<String, String> tableToIdColumnMap = new HashMap<>();
+		tableToIdColumnMap.put("kante_aud", "id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_ist_standards_aud", "kanten_attribut_gruppe_id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_netzklassen_aud", "kanten_attribut_gruppe_id");
+		tableToIdColumnMap.put("fahrtrichtung_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_attribute_rechts_aud",
+			"fuehrungsform_attribut_gruppe_id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_attribute_links_aud", "fuehrungsform_attribut_gruppe_id");
+		tableToIdColumnMap.put("geschwindigkeit_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute_aud",
+			"geschwindigkeit_attribut_gruppe_id");
+		tableToIdColumnMap.put("zustaendigkeit_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_aud",
+			"zustaendigkeit_attribut_gruppe_id");
+
+		// Sonderlocke für kanten_attribut_gruppe_netzklassen: Es wurden für zwei Kanten Einträge ergänzt, aber insgesamt
+		// haben sich dadurch drei Einträge ergeben, da eine Kante zwei Netzklassen hat
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe_netzklassen", 3);
+
+		for (Map.Entry<String, Integer> entry : tableToExpectedNewAuditingEntries.entrySet()) {
+			String auditingTableName = entry.getKey() + "_aud";
+			log.info("Assert for table " + auditingTableName);
+			assertThat(jdbcTemplate.queryForList("SELECT * FROM " + auditingTableName)).hasSize(entry.getValue());
+		}
+	}
+
+	@Test
+	void addMissingAuditingEntries_existierendeEintraegeWerdenErkanntUndIgnoriert() {
+		// Arrange
+		JobExecutionDescription jobExecutionDescription = jobExecutionDescriptionRepository.save(
+			JobExecutionDescriptionTestDataProvider.withDefaultValues().build());
+		AdditionalRevInfoHolder.setJobExecutionDescription(jobExecutionDescription);
+		AdditionalRevInfoHolder.setAuditingContext(AuditingContext.KANTEN_AUDITING_SETZEN_JOB);
+
+		Long benutzerId = 123L;
+
+		Kante kante1 = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppe.builder()
+				.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG))
+				.istStandards(Set.of(IstStandard.STARTSTANDARD_RADNETZ))
+				.build())
+			.build());
+
+		// Der einfachheitshalber nutzen wir hier diesen einen Call anstatt jede Attributgruppe zu veändern und zu
+		// schreiben, um Auditing-Einträge zu erhalten.
+		kantenRepository.addMissingAuditingEntries(benutzerId, 2, "test-auditing-context", 123L);
+
+		// Neue Kanten erzeugen, für die es entsprechend noch keine Einträge gibt
+		Kante kante2 = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppe.builder()
+				.istStandards(Set.of(IstStandard.STARTSTANDARD_RADNETZ))
+				.build())
+			.build());
+		Kante kante3 = kantenRepository.save(KanteTestDataProvider.withDefaultValues()
+			.kantenAttributGruppe(KantenAttributGruppe.builder()
+				.netzklassen(Set.of(Netzklasse.RADNETZ_ALLTAG))
+				.build())
+			.build());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kante_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kanten_attribut_gruppe_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kanten_attribut_gruppe_ist_standards_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM kanten_attribut_gruppe_netzklassen_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fahrtrichtung_attribut_gruppe_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fuehrungsform_attribut_gruppe_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fuehrungsform_attribut_gruppe_attribute_rechts_aud"))
+			.hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM fuehrungsform_attribut_gruppe_attribute_links_aud"))
+			.hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM geschwindigkeit_attribut_gruppe_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList(
+			"SELECT * FROM geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("SELECT * FROM zustaendigkeit_attribut_gruppe_aud")).hasSize(1);
+		assertThat(jdbcTemplate.queryForList(
+			"SELECT * FROM zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_aud")).hasSize(1);
+
+		// Act
+		HashMap<String, Integer> tableToActualNewAuditingEntries = kantenRepository.addMissingAuditingEntries(
+			benutzerId, 2, "test-auditing-context", 123L);
+		entityManager.flush();
+		entityManager.clear();
+
+		AdditionalRevInfoHolder.clear();
+
+		// Assert
+		Map<String, Integer> tableToExpectedNewAuditingEntries = new HashMap<>();
+		tableToExpectedNewAuditingEntries.put("kante", 2);
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe", 2);
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe_ist_standards", 1);
+		tableToExpectedNewAuditingEntries.put("kanten_attribut_gruppe_netzklassen", 1);
+		tableToExpectedNewAuditingEntries.put("fahrtrichtung_attribut_gruppe", 2);
+		tableToExpectedNewAuditingEntries.put("fuehrungsform_attribut_gruppe", 2);
+		tableToExpectedNewAuditingEntries.put("fuehrungsform_attribut_gruppe_attribute_rechts", 2);
+		tableToExpectedNewAuditingEntries.put("fuehrungsform_attribut_gruppe_attribute_links", 2);
+		tableToExpectedNewAuditingEntries.put("geschwindigkeit_attribut_gruppe", 2);
+		tableToExpectedNewAuditingEntries.put("geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute", 2);
+		tableToExpectedNewAuditingEntries.put("zustaendigkeit_attribut_gruppe", 2);
+		tableToExpectedNewAuditingEntries.put("zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute", 2);
+
+		assertThat(tableToActualNewAuditingEntries).isEqualTo(tableToExpectedNewAuditingEntries);
+
+		HashMap<String, String> tableToIdColumnMap = new HashMap<>();
+		tableToIdColumnMap.put("kante_aud", "id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_ist_standards_aud", "kanten_attribut_gruppe_id");
+		tableToIdColumnMap.put("kanten_attribut_gruppe_netzklassen_aud", "kanten_attribut_gruppe_id");
+		tableToIdColumnMap.put("fahrtrichtung_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_attribute_rechts_aud",
+			"fuehrungsform_attribut_gruppe_id");
+		tableToIdColumnMap.put("fuehrungsform_attribut_gruppe_attribute_links_aud", "fuehrungsform_attribut_gruppe_id");
+		tableToIdColumnMap.put("geschwindigkeit_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("geschwindigkeit_attribut_gruppe_geschwindigkeit_attribute_aud",
+			"geschwindigkeit_attribut_gruppe_id");
+		tableToIdColumnMap.put("zustaendigkeit_attribut_gruppe_aud", "id");
+		tableToIdColumnMap.put("zustaendigkeit_attribut_gruppe_zustaendigkeit_attribute_aud",
+			"zustaendigkeit_attribut_gruppe_id");
+
+		for (Map.Entry<String, Integer> entry : tableToExpectedNewAuditingEntries.entrySet()) {
+			String auditingTableName = entry.getKey() + "_aud";
+			String idColumnName = tableToIdColumnMap.get(auditingTableName);
+			// +1 wegen der kante1, die nicht in der Ergebnis-Map abgebildet wird, aber in der Auditing-Tabelle
+			// weiterhin enthalten sein sollte.
+			assertThat(jdbcTemplate.queryForList("SELECT DISTINCT " + idColumnName + " FROM " + entry.getKey()
+				+ "_aud")).hasSize(entry.getValue() + 1);
+		}
 	}
 
 	private Kante createAndSaveDefaultKanteWithCustomFuehrungsform(FuehrungsformAttribute fuehrungsformLinksRechts) {

@@ -14,9 +14,6 @@
 
 package de.wps.radvis.backend.application;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.valid4j.Assertive.require;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +52,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -74,16 +71,20 @@ import de.wps.radvis.backend.reverseproxy.ReverseproxyConfiguarationProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.valid4j.Assertive.require;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @Slf4j
 public class SecurityConfiguration {
 
-	static RequestMatcher API_MATCHER = new AntPathRequestMatcher("/api/**");
-	static RequestMatcher API_EXTERN_MATCHER = new AntPathRequestMatcher("/api/extern/**");
-	static RequestMatcher REVERSEPROXY_GEOSERVER_MATCHER = new AntPathRequestMatcher("/api/geoserver/basic/**");
-	static RequestMatcher BASIC_AUTH_GEOSERVER_MATCHER = new AntPathRequestMatcher("/api/geoserver/basicauth/**");
+	static PathPatternRequestMatcher.Builder patternMatcherFactory = PathPatternRequestMatcher.withDefaults();
+	static RequestMatcher API_MATCHER = patternMatcherFactory.matcher("/api/**");
+	static RequestMatcher API_EXTERN_MATCHER = patternMatcherFactory.matcher("/api/extern/**");
+	static RequestMatcher REVERSEPROXY_GEOSERVER_MATCHER = patternMatcherFactory.matcher("/api/geoserver/basic/**");
+	static RequestMatcher BASIC_AUTH_GEOSERVER_MATCHER = patternMatcherFactory.matcher("/api/geoserver/basicauth/**");
 	static RequestMatcher NOT_API_MATCHER = new NegatedRequestMatcher(API_MATCHER);
 	static RequestMatcher NOT_API_EXTERN_MATCHER = new NegatedRequestMatcher(API_EXTERN_MATCHER);
 	static RequestMatcher NOT_REVERSEPROXY_GEOSERVER_MATCHER = new NegatedRequestMatcher(
